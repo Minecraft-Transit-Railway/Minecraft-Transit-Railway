@@ -1,0 +1,16 @@
+{
+    "parent": "mtr:block/PSDLeft",
+    "textures": {
+        "particle":"mtr:items/ItemPSD",
+        "bottom": "mtr:blocks/Transparent",
+        "top": "mtr:blocks/BlockPSDSide",
+        "front": "mtr:blocks/BlockPSDTop",
+        "back": "mtr:blocks/BlockPSDTopBack",
+        "side": "mtr:blocks/Transparent",
+        "side2": "mtr:blocks/BlockPSDSideLight",
+		"front2a": "mtr:blocks/2015",
+		"back2a": "mtr:blocks/2015",
+		"front2b": "mtr:blocks/Transparent",
+		"back2b": "mtr:blocks/Transparent"
+    }
+}

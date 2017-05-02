@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"facing=north,side=false": { "model": "mtr:rubbishbin/BlockRubbishBin1" },
+		"facing=east,side=false": { "model": "mtr:rubbishbin/BlockRubbishBin1", "y": 90 },
+		"facing=south,side=false": { "model": "mtr:rubbishbin/BlockRubbishBin1", "y": 180 },
+		"facing=west,side=false": { "model": "mtr:rubbishbin/BlockRubbishBin1", "y": 270 },
+		"facing=north,side=true": { "model": "mtr:rubbishbin/BlockRubbishBin1Side" },
+		"facing=east,side=true": { "model": "mtr:rubbishbin/BlockRubbishBin1Side", "y": 90 },
+		"facing=south,side=true": { "model": "mtr:rubbishbin/BlockRubbishBin1Side", "y": 180 },
+		"facing=west,side=true": { "model": "mtr:rubbishbin/BlockRubbishBin1Side", "y": 270 }
+	}
+}

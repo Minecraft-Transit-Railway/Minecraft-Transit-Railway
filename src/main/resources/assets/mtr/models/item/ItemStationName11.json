@@ -1,0 +1,13 @@
+﻿{
+	"parent": "mtr:block/stationname/BlockKOT",
+    "display": {
+        "thirdperson": {
+            "rotation": [ 10, -45, 170 ],
+            "translation": [ 0, 1.5, -2.75 ],
+            "scale": [ 0.25, 0.25, 0.25 ]
+        },
+        "gui": {
+            "scale": [ 0.6, 0.6, 0.6 ]
+        }
+    }
+}

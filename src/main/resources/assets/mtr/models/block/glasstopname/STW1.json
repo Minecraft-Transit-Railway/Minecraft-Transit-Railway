@@ -1,0 +1,10 @@
+﻿{
+	"parent": "mtr:block/glasstopname/PaneTopSTW",
+	"textures": {
+		"particle": "blocks/glass_white",
+		"metal": "mtr:blocks/Metal",
+		"name": "mtr:StationName1",
+		"front": "mtr:blocks/flowers/STW1",
+		"back": "mtr:blocks/flowers/STW1"
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"variants": {
+		"facing=north,top=0": { "model": "mtr:map/BlockMapBottom" },
+		"facing=east,top=0":  { "model": "mtr:map/BlockMapBottom", "y": 90 },
+		"facing=south,top=0": { "model": "mtr:map/BlockMapBottom", "y": 180 },
+		"facing=west,top=0":  { "model": "mtr:map/BlockMapBottom", "y": 270 },
+		"facing=north,top=1": { "model": "mtr:map/BlockMapMiddle" },
+		"facing=east,top=1":  { "model": "mtr:map/BlockMapMiddle", "y": 90 },
+		"facing=south,top=1": { "model": "mtr:map/BlockMapMiddle", "y": 180 },
+		"facing=west,top=1":  { "model": "mtr:map/BlockMapMiddle", "y": 270 },
+		"facing=north,top=2": { "model": "mtr:map/BlockMapTop" },
+		"facing=east,top=2":  { "model": "mtr:map/BlockMapTop", "y": 90 },
+		"facing=south,top=2": { "model": "mtr:map/BlockMapTop", "y": 180 },
+		"facing=west,top=2":  { "model": "mtr:map/BlockMapTop", "y": 270 }
+	}
+}

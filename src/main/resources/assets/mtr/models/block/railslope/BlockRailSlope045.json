@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/railslope/Rail045",
+	"textures": {
+		"particle": "mtr:blocks/BlockRailNormal",
+		"rail": "mtr:blocks/BlockRailNormal"
+	}
+}

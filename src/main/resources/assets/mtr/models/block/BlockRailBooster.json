@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/RailNormal",
+	"textures": {
+		"particle": "mtr:blocks/BlockRailBooster",
+		"rail": "mtr:blocks/BlockRailBooster"
+	}
+}

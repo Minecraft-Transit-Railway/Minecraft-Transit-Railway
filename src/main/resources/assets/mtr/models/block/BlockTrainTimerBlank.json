@@ -1,0 +1,10 @@
+{
+	"parent": "mtr:block/TrainTimer",
+	"textures": {
+		"particle":"blocks/stone_slab_top",
+		"lit":"mtr:blocks/Transparent",
+		"slab":"blocks/stone_slab_top",
+		"top":"blocks/stone_slab_top",
+		"track":"mtr:blocks/Transparent"
+	}
+}

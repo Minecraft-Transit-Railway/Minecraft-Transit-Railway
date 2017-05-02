@@ -1,0 +1,21 @@
+{
+	"variants": {
+        "facing=north,side=false,top=false":  { "model": "mtr:BlockAPGGlassMiddleBottom" },
+        "facing=east,side=false,top=false": { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 90 },
+        "facing=south,side=false,top=false":  { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 180 },
+        "facing=west,side=false,top=false": { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 270 },
+        "facing=north,side=true,top=false":  { "model": "mtr:BlockAPGGlassMiddleBottom" },
+        "facing=east,side=true,top=false": { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 90 },
+        "facing=south,side=true,top=false":  { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 180 },
+        "facing=west,side=true,top=false": { "model": "mtr:BlockAPGGlassMiddleBottom", "y": 270 },
+
+        "facing=north,side=false,top=true":  { "model": "mtr:BlockAPGGlassMiddleTop" },
+        "facing=east,side=false,top=true": { "model": "mtr:BlockAPGGlassMiddleTop", "y": 90 },
+        "facing=south,side=false,top=true":  { "model": "mtr:BlockAPGGlassMiddleTop", "y": 180 },
+        "facing=west,side=false,top=true": { "model": "mtr:BlockAPGGlassMiddleTop", "y": 270 },
+        "facing=north,side=true,top=true":  { "model": "mtr:BlockAPGGlassMiddleTop" },
+        "facing=east,side=true,top=true": { "model": "mtr:BlockAPGGlassMiddleTop", "y": 90 },
+        "facing=south,side=true,top=true":  { "model": "mtr:BlockAPGGlassMiddleTop", "y": 180 },
+        "facing=west,side=true,top=true": { "model": "mtr:BlockAPGGlassMiddleTop", "y": 270 }
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"parent": "mtr:block/PIDS1",
+	"textures": {
+		"particle": "mtr:blocks/BlockPSDSideLight",
+		"front": "mtr:blocks/BlockPIDS1Front",
+		"side": "mtr:blocks/BlockPSDSideLight"
+	}
+}

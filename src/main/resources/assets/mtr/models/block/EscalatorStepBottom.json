@@ -1,0 +1,31 @@
+{
+    "elements": [
+        {   "__comment": "Bottom",
+            "from": [ 0, 8, 0 ],
+            "to": [ 16, 8, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+            "faces": {
+                "up": { "uv": [ 0, 0, 16, 16 ], "texture": "#main" },
+                "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#main" }
+            }
+        },
+        {   "__comment": "Left",
+            "from": [ 0, 0, 12 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "north": { "uv": [ 0, 16, 16, 0 ], "texture": "#ltriangle" },
+                "south": { "uv": [ 16, 16, 0, 0 ], "texture": "#ltriangle", "cullface": "south" },
+                "east": { "uv": [ 0, 0, 4, 16 ], "texture": "#left", "cullface": "east" }
+            }
+        },
+        {   "__comment": "Right",
+            "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 4 ],
+            "faces": {
+                "north": { "uv": [ 0, 16, 16, 0 ], "texture": "#rtriangle", "cullface": "north" },
+                "south": { "uv": [ 16, 16, 0, 0 ], "texture": "#rtriangle" },
+                "east": { "uv": [ 12, 0, 16, 16 ], "texture": "#right", "cullface": "east" }
+            }
+        }
+    ]
+}

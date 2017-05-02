@@ -1,0 +1,12 @@
+{
+	"variants": {
+		"facing=north,side=false": { "model": "mtr:BlockStationNameWall1" },
+		"facing=east,side=false":  { "model": "mtr:BlockStationNameWall1" },
+		"facing=south,side=false": { "model": "mtr:BlockStationNameWall1" },
+		"facing=west,side=false":  { "model": "mtr:BlockStationNameWall1" },
+		"facing=north,side=true": { "model": "mtr:BlockStationNameWall1" },
+		"facing=east,side=true":  { "model": "mtr:BlockStationNameWall1" },
+		"facing=south,side=true": { "model": "mtr:BlockStationNameWall1" },
+		"facing=west,side=true":  { "model": "mtr:BlockStationNameWall1" }
+	}
+}

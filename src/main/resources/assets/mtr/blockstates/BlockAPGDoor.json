@@ -1,0 +1,94 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/ItemAPGDoor",
+			"all": "mtr:blocks/Transparent"
+		},
+		"model": "mtr:Empty"
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"true": { "submodel": { "door": { "model": "mtr:APGDoorLightRight" } } },
+			"false": { "submodel": { "door": { "model": "mtr:APGDoorLightLeft" } } }
+		},
+		"top": {
+			"true": { "textures": { "light": "mtr:blocks/Transparent", "lighton": "mtr:blocks/LightOn" } },
+			"false": { "textures": { "light": "mtr:blocks/Transparent", "lighton": "mtr:blocks/Transparent" } }
+		},
+		"x": {
+			0: {
+			},
+			1: {
+			},
+			2: {
+			},
+			3: {
+			},
+			4: {
+			},
+			5: {
+			},
+			6: {
+			},
+			7: {
+			},
+			8: {
+			},
+			9: {
+			},
+			10: {
+			},
+			11: {
+			},
+			12: {
+			},
+			13: {
+			},
+			14: {
+			},
+			15: {
+			},
+			16: {
+			},
+			17: {
+			},
+			18: {
+			},
+			19: {
+			},
+			20: {
+			},
+			21: {
+			},
+			22: {
+			},
+			23: {
+			},
+			24: {
+			},
+			25: {
+			},
+			26: {
+			},
+			27: {
+			},
+			28: {
+			},
+			29: {
+			},
+			30: {
+			},
+			31: {
+			},
+			32: {
+			}
+		}
+	}
+}

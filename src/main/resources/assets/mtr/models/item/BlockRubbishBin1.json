@@ -1,0 +1,14 @@
+{
+    "parent": "mtr:block/rubbishbin/BlockRubbishBin1",
+    "display": {
+        "thirdperson": {
+            "rotation": [ 0, 0, 180 ],
+            "translation": [ 0, 1.5, -2.75 ],
+            "scale": [ 0.375, 0.375, 0.375 ]
+        },
+        "gui": {
+            "rotation": [ 0, 90, 0 ],
+			"translation": [ 2, 0, 0 ]
+        }
+    }
+}

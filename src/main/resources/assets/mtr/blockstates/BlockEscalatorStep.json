@@ -1,0 +1,31 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:blocks/Metal",
+			"main": "mtr:blocks/Metal",
+			"triangle": "mtr:blocks/MetalTriangle",
+			"glass": "mtr:blocks/Transparent"
+		},
+		"model": "mtr:Empty"
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"0": { "submodel": { "main": { "model": "mtr:EscalatorStepL" } } },
+			"1": { "submodel": { "main": { "model": "mtr:EscalatorStepR" } } },
+			"2": { "submodel": { "main": { "model": "mtr:EscalatorStepFlatL" } } },
+			"3": { "submodel": { "main": { "model": "mtr:EscalatorStepFlatR" } } }
+		},
+		"up": {
+			"0": { "textures": { "step": "mtr:blocks/escalator/Escalator" } },
+			"1": { "textures": { "step": "mtr:blocks/escalator/EscalatorDown" } },
+			"2": { "textures": { "step": "mtr:blocks/escalator/EscalatorUp" } }
+		}
+	}
+}

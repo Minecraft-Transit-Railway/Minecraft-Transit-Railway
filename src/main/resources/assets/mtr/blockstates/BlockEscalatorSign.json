@@ -1,0 +1,29 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:blocks/Metal",
+			"main": "mtr:blocks/Metal",
+			"front": "mtr:blocks/BlockPSDSide",
+			"back": "mtr:signs/Cross"
+		},
+		"model": "mtr:signs/Sign2"
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"sign": {
+			"0": {},
+			"1": { "textures": { "front": "mtr:signs/Exit", "back": "mtr:blocks/BlockPSDSide" } },
+			"2": { "textures": { "front": "mtr:signs/Train", "back": "mtr:blocks/BlockPSDSide" } }
+		},
+		"type": {
+			"false": {},
+			"true": {}
+		}
+	}
+}

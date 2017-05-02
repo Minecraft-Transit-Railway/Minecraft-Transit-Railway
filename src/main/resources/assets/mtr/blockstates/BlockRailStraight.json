@@ -1,0 +1,14 @@
+{
+	"variants": {
+		"rotation=0": { "model": "mtr:BlockRailNormal" },
+		"rotation=1": { "model": "mtr:BlockRailNormal45" },
+		"rotation=2": { "model": "mtr:BlockRailNormal", "y": 90 },
+		"rotation=3": { "model": "mtr:BlockRailNormal45", "y": 90 },
+		"rotation=4": { "model": "mtr:BlockRailNormal" },
+		"rotation=5": { "model": "mtr:BlockRailNormal45" },
+		"rotation=6": { "model": "mtr:BlockRailNormal", "y": 90 },
+		"rotation=7": { "model": "mtr:BlockRailNormal45", "y": 90 },
+		
+		"inventory": { "model": "mtr:BlockRailNormal" }
+	}
+}

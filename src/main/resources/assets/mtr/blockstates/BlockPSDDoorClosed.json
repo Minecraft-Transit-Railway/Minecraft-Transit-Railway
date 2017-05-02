@@ -1,0 +1,62 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/ItemPSDDoor",
+			"side": "mtr:blocks/BlockPSDSide",
+			"side2": "mtr:blocks/BlockPSDSideLight"
+		}
+	},
+	"variants": {
+		"end": {
+			"0": {
+				"submodel": { "door": { "model": "mtr:PSDDoorLeft" } }
+			},
+			"1": {
+				"submodel": { "door": { "model": "mtr:PSDDoorRight" } }
+			},
+			"2": {
+				"submodel": { "door": { "model": "mtr:PSDDoorLeftEnd" } }
+			},
+			"3": {
+				"submodel": { "door": { "model": "mtr:PSDDoorRightEnd" } }
+			}
+		},
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"true": { },
+			"false": { }
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"bottom": "mtr:blocks/Transparent",
+					"top": "mtr:blocks/BlockPSDSide",
+					"front": "mtr:blocks/BlockPSDDoorTop",
+					"back": "mtr:blocks/BlockPSDDoorTopBack",
+					"bottomend": "mtr:blocks/Transparent",
+					"topend": "mtr:blocks/BlockPSDSide",
+					"frontend": "mtr:blocks/BlockPSDDoorEndTop",
+					"backend": "mtr:blocks/BlockPSDDoorEndTopBack"
+				}
+			},
+			"false": {
+				"textures": {
+					"bottom": "mtr:blocks/BlockPSDSide",
+					"top": "mtr:blocks/Transparent",
+					"front": "mtr:blocks/BlockPSDDoorBottom",
+					"back": "mtr:blocks/BlockPSDDoorBottomBack",
+					"bottomend": "mtr:blocks/BlockPSDSide",
+					"topend": "mtr:blocks/Transparent",
+					"frontend": "mtr:blocks/BlockPSDDoorEndBottom",
+					"backend": "mtr:blocks/BlockPSDDoorEndBottomBack"
+				}
+			}
+		}
+	}
+}

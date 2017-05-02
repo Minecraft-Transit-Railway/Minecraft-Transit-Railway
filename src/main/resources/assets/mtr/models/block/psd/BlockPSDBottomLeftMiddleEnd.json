@@ -1,0 +1,12 @@
+{
+    "parent": "mtr:block/PSDLeftMiddleEnd",
+    "textures": {
+        "particle":"mtr:items/ItemPSD",
+        "bottom": "mtr:blocks/BlockPSDSide",
+        "top": "mtr:blocks/Transparent",
+        "front": "mtr:blocks/BlockPSDBottom",
+        "back": "mtr:blocks/BlockPSDBottomBack",
+        "side": "mtr:blocks/Transparent",
+        "side2": "mtr:blocks/BlockPSDSideLight"
+    }
+}

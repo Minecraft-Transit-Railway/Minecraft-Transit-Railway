@@ -1,0 +1,8 @@
+{
+	"parent": "mtr:block/TicketMachineBottom",
+	"textures": {
+		"particle":"mtr:blocks/Metal",
+		"black": "mtr:blocks/BlockPSDSide",
+		"light": "mtr:blocks/Metal"
+	}
+}

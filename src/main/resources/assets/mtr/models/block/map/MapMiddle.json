@@ -1,0 +1,33 @@
+{
+    "elements": [
+        {   "__comment": "Main",
+            "from": [ 1, 0, 7 ],
+            "to": [ 16, 16, 9 ],
+            "faces": {
+                "down": { "uv": [ 0, 0, 15, 2 ], "texture": "#main" },
+                "east": { "uv": [ 0, 0, 2, 11 ], "texture": "#main" },
+                "west": { "uv": [ 0, 0, 2, 11 ], "texture": "#main" },
+                "north": { "uv": [ 16, 0, 0, 11 ], "texture": "#main" },
+                "south": { "uv": [ 0, 0, 16, 11 ], "texture": "#main" }
+            }
+        },
+		{   "__comment": "Map",
+            "from": [ 1.5, 0.5, 6.9 ],
+            "to": [ 16, 16, 9.1 ],
+            "faces": {
+                "north": { "uv": [ 8, 8, 16, 16 ], "texture": "#map" },
+                "south": { "uv": [ 0, 8, 8, 16 ], "texture": "#map" }
+            }
+        },
+        {   "__comment": "Pole",
+            "from": [ 0, 0, 7 ],
+            "to": [ 1, 16, 9 ],
+            "faces": {
+                "east": { "uv": [ 7, 0, 9, 16 ], "texture": "#metal" },
+                "west": { "uv": [ 7, 0, 9, 16 ], "texture": "#metal" },
+                "north": { "uv": [ 0, 0, 1, 16 ], "texture": "#metal" },
+                "south": { "uv": [ 0, 0, 1, 16 ], "texture": "#metal" }
+            }
+        }
+    ]
+}

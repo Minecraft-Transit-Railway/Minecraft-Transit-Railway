@@ -1,0 +1,25 @@
+{
+	"variants": {
+		"facing=0,light=false,track=false": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
+		"facing=1,light=false,track=false": { "model": "mtr:BlockTrainTimer" },
+		"facing=2,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 90 },
+		"facing=3,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 180 },
+		"facing=4,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 270 },
+		"facing=0,light=true,track=false": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
+		"facing=1,light=true,track=false": { "model": "mtr:BlockTrainTimerL" },
+		"facing=2,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 90 },
+		"facing=3,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 180 },
+		"facing=4,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 270 },
+		"facing=0,light=false,track=true": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
+		"facing=1,light=false,track=true": { "model": "mtr:BlockTrainTimerT" },
+		"facing=2,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 90 },
+		"facing=3,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 180 },
+		"facing=4,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 270 },
+		"facing=0,light=true,track=true": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
+		"facing=1,light=true,track=true": { "model": "mtr:BlockTrainTimerLT" },
+		"facing=2,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 90 },
+		"facing=3,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 180 },
+		"facing=4,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 270 },
+		"inventory": { "model": "mtr:BlockTrainTimer", "y": 90 }
+	}
+}

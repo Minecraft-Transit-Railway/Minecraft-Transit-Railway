@@ -1,0 +1,10 @@
+﻿{
+	"parent": "mtr:block/stationname/SHT",
+	"textures": {
+		"particle": "mtr:blocks/pole/SHT",
+		"gap": "mtr:signs/GapSmall",
+		"main": "mtr:StationName1",
+		"metal": "mtr:blocks/Metal",
+		"pole": "mtr:blocks/pole/SHT"
+	}
+}

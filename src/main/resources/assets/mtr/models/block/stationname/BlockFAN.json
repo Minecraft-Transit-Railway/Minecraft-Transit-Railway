@@ -1,0 +1,10 @@
+﻿{
+	"parent": "mtr:block/stationname/FAN",
+	"textures": {
+		"particle": "mtr:blocks/pole/FAN",
+		"gap": "mtr:signs/GapSmall",
+		"main": "mtr:StationName1",
+		"metal": "mtr:blocks/Metal",
+		"pole": "mtr:blocks/pole/FAN"
+	}
+}

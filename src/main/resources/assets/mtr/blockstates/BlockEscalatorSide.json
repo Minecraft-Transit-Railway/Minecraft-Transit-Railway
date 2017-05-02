@@ -1,0 +1,37 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:blocks/GlassWhite"
+		},
+		"model": "mtr:Empty"
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"flat": {
+			"0": { "submodel": { "main": { "model": "mtr:EscalatorSide" } } },
+			"1": { "submodel": { "main": { "model": "mtr:EscalatorSideFlat" } } },
+			"2": { "submodel": { "main": { "model": "mtr:EscalatorSide2" } } },
+			"3": { "submodel": { "main": { "model": "mtr:EscalatorSideFlat2" } } }
+		},
+		"side": {
+			"false": {
+				"textures": {
+					"lhandrail":"mtr:blocks/BlockPSDSide",
+					"rhandrail":"mtr:blocks/Transparent"
+				}
+			},
+			"true": {
+				"textures": {
+					"lhandrail":"mtr:blocks/Transparent",
+					"rhandrail":"mtr:blocks/BlockPSDSide"
+				}
+			}
+		}
+	}
+}

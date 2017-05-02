@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/stationname/TWOSide",
+	"textures": {
+		"particle": "mtr:blocks/pole/TWO",
+		"main": "mtr:StationName1"
+	}
+}

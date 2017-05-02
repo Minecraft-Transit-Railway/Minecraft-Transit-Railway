@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/stationname/HEOSide",
+	"textures": {
+		"particle": "mtr:blocks/pole/HEO",
+		"main": "mtr:StationName1"
+	}
+}

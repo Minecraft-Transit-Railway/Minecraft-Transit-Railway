@@ -1,0 +1,13 @@
+{
+    "parent": "mtr:block/PSDLeftVeryEnd",
+    "textures": {
+        "particle":"mtr:items/ItemPSD",
+        "front2": "mtr:blocks/BlockPSDBottomVeryEnd",
+        "back2": "mtr:blocks/BlockPSDBottomBackVeryEnd",
+        "top": "mtr:blocks/Transparent",
+        "bottom": "mtr:blocks/BlockPSDSide",
+        "front": "mtr:blocks/BlockPSDBottom",
+        "back": "mtr:blocks/BlockPSDBottomBack",
+        "side": "mtr:blocks/BlockPSDSideLight"
+    }
+}

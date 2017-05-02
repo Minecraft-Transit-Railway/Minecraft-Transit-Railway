@@ -1,0 +1,186 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:blocks/BlockPSDTopBody",
+			"body": "mtr:blocks/BlockPSDTopBody",
+			"arrow": "mtr:signs/Arrow"
+		},
+		"model": "mtr:psdtop/PSDTop"
+	},
+	"variants": {
+		"color": {
+			"0": {
+				"textures": {
+					"color": "mtr:blocks/Transparent",
+					"circle": "mtr:blocks/Transparent",
+					"number": "mtr:blocks/Transparent",
+					"arrow": "mtr:blocks/Transparent"
+				}
+			},
+			"1": { "textures": { "color": "mtr:routes/1", "circle": "mtr:routes/circle/1" } },
+			"2": { "textures": { "color": "mtr:routes/2", "circle": "mtr:routes/circle/2" } },
+			"3": { "textures": { "color": "mtr:routes/3", "circle": "mtr:routes/circle/3" } },
+			"4": { "textures": { "color": "mtr:routes/4", "circle": "mtr:routes/circle/4" } },
+			"5": { "textures": { "color": "mtr:routes/5", "circle": "mtr:routes/circle/5" } },
+			"6": { "textures": { "color": "mtr:routes/6", "circle": "mtr:routes/circle/6" } },
+			"7": { "textures": { "color": "mtr:routes/7", "circle": "mtr:routes/circle/7" } },
+			"8": { "textures": { "color": "mtr:routes/8", "circle": "mtr:routes/circle/8" } },
+			"9": { "textures": { "color": "mtr:routes/9", "circle": "mtr:routes/circle/9" } },
+			"10": { "textures": { "color": "mtr:routes/10", "circle": "mtr:routes/circle/10" } },
+			"11": { "textures": { "color": "mtr:routes/11", "circle": "mtr:routes/circle/11" } },
+			"12": { "textures": { "color": "mtr:routes/12", "circle": "mtr:routes/circle/12" } },
+			"13": { "textures": { "color": "mtr:routes/13", "circle": "mtr:routes/circle/13" } },
+			"14": { "textures": { "color": "mtr:routes/14", "circle": "mtr:routes/circle/14" } },
+			"15": { "textures": { "color": "mtr:routes/15", "circle": "mtr:routes/circle/15" } }
+		},
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"number": {
+			"1": { "textures": { "number": "mtr:routes/number/1" } },
+			"2": { "textures": { "number": "mtr:routes/number/2" } },
+			"3": { "textures": { "number": "mtr:routes/number/3" } },
+			"4": { "textures": { "number": "mtr:routes/number/4" } },
+			"5": { "textures": { "number": "mtr:routes/number/5" } },
+			"6": { "textures": { "number": "mtr:routes/number/6" } },
+			"7": { "textures": { "number": "mtr:routes/number/7" } },
+			"8": { "textures": { "number": "mtr:routes/number/8" } }
+		},
+		"side": {
+			"0": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopFront1" } },
+				"textures": { "body": "mtr:blocks/BlockPSDTopBodyL" }
+			},
+			"1": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopFront2" } },
+				"textures": { "body": "mtr:blocks/BlockPSDTopBodyR" }
+			},
+			"2": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopFront3" } },
+				"textures": { "body": "mtr:blocks/BlockPSDTopBodyL" }
+			},
+			"3": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopFront4" } },
+				"textures": { "body": "mtr:blocks/BlockPSDTopBodyR" }
+			},
+			"4": {},
+			"5": {},
+			"6": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopVeryEndLeft" } },
+				"textures": { "light": "mtr:blocks/LightOff" }
+			},
+			"7": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopVeryEndRight" } },
+				"textures": { "light": "mtr:blocks/LightOff" }
+			},
+			"8": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight" }, "front": { "model": "mtr:psdtop/PSDTopArrowLeft" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOff",
+					"lightright": "mtr:blocks/Transparent"
+				}
+			},
+			"9": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOff"
+				}
+			},
+			"10": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn" }, "front": { "model": "mtr:psdtop/PSDTopArrowLeft" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOn",
+					"lightright": "mtr:blocks/Transparent"
+				}
+			},
+			"11": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOn"
+				}
+			},
+			"12": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOff",
+					"lightright": "mtr:blocks/Transparent"
+				}
+			},
+			"13": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight"}, "front": { "model": "mtr:psdtop/PSDTopArrowRight" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOff"
+				}
+			},
+			"14": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOn",
+					"lightright": "mtr:blocks/Transparent"
+				}
+			},
+			"15": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn"}, "front": { "model": "mtr:psdtop/PSDTopArrowRight" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOn"
+				}
+			},
+			"16": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight" }, "front": { "model": "mtr:psdtop/PSDTopWarning" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOff",
+					"lightright": "mtr:blocks/Transparent",
+					"warningleft": "mtr:blocks/Transparent",
+					"warningright": "mtr:signs/CableOverhead"
+				}
+			},
+			"17": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLight"}, "front": { "model": "mtr:psdtop/PSDTopWarning" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOff",
+					"warningleft": "mtr:signs/CableOverhead",
+					"warningright": "mtr:blocks/Transparent"
+				}
+			},
+			"18": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn" }, "front": { "model": "mtr:psdtop/PSDTopWarning" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyL",
+					"lightleft": "mtr:blocks/LightOn",
+					"lightright": "mtr:blocks/Transparent",
+					"warningleft": "mtr:blocks/Transparent",
+					"warningright": "mtr:signs/CableOverhead"
+				}
+			},
+			"19": {
+				"submodel": { "pillar": { "model": "mtr:psdtop/PSDTopLightOn"}, "front": { "model": "mtr:psdtop/PSDTopWarning" } },
+				"textures": {
+					"body": "mtr:blocks/BlockPSDTopBodyR",
+					"lightleft": "mtr:blocks/Transparent",
+					"lightright": "mtr:blocks/LightOn",
+					"warningleft": "mtr:signs/CableOverhead",
+					"warningright": "mtr:blocks/Transparent"
+				}
+			}
+		}
+	}
+}

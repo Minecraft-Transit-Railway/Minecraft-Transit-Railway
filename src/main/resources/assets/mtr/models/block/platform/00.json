@@ -1,0 +1,8 @@
+﻿{
+	"parent": "mtr:block/Platform",
+	"textures": {
+		"particle": "blocks/stone",
+		"top": "mtr:blocks/platform/Platform00",
+		"main": "blocks/stone"
+	}
+}

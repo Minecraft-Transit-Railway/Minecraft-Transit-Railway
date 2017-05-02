@@ -1,0 +1,10 @@
+{
+	"parent": "mtr:block/map/MapTop",
+	"textures": {
+		"particle":"mtr:blocks/Metal",
+		"main":"mtr:blocks/BlockPSDSide",
+		"metal": "mtr:blocks/Metal",
+		"map": "mtr:Map",
+		"light": "mtr:blocks/Light"
+	}
+}

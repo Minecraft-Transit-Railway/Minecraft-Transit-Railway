@@ -1,0 +1,15 @@
+{
+    "elements": [
+        {   "__comment": "Pole",
+            "from": [ 0, 0, 7 ],
+            "to": [ 1, 16, 9 ],
+            "faces": {
+                "down": { "uv": [ 0, 0, 1, 2 ], "texture": "#metal" },
+                "east": { "uv": [ 7, 0, 9, 16 ], "texture": "#metal" },
+                "west": { "uv": [ 7, 0, 9, 16 ], "texture": "#metal" },
+                "north": { "uv": [ 0, 0, 1, 16 ], "texture": "#metal" },
+                "south": { "uv": [ 0, 0, 1, 16 ], "texture": "#metal" }
+            }
+        }
+    ]
+}

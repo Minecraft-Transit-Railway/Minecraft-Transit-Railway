@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/map/MapBottom",
+	"textures": {
+		"particle":"mtr:blocks/Metal",
+		"metal": "mtr:blocks/Metal"
+	}
+}

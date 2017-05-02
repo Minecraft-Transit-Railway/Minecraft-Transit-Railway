@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/stationname/SHSSide",
+	"textures": {
+		"particle": "mtr:blocks/pole/SHS",
+		"main": "mtr:StationName1"
+	}
+}

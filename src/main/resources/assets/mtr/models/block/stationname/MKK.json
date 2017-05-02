@@ -1,0 +1,60 @@
+﻿{
+	"elements": [
+		{   "__comment": "Front",
+			"from": [ 10.5, -6, 2.375 ],
+			"to": [ 11, 24, 13.625 ],
+			"faces": {
+				"down":  { "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"up":	{ "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"east": { "uv": [ 14, 0, 15.5, 4 ], "texture": "#main" },
+				"north":  { "uv": [ 14, 0, 14.01, 4 ], "texture": "#main" },
+				"south":  { "uv": [ 14, 0, 14.01, 4 ], "texture": "#main" }
+			}
+		},
+		{   "__comment": "Middle",
+			"from": [ 5.5, 0, 2.375 ],
+			"to": [ 10.5, 16, 13.625 ],
+			"faces": {
+				"north":  { "uv": [ 5.5, 0, 10.5, 16 ], "texture": "#metal" },
+				"south":  { "uv": [ 5.5, 0, 10.5, 16 ], "texture": "#metal" }
+			}
+		},
+		{   "__comment": "Middle Bottom",
+			"from": [ 5.5, -6, 2.375 ],
+			"to": [ 10.5, 0, 13.625 ],
+			"faces": {
+				"down":	{ "uv": [ 5.5, 2.375, 10.5, 13.625 ], "texture": "#metal" },
+				"north":  { "uv": [ 5.5, 0, 10.5, 6 ], "texture": "#metal" },
+				"south":  { "uv": [ 5.5, 0, 10.5, 6 ], "texture": "#metal" }
+			}
+		},
+		{   "__comment": "Middle Top",
+			"from": [ 5.5, 16, 2.375 ],
+			"to": [ 10.5, 24, 13.625 ],
+			"faces": {
+				"up":	{ "uv": [ 5.5, 2.375, 10.5, 13.625 ], "texture": "#metal" },
+				"north":  { "uv": [ 5.5, 0, 10.5, 8 ], "texture": "#metal" },
+				"south":  { "uv": [ 5.5, 0, 10.5, 8 ], "texture": "#metal" }
+			}
+		},
+		{   "__comment": "Middle gap",
+			"from": [ 6.5, 14, 2.36 ],
+			"to": [ 9.5, 18, 13.64 ],
+			"faces": {
+				"north":  { "uv": [ 0, 0, 12, 16 ], "texture": "#gap" },
+				"south":  { "uv": [ 0, 0, 12, 16 ], "texture": "#gap" }
+			}
+		},
+		{   "__comment": "Back",
+			"from": [ 5, -6, 2.375 ],
+			"to": [ 5.5, 24, 13.625 ],
+			"faces": {
+				"down":  { "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"up":	{ "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"west": { "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"north":  { "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" },
+				"south":  { "uv": [ 14, 0, 15.5, 0.1 ], "texture": "#main" }
+			}
+		}
+	]
+}

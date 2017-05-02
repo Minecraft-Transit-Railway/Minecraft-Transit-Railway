@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"normal": { "model": "mtr:BlockRailDummy" },
+		
+		"inventory": { "model": "mtr:BlockRailDummy" }
+	}
+}

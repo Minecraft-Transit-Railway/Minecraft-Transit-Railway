@@ -1,0 +1,21 @@
+{
+	"variants": {
+        "ad=0,facing=north":  { "model": "mtr:BlockAdSide1" },
+        "ad=0,facing=east": { "model": "mtr:BlockAdSide1", "y": 90 },
+        "ad=0,facing=south":  { "model": "mtr:BlockAdSide1", "y": 180 },
+        "ad=0,facing=west": { "model": "mtr:BlockAdSide1", "y": 270 },
+        "ad=1,facing=north":  { "model": "mtr:BlockAdSide2" },
+        "ad=1,facing=east": { "model": "mtr:BlockAdSide2", "y": 90 },
+        "ad=1,facing=south":  { "model": "mtr:BlockAdSide2", "y": 180 },
+        "ad=1,facing=west": { "model": "mtr:BlockAdSide2", "y": 270 },
+
+        "ad=2,facing=north":  { "model": "mtr:BlockAdSide3" },
+        "ad=2,facing=east": { "model": "mtr:BlockAdSide3", "y": 90 },
+        "ad=2,facing=south":  { "model": "mtr:BlockAdSide3", "y": 180 },
+        "ad=2,facing=west": { "model": "mtr:BlockAdSide3", "y": 270 },
+        "ad=3,facing=north":  { "model": "mtr:BlockAdSide4" },
+        "ad=3,facing=east": { "model": "mtr:BlockAdSide4", "y": 90 },
+        "ad=3,facing=south":  { "model": "mtr:BlockAdSide4", "y": 180 },
+        "ad=3,facing=west": { "model": "mtr:BlockAdSide4", "y": 270 }
+	}
+}

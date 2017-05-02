@@ -1,0 +1,50 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/ItemAPGDoor"
+		}
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"true": { "submodel": { "door": { "model": "mtr:APGDoorRight" }, "light": { "model": "mtr:APGDoorLightRight" } } },
+			"false": { "submodel": { "door": { "model": "mtr:APGDoorLeft" }, "light": { "model": "mtr:APGDoorLightLeft" } } }
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"front": "mtr:blocks/Transparent",
+					"bottom": "mtr:blocks/Transparent",
+					"side": "mtr:blocks/Transparent",
+					"side2": "mtr:blocks/Transparent",
+					"fronttop": "mtr:blocks/BlockAPGDoorTop",
+					"sidetop": "mtr:blocks/BlockPSDSide",
+					"side2top": "mtr:blocks/BlockPSDSideLight",
+					"top": "mtr:blocks/Transparent",
+					"light": "mtr:blocks/LightOff",
+					"lighton": "mtr:/blocks/Transparent"
+				}
+			},
+			"false": {
+				"textures": {
+					"front": "mtr:blocks/BlockAPGDoorBottom",
+					"bottom": "mtr:blocks/BlockPSDSide",
+					"side": "mtr:blocks/BlockPSDSide",
+					"side2": "mtr:blocks/BlockPSDSideLight",
+					"fronttop": "mtr:blocks/Transparent",
+					"sidetop": "mtr:blocks/Transparent",
+					"side2top": "mtr:blocks/Transparent",
+					"top": "mtr:blocks/BlockAPGDoorTop",
+					"light": "mtr:blocks/Transparent",
+					"lighton": "mtr:/blocks/Transparent"
+				}
+			}
+		}
+	}
+}

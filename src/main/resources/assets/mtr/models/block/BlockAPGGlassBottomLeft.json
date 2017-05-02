@@ -1,0 +1,11 @@
+{
+	"parent": "mtr:block/APGBottomLeft",
+	"textures": {
+		"particle": "mtr:blocks/BlockAPGGlassBottom",
+        "bottom": "mtr:blocks/BlockPSDSide",
+        "top": "mtr:blocks/Transparent",
+		"front": "mtr:blocks/BlockAPGGlassBottom",
+		"side": "mtr:blocks/Transparent",
+		"side2": "mtr:blocks/BlockPSDSideLight"
+	}
+}

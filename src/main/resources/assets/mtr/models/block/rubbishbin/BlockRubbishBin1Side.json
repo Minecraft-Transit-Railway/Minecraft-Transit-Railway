@@ -1,0 +1,9 @@
+{
+	"parent": "mtr:block/rubbishbin/RubbishBin1Side",
+	"textures": {
+		"particle": "mtr:blocks/Metal",
+		"side": "mtr:blocks/Metal",
+		"rubbish": "mtr:signs/Rubbish",
+		"spit": "mtr:signs/Spit"
+	}
+}

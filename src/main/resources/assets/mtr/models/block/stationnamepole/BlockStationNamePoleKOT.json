@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/Pole",
+	"textures": {
+		"particle": "mtr:blocks/pole/KOT",
+		"main": "mtr:blocks/pole/KOT"
+	}
+}

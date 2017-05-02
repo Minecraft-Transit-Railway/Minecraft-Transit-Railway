@@ -1,0 +1,32 @@
+{
+    "elements": [
+        {   "__comment": "Glass section",
+            "from": [ 2, 0, 0 ],
+            "to": [ 4, 16, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 1, 1 ], "texture": "#bottom" },
+                "up":    { "uv": [ 0, 0, 1, 1 ], "texture": "#top" },
+                "east": { "uv": [ 0, 0, 16, 16 ], "texture": "#front" },
+                "west": { "uv": [ 0, 0, 16, 16 ], "texture": "#back" },
+                "north":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side" },
+                "south":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side2" }
+            }
+        },
+		{   "__comment": "2015 Top",
+            "from": [ 2, 0, 0 ],
+            "to": [ 4, 16, 16 ],
+            "faces": {
+                "east": { "uv": [ 0, 0, 8, 8 ], "texture": "#front2a" },
+                "west": { "uv": [ 8, 0, 0, 8 ], "texture": "#back2a" }
+            }
+        },
+		{   "__comment": "2015 Bottom",
+            "from": [ 2, 0, 0 ],
+            "to": [ 4, 16, 16 ],
+            "faces": {
+                "east": { "uv": [ 0, 8, 8, 16 ], "texture": "#front2b" },
+                "west": { "uv": [ 8, 8, 0, 16 ], "texture": "#back2b" }
+            }
+        }
+    ]
+}

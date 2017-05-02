@@ -1,0 +1,7 @@
+﻿{
+	"parent": "mtr:block/stationname/LMCSide",
+	"textures": {
+		"particle": "mtr:blocks/pole/LMC",
+		"main": "mtr:StationName1"
+	}
+}

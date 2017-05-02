@@ -1,0 +1,10 @@
+﻿{
+	"parent": "mtr:block/stationname/KOT",
+	"textures": {
+		"particle": "mtr:blocks/pole/KOT",
+		"gap": "mtr:signs/GapSmall",
+		"main": "mtr:StationName1",
+		"metal": "mtr:blocks/Metal",
+		"pole": "mtr:blocks/pole/KOT"
+	}
+}
