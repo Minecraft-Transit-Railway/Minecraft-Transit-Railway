@@ -1,7 +1,7 @@
 {
     "elements": [
         {   "__comment": "Left handrail",
-            "from": [ 3.314, 11.314, 13 ],
+            "from": [ -3.314, 11.314, 13 ],
             "to": [ 19.314, 10.314, 15 ],
 			"rotation": { "origin": [ 8, 11.314, 8 ], "axis": "z", "angle": -45 },
             "faces": {
