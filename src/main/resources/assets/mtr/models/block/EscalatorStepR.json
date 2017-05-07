@@ -8,6 +8,14 @@
                 "west": { "uv": [ 0, 0, 16, 16 ], "texture": "#main", "cullface": "west" }
             }
         },
+        {   "__comment": "Main lower",
+            "from": [ 0, -8, 0 ],
+            "to": [ 16, -8, 16 ],
+			"rotation": { "origin": [ 8, -8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+            "faces": {
+                "down": { "uv": [ 16, 0, 0, 16 ], "texture": "#main" }
+            }
+        },
         {   "__comment": "Top",
             "from": [ 0, 8, 0 ],
             "to": [ 16, 8, 4 ],
@@ -22,6 +30,13 @@
             "faces": {
                 "north": { "uv": [ 16, 0, 0, 16 ], "texture": "#triangle", "cullface": "north" },
                 "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#triangle" }
+            }
+        },
+        {   "__comment": "Right lower",
+            "from": [ 0, -16, 0 ],
+            "to": [ 16, 0, 4 ],
+            "faces": {
+                "north": { "uv": [ 0, 16, 16, 0 ], "texture": "#triangle" }
             }
         },
         {   "__comment": "Step",

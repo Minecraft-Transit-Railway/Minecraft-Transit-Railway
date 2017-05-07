@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 
 public class TileEntityPSDBase extends TileEntity {
 
-	protected int color, number, bound, arrow;
+	public int color, number, bound, arrow;
 
 	protected void updateNeighbors1() {
 		BlockPos pos1 = pos.north();

@@ -4,6 +4,7 @@
 		"textures": {
 			"particle": "mtr:blocks/Metal",
 			"main": "mtr:blocks/Metal",
+			"black": "mtr:blocks/BlockPSDSide",
 			"front": "mtr:blocks/BlockPSDSide",
 			"back": "mtr:signs/Cross"
 		},
@@ -20,6 +21,11 @@
 			"0": {},
 			"1": { "textures": { "front": "mtr:signs/Exit", "back": "mtr:blocks/BlockPSDSide" } },
 			"2": { "textures": { "front": "mtr:signs/Train", "back": "mtr:blocks/BlockPSDSide" } }
+		},
+		"top": {
+			"0": {},
+			"1": { "submodel": { "pillar": { "model": "mtr:signs/Sign2Top" } } },
+			"2": { "submodel": { "pillar": { "model": "mtr:signs/Sign2Side" } } }
 		},
 		"type": {
 			"false": {},

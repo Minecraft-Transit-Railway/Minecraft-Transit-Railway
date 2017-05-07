@@ -1,8 +1,0 @@
-{
-	"variants": {
-		"facing=north": { "model": "mtr:BlockMTRSign" },
-		"facing=south": { "model": "mtr:BlockMTRSign" },
-		"facing=east": { "model": "mtr:BlockMTRSign" },
-		"facing=west": { "model": "mtr:BlockMTRSign" }
-	}
-}

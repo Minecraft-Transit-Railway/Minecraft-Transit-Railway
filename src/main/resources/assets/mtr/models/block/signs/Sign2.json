@@ -1,8 +1,8 @@
 {
 	"elements": [
-		{	"__comment": "Main",
+		{
 			"from": [ 7, 0, 0 ],
-			"to": [ 9, 9, 8.5 ],
+			"to": [ 9, 12, 8.5 ],
 			"faces": {
 				"down":	{ "texture": "#main", "cullface": "down" },
 				"up": { "texture": "#main" },
@@ -10,6 +10,15 @@
 				"west": { "texture": "#main" },
 				"north": { "texture": "#main" },
 				"south": { "texture": "#main" }
+			}
+		},
+		{
+			"from": [ 6.99, 8.95, 0 ],
+			"to": [ 9.01, 9, 8.51 ],
+			"faces": {
+				"east": { "texture": "#black" },
+				"west": { "texture": "#black" },
+				"south": { "texture": "#black" }
 			}
 		},
 		{

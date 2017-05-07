@@ -1,5 +1,8 @@
 package MTR;
 
+import MTR.blocks.BlockRailBase2;
+import MTR.blocks.BlockRailCurved;
+import MTR.blocks.BlockRailDummy;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;

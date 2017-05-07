@@ -3,6 +3,15 @@ package MTR;
 import java.util.List;
 import java.util.UUID;
 
+import MTR.blocks.BlockRailBase2;
+import MTR.blocks.BlockRailBooster;
+import MTR.blocks.BlockRailCurved;
+import MTR.blocks.BlockRailDetector2;
+import MTR.blocks.BlockRailSlope1;
+import MTR.blocks.BlockRailSlope2;
+import MTR.blocks.BlockRailStation;
+import MTR.blocks.BlockRailStraight;
+import MTR.blocks.BlockTrainTimer;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -30,7 +39,12 @@ public class EntityTrainBase extends Entity implements LoadingCallback {
 	private double velocityX, velocityY, velocityZ;
 
 	private static final double accleration = 0.01;
-	protected double clientYaw, clientYawOld, clientPitch, clientX, clientY, clientZ;
+	public double clientYaw;
+	protected double clientYawOld;
+	public double clientPitch;
+	protected double clientX;
+	protected double clientY;
+	protected double clientZ;
 	protected UUID carFront, carBack;
 	private double goalX, goalY, goalZ, goalSpeed;
 	private int radius, wait;

@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 
 public class TileEntityDoorEntity extends TileEntity {
 
-	int position;
+	public int position;
 
 	@Override
 	public Packet getDescriptionPacket() {

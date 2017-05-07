@@ -2,6 +2,8 @@ package MTR;
 
 import java.util.List;
 
+import MTR.blocks.BlockRailBooster;
+import MTR.items.ItemKillTrain;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;

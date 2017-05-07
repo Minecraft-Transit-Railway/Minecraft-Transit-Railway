@@ -1,5 +1,8 @@
 package MTR;
 
+import MTR.blocks.BlockRailBase2;
+import MTR.blocks.BlockRailDummy;
+import MTR.blocks.BlockTrainTimer;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;

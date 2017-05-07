@@ -1,7 +1,7 @@
 {
     "elements": [
         {   "__comment": "Left handrail",
-            "from": [ 3.314, 11.314, 13 ],
+            "from": [ 4.686, 11.314, 13 ],
             "to": [ 19.314, 10.314, 15 ],
 			"rotation": { "origin": [ 8, 11.314, 8 ], "axis": "z", "angle": -45 },
             "faces": {
@@ -15,8 +15,8 @@
         },
         {
             "from": [ 0, 16, 13 ],
-            "to": [ 4.686, 15, 15 ],
-			"rotation": { "origin": [ 0, 16, 8 ], "axis": "z", "angle": -22.5, "rescale": true },
+            "to": [ 6.123, 15, 15 ],
+			"rotation": { "origin": [ 0, 16, 8 ], "axis": "z", "angle": -22.5 },
             "faces": {
                 "up": { "uv": [ 0, 0, 16, 16 ], "texture": "#lhandrail" },
                 "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#lhandrail" },
@@ -27,7 +27,7 @@
             }
         },
         {   "__comment": "Right handrail",
-            "from": [ 3.314, 11.314, 1 ],
+            "from": [ 4.686, 11.314, 1 ],
             "to": [ 19.314, 10.314, 3 ],
 			"rotation": { "origin": [ 8, 11.314, 8 ], "axis": "z", "angle": -45 },
             "faces": {
@@ -41,8 +41,8 @@
         },
         {
             "from": [ 0, 16, 1 ],
-            "to": [ 4.686, 15, 3 ],
-			"rotation": { "origin": [ 0, 16, 8 ], "axis": "z", "angle": -22.5, "rescale": true },
+            "to": [ 6.123, 15, 3 ],
+			"rotation": { "origin": [ 0, 16, 8 ], "axis": "z", "angle": -22.5 },
             "faces": {
                 "up": { "uv": [ 0, 0, 16, 16 ], "texture": "#rhandrail" },
                 "down": { "uv": [ 0, 0, 16, 16 ], "texture": "#rhandrail" },

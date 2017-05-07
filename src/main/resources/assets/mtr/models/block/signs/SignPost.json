@@ -1,0 +1,16 @@
+{
+	"elements": [
+		{
+			"from": [ 6.5, 0, 6.5 ],
+			"to": [ 9.5, 12.01, 9.5 ],
+			"faces": {
+				"down":	{ "texture": "#main", "uv": [ 6.5, 6.5, 9.5, 9.5 ], "cullface": "down" },
+				"up": { "texture": "#main", "uv": [ 6.5, 6.5, 9.5, 9.5 ] },
+				"east": { "texture": "#main", "uv": [ 6.5, 4, 9.5, 16 ] },
+				"west": { "texture": "#main", "uv": [ 6.5, 4, 9.5, 16 ] },
+				"north": { "texture": "#main", "uv": [ 6.5, 4, 9.5, 16 ] },
+				"south": { "texture": "#main", "uv": [ 6.5, 4, 9.5, 16 ] }
+			}
+		}
+	]
+}

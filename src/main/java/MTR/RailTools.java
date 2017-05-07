@@ -1,5 +1,6 @@
 package MTR;
 
+import MTR.blocks.BlockRailStraight;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 

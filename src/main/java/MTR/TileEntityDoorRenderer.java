@@ -1,5 +1,7 @@
 package MTR;
 
+import MTR.blocks.BlockPSDDoor;
+import MTR.blocks.BlockPSDGlassEnd;
 import MTR.client.ModelAPGDoorBottom;
 import MTR.client.ModelAPGDoorTop;
 import net.minecraft.block.Block;

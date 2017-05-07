@@ -1,5 +1,9 @@
 package MTR;
 
+import MTR.blocks.BlockPSD;
+import MTR.blocks.BlockPSDDoor;
+import MTR.blocks.BlockPSDDoorClosed;
+import MTR.blocks.BlockPSDGlassVeryEnd;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;

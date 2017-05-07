@@ -14,8 +14,6 @@ import MTR.TileEntityClockEntity;
 import MTR.TileEntityClockRenderer;
 import MTR.TileEntityDoorEntity;
 import MTR.TileEntityDoorRenderer;
-import MTR.TileEntityMTRSignEntity;
-import MTR.TileEntityMTRSignRenderer;
 import MTR.TileEntityNextTrainEntity;
 import MTR.TileEntityPIDS1Entity;
 import MTR.TileEntityPIDS1Renderer;
@@ -41,7 +39,6 @@ public class ClientProxy extends CommonProxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDoorEntity.class, new TileEntityDoorRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPIDS1Entity.class, new TileEntityPIDS1Renderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPSDTopEntity.class, new TileEntityPSDTopRenderer());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMTRSignEntity.class, new TileEntityMTRSignRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityRailBoosterEntity.class,
 				new TileEntityRailBoosterRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityStationNameEntity.class,
