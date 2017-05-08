@@ -28,7 +28,7 @@
 					"side2top": "mtr:blocks/BlockPSDSideLight",
 					"top": "mtr:blocks/Transparent",
 					"light": "mtr:blocks/LightOff",
-					"lighton": "mtr:/blocks/Transparent"
+					"lighton": "mtr:blocks/Transparent"
 				}
 			},
 			"false": {
@@ -42,7 +42,7 @@
 					"side2top": "mtr:blocks/Transparent",
 					"top": "mtr:blocks/BlockAPGDoorTop",
 					"light": "mtr:blocks/Transparent",
-					"lighton": "mtr:/blocks/Transparent"
+					"lighton": "mtr:blocks/Transparent"
 				}
 			}
 		}

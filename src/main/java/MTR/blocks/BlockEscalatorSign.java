@@ -129,12 +129,12 @@ public class BlockEscalatorSign extends BlockWithDirection {
 
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return null;
+		return Item.getItemFromBlock(MTR.blockescalatorlanding);
 	}
 
 	@Override
 	public Item getItem(World worldIn, BlockPos pos) {
-		return MTR.itemescalator;
+		return Item.getItemFromBlock(MTR.blockescalatorlanding);
 	}
 
 	public String getName() {

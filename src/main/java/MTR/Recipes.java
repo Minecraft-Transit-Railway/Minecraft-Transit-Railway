@@ -78,8 +78,11 @@ public class Recipes extends MTR {
 				new Object[] { new ItemStack(itemescalator, 1, 3) });
 		GameRegistry.addShapelessRecipe(new ItemStack(itemescalator, 1, 0),
 				new Object[] { new ItemStack(itemescalator, 1, 4) });
-		GameRegistry.addShapelessRecipe(new ItemStack(blockescalatorlanding),
+		GameRegistry.addShapelessRecipe(new ItemStack(blockescalatorlanding, 8),
 				new Object[] { Blocks.stone_slab, Blocks.iron_block, Blocks.redstone_block });
+
+		GameRegistry.addShapelessRecipe(new ItemStack(blockmtrsignpost, 16),
+				new Object[] { Blocks.iron_bars, Items.iron_ingot });
 	}
 
 	public static void addShapedRecipes() {
