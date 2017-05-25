@@ -35,7 +35,7 @@ public class BlockTrainTimer extends Block implements ITileEntityProvider {
 		super(Material.circuits);
 		setHardness(0.5F);
 		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, 0).withProperty(LIGHT, false).withProperty(TRACK,
 				false));
 		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);

@@ -13,7 +13,7 @@ public class BlockLogo extends Block {
 	public BlockLogo() {
 		super(Material.rock);
 		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setHardness(5F);
 		setUnlocalizedName(name);
 	}

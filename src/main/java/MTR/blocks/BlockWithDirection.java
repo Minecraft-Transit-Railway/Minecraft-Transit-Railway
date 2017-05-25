@@ -19,7 +19,7 @@ public class BlockWithDirection extends Block {
 
 	public BlockWithDirection() {
 		super(Material.rock);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 		setHardness(5F);
 	}

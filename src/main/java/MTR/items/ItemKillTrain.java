@@ -14,7 +14,7 @@ public class ItemKillTrain extends Item {
 	public static final String name = "ItemKillTrain";
 
 	public ItemKillTrain() {
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

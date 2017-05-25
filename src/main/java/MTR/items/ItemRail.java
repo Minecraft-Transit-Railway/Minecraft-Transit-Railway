@@ -38,7 +38,7 @@ public class ItemRail extends Item {
 	public ItemRail() {
 		maxStackSize = 1;
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name1);
 		setUnlocalizedName(name1);
 	}

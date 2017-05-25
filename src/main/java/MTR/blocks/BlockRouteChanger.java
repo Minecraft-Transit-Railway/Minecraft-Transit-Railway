@@ -22,7 +22,7 @@ public class BlockRouteChanger extends Block implements ITileEntityProvider {
 		super(Material.rock);
 		setHardness(5F);
 		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setUnlocalizedName(name);
 	}
 

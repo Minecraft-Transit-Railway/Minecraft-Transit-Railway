@@ -26,7 +26,7 @@ public class BlockMTRSignPost extends Block {
 	public BlockMTRSignPost() {
 		super(Material.rock);
 		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setHardness(5F);
 		setBlockBounds(0.40625F, 0, 0.40625F, 0.59375F, 1, 0.59375F);
 		setDefaultState(blockState.getBaseState().withProperty(NORTH, false).withProperty(EAST, false)

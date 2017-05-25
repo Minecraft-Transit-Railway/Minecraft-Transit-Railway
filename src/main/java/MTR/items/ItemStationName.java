@@ -22,7 +22,7 @@ public class ItemStationName extends Item {
 
 	public ItemStationName() {
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTabStationName);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

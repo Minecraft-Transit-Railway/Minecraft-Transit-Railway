@@ -22,7 +22,7 @@ public class ItemMTRPane extends Item {
 
 	public ItemMTRPane() {
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

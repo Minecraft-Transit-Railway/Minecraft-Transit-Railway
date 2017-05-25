@@ -25,7 +25,7 @@ public class ItemLightRail1 extends Item {
 	public ItemLightRail1() {
 		setHasSubtypes(true);
 		maxStackSize = 1;
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

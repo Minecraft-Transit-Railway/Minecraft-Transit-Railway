@@ -11,7 +11,8 @@ import net.minecraft.world.World;
 
 public class TileEntityRailBoosterEntity extends TileEntity {
 
-	int speedBoost, speedSlow;
+	public int speedBoost;
+	public int speedSlow;
 
 	@Override
 	public Packet getDescriptionPacket() {

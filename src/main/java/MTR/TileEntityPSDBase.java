@@ -1,64 +1,45 @@
 package MTR;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 public class TileEntityPSDBase extends TileEntity {
 
 	public int color, number, bound, arrow;
 
-	protected void updateNeighbors1() {
-		BlockPos pos1 = pos.north();
-		BlockPos pos2 = pos.east();
-		BlockPos pos3 = pos.north(2);
-		BlockPos pos4 = pos.east(2);
-		BlockPos pos5 = pos.north(3);
-		BlockPos pos6 = pos.east(3);
-		update2(pos1, 1);
-		update2(pos2, 1);
-		update2(pos3, 1);
-		update2(pos4, 1);
-		update2(pos5, 1);
-		update2(pos6, 1);
-	}
-
-	protected void updateNeighbors2() {
-		BlockPos pos1 = pos.south();
-		BlockPos pos2 = pos.west();
-		BlockPos pos3 = pos.south(2);
-		BlockPos pos4 = pos.west(2);
-		BlockPos pos5 = pos.south(3);
-		BlockPos pos6 = pos.west(3);
-		update2(pos1, 2);
-		update2(pos2, 2);
-		update2(pos3, 2);
-		update2(pos4, 2);
-		update2(pos5, 2);
-		update2(pos6, 2);
-	}
-
-	private void update2(BlockPos pos1, int a) {
+	protected void update(EnumFacing facing) {
 		try {
-			TileEntityPSDBase te = (TileEntityPSDBase) worldObj.getTileEntity(pos1);
-			te.color = color;
-			te.number = number;
-			te.bound = bound;
-			te.arrow = arrow;
-			worldObj.markBlockForUpdate(pos1);
-			if (a == 1)
-				te.updateNeighbors1();
-			else
-				te.updateNeighbors2();
-		} catch (Exception e) {
+			TileEntityPSDBase te = (TileEntityPSDBase) worldObj.getTileEntity(pos.offset(facing));
+			update2(te, facing);
+		} catch (Exception e1) {
+			try {
+				TileEntityPSDBase te = (TileEntityPSDBase) worldObj.getTileEntity(pos.offset(facing, 2));
+				update2(te, facing);
+			} catch (Exception e2) {
+				try {
+					TileEntityPSDBase te = (TileEntityPSDBase) worldObj.getTileEntity(pos.offset(facing, 3));
+					update2(te, facing);
+				} catch (Exception e3) {
+				}
+			}
 		}
-		Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos1);
+	}
+
+	private void update2(TileEntityPSDBase te, EnumFacing facing) {
+		te.color = color;
+		te.number = number;
+		te.bound = bound;
+		te.arrow = arrow;
+		te.markDirty();
+		worldObj.markBlockRangeForRenderUpdate(pos, pos);
+		te.update(facing);
 	}
 
 	@Override

@@ -50,6 +50,7 @@ import MTR.items.ItemMinecartSpecial;
 import MTR.items.ItemPSD;
 import MTR.items.ItemRail;
 import MTR.items.ItemSP1900;
+import MTR.items.ItemSpawnPlatform;
 import MTR.items.ItemStationName;
 import MTR.items.ItemStationNamePole;
 import MTR.items.ItemTrain;
@@ -88,6 +89,12 @@ public class RegisterModels extends MTR {
 		mesher.register(itemrail, 3, new ModelResourceLocation("MTR:" + ItemRail.getName4(), "inventory"));
 		mesher.register(itemrail, 4, new ModelResourceLocation("MTR:" + ItemRail.getName5(), "inventory"));
 		mesher.register(itemrail, 5, new ModelResourceLocation("MTR:" + ItemRail.getName6(), "inventory"));
+		mesher.register(itemspawnplatform, 0,
+				new ModelResourceLocation("MTR:" + ItemSpawnPlatform.getName(), "inventory"));
+		mesher.register(itemspawnplatform, 1,
+				new ModelResourceLocation("MTR:" + ItemSpawnPlatform.getName(), "inventory"));
+		mesher.register(itemspawnplatform, 2,
+				new ModelResourceLocation("MTR:" + ItemSpawnPlatform.getName(), "inventory"));
 		for (int a = 0; a < 8; a++)
 			mesher.register(itemmtrpane, a,
 					new ModelResourceLocation("MTR:" + ItemMTRPane.getName(a + 1), "inventory"));

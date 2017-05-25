@@ -3,6 +3,7 @@ package MTR;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -65,8 +66,11 @@ public class MessagePSD implements IMessage {
 						te2.number = message.number;
 						te2.bound = message.bound;
 						te2.arrow = message.arrow;
-						te2.updateNeighbors1();
-						te2.updateNeighbors2();
+						te2.markDirty();
+						te2.update(EnumFacing.NORTH);
+						te2.update(EnumFacing.EAST);
+						te2.update(EnumFacing.SOUTH);
+						te2.update(EnumFacing.WEST);
 					}
 				}
 			});

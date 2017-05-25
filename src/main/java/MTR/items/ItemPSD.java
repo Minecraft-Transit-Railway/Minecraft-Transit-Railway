@@ -28,7 +28,7 @@ public class ItemPSD extends Item {
 
 	public ItemPSD() {
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name2);
 		setUnlocalizedName(name2);
 	}
