@@ -7,6 +7,7 @@ item.ItemKillTrain.name=列車刪掉器
 item.ItemMTRPane.name=裝飾玻璃圍欄
 item.ItemRailNormal.name=MTR 路軌
 item.ItemStationName.name=站名
+item.ItemSpawnPlatform.name=建築月台
 item.ItemStationNamePole.name=柱
 item.ItemTrain.name=列車
 item.ItemPSD.name=月台幕門
@@ -94,6 +95,9 @@ gui.railslopedown=下斜路軌
 gui.raildetector=探測器路軌
 gui.railstation=車站路軌
 gui.railradius=路軌的半徑必須大過20和細過255。
+gui.spawnp1=建築路軌
+gui.spawnp2=建築月台邊(左)
+gui.spawnp3=建築月台邊(右)
 
 station.0=Kennedy Town
 station.1=HKU
@@ -420,3 +424,4 @@ destination.58c=
 destination.59c=
 
 itemGroup.MTR=MTR
+itemGroup.MTRStationName=MTR 站名

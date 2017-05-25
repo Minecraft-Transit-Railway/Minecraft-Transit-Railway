@@ -12,7 +12,7 @@ public class BlockStation extends Block {
 	public BlockStation() {
 		super(Material.glass);
 		// GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setBlockUnbreakable();
 		setResistance(-1F);
 		setUnlocalizedName(name);

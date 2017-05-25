@@ -20,7 +20,7 @@ public class BlockNextTrain extends Block implements ITileEntityProvider {
 	public BlockNextTrain() {
 		super(Material.rock);
 		// GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		setUnlocalizedName(name);
 	}
 

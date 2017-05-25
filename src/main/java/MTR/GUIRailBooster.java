@@ -111,8 +111,8 @@ public class GUIRailBooster extends GuiScreen {
 		}
 		if (speedBoost > 500)
 			speedBoost = 500;
-		if (speedBoost < 1)
-			speedBoost = 1;
+		if (speedBoost < 0)
+			speedBoost = 0;
 		if (speedSlow > 500)
 			speedSlow = 500;
 		if (speedSlow < 0)

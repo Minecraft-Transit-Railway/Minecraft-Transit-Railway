@@ -26,7 +26,7 @@ public class ItemAPG extends Item {
 
 	public ItemAPG() {
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name1);
 		setUnlocalizedName(name1);
 	}

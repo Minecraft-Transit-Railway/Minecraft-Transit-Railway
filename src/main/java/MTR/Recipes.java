@@ -65,6 +65,8 @@ public class Recipes extends MTR {
 
 		GameRegistry.addShapelessRecipe(new ItemStack(blockmtrmap), new Object[] { new ItemStack(blockmtrmapside) });
 		GameRegistry.addShapelessRecipe(new ItemStack(blockmtrmapside), new Object[] { new ItemStack(blockmtrmap) });
+		GameRegistry.addShapelessRecipe(new ItemStack(blockrubbishbin1, 8),
+				new Object[] { new ItemStack(Items.cauldron) });
 
 		GameRegistry.addShapelessRecipe(new ItemStack(itemescalator),
 				new Object[] { Blocks.stone_stairs, Blocks.piston, Blocks.redstone_block });
@@ -92,7 +94,6 @@ public class Recipes extends MTR {
 				Items.clock);
 		GameRegistry.addShapedRecipe(new ItemStack(blockmtrmap, 16), " x ", "xyx", " x ", 'x', Items.iron_ingot, 'y',
 				Items.map);
-		GameRegistry.addShapedRecipe(new ItemStack(blockrubbishbin1, 8), "x x", "x x", "xxx", 'x', Items.iron_ingot);
 		GameRegistry.addShapedRecipe(new ItemStack(blockticketmachine, 4), "xxx", "xyx", "xxx", 'x', Items.iron_ingot,
 				'y', Items.map);
 		GameRegistry.addShapedRecipe(new ItemStack(blocktraintimer, 2), "   ", "zyz", "xxx", 'x', Blocks.stone, 'y',

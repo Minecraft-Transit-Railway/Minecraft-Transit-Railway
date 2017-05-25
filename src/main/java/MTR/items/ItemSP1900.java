@@ -21,7 +21,7 @@ public class ItemSP1900 extends Item {
 	public ItemSP1900() {
 		// setHasSubtypes(true);
 		maxStackSize = 1;
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

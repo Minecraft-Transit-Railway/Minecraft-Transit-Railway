@@ -6,6 +6,7 @@ item.ItemEscalator.name=Escalator
 item.ItemKillTrain.name=Train Remover
 item.ItemMTRPane.name=Decorative Glass Fence
 item.ItemRailNormal.name=MTR Rails
+item.ItemSpawnPlatform.name=Spawn Platform
 item.ItemStationName.name=Station Name
 item.ItemStationNamePole.name=Pole
 item.ItemTrain.name=Train
@@ -94,6 +95,9 @@ gui.railslopedown=Downwards Sloped Rail
 gui.raildetector=Detector Rail
 gui.railstation=Station Rail
 gui.railradius=Curved tracks must have a radius between 20 and 255.
+gui.spawnp1=Spawn rails
+gui.spawnp2=Spawn platform edge (left)
+gui.spawnp3=Spawn platform edge (right)
 
 station.0=Kennedy Town
 station.1=HKU
@@ -420,3 +424,4 @@ destination.58c=
 destination.59c=
 
 itemGroup.MTR=MTR
+itemGroup.MTRStationName=MTR Station Name

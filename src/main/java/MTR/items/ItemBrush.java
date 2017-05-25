@@ -19,7 +19,7 @@ public class ItemBrush extends Item {
 	public static final String name = "ItemBrush";
 
 	public ItemBrush() {
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

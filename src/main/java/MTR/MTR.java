@@ -97,6 +97,7 @@ import MTR.items.ItemMinecartSpecial;
 import MTR.items.ItemPSD;
 import MTR.items.ItemRail;
 import MTR.items.ItemSP1900;
+import MTR.items.ItemSpawnPlatform;
 import MTR.items.ItemStationName;
 import MTR.items.ItemStationNamePole;
 import MTR.items.ItemTrain;
@@ -130,7 +131,7 @@ public class MTR {
 
 	public static final String MODID = "MTR";
 	public static final String MODNAME = "Minecraft Transit Railway";
-	public static final String VERSION = "1.8.9-2.0.1";
+	public static final String VERSION = "1.8.9-2.1.1";
 
 	public static String verseOfTheDay = "";
 
@@ -147,6 +148,7 @@ public class MTR {
 	public static Item itemkilltrain;
 	public static Item itemmtrpane;
 	public static Item itemrail;
+	public static Item itemspawnplatform;
 	public static Item itemstationname;
 	public static Item itemstationnamepole;
 	public static Item itemtrain;
@@ -227,12 +229,24 @@ public class MTR {
 
 	@SidedProxy(clientSide = "MTR.client.ClientProxy", serverSide = "MTR.CommonProxy")
 	public static CommonProxy proxy;
-	public static CreativeTabs MTRtab = new CreativeTabs("MTR") {
+	public static CreativeTabs MTRTab = new CreativeTabs("MTR") {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public Item getTabIconItem() {
 			return MTR.itemtrain;
 		}
+	};
+	public static CreativeTabs MTRTabStationName = new CreativeTabs("MTRStationName") {
+		@Override
+		@SideOnly(Side.CLIENT)
+		public Item getTabIconItem() {
+			return MTR.itemstationname;
+		}
+
+		@Override
+		public int getIconItemDamage() {
+			return 10;
+		};
 	};
 
 	@EventHandler
@@ -248,6 +262,7 @@ public class MTR {
 		itemescalator = new ItemEscalator();
 		itemkilltrain = new ItemKillTrain();
 		itemmtrpane = new ItemMTRPane();
+		itemspawnplatform = new ItemSpawnPlatform();
 		itemstationname = new ItemStationName();
 		itemstationnamepole = new ItemStationNamePole();
 		itemrail = new ItemRail();
@@ -342,13 +357,13 @@ public class MTR {
 		EntityRegistry.registerModEntity(EntityLightRail1.class, "LightRail1", 3, this, 80, 5, false);
 		EntityRegistry.registerModEntity(EntitySP1900.class, "SP1900", 4, this, 80, 5, false);
 		// tile entities
-		GameRegistry.registerTileEntity(TileEntityClockEntity.class, "Clock");
+		GameRegistry.registerTileEntity(TileEntityClockEntity.class, "MTRClock");
 		GameRegistry.registerTileEntity(TileEntityAPGGlassEntity.class, "APGGlass");
-		GameRegistry.registerTileEntity(TileEntityDoorEntity.class, "Door");
+		GameRegistry.registerTileEntity(TileEntityDoorEntity.class, "MTRDoor");
 		GameRegistry.registerTileEntity(TileEntityNextTrainEntity.class, "NextTrain");
 		GameRegistry.registerTileEntity(TileEntityPIDS1Entity.class, "PIDS1");
 		GameRegistry.registerTileEntity(TileEntityPSDTopEntity.class, "PSDTop");
-		GameRegistry.registerTileEntity(TileEntityRailEntity.class, "Rail");
+		GameRegistry.registerTileEntity(TileEntityRailEntity.class, "MTRRail");
 		GameRegistry.registerTileEntity(TileEntityRailBoosterEntity.class, "BoosterRail");
 		GameRegistry.registerTileEntity(TileEntityRouteChangerEntity.class, "RouteChanger");
 		GameRegistry.registerTileEntity(TileEntityStationNameEntity.class, "StationName");

@@ -22,7 +22,7 @@ public class ItemMinecartSpecial extends Item {
 
 	public ItemMinecartSpecial() {
 		maxStackSize = 1;
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name);
 		setUnlocalizedName(name);
 	}

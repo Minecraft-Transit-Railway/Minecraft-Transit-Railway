@@ -28,7 +28,7 @@ public class ItemEscalator extends Item {
 
 	public ItemEscalator() {
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRtab);
+		setCreativeTab(MTR.MTRTab);
 		GameRegistry.registerItem(this, name1);
 		setUnlocalizedName(name1);
 	}

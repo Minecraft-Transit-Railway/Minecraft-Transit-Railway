@@ -1,9 +1,9 @@
 package MTR;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumFacing;
 
 public class GUIPSD extends GuiScreen {
 	private GuiButton buttonDone, buttonColorAdd, buttonColorSubtract, buttonPNumAdd, buttonPNumSubtract,
@@ -19,6 +19,8 @@ public class GUIPSD extends GuiScreen {
 		number = te.number;
 		bound = te.bound;
 		arrow = te.arrow;
+		if (number < 1)
+			number = 1;
 	}
 
 	@Override
@@ -75,9 +77,13 @@ public class GUIPSD extends GuiScreen {
 			te.number = number;
 			te.bound = bound;
 			te.arrow = arrow;
-			Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(te.getPos());
-			MTR.network.sendToServer(new MessagePSD(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(),
-					color, number, bound, arrow));
+			te.markDirty();
+			te.update(EnumFacing.NORTH);
+			te.update(EnumFacing.EAST);
+			te.update(EnumFacing.SOUTH);
+			te.update(EnumFacing.WEST);
+			MTR.network.sendToServer(new MessagePSD(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), color,
+					number, bound, arrow));
 			mc.displayGuiScreen((GuiScreen) null);
 			break;
 		case 2:
