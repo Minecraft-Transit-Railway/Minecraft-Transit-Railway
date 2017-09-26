@@ -1,20 +1,20 @@
 package MTR;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class TileEntityPSDBase extends TileEntity {
 
 	public int color, number, bound, arrow;
 
-	protected void update(EnumFacing facing) {
+	public void update(EnumFacing facing) {
 		try {
 			TileEntityPSDBase te = (TileEntityPSDBase) worldObj.getTileEntity(pos.offset(facing));
 			update2(te, facing);
@@ -38,70 +38,44 @@ public class TileEntityPSDBase extends TileEntity {
 		te.bound = bound;
 		te.arrow = arrow;
 		te.markDirty();
-		worldObj.markBlockRangeForRenderUpdate(pos, pos);
+		worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 0);
 		te.update(facing);
 	}
 
 	@Override
-	public Packet getDescriptionPacket() {
-		NBTTagCompound nbtTagCompound = new NBTTagCompound();
-		writeToNBT(nbtTagCompound);
-		int metadata = getBlockMetadata();
-		return new S35PacketUpdateTileEntity(pos, metadata, nbtTagCompound);
+	@Nullable
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(pos, 0, getUpdateTag());
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		readFromNBT(pkt.getNbtCompound());
+	public NBTTagCompound getUpdateTag() {
+		return writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound parentNBTTagCompound) {
-		super.writeToNBT(parentNBTTagCompound);
-		parentNBTTagCompound.setInteger("color", color);
-		parentNBTTagCompound.setInteger("number", number);
-		parentNBTTagCompound.setInteger("bound", bound);
-		parentNBTTagCompound.setInteger("arrow", arrow);
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("color", color);
+		compound.setInteger("number", number);
+		compound.setInteger("bound", bound);
+		compound.setInteger("arrow", arrow);
+		return compound;
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound parentNBTTagCompound) {
-		super.readFromNBT(parentNBTTagCompound);
-		final int NBT_INT_ID = 3;
-		int readPosition1 = -1;
-		if (parentNBTTagCompound.hasKey("color", NBT_INT_ID)) {
-			readPosition1 = parentNBTTagCompound.getInteger("color");
-			if (readPosition1 < 0)
-				readPosition1 = -1;
-		}
-		color = readPosition1;
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		color = compound.getInteger("color");
+		number = compound.getInteger("number");
+		bound = compound.getInteger("bound");
+		arrow = compound.getInteger("arrow");
 		if (color > 15 || color < 0)
 			color = 0;
-		int readPosition2 = -1;
-		if (parentNBTTagCompound.hasKey("number", NBT_INT_ID)) {
-			readPosition2 = parentNBTTagCompound.getInteger("number");
-			if (readPosition2 < 0)
-				readPosition2 = -1;
-		}
-		number = readPosition2;
 		if (number > 8 || number < 1)
 			number = 1;
-		int readPosition3 = -1;
-		if (parentNBTTagCompound.hasKey("bound", NBT_INT_ID)) {
-			readPosition3 = parentNBTTagCompound.getInteger("bound");
-			if (readPosition3 < 0)
-				readPosition3 = -1;
-		}
-		bound = readPosition3;
 		if (bound > 3 || bound < 0)
 			bound = 0;
-		int readPosition4 = -1;
-		if (parentNBTTagCompound.hasKey("arrow", NBT_INT_ID)) {
-			readPosition4 = parentNBTTagCompound.getInteger("arrow");
-			if (readPosition4 < 0)
-				readPosition4 = -1;
-		}
-		arrow = readPosition4;
 		if (arrow > 1 || arrow < 0)
 			arrow = 0;
 	}

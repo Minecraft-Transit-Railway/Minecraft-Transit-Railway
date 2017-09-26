@@ -3,12 +3,11 @@ package MTR.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockPSDDoorClosed extends BlockDoorClosedBase {
 
@@ -17,11 +16,9 @@ public class BlockPSDDoorClosed extends BlockDoorClosedBase {
 	public static final PropertyInteger END = PropertyInteger.create("end", 0, 3);
 
 	public BlockPSDDoorClosed() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(END, 0).withProperty(FACING, EnumFacing.NORTH)
 				.withProperty(SIDE, false).withProperty(TOP, false));
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -37,11 +34,7 @@ public class BlockPSDDoorClosed extends BlockDoorClosedBase {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { END, FACING, SIDE, TOP });
-	}
-
-	public String getName() {
-		return name;
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { END, FACING, SIDE, TOP });
 	}
 }

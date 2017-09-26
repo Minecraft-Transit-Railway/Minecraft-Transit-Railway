@@ -1,29 +1,27 @@
 package MTR.blocks;
 
-import MTR.MTR;
+import MTR.BlockBase;
+import MTR.GUIRouteChanger;
 import MTR.TileEntityRouteChangerEntity;
-import net.minecraft.block.Block;
+import MTR.items.ItemBrush;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockRouteChanger extends Block implements ITileEntityProvider {
+public class BlockRouteChanger extends BlockBase implements ITileEntityProvider {
 
 	private static final String name = "BlockRouteChanger";
 
 	public BlockRouteChanger() {
-		super(Material.rock);
-		setHardness(5F);
-		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRTab);
-		setUnlocalizedName(name);
+		super(Material.ROCK, name);
 	}
 
 	@Override
@@ -33,18 +31,14 @@ public class BlockRouteChanger extends Block implements ITileEntityProvider {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
-		if (itemStack != null && itemStack.getItem() == MTR.itembrush) {
+		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityRouteChangerEntity te = (TileEntityRouteChangerEntity) worldIn.getTileEntity(pos);
 			if (worldIn.isRemote)
-				MTR.proxy.openGUI(te);
+				Minecraft.getMinecraft().displayGuiScreen(new GUIRouteChanger(te));
 			return true;
 		} else
 			return false;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

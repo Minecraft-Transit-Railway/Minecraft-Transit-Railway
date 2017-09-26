@@ -5,10 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
-public class TileEntityClockRenderer extends TileEntitySpecialRenderer {
+public class TileEntityClockRenderer extends TileEntitySpecialRenderer<TileEntityClockEntity> {
 
 	private final ModelClock model;
 
@@ -17,7 +16,8 @@ public class TileEntityClockRenderer extends TileEntitySpecialRenderer {
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float partialTicks, int arg5) {
+	public void renderTileEntityAt(TileEntityClockEntity te, double x, double y, double z, float partialTicks,
+			int arg5) {
 		boolean facing = te.getBlockMetadata() >= 8;
 		model.time = getWorld().getWorldTime();
 		GlStateManager.pushMatrix();

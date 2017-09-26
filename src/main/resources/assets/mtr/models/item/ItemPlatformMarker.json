@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "blocks/stone",
+		"layer1": "mtr:blocks/platform/Platform00"
+	}
+}

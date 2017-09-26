@@ -2,19 +2,20 @@ package MTR.blocks;
 
 import java.util.Random;
 
-import MTR.MTR;
+import MTR.MTRItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockEscalatorSide extends BlockWithDirection {
 
@@ -23,19 +24,18 @@ public class BlockEscalatorSide extends BlockWithDirection {
 	public static final PropertyBool SIDE = PropertyBool.create("side");
 
 	public BlockEscalatorSide() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setCreativeTab(null);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(FLAT, 0)
 				.withProperty(SIDE, false));
-		setUnlocalizedName(name);
 	}
 
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
 		EnumFacing facing = state.getValue(FACING);
 		int flat = worldIn.getBlockState(pos.offset(facing.rotateY()).down()).getBlock() instanceof BlockEscalatorSide
-				? 0 : 1;
+				? 0
+				: 1;
 		if (flat == 0
 				^ worldIn.getBlockState(pos.offset(facing.rotateYCCW()).up()).getBlock() instanceof BlockEscalatorSide)
 			flat += 2;
@@ -43,7 +43,7 @@ public class BlockEscalatorSide extends BlockWithDirection {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		EnumFacing facing = state.getValue(FACING);
 		BlockPos posSide = pos.offset(state.getValue(SIDE) ? facing.getOpposite() : facing);
 		if (!(worldIn.getBlockState(pos.down()).getBlock() instanceof BlockEscalatorStep
@@ -53,22 +53,20 @@ public class BlockEscalatorSide extends BlockWithDirection {
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
-		boolean side = access.getBlockState(pos).getValue(SIDE);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
+		boolean side = state.getValue(SIDE);
 		switch (var3.getHorizontalIndex()) {
 		case 0:
-			setBlockBounds(0.0F, 0.0F, side ? 0.75F : 0.0F, 1.0F, 1.0F, side ? 1.0F : 0.25F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, side ? 0.75F : 0.0F, 1.0F, 1.0F, side ? 1.0F : 0.25F);
 		case 1:
-			setBlockBounds(side ? 0.0F : 0.75F, 0.0F, 0.0F, side ? 0.25F : 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(side ? 0.0F : 0.75F, 0.0F, 0.0F, side ? 0.25F : 1.0F, 1.0F, 1.0F);
 		case 2:
-			setBlockBounds(0.0F, 0.0F, side ? 0.0F : 0.75F, 1.0F, 1.0F, side ? 0.25F : 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, side ? 0.0F : 0.75F, 1.0F, 1.0F, side ? 0.25F : 1.0F);
 		case 3:
-			setBlockBounds(side ? 0.75F : 0.0F, 0.0F, 0.0F, side ? 1.0F : 0.25F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(side ? 0.75F : 0.0F, 0.0F, 0.0F, side ? 1.0F : 0.25F, 1.0F, 1.0F);
+		default:
+			return NULL_AABB;
 		}
 	}
 
@@ -87,8 +85,8 @@ public class BlockEscalatorSide extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, FLAT, SIDE });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, FLAT, SIDE });
 	}
 
 	@Override
@@ -97,11 +95,7 @@ public class BlockEscalatorSide extends BlockWithDirection {
 	}
 
 	@Override
-	public Item getItem(World worldIn, BlockPos pos) {
-		return MTR.itemescalator;
-	}
-
-	public String getName() {
-		return name;
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itemescalator);
 	}
 }

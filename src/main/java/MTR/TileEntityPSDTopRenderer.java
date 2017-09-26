@@ -8,24 +8,22 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
-public class TileEntityPSDTopRenderer extends TileEntitySpecialRenderer {
+public class TileEntityPSDTopRenderer extends TileEntitySpecialRenderer<TileEntityPSDTopEntity> {
 
 	@Override
-	public void renderTileEntityAt(TileEntity te2, double x, double y, double z, float scale, int arg5) {
-		TileEntityPSDTopEntity te = (TileEntityPSDTopEntity) te2;
-		IBlockState stateBelow = getWorld().getBlockState(te2.getPos().down());
+	public void renderTileEntityAt(TileEntityPSDTopEntity te, double x, double y, double z, float scale, int arg5) {
+		IBlockState stateBelow = getWorld().getBlockState(te.getPos().down());
 		if (stateBelow.getBlock() instanceof BlockPSDDoor || stateBelow.getBlock() instanceof BlockPSDDoorClosed) {
 			boolean side = stateBelow.getValue(BlockPSD.SIDE);
 			if (te.arrow == 1 ^ side) {
 				int color = te.color;
-				int facing = te2.getBlockMetadata();
+				int facing = te.getBlockMetadata();
 				if (color > 0) {
 					int bound = te.bound;
 					GlStateManager.pushMatrix();
@@ -71,7 +69,7 @@ public class TileEntityPSDTopRenderer extends TileEntitySpecialRenderer {
 
 	private void renderWhiteEnd(int facing, boolean side) {
 		Tessellator tessellator = Tessellator.getInstance();
-		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		VertexBuffer worldrenderer = tessellator.getBuffer();
 		worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
 		bindTexture(new ResourceLocation("mtr:textures/blocks/BlockPSDTopBody.png"));
 		final double a = Math.sqrt(0.001953125);

@@ -5,11 +5,11 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -23,11 +23,15 @@ public class BlockRailSlope1 extends BlockRailBase2 {
 	public static final PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 7);
 
 	public BlockRailSlope1() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
+		
 		setDefaultState(blockState.getBaseState().withProperty(LEVEL, 0).withProperty(ROTATION, 0));
-		setUnlocalizedName(name);
-		setBlockBounds(0, 0, 0, 1, 1, 1);
+	}
+
+	@Override
+	public net.minecraft.util.math.AxisAlignedBB getBoundingBox(IBlockState p_getBoundingBox_1_,
+			IBlockAccess p_getBoundingBox_2_, net.minecraft.util.math.BlockPos p_getBoundingBox_3_) {
+		return new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 	}
 
 	@Override
@@ -35,20 +39,19 @@ public class BlockRailSlope1 extends BlockRailBase2 {
 		IBlockState state2 = worldIn.getBlockState(pos.add(0, 1, 0));
 		int var3 = 0;
 		if (state2.getBlock() instanceof BlockRailSlope2)
-			var3 = (Integer) state2.getValue(BlockRailSlope2.ROTATION);
+			var3 = state2.getValue(BlockRailSlope2.ROTATION);
 		return state.withProperty(ROTATION, var3);
 	}
 
 	@Override
-	public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list,
-			Entity collidingEntity) {
-		setBlockBounds(0, 0, 0, 1, (Integer) state.getValue(LEVEL) / 16F, 1);
-		super.addCollisionBoxesToList(worldIn, pos, state, mask, list, collidingEntity);
-		setBlockBounds(0, 0, 0, 1, 1, 1);
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, Entity entityIn) {
+		addCollisionBoxToList(pos, entityBox, collidingBoxes,
+				new AxisAlignedBB(0, 0, 0, 1, state.getValue(LEVEL) / 16F, 1));
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		if (!(worldIn.getBlockState(pos.add(0, 1, 0)).getBlock() instanceof BlockRailSlope2))
 			breakOtherBlocks(worldIn, pos);
 	}
@@ -98,20 +101,16 @@ public class BlockRailSlope1 extends BlockRailBase2 {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (Integer) state.getValue(LEVEL);
+		return state.getValue(LEVEL);
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { LEVEL, ROTATION });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { LEVEL, ROTATION });
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 2;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

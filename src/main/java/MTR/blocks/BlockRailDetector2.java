@@ -8,14 +8,13 @@ import com.google.common.base.Predicate;
 import MTR.EntityTrainBase;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockRailDetector2 extends BlockRailBase2 {
 
@@ -23,10 +22,8 @@ public class BlockRailDetector2 extends BlockRailBase2 {
 	public static final PropertyBool POWERED = PropertyBool.create("powered");
 
 	public BlockRailDetector2() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(POWERED, false).withProperty(ROTATION, 0));
-		setUnlocalizedName(name);
 	}
 
 	public void customCollide(World worldIn, BlockPos pos) {
@@ -82,12 +79,12 @@ public class BlockRailDetector2 extends BlockRailBase2 {
 	}
 
 	@Override
-	public int getWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side) {
+	public int getWeakPower(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
 		return state.getValue(POWERED) ? 15 : 0;
 	}
 
 	@Override
-	public boolean canProvidePower() {
+	public boolean canProvidePower(IBlockState state) {
 		return true;
 	}
 
@@ -102,16 +99,12 @@ public class BlockRailDetector2 extends BlockRailBase2 {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { POWERED, ROTATION });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { POWERED, ROTATION });
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 3;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

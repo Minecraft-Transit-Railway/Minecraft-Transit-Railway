@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GUIMap extends GuiScreen {
 	private GuiButton buttonDone;
-	TileEntityNextTrainEntity te;
+	private TileEntityNextTrainEntity te;
 
 	public GUIMap() {
 	}
@@ -20,12 +20,12 @@ public class GUIMap extends GuiScreen {
 	}
 
 	@Override
-	public void drawScreen(int parWidth, int parHeight, float p_73863_3_) {
+	public void drawScreen(int parWidth, int parHeight, float partialTicks) {
 		drawDefaultBackground();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.getTextureManager().bindTexture(new ResourceLocation("MTR:textures/Map.png"));
-		drawTexturedModalRect(width / 2 - 128, 0, 0, 0, 256, 256);
-		super.drawScreen(parWidth, parHeight, p_73863_3_);
+		drawTexturedModalRect(width / 2 - 128, height / 2 - 128, 0, 0, 256, 256);
+		super.drawScreen(parWidth, parHeight, partialTicks);
 	}
 
 	@Override

@@ -3,11 +3,12 @@ package MTR.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockRailStation extends BlockRailBase2 {
 
@@ -15,15 +16,19 @@ public class BlockRailStation extends BlockRailBase2 {
 	public static final PropertyBool POWERED = PropertyBool.create("powered");
 
 	public BlockRailStation() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(POWERED, false).withProperty(ROTATION, 0));
-		setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		worldIn.setBlockState(pos, state.withProperty(POWERED, worldIn.isBlockPowered(pos)));
+	}
+
+	@Override
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer,
+			ItemStack stack) {
+		neighborChanged(state, worldIn, pos, null);
 	}
 
 	@Override
@@ -33,20 +38,16 @@ public class BlockRailStation extends BlockRailBase2 {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (Integer) state.getValue(ROTATION) + ((Boolean) state.getValue(POWERED) ? 4 : 0);
+		return state.getValue(ROTATION) + (state.getValue(POWERED) ? 4 : 0);
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { POWERED, ROTATION });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { POWERED, ROTATION });
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 4;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

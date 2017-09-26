@@ -2,18 +2,19 @@ package MTR.blocks;
 
 import java.util.Random;
 
-import MTR.MTR;
+import MTR.MTRItems;
 import MTR.TileEntityPSDTopEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockPSDTop extends BlockPSDTopBase implements ITileEntityProvider {
 
@@ -30,9 +31,7 @@ public class BlockPSDTop extends BlockPSDTopBase implements ITileEntityProvider 
 	// 18, 19 - PSD Door (opened warning)
 
 	public BlockPSDTop() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 		setLightLevel(1F);
 	}
 
@@ -72,45 +71,38 @@ public class BlockPSDTop extends BlockPSDTopBase implements ITileEntityProvider 
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		if (access.getBlockState(pos.down()).getBlock() instanceof BlockPSDGlassVeryEnd)
-			setBlockBounds(0F, 0F, 0F, 1F, 1F, 1F);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		if (source.getBlockState(pos.down()).getBlock() instanceof BlockPSDGlassVeryEnd)
+			return new AxisAlignedBB(0F, 0F, 0F, 1F, 1F, 1F);
 		else {
-			EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+			EnumFacing var3 = state.getValue(FACING);
 			switch (var3) {
 			case NORTH:
-				setBlockBounds(0.0F, 0.0F, 0.0F, 0.375F, 1.0F, 1.0F);
-				break;
+				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.375F, 1.0F, 1.0F);
 			case EAST:
-				setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.375F);
-				break;
+				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.375F);
 			case SOUTH:
-				setBlockBounds(0.625F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-				break;
+				return new AxisAlignedBB(0.625F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 			case WEST:
-				setBlockBounds(0.0F, 0.0F, 0.625F, 1.0F, 1.0F, 1.0F);
-				break;
+				return new AxisAlignedBB(0.0F, 0.0F, 0.625F, 1.0F, 1.0F, 1.0F);
 			default:
+				return NULL_AABB;
 			}
 		}
 	}
 
 	@Override
-	public Item getItem(World arg0, BlockPos arg1) {
-		return MTR.itempsd;
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itempsd);
 	}
 
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return MTR.itempsd;
+		return MTRItems.itempsd;
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World arg0, int arg1) {
 		return new TileEntityPSDTopEntity();
-	}
-
-	public String getName() {
-		return name;
 	}
 }

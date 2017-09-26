@@ -3,16 +3,18 @@ package MTR.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockAdSide extends BlockWithDirection {
 
@@ -20,10 +22,8 @@ public class BlockAdSide extends BlockWithDirection {
 	public static final PropertyInteger AD = PropertyInteger.create("ad", 0, 3);
 
 	public BlockAdSide() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(AD, 0));
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -36,44 +36,40 @@ public class BlockAdSide extends BlockWithDirection {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		EnumFacing var5 = state.getValue(FACING);
 		if (!func_176381_b(worldIn, pos, var5)) {
 			dropBlockAsItem(worldIn, pos, state, 0);
 			worldIn.setBlockToAir(pos);
 		}
-		super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
+		super.neighborChanged(state, worldIn, pos, blockIn);
 	}
 
-	protected boolean func_176381_b(World worldIn, BlockPos pos, EnumFacing facing) {
-		return worldIn.getBlockState(pos.offset(facing.rotateYCCW())).getBlock() != Blocks.air;
+	private boolean func_176381_b(World worldIn, BlockPos pos, EnumFacing facing) {
+		return worldIn.getBlockState(pos.offset(facing.rotateYCCW())).getBlock() != Blocks.AIR;
 	}
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
 		state = state.cycleProperty(AD);
 		worldIn.setBlockState(pos, state, 2);
 		return true;
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
-		switch (var3) {
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		switch (state.getValue(FACING)) {
 		case NORTH:
-			setBlockBounds(0.0F, 0.0F, 0.125F, 0.0625F, 1.0F, 0.875F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.125F, 0.0625F, 1.0F, 0.875F);
 		case SOUTH:
-			setBlockBounds(0.9375F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
-			break;
+			return new AxisAlignedBB(0.9375F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
 		case EAST:
-			setBlockBounds(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 0.0625F);
-			break;
+			return new AxisAlignedBB(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 0.0625F);
 		case WEST:
-			setBlockBounds(0.125F, 0.0F, 0.9375F, 0.875F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.125F, 0.0F, 0.9375F, 0.875F, 1.0F, 1.0F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
@@ -84,23 +80,11 @@ public class BlockAdSide extends BlockWithDirection {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int var3 = state.getValue(FACING).getHorizontalIndex();
-		var3 = var3 + state.getValue(AD).intValue() * 4;
-		return var3;
+		return state.getValue(FACING).getHorizontalIndex() + state.getValue(AD).intValue() * 4;
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, AD });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, AD });
 	}
-
-	@Override
-	public int getRenderType() {
-		return 3;
-	}
-
-	public String getName() {
-		return name;
-	}
-
 }

@@ -3,14 +3,15 @@ package MTR;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 
-public class CommandTicTacToe implements ICommand {
+public class CommandTicTacToe extends CommandBase {
 
 	private final List aliases;
 
@@ -41,7 +42,7 @@ public class CommandTicTacToe implements ICommand {
 	}
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+	public void execute(MinecraftServer arg0, ICommandSender sender, String[] args) throws CommandException {
 		String name = sender.getName();
 
 		if (args.length == 0) {
@@ -52,13 +53,13 @@ public class CommandTicTacToe implements ICommand {
 		// ttt begin
 		if (args[0].contains("begin")) {
 			if (TileEntityPIDS1Entity.game) {
-				sender.addChatMessage(new ChatComponentText("A game is already in progress!"));
+				sender.addChatMessage(new TextComponentString("A game is already in progress!"));
 				return;
 			}
 			String player2 = "";
 			if (args.length > 1)
 				player2 = args[1];
-			sender.addChatMessage(new ChatComponentText(
+			sender.addChatMessage(new TextComponentString(
 					name + " has begun a game of Tic Tac Toe with " + (player2 == "" ? "AI" : player2)));
 			TileEntityPIDS1Entity.game = true;
 			TileEntityPIDS1Entity.p1 = name;
@@ -74,7 +75,7 @@ public class CommandTicTacToe implements ICommand {
 				|| args[0].contains("5") || args[0].contains("6") || args[0].contains("7") || args[0].contains("8")
 				|| args[0].contains("9")) {
 			if (!TileEntityPIDS1Entity.game) {
-				sender.addChatMessage(new ChatComponentText("No game has been started."));
+				sender.addChatMessage(new TextComponentString("No game has been started."));
 				return;
 			}
 			if (name.contains(TileEntityPIDS1Entity.p1) && name.length() == TileEntityPIDS1Entity.p1.length()
@@ -88,7 +89,7 @@ public class CommandTicTacToe implements ICommand {
 				}
 				return;
 			}
-			sender.addChatMessage(new ChatComponentText("It is "
+			sender.addChatMessage(new TextComponentString("It is "
 					+ (TileEntityPIDS1Entity.turn ? TileEntityPIDS1Entity.p2 : TileEntityPIDS1Entity.p1) + "'s turn!"));
 			return;
 		}
@@ -96,7 +97,7 @@ public class CommandTicTacToe implements ICommand {
 		// ttt show
 		if (args[0].contains("show")) {
 			if (!TileEntityPIDS1Entity.game) {
-				sender.addChatMessage(new ChatComponentText("No game has been started."));
+				sender.addChatMessage(new TextComponentString("No game has been started."));
 				return;
 			}
 			TileEntityPIDS1Entity.showBoard(sender);
@@ -108,11 +109,11 @@ public class CommandTicTacToe implements ICommand {
 			if (name.contains(TileEntityPIDS1Entity.p1) && name.length() == TileEntityPIDS1Entity.p1.length()
 					|| name.contains(TileEntityPIDS1Entity.p2) && name.length() == TileEntityPIDS1Entity.p2.length()) {
 				TileEntityPIDS1Entity.game = false;
-				sender.addChatMessage(new ChatComponentText("Game ended."));
+				sender.addChatMessage(new TextComponentString("Game ended."));
 				return;
 			}
 			if (!TileEntityPIDS1Entity.game) {
-				sender.addChatMessage(new ChatComponentText("No game has been started."));
+				sender.addChatMessage(new TextComponentString("No game has been started."));
 				return;
 			}
 		}
@@ -120,18 +121,22 @@ public class CommandTicTacToe implements ICommand {
 		sendError(sender);
 	}
 
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 0;
+	}
+
 	private void sendError(ICommandSender sender) {
-		sender.addChatMessage(new ChatComponentText(
-				EnumChatFormatting.RED + "Usage: /ttt begin [player] OR /ttt <square> OR /ttt end"));
+		sender.addChatMessage(new TextComponentString("Usage: /ttt begin [player] OR /ttt <square> OR /ttt end"));
 	}
 
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender sender) {
+	public boolean checkPermission(MinecraftServer arg0, ICommandSender sender) {
 		return true;
 	}
 
 	@Override
-	public List addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+	public List getTabCompletionOptions(MinecraftServer arg0, ICommandSender sender, String[] args, BlockPos pos) {
 		return null;
 	}
 

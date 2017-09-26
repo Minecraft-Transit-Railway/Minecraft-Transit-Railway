@@ -1,17 +1,17 @@
 package MTR.blocks;
 
-import MTR.MTR;
+import MTR.MTRBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockTicketMachine extends BlockWithDirection {
 
@@ -19,10 +19,8 @@ public class BlockTicketMachine extends BlockWithDirection {
 	public static final PropertyBool TOP = PropertyBool.create("top");
 
 	public BlockTicketMachine() {
-		super();
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(TOP, false));
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -32,7 +30,7 @@ public class BlockTicketMachine extends BlockWithDirection {
 		if (worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos)
 				&& worldIn.getBlockState(pos.up()).getBlock().isReplaceable(worldIn, pos.up())) {
 			worldIn.setBlockState(pos.up(),
-					MTR.blockticketmachine.getDefaultState().withProperty(FACING, var9).withProperty(TOP, true));
+					MTRBlocks.blockticketmachine.getDefaultState().withProperty(FACING, var9).withProperty(TOP, true));
 			return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(FACING, var9)
 					.withProperty(TOP, false);
 		} else
@@ -40,23 +38,23 @@ public class BlockTicketMachine extends BlockWithDirection {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		BlockPos var10 = state.getValue(TOP) ? pos.add(0, -1, 0) : pos;
-		if (worldIn.getBlockState(var10).getBlock() != MTR.blockticketmachine
-				|| worldIn.getBlockState(var10.up()).getBlock() != MTR.blockticketmachine) {
+		if (worldIn.getBlockState(var10).getBlock() != MTRBlocks.blockticketmachine
+				|| worldIn.getBlockState(var10.up()).getBlock() != MTRBlocks.blockticketmachine) {
 			worldIn.setBlockToAir(var10);
 			worldIn.setBlockToAir(var10.up());
 		}
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
-		boolean top = access.getBlockState(pos).getValue(TOP);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
+		boolean top = state.getValue(TOP);
 		if (var3.getAxis() == EnumFacing.Axis.X)
-			setBlockBounds(0.0F, 0.0F, 0.125F, 1.0F, top ? 0.875F : 1F, 0.875F);
+			return new AxisAlignedBB(0.0F, 0.0F, 0.125F, 1.0F, top ? 0.875F : 1F, 0.875F);
 		else
-			setBlockBounds(0.125F, 0.0F, 0.0F, 0.875F, top ? 0.875F : 1F, 1.0F);
+			return new AxisAlignedBB(0.125F, 0.0F, 0.0F, 0.875F, top ? 0.875F : 1F, 1.0F);
 	}
 
 	/**
@@ -80,11 +78,7 @@ public class BlockTicketMachine extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, TOP });
-	}
-
-	public String getName() {
-		return name;
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, TOP });
 	}
 }

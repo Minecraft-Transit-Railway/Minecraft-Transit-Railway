@@ -1,0 +1,53 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:blocks/Metal",
+		"main": "mtr:blocks/Metal"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 8, 16 ],
+			"faces": {
+				"down":  { "texture": "#main", "cullface": "down" },
+				"up":	{ "texture": "#main" },
+				"east": { "texture": "#main", "cullface": "east" },
+				"west": { "texture": "#main", "cullface": "west" },
+				"north":  { "texture": "#main", "cullface": "north" },
+				"south":  { "texture": "#main", "cullface": "south" }
+			}
+		},
+		{
+			"from": [ 0, 8.01, 0 ],
+			"to": [ 16, 8.01, 16 ],
+			"faces": {
+				"up":  { "texture": "#arrow" }
+			}
+		},
+		{
+			"from": [ 0, 8.01, 0 ],
+			"to": [ 16, 8.01, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "y", "angle": -45 },
+			"faces": {
+				"up":  { "texture": "#arrow45" }
+			}
+		},
+		{
+			"from": [ 0, 0, 8 ],
+			"to": [ 16, 16, 8 ],
+			"faces": {
+				"north":  { "texture": "#rail" },
+				"south":  { "texture": "#rail" }
+			}
+		},
+		{
+			"from": [ 0, 0, 8 ],
+			"to": [ 16, 16, 8 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "y", "angle": -45 },
+			"faces": {
+				"north":  { "texture": "#rail45" },
+				"south":  { "texture": "#rail45" }
+			}
+		}
+	]
+}

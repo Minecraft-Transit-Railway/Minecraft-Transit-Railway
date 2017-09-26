@@ -9,9 +9,10 @@ import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class MTRDispenserBehavior {
@@ -20,11 +21,11 @@ public class MTRDispenserBehavior {
 		@Override
 		protected ItemStack dispenseStack(IBlockSource source, ItemStack stack) {
 			World worldIn = source.getWorld();
-			BlockPos pos = source.getBlockPos().offset(BlockDispenser.getFacing(source.getBlockMetadata()));
+			EnumFacing facing = source.getBlockState().getValue(BlockDispenser.FACING);
+			BlockPos pos = source.getBlockPos().offset(facing, 2);
 			if (!worldIn.isRemote && stack.getItem() instanceof ItemKillTrain) {
 				List<Entity> e = worldIn.getEntitiesWithinAABB(EntityTrainBase.class,
-						AxisAlignedBB.fromBounds(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1,
-								pos.getY() + 1, pos.getZ() + 1));
+						new AxisAlignedBB(pos.north(2).east(2).up(3), pos.south(2).west(2).down()));
 				if (e.size() > 0) {
 					EntityTrainBase entity = (EntityTrainBase) e.get(0);
 					entity.killTrain();
@@ -38,10 +39,13 @@ public class MTRDispenserBehavior {
 		@Override
 		protected ItemStack dispenseStack(IBlockSource source, ItemStack stack) {
 			World worldIn = source.getWorld();
-			BlockPos pos = source.getBlockPos().offset(BlockDispenser.getFacing(source.getBlockMetadata()));
+			EnumFacing facing = source.getBlockState().getValue(BlockDispenser.FACING);
+			BlockPos pos = source.getBlockPos().offset(facing);
+			if (!(worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster))
+				pos = source.getBlockPos().offset(facing, 2);
 			if (!worldIn.isRemote && worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster)
-				MTR.itemlightrail1.onItemUse(stack, null, worldIn, pos, EnumFacing.getFront(source.getBlockMetadata()),
-						pos.getX(), pos.getY(), pos.getZ());
+				MTRItems.itemlightrail1.onItemUse(stack, null, worldIn, pos, EnumHand.MAIN_HAND, facing, pos.getX(),
+						pos.getY(), pos.getZ());
 			return stack;
 		}
 	}
@@ -50,10 +54,13 @@ public class MTRDispenserBehavior {
 		@Override
 		protected ItemStack dispenseStack(IBlockSource source, ItemStack stack) {
 			World worldIn = source.getWorld();
-			BlockPos pos = source.getBlockPos().offset(BlockDispenser.getFacing(source.getBlockMetadata()));
+			EnumFacing facing = source.getBlockState().getValue(BlockDispenser.FACING);
+			BlockPos pos = source.getBlockPos().offset(facing);
+			if (!(worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster))
+				pos = source.getBlockPos().offset(facing, 2);
 			if (!worldIn.isRemote && worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster)
-				MTR.itemsp1900.onItemUse(stack, null, worldIn, pos, EnumFacing.getFront(source.getBlockMetadata()),
-						pos.getX(), pos.getY(), pos.getZ());
+				MTRItems.itemsp1900.onItemUse(stack, null, worldIn, pos, EnumHand.MAIN_HAND, facing, pos.getX(),
+						pos.getY(), pos.getZ());
 			return stack;
 		}
 	}

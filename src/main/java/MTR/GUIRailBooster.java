@@ -8,8 +8,8 @@ public class GUIRailBooster extends GuiScreen {
 	private GuiButton buttonDone, buttonBoostAdd1, buttonBoostSubtract1, buttonBoostAdd10, buttonBoostSubtract10,
 			buttonBoostAdd100, buttonBoostSubtract100, buttonSlowAdd1, buttonSlowSubtract1, buttonSlowAdd10,
 			buttonSlowSubtract10, buttonSlowAdd100, buttonSlowSubtract100;
-	int speedBoost, speedSlow, arrow;
-	TileEntityRailBoosterEntity te;
+	private int speedBoost, speedSlow, arrow;
+	private TileEntityRailBoosterEntity te;
 
 	public GUIRailBooster(TileEntityRailBoosterEntity tEntity) {
 		te = tEntity;

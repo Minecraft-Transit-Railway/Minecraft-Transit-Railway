@@ -2,61 +2,46 @@ package MTR.blocks;
 
 import java.util.Random;
 
-import MTR.EntityTrainBase;
-import MTR.MTR;
-import MTR.TileEntityTrainTimerEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
+import MTR.BlockBase;
+import MTR.items.ItemBrush;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockTrainTimer extends Block implements ITileEntityProvider {
+public class BlockTrainTimer extends BlockBase {
 
 	private static final String name = "BlockTrainTimer";
 	public static final PropertyInteger FACING = PropertyInteger.create("facing", 0, 4);
 	public static final PropertyBool LIGHT = PropertyBool.create("light");
+	public static final PropertyInteger TIME = PropertyInteger.create("time", 0, 3);
 	public static final PropertyBool TRACK = PropertyBool.create("track");
+	private static final int[] times = { 5, 10, 20, 30 };
 
 	public BlockTrainTimer() {
-		super(Material.circuits);
+		super(Material.CIRCUITS, name);
 		setHardness(0.5F);
-		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRTab);
-		setDefaultState(blockState.getBaseState().withProperty(FACING, 0).withProperty(LIGHT, false).withProperty(TRACK,
-				false));
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
-		setTickRandomly(true);
-		setUnlocalizedName(name);
+		setDefaultState(blockState.getBaseState().withProperty(FACING, 0).withProperty(LIGHT, false)
+				.withProperty(TIME, 0).withProperty(TRACK, false));
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World arg0, int arg1) {
-		return new TileEntityTrainTimerEntity();
-	}
-
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (worldIn.isRemote) {
-			TileEntityTrainTimerEntity te = (TileEntityTrainTimerEntity) worldIn.getTileEntity(pos);
-			;
-			// MTR.proxy.openGUI(te);
-		}
-		return true;
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
 	}
 
 	@Override
@@ -78,18 +63,31 @@ public class BlockTrainTimer extends Block implements ITileEntityProvider {
 	}
 
 	public void onTrainCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entity) {
-		try {
-			EntityTrainBase entityTrains = (EntityTrainBase) entity;
-			if (!(Boolean) state.getValue(LIGHT) && !(Boolean) state.getValue(TRACK)) {
-				worldIn.setBlockState(pos, state.withProperty(LIGHT, true).withProperty(TRACK, false));
-				worldIn.scheduleUpdate(pos, this, 160);
-			}
-		} catch (Exception e) {
-		}
+		if (!worldIn.isUpdateScheduled(pos, worldIn.getBlockState(pos).getBlock()))
+			worldIn.scheduleUpdate(pos, this, 40);
+	}
+
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+		ItemStack itemStack = playerIn.inventory.getCurrentItem();
+		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
+			worldIn.setBlockState(pos, state.cycleProperty(TIME));
+			int time = worldIn.getBlockState(pos).getValue(TIME);
+			if (!worldIn.isRemote)
+				playerIn.addChatComponentMessage(new TextComponentString(I18n.format("gui.timertext", new Object[0])
+						+ " " + times[time] + " " + I18n.format("gui.seconds", new Object[0])));
+			return true;
+		} else
+			return false;
 	}
 
 	@Override
 	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+		if (!state.getValue(LIGHT) && !state.getValue(TRACK)) {
+			worldIn.setBlockState(pos, state.withProperty(LIGHT, true).withProperty(TRACK, false));
+			worldIn.scheduleUpdate(pos, this, 20 * times[state.getValue(TIME)]);
+		}
 		if (state.getValue(TRACK))
 			worldIn.setBlockState(pos, state.withProperty(LIGHT, false).withProperty(TRACK, false));
 		if (state.getValue(LIGHT)) {
@@ -99,7 +97,7 @@ public class BlockTrainTimer extends Block implements ITileEntityProvider {
 	}
 
 	@Override
-	public int getWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side) {
+	public int getWeakPower(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
 		boolean railside = false, powered = false;
 		if (worldIn.getBlockState(pos.offset(side.getOpposite())).getBlock() instanceof BlockRailStation)
 			railside = true;
@@ -110,52 +108,42 @@ public class BlockTrainTimer extends Block implements ITileEntityProvider {
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(LIGHT, meta % 2 == 1).withProperty(TRACK, meta > 1);
+		return getDefaultState().withProperty(TIME, meta % 4).withProperty(LIGHT, (meta & 4) > 0).withProperty(TRACK,
+				(meta & 8) > 0);
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int a = state.getValue(LIGHT) ? 1 : 0;
-		a = a + (state.getValue(TRACK) ? 2 : 0);
-		return a;
+		return state.getValue(TIME) + (state.getValue(LIGHT) ? 4 : 0) + (state.getValue(TRACK) ? 8 : 0);
 	}
 
 	@Override
-	public boolean canProvidePower() {
+	public boolean canProvidePower(IBlockState state) {
 		return true;
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
 		return null;
 	}
 
 	@Override
-	public int getRenderType() {
-		return 3;
-	}
-
-	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public EnumWorldBlockLayer getBlockLayer() {
-		return EnumWorldBlockLayer.CUTOUT;
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
 	}
 
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, LIGHT, TRACK });
-	}
-
-	public String getName() {
-		return name;
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, LIGHT, TIME, TRACK });
 	}
 }

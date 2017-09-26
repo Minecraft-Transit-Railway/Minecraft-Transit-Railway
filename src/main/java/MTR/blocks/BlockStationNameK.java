@@ -8,9 +8,7 @@ public class BlockStationNameK extends BlockStationNameBase {
 	private static final String name = "BlockStationNameKOT";
 
 	public BlockStationNameK() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 	}
 
 	@Override

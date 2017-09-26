@@ -3,20 +3,22 @@ package MTR.blocks;
 import java.util.List;
 import java.util.Random;
 
-import MTR.MTR;
+import javax.annotation.Nullable;
+
+import MTR.MTRItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockEscalatorStep extends BlockWithDirection {
 
@@ -26,12 +28,10 @@ public class BlockEscalatorStep extends BlockWithDirection {
 	// stop, down, up
 
 	public BlockEscalatorStep() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setCreativeTab(null);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(SIDE, 0)
 				.withProperty(UP, 0));
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -48,40 +48,39 @@ public class BlockEscalatorStep extends BlockWithDirection {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		if (!(worldIn.getBlockState(pos.up()).getBlock() instanceof BlockEscalatorSide))
 			worldIn.setBlockToAir(pos);
 	}
 
 	@Override
-	public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list,
-			Entity collidingEntity) {
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+			List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
 		EnumFacing var3 = state.getValue(FACING);
 		final float b = 256F;
 		if (!getFlat(worldIn, pos, var3))
 			for (int a = 0; a < b; a++) {
+				AxisAlignedBB box = NULL_AABB;
 				switch (var3) {
 				case NORTH:
-					setBlockBounds(0.0F, 0.0F, 0.0F, 1F - a / b, a / b, 1.0F);
+					box = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1F - a / b, a / b, 1.0F);
 					break;
 				case EAST:
-					setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, a / b, 1F - a / b);
+					box = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, a / b, 1F - a / b);
 					break;
 				case SOUTH:
-					setBlockBounds(a / b, 0.0F, 0.0F, 1.0F, a / b, 1.0F);
+					box = new AxisAlignedBB(a / b, 0.0F, 0.0F, 1.0F, a / b, 1.0F);
 					break;
 				case WEST:
-					setBlockBounds(0.0F, 0.0F, a / b, 1.0F, a / b, 1.0F);
+					box = new AxisAlignedBB(0.0F, 0.0F, a / b, 1.0F, a / b, 1.0F);
 					break;
 				default:
 				}
-				super.addCollisionBoxesToList(worldIn, pos, state, mask, list, collidingEntity);
+				addCollisionBoxToList(pos, entityBox, collidingBoxes, box);
 			}
-		else {
-			setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F);
-			super.addCollisionBoxesToList(worldIn, pos, state, mask, list, collidingEntity);
-		}
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+		else
+			addCollisionBoxToList(pos, entityBox, collidingBoxes,
+					new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F));
 	}
 
 	@Override
@@ -121,8 +120,8 @@ public class BlockEscalatorStep extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE, UP });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, UP });
 	}
 
 	@Override
@@ -131,8 +130,8 @@ public class BlockEscalatorStep extends BlockWithDirection {
 	}
 
 	@Override
-	public Item getItem(World worldIn, BlockPos pos) {
-		return MTR.itemescalator;
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itemescalator);
 	}
 
 	private boolean getFlat(IBlockAccess worldIn, BlockPos pos, EnumFacing facing) {
@@ -154,9 +153,5 @@ public class BlockEscalatorStep extends BlockWithDirection {
 			block.updateNeighbors(worldIn, pos);
 		} catch (Exception e) {
 		}
-	}
-
-	public String getName() {
-		return name;
 	}
 }

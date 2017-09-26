@@ -8,16 +8,15 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
+public class TileEntityDoorRenderer extends TileEntitySpecialRenderer<TileEntityDoorEntity> {
 
 	private final ModelAPGDoorBottom model1;
 	private final ModelAPGDoorTop model2;
@@ -28,7 +27,7 @@ public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float scale, int arg5) {
+	public void renderTileEntityAt(TileEntityDoorEntity te, double x, double y, double z, float scale, int arg5) {
 		int meta = te.getBlockMetadata();
 		int facing = meta % 4;
 		boolean side = (meta & 4) > 0;
@@ -36,9 +35,9 @@ public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
 		World worldIn = te.getWorld();
 		BlockPos pos = te.getPos();
 		if (worldIn.getBlockState(pos).getBlock() instanceof BlockPSDDoor)
-			renderPSD((TileEntityDoorEntity) te, x, y, z, worldIn, pos, facing, side, top);
+			renderPSD(te, x, y, z, worldIn, pos, facing, side, top);
 		else
-			renderAPG((TileEntityDoorEntity) te, x, y, z, worldIn, pos, facing, side, top);
+			renderAPG(te, x, y, z, worldIn, pos, facing, side, top);
 	}
 
 	private void renderPSD(TileEntityDoorEntity te, double x, double y, double z, World worldIn, BlockPos pos,
@@ -51,8 +50,9 @@ public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
 				|| block3 instanceof BlockPSDGlassEnd || block4 instanceof BlockPSDGlassEnd;
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
+		GlStateManager.disableLighting();
 		Tessellator tessellator = Tessellator.getInstance();
-		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		VertexBuffer worldrenderer = tessellator.getBuffer();
 		bindTexture(new ResourceLocation("mtr:textures/blocks/BlockPSDDoor" + (end ? "End" : "") + ".png"));
 		worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
 		if (end)
@@ -60,10 +60,11 @@ public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
 		else
 			renderPSDDoor(worldrenderer, facing, side, top, te.position);
 		tessellator.draw();
+		GlStateManager.enableLighting();
 		GlStateManager.popMatrix();
 	}
 
-	private void renderPSDDoor(WorldRenderer wr, int facing, boolean side, boolean top, int position) {
+	private void renderPSDDoor(VertexBuffer wr, int facing, boolean side, boolean top, int position) {
 		switch (facing) {
 		case 0:
 			GlStateManager.translate(0, 0, position / (side ? 32F : -32F));
@@ -160,7 +161,7 @@ public class TileEntityDoorRenderer extends TileEntitySpecialRenderer {
 		}
 	}
 
-	private void renderPSDDoorEnd(WorldRenderer wr, int facing, boolean side, boolean top, int position) {
+	private void renderPSDDoorEnd(VertexBuffer wr, int facing, boolean side, boolean top, int position) {
 		float p1 = position / (side ? 32F : -32F), p2 = position / (side ? 64F : -64F);
 		switch (facing) {
 		case 0:

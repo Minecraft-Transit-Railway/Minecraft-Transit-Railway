@@ -1,0 +1,33 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{
+			"from": [ 0, 2.01, 0 ],
+			"to": [ 1, 2.01, 16 ],
+			"faces": {
+				"up": { "texture": "#slab" }
+			}
+		},
+		{
+			"from": [ 0, 2.01, 0 ],
+			"to": [ 16, 2.01, 1 ],
+			"faces": {
+				"up": { "texture": "#slab" }
+			}
+		},
+		{
+			"from": [ 15, 2.01, 0 ],
+			"to": [ 16, 2.01, 16 ],
+			"faces": {
+				"up": { "texture": "#slab" }
+			}
+		},
+		{
+			"from": [ 0, 2.01, 15 ],
+			"to": [ 16, 2.01, 16 ],
+			"faces": {
+				"up": { "texture": "#slab" }
+			}
+		}
+	]
+}

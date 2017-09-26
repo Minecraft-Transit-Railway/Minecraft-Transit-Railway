@@ -6,17 +6,16 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityStationNameRenderer extends TileEntitySpecialRenderer {
+public class TileEntityStationNameRenderer extends TileEntitySpecialRenderer<TileEntityStationNameEntity> {
 
 	public TileEntityStationNameRenderer() {
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntity te2, double x, double y, double z, float partialTicks, int destroyStage) {
-		TileEntityStationNameEntity te = (TileEntityStationNameEntity) te2;
-		int meta = te2.getBlockMetadata();
+	public void renderTileEntityAt(TileEntityStationNameEntity te, double x, double y, double z, float partialTicks,
+			int destroyStage) {
+		int meta = te.getBlockMetadata();
 		int facing = meta % 4;
 		GlStateManager.pushMatrix();
 		GlStateManager.pushAttrib();

@@ -1,32 +1,33 @@
 package MTR.blocks;
 
+import MTR.MTRItems;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.world.World;
 
 public class BlockPSDGlassVeryEnd extends BlockPSD {
 
 	private static final String name = "BlockPSDGlassVeryEnd";
 
 	public BlockPSDGlassVeryEnd() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		setUnlocalizedName(name);
+		super(name);
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+	}
+
+	@Override
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itempsd, 1, 2);
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 2;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

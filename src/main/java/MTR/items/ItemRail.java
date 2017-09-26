@@ -2,15 +2,22 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
+import MTR.MTRBlocks;
+import MTR.MathTools;
+import MTR.TileEntityRailEntity;
 import MTR.blocks.BlockRailBase2;
 import MTR.blocks.BlockRailBooster;
 import MTR.blocks.BlockRailCurved;
 import MTR.blocks.BlockRailDetector2;
+import MTR.blocks.BlockRailDummy;
+import MTR.blocks.BlockRailMarker;
+import MTR.blocks.BlockRailReverse;
 import MTR.blocks.BlockRailSlope1;
 import MTR.blocks.BlockRailSlope2;
 import MTR.blocks.BlockRailStation;
 import MTR.blocks.BlockRailStraight;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -19,28 +26,24 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemRail extends Item {
+public class ItemRail extends ItemBase {
 
-	public static final String name1 = "ItemRailNormal";
-	public static final String name2 = "ItemRailBooster";
-	public static final String name3 = "ItemRailSlopeUp";
-	public static final String name4 = "ItemRailSlopeDown";
-	public static final String name5 = "ItemRailDetector";
-	public static final String name6 = "ItemRailStation";
+	private static final String[] name = { "ItemRailNormal", "ItemRailBooster", "ItemRailSlopeUp", "ItemRailSlopeDown",
+			"ItemRailDetector", "ItemRailStation", "ItemRailReverse", "ItemRailIntersection" };
 
 	public ItemRail() {
+		super(name);
 		maxStackSize = 1;
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name1);
-		setUnlocalizedName(name1);
 	}
 
 	@Override
@@ -51,8 +54,8 @@ public class ItemRail extends Item {
 
 			NBTTagCompound t = stack.getTagCompound();
 			if (t != null)
-				list.add(I18n.format("gui.connect", new Object[0]) + " " + t.getInteger("posX") + ", "
-						+ t.getInteger("posY") + ", " + t.getInteger("posZ"));
+				list.add(I18n.format("gui.connect", new Object[0]) + " " + t.getInteger("trackX") + ", "
+						+ t.getInteger("trackY") + ", " + t.getInteger("trackZ"));
 			else
 				list.add(I18n.format("gui.ready", new Object[0]));
 
@@ -72,76 +75,97 @@ public class ItemRail extends Item {
 		case 5:
 			list.add(I18n.format("gui.railstation", new Object[0]));
 			break;
+		case 6:
+			list.add(I18n.format("gui.railreverse", new Object[0]));
+			break;
+		case 7:
+			list.add(I18n.format("gui.railintersection", new Object[0]));
+			break;
 		}
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn,
+			EnumHand hand) {
+		itemStackIn.setTagCompound(null);
+		if (worldIn.isRemote)
+			playerIn.addChatComponentMessage(new TextComponentString(I18n.format("gui.ready", new Object[0])));
+		return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
+	}
+
+	@Override
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		IBlockState stateThis = worldIn.getBlockState(pos);
 		if (!stateThis.getBlock().isReplaceable(worldIn, pos))
-			pos = pos.offset(side);
+			pos = pos.offset(facing);
 		stateThis = worldIn.getBlockState(pos);
 		if (!stateThis.getBlock().isReplaceable(worldIn, pos))
-			return false;
+			return EnumActionResult.FAIL;
 		int rotation = MathHelper.floor_double((playerIn.rotationYaw + 180.0F) * 8.0F / 360.0F + 0.5D) & 3;
+		int rotation2 = MathHelper.floor_double((playerIn.rotationYaw + 180.0F) * 8.0F / 360.0F + 0.5D) & 7;
 		switch (stack.getMetadata()) {
 		case 0:
-			placeNormalRails(stack, playerIn, worldIn, pos, rotation);
+			placeNormalRails(stack, playerIn, worldIn, pos, rotation, rotation2);
 			break;
 		case 1:
-			int rotation2 = MathHelper.floor_double((playerIn.rotationYaw + 180.0F) * 8.0F / 360.0F + 0.5D) & 7;
 			worldIn.setBlockState(pos,
-					MTR.blockrailbooster.getDefaultState()
+					MTRBlocks.blockrailbooster.getDefaultState()
 							.withProperty(BlockRailBooster.POWERED, worldIn.isBlockPowered(pos))
 							.withProperty(BlockRailBooster.ROTATION, rotation2));
 			break;
 		case 2:
-			int rotation3 = MathHelper.floor_double((playerIn.rotationYaw + 180.0F) * 8.0F / 360.0F + 0.5D) & 7;
-			placeSlopeRails(worldIn, pos, rotation3, true);
+			placeSlopeRails(worldIn, pos, rotation2, true);
 			break;
 		case 3:
-			int rotation4 = MathHelper.floor_double((playerIn.rotationYaw + 180.0F) * 8.0F / 360.0F + 0.5D) & 7;
-			placeSlopeRails(worldIn, pos, rotation4, false);
+			placeSlopeRails(worldIn, pos, rotation2, false);
 			break;
 		case 4:
 			worldIn.setBlockState(pos,
-					MTR.blockraildetector.getDefaultState().withProperty(BlockRailDetector2.ROTATION, rotation));
+					MTRBlocks.blockraildetector.getDefaultState().withProperty(BlockRailDetector2.ROTATION, rotation));
 			break;
 		case 5:
 			worldIn.setBlockState(pos,
-					MTR.blockrailstation.getDefaultState().withProperty(BlockRailStation.ROTATION, rotation));
+					MTRBlocks.blockrailstation.getDefaultState().withProperty(BlockRailStation.ROTATION, rotation));
+			break;
+		case 6:
+			worldIn.setBlockState(pos,
+					MTRBlocks.blockrailreverse.getDefaultState().withProperty(BlockRailReverse.ROTATION, rotation));
+			break;
+		case 7:
+			worldIn.setBlockState(pos, MTRBlocks.blockrailintersection.getDefaultState());
 			break;
 		}
-		return true;
+		return EnumActionResult.SUCCESS;
 	}
 
-	private void placeNormalRails(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, int i1) {
+	private void placeNormalRails(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, int i1,
+			int rotation2) {
 		// place block
 		int x1 = pos.getX(), y1 = pos.getY(), z1 = pos.getZ();
 		worldIn.setBlockState(pos,
-				MTR.blockrailstraight.getDefaultState().withProperty(BlockRailStraight.ROTATION, i1));
+				MTRBlocks.blockrailmarker.getDefaultState().withProperty(BlockRailMarker.ROTATION, i1));
 
 		if (stack.getTagCompound() == null) {
 			// if no previous block
 			stack.setTagCompound(new NBTTagCompound());
 			NBTTagCompound t = stack.getTagCompound();
 			// set item data to current coords
-			t.setInteger("posX", x1);
-			t.setInteger("posY", y1);
-			t.setInteger("posZ", z1);
+			t.setInteger("trackX", x1);
+			t.setInteger("trackY", y1);
+			t.setInteger("trackZ", z1);
 			if (worldIn.isRemote)
-				playerIn.addChatComponentMessage(new ChatComponentText(I18n.format("gui.connect", new Object[0]) + " "
-						+ t.getInteger("posX") + ", " + t.getInteger("posY") + ", " + t.getInteger("posZ")));
-		} else if (stack.getTagCompound().getInteger("posY") == y1) {
+				playerIn.addChatComponentMessage(new TextComponentString(I18n.format("gui.connect", new Object[0]) + " "
+						+ t.getInteger("trackX") + ", " + t.getInteger("trackY") + ", " + t.getInteger("trackZ")));
+		} else if (stack.getTagCompound().getInteger("trackY") == y1) {
 			// if there is a previous block
 			NBTTagCompound t = stack.getTagCompound();
-			int x2 = t.getInteger("posX");
-			int y2 = t.getInteger("posY");
-			int z2 = t.getInteger("posZ");
+			int x2 = t.getInteger("trackX");
+			int y2 = t.getInteger("trackY");
+			int z2 = t.getInteger("trackZ");
 			BlockPos pos2 = new BlockPos(x2, y2, z2);
 			IBlockState state = worldIn.getBlockState(pos2);
-			int i2 = (Integer) state.getValue(BlockRailBase2.ROTATION);
+			int i2 = state.getValue(BlockRailBase2.ROTATION);
 			int angle1 = (int) Math.round((-45D * i1 + 270D) % 180);
 			int angle2 = (int) Math.round((-45D * i2 + 270D) % 180);
 
@@ -212,13 +236,11 @@ public class ItemRail extends Item {
 
 	private void connectWithCurve(World worldIn, EntityPlayer playerIn, int x1, int z1, int x2, int z2, int y, int i1,
 			int i2, int r, int h, int k) {
-		if (r < 20 || r > 255) {
+		if (r < 3 || r > 255) {
 			if (worldIn.isRemote)
-				playerIn.addChatComponentMessage(new ChatComponentText(I18n.format("gui.railradius", new Object[0])));
+				playerIn.addChatComponentMessage(new TextComponentString(I18n.format("gui.railradius", new Object[0])));
 			return;
 		}
-		IBlockState curvedRail = MTR.blockrailcurved.getDefaultState();
-		IBlockState dummyRail = MTR.blockraildummy.getDefaultState();
 		int angle1 = (int) Math.round((-45D * i1 + 270D) % 180);
 		int angle2 = (int) Math.round((-45D * i2 + 270D) % 180);
 		if (x1 < k)
@@ -229,60 +251,68 @@ public class ItemRail extends Item {
 			angle2 += 180;
 		if (angle2 == 0 && z2 < h)
 			angle2 = 180;
-		boolean reverse = findCloserAngle(angle2, angle1 + 1, angle1 - 1) == angle1 - 1;
-		double start = angle1;
-		double i = start;
+		boolean reverse = MathTools.findCloserAngle(angle2, angle1 + 1, angle1 - 1) == angle1 - 1;
+		IBlockState curvedRail = MTRBlocks.blockrailcurved.getDefaultState();
+		IBlockState dummyRail = MTRBlocks.blockraildummy.getDefaultState();
+		double i = angle1;
 		while (i != angle2) {
 			i = Math.round((i + (reverse ? -0.01 : 0.01)) * 100) / 100D;
 			if (i < 0)
 				i += 360;
 			if (i >= 360)
 				i = i - 360;
-			double a = i * Math.PI / 180D;
+			double a = Math.toRadians(i);
 			int x = (int) Math.round(k + r * Math.sin(a));
 			int z = (int) Math.round(h + r * Math.cos(a));
-			int a2 = (int) Math.round(i % 90 * 16D / 90D);
-			if (a2 == 16)
-				a2 = 0;
 			worldIn.setBlockState(new BlockPos(x, y, z), dummyRail);
 		}
 
 		BlockPos pos1 = new BlockPos(x1, y, z1), pos2 = new BlockPos(x2, y, z2);
 		int a = r % 16, b = Math.floorDiv(r, 16);
 		BlockPos pos3 = pos1, pos4 = pos2;
-		pos3 = pos3.add(Math.signum(k - x1), 0, Math.signum(h - z1));
-		pos4 = pos4.add(Math.signum(k - x2), 0, Math.signum(h - z2));
-		worldIn.setBlockState(pos1, curvedRail.withProperty(BlockRailCurved.ROTATION, a));
-		worldIn.setBlockState(pos2, curvedRail.withProperty(BlockRailCurved.ROTATION, a));
-		worldIn.setBlockState(pos3, curvedRail.withProperty(BlockRailCurved.ROTATION, b));
-		worldIn.setBlockState(pos4, curvedRail.withProperty(BlockRailCurved.ROTATION, b));
+		// pos3 = pos3.add(Math.signum(k - x1), 0, Math.signum(h - z1));
+		// pos4 = pos4.add(Math.signum(k - x2), 0, Math.signum(h - z2));
+		int angleDiff = (int) Math.round(MathTools.angleDifference(angle2, angle1));
+		worldIn.setBlockState(pos1, curvedRail.withProperty(BlockRailCurved.ROTATION, i1));
+		worldIn.setBlockState(pos2, curvedRail.withProperty(BlockRailCurved.ROTATION, i2));
+		try {
+			TileEntityRailEntity te1 = (TileEntityRailEntity) worldIn.getTileEntity(pos1);
+			TileEntityRailEntity te2 = (TileEntityRailEntity) worldIn.getTileEntity(pos2);
+			te1.radius = te2.radius = r;
+			te1.xc = te2.xc = k;
+			te1.zc = te2.zc = h;
+			te1.startAngle = angle1;
+			te2.startAngle = angle2;
+			te1.angleChange = angleDiff;
+			te2.angleChange = -te1.angleChange;
+		} catch (Exception e) {
+		}
 	}
 
 	private void connectWithStraightRails(World worldIn, int x1, int z1, int x2, int z2, int y, int i) {
 		boolean reverse1 = z2 > z1;
 		boolean reverse2 = x2 > x1;
-		IBlockState straightRail = MTR.blockrailstraight.getDefaultState().withProperty(BlockRailStraight.ROTATION, i);
 		switch (i) {
 		case 0:
 			for (int j = reverse1 ? z1 : z2; j <= (reverse1 ? z2 : z1); j++)
-				worldIn.setBlockState(new BlockPos(x1, y, j), straightRail);
+				placeRails(worldIn, new BlockPos(x1, y, j), i);
 			break;
 		case 2:
 			for (int j = reverse2 ? x1 : x2; j <= (reverse2 ? x2 : x1); j++)
-				worldIn.setBlockState(new BlockPos(j, y, z1), straightRail);
+				placeRails(worldIn, new BlockPos(j, y, z1), i);
 			break;
 		case 1:
 			for (int j = 0; j <= Math.abs(z2 - z1); j++) {
 				int x = (reverse2 ? x1 : x2) + j;
 				int z = (reverse1 ? z2 : z1) - j;
-				worldIn.setBlockState(new BlockPos(x, y, z), straightRail);
+				placeRails(worldIn, new BlockPos(x, y, z), i);
 			}
 			break;
 		case 3:
 			for (int j = 0; j <= Math.abs(z2 - z1); j++) {
 				int x = (reverse2 ? x1 : x2) + j;
 				int z = (reverse1 ? z1 : z2) + j;
-				worldIn.setBlockState(new BlockPos(x, y, z), straightRail);
+				placeRails(worldIn, new BlockPos(x, y, z), i);
 			}
 			break;
 		}
@@ -298,18 +328,6 @@ public class ItemRail extends Item {
 		double x2 = pivotX + r * Math.sin(a);
 		double result[] = { x2, z2 };
 		return result;
-	}
-
-	private int findCloserAngle(double angle, int a1d, int a2d) {
-		double b1 = Math.abs(a1d - angle), b2 = Math.abs(a2d - angle);
-		if (b1 > 180)
-			b1 = 360 - b1;
-		if (b2 > 180)
-			b2 = 360 - b2;
-		if (b2 < b1)
-			return a2d;
-		else
-			return a1d;
 	}
 
 	private void placeSlopeRails(World worldIn, BlockPos pos, int rotation, boolean up) {
@@ -345,53 +363,41 @@ public class ItemRail extends Item {
 			break;
 		}
 		for (int i = 0; i < 16; i++) {
-			worldIn.setBlockState(pos.add(i * x, 1, i * z), MTR.blockrailslope2.getDefaultState()
+			worldIn.setBlockState(pos.add(i * x, 1, i * z), MTRBlocks.blockrailslope2.getDefaultState()
 					.withProperty(BlockRailSlope2.ROTATION, up ? rotation : (rotation + 4) % 8));
 			worldIn.setBlockState(pos.add(i * x, 0, i * z),
-					MTR.blockrailslope1.getDefaultState().withProperty(BlockRailSlope1.LEVEL, up ? i : 15 - i));
+					MTRBlocks.blockrailslope1.getDefaultState().withProperty(BlockRailSlope1.LEVEL, up ? i : 15 - i));
 		}
+	}
+
+	private void placeRails(World worldIn, BlockPos pos, int rotation) {
+		IBlockState straightRail = MTRBlocks.blockrailstraight.getDefaultState()
+				.withProperty(BlockRailStraight.ROTATION, rotation);
+		Block block = worldIn.getBlockState(pos).getBlock();
+		if (block instanceof BlockRailDummy)
+			worldIn.setBlockState(pos,
+					MTRBlocks.blockraildummy.getDefaultState().withProperty(BlockRailDummy.ROTATION, rotation + 4));
+		else
+			worldIn.setBlockState(pos,
+					block instanceof BlockRailBase2 ? MTRBlocks.blockrailintersection.getDefaultState() : straightRail);
 	}
 
 	@Override
 	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 		if (stack.getTagCompound() != null) {
 			NBTTagCompound t = stack.getTagCompound();
-			int x = t.getInteger("posX");
-			int y = t.getInteger("posY");
-			int z = t.getInteger("posZ");
+			int x = t.getInteger("trackX");
+			int y = t.getInteger("trackY");
+			int z = t.getInteger("trackZ");
 			BlockPos pos = new BlockPos(x, y, z);
-			if (!(worldIn.getBlockState(pos).getBlock() instanceof BlockRailBase2))
+			if (!(worldIn.getBlockState(pos).getBlock() instanceof BlockRailMarker))
 				stack.setTagCompound(null);
 		}
 	}
 
 	@Override
 	public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
-		for (int var4 = 0; var4 < 6; ++var4)
+		for (int var4 = 0; var4 < 8; ++var4)
 			subItems.add(new ItemStack(itemIn, 1, var4));
-	}
-
-	public static String getName1() {
-		return name1;
-	}
-
-	public static String getName2() {
-		return name2;
-	}
-
-	public static String getName3() {
-		return name3;
-	}
-
-	public static String getName4() {
-		return name4;
-	}
-
-	public static String getName5() {
-		return name5;
-	}
-
-	public static String getName6() {
-		return name6;
 	}
 }

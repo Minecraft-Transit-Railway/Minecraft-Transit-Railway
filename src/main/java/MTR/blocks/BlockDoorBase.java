@@ -2,17 +2,20 @@ package MTR.blocks;
 
 import java.util.Random;
 
-import MTR.MTR;
+import MTR.MTRBlocks;
+import MTR.MTRSounds;
 import MTR.TileEntityDoorEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -20,8 +23,8 @@ public class BlockDoorBase extends BlockPSD implements ITileEntityProvider {
 
 	public static final PropertyInteger X = PropertyInteger.create("x", 0, 32);
 
-	public BlockDoorBase() {
-		super();
+	public BlockDoorBase(String name) {
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(SIDE, false)
 				.withProperty(TOP, false).withProperty(X, 0));
 	}
@@ -33,21 +36,21 @@ public class BlockDoorBase extends BlockPSD implements ITileEntityProvider {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
-		super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
+		super.neighborChanged(state, worldIn, pos, blockIn);
 		worldIn.scheduleUpdate(pos, this, 1);
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
-		boolean side = access.getBlockState(pos).getValue(SIDE);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
+		boolean side = state.getValue(SIDE);
 		float height = 1F;
-		if (access.getBlockState(pos).getValue(TOP) && this instanceof BlockAPGDoor)
+		if (state.getValue(TOP) && this instanceof BlockAPGDoor)
 			height = 0.5F;
 		float var1 = 0;
 		try {
-			TileEntityDoorEntity te = (TileEntityDoorEntity) access.getTileEntity(pos);
+			TileEntityDoorEntity te = (TileEntityDoorEntity) source.getTileEntity(pos);
 			var1 = te.position / 32F;
 		} catch (Exception e) {
 		}
@@ -55,18 +58,15 @@ public class BlockDoorBase extends BlockPSD implements ITileEntityProvider {
 			var1 = -var1;
 		switch (var3) {
 		case NORTH:
-			setBlockBounds(0.0F, 0.0F, 0.0F + var1, 0.125F, height, 1.0F + var1);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F + var1, 0.125F, height, 1.0F + var1);
 		case SOUTH:
-			setBlockBounds(0.875F, 0.0F, 0.0F - var1, 1.0F, height, 1.0F - var1);
-			break;
+			return new AxisAlignedBB(0.875F, 0.0F, 0.0F - var1, 1.0F, height, 1.0F - var1);
 		case EAST:
-			setBlockBounds(0.0F - var1, 0.0F, 0.0F, 1.0F - var1, height, 0.125F);
-			break;
+			return new AxisAlignedBB(0.0F - var1, 0.0F, 0.0F, 1.0F - var1, height, 0.125F);
 		case WEST:
-			setBlockBounds(0.0F + var1, 0.0F, 0.875F, 1.0F + var1, height, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F + var1, 0.0F, 0.875F, 1.0F + var1, height, 1.0F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
@@ -80,32 +80,32 @@ public class BlockDoorBase extends BlockPSD implements ITileEntityProvider {
 					// opening
 					if (te.position < 32) {
 						if (te.position == 0 && !worldIn.isRemote && state.getValue(SIDE))
-							worldIn.playSoundEffect(pos.getX(), pos.getY() + 1, pos.getZ(),
-									this instanceof BlockAPGDoor ? "mtr:Platform.APGOpen" : "mtr:Platform.PSDOpen", 1F,
-									1F);
+							worldIn.playSound(null, pos, this instanceof BlockAPGDoor ? MTRSounds.platformApgopen
+									: MTRSounds.platformPsdopen, SoundCategory.RECORDS, 1, 1);
 						te.position++;
 						worldIn.scheduleUpdate(pos, this, 1);
 					}
 				} else if (te.position > 0) {
 					// closing
 					if (te.position == 3 && !worldIn.isRemote && state.getValue(SIDE))
-						worldIn.playSoundEffect(pos.getX(), pos.getY() + 1, pos.getZ(),
-								this instanceof BlockAPGDoor ? "mtr:Platform.APGClose" : "mtr:Platform.PSDClose", 1F,
-								1F);
+						worldIn.playSound(null, pos,
+								this instanceof BlockAPGDoor ? MTRSounds.platformApgclose : MTRSounds.platformPsdclose,
+								SoundCategory.RECORDS, 1, 1);
 					te.position--;
 					worldIn.scheduleUpdate(pos, this, 1);
 				}
 				te2.position = te.position;
-				worldIn.markBlockForUpdate(pos);
-				worldIn.markBlockForUpdate(pos.up());
+				IBlockState stateAbove = worldIn.getBlockState(pos.up());
+				worldIn.notifyBlockUpdate(pos, state, state, 0);
+				worldIn.notifyBlockUpdate(pos.up(), stateAbove, stateAbove, 0);
 				if (te.position == 0) {
 					EnumFacing facing = state.getValue(FACING);
 					boolean side = state.getValue(SIDE);
 					Block block;
 					if (this instanceof BlockPSDDoor)
-						block = MTR.blockpsddoorclosed;
+						block = MTRBlocks.blockpsddoorclosed;
 					else
-						block = MTR.blockapgdoorclosed;
+						block = MTRBlocks.blockapgdoorclosed;
 					worldIn.setBlockState(pos, block.getDefaultState().withProperty(BlockPSD.FACING, facing)
 							.withProperty(BlockPSD.SIDE, side).withProperty(BlockPSD.TOP, false));
 					worldIn.setBlockState(pos.up(), block.getDefaultState().withProperty(BlockPSD.FACING, facing)
@@ -126,7 +126,7 @@ public class BlockDoorBase extends BlockPSD implements ITileEntityProvider {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE, TOP, X });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP, X });
 	}
 }

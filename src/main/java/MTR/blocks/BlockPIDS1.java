@@ -1,31 +1,35 @@
 package MTR.blocks;
 
+import MTR.MTR;
+import MTR.PlatformData;
 import MTR.TileEntityPIDS1Entity;
+import MTR.items.ItemBrush;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockPIDS1 extends BlockWithDirection implements ITileEntityProvider {
 
 	private static final String name = "BlockPIDS1";
 
 	public BlockPIDS1() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 		setLightLevel(0.3125F);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		BlockPos pos2 = pos;
 		switch (state.getValue(FACING)) {
 		case NORTH:
@@ -72,16 +76,31 @@ public class BlockPIDS1 extends BlockWithDirection implements ITileEntityProvide
 			worldIn.setBlockState(pos2, getDefaultState().withProperty(FACING, var9.getOpposite()));
 			return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(FACING, var9);
 		} else
-			return Blocks.air.getDefaultState();
+			return Blocks.AIR.getDefaultState();
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (!worldIn.isRemote) {
+			PlatformData data = PlatformData.get(worldIn);
+			ItemStack itemStack = playerIn.inventory.getCurrentItem();
+			if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
+				TileEntityPIDS1Entity te = (TileEntityPIDS1Entity) worldIn.getTileEntity(pos);
+				MTR.proxy.openGUI(data, te);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
 		if (var3.getAxis() == EnumFacing.Axis.X)
-			setBlockBounds(0.375F, 0.0F, 0.0F, 0.625F, 1.0F, 1.0F);
+			return new AxisAlignedBB(0.375F, 0.0F, 0.0F, 0.625F, 1.0F, 1.0F);
 		else
-			setBlockBounds(0.0F, 0.0F, 0.375F, 1.0F, 1.0F, 0.625F);
+			return new AxisAlignedBB(0.0F, 0.0F, 0.375F, 1.0F, 1.0F, 0.625F);
 	}
 
 	@Override
@@ -91,16 +110,11 @@ public class BlockPIDS1 extends BlockWithDirection implements ITileEntityProvide
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
+		return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta));
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int var3 = state.getValue(FACING).getHorizontalIndex();
-		return var3;
-	}
-
-	public String getName() {
-		return name;
+		return state.getValue(FACING).getHorizontalIndex();
 	}
 }

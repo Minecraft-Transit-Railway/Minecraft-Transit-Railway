@@ -1,22 +1,19 @@
 {
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "blocks/gravel",
+			"main": "blocks/stone_slab_top",
+			"rail": "mtr:blocks/BlockRailNormal"
+		},
+		"model": "mtr:RailCurved"
+	},
 	"variants": {
-		"rotation=0": { "model": "mtr:BlockRailCurved" },
-		"rotation=1": { "model": "mtr:BlockRailCurved" },
-		"rotation=2": { "model": "mtr:BlockRailCurved" },
-		"rotation=3": { "model": "mtr:BlockRailCurved" },
-		"rotation=4": { "model": "mtr:BlockRailCurved" },
-		"rotation=5": { "model": "mtr:BlockRailCurved" },
-		"rotation=6": { "model": "mtr:BlockRailCurved" },
-		"rotation=7": { "model": "mtr:BlockRailCurved" },
-		"rotation=8": { "model": "mtr:BlockRailCurved" },
-		"rotation=9": { "model": "mtr:BlockRailCurved" },
-		"rotation=10": { "model": "mtr:BlockRailCurved" },
-		"rotation=11": { "model": "mtr:BlockRailCurved" },
-		"rotation=12": { "model": "mtr:BlockRailCurved" },
-		"rotation=13": { "model": "mtr:BlockRailCurved" },
-		"rotation=14": { "model": "mtr:BlockRailCurved" },
-		"rotation=15": { "model": "mtr:BlockRailCurved" },
-		
-		"inventory": { "model": "mtr:BlockRailCurved" }
+		"rotation": {
+			"0": { "submodel": { "main": { "model": "mtr:RailNormal" } } },
+			"1": { "submodel": { "main": { "model": "mtr:RailNormal45" } } },
+			"2": { "submodel": { "main": { "model": "mtr:RailNormal", "y": 90 } } },
+			"3": { "submodel": { "main": { "model": "mtr:RailNormal45", "y": 90 } } }
+		}
 	}
 }

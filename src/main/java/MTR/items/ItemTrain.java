@@ -2,24 +2,24 @@ package MTR.items;
 
 import java.util.List;
 
+import MTR.ItemBase;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemTrain extends Item {
+public class ItemTrain extends ItemBase {
 
-	public static final String name = "ItemTrain";
+	private static final String[] name = { "ItemTrain" };
 
 	public ItemTrain() {
-		// setCreativeTab(MTR.MTRtab);
-		GameRegistry.registerItem(this, name);
-		setUnlocalizedName(name);
+		super(name);
+		setCreativeTab(null);
 	}
 
 	@Override
@@ -28,15 +28,11 @@ public class ItemTrain extends Item {
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
-		if (!world.isRemote)
-			player.addChatComponentMessage(
-					new ChatComponentText("It is a case where the nearest MTR station is at..."));
-		return true;
-	}
-
-	public static String getName() {
-		return name;
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		if (!worldIn.isRemote)
+			playerIn.addChatComponentMessage(
+					new TextComponentString("It is a case where the nearest MTR station is at..."));
+		return EnumActionResult.PASS;
 	}
 }

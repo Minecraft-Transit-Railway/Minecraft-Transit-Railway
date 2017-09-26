@@ -1,0 +1,12 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{   "from": [ 0, 0.99, 0 ],
+			"to": [ 16, 0.99, 16 ],
+			"faces": {
+				"down":  { "uv": [ 0, 16, 16,  0 ], "texture": "#rail" },
+				"up":	{ "uv": [ 0,  0, 16, 16 ], "texture": "#rail" }
+			}
+		}
+	]
+}

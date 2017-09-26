@@ -6,20 +6,18 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
-public class TileEntityAPGGlassRenderer extends TileEntitySpecialRenderer {
+public class TileEntityAPGGlassRenderer extends TileEntitySpecialRenderer<TileEntityAPGGlassEntity> {
 
 	@Override
-	public void renderTileEntityAt(TileEntity te2, double x, double y, double z, float scale, int arg5) {
-		TileEntityAPGGlassEntity te = (TileEntityAPGGlassEntity) te2;
-		IBlockState stateBelow = getWorld().getBlockState(te2.getPos().down());
+	public void renderTileEntityAt(TileEntityAPGGlassEntity te, double x, double y, double z, float scale, int arg5) {
+		IBlockState stateBelow = getWorld().getBlockState(te.getPos().down());
 		if (stateBelow.getBlock() instanceof BlockAPGGlassBottom) {
 			boolean side = stateBelow.getValue(BlockAPGGlassBottom.SIDE);
-			int facing = te2.getBlockMetadata();
-			if (!getWarning(EnumFacing.getHorizontal(facing), te2.getPos(), side))
+			int facing = te.getBlockMetadata();
+			if (!getWarning(EnumFacing.getHorizontal(facing), te.getPos(), side))
 				if (te.arrow == 1 ^ side) {
 					int color = te.color;
 					if (color > 0) {

@@ -1,20 +1,22 @@
 package MTR.blocks;
 
-import MTR.MTR;
+import MTR.GUIMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockMTRMapSide extends BlockWithDirection {
 
@@ -23,9 +25,7 @@ public class BlockMTRMapSide extends BlockWithDirection {
 	public static final PropertyBool TOP = PropertyBool.create("top");
 
 	public BlockMTRMapSide() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 		setLightLevel(1F);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(TOP, false));
 	}
@@ -64,13 +64,13 @@ public class BlockMTRMapSide extends BlockWithDirection {
 				return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer)
 						.withProperty(FACING, facing).withProperty(SIDE, false).withProperty(TOP, false);
 			} else
-				return Blocks.air.getDefaultState();
+				return Blocks.AIR.getDefaultState();
 		}
-		return Blocks.air.getDefaultState();
+		return Blocks.AIR.getDefaultState();
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		BlockPos pos2 = pos;
 		boolean side = state.getValue(SIDE), top = state.getValue(TOP);
 		boolean b = false;
@@ -98,30 +98,27 @@ public class BlockMTRMapSide extends BlockWithDirection {
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
 		switch (var3) {
 		case NORTH:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
 		case SOUTH:
-			setBlockBounds(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 		case EAST:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
 		case WEST:
-			setBlockBounds(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (worldIn.isRemote)
-			MTR.proxy.openMapGUI();
+			Minecraft.getMinecraft().displayGuiScreen(new GUIMap());
 		return true;
 	}
 
@@ -138,16 +135,12 @@ public class BlockMTRMapSide extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE, TOP });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP });
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-		return null;
-	}
-
-	public static String getName() {
-		return name;
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
+		return NULL_AABB;
 	}
 }

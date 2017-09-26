@@ -2,11 +2,12 @@ package MTR.blocks;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -17,29 +18,24 @@ public class BlockRubbishBin1 extends BlockWithDirection {
 	public static final PropertyBool SIDE = PropertyBool.create("side");
 
 	public BlockRubbishBin1() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(SIDE, false));
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
 		switch (var3) {
 		case NORTH:
-			setBlockBounds(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 0.28125F);
-			break;
+			return new AxisAlignedBB(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 0.28125F);
 		case EAST:
-			setBlockBounds(0.71875F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
-			break;
+			return new AxisAlignedBB(0.71875F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
 		case SOUTH:
-			setBlockBounds(0.125F, 0.0F, 0.71875F, 0.875F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.125F, 0.0F, 0.71875F, 0.875F, 1.0F, 1.0F);
 		case WEST:
-			setBlockBounds(0.0F, 0.0F, 0.125F, 0.218275F, 1.0F, 0.875F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.125F, 0.218275F, 1.0F, 0.875F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
@@ -62,8 +58,8 @@ public class BlockRubbishBin1 extends BlockWithDirection {
 		default:
 			break;
 		}
-		return state.withProperty(SIDE, worldIn.getBlockState(pos2).getBlock().isBlockNormalCube()
-				&& worldIn.getBlockState(pos2.up()).getBlock().isBlockNormalCube());
+		return state.withProperty(SIDE, worldIn.getBlockState(pos2).getMaterial().isOpaque()
+				&& worldIn.getBlockState(pos2.up()).getMaterial().isOpaque());
 	}
 
 	@Override
@@ -85,11 +81,7 @@ public class BlockRubbishBin1 extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE });
-	}
-
-	public String getName() {
-		return name;
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE });
 	}
 }

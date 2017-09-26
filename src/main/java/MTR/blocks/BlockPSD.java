@@ -2,37 +2,40 @@ package MTR.blocks;
 
 import java.util.Random;
 
-import MTR.MTR;
+import MTR.BlockBase;
+import MTR.MTRItems;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public class BlockPSD extends Block {
+public class BlockPSD extends BlockBase {
 
 	public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 	public static final PropertyBool SIDE = PropertyBool.create("side");
 	public static final PropertyBool TOP = PropertyBool.create("top");
 
-	public BlockPSD() {
-		super(Material.rock);
+	public BlockPSD(String name) {
+		super(Material.ROCK, name);
+		setCreativeTab(null);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(SIDE, false)
 				.withProperty(TOP, false));
-		setHardness(5F);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		BlockPos var10 = state.getValue(TOP) ? pos.down() : pos;
 		BlockPos var11 = var10.up();
 		Block block1 = worldIn.getBlockState(var10).getBlock();
@@ -55,22 +58,19 @@ public class BlockPSD extends Block {
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
 		switch (var3) {
 		case NORTH:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
 		case SOUTH:
-			setBlockBounds(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 		case EAST:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
 		case WEST:
-			setBlockBounds(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
@@ -82,59 +82,43 @@ public class BlockPSD extends Block {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		int var3 = state.getValue(FACING).getHorizontalIndex();
-		if (state.getValue(SIDE))
-			var3 = var3 + 4;
-		if (state.getValue(TOP))
-			var3 = var3 + 8;
-		return var3;
+		return state.getValue(FACING).getHorizontalIndex() + (state.getValue(SIDE) ? 4 : 0)
+				+ (state.getValue(TOP) ? 8 : 0);
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE, TOP });
-	}
-
-	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-		setBlockBoundsBasedOnState(worldIn, pos);
-		return super.getCollisionBoundingBox(worldIn, pos, state);
-	}
-
-	@Override
-	public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
-		setBlockBoundsBasedOnState(worldIn, pos);
-		return super.getSelectedBoundingBox(worldIn, pos);
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP });
 	}
 
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return MTR.itempsd;
+		return MTRItems.itempsd;
 	}
 
 	@Override
-	public Item getItem(World worldIn, BlockPos pos) {
-		return MTR.itempsd;
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itempsd);
 	}
 
 	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public EnumWorldBlockLayer getBlockLayer() {
-		return EnumWorldBlockLayer.CUTOUT_MIPPED;
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT_MIPPED;
 	}
 
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public int getMobilityFlag() {
-		return 2;
+	public EnumPushReaction getMobilityFlag(IBlockState state) {
+		return EnumPushReaction.IGNORE;
 	}
 
 	@Override

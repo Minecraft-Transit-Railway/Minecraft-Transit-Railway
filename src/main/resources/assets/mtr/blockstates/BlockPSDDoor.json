@@ -4,8 +4,7 @@
 		"textures": {
 			"all": "mtr:items/ItemPSDDoor"
 		},
-		"model": "cube_all",
-		"uvlock": true
+		"model": "cube_all"
 	},
 	"variants": {
 		"facing": {

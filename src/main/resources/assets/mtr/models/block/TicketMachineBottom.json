@@ -1,6 +1,6 @@
 {"__comment":"3D Mesh designed with BDcraft Cubik LITE 0.93 Beta - http://bdcraft.net",
-"elements":
-[
+	"parent": "block/block",
+	"elements": [
 {
 "from":[2,0,4],"to":[14,6,14],
 "faces":{

@@ -1,25 +1,40 @@
 {
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "blocks/stone_slab_top",
+			"slab": "blocks/stone_slab_top",
+			"track": "mtr:blocks/BlockRailStation"
+		},
+		"model": "mtr:TrainTimer"
+	},
 	"variants": {
-		"facing=0,light=false,track=false": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
-		"facing=1,light=false,track=false": { "model": "mtr:BlockTrainTimer" },
-		"facing=2,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 90 },
-		"facing=3,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 180 },
-		"facing=4,light=false,track=false": { "model": "mtr:BlockTrainTimer", "y": 270 },
-		"facing=0,light=true,track=false": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
-		"facing=1,light=true,track=false": { "model": "mtr:BlockTrainTimerL" },
-		"facing=2,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 90 },
-		"facing=3,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 180 },
-		"facing=4,light=true,track=false": { "model": "mtr:BlockTrainTimerL", "y": 270 },
-		"facing=0,light=false,track=true": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
-		"facing=1,light=false,track=true": { "model": "mtr:BlockTrainTimerT" },
-		"facing=2,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 90 },
-		"facing=3,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 180 },
-		"facing=4,light=false,track=true": { "model": "mtr:BlockTrainTimerT", "y": 270 },
-		"facing=0,light=true,track=true": { "model": "mtr:BlockTrainTimerBlank", "y": 180 },
-		"facing=1,light=true,track=true": { "model": "mtr:BlockTrainTimerLT" },
-		"facing=2,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 90 },
-		"facing=3,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 180 },
-		"facing=4,light=true,track=true": { "model": "mtr:BlockTrainTimerLT", "y": 270 },
-		"inventory": { "model": "mtr:BlockTrainTimer", "y": 90 }
+		"facing": {
+			"0": {
+				"textures": {
+					"top": "blocks/stone_slab_top",
+					"lit": "mtr:blocks/Transparent",
+					"track": "mtr:blocks/Transparent"
+				}
+			},
+			"1": {},
+			"2": { "y": 90 },
+			"3": { "y": 180 },
+			"4": { "y": 270 }
+		},
+		"light": {
+			"false": { "textures": { "lit": "blocks/redstone_torch_off" } },
+			"true": { "textures": { "lit": "blocks/redstone_torch_on" } }
+		},
+		"time": {
+			"0": {},
+			"1": {},
+			"2": {},
+			"3": {}
+		},
+		"track": {
+			"false": { "textures": { "top": "blocks/repeater_off" } },
+			"true": { "textures": { "top": "blocks/repeater_on" } }
+		}
 	}
 }

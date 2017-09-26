@@ -7,10 +7,9 @@ import net.minecraft.client.resources.I18n;
 public class GUIRouteChanger extends GuiScreen {
 	private GuiButton buttonDone, buttonA1, buttonA10, buttonA100, buttonS1, buttonS10, buttonS100, buttonUpDown,
 			buttonP;
-	int route;
-	boolean p;
-	boolean down;
-	TileEntityRouteChangerEntity te;
+	private int route;
+	private boolean p, down;
+	private TileEntityRouteChangerEntity te;
 
 	public GUIRouteChanger(TileEntityRouteChangerEntity tileEntityRouteChangerEntity) {
 		te = tileEntityRouteChangerEntity;

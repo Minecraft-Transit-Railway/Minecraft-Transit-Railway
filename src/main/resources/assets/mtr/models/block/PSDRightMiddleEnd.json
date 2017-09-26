@@ -1,16 +1,17 @@
 {
-    "elements": [
-        {   "__comment": "Glass section",
-            "from": [ 4, 0, 0 ],
-            "to": [ 6, 16, 16 ],
-            "faces": {
-                "down":  { "uv": [ 0, 0, 1, 1 ], "texture": "#bottom" },
-                "up":    { "uv": [ 0, 0, 1, 1 ], "texture": "#top" },
-                "east": { "uv": [ 16, 0, 0, 16 ], "texture": "#front" },
-                "west": { "uv": [ 16, 0, 0, 16 ], "texture": "#back" },
-                "north":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side" },
-                "south":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side2" }
-            }
-        }
-    ]
+	"parent": "block/block",
+	"elements": [
+		{   "__comment": "Glass section",
+			"from": [ 4, 0, 0 ],
+			"to": [ 6, 16, 16 ],
+			"faces": {
+				"down":  { "uv": [ 0, 0, 1, 1 ], "texture": "#bottom" },
+				"up":	{ "uv": [ 0, 0, 1, 1 ], "texture": "#top" },
+				"east": { "uv": [ 16, 0, 0, 16 ], "texture": "#front" },
+				"west": { "uv": [ 16, 0, 0, 16 ], "texture": "#back" },
+				"north":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side" },
+				"south":  { "uv": [ 0, 0, 1, 1 ], "texture": "#side2" }
+			}
+		}
+	]
 }

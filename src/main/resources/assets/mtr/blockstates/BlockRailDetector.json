@@ -1,21 +1,13 @@
 {
 	"variants": {
-		"powered=false,rotation=0": { "model": "mtr:BlockRailDetector"             },
-		"powered=false,rotation=1": { "model": "mtr:BlockRailDetector45"           },
-		"powered=false,rotation=2": { "model": "mtr:BlockRailDetector",   "y": 90  },
-		"powered=false,rotation=3": { "model": "mtr:BlockRailDetector45", "y": 90  },
-		"powered=false,rotation=4": { "model": "mtr:BlockRailDetector",   "y": 180 },
-		"powered=false,rotation=5": { "model": "mtr:BlockRailDetector45", "y": 180 },
-		"powered=false,rotation=6": { "model": "mtr:BlockRailDetector",   "y": 270 },
-		"powered=false,rotation=7": { "model": "mtr:BlockRailDetector45", "y": 270 },
-		"powered=true,rotation=0":  { "model": "mtr:BlockRailDetectorPowered"             },
-		"powered=true,rotation=1":  { "model": "mtr:BlockRailDetectorPowered45"           },
-		"powered=true,rotation=2":  { "model": "mtr:BlockRailDetectorPowered",   "y": 90  },
-		"powered=true,rotation=3":  { "model": "mtr:BlockRailDetectorPowered45", "y": 90  },
-		"powered=true,rotation=4":  { "model": "mtr:BlockRailDetectorPowered",   "y": 180 },
-		"powered=true,rotation=5":  { "model": "mtr:BlockRailDetectorPowered45", "y": 180 },
-		"powered=true,rotation=6":  { "model": "mtr:BlockRailDetectorPowered",   "y": 270 },
-		"powered=true,rotation=7":  { "model": "mtr:BlockRailDetectorPowered45", "y": 270 },
+		"powered=false,rotation=0": { "model": "mtr:BlockRailDetector"            },
+		"powered=false,rotation=1": { "model": "mtr:BlockRailDetector45"          },
+		"powered=false,rotation=2": { "model": "mtr:BlockRailDetector",   "y": 90 },
+		"powered=false,rotation=3": { "model": "mtr:BlockRailDetector45", "y": 90 },
+		"powered=true,rotation=0":  { "model": "mtr:BlockRailDetectorPowered"            },
+		"powered=true,rotation=1":  { "model": "mtr:BlockRailDetectorPowered45"          },
+		"powered=true,rotation=2":  { "model": "mtr:BlockRailDetectorPowered",   "y": 90 },
+		"powered=true,rotation=3":  { "model": "mtr:BlockRailDetectorPowered45", "y": 90 },
 		
 		"inventory": { "model": "mtr:BlockRailDetector" }
 	}

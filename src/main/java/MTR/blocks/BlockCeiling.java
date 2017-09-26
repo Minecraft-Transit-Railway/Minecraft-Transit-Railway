@@ -4,14 +4,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockCeiling extends BlockWithDirection {
 
@@ -20,12 +20,14 @@ public class BlockCeiling extends BlockWithDirection {
 	public static final PropertyInteger STATION = PropertyInteger.create("station", 0, 8);
 
 	public BlockCeiling() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
-		setBlockBounds(0, 0.4375F, 0, 1, 0.625F, 1);
+		super(name);
 		setLightLevel(1F);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(LIGHT, false));
+	}
+
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return new AxisAlignedBB(0, 0.4375F, 0, 1, 0.625F, 1);
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class BlockCeiling extends BlockWithDirection {
 			if (block instanceof BlockStationNameH)
 				station = 8;
 		}
-		if (((EnumFacing) state.getValue(FACING)).getAxis() == EnumFacing.Axis.X)
+		if (state.getValue(FACING).getAxis() == EnumFacing.Axis.X)
 			return state.withProperty(LIGHT, pos.getZ() % 3 == 0).withProperty(STATION, station);
 		else
 			return state.withProperty(LIGHT, pos.getX() % 3 == 0).withProperty(STATION, station);
@@ -70,15 +72,11 @@ public class BlockCeiling extends BlockWithDirection {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return ((EnumFacing) state.getValue(FACING)).getHorizontalIndex();
+		return state.getValue(FACING).getHorizontalIndex();
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, LIGHT, STATION });
-	}
-
-	public String getName() {
-		return name;
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, LIGHT, STATION });
 	}
 }

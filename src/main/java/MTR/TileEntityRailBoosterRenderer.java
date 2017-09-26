@@ -5,17 +5,16 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityRailBoosterRenderer extends TileEntitySpecialRenderer {
+public class TileEntityRailBoosterRenderer extends TileEntitySpecialRenderer<TileEntityRailBoosterEntity> {
 
 	public TileEntityRailBoosterRenderer() {
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntity te2, double x, double y, double z, float partialTicks, int destroyStage) {
-		TileEntityRailBoosterEntity te = (TileEntityRailBoosterEntity) te2;
-		int meta = te2.getBlockMetadata();
+	public void renderTileEntityAt(TileEntityRailBoosterEntity te, double x, double y, double z, float partialTicks,
+			int destroyStage) {
+		int meta = te.getBlockMetadata();
 		int angle = (int) (-45D * (meta % 8) + 450D) % 360;
 		boolean powered = meta >= 8;
 		GlStateManager.pushMatrix();

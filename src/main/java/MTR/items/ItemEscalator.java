@@ -2,7 +2,8 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
+import MTR.MTRBlocks;
 import MTR.blocks.BlockEscalatorSide;
 import MTR.blocks.BlockEscalatorStep;
 import net.minecraft.block.Block;
@@ -12,25 +13,21 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemEscalator extends Item {
+public class ItemEscalator extends ItemBase {
 
-	public static final String name1 = "ItemEscalator";
-	public static final String name2 = "ItemEscalator5";
-	public static final String name3 = "ItemEscalator10";
-	public static final String name4 = "ItemEscalator20";
-	public static final String name5 = "ItemEscalator50";
+	private static final String[] name = { "ItemEscalator", "ItemEscalator5", "ItemEscalator10", "ItemEscalator20",
+			"ItemEscalator50" };
 	private static final int a[] = { 1, 5, 10, 20, 50 };
 
 	public ItemEscalator() {
+		super(name);
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name1);
-		setUnlocalizedName(name1);
 	}
 
 	@Override
@@ -54,14 +51,14 @@ public class ItemEscalator extends Item {
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing facingSide,
-			float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facingSide, float hitX, float hitY, float hitZ) {
 		IBlockState var9 = worldIn.getBlockState(pos);
 		Block var10 = var9.getBlock();
 		if (!var10.isReplaceable(worldIn, pos))
 			pos = pos.offset(facingSide);
-		Block blockStep = MTR.blockescalatorstep;
-		Block blockSide = MTR.blockescalatorside;
+		Block blockStep = MTRBlocks.blockescalatorstep;
+		Block blockSide = MTRBlocks.blockescalatorside;
 		EnumFacing facing = EnumFacing.fromAngle(playerIn.rotationYaw).rotateY();
 
 		BlockPos posRight = pos;
@@ -96,32 +93,12 @@ public class ItemEscalator extends Item {
 			pos = pos.offset(facing.rotateYCCW()).up();
 			posRight = posRight.offset(facing.rotateYCCW()).up();
 		}
-		return true;
+		return EnumActionResult.PASS;
 	}
 
 	@Override
 	public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
 		for (int var4 = 0; var4 < 5; ++var4)
 			subItems.add(new ItemStack(itemIn, 1, var4));
-	}
-
-	public static String getName1() {
-		return name1;
-	}
-
-	public static String getName2() {
-		return name2;
-	}
-
-	public static String getName3() {
-		return name3;
-	}
-
-	public static String getName4() {
-		return name4;
-	}
-
-	public static String getName5() {
-		return name5;
 	}
 }

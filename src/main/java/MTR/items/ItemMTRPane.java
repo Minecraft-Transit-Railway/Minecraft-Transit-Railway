@@ -2,7 +2,8 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
+import MTR.MTRBlocks;
 import MTR.blocks.BlockMTRPane;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -11,20 +12,21 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemMTRPane extends Item {
+public class ItemMTRPane extends ItemBase {
 
-	public static final String name = "ItemMTRPane";
+	private static final String[] name = { "ItemMTRPane1", "ItemMTRPane2", "ItemMTRPane3", "ItemMTRPane4",
+			"ItemMTRPane5", "ItemMTRPane6", "ItemMTRPane7", "ItemMTRPane8" };
+	private static final String name2 = "ItemMTRPane";
 
 	public ItemMTRPane() {
+		super(name, name2);
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name);
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -58,37 +60,37 @@ public class ItemMTRPane extends Item {
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		IBlockState var9 = worldIn.getBlockState(pos);
 		Block var10 = var9.getBlock();
 		if (!var10.isReplaceable(worldIn, pos))
-			pos = pos.offset(side);
-		Block block = MTR.blockmtrpanea;
+			pos = pos.offset(facing);
+		Block block = MTRBlocks.blockmtrpanea;
 		switch (stack.getItemDamage()) {
 		case 0:
-			block = MTR.blockmtrpanea;
+			block = MTRBlocks.blockmtrpanea;
 			break;
 		case 1:
-			block = MTR.blockmtrpaneb;
+			block = MTRBlocks.blockmtrpaneb;
 			break;
 		case 2:
-			block = MTR.blockmtrpanec;
+			block = MTRBlocks.blockmtrpanec;
 			break;
 		case 3:
-			block = MTR.blockmtrpaned;
+			block = MTRBlocks.blockmtrpaned;
 			break;
 		case 4:
-			block = MTR.blockmtrpanee;
+			block = MTRBlocks.blockmtrpanee;
 			break;
 		case 5:
-			block = MTR.blockmtrpanef;
+			block = MTRBlocks.blockmtrpanef;
 			break;
 		case 6:
-			block = MTR.blockmtrpaneg;
+			block = MTRBlocks.blockmtrpaneg;
 			break;
 		case 7:
-			block = MTR.blockmtrpaneh;
+			block = MTRBlocks.blockmtrpaneh;
 			break;
 		}
 		EnumFacing var3 = EnumFacing.fromAngle(playerIn.rotationYaw).rotateY();
@@ -99,22 +101,14 @@ public class ItemMTRPane extends Item {
 			worldIn.setBlockState(pos.add(0, 1, 0), block.getDefaultState().withProperty(BlockMTRPane.NAME, false)
 					.withProperty(BlockMTRPane.FACING, var3).withProperty(BlockMTRPane.TOP, true));
 			--stack.stackSize;
-			return true;
+			return EnumActionResult.SUCCESS;
 		} else
-			return false;
+			return EnumActionResult.FAIL;
 	}
 
 	@Override
 	public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
 		for (int var4 = 0; var4 < 8; ++var4)
 			subItems.add(new ItemStack(itemIn, 1, var4));
-	}
-
-	public static String getName(int a) {
-		return name + a;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

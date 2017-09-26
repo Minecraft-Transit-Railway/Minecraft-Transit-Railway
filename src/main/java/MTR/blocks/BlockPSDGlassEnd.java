@@ -1,14 +1,16 @@
 package MTR.blocks;
 
+import MTR.MTRItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.world.World;
 
 public class BlockPSDGlassEnd extends BlockPSD {
 
@@ -16,11 +18,9 @@ public class BlockPSDGlassEnd extends BlockPSD {
 	public static final PropertyBool END = PropertyBool.create("end");
 
 	public BlockPSDGlassEnd() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(END, false).withProperty(FACING, EnumFacing.NORTH)
 				.withProperty(SIDE, false).withProperty(TOP, false));
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -39,16 +39,17 @@ public class BlockPSDGlassEnd extends BlockPSD {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { END, FACING, SIDE, TOP });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { END, FACING, SIDE, TOP });
+	}
+
+	@Override
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itempsd, 1, 2);
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 2;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

@@ -1,29 +1,19 @@
 package MTR.blocks;
 
-import MTR.MTR;
-import net.minecraft.block.Block;
+import MTR.BlockBase;
 import net.minecraft.block.material.Material;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.util.BlockRenderLayer;
 
-public class BlockLogo extends Block {
+public class BlockLogo extends BlockBase {
 
 	private static final String name = "BlockLogo";
 
 	public BlockLogo() {
-		super(Material.rock);
-		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRTab);
-		setHardness(5F);
-		setUnlocalizedName(name);
+		super(Material.ROCK, name);
 	}
 
 	@Override
-	public EnumWorldBlockLayer getBlockLayer() {
-		return EnumWorldBlockLayer.CUTOUT;
-	}
-
-	public static String getName() {
-		return name;
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
 	}
 }

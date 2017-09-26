@@ -1,9 +1,9 @@
 package MTR;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityStationNameEntity extends TileEntity {
@@ -11,22 +11,21 @@ public class TileEntityStationNameEntity extends TileEntity {
 	int station;
 
 	@Override
-	public Packet getDescriptionPacket() {
-		NBTTagCompound nbtTagCompound = new NBTTagCompound();
-		writeToNBT(nbtTagCompound);
-		int metadata = getBlockMetadata();
-		return new S35PacketUpdateTileEntity(pos, metadata, nbtTagCompound);
+	@Nullable
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(pos, 0, getUpdateTag());
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		readFromNBT(pkt.getNbtCompound());
+	public NBTTagCompound getUpdateTag() {
+		return writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound parentNBTTagCompound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound parentNBTTagCompound) {
 		super.writeToNBT(parentNBTTagCompound);
 		parentNBTTagCompound.setInteger("station", station);
+		return parentNBTTagCompound;
 	}
 
 	@Override

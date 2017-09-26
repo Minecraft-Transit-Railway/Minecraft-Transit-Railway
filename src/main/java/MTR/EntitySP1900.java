@@ -6,16 +6,18 @@ public class EntitySP1900 extends EntityTrainBase {
 
 	public EntitySP1900(World world) {
 		super(world);
-		name = "SP1900";
+		doorOpen = MTRSounds.sp1900Dooropen;
+		doorClose = MTRSounds.sp1900Doorclose;
 	}
 
-	public EntitySP1900(World worldIn, double x, double y, double z) {
-		super(worldIn, x, y, z);
-		name = "SP1900";
+	public EntitySP1900(World worldIn, double x, double y, double z, boolean f, int h) {
+		super(worldIn, x, y, z, f, h);
+		doorOpen = MTRSounds.sp1900Dooropen;
+		doorClose = MTRSounds.sp1900Doorclose;
 	}
 
 	@Override
-	protected int getTrainLength() {
-		return 25;
+	public int getTrainLength() {
+		return 16; // 25;
 	}
 }

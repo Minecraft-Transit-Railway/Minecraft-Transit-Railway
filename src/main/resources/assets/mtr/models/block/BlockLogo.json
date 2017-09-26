@@ -1,5 +1,5 @@
 {
-	"parent": "mtr:block/Logo",
+	"parent": "mtr:block/CubeWithTexture",
 	"textures": {
 		"particle": "mtr:blocks/Metal",
 		"main": "mtr:blocks/Metal",

@@ -8,17 +8,11 @@ public class BlockStationNameE extends BlockStationNameBase {
 	private static final String name = "BlockStationNameTSH";
 
 	public BlockStationNameE() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 	}
 
 	@Override
 	public int damageDropped(IBlockState arg0) {
 		return 4;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

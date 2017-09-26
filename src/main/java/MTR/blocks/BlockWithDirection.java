@@ -1,69 +1,47 @@
 package MTR.blocks;
 
-import MTR.MTR;
-import net.minecraft.block.Block;
+import MTR.BlockBase;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.world.World;
 
-public class BlockWithDirection extends Block {
+public class BlockWithDirection extends BlockBase {
 
 	public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 
-	public BlockWithDirection() {
-		super(Material.rock);
-		setCreativeTab(MTR.MTRTab);
+	public BlockWithDirection(String name) {
+		super(Material.ROCK, name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 		setHardness(5F);
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-		try {
-			setBlockBoundsBasedOnState(worldIn, pos);
-		} catch (Exception e) {
-		}
-		return super.getCollisionBoundingBox(worldIn, pos, state);
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING });
 	}
 
 	@Override
-	public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
-		try {
-			setBlockBoundsBasedOnState(worldIn, pos);
-		} catch (Exception e) {
-		}
-		return super.getSelectedBoundingBox(worldIn, pos);
-	}
-
-	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING });
-	}
-
-	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public EnumWorldBlockLayer getBlockLayer() {
-		return EnumWorldBlockLayer.CUTOUT_MIPPED;
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT_MIPPED;
 	}
 
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public int getMobilityFlag() {
-		return 2;
+	public EnumPushReaction getMobilityFlag(IBlockState state) {
+		return EnumPushReaction.IGNORE;
 	}
 }

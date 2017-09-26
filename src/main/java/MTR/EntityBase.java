@@ -2,8 +2,8 @@ package MTR;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 // this class is just an outline and does nothing
@@ -49,7 +49,7 @@ public class EntityBase extends Entity {
 			double var15 = posX + (trainX - posX) / turnProgress;
 			double var17 = posY + (trainY - posY) / turnProgress;
 			double var18 = posZ + (trainZ - posZ) / turnProgress;
-			double var7 = MathHelper.wrapAngleTo180_double(trainYaw - rotationYaw);
+			double var7 = MathHelper.wrapDegrees(trainYaw - rotationYaw);
 			rotationYaw = (float) (rotationYaw + var7 / turnProgress);
 			rotationPitch = (float) (rotationPitch + (trainPitch - rotationPitch) / turnProgress);
 			--turnProgress;
@@ -62,8 +62,8 @@ public class EntityBase extends Entity {
 	}
 
 	@Override
-	public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int posRotationIncrements,
-			boolean p_180426_10_) {
+	public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch,
+			int posRotationIncrements, boolean p_180426_10_) {
 		trainX = x;
 		trainY = y;
 		trainZ = z;

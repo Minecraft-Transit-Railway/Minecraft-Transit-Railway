@@ -1,0 +1,13 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{   "from": [ 0, 0.99, -3.3137 ],
+			"to": [ 16, 0.99, 19.3137 ],
+			"rotation": { "origin": [ 8, 1, 8 ], "axis": "y", "angle": -45 },
+			"faces": {
+				"down":  { "uv": [ 0, 16, 16, 0 ], "texture": "#rail" },
+				"up":	{ "uv": [ 0,  0, 16, 16 ], "texture": "#rail" }
+			}
+		}
+	]
+}

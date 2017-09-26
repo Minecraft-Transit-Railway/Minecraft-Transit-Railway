@@ -2,7 +2,8 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
+import MTR.MTRBlocks;
 import MTR.TileEntityRailBoosterEntity;
 import MTR.blocks.BlockPlatform;
 import MTR.blocks.BlockRailBooster;
@@ -14,22 +15,22 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemSpawnPlatform extends Item {
+public class ItemSpawnPlatform extends ItemBase {
 
-	public static final String name = "ItemSpawnPlatform";
+	private static final String[] name = { "ItemSpawnPlatform1", "ItemSpawnPlatform2", "ItemSpawnPlatform3" };
+	private static final String name2 = "ItemSpawnPlatform";
 
 	public ItemSpawnPlatform() {
+		super(name, name2);
 		setHasSubtypes(true);
 		maxStackSize = 1;
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name);
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -48,10 +49,10 @@ public class ItemSpawnPlatform extends Item {
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (!worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
-			pos = pos.offset(side);
+			pos = pos.offset(facing);
 		switch (stack.getMetadata()) {
 		case 0:
 			spawnRails(worldIn, pos, playerIn);
@@ -63,7 +64,7 @@ public class ItemSpawnPlatform extends Item {
 			spawnPlatformBlock(worldIn, pos, playerIn, true);
 			break;
 		}
-		return true;
+		return EnumActionResult.PASS;
 	}
 
 	private void spawnRails(World worldIn, BlockPos pos, EntityPlayer playerIn) {
@@ -72,13 +73,13 @@ public class ItemSpawnPlatform extends Item {
 		int rotation2 = MathHelper.floor_double(playerIn.rotationYaw * 8.0F / 360.0F + 0.5D) & 7;
 		for (int i = 1; i < 50; i++)
 			worldIn.setBlockState(pos.offset(facing, i),
-					MTR.blockrailstraight.getDefaultState().withProperty(BlockRailStraight.ROTATION, rotation));
+					MTRBlocks.blockrailstraight.getDefaultState().withProperty(BlockRailStraight.ROTATION, rotation));
 		worldIn.setBlockState(pos,
-				MTR.blockrailstation.getDefaultState().withProperty(BlockRailStation.ROTATION, rotation));
+				MTRBlocks.blockrailstation.getDefaultState().withProperty(BlockRailStation.ROTATION, rotation));
 		worldIn.setBlockState(pos.offset(facing, 4),
-				MTR.blockrailbooster.getDefaultState().withProperty(BlockRailBooster.ROTATION, rotation2));
+				MTRBlocks.blockrailbooster.getDefaultState().withProperty(BlockRailBooster.ROTATION, rotation2));
 		worldIn.setBlockState(pos.offset(facing, 50),
-				MTR.blockrailbooster.getDefaultState().withProperty(BlockRailBooster.ROTATION, rotation2));
+				MTRBlocks.blockrailbooster.getDefaultState().withProperty(BlockRailBooster.ROTATION, rotation2));
 		try {
 			TileEntityRailBoosterEntity te1 = (TileEntityRailBoosterEntity) worldIn
 					.getTileEntity(pos.offset(facing, 4));
@@ -95,9 +96,9 @@ public class ItemSpawnPlatform extends Item {
 	private void spawnPlatformBlock(World worldIn, BlockPos pos, EntityPlayer playerIn, boolean right) {
 		EnumFacing facing = EnumFacing.fromAngle(playerIn.rotationYaw);
 		for (int i = 0; i < 16; i++) {
-			worldIn.setBlockState(pos.offset(facing, i), MTR.blockplatform.getDefaultState()
+			worldIn.setBlockState(pos.offset(facing, i), MTRBlocks.blockplatform.getDefaultState()
 					.withProperty(BlockPlatform.FACING, right ? facing.getOpposite() : facing));
-			worldIn.setBlockState(pos.offset(facing, i).down(), Blocks.redstone_wire.getDefaultState());
+			worldIn.setBlockState(pos.offset(facing, i).down(), Blocks.REDSTONE_WIRE.getDefaultState());
 		}
 	}
 
@@ -105,9 +106,5 @@ public class ItemSpawnPlatform extends Item {
 	public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
 		for (int var4 = 0; var4 < 3; ++var4)
 			subItems.add(new ItemStack(itemIn, 1, var4));
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

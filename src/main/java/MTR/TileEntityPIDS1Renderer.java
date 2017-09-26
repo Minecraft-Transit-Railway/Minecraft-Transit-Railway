@@ -4,33 +4,33 @@ import java.util.Calendar;
 
 import org.lwjgl.opengl.GL11;
 
-import MTR.blocks.BlockPSDTop;
+import MTR.blocks.BlockPSDTopBase;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TileEntityPIDS1Renderer extends TileEntitySpecialRenderer {
+public class TileEntityPIDS1Renderer extends TileEntitySpecialRenderer<TileEntityPIDS1Entity> {
 
-	int position;
-	boolean engText = false;
+	private int position;
+	private boolean engText;
 	private final int MAX_FRAMES = 550; // or 1000
 
 	@Override
-	public void renderTileEntityAt(TileEntity te2, double x, double y, double z, float partialTicks, int destroyStage) {
-		int meta = te2.getBlockMetadata();
+	public void renderTileEntityAt(TileEntityPIDS1Entity te, double x, double y, double z, float partialTicks,
+			int destroyStage) {
+		int meta = te.getBlockMetadata();
 		GL11.glPushMatrix();
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 		GlStateManager.translate(x, y, z);
 		Tessellator tessellator = Tessellator.getInstance();
-		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		VertexBuffer worldrenderer = tessellator.getBuffer();
 		long calendar = Calendar.getInstance().getTimeInMillis();
 		engText = calendar % 6000 >= 3000;
 		if (!TileEntityPIDS1Entity.game && calendar > TileEntityPIDS1Entity.cooldown) {
@@ -172,7 +172,7 @@ public class TileEntityPIDS1Renderer extends TileEntitySpecialRenderer {
 		GL11.glPopAttrib();
 		GL11.glPopMatrix();
 
-		BlockPos pos = te2.getPos(), pos3 = pos, pos4 = pos;
+		BlockPos pos = te.getPos(), pos3 = pos, pos4 = pos;
 		switch (meta) {
 		case 0:
 			pos3 = pos.add(-2, 0, 0);
@@ -191,27 +191,42 @@ public class TileEntityPIDS1Renderer extends TileEntitySpecialRenderer {
 			pos4 = pos.add(0, 0, -1);
 			break;
 		}
-		World worldIn = te2.getWorld();
+		World worldIn = te.getWorld();
 		int color = 0, bound = 0;
-		if (worldIn.getBlockState(pos3).getBlock() instanceof BlockPSDTop) {
-			TileEntityPSDTopEntity te4 = (TileEntityPSDTopEntity) worldIn.getTileEntity(pos3);
+		if (worldIn.getBlockState(pos3).getBlock() instanceof BlockPSDTopBase) {
+			TileEntityPSDBase te4 = (TileEntityPSDBase) worldIn.getTileEntity(pos3);
 			color = te4.color;
 			bound = te4.bound;
 		}
-		if (worldIn.getBlockState(pos4).getBlock() instanceof BlockPSDTop) {
-			TileEntityPSDTopEntity te4 = (TileEntityPSDTopEntity) worldIn.getTileEntity(pos4);
+		if (worldIn.getBlockState(pos4).getBlock() instanceof BlockPSDTopBase) {
+			TileEntityPSDBase te4 = (TileEntityPSDBase) worldIn.getTileEntity(pos4);
+			color = te4.color;
+			bound = te4.bound;
+		}
+		if (worldIn.getBlockState(pos3.down()).getBlock() instanceof BlockPSDTopBase) {
+			TileEntityPSDBase te4 = (TileEntityPSDBase) worldIn.getTileEntity(pos3.down());
+			color = te4.color;
+			bound = te4.bound;
+		}
+		if (worldIn.getBlockState(pos4.down()).getBlock() instanceof BlockPSDTopBase) {
+			TileEntityPSDBase te4 = (TileEntityPSDBase) worldIn.getTileEntity(pos4.down());
 			color = te4.color;
 			bound = te4.bound;
 		}
 
 		if (color > 0) {
+			PlatformData data = PlatformData.get(worldIn);
+			int minutes = te.minutes;
+			if (minutes == -1)
+				minutes = te.maxMin;
 			GlStateManager.pushMatrix();
 			GlStateManager.pushAttrib();
 			String chinese = "", english = "";
 			chinese = I18n.format("destination." + String.valueOf(color * 4 - 4 + bound) + "c", new Object[0]);
 			english = I18n.format("destination." + String.valueOf(color * 4 - 4 + bound), new Object[0]);
-			FontRenderer var20 = getFontRenderer();
+			FontRenderer fontRenderer = getFontRenderer();
 			GlStateManager.translate(x + 0.5, y, z + 0.5);
+			GlStateManager.pushMatrix();
 			GlStateManager.rotate(-meta * 90 + 180, 0, 1, 0);
 			GlStateManager.translate(-0.4375, 0.21875, 0.13);
 			GlStateManager.scale(0.015625, -0.015625, 0.015625);
@@ -219,7 +234,23 @@ public class TileEntityPIDS1Renderer extends TileEntitySpecialRenderer {
 				GL11.glNormal3f(0.1F, 0, 0);
 			else
 				GL11.glNormal3f(0, 0, 0.1F);
-			var20.drawString(engText ? english : chinese, 0, 0, 0xFF9900);
+			fontRenderer.drawString(engText ? english : chinese, 0, 0, 0xFF9900);
+			GlStateManager.popMatrix();
+			GlStateManager.pushMatrix();
+			if (minutes > 0) {
+				String text = minutes + I18n.format("gui.min1" + (engText ? "" : "c"), new Object[0]);
+				int width = fontRenderer.getStringWidth(text);
+				GlStateManager.rotate(-meta * 90, 0, 1, 0);
+				GlStateManager.translate(0.4375, 0.21875, 0.13);
+				GlStateManager.scale(0.015625, -0.015625, 0.015625);
+				GlStateManager.translate(-width, 0, 0);
+				if (meta == 0 || meta == 2)
+					GL11.glNormal3f(0.1F, 0, 0);
+				else
+					GL11.glNormal3f(0, 0, 0.1F);
+				fontRenderer.drawString(text, 0, 0, 0xFF9900);
+			}
+			GlStateManager.popMatrix();
 			GlStateManager.popAttrib();
 			GlStateManager.popMatrix();
 		}

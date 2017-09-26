@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityPIDS1Entity extends TileEntity {
+public class TileEntityPIDS1Entity extends TileEntity implements ITickable {
 
 	public int minutes;
+	public int platform;
+	public int maxMin;
 
 	public static boolean game, turn;
 	public static String p1, p2;
@@ -22,6 +26,8 @@ public class TileEntityPIDS1Entity extends TileEntity {
 	public static long cooldown;
 
 	private static int board[] = new int[9];
+	private int tickCounter;
+	private int localMax;
 
 	public static void clear() {
 		for (int i = 0; i < 9; i++)
@@ -30,19 +36,19 @@ public class TileEntityPIDS1Entity extends TileEntity {
 
 	public static void move(int square, ICommandSender sender) {
 		if (board[square - 1] != 0) {
-			sender.addChatMessage(new ChatComponentText("This square is full!"));
+			sender.addChatMessage(new TextComponentString("This square is full!"));
 			return;
 		}
 		board[square - 1] = turn ? 2 : 1;
 		int result = checkWin(board);
 		if (result > 0) {
-			sender.addChatMessage(new ChatComponentText((turn ? p2 : p1) + " wins!"));
+			sender.addChatMessage(new TextComponentString((turn ? p2 : p1) + " wins!"));
 			cooldown = Calendar.getInstance().getTimeInMillis() + 3000;
 			game = false;
 			return;
 		}
 		if (result == -1) {
-			sender.addChatMessage(new ChatComponentText("Tie game!!"));
+			sender.addChatMessage(new TextComponentString("Tie game!!"));
 			cooldown = Calendar.getInstance().getTimeInMillis() + 3000;
 			game = false;
 			return;
@@ -71,7 +77,7 @@ public class TileEntityPIDS1Entity extends TileEntity {
 		}
 		if (choose.size() > 0) {
 			board[(Integer) choose.get((int) (Math.random() * choose.size()))] = 2;
-			sender.addChatMessage(new ChatComponentText("AI wins!"));
+			sender.addChatMessage(new TextComponentString("AI wins!"));
 			cooldown = Calendar.getInstance().getTimeInMillis() + 3000;
 			game = false;
 			return;
@@ -90,10 +96,10 @@ public class TileEntityPIDS1Entity extends TileEntity {
 	}
 
 	public static void showBoard(ICommandSender sender) {
-		sender.addChatMessage(new ChatComponentText("X - " + p1 + ", O - " + (p2 == "" ? "AI" : p2)));
-		sender.addChatMessage(new ChatComponentText(getSquareString(1) + getSquareString(2) + getSquareString(3)));
-		sender.addChatMessage(new ChatComponentText(getSquareString(4) + getSquareString(5) + getSquareString(6)));
-		sender.addChatMessage(new ChatComponentText(getSquareString(7) + getSquareString(8) + getSquareString(9)));
+		sender.addChatMessage(new TextComponentString("X - " + p1 + ", O - " + (p2 == "" ? "AI" : p2)));
+		sender.addChatMessage(new TextComponentString(getSquareString(1) + getSquareString(2) + getSquareString(3)));
+		sender.addChatMessage(new TextComponentString(getSquareString(4) + getSquareString(5) + getSquareString(6)));
+		sender.addChatMessage(new TextComponentString(getSquareString(7) + getSquareString(8) + getSquareString(9)));
 	}
 
 	public static int getSquare(int square) {
@@ -207,34 +213,52 @@ public class TileEntityPIDS1Entity extends TileEntity {
 	}
 
 	@Override
-	public Packet getDescriptionPacket() {
-		NBTTagCompound nbtTagCompound = new NBTTagCompound();
-		writeToNBT(nbtTagCompound);
-		int metadata = getBlockMetadata();
-		return new S35PacketUpdateTileEntity(pos, metadata, nbtTagCompound);
-	}
-
-	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		super.onDataPacket(net, pkt);
 		readFromNBT(pkt.getNbtCompound());
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound parentNBTTagCompound) {
-		super.writeToNBT(parentNBTTagCompound);
-		parentNBTTagCompound.setInteger("minutes", minutes);
+	@Nullable
+	public SPacketUpdateTileEntity getUpdatePacket() {
+		return new SPacketUpdateTileEntity(pos, 0, getUpdateTag());
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound parentNBTTagCompound) {
-		super.readFromNBT(parentNBTTagCompound);
-		final int NBT_INT_ID = 3;
-		int readPosition1 = -1;
-		if (parentNBTTagCompound.hasKey("minutes", NBT_INT_ID)) {
-			readPosition1 = parentNBTTagCompound.getInteger("minutes");
-			if (readPosition1 < 0)
-				readPosition1 = -1;
+	public NBTTagCompound getUpdateTag() {
+		return writeToNBT(new NBTTagCompound());
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("minutes", minutes);
+		compound.setInteger("platform", platform);
+		compound.setInteger("maxmin", localMax + 1);
+		return compound;
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound nbt) {
+		super.readFromNBT(nbt);
+		minutes = nbt.getInteger("minutes");
+		platform = nbt.getInteger("platform");
+		maxMin = nbt.getInteger("maxmin");
+		localMax = 0;
+	}
+
+	@Override
+	public void update() {
+		tickCounter++;
+		if (tickCounter >= 39 && !worldObj.isRemote) {
+			PlatformData data = PlatformData.get(worldObj);
+			if (platform > 0) {
+				minutes = data.getArrival(platform, 0);
+				localMax = Math.max(minutes, localMax);
+				worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 0);
+				markDirty();
+			}
+			tickCounter = 0;
 		}
-		minutes = readPosition1;
 	}
 }

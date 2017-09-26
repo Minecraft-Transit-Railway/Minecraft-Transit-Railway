@@ -1,7 +1,7 @@
 package MTR.blocks;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -10,9 +10,7 @@ public class BlockRailStraight extends BlockRailBase2 {
 	private static final String name = "BlockRailStraight";
 
 	public BlockRailStraight() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
 	}
 
 	public void destroy1(World worldIn, BlockPos pos, int a, int rotation) {
@@ -33,7 +31,7 @@ public class BlockRailStraight extends BlockRailBase2 {
 				break;
 			}
 			IBlockState state2 = worldIn.getBlockState(pos2);
-			if (state2.getBlock() instanceof BlockRailStraight && (Integer) state2.getValue(ROTATION) == rotation)
+			if (state2.getBlock() instanceof BlockRailStraight && state2.getValue(ROTATION) == rotation)
 				destroy1(worldIn, pos2, a - 1, rotation);
 		}
 		worldIn.setBlockToAir(pos);
@@ -57,13 +55,9 @@ public class BlockRailStraight extends BlockRailBase2 {
 				break;
 			}
 			IBlockState state2 = worldIn.getBlockState(pos2);
-			if (state2.getBlock() instanceof BlockRailStraight && (Integer) state2.getValue(ROTATION) == rotation)
+			if (state2.getBlock() instanceof BlockRailStraight && state2.getValue(ROTATION) == rotation)
 				destroy2(worldIn, pos2, a - 1, rotation);
 		}
 		worldIn.setBlockToAir(pos);
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

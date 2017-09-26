@@ -1,16 +1,16 @@
 package MTR.blocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockPlatform extends BlockWithDirection {
 
@@ -19,11 +19,9 @@ public class BlockPlatform extends BlockWithDirection {
 	public static final PropertyInteger FLOOR = PropertyInteger.create("floor", 0, 4);
 
 	public BlockPlatform() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(FLOOR, 0)
 				.withProperty(TEXTURE, 0));
-		setUnlocalizedName(name);
 	}
 
 	@Override
@@ -103,21 +101,17 @@ public class BlockPlatform extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, TEXTURE, FLOOR });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, TEXTURE, FLOOR });
 	}
 
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getMobilityFlag() {
-		return 0;
-	}
-
-	public String getName() {
-		return name;
+	public EnumPushReaction getMobilityFlag(IBlockState state) {
+		return EnumPushReaction.BLOCK;
 	}
 }

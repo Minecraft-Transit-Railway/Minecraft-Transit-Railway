@@ -1,20 +1,29 @@
 package MTR;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class EntityLightRail1 extends EntityTrainBase {
 
+	private static final DataParameter<Integer> MTR_ROUTE = EntityDataManager.<Integer>createKey(EntityTrainBase.class,
+			DataSerializers.VARINT);
+
 	public EntityLightRail1(World world) {
 		super(world);
-		name = "LightRail1";
+		doorOpen = MTRSounds.lightrail1Dooropen;
+		doorClose = MTRSounds.lightrail1Doorclose;
 	}
 
-	public EntityLightRail1(World world, double x, double y, double z) {
-		super(world, x, y, z);
-		name = "LightRail1";
+	public EntityLightRail1(World world, double x, double y, double z, boolean f, int h) {
+		super(world, x, y, z, f, h);
+		doorOpen = MTRSounds.lightrail1Dooropen;
+		doorClose = MTRSounds.lightrail1Doorclose;
 	}
 
 	@Override
@@ -23,7 +32,7 @@ public class EntityLightRail1 extends EntityTrainBase {
 		// set route
 		try {
 			TileEntityRouteChangerEntity te = (TileEntityRouteChangerEntity) worldObj
-					.getTileEntity(getPosition().add(0, -1, 0));
+					.getTileEntity(getPosition().down());
 			setRoute(te.route - 2000);
 			setRouteBehind();
 		} catch (Exception e) {
@@ -32,7 +41,12 @@ public class EntityLightRail1 extends EntityTrainBase {
 
 	private void setRouteBehind() {
 		try {
-			EntityLightRail1 entityBack = (EntityLightRail1) MinecraftServer.getServer().getEntityFromUuid(carBack);
+			EntityLightRail1 entityBack;
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+			if (front)
+				entityBack = (EntityLightRail1) server.getEntityFromUuid(uuidWheel);
+			else
+				entityBack = (EntityLightRail1) server.getEntityFromUuid(uuidConnected);
 			entityBack.setRoute(getRoute());
 			entityBack.setRouteBehind();
 		} catch (Exception e) {
@@ -40,22 +54,22 @@ public class EntityLightRail1 extends EntityTrainBase {
 	}
 
 	private void setRoute(int route) {
-		dataWatcher.updateObject(19, route);
+		dataManager.set(MTR_ROUTE, route);
 	}
 
 	public int getRoute() {
-		return dataWatcher.getWatchableObjectInt(19);
+		return dataManager.get(MTR_ROUTE);
 	}
 
 	@Override
-	protected int getTrainLength() {
-		return 23;
+	public int getTrainLength() {
+		return 14;
 	}
 
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		dataWatcher.addObject(19, new Integer(0)); // route number
+		dataManager.register(MTR_ROUTE, new Integer(0)); // route number
 	}
 
 	@Override
@@ -65,8 +79,9 @@ public class EntityLightRail1 extends EntityTrainBase {
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setInteger("route", getRoute());
+		return compound;
 	}
 }

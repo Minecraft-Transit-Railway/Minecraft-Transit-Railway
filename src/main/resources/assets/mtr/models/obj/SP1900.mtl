@@ -1,0 +1,7 @@
+# Exported from 3D Builder
+
+newmtl FrontColor
+Kd 1.000000 1.000000 1.000000
+
+newmtl Translucent_Glass_Blue
+Kd 0.000000 1.000000 1.000000

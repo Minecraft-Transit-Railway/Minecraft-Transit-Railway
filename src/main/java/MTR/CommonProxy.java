@@ -1,28 +1,30 @@
 package MTR;
 
+import net.minecraft.item.Item;
+
 public class CommonProxy {
 
 	public void registerRenderers() {
 	}
 
-	public void openGUI(TileEntityRouteChangerEntity te) {
+	public void registerSounds() {
 	}
 
-	public void openGUI(TileEntityTrainTimerEntity te) {
+	public void renderEntities() {
 	}
 
-	public void openGUI(TileEntityPSDBase te) {
+	public void registerItemRenderer(Item item, int meta, String id) {
 	}
 
-	public void openGUI(TileEntityNextTrainEntity te) {
+	public void openGUI(int x, int y, int z) {
 	}
 
-	public void openGUI(TileEntityRailBoosterEntity te) {
+	public void openGUI(PlatformData data) {
 	}
 
-	public void openGUI(TileEntityStationNameEntity te) {
+	public void openGUI(PlatformData data, TileEntityNextTrainEntity te) {
 	}
 
-	public void openMapGUI() {
+	public void openGUI(PlatformData data, TileEntityPIDS1Entity te) {
 	}
 }

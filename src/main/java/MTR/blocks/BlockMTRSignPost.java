@@ -1,20 +1,18 @@
 package MTR.blocks;
 
-import MTR.MTR;
+import MTR.BlockBase;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockMTRSignPost extends Block {
+public class BlockMTRSignPost extends BlockBase {
 
 	private static final String name = "BlockMTRSignPost";
 	public static final PropertyBool NORTH = PropertyBool.create("north");
@@ -24,14 +22,14 @@ public class BlockMTRSignPost extends Block {
 	public static final PropertyBool UP = PropertyBool.create("up");
 
 	public BlockMTRSignPost() {
-		super(Material.rock);
-		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRTab);
-		setHardness(5F);
-		setBlockBounds(0.40625F, 0, 0.40625F, 0.59375F, 1, 0.59375F);
+		super(Material.ROCK, name);
 		setDefaultState(blockState.getBaseState().withProperty(NORTH, false).withProperty(EAST, false)
 				.withProperty(SOUTH, false).withProperty(WEST, false).withProperty(UP, false));
-		setUnlocalizedName(name);
+	}
+
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return new AxisAlignedBB(0.40625F, 0, 0.40625F, 0.59375F, 1, 0.59375F);
 	}
 
 	@Override
@@ -51,18 +49,6 @@ public class BlockMTRSignPost extends Block {
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-		setBlockBoundsBasedOnState(worldIn, pos);
-		return super.getCollisionBoundingBox(worldIn, pos, state);
-	}
-
-	@Override
-	public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
-		setBlockBoundsBasedOnState(worldIn, pos);
-		return super.getSelectedBoundingBox(worldIn, pos);
-	}
-
-	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState();
 	}
@@ -73,22 +59,18 @@ public class BlockMTRSignPost extends Block {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { NORTH, EAST, SOUTH, WEST, UP });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { NORTH, EAST, SOUTH, WEST, UP });
 	}
 
 	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube(IBlockState state) {
 		return false;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 }

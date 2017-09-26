@@ -2,29 +2,21 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemKillTrain extends Item {
+public class ItemKillTrain extends ItemBase {
 
-	public static final String name = "ItemKillTrain";
+	private static final String[] name = { "ItemKillTrain" };
 
 	public ItemKillTrain() {
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name);
-		setUnlocalizedName(name);
+		super(name);
 	}
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
 		list.add(I18n.format("gui.killtrain", new Object[0]));
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

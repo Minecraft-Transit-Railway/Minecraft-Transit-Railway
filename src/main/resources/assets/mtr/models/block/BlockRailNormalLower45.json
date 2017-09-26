@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/RailNormalLower45",
+	"textures": {
+		"particle": "mtr:blocks/BlockRailNormal",
+		"rail": "mtr:blocks/BlockRailNormal"
+	}
+}

@@ -8,9 +8,9 @@ import net.minecraft.util.EnumFacing;
 public class GUIPSD extends GuiScreen {
 	private GuiButton buttonDone, buttonColorAdd, buttonColorSubtract, buttonPNumAdd, buttonPNumSubtract,
 			buttonBoundAdd, buttonBoundSubtract, buttonArrowLeft, buttonArrowRight;
-	int color, number, bound, arrow;
-	TileEntityPSDBase te;
-	String colors[] = { "none", "red", "green", "brown", "blue", "purple", "cyan", "light_gray", "gray", "pink",
+	private int color, number, bound, arrow;
+	private TileEntityPSDBase te;
+	private String colors[] = { "none", "red", "green", "brown", "blue", "purple", "cyan", "light_gray", "gray", "pink",
 			"light_green", "yellow", "light_blue", "magenta", "orange", "black" };
 
 	public GUIPSD(TileEntityPSDBase tEntity) {
@@ -54,8 +54,8 @@ public class GUIPSD extends GuiScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float ticks) {
 		drawDefaultBackground();
-		drawCenteredString(fontRendererObj, I18n.format("tile.BlockPSDDoor.name", new Object[0]), width / 2,
-				height / 2 - 75, 0xFFFFFF);
+		drawCenteredString(fontRendererObj, I18n.format("item.ItemPSD.name", new Object[0]), width / 2, height / 2 - 75,
+				0xFFFFFF);
 		if (color > 0)
 			drawCenteredString(fontRendererObj,
 					I18n.format("destination." + String.valueOf(color * 4 - 4 + bound) + "c", new Object[0]) + " "

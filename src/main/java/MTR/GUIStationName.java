@@ -7,8 +7,8 @@ import net.minecraft.client.resources.I18n;
 public class GUIStationName extends GuiScreen {
 
 	private GuiButton buttonDone, buttonA1, buttonA10, buttonA100, buttonS1, buttonS10, buttonS100;
-	int station;
-	TileEntityStationNameEntity te;
+	private int station;
+	private TileEntityStationNameEntity te;
 
 	public GUIStationName(TileEntityStationNameEntity te2) {
 		te = te2;
@@ -72,8 +72,8 @@ public class GUIStationName extends GuiScreen {
 		}
 		if (station < 0)
 			station = 0;
-		if (station > 92)
-			station = 92;
+		if (station > 99)
+			station = 99;
 	}
 
 	@Override

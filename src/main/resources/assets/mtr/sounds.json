@@ -1,112 +1,102 @@
 {
-  "Train.DoorClose": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "train/DoorClose",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Train.DoorClosePlatform": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "train/DoorClosePlatform",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Train.DoorOpen": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "train/DoorOpen",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Platform.APGClose": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "platform/APGClose",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Platform.APGOpen": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "platform/APGOpen",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Platform.PSDClose": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "platform/PSDClose",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "Platform.PSDOpen": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "platform/PSDOpen",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "LightRail1.DoorClose": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "lightrail1/DoorClose",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "LightRail1.DoorOpen": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "lightrail1/DoorOpen",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "SP1900.DoorClose": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "sp1900/DoorClose",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  },
-  "SP1900.DoorOpen": {
-    "category": "record",
-    "sounds": [
-    {
-      "name": "sp1900/DoorOpen",
-      "pitch": 0.5,
-      "stream": "true"
-    }
-    ]
-  }
+	"train.doorclose": {
+		"sounds": [
+		{
+			"name": "mtr:train/DoorClose",
+			"pitch": 0.5,
+			"stream": "true"
+		}
+		]
+	},
+	"train.doorclosetrain": {
+		"sounds": [
+		{
+			"name": "mtr:train/DoorCloseTrain",
+			"pitch": 0.5,
+			"stream": "true"
+		}
+		]
+	},
+	"train.doorcloseplatform": {
+		"sounds": [
+		{
+			"name": "mtr:train/DoorClosePlatform",
+			"pitch": 0.5,
+			"stream": "true"
+		}
+		]
+	},
+	"train.dooropen": {
+		"sounds": [
+		{
+			"name": "mtr:train/DoorOpen",
+			"pitch": 0.5,
+			"stream": "true"
+		}
+		]
+	},
+	"platform.apgclose": {
+		"sounds": [
+		{
+			"name": "mtr:platform/APGClose",
+			"pitch": 0.5
+		}
+		]
+	},
+	"platform.apgopen": {
+		"sounds": [
+		{
+			"name": "mtr:platform/APGOpen",
+			"pitch": 0.5
+		}
+		]
+	},
+	"platform.psdclose": {
+		"sounds": [
+		{
+			"name": "mtr:platform/PSDClose",
+			"pitch": 0.5
+		}
+		]
+	},
+	"platform.psdopen": {
+		"sounds": [
+		{
+			"name": "mtr:platform/PSDOpen",
+			"pitch": 0.5
+		}
+		]
+	},
+	"lightrail1.doorclose": {
+		"sounds": [
+		{
+			"name": "mtr:lightrail1/DoorClose",
+			"pitch": 0.5
+		}
+		]
+	},
+	"lightrail1.dooropen": {
+		"sounds": [
+		{
+			"name": "mtr:lightrail1/DoorOpen",
+			"pitch": 0.5
+		}
+		]
+	},
+	"sp1900.doorclose": {
+		"sounds": [
+		{
+			"name": "mtr:sp1900/DoorClose",
+			"pitch": 0.5
+		}
+		]
+	},
+	"sp1900.dooropen": {
+		"sounds": [
+		{
+			"name": "mtr:sp1900/DoorOpen",
+			"pitch": 0.5
+		}
+		]
+	}
 }

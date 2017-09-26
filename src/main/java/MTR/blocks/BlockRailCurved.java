@@ -1,27 +1,74 @@
 package MTR.blocks;
 
+import MTR.MTRBlocks;
 import MTR.TileEntityRailEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockRailCurved extends BlockRailBase2 implements ITileEntityProvider {
 
 	private static final String name = "BlockRailCurved";
-	public static final PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 15);
 
 	public BlockRailCurved() {
-		super();
-		GameRegistry.registerBlock(this, name);
-		setUnlocalizedName(name);
+		super(name);
+	}
+
+	@Override
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
+		int straight = 0;
+		if (getSwitchPos(worldIn, pos) != null)
+			straight = worldIn.getBlockState(getSwitchPos(worldIn, pos)).getValue(BlockRailSwitch.POWERED) ? 2 : 1;
+		change(worldIn, pos, straight);
+	}
+
+	public static BlockPos getSwitchPos(World worldIn, BlockPos pos) {
+		if (worldIn.getBlockState(pos.north()).getBlock() instanceof BlockRailSwitch)
+			return pos.north();
+		if (worldIn.getBlockState(pos.east()).getBlock() instanceof BlockRailSwitch)
+			return pos.east();
+		if (worldIn.getBlockState(pos.south()).getBlock() instanceof BlockRailSwitch)
+			return pos.south();
+		if (worldIn.getBlockState(pos.west()).getBlock() instanceof BlockRailSwitch)
+			return pos.west();
+		return null;
+	}
+
+	private void change(World worldIn, BlockPos pos, int straight) {
+		int direction = worldIn.getBlockState(pos).getValue(ROTATION);
+		int x = 0, z = 0;
+		switch (direction) {
+		case 0:
+			z = 1;
+			break;
+		case 1:
+			x = 1;
+			z = -1;
+			break;
+		case 2:
+			x = 1;
+			break;
+		case 3:
+			x = 1;
+			z = 1;
+			break;
+		}
+		changeDummyRails(worldIn, pos, direction, straight, x, z);
+		changeDummyRails(worldIn, pos, direction, straight, -x, -z);
+	}
+
+	private void changeDummyRails(World worldIn, BlockPos pos, int direction, int straight, int x, int z) {
+		int a = x, b = z;
+		while (worldIn.getBlockState(pos.add(a, 0, b)).getBlock() instanceof BlockRailDummy) {
+			worldIn.setBlockState(pos.add(a, 0, b), MTRBlocks.blockraildummy.getDefaultState()
+					.withProperty(BlockRailDummy.ROTATION, direction + 4 * straight));
+			a += x;
+			b += z;
+		}
 	}
 
 	@Override
@@ -64,26 +111,7 @@ public class BlockRailCurved extends BlockRailBase2 implements ITileEntityProvid
 	}
 
 	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(ROTATION, meta % 8);
-	}
-
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return (Integer) state.getValue(ROTATION);
-	}
-
-	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { ROTATION });
-	}
-
-	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new TileEntityRailEntity();
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

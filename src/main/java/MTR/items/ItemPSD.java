@@ -2,7 +2,8 @@ package MTR.items;
 
 import java.util.List;
 
-import MTR.MTR;
+import MTR.ItemBase;
+import MTR.MTRBlocks;
 import MTR.blocks.BlockPSD;
 import MTR.blocks.BlockPSDTop;
 import net.minecraft.block.Block;
@@ -14,33 +15,29 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ItemPSD extends Item {
+public class ItemPSD extends ItemBase {
 
-	public static final String name1 = "ItemPSDDoor";
-	public static final String name2 = "ItemPSD";
-	public static final String name3 = "ItemPSDEnd";
-	public static final String name4 = "ItemPSD2015";
+	private static final String[] name = { "ItemPSD", "ItemPSDDoor", "ItemPSDEnd", "ItemPSD2015" };
 
 	public ItemPSD() {
+		super(name);
 		setHasSubtypes(true);
-		setCreativeTab(MTR.MTRTab);
-		GameRegistry.registerItem(this, name2);
-		setUnlocalizedName(name2);
 	}
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
 		switch (stack.getMetadata()) {
 		case 0:
-			list.add(I18n.format("gui.door", new Object[0]));
+			list.add(I18n.format("gui.glass", new Object[0]));
 			break;
 		case 1:
-			list.add(I18n.format("gui.glass", new Object[0]));
+			list.add(I18n.format("gui.door", new Object[0]));
 			break;
 		case 2:
 			list.add(I18n.format("gui.glassend", new Object[0]));
@@ -51,25 +48,9 @@ public class ItemPSD extends Item {
 		}
 	}
 
-	public static String getName1() {
-		return name1;
-	}
-
-	public static String getName2() {
-		return name2;
-	}
-
-	public static String getName3() {
-		return name3;
-	}
-
-	public static String getName4() {
-		return name4;
-	}
-
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing facingSide,
-			float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+			EnumHand hand, EnumFacing facingSide, float hitX, float hitY, float hitZ) {
 		IBlockState stateThis = worldIn.getBlockState(pos);
 		if (!stateThis.getBlock().isReplaceable(worldIn, pos))
 			pos = pos.offset(facingSide);
@@ -78,7 +59,7 @@ public class ItemPSD extends Item {
 		IBlockState state1Up = worldIn.getBlockState(pos1Up), state2Up = worldIn.getBlockState(pos2Up);
 		if (!stateThis.getBlock().isReplaceable(worldIn, pos) || !state1Up.getBlock().isReplaceable(worldIn, pos1Up)
 				|| !state2Up.getBlock().isReplaceable(worldIn, pos2Up))
-			return false;
+			return EnumActionResult.FAIL;
 		EnumFacing var3 = EnumFacing.fromAngle(playerIn.rotationYaw).rotateY();
 		BlockPos pos2 = pos, pos3 = pos;
 		switch (var3) {
@@ -109,19 +90,19 @@ public class ItemPSD extends Item {
 		if (block2 instanceof BlockPSD)
 			side = !(Boolean) state2.getValue(SIDE);
 		switch (stack.getMetadata()) {
-		case 0: // door
-			worldIn.setBlockState(pos, MTR.blockpsddoorclosed.getDefaultState().withProperty(FACING, var3)
+		case 1: // door
+			worldIn.setBlockState(pos, MTRBlocks.blockpsddoorclosed.getDefaultState().withProperty(FACING, var3)
 					.withProperty(SIDE, side).withProperty(TOP, false));
-			worldIn.setBlockState(pos1Up, MTR.blockpsddoorclosed.getDefaultState().withProperty(FACING, var3)
+			worldIn.setBlockState(pos1Up, MTRBlocks.blockpsddoorclosed.getDefaultState().withProperty(FACING, var3)
 					.withProperty(SIDE, side).withProperty(TOP, true));
 			break;
-		case 1: // glass
+		case 0: // glass
 		case 3: // glass 2015
-			Block block = stack.getMetadata() == 1 ? MTR.blockpsdglass : MTR.blockpsdglass2015;
+			Block block = stack.getMetadata() == 0 ? MTRBlocks.blockpsdglass : MTRBlocks.blockpsdglass2015;
 			if (playerIn.isSneaking()) {
-				worldIn.setBlockState(pos, MTR.blockpsdglassmiddle.getDefaultState().withProperty(FACING, var3)
+				worldIn.setBlockState(pos, MTRBlocks.blockpsdglassmiddle.getDefaultState().withProperty(FACING, var3)
 						.withProperty(SIDE, true).withProperty(TOP, false));
-				worldIn.setBlockState(pos1Up, MTR.blockpsdglassmiddle.getDefaultState().withProperty(FACING, var3)
+				worldIn.setBlockState(pos1Up, MTRBlocks.blockpsdglassmiddle.getDefaultState().withProperty(FACING, var3)
 						.withProperty(SIDE, true).withProperty(TOP, true));
 			} else {
 				worldIn.setBlockState(pos, block.getDefaultState().withProperty(FACING, var3).withProperty(SIDE, side)
@@ -132,21 +113,21 @@ public class ItemPSD extends Item {
 			break;
 		case 2: // glassend
 			if (!(block2 instanceof BlockPSD) || playerIn.isSneaking()) {
-				worldIn.setBlockState(pos, MTR.blockpsdglassveryend.getDefaultState().withProperty(FACING, var3)
+				worldIn.setBlockState(pos, MTRBlocks.blockpsdglassveryend.getDefaultState().withProperty(FACING, var3)
 						.withProperty(SIDE, side).withProperty(TOP, false));
-				worldIn.setBlockState(pos1Up, MTR.blockpsdglassveryend.getDefaultState().withProperty(FACING, var3)
-						.withProperty(SIDE, side).withProperty(TOP, true));
+				worldIn.setBlockState(pos1Up, MTRBlocks.blockpsdglassveryend.getDefaultState()
+						.withProperty(FACING, var3).withProperty(SIDE, side).withProperty(TOP, true));
 			} else {
-				worldIn.setBlockState(pos, MTR.blockpsdglassend.getDefaultState().withProperty(FACING, var3)
+				worldIn.setBlockState(pos, MTRBlocks.blockpsdglassend.getDefaultState().withProperty(FACING, var3)
 						.withProperty(SIDE, side).withProperty(TOP, false));
-				worldIn.setBlockState(pos1Up, MTR.blockpsdglassend.getDefaultState().withProperty(FACING, var3)
+				worldIn.setBlockState(pos1Up, MTRBlocks.blockpsdglassend.getDefaultState().withProperty(FACING, var3)
 						.withProperty(SIDE, side).withProperty(TOP, true));
 			}
 			break;
 		}
-		worldIn.setBlockState(pos2Up, MTR.blockpsdtop.getDefaultState().withProperty(TOPFACING, var3));
+		worldIn.setBlockState(pos2Up, MTRBlocks.blockpsdtop.getDefaultState().withProperty(TOPFACING, var3));
 		--stack.stackSize;
-		return true;
+		return EnumActionResult.FAIL;
 	}
 
 	@Override

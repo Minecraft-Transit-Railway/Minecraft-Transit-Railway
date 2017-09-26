@@ -1,15 +1,20 @@
 package MTR.blocks;
 
+import java.util.Random;
+
+import MTR.MTRItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class BlockAPGGlassBottom extends BlockWithDirection {
 
@@ -18,35 +23,30 @@ public class BlockAPGGlassBottom extends BlockWithDirection {
 	public static final PropertyBool SIDE = PropertyBool.create("side");
 
 	public BlockAPGGlassBottom() {
-		super();
+		super(name);
 		setCreativeTab(null);
-		GameRegistry.registerBlock(this, name);
 		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(SIDE, false));
-		setUnlocalizedName(name);
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-		EnumFacing var3 = access.getBlockState(pos).getValue(FACING);
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		EnumFacing var3 = state.getValue(FACING);
 		switch (var3) {
 		case NORTH:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.125F, 1.0F, 1.0F);
 		case SOUTH:
-			setBlockBounds(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.875F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 		case EAST:
-			setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.125F);
 		case WEST:
-			setBlockBounds(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
-			break;
+			return new AxisAlignedBB(0.0F, 0.0F, 0.875F, 1.0F, 1.0F, 1.0F);
 		default:
+			return NULL_AABB;
 		}
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		if (!(worldIn.getBlockState(pos.up()).getBlock() instanceof BlockAPGGlassTop))
 			worldIn.setBlockToAir(pos);
 	}
@@ -66,11 +66,22 @@ public class BlockAPGGlassBottom extends BlockWithDirection {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { FACING, SIDE });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE });
 	}
 
-	public String getName() {
-		return name;
+	@Override
+	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+		return MTRItems.itemapg;
+	}
+
+	@Override
+	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+		return new ItemStack(MTRItems.itemapg, 1, 1);
+	}
+
+	@Override
+	public int damageDropped(IBlockState state) {
+		return 1;
 	}
 }

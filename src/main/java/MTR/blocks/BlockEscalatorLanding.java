@@ -1,6 +1,7 @@
 package MTR.blocks;
 
-import MTR.MTR;
+import MTR.BlockBase;
+import MTR.MTRBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.BlockSandStone;
@@ -10,25 +11,20 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class BlockEscalatorLanding extends Block {
+public class BlockEscalatorLanding extends BlockBase {
 
 	private static final String name = "BlockEscalatorLanding";
 
 	public BlockEscalatorLanding() {
-		super(Material.rock);
-		GameRegistry.registerBlock(this, name);
-		setCreativeTab(MTR.MTRTab);
-		setHardness(5F);
-		setUnlocalizedName(name);
+		super(Material.ROCK, name);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
 		if (!(worldIn.getBlockState(pos.up()).getBlock() instanceof BlockEscalatorSideLanding))
 			worldIn.setBlockToAir(pos);
 		BlockPos posStep = pos;
@@ -93,24 +89,20 @@ public class BlockEscalatorLanding extends Block {
 			PropertyDirection FACING = BlockWithDirection.FACING;
 			PropertyBool SIDE = BlockEscalatorSideLanding.SIDE;
 			worldIn.setBlockState(posRight, getDefaultState());
-			worldIn.setBlockState(pos.up(), MTR.blockescalatorsidelanding.getDefaultState().withProperty(FACING, var3)
-					.withProperty(SIDE, false));
-			worldIn.setBlockState(posRight.up(), MTR.blockescalatorsidelanding.getDefaultState()
+			worldIn.setBlockState(pos.up(), MTRBlocks.blockescalatorsidelanding.getDefaultState()
+					.withProperty(FACING, var3).withProperty(SIDE, false));
+			worldIn.setBlockState(posRight.up(), MTRBlocks.blockescalatorsidelanding.getDefaultState()
 					.withProperty(FACING, var3).withProperty(SIDE, true));
-			worldIn.setBlockState(pos.up(3), MTR.blockescalatorsign.getDefaultState().withProperty(FACING, var3));
+			worldIn.setBlockState(pos.up(3), MTRBlocks.blockescalatorsign.getDefaultState().withProperty(FACING, var3));
 			worldIn.setBlockState(posRight.up(3),
-					MTR.blockescalatorsign.getDefaultState().withProperty(FACING, var3.getOpposite()));
+					MTRBlocks.blockescalatorsign.getDefaultState().withProperty(FACING, var3.getOpposite()));
 			return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer);
 		} else
-			return Blocks.air.getDefaultState();
+			return Blocks.AIR.getDefaultState();
 	}
 
 	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }

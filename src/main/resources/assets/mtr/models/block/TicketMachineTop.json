@@ -1,4 +1,5 @@
 {
+	"parent": "block/block",
 	"elements": [
 		{	"__comment": "Top",
 			"from": [ 0, 11, 2 ],

@@ -1,13 +1,13 @@
 package MTR.client;
 
 import MTR.CommonProxy;
-import MTR.GUIMap;
-import MTR.GUINextTrain;
-import MTR.GUIPSD;
-import MTR.GUIRailBooster;
-import MTR.GUIRouteChanger;
-import MTR.GUIStationName;
-import MTR.GUITrainTimer;
+import MTR.EntityLightRail1;
+import MTR.EntityMinecartSpecial;
+import MTR.EntitySP1900;
+import MTR.GUIMakePlatform;
+import MTR.GUIShowPlatforms;
+import MTR.MTRSounds;
+import MTR.PlatformData;
 import MTR.TileEntityAPGGlassEntity;
 import MTR.TileEntityAPGGlassRenderer;
 import MTR.TileEntityClockEntity;
@@ -17,17 +17,21 @@ import MTR.TileEntityDoorRenderer;
 import MTR.TileEntityNextTrainEntity;
 import MTR.TileEntityPIDS1Entity;
 import MTR.TileEntityPIDS1Renderer;
-import MTR.TileEntityPSDBase;
 import MTR.TileEntityPSDTopEntity;
 import MTR.TileEntityPSDTopRenderer;
 import MTR.TileEntityRailBoosterEntity;
 import MTR.TileEntityRailBoosterRenderer;
-import MTR.TileEntityRouteChangerEntity;
+import MTR.TileEntityRailEntity;
+import MTR.TileEntityRailRenderer;
 import MTR.TileEntityStationNameEntity;
 import MTR.TileEntityStationNameRenderer;
-import MTR.TileEntityTrainTimerEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class ClientProxy extends CommonProxy {
 
@@ -43,42 +47,46 @@ public class ClientProxy extends CommonProxy {
 				new TileEntityRailBoosterRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityStationNameEntity.class,
 				new TileEntityStationNameRenderer());
-		// ClientRegistry.bindTileEntitySpecialRenderer(TileEntityRailEntity.class,
-		// new TileEntityRailRenderer());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityRailEntity.class, new TileEntityRailRenderer());
 	}
 
 	@Override
-	public void openGUI(TileEntityPSDBase te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIPSD(te));
+	public void registerSounds() {
+		MTRSounds.init();
 	}
 
 	@Override
-	public void openGUI(TileEntityNextTrainEntity te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUINextTrain(te));
+	public void renderEntities() {
+		// render entities
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartSpecial.class, RenderMinecartSpecial::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityLightRail1.class, RenderLightRail1::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntitySP1900.class, RenderSP1900::new);
+		// obj
+		OBJLoader.INSTANCE.addDomain("mtr");
 	}
 
 	@Override
-	public void openGUI(TileEntityRouteChangerEntity te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIRouteChanger(te));
+	public void registerItemRenderer(Item item, int meta, String id) {
+		ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation("mtr:" + id, "inventory"));
 	}
 
 	@Override
-	public void openGUI(TileEntityTrainTimerEntity te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUITrainTimer(te));
+	public void openGUI(int x, int y, int z) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIMakePlatform(x, y, z));
 	}
 
 	@Override
-	public void openGUI(TileEntityRailBoosterEntity te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIRailBooster(te));
+	public void openGUI(PlatformData data) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data));
 	}
 
 	@Override
-	public void openGUI(TileEntityStationNameEntity te) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIStationName(te));
+	public void openGUI(PlatformData data, TileEntityNextTrainEntity te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data, te));
 	}
 
 	@Override
-	public void openMapGUI() {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIMap());
+	public void openGUI(PlatformData data, TileEntityPIDS1Entity te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data, te));
 	}
 }

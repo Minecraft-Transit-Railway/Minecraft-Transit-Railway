@@ -2,10 +2,11 @@ package MTR.blocks;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -16,15 +17,14 @@ public class BlockRailSlope2 extends BlockRailBase2 {
 	public static final PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 7);
 
 	public BlockRailSlope2() {
-		super();
-		GameRegistry.registerBlock(this, name);
+		super(name);
+		
 		setDefaultState(blockState.getBaseState().withProperty(ROTATION, 0));
-		setUnlocalizedName(name);
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-		return null;
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
+		return NULL_AABB;
 	}
 
 	@Override
@@ -38,21 +38,17 @@ public class BlockRailSlope2 extends BlockRailBase2 {
 	}
 
 	@Override
-	public BlockState createBlockState() {
-		return new BlockState(this, new IProperty[] { ROTATION });
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { ROTATION });
 	}
 
 	@Override
-	public int getRenderType() {
-		return -1;
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.INVISIBLE;
 	}
 
 	@Override
 	public int damageDropped(IBlockState state) {
 		return 2;
-	}
-
-	public static String getName() {
-		return name;
 	}
 }
