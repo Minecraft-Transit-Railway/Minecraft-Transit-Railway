@@ -22,3 +22,6 @@ Does anyone want to submit any? :)
 
 ## Contact Me
 If you have any questions, comments, or concerns, please comment anywhere or email me at jonho.minecraft@gmail.com.
+
+## Legal
+<a href="https://minecraft.curseforge.com/projects/minecraft-transit-railway/license">Click here</a> to see the project license.
