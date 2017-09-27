@@ -52,7 +52,7 @@ public class ItemPlatformMarker extends ItemBase {
 								+ I18n.format("station." + station + "c", new Object[0]) + " "
 								+ I18n.format("station." + station, new Object[0]) + " - "
 								+ I18n.format("gui.platform", new Object[0]) + " " + data.platformNumber[j]));
-			} else
+			} else if (!playerIn.isSneaking())
 				MTR.proxy.openGUI(x, y, z);
 		}
 		return EnumActionResult.PASS;
@@ -61,8 +61,10 @@ public class ItemPlatformMarker extends ItemBase {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn,
 			EnumHand hand) {
-		PlatformData data = PlatformData.get(worldIn);
-		MTR.proxy.openGUI(data);
+		if (playerIn.isSneaking()) {
+			PlatformData data = PlatformData.get(worldIn);
+			MTR.proxy.openGUI(data);
+		}
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, itemStackIn);
 	}
 }

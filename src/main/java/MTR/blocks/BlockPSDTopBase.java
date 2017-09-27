@@ -1,13 +1,12 @@
 package MTR.blocks;
 
-import MTR.GUIPSD;
+import MTR.MTR;
 import MTR.TileEntityPSDBase;
 import MTR.items.ItemBrush;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -34,8 +33,7 @@ public class BlockPSDTopBase extends BlockWithDirection {
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
 		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityPSDBase te = (TileEntityPSDBase) worldIn.getTileEntity(pos);
-			if (worldIn.isRemote)
-				Minecraft.getMinecraft().displayGuiScreen(new GUIPSD(te));
+			MTR.proxy.openGUI(te);
 			return true;
 		} else
 			return false;

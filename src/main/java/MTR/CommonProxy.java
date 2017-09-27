@@ -27,4 +27,19 @@ public class CommonProxy {
 
 	public void openGUI(PlatformData data, TileEntityPIDS1Entity te) {
 	}
+
+	public void openGUI(TileEntityPSDBase te) {
+	}
+
+	public void openGUI(TileEntityRailBoosterEntity te) {
+	}
+
+	public void openGUI(TileEntityRouteChangerEntity te) {
+	}
+
+	public void openGUI(TileEntityStationNameEntity te) {
+	}
+
+	public void openGUIMap() {
+	}
 }

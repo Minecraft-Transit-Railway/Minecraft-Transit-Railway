@@ -1,12 +1,11 @@
 package MTR.blocks;
 
-import MTR.GUIMap;
+import MTR.MTR;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -117,8 +116,7 @@ public class BlockMTRMapSide extends BlockWithDirection {
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
 			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (worldIn.isRemote)
-			Minecraft.getMinecraft().displayGuiScreen(new GUIMap());
+		MTR.proxy.openGUIMap();
 		return true;
 	}
 

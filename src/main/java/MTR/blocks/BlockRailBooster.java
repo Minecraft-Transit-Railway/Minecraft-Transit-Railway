@@ -1,6 +1,6 @@
 package MTR.blocks;
 
-import MTR.GUIRailBooster;
+import MTR.MTR;
 import MTR.TileEntityRailBoosterEntity;
 import MTR.items.ItemBrush;
 import net.minecraft.block.Block;
@@ -10,7 +10,6 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -48,8 +47,7 @@ public class BlockRailBooster extends BlockRailBase2 implements ITileEntityProvi
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
 		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityRailBoosterEntity te = (TileEntityRailBoosterEntity) worldIn.getTileEntity(pos);
-			if (worldIn.isRemote)
-				Minecraft.getMinecraft().displayGuiScreen(new GUIRailBooster(te));
+			MTR.proxy.openGUI(te);
 			return true;
 		} else
 			return false;

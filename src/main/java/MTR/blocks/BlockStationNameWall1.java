@@ -1,6 +1,6 @@
 package MTR.blocks;
 
-import MTR.GUIStationName;
+import MTR.MTR;
 import MTR.TileEntityStationNameEntity;
 import MTR.items.ItemBrush;
 import net.minecraft.block.Block;
@@ -9,7 +9,6 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -58,8 +57,7 @@ public class BlockStationNameWall1 extends BlockWithDirection implements ITileEn
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
 		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityStationNameEntity te = (TileEntityStationNameEntity) worldIn.getTileEntity(pos);
-			if (worldIn.isRemote)
-				Minecraft.getMinecraft().displayGuiScreen(new GUIStationName(te));
+			MTR.proxy.openGUI(te);
 			return true;
 		} else
 			return false;

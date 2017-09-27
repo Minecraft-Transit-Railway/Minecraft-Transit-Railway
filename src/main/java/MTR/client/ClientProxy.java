@@ -5,7 +5,12 @@ import MTR.EntityLightRail1;
 import MTR.EntityMinecartSpecial;
 import MTR.EntitySP1900;
 import MTR.GUIMakePlatform;
+import MTR.GUIMap;
+import MTR.GUIPSD;
+import MTR.GUIRailBooster;
+import MTR.GUIRouteChanger;
 import MTR.GUIShowPlatforms;
+import MTR.GUIStationName;
 import MTR.MTRSounds;
 import MTR.PlatformData;
 import MTR.TileEntityAPGGlassEntity;
@@ -17,12 +22,14 @@ import MTR.TileEntityDoorRenderer;
 import MTR.TileEntityNextTrainEntity;
 import MTR.TileEntityPIDS1Entity;
 import MTR.TileEntityPIDS1Renderer;
+import MTR.TileEntityPSDBase;
 import MTR.TileEntityPSDTopEntity;
 import MTR.TileEntityPSDTopRenderer;
 import MTR.TileEntityRailBoosterEntity;
 import MTR.TileEntityRailBoosterRenderer;
 import MTR.TileEntityRailEntity;
 import MTR.TileEntityRailRenderer;
+import MTR.TileEntityRouteChangerEntity;
 import MTR.TileEntityStationNameEntity;
 import MTR.TileEntityStationNameRenderer;
 import net.minecraft.client.Minecraft;
@@ -88,5 +95,30 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openGUI(PlatformData data, TileEntityPIDS1Entity te) {
 		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data, te));
+	}
+
+	@Override
+	public void openGUI(TileEntityPSDBase te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIPSD(te));
+	}
+
+	@Override
+	public void openGUI(TileEntityRailBoosterEntity te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIRailBooster(te));
+	}
+
+	@Override
+	public void openGUI(TileEntityRouteChangerEntity te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIRouteChanger(te));
+	}
+
+	@Override
+	public void openGUI(TileEntityStationNameEntity te) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIStationName(te));
+	}
+
+	@Override
+	public void openGUIMap() {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIMap());
 	}
 }

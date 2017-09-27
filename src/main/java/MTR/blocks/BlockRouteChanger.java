@@ -1,13 +1,12 @@
 package MTR.blocks;
 
 import MTR.BlockBase;
-import MTR.GUIRouteChanger;
+import MTR.MTR;
 import MTR.TileEntityRouteChangerEntity;
 import MTR.items.ItemBrush;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -35,8 +34,7 @@ public class BlockRouteChanger extends BlockBase implements ITileEntityProvider 
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
 		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityRouteChangerEntity te = (TileEntityRouteChangerEntity) worldIn.getTileEntity(pos);
-			if (worldIn.isRemote)
-				Minecraft.getMinecraft().displayGuiScreen(new GUIRouteChanger(te));
+			MTR.proxy.openGUI(te);
 			return true;
 		} else
 			return false;
