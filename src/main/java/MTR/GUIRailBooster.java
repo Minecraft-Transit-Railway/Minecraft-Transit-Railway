@@ -50,8 +50,8 @@ public class GUIRailBooster extends GuiScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float ticks) {
 		drawDefaultBackground();
-		drawCenteredString(fontRendererObj, I18n.format("tile.BlockRailBooster.name", new Object[0]), width / 2,
-				height / 2 - 75, 0xFFFFFF);
+		drawCenteredString(fontRendererObj, I18n.format("gui.railbooster", new Object[0]), width / 2, height / 2 - 75,
+				0xFFFFFF);
 		drawCenteredString(fontRendererObj, I18n.format("gui.boostto", new Object[0]), width / 2, height / 2 - 30,
 				0xFFFFFF);
 		drawCenteredString(fontRendererObj, String.valueOf(speedBoost / 10F) + "m/s", width / 2, height / 2 - 20,

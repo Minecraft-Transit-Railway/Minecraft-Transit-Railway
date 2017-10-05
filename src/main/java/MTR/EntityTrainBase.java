@@ -25,8 +25,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.IEntityMultiPart;
-import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,7 +32,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -48,7 +45,7 @@ import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class EntityTrainBase extends Entity implements IEntityMultiPart, LoadingCallback {
+public class EntityTrainBase extends Entity implements LoadingCallback {
 
 	private int turnProgress;
 	private double trainX, trainY, trainZ;
@@ -843,16 +840,6 @@ public class EntityTrainBase extends Entity implements IEntityMultiPart, Loading
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound tagCompund) {
-	}
-
-	@Override
-	public World getWorld() {
-		return worldObj;
-	}
-
-	@Override
-	public boolean attackEntityFromPart(EntityDragonPart dragonPart, DamageSource source, float damage) {
-		return false;
 	}
 
 	@Override

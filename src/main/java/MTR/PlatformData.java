@@ -67,6 +67,7 @@ public class PlatformData extends WorldSavedData {
 			instance = new PlatformData();
 			storage.setData(name, instance);
 		}
+
 		return instance;
 	}
 

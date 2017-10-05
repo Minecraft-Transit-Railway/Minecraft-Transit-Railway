@@ -47,7 +47,7 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 			int connectedID = entity.mtrConnectedID;
 			boolean front = wheelID < 0;
 			wheelID = Math.abs(wheelID);
-			T entityWheel = (T) entity.getWorld().getEntityByID(wheelID);
+			T entityWheel = (T) entity.worldObj.getEntityByID(wheelID);
 			double x1 = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks;
 			double y1 = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks;
 			double z1 = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks;

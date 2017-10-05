@@ -1,6 +1,7 @@
 package MTR;
 
 import net.minecraft.item.Item;
+import net.minecraft.world.World;
 
 public class CommonProxy {
 
@@ -16,10 +17,14 @@ public class CommonProxy {
 	public void registerItemRenderer(Item item, int meta, String id) {
 	}
 
+	public World getWorld() {
+		return null;
+	}
+
 	public void openGUI(int x, int y, int z) {
 	}
 
-	public void openGUI(PlatformData data) {
+	public void openGUI(PlatformData data, World worldIn) {
 	}
 
 	public void openGUI(PlatformData data, TileEntityNextTrainEntity te) {

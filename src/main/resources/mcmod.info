@@ -2,7 +2,6 @@
 	"modid": "mtr",
 	"name": "Minecraft Transit Railway",
 	"description": "A Minecraft Forge mod that adds Hong Kong trains into the game.",
-	"version": "${version}",
 	"mcversion": "${mcversion}",
 	"url": "https://minecraftmtr.blogspot.com",
 	"authorList": ["Jonathan Ho"]

@@ -32,11 +32,11 @@ public class BlockRouteChanger extends BlockBase implements ITileEntityProvider 
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
 			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
 		ItemStack itemStack = playerIn.inventory.getCurrentItem();
-		if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
+		if (worldIn.isRemote && itemStack != null && itemStack.getItem() instanceof ItemBrush) {
 			TileEntityRouteChangerEntity te = (TileEntityRouteChangerEntity) worldIn.getTileEntity(pos);
 			MTR.proxy.openGUI(te);
 			return true;
-		} else
-			return false;
+		}
+		return false;
 	}
 }

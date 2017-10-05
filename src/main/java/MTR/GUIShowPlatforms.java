@@ -6,33 +6,32 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 public class GUIShowPlatforms extends GuiScreen {
 	private GuiButton buttonDone, buttonPrev, buttonNext;
 	private GuiButton[] buttons = new GuiButton[1000];
+	private World worldObj;
 	private int[] x, y, z, station, number, tePlatforms;
 	private int maxPlatforms, page, flag = 0;
 	private TileEntityNextTrainEntity te1;
 	private TileEntityPIDS1Entity te2;
 
-	public GUIShowPlatforms(PlatformData data) {
-		x = data.platformX;
-		y = data.platformY;
-		z = data.platformZ;
-		station = data.platformAlias;
-		number = data.platformNumber;
+	public GUIShowPlatforms(PlatformData data, World worldIn) {
+		worldObj = worldIn;
+		updateData(data);
 		page = 1;
 	}
 
 	public GUIShowPlatforms(PlatformData data, TileEntityNextTrainEntity t) {
-		this(data);
+		this(data, t.getWorld());
 		te1 = t;
 		tePlatforms = t.platformID;
 		flag = 1;
 	}
 
 	public GUIShowPlatforms(PlatformData data, TileEntityPIDS1Entity t) {
-		this(data);
+		this(data, t.getWorld());
 		te2 = t;
 		tePlatforms = new int[1];
 		tePlatforms[0] = t.platform;
@@ -54,6 +53,7 @@ public class GUIShowPlatforms extends GuiScreen {
 		buttonList.clear();
 		try {
 			drawDefaultBackground();
+			updateData(PlatformData.get(worldObj));
 			maxPlatforms = MathHelper.floor_float((height - 40) / 20F);
 			ArrayList<Integer> platforms = new ArrayList<>();
 			for (int i = 0; i < 1000; i++)
@@ -97,6 +97,14 @@ public class GUIShowPlatforms extends GuiScreen {
 		}
 		buttonList.add(buttonDone);
 		super.drawScreen(mouseX, mouseY, ticks);
+	}
+
+	private void updateData(PlatformData data) {
+		x = data.platformX;
+		y = data.platformY;
+		z = data.platformZ;
+		station = data.platformAlias;
+		number = data.platformNumber;
 	}
 
 	@Override

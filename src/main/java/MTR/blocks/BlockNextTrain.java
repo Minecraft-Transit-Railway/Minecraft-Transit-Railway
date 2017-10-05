@@ -2,6 +2,7 @@ package MTR.blocks;
 
 import MTR.BlockBase;
 import MTR.MTR;
+import MTR.MessageWorldData;
 import MTR.PlatformData;
 import MTR.TileEntityNextTrainEntity;
 import MTR.items.ItemBrush;
@@ -32,14 +33,16 @@ public class BlockNextTrain extends BlockBase implements ITileEntityProvider {
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
 			EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (!worldIn.isRemote) {
-			PlatformData data = PlatformData.get(worldIn);
-			ItemStack itemStack = playerIn.inventory.getCurrentItem();
-			if (itemStack != null && itemStack.getItem() instanceof ItemBrush) {
-				TileEntityNextTrainEntity te = (TileEntityNextTrainEntity) worldIn.getTileEntity(pos);
-				MTR.proxy.openGUI(data, te);
-				return true;
-			}
+		PlatformData data = PlatformData.get(worldIn);
+		if (!worldIn.isRemote)
+			MTR.network.sendToAll(new MessageWorldData(data.platformX, data.platformY, data.platformZ,
+					data.platformAlias, data.platformNumber, data.arrivals));
+		ItemStack itemStack = playerIn.inventory.getCurrentItem();
+		if (worldIn.isRemote && itemStack != null && itemStack.getItem() instanceof ItemBrush) {
+			TileEntityNextTrainEntity te = (TileEntityNextTrainEntity) worldIn.getTileEntity(pos);
+			data = PlatformData.get(worldIn);
+			MTR.proxy.openGUI(data, te);
+			return true;
 		}
 		return false;
 	}

@@ -116,6 +116,7 @@ public class MTR {
 		network.registerMessage(MessagePlatformMaker.Handler.class, MessagePlatformMaker.class, 2, Side.SERVER);
 		network.registerMessage(MessagePSD.Handler.class, MessagePSD.class, 3, Side.SERVER);
 		network.registerMessage(MessageRouteChanger.Handler.class, MessageRouteChanger.class, 4, Side.SERVER);
+		network.registerMessage(MessageWorldData.Handler.class, MessageWorldData.class, 5, Side.CLIENT);
 		// chunk loading
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, new EntityTrainBase(null));
 		proxy.renderEntities();

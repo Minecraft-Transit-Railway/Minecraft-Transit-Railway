@@ -35,6 +35,7 @@ import MTR.TileEntityStationNameRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -78,13 +79,18 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
+	public World getWorld() {
+		return Minecraft.getMinecraft().theWorld;
+	}
+
+	@Override
 	public void openGUI(int x, int y, int z) {
 		Minecraft.getMinecraft().displayGuiScreen(new GUIMakePlatform(x, y, z));
 	}
 
 	@Override
-	public void openGUI(PlatformData data) {
-		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data));
+	public void openGUI(PlatformData data, World worldIn) {
+		Minecraft.getMinecraft().displayGuiScreen(new GUIShowPlatforms(data, worldIn));
 	}
 
 	@Override
