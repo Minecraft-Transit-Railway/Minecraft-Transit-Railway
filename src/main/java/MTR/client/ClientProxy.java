@@ -2,6 +2,7 @@ package MTR.client;
 
 import MTR.CommonProxy;
 import MTR.EntityLightRail1;
+import MTR.EntityMTrain;
 import MTR.EntityMinecartSpecial;
 import MTR.EntitySP1900;
 import MTR.GUIMakePlatform;
@@ -69,6 +70,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartSpecial.class, RenderMinecartSpecial::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityLightRail1.class, RenderLightRail1::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySP1900.class, RenderSP1900::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityMTrain.class, RenderMTrain::new);
 		// obj
 		OBJLoader.INSTANCE.addDomain("mtr");
 	}

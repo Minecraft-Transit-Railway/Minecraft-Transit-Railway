@@ -93,7 +93,7 @@ public class GUIShowPlatforms extends GuiScreen {
 			buttonList.add(buttonPrev);
 			buttonList.add(buttonNext);
 		} catch (Exception e) {
-			e.printStackTrace();
+			mc.displayGuiScreen((GuiScreen) null);
 		}
 		buttonList.add(buttonDone);
 		super.drawScreen(mouseX, mouseY, ticks);
@@ -112,6 +112,7 @@ public class GUIShowPlatforms extends GuiScreen {
 		int id = button.id;
 		switch (id) {
 		case 1:
+			System.out.println("hi2");
 			mc.displayGuiScreen((GuiScreen) null);
 			break;
 		case 2:
@@ -123,6 +124,7 @@ public class GUIShowPlatforms extends GuiScreen {
 			page++;
 			break;
 		default:
+			System.out.println("hi");
 			int platformID = id - 4;
 			if (flag == 0) {
 				MTR.network.sendToServer(new MessagePlatformMaker(x[platformID], y[platformID], z[platformID], 0, 0));

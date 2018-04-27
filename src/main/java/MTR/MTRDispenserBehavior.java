@@ -64,4 +64,19 @@ public class MTRDispenserBehavior {
 			return stack;
 		}
 	}
+
+	public static class DispenseMTrain extends BehaviorDefaultDispenseItem {
+		@Override
+		protected ItemStack dispenseStack(IBlockSource source, ItemStack stack) {
+			World worldIn = source.getWorld();
+			EnumFacing facing = source.getBlockState().getValue(BlockDispenser.FACING);
+			BlockPos pos = source.getBlockPos().offset(facing);
+			if (!(worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster))
+				pos = source.getBlockPos().offset(facing, 2);
+			if (!worldIn.isRemote && worldIn.getBlockState(pos).getBlock() instanceof BlockRailBooster)
+				MTRItems.itemmtrain.onItemUse(stack, null, worldIn, pos, EnumHand.MAIN_HAND, facing, pos.getX(),
+						pos.getY(), pos.getZ());
+			return stack;
+		}
+	}
 }

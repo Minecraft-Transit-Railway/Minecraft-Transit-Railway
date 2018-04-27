@@ -169,7 +169,7 @@ public class EntityTrainBase extends Entity implements LoadingCallback {
 				int a = 0, b = 0;
 				if (this instanceof EntityLightRail1)
 					a = front ? 6 : 0;
-				if (this instanceof EntitySP1900) {
+				if (this instanceof EntitySP1900 || this instanceof EntityMTrain) {
 					a = front ? 4 : -4;
 					b = front ? 8 : 0;
 				}
@@ -634,7 +634,7 @@ public class EntityTrainBase extends Entity implements LoadingCallback {
 	}
 
 	private void broadcastSound(SoundEvent soundIn) {
-		EntityPlayer player = worldObj.getClosestPlayerToEntity(this, 16);
+		EntityPlayer player = worldObj.getClosestPlayerToEntity(this, getTrainLength() / 2);
 		if (player != null)
 			worldObj.playSound(null, player.getPosition(), soundIn, SoundCategory.RECORDS, 1000000, 1);
 	}

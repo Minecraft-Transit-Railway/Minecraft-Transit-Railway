@@ -57,11 +57,6 @@ public class MTR {
 		}
 
 		@Override
-		public boolean hasSearchBar() {
-			return true;
-		}
-
-		@Override
 		public String getBackgroundImageName() {
 			return "item_search.png";
 		}
@@ -98,6 +93,7 @@ public class MTR {
 		EntityRegistry.registerModEntity(EntityMinecartSpecial.class, "MinecartSpecial", 0, this, 80, 1, false);
 		EntityRegistry.registerModEntity(EntityLightRail1.class, "LightRail1", 1, this, 256, 1, false);
 		EntityRegistry.registerModEntity(EntitySP1900.class, "SP1900", 2, this, 256, 1, false);
+		EntityRegistry.registerModEntity(EntityMTrain.class, "MTrain", 3, this, 256, 1, false);
 		// tile entities
 		GameRegistry.registerTileEntity(TileEntityClockEntity.class, "MTRClock");
 		GameRegistry.registerTileEntity(TileEntityAPGGlassEntity.class, "APGGlass");
@@ -162,6 +158,8 @@ public class MTR {
 				new MTRDispenserBehavior.DispenseLightRail1());
 		BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(MTRItems.itemsp1900,
 				new MTRDispenserBehavior.DispenseSP1900());
+		BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(MTRItems.itemmtrain,
+				new MTRDispenserBehavior.DispenseMTrain());
 
 		// event handler
 		MinecraftForge.EVENT_BUS.register(new MTREventHandler());

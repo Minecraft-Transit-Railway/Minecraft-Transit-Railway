@@ -42,6 +42,7 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 		GlStateManager.popMatrix();
 
 		double midX = 0, midY = 0, midZ = 0, angleYaw = 0, anglePitch = 0;
+		GlStateManager.pushMatrix();
 		try {
 			int wheelID = entity.mtrWheelID;
 			int connectedID = entity.mtrConnectedID;
@@ -60,7 +61,6 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 			angleYaw = MathTools.angleBetweenPoints(x2, z2, x1, z1);
 			anglePitch = Math.asin((y1 - y2) / MathTools.distanceBetweenPoints(x1, z1, x2, z2));
 
-			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y + 1.5, z);
 			GlStateManager.translate(midX, midY, midZ);
 			if (entity.isBeingRidden()) {
@@ -89,9 +89,18 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 			float leftDoor = entity.leftDoor / 60F;
 			float rightDoor = entity.rightDoor / 60F;
 			render(entity, leftDoor, rightDoor);
-			GlStateManager.popMatrix();
+
+			// GlStateManager.pushMatrix();
+			// Tessellator tessellator = Tessellator.getInstance();
+			// VertexBuffer vertexBuffer = tessellator.getBuffer();
+			// bindTexture(getConnectionTexture());
+			// vertexBuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+			// vertexBuffer.pos(x2, y2, z2).tex(u, v).endVertex();
+			//
+			// GlStateManager.popMatrix();
 		} catch (Exception e) {
 		}
+		GlStateManager.popMatrix();
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 	}
 
@@ -101,6 +110,10 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 	}
 
 	protected ResourceLocation getTrainObj() {
+		return null;
+	}
+
+	protected ResourceLocation getConnectionTexture() {
 		return null;
 	}
 
