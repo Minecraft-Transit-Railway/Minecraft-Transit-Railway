@@ -35,26 +35,6 @@ public class ModelUrbanTrainBase extends ModelBase {
 	ModelRenderer RightWall4;
 	ModelRenderer RightWall5;
 	ModelRenderer RightWall6;
-	ModelRenderer LeftDoor1;
-	ModelRenderer LeftDoor2;
-	ModelRenderer LeftDoor3;
-	ModelRenderer LeftDoor4;
-	ModelRenderer LeftDoor5;
-	ModelRenderer LeftDoor6;
-	ModelRenderer LeftDoor7;
-	ModelRenderer LeftDoor8;
-	ModelRenderer LeftDoor9;
-	ModelRenderer LeftDoor10;
-	ModelRenderer RightDoor1;
-	ModelRenderer RightDoor2;
-	ModelRenderer RightDoor3;
-	ModelRenderer RightDoor4;
-	ModelRenderer RightDoor5;
-	ModelRenderer RightDoor6;
-	ModelRenderer RightDoor7;
-	ModelRenderer RightDoor8;
-	ModelRenderer RightDoor9;
-	ModelRenderer RightDoor10;
 	ModelRenderer UpperLeftWall1;
 	ModelRenderer UpperLeftWall2;
 	ModelRenderer UpperLeftWall3;
@@ -67,26 +47,6 @@ public class ModelUrbanTrainBase extends ModelBase {
 	ModelRenderer UpperRightWall4;
 	ModelRenderer UpperRightWall5;
 	ModelRenderer UpperRightWall6;
-	ModelRenderer UpperLeftDoor1;
-	ModelRenderer UpperLeftDoor2;
-	ModelRenderer UpperLeftDoor3;
-	ModelRenderer UpperLeftDoor4;
-	ModelRenderer UpperLeftDoor5;
-	ModelRenderer UpperLeftDoor6;
-	ModelRenderer UpperLeftDoor7;
-	ModelRenderer UpperLeftDoor8;
-	ModelRenderer UpperLeftDoor9;
-	ModelRenderer UpperLeftDoor10;
-	ModelRenderer UpperRightDoor1;
-	ModelRenderer UpperRightDoor2;
-	ModelRenderer UpperRightDoor3;
-	ModelRenderer UpperRightDoor4;
-	ModelRenderer UpperRightDoor5;
-	ModelRenderer UpperRightDoor6;
-	ModelRenderer UpperRightDoor7;
-	ModelRenderer UpperRightDoor8;
-	ModelRenderer UpperRightDoor9;
-	ModelRenderer UpperRightDoor10;
 	ModelRenderer LeftPillar1;
 	ModelRenderer LeftPillar2;
 	ModelRenderer RightPillar1;
@@ -167,26 +127,11 @@ public class ModelUrbanTrainBase extends ModelBase {
 	ModelRenderer RoofTopLeftEnd2;
 	ModelRenderer RoofTopRightEnd1;
 	ModelRenderer RoofTopRightEnd2;
-	ModelRenderer UpperLeftDoor1L;
-	ModelRenderer UpperLeftDoor2L;
-	ModelRenderer UpperLeftDoor3L;
-	ModelRenderer UpperLeftDoor4L;
-	ModelRenderer UpperLeftDoor5L;
-	ModelRenderer UpperLeftDoor6L;
-	ModelRenderer UpperLeftDoor7L;
-	ModelRenderer UpperLeftDoor8L;
-	ModelRenderer UpperLeftDoor9L;
-	ModelRenderer UpperLeftDoor10L;
-	ModelRenderer UpperRightDoor1L;
-	ModelRenderer UpperRightDoor2L;
-	ModelRenderer UpperRightDoor3L;
-	ModelRenderer UpperRightDoor4L;
-	ModelRenderer UpperRightDoor5L;
-	ModelRenderer UpperRightDoor6L;
-	ModelRenderer UpperRightDoor7L;
-	ModelRenderer UpperRightDoor8L;
-	ModelRenderer UpperRightDoor9L;
-	ModelRenderer UpperRightDoor10L;
+
+	ModelRenderer[] DoorLeft = new ModelRenderer[20];
+	ModelRenderer[] DoorRight = new ModelRenderer[20];
+	ModelRenderer[] DoorLeftL = new ModelRenderer[20];
+	ModelRenderer[] DoorRightL = new ModelRenderer[20];
 
 	public ModelUrbanTrainBase() {
 		textureWidth = 312;
@@ -330,126 +275,6 @@ public class ModelUrbanTrainBase extends ModelBase {
 		RightWall6.setTextureSize(312, 268);
 		RightWall6.mirror = true;
 		setRotation(RightWall6, 0F, 0F, 0F);
-		LeftDoor1 = new ModelRenderer(this, 208, 102);
-		LeftDoor1.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor1.setRotationPoint(21F, -6F, -160F);
-		LeftDoor1.setTextureSize(312, 268);
-		LeftDoor1.mirror = true;
-		setRotation(LeftDoor1, 0F, 3.141593F, 0F);
-		LeftDoor2 = new ModelRenderer(this, 240, 102);
-		LeftDoor2.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor2.setRotationPoint(21F, -6F, -145F);
-		LeftDoor2.setTextureSize(312, 268);
-		LeftDoor2.mirror = true;
-		setRotation(LeftDoor2, 0F, 3.141593F, 0F);
-		LeftDoor3 = new ModelRenderer(this, 208, 102);
-		LeftDoor3.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor3.setRotationPoint(21F, -6F, -80F);
-		LeftDoor3.setTextureSize(312, 268);
-		LeftDoor3.mirror = true;
-		setRotation(LeftDoor3, 0F, 3.141593F, 0F);
-		LeftDoor4 = new ModelRenderer(this, 240, 102);
-		LeftDoor4.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor4.setRotationPoint(21F, -6F, -65F);
-		LeftDoor4.setTextureSize(312, 268);
-		LeftDoor4.mirror = true;
-		setRotation(LeftDoor4, 0F, 3.141593F, 0F);
-		LeftDoor5 = new ModelRenderer(this, 208, 102);
-		LeftDoor5.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor5.setRotationPoint(21F, -6F, 0F);
-		LeftDoor5.setTextureSize(312, 268);
-		LeftDoor5.mirror = true;
-		setRotation(LeftDoor5, 0F, 3.141593F, 0F);
-		LeftDoor6 = new ModelRenderer(this, 240, 102);
-		LeftDoor6.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor6.setRotationPoint(21F, -6F, 15F);
-		LeftDoor6.setTextureSize(312, 268);
-		LeftDoor6.mirror = true;
-		setRotation(LeftDoor6, 0F, 3.141593F, 0F);
-		LeftDoor7 = new ModelRenderer(this, 208, 102);
-		LeftDoor7.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor7.setRotationPoint(21F, -6F, 80F);
-		LeftDoor7.setTextureSize(312, 268);
-		LeftDoor7.mirror = true;
-		setRotation(LeftDoor7, 0F, 3.141593F, 0F);
-		LeftDoor8 = new ModelRenderer(this, 240, 102);
-		LeftDoor8.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor8.setRotationPoint(21F, -6F, 95F);
-		LeftDoor8.setTextureSize(312, 268);
-		LeftDoor8.mirror = true;
-		setRotation(LeftDoor8, 0F, 3.141593F, 0F);
-		LeftDoor9 = new ModelRenderer(this, 208, 102);
-		LeftDoor9.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor9.setRotationPoint(21F, -6F, 160F);
-		LeftDoor9.setTextureSize(312, 268);
-		LeftDoor9.mirror = true;
-		setRotation(LeftDoor9, 0F, 3.141593F, 0F);
-		LeftDoor10 = new ModelRenderer(this, 240, 102);
-		LeftDoor10.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		LeftDoor10.setRotationPoint(21F, -6F, 175F);
-		LeftDoor10.setTextureSize(312, 268);
-		LeftDoor10.mirror = true;
-		setRotation(LeftDoor10, 0F, 3.141593F, 0F);
-		RightDoor1 = new ModelRenderer(this, 240, 102);
-		RightDoor1.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor1.setRotationPoint(-21F, -6F, -175F);
-		RightDoor1.setTextureSize(312, 268);
-		RightDoor1.mirror = true;
-		setRotation(RightDoor1, 0F, 0F, 0F);
-		RightDoor2 = new ModelRenderer(this, 208, 102);
-		RightDoor2.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor2.setRotationPoint(-21F, -6F, -160F);
-		RightDoor2.setTextureSize(312, 268);
-		RightDoor2.mirror = true;
-		setRotation(RightDoor2, 0F, 0F, 0F);
-		RightDoor3 = new ModelRenderer(this, 240, 102);
-		RightDoor3.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor3.setRotationPoint(-21F, -6F, -95F);
-		RightDoor3.setTextureSize(312, 268);
-		RightDoor3.mirror = true;
-		setRotation(RightDoor3, 0F, 0F, 0F);
-		RightDoor4 = new ModelRenderer(this, 208, 102);
-		RightDoor4.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor4.setRotationPoint(-21F, -6F, -80F);
-		RightDoor4.setTextureSize(312, 268);
-		RightDoor4.mirror = true;
-		setRotation(RightDoor4, 0F, 0F, 0F);
-		RightDoor5 = new ModelRenderer(this, 240, 102);
-		RightDoor5.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor5.setRotationPoint(-21F, -6F, -15F);
-		RightDoor5.setTextureSize(312, 268);
-		RightDoor5.mirror = true;
-		setRotation(RightDoor5, 0F, 0F, 0F);
-		RightDoor6 = new ModelRenderer(this, 208, 102);
-		RightDoor6.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor6.setRotationPoint(-21F, -6F, 0F);
-		RightDoor6.setTextureSize(312, 268);
-		RightDoor6.mirror = true;
-		setRotation(RightDoor6, 0F, 0F, 0F);
-		RightDoor7 = new ModelRenderer(this, 240, 102);
-		RightDoor7.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor7.setRotationPoint(-21F, -6F, 65F);
-		RightDoor7.setTextureSize(312, 268);
-		RightDoor7.mirror = true;
-		setRotation(RightDoor7, 0F, 0F, 0F);
-		RightDoor8 = new ModelRenderer(this, 208, 102);
-		RightDoor8.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor8.setRotationPoint(-21F, -6F, 80F);
-		RightDoor8.setTextureSize(312, 268);
-		RightDoor8.mirror = true;
-		setRotation(RightDoor8, 0F, 0F, 0F);
-		RightDoor9 = new ModelRenderer(this, 240, 102);
-		RightDoor9.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor9.setRotationPoint(-21F, -6F, 145F);
-		RightDoor9.setTextureSize(312, 268);
-		RightDoor9.mirror = true;
-		setRotation(RightDoor9, 0F, 0F, 0F);
-		RightDoor10 = new ModelRenderer(this, 208, 102);
-		RightDoor10.addBox(0.1F, 0F, 0F, 1, 14, 15);
-		RightDoor10.setRotationPoint(-21F, -6F, 160F);
-		RightDoor10.setTextureSize(312, 268);
-		RightDoor10.mirror = true;
-		setRotation(RightDoor10, 0F, 0F, 0F);
 		UpperLeftWall1 = new ModelRenderer(this, 0, 76);
 		UpperLeftWall1.addBox(0F, -18F, 0F, 2, 18, 22);
 		UpperLeftWall1.setRotationPoint(20F, -6F, -174F);
@@ -522,126 +347,6 @@ public class ModelUrbanTrainBase extends ModelBase {
 		UpperRightWall6.setTextureSize(312, 268);
 		UpperRightWall6.mirror = true;
 		setRotation(UpperRightWall6, 0F, 0F, 0.1106539F);
-		UpperLeftDoor1 = new ModelRenderer(this, 208, 68);
-		UpperLeftDoor1.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor1.setRotationPoint(20.9F, -6F, -160F);
-		UpperLeftDoor1.setTextureSize(312, 268);
-		UpperLeftDoor1.mirror = true;
-		setRotation(UpperLeftDoor1, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor2 = new ModelRenderer(this, 240, 68);
-		UpperLeftDoor2.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor2.setRotationPoint(20.9F, -6F, -145F);
-		UpperLeftDoor2.setTextureSize(312, 268);
-		UpperLeftDoor2.mirror = true;
-		setRotation(UpperLeftDoor2, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor3 = new ModelRenderer(this, 208, 68);
-		UpperLeftDoor3.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor3.setRotationPoint(20.9F, -6F, -80F);
-		UpperLeftDoor3.setTextureSize(312, 268);
-		UpperLeftDoor3.mirror = true;
-		setRotation(UpperLeftDoor3, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor4 = new ModelRenderer(this, 240, 68);
-		UpperLeftDoor4.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor4.setRotationPoint(20.9F, -6F, -65F);
-		UpperLeftDoor4.setTextureSize(312, 268);
-		UpperLeftDoor4.mirror = true;
-		setRotation(UpperLeftDoor4, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor5 = new ModelRenderer(this, 208, 68);
-		UpperLeftDoor5.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor5.setRotationPoint(20.9F, -6F, 0F);
-		UpperLeftDoor5.setTextureSize(312, 268);
-		UpperLeftDoor5.mirror = true;
-		setRotation(UpperLeftDoor5, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor6 = new ModelRenderer(this, 240, 68);
-		UpperLeftDoor6.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor6.setRotationPoint(20.9F, -6F, 15F);
-		UpperLeftDoor6.setTextureSize(312, 268);
-		UpperLeftDoor6.mirror = true;
-		setRotation(UpperLeftDoor6, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor7 = new ModelRenderer(this, 208, 68);
-		UpperLeftDoor7.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor7.setRotationPoint(20.9F, -6F, 80F);
-		UpperLeftDoor7.setTextureSize(312, 268);
-		UpperLeftDoor7.mirror = true;
-		setRotation(UpperLeftDoor7, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor8 = new ModelRenderer(this, 240, 68);
-		UpperLeftDoor8.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor8.setRotationPoint(20.9F, -6F, 95F);
-		UpperLeftDoor8.setTextureSize(312, 268);
-		UpperLeftDoor8.mirror = true;
-		setRotation(UpperLeftDoor8, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor9 = new ModelRenderer(this, 208, 68);
-		UpperLeftDoor9.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor9.setRotationPoint(20.9F, -6F, 160F);
-		UpperLeftDoor9.setTextureSize(312, 268);
-		UpperLeftDoor9.mirror = true;
-		setRotation(UpperLeftDoor9, 0F, 3.141593F, -0.1106539F);
-		UpperLeftDoor10 = new ModelRenderer(this, 240, 68);
-		UpperLeftDoor10.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperLeftDoor10.setRotationPoint(20.9F, -6F, 175F);
-		UpperLeftDoor10.setTextureSize(312, 268);
-		UpperLeftDoor10.mirror = true;
-		setRotation(UpperLeftDoor10, 0F, 3.141593F, -0.1106539F);
-		UpperRightDoor1 = new ModelRenderer(this, 240, 68);
-		UpperRightDoor1.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor1.setRotationPoint(-20.9F, -6F, -175F);
-		UpperRightDoor1.setTextureSize(312, 268);
-		UpperRightDoor1.mirror = true;
-		setRotation(UpperRightDoor1, 0F, 0F, 0.1106539F);
-		UpperRightDoor2 = new ModelRenderer(this, 208, 68);
-		UpperRightDoor2.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor2.setRotationPoint(-20.9F, -6F, -160F);
-		UpperRightDoor2.setTextureSize(312, 268);
-		UpperRightDoor2.mirror = true;
-		setRotation(UpperRightDoor2, 0F, 0F, 0.1106539F);
-		UpperRightDoor3 = new ModelRenderer(this, 240, 68);
-		UpperRightDoor3.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor3.setRotationPoint(-20.9F, -6F, -95F);
-		UpperRightDoor3.setTextureSize(312, 268);
-		UpperRightDoor3.mirror = true;
-		setRotation(UpperRightDoor3, 0F, 0F, 0.1106539F);
-		UpperRightDoor4 = new ModelRenderer(this, 208, 68);
-		UpperRightDoor4.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor4.setRotationPoint(-20.9F, -6F, -80F);
-		UpperRightDoor4.setTextureSize(312, 268);
-		UpperRightDoor4.mirror = true;
-		setRotation(UpperRightDoor4, 0F, 0F, 0.1106539F);
-		UpperRightDoor5 = new ModelRenderer(this, 240, 68);
-		UpperRightDoor5.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor5.setRotationPoint(-20.9F, -6F, -15F);
-		UpperRightDoor5.setTextureSize(312, 268);
-		UpperRightDoor5.mirror = true;
-		setRotation(UpperRightDoor5, 0F, 0F, 0.1106539F);
-		UpperRightDoor6 = new ModelRenderer(this, 208, 68);
-		UpperRightDoor6.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor6.setRotationPoint(-20.9F, -6F, 0F);
-		UpperRightDoor6.setTextureSize(312, 268);
-		UpperRightDoor6.mirror = true;
-		setRotation(UpperRightDoor6, 0F, 0F, 0.1106539F);
-		UpperRightDoor7 = new ModelRenderer(this, 240, 68);
-		UpperRightDoor7.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor7.setRotationPoint(-20.9F, -6F, 65F);
-		UpperRightDoor7.setTextureSize(312, 268);
-		UpperRightDoor7.mirror = true;
-		setRotation(UpperRightDoor7, 0F, 0F, 0.1106539F);
-		UpperRightDoor8 = new ModelRenderer(this, 208, 68);
-		UpperRightDoor8.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor8.setRotationPoint(-20.9F, -6F, 80F);
-		UpperRightDoor8.setTextureSize(312, 268);
-		UpperRightDoor8.mirror = true;
-		setRotation(UpperRightDoor8, 0F, 0F, 0.1106539F);
-		UpperRightDoor9 = new ModelRenderer(this, 240, 68);
-		UpperRightDoor9.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor9.setRotationPoint(-20.9F, -6F, 145F);
-		UpperRightDoor9.setTextureSize(312, 268);
-		UpperRightDoor9.mirror = true;
-		setRotation(UpperRightDoor9, 0F, 0F, 0.1106539F);
-		UpperRightDoor10 = new ModelRenderer(this, 208, 68);
-		UpperRightDoor10.addBox(0F, -19F, 0F, 1, 19, 15);
-		UpperRightDoor10.setRotationPoint(-20.9F, -6F, 160F);
-		UpperRightDoor10.setTextureSize(312, 268);
-		UpperRightDoor10.mirror = true;
-		setRotation(UpperRightDoor10, 0F, 0F, 0.1106539F);
 		LeftPillar1 = new ModelRenderer(this, 168, 143);
 		LeftPillar1.addBox(0F, 0F, 0F, 7, 40, 17);
 		LeftPillar1.setRotationPoint(18F, -32F, -179F);
@@ -1123,49 +828,70 @@ public class ModelUrbanTrainBase extends ModelBase {
 		RoofTopRightEnd2.mirror = true;
 		setRotation(RoofTopRightEnd2, 0F, 0F, -0.3769562F);
 
+		for (int i = 0; i < 5; i++) {
+			// door left lower
+			DoorLeft[4 * i] = MathTools.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -160F + 80 * i, 312,
+					268);
+			DoorLeft[4 * i + 1] = MathTools.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -145F + 80 * i, 312,
+					268);
+			setRotation(DoorLeft[4 * i], 0F, (float) Math.PI, 0F);
+			setRotation(DoorLeft[4 * i + 1], 0F, (float) Math.PI, 0F);
+			// door left upper
+			DoorLeft[4 * i + 2] = MathTools.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -160F + 80 * i,
+					312, 268);
+			DoorLeft[4 * i + 3] = MathTools.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -145F + 80 * i,
+					312, 268);
+			setRotation(DoorLeft[4 * i + 2], 0F, (float) Math.PI, -0.1106539F);
+			setRotation(DoorLeft[4 * i + 3], 0F, (float) Math.PI, -0.1106539F);
+			// door right lower
+			DoorRight[4 * i] = MathTools.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -175F + 80 * i, 312,
+					268);
+			DoorRight[4 * i + 1] = MathTools.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -160F + 80 * i,
+					312, 268);
+			setRotation(DoorRight[4 * i], 0F, 0F, 0F);
+			setRotation(DoorRight[4 * i + 1], 0F, 0F, 0F);
+			// door right upper
+			DoorRight[4 * i + 2] = MathTools.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -175F + 80 * i,
+					312, 268);
+			DoorRight[4 * i + 3] = MathTools.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -160F + 80 * i,
+					312, 268);
+			setRotation(DoorRight[4 * i + 2], 0F, 0F, 0.1106539F);
+			setRotation(DoorRight[4 * i + 3], 0F, 0F, 0.1106539F);
+		}
+
 		textureWidth = 30;
 		textureHeight = 19;
 
-		UpperLeftDoor1L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -160F - 0.5F, 30, 19);
-		UpperLeftDoor2L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -145F - 0.5F, 30, 19);
-		UpperLeftDoor3L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -80F - 0.5F, 30, 19);
-		UpperLeftDoor4L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -65F - 0.5F, 30, 19);
-		UpperLeftDoor5L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 0F - 0.5F, 30, 19);
-		UpperLeftDoor6L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 15F - 0.5F, 30, 19);
-		UpperLeftDoor7L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 80F - 0.5F, 30, 19);
-		UpperLeftDoor8L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 95F - 0.5F, 30, 19);
-		UpperLeftDoor9L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 160F - 0.5F, 30, 19);
-		UpperLeftDoor10L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 175F - 0.5F, 30, 19);
-		UpperRightDoor1L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -175F + 0.5F, 30, 19);
-		UpperRightDoor2L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -160F + 0.5F, 30, 19);
-		UpperRightDoor3L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -95F + 0.5F, 30, 19);
-		UpperRightDoor4L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -80F + 0.5F, 30, 19);
-		UpperRightDoor5L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -15F + 0.5F, 30, 19);
-		UpperRightDoor6L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 0F + 0.5F, 30, 19);
-		UpperRightDoor7L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 65F + 0.5F, 30, 19);
-		UpperRightDoor8L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 80F + 0.5F, 30, 19);
-		UpperRightDoor9L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 145F + 0.5F, 30, 19);
-		UpperRightDoor10L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 160F + 0.5F, 30, 19);
-		setRotation(UpperLeftDoor1L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor2L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor3L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor4L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor5L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor6L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor7L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor8L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor9L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperLeftDoor10L, 0, (float) Math.PI, -0.1106539F);
-		setRotation(UpperRightDoor1L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor2L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor3L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor4L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor5L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor6L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor7L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor8L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor9L, 0, 0, 0.1106539F);
-		setRotation(UpperRightDoor10L, 0, 0, 0.1106539F);
+		for (int i = 0; i < 5; i++) {
+			// door left label lower
+			DoorLeftL[4 * i] = MathTools.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F, -160F - 0.5F + 80 * i,
+					30, 19);
+			DoorLeftL[4 * i + 1] = MathTools.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F,
+					-145F - 0.5F + 80 * i, 30, 19);
+			setRotation(DoorLeftL[4 * i], 0, (float) Math.PI, 0);
+			setRotation(DoorLeftL[4 * i + 1], 0, (float) Math.PI, 0);
+			// door left label upper
+			DoorLeftL[4 * i + 2] = MathTools.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F,
+					-160F - 0.5F + 80 * i, 30, 19);
+			DoorLeftL[4 * i + 3] = MathTools.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F,
+					-145F - 0.5F + 80 * i, 30, 19);
+			setRotation(DoorLeftL[4 * i + 2], 0, (float) Math.PI, -0.1106539F);
+			setRotation(DoorLeftL[4 * i + 3], 0, (float) Math.PI, -0.1106539F);
+			// door right label lower
+			DoorRightL[4 * i] = MathTools.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F,
+					-175F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i + 1] = MathTools.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F,
+					-160F + 0.5F + 80 * i, 30, 19);
+			setRotation(DoorRightL[4 * i], 0, 0, 0);
+			setRotation(DoorRightL[4 * i + 1], 0, 0, 0);
+			// door right label upper
+			DoorRightL[4 * i + 2] = MathTools.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F,
+					-175F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i + 3] = MathTools.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F,
+					-160F + 0.5F + 80 * i, 30, 19);
+			setRotation(DoorRightL[4 * i + 2], 0, 0, 0.1106539F);
+			setRotation(DoorRightL[4 * i + 3], 0, 0, 0.1106539F);
+		}
 	}
 
 	@Override
@@ -1290,134 +1016,29 @@ public class ModelUrbanTrainBase extends ModelBase {
 	}
 
 	public void renderDoors(float f5, float leftDoor, float rightDoor) {
-		LeftDoor1.offsetZ = -0.8125F * leftDoor;
-		LeftDoor2.offsetZ = 0.8125F * leftDoor;
-		LeftDoor3.offsetZ = -0.8125F * leftDoor;
-		LeftDoor4.offsetZ = 0.8125F * leftDoor;
-		LeftDoor5.offsetZ = -0.8125F * leftDoor;
-		LeftDoor6.offsetZ = 0.8125F * leftDoor;
-		LeftDoor7.offsetZ = -0.8125F * leftDoor;
-		LeftDoor8.offsetZ = 0.8125F * leftDoor;
-		LeftDoor9.offsetZ = -0.8125F * leftDoor;
-		LeftDoor10.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor1.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor2.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor3.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor4.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor5.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor6.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor7.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor8.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor9.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor10.offsetZ = 0.8125F * leftDoor;
-
-		RightDoor1.offsetZ = -0.8125F * rightDoor;
-		RightDoor2.offsetZ = 0.8125F * rightDoor;
-		RightDoor3.offsetZ = -0.8125F * rightDoor;
-		RightDoor4.offsetZ = 0.8125F * rightDoor;
-		RightDoor5.offsetZ = -0.8125F * rightDoor;
-		RightDoor6.offsetZ = 0.8125F * rightDoor;
-		RightDoor7.offsetZ = -0.8125F * rightDoor;
-		RightDoor8.offsetZ = 0.8125F * rightDoor;
-		RightDoor9.offsetZ = -0.8125F * rightDoor;
-		RightDoor10.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor1.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor2.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor3.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor4.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor5.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor6.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor7.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor8.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor9.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor10.offsetZ = 0.8125F * rightDoor;
-
-		LeftDoor1.render(f5);
-		LeftDoor2.render(f5);
-		LeftDoor3.render(f5);
-		LeftDoor4.render(f5);
-		LeftDoor5.render(f5);
-		LeftDoor6.render(f5);
-		LeftDoor7.render(f5);
-		LeftDoor8.render(f5);
-		LeftDoor9.render(f5);
-		LeftDoor10.render(f5);
-		RightDoor1.render(f5);
-		RightDoor2.render(f5);
-		RightDoor3.render(f5);
-		RightDoor4.render(f5);
-		RightDoor5.render(f5);
-		RightDoor6.render(f5);
-		RightDoor7.render(f5);
-		RightDoor8.render(f5);
-		RightDoor9.render(f5);
-		RightDoor10.render(f5);
-		UpperLeftDoor1.render(f5);
-		UpperLeftDoor2.render(f5);
-		UpperLeftDoor3.render(f5);
-		UpperLeftDoor4.render(f5);
-		UpperLeftDoor5.render(f5);
-		UpperLeftDoor6.render(f5);
-		UpperLeftDoor7.render(f5);
-		UpperLeftDoor8.render(f5);
-		UpperLeftDoor9.render(f5);
-		UpperLeftDoor10.render(f5);
-		UpperRightDoor1.render(f5);
-		UpperRightDoor2.render(f5);
-		UpperRightDoor3.render(f5);
-		UpperRightDoor4.render(f5);
-		UpperRightDoor5.render(f5);
-		UpperRightDoor6.render(f5);
-		UpperRightDoor7.render(f5);
-		UpperRightDoor8.render(f5);
-		UpperRightDoor9.render(f5);
-		UpperRightDoor10.render(f5);
+		for (int i = 0; i < 10; i++) {
+			DoorLeft[2 * i].offsetZ = -0.8125F * leftDoor;
+			DoorLeft[2 * i + 1].offsetZ = 0.8125F * leftDoor;
+			DoorRight[2 * i].offsetZ = -0.8125F * rightDoor;
+			DoorRight[2 * i + 1].offsetZ = 0.8125F * rightDoor;
+		}
+		for (int i = 0; i < 20; i++) {
+			DoorLeft[i].render(f5);
+			DoorRight[i].render(f5);
+		}
 	}
 
 	public void renderDoorLabels(float f5, float leftDoor, float rightDoor) {
-		UpperLeftDoor5L.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor6L.offsetZ = 0.8125F * leftDoor;
-		UpperRightDoor5L.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor6L.offsetZ = 0.8125F * rightDoor;
-		UpperLeftDoor5L.render(f5);
-		UpperLeftDoor6L.render(f5);
-		UpperRightDoor5L.render(f5);
-		UpperRightDoor6L.render(f5);
-
-		UpperLeftDoor1L.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor2L.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor3L.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor4L.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor7L.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor8L.offsetZ = 0.8125F * leftDoor;
-		UpperLeftDoor9L.offsetZ = -0.8125F * leftDoor;
-		UpperLeftDoor10L.offsetZ = 0.8125F * leftDoor;
-
-		UpperRightDoor1L.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor2L.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor3L.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor4L.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor7L.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor8L.offsetZ = 0.8125F * rightDoor;
-		UpperRightDoor9L.offsetZ = -0.8125F * rightDoor;
-		UpperRightDoor10L.offsetZ = 0.8125F * rightDoor;
-
-		UpperLeftDoor1L.render(f5);
-		UpperLeftDoor2L.render(f5);
-		UpperLeftDoor3L.render(f5);
-		UpperLeftDoor4L.render(f5);
-		UpperLeftDoor7L.render(f5);
-		UpperLeftDoor8L.render(f5);
-		UpperLeftDoor9L.render(f5);
-		UpperLeftDoor10L.render(f5);
-		UpperRightDoor1L.render(f5);
-		UpperRightDoor2L.render(f5);
-		UpperRightDoor3L.render(f5);
-		UpperRightDoor4L.render(f5);
-		UpperRightDoor7L.render(f5);
-		UpperRightDoor8L.render(f5);
-		UpperRightDoor9L.render(f5);
-		UpperRightDoor10L.render(f5);
+		for (int i = 0; i < 10; i++) {
+			DoorLeftL[2 * i].offsetZ = -0.8125F * leftDoor;
+			DoorLeftL[2 * i + 1].offsetZ = 0.8125F * leftDoor;
+			DoorRightL[2 * i].offsetZ = -0.8125F * rightDoor;
+			DoorRightL[2 * i + 1].offsetZ = 0.8125F * rightDoor;
+		}
+		for (int i = 0; i < 20; i++) {
+			DoorLeftL[i].render(f5);
+			DoorRightL[i].render(f5);
+		}
 	}
 
 	private void setRotation(ModelRenderer model, float x, float y, float z) {
