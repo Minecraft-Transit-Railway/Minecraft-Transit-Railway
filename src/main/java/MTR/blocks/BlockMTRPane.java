@@ -64,13 +64,13 @@ public class BlockMTRPane extends BlockWithDirection {
 		else
 			switch (var3) {
 			case NORTH:
-				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.1875F, top ? 0.25F : 1.0F, 1.0F);
+				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 0.1875F, top ? 0.3125F : 1.0F, 1.0F);
 			case SOUTH:
-				return new AxisAlignedBB(0.8125F, 0.0F, 0.0F, 1.0F, top ? 0.25F : 1.0F, 1.0F);
+				return new AxisAlignedBB(0.8125F, 0.0F, 0.0F, 1.0F, top ? 0.3125F : 1.0F, 1.0F);
 			case EAST:
-				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, top ? 0.25F : 1.0F, 0.1875F);
+				return new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, top ? 0.3125F : 1.0F, 0.1875F);
 			case WEST:
-				return new AxisAlignedBB(0.0F, 0.0F, 0.8125F, 1.0F, top ? 0.25F : 1.0F, 1.0F);
+				return new AxisAlignedBB(0.0F, 0.0F, 0.8125F, 1.0F, top ? 0.3125F : 1.0F, 1.0F);
 			default:
 				return NULL_AABB;
 			}
