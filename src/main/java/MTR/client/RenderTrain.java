@@ -38,7 +38,7 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 		float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 		GlStateManager.rotate(yaw, 0, 1, 0);
 		GlStateManager.rotate(pitch, 0, 0, 1);
-		renderBogie(entity);
+		renderBogie2(entity);
 		GlStateManager.popMatrix();
 
 		double midX = 0, midY = 0, midZ = 0, angleYaw = 0, anglePitch = 0;
@@ -129,6 +129,9 @@ public class RenderTrain<T extends EntityTrainBase> extends Render<T> {
 		// renderQuads(vertexbuffer, getModel().getQuads(null, enumfacing, 0));
 		renderQuads(vertexbuffer, getModelBogie().getQuads(null, null, 0));
 		tessellator.draw();
+	}
+
+	protected void renderBogie2(T entity) {
 	}
 
 	private IBakedModel getModelBogie() {

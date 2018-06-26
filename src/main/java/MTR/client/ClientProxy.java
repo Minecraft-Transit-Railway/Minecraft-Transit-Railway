@@ -38,7 +38,6 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
@@ -72,7 +71,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySP1900.class, RenderSP1900::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMTrain.class, RenderMTrain::new);
 		// obj
-		OBJLoader.INSTANCE.addDomain("mtr");
+		// OBJLoader.INSTANCE.addDomain("mtr");
 	}
 
 	@Override
