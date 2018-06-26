@@ -15,6 +15,16 @@ public class Recipes {
 
 		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
 				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.OAK_DOOR });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
+				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.BIRCH_DOOR });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
+				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.SPRUCE_DOOR });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
+				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.JUNGLE_DOOR });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
+				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.ACACIA_DOOR });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 8),
+				new Object[] { Blocks.GLASS, Items.REDSTONE, Items.DARK_OAK_DOOR });
 		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 1, 1),
 				new Object[] { new ItemStack(MTRItems.itempsd, 1, 0) });
 		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itempsd, 1, 2),
@@ -88,6 +98,9 @@ public class Recipes {
 						new ItemStack(Items.REPEATER), new ItemStack(Items.REPEATER), new ItemStack(Items.REPEATER),
 						new ItemStack(Items.REPEATER), new ItemStack(Items.REPEATER), new ItemStack(Items.REPEATER),
 						new ItemStack(Items.GOLD_NUGGET) });
+		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itemspawnplatform),
+				new Object[] { new ItemStack(MTRItems.itemrail, 1, 0), new ItemStack(MTRItems.itemrail, 1, 1),
+						new ItemStack(MTRItems.itemrail, 1, 5) });
 
 		GameRegistry.addShapelessRecipe(new ItemStack(MTRItems.itemescalator),
 				new Object[] { Blocks.STONE_STAIRS, Blocks.PISTON, Blocks.REDSTONE_BLOCK });
