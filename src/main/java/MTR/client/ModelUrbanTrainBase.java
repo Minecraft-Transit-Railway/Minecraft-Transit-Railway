@@ -121,6 +121,15 @@ public class ModelUrbanTrainBase extends ModelBase {
 	ModelRenderer RoofTopLeftEnd2;
 	ModelRenderer RoofTopRightEnd1;
 	ModelRenderer RoofTopRightEnd2;
+	ModelRenderer InnerRoof1;
+	ModelRenderer InnerRoof2;
+	ModelRenderer InnerRoof3;
+	ModelRenderer InnerRoof4;
+	ModelRenderer InnerRoof5;
+	ModelRenderer InnerRoof6;
+	ModelRenderer InnerRoof7;
+	ModelRenderer InnerRoof8;
+	ModelRenderer InnerRoof9;
 
 	ModelRenderer[] DoorLeft = new ModelRenderer[20];
 	ModelRenderer[] DoorRight = new ModelRenderer[20];
@@ -369,13 +378,13 @@ public class ModelUrbanTrainBase extends ModelBase {
 		RightPillar2.mirror = true;
 		setRotation(RightPillar2, 0F, 0F, 0F);
 		Box1 = new ModelRenderer(this, 128, 88);
-		Box1.addBox(0F, 0F, -0.04666667F, 22, 12, 12);
+		Box1.addBox(0F, 0F, 0F, 22, 12, 12);
 		Box1.setRotationPoint(-11F, -36F, -196F);
 		Box1.setTextureSize(312, 268);
 		Box1.mirror = true;
 		setRotation(Box1, 0F, 0F, 0F);
 		Box2 = new ModelRenderer(this, 128, 88);
-		Box2.addBox(0F, 0F, -0.04666667F, 22, 12, 12);
+		Box2.addBox(0F, 0F, 0F, 22, 12, 12);
 		Box2.setRotationPoint(11F, -36F, 196F);
 		Box2.setTextureSize(312, 268);
 		Box2.mirror = true;
@@ -824,6 +833,60 @@ public class ModelUrbanTrainBase extends ModelBase {
 		RoofTopRightEnd2.setTextureSize(312, 268);
 		RoofTopRightEnd2.mirror = true;
 		setRotation(RoofTopRightEnd2, 0F, 0F, -0.3769562F);
+		InnerRoof1 = new ModelRenderer(this, -32, 212);
+		InnerRoof1.addBox(0F, 0F, 0.01F, 36, 0, 32);
+		InnerRoof1.setRotationPoint(-18F, -24F, -176F);
+		InnerRoof1.setTextureSize(312, 268);
+		InnerRoof1.mirror = true;
+		setRotation(InnerRoof1, 0F, 0F, 0F);
+		InnerRoof2 = new ModelRenderer(this, 156, 211);
+		InnerRoof2.addBox(0F, 0F, 0.01F, 36, 0, 48);
+		InnerRoof2.setRotationPoint(-18F, -24F, -144F);
+		InnerRoof2.setTextureSize(312, 268);
+		InnerRoof2.mirror = true;
+		setRotation(InnerRoof2, 0F, 0F, 0F);
+		InnerRoof3 = new ModelRenderer(this, -32, 212);
+		InnerRoof3.addBox(0F, 0F, 0.01F, 36, 0, 32);
+		InnerRoof3.setRotationPoint(-18F, -24F, -96F);
+		InnerRoof3.setTextureSize(312, 268);
+		InnerRoof3.mirror = true;
+		setRotation(InnerRoof3, 0F, 0F, 0F);
+		InnerRoof4 = new ModelRenderer(this, 156, 211);
+		InnerRoof4.addBox(0F, 0F, 0.01F, 36, 0, 48);
+		InnerRoof4.setRotationPoint(-18F, -24F, -64F);
+		InnerRoof4.setTextureSize(312, 268);
+		InnerRoof4.mirror = true;
+		setRotation(InnerRoof4, 0F, 0F, 0F);
+		InnerRoof5 = new ModelRenderer(this, -32, 212);
+		InnerRoof5.addBox(0F, 0F, 0.01F, 36, 0, 32);
+		InnerRoof5.setRotationPoint(-18F, -24F, -16F);
+		InnerRoof5.setTextureSize(312, 268);
+		InnerRoof5.mirror = true;
+		setRotation(InnerRoof5, 0F, 0F, 0F);
+		InnerRoof6 = new ModelRenderer(this, 156, 211);
+		InnerRoof6.addBox(0F, 0F, 0.01F, 36, 0, 48);
+		InnerRoof6.setRotationPoint(-18F, -24F, 16F);
+		InnerRoof6.setTextureSize(312, 268);
+		InnerRoof6.mirror = true;
+		setRotation(InnerRoof6, 0F, 0F, 0F);
+		InnerRoof7 = new ModelRenderer(this, -32, 212);
+		InnerRoof7.addBox(0F, 0F, 0.01F, 36, 0, 32);
+		InnerRoof7.setRotationPoint(-18F, -24F, 64F);
+		InnerRoof7.setTextureSize(312, 268);
+		InnerRoof7.mirror = true;
+		setRotation(InnerRoof7, 0F, 0F, 0F);
+		InnerRoof8 = new ModelRenderer(this, 156, 211);
+		InnerRoof8.addBox(0F, 0F, 0.01F, 36, 0, 48);
+		InnerRoof8.setRotationPoint(-18F, -24F, 96F);
+		InnerRoof8.setTextureSize(312, 268);
+		InnerRoof8.mirror = true;
+		setRotation(InnerRoof8, 0F, 0F, 0F);
+		InnerRoof9 = new ModelRenderer(this, -32, 212);
+		InnerRoof9.addBox(0F, 0F, 0.01F, 36, 0, 32);
+		InnerRoof9.setRotationPoint(-18F, -24F, 96F);
+		InnerRoof9.setTextureSize(312, 268);
+		InnerRoof9.mirror = true;
+		setRotation(InnerRoof9, 0F, 0F, 0F);
 
 		for (int i = 0; i < 5; i++) {
 			// door left lower
@@ -1034,6 +1097,15 @@ public class ModelUrbanTrainBase extends ModelBase {
 		RoofTopLeftEnd2.render(f5);
 		RoofTopRightEnd1.render(f5);
 		RoofTopRightEnd2.render(f5);
+		InnerRoof1.render(f5);
+		InnerRoof2.render(f5);
+		InnerRoof3.render(f5);
+		InnerRoof4.render(f5);
+		InnerRoof5.render(f5);
+		InnerRoof6.render(f5);
+		InnerRoof7.render(f5);
+		InnerRoof8.render(f5);
+		InnerRoof9.render(f5);
 	}
 
 	public void renderDoors(float f5, float leftDoor, float rightDoor) {

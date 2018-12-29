@@ -358,8 +358,8 @@ public class ModelSP1900 extends ModelBase {
 		RoofInnerRight = MathTools.part(this, 0, 40, 0, -6F, 0, 0, 6, 368, -15F, -24F, 16F - shift, 1024, 512);
 		RoofInnerLeft2 = MathTools.part(this, 200, 0, 0, 0, 0, 7, 0, 368, 4F, -30, 384F - shift, 1024, 512);
 		RoofInnerRight2 = MathTools.part(this, 200, 0, 0, 0, 0, 7, 0, 368, -4F, -30, 16F - shift, 1024, 512);
-		FrontBox = MathTools.part(this, 0, 350, 0, 0, -0.04666667F, 22, 12, 12, -11F, -36F, 4F - shift, 1024, 512);
-		BackBox = MathTools.part(this, 0, 350, 0, 0, -0.04666667F, 22, 12, 12, -11F, -36F, 384F - shift, 1024, 512);
+		FrontBox = MathTools.part(this, 0, 350, 0, 0, 0, 22, 12, 12, -11F, -36F, 4F - shift, 1024, 512);
+		BackBox = MathTools.part(this, 0, 350, 0, 0, 0, 22, 12, 12, -11F, -36F, 384F - shift, 1024, 512);
 		TV1a = MathTools.part(this, 340, 20, 0, -7F, 0, 10, 7, 2, -5F, -24F, 70 - shift, 1024, 512);
 		TV1 = MathTools.part(this, 340, 0, 0, 0, 0, 10, 6, 4, -5F, -30, 70 - shift, 1024, 512);
 		TV1b = MathTools.part(this, 340, 20, 0, -7F, 0, 10, 7, 2, 5F, -24F, 74F - shift, 1024, 512);
