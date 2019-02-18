@@ -20,6 +20,8 @@ public class RenderMTrain extends RenderTrain<EntityMTrain> {
 	@Override
 	protected void render(EntityMTrain entity, float leftDoor, float rightDoor) {
 		int head = entity.mtrHead;
+		bindTexture(new ResourceLocation("mtr:textures/LEDMap.png"));
+		model.renderLEDMap(0.0625F);
 		bindTexture(new ResourceLocation("mtr:textures/signs/Door.png"));
 		model.renderDoorLabels(0.0625F, leftDoor, rightDoor);
 		bindEntityTexture(entity);
