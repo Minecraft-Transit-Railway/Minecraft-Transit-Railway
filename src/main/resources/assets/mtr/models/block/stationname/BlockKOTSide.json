@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/KOTSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/KOT",
-		"main": "mtr:StationName1"
-	}
-}

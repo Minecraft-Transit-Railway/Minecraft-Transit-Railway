@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/RailNormal",
-	"textures": {
-		"particle": "mtr:blocks/BlockRailReversePowered",
-		"rail": "mtr:blocks/BlockRailReversePowered"
-	}
-}

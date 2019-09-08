@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/LOWSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/LOW",
-		"main": "mtr:StationName1"
-	}
-}

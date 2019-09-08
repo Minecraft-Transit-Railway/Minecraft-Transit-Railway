@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/UNISide",
-	"textures": {
-		"particle": "mtr:blocks/pole/UNI",
-		"main": "mtr:StationName1"
-	}
-}
