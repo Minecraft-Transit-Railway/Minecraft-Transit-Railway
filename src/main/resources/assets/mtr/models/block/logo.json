@@ -1,0 +1,8 @@
+{
+	"parent": "mtr:block/cube_with_texture",
+	"textures": {
+		"particle": "mtr:blocks/metal",
+		"main": "mtr:blocks/metal",
+		"side": "mtr:blocks/logo"
+	}
+}
