@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.block.BlockLogo;
 import mtr.item.ItemBrush;
+import mtr.item.ItemSP1900;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -11,6 +12,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -33,6 +35,7 @@ public class Registry {
 	public static void registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemName(new ItemBrush(), "brush"));
+		registry.register(setItemName(new ItemSP1900(), "sp1900"));
 	}
 
 	@SubscribeEvent
@@ -41,7 +44,14 @@ public class Registry {
 		// Blocks
 		registerBlockModel(Blocks.logo, 0);
 		// Items
-		registerItemModel(Items.brush, 0);
+		registerItemModel(Items.brush);
+		registerItemModel(Items.sp1900, 4);
+	}
+
+	@SubscribeEvent
+	public static void registerEntities(final RegistryEvent.Register<EntityEntry> event) {
+		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
+		registry.register(Entities.sp1900);
 	}
 
 	private static Block setBlockName(Block block, String name) {
@@ -64,7 +74,12 @@ public class Registry {
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), metadata, new ModelResourceLocation(MTR.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
 	}
 
-	private static void registerItemModel(Item item, int metadata) {
-		ModelLoader.setCustomModelResourceLocation(item, metadata, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+	private static void registerItemModel(Item item) {
+		registerItemModel(item, 1);
+	}
+
+	private static void registerItemModel(Item item, int metadataCount) {
+		for (int i = 0; i < metadataCount; i++)
+			ModelLoader.setCustomModelResourceLocation(item, i, new ModelResourceLocation(item.getRegistryName() + (metadataCount == 1 ? "" : ("_" + i)), "inventory"));
 	}
 }
