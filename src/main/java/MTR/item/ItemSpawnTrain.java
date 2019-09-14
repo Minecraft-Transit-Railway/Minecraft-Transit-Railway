@@ -4,7 +4,6 @@ import mtr.entity.EntityTrain;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,31 +28,27 @@ public abstract class ItemSpawnTrain extends Item {
 
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		IBlockState iblockstate = worldIn.getBlockState(pos);
-
-		if (!BlockRailBase.isRailBlock(iblockstate)) {
+		IBlockState iBlockState = worldIn.getBlockState(pos);
+		if (!BlockRailBase.isRailBlock(iBlockState)) {
 			return EnumActionResult.FAIL;
 		} else {
-			ItemStack itemstack = player.getHeldItem(hand);
+			ItemStack itemStack = player.getHeldItem(hand);
 
 			if (!worldIn.isRemote) {
-				BlockRailBase.EnumRailDirection blockrailbase$enumraildirection = iblockstate.getBlock() instanceof BlockRailBase ? ((BlockRailBase) iblockstate.getBlock()).getRailDirection(worldIn, pos, iblockstate, null) : BlockRailBase.EnumRailDirection.NORTH_SOUTH;
-				double d0 = 0.0D;
+				BlockRailBase.EnumRailDirection railDirection = iBlockState.getBlock() instanceof BlockRailBase ? ((BlockRailBase) iBlockState.getBlock()).getRailDirection(worldIn, pos, iBlockState, null) : BlockRailBase.EnumRailDirection.NORTH_SOUTH;
+				double yOffset = railDirection.isAscending() ? 0.5 : 0;
 
-				if (blockrailbase$enumraildirection.isAscending()) {
-					d0 = 0.5D;
-				}
-
-				EntityMinecart entityminecart = getTrain(worldIn, pos.getX() + 0.5D, pos.getY() + 0.0625D + d0, pos.getZ() + 0.5D);
-
-				if (itemstack.hasDisplayName()) {
-					entityminecart.setCustomNameTag(itemstack.getDisplayName());
-				}
-
-				worldIn.spawnEntity(entityminecart);
+				EntityTrain entity1 = getTrain(worldIn, pos.getX() + 0.5, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5);
+				int xOffset = player.getHorizontalFacing().getFrontOffsetX() * -entity1.getSpacing();
+				int zOffset = player.getHorizontalFacing().getFrontOffsetZ() * -entity1.getSpacing();
+				EntityTrain entity2 = getTrain(worldIn, pos.getX() + 0.5 + xOffset, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5 + zOffset);
+				entity1.setSibling(entity2);
+				entity2.setSibling(entity1);
+				worldIn.spawnEntity(entity1);
+				worldIn.spawnEntity(entity2);
 			}
 
-			itemstack.shrink(1);
+			itemStack.shrink(1);
 			return EnumActionResult.SUCCESS;
 		}
 	}

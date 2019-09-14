@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.block.BlockLogo;
 import mtr.item.ItemBrush;
+import mtr.item.ItemCrowbar;
 import mtr.item.ItemSP1900;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -35,6 +36,7 @@ public class Registry {
 	public static void registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemName(new ItemBrush(), "brush"));
+		registry.register(setItemName(new ItemCrowbar(), "crowbar"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
 	}
 
@@ -45,6 +47,7 @@ public class Registry {
 		registerBlockModel(Blocks.logo, 0);
 		// Items
 		registerItemModel(Items.brush);
+		registerItemModel(Items.crowbar);
 		registerItemModel(Items.sp1900, 4);
 	}
 
