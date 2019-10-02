@@ -1,11 +1,13 @@
 package mtr.item;
 
+import java.util.List;
+
 import mtr.entity.EntityTrain;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class ItemCrowbar extends Item {
 
@@ -15,9 +17,11 @@ public class ItemCrowbar extends Item {
 		setCreativeTab(CreativeTabs.TOOLS);
 	}
 
-	@CapabilityInject(IItemHandler.class)
 	public EntityTrain train = null;
 
-	@CapabilityInject(IItemHandler.class)
-	static Capability<IItemHandler> ITEM_HANDLER_CAPABILITY = null;
+	@Override
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		if (train != null)
+			tooltip.add(train.toString());
+	}
 }
