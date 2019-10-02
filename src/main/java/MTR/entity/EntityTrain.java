@@ -6,7 +6,9 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -53,13 +55,19 @@ public abstract class EntityTrain extends EntityMinecart {
 			return mX;
 		if (mX == mZ)
 			return mX * ROOT_2;
-		System.out.println("Calculating speed");
 		return Math.sqrt(sq(mX) + sq(mZ));
+	}
+
+	@Override
+	public void killMinecart(DamageSource source) {
+		setDead();
 	}
 
 	@Override
 	public void setDead() {
 		getSibling().isDead = true;
+		if (world.isRemote)
+			world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 0, 0, 0);
 		super.setDead();
 	}
 
@@ -96,6 +104,10 @@ public abstract class EntityTrain extends EntityMinecart {
 			final double diffZ = connected.posZ - posZ;
 			final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
 			final double difference = distance - getSpacing();
+
+			if (difference > 3)
+				setDead();
+
 			if (distance != 0) {
 				final double ratio = difference / distance;
 				mX = ratio * diffX;
@@ -105,16 +117,19 @@ public abstract class EntityTrain extends EntityMinecart {
 				if (Math.abs(mZ) < TOLERANCE)
 					mZ = 0;
 			}
+
+			final double max = getMaxSpeed() + 0.05;
+			mX = MathHelper.clamp(mX, -max, max);
+			mZ = MathHelper.clamp(mZ, -max, max);
 		} else if (section < 0) {
 			mX = 0;
 			mZ = 0;
-			// maybe unneeded
 		} else if (section == 0) {
-			System.out.println(getSpeed() + " " + mX + " " + mZ);
 			final double max = getMaxSpeed() * ((mX != 0 && mZ != 0) ? ONE_OVER_ROOT_2 : 1);
 			mX = MathHelper.clamp(mX, -max, max);
 			mZ = MathHelper.clamp(mZ, -max, max);
 		}
+
 		move(MoverType.SELF, mX, 0, mZ);
 	}
 
