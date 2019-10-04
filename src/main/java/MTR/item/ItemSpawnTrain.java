@@ -1,5 +1,7 @@
 package mtr.item;
 
+import java.util.UUID;
+
 import mtr.entity.EntityTrain;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
@@ -28,24 +30,24 @@ public abstract class ItemSpawnTrain extends Item {
 
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		IBlockState iBlockState = worldIn.getBlockState(pos);
+		final IBlockState iBlockState = worldIn.getBlockState(pos);
 		if (!BlockRailBase.isRailBlock(iBlockState)) {
 			return EnumActionResult.FAIL;
 		} else {
-			ItemStack itemStack = player.getHeldItem(hand);
+			final ItemStack itemStack = player.getHeldItem(hand);
 
 			if (!worldIn.isRemote) {
-				BlockRailBase.EnumRailDirection railDirection = iBlockState.getBlock() instanceof BlockRailBase ? ((BlockRailBase) iBlockState.getBlock()).getRailDirection(worldIn, pos, iBlockState, null) : BlockRailBase.EnumRailDirection.NORTH_SOUTH;
-				double yOffset = railDirection.isAscending() ? 0.5 : 0;
+				final BlockRailBase.EnumRailDirection railDirection = iBlockState.getBlock() instanceof BlockRailBase ? ((BlockRailBase) iBlockState.getBlock()).getRailDirection(worldIn, pos, iBlockState, null) : BlockRailBase.EnumRailDirection.NORTH_SOUTH;
+				final double yOffset = railDirection.isAscending() ? 0.5 : 0;
 
-				EntityTrain entity1 = getTrain(worldIn, pos.getX() + 0.5, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5);
-				int xOffset = player.getHorizontalFacing().getFrontOffsetX() * -entity1.getSpacing();
-				int zOffset = player.getHorizontalFacing().getFrontOffsetZ() * -entity1.getSpacing();
-				EntityTrain entity2 = getTrain(worldIn, pos.getX() + 0.5 + xOffset, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5 + zOffset);
-				entity1.setSibling(entity2);
-				entity2.setSibling(entity1);
+				final EntityTrain entity1 = getTrain(worldIn, pos.getX() + 0.5, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5);
+				final int xOffset = player.getHorizontalFacing().getFrontOffsetX() * -entity1.getSpacing();
+				final int zOffset = player.getHorizontalFacing().getFrontOffsetZ() * -entity1.getSpacing();
+				final EntityTrain entity2 = getTrain(worldIn, pos.getX() + 0.5 + xOffset, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5 + zOffset);
 				worldIn.spawnEntity(entity1);
 				worldIn.spawnEntity(entity2);
+				entity1.setUUID(entity2.getUniqueID(), new UUID(0, 0));
+				entity2.setUUID(entity1.getUniqueID(), new UUID(0, 0));
 			}
 
 			itemStack.shrink(1);

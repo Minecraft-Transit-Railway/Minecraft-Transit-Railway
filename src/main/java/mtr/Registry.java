@@ -55,6 +55,7 @@ public class Registry {
 	public static void registerEntities(final RegistryEvent.Register<EntityEntry> event) {
 		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
 		registry.register(Entities.sp1900);
+		registry.register(Entities.light_rail_1);
 	}
 
 	private static Block setBlockName(Block block, String name) {

@@ -14,6 +14,6 @@ public class EntitySP1900 extends EntityTrain {
 
 	@Override
 	public int getSpacing() {
-		return 3;
+		return 16;
 	}
 }
