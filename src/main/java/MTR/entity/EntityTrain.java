@@ -3,6 +3,7 @@ package mtr.entity;
 import java.util.UUID;
 
 import mtr.Items;
+import mtr.MathTools;
 import mtr.item.ItemCrowbar;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -20,6 +21,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class EntityTrain extends EntityMinecart {
 
@@ -41,6 +44,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	private UUID uuidSibling, uuidConnection;
 	private EntityTrain entitySibling, entityConnection;
 	private int section = -1;
+	private float prevAngleYaw;
 	private static final double TOLERANCE = 0.05;
 	private static final double ONE_OVER_ROOT_2 = 1 / Math.sqrt(2);
 	private static final double ROOT_2 = Math.sqrt(2);
@@ -63,7 +67,8 @@ public abstract class EntityTrain extends EntityMinecart {
 
 	@Override
 	public void setDead() {
-		getSibling().isDead = true;
+		if (entitySibling != null)
+			entitySibling.isDead = true;
 		if (world.isRemote)
 			world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 0, 0, 0);
 		super.setDead();
@@ -72,7 +77,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	@Override
 	public void moveMinecartOnRail(BlockPos pos) {
 		double mX = motionX, mZ = motionZ;
-		if (getSibling() != this) {
+		if (entitySibling != null) {
 			if (entityConnection == null) {
 				if (section == 0 && mX == 0 && mZ == 0) {
 					EntityTrain train = this;
@@ -82,7 +87,7 @@ public abstract class EntityTrain extends EntityMinecart {
 					}
 				} else if (section < 0 && isLeading()) {
 					section = 0;
-					EntityTrain train = getSibling();
+					EntityTrain train = entitySibling;
 					int i = 1;
 					while (train != null && !isDead) {
 						train.section = i;
@@ -99,7 +104,7 @@ public abstract class EntityTrain extends EntityMinecart {
 				final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
 				final double difference = distance - getSpacing();
 
-				if (difference > 3)
+				if (difference > 10)
 					setDead();
 
 				if (distance != 0) {
@@ -135,7 +140,7 @@ public abstract class EntityTrain extends EntityMinecart {
 		final Item item = player.getHeldItem(hand).getItem();
 		if (!world.isRemote && item == Items.crowbar) {
 			final ItemCrowbar itemCrowbar = ((ItemCrowbar) item);
-			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == getSibling()) {
+			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == entitySibling) {
 				if (entityConnection != null)
 					entityConnection.entityConnection = null;
 				entityConnection = null;
@@ -190,6 +195,29 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	@Override
+	public void updatePassenger(Entity passenger) {
+		if (isPassenger(passenger)) {
+//			final Entity sibling = entitySibling;
+//			if (sibling != null) {
+//				passenger.setPosition((sibling.posX - posX) / 2D, (sibling.posY - posY) / 2D, (sibling.posZ - posZ) / 2D);
+//			}
+			applyYawToPassenger(passenger);
+		}
+		super.updatePassenger(passenger);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void applyOrientationToEntity(Entity entityToUpdate) {
+		applyYawToPassenger(entityToUpdate);
+	}
+
+	@Override
+	public double getMountedYOffset() {
+		return 1;
+	}
+
+	@Override
 	public Type getType() {
 		return Type.RIDEABLE;
 	}
@@ -231,13 +259,22 @@ public abstract class EntityTrain extends EntityMinecart {
 		uuidConnection = connection;
 	}
 
+	private void applyYawToPassenger(Entity passenger) {
+		final Entity sibling = world.isRemote ? world.getEntityByID(getSiblingIDClient()) : entitySibling;
+		if (sibling != null) {
+			final float angleYaw = (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
+			passenger.rotationYaw -= MathTools.angleDifference(angleYaw, prevAngleYaw);
+			prevAngleYaw = angleYaw;
+			passenger.setRotationYawHead(passenger.rotationYaw);
+		}
+	}
+
 	private boolean isLeading() {
 		if (Math.abs(motionX) < TOLERANCE && Math.abs(motionZ) < TOLERANCE) {
 			return false;
 		} else {
-			final EntityTrain sibling = getSibling();
-			final boolean aheadX = (motionX > 0) == (posX > sibling.posX);
-			final boolean aheadZ = (motionZ > 0) == (posZ > sibling.posZ);
+			final boolean aheadX = (motionX > 0) == (posX > entitySibling.posX);
+			final boolean aheadZ = (motionZ > 0) == (posZ > entitySibling.posZ);
 			if (motionX != 0 && motionZ != 0) {
 				return aheadX && aheadZ;
 			} else {
@@ -250,20 +287,11 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	private EntityTrain getSection(int number, boolean invert) {
-		if ((getSibling().section == number) == !invert)
-			return getSibling();
+		if ((entitySibling != null && entitySibling.section == number) == !invert)
+			return entitySibling;
 		if ((entityConnection != null && entityConnection.section == number) == !invert)
 			return entityConnection;
 		return null;
-	}
-
-	private EntityTrain getSibling() {
-		if (entitySibling == null) {
-			// isDead = true;
-			return this;
-		} else {
-			return entitySibling;
-		}
 	}
 
 	private double sq(double d) {

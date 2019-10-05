@@ -3,11 +3,12 @@ package mtr.render;
 import mtr.MathTools;
 import mtr.entity.EntityTrain;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelChicken;
+import net.minecraft.client.model.ModelMinecart;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 
-	protected ModelBase modelBogie = new ModelChicken();
+	protected ModelBase modelBogie = new ModelMinecart();
 
 	public RenderTrain(RenderManager renderManager) {
 		super(renderManager);
@@ -25,18 +26,19 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
-		final float yaw = entity.prevRotationYaw + (float) MathTools.angleDifference(entity.rotationYaw, entity.prevRotationYaw) * partialTicks;
-		final float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+		final float yaw = (float) MathTools.angleDifference(entity.rotationYaw, entity.prevRotationYaw) * partialTicks - entity.prevRotationYaw;
+		final float pitch = (entity.rotationPitch - entity.prevRotationPitch) * partialTicks - entity.prevRotationPitch;
 		GlStateManager.rotate(yaw, 0, 1, 0);
 		GlStateManager.rotate(pitch, 0, 0, 1);
-		modelBogie.render(entity, 0, 0, -0.1F, 0, 0, 0.1F);
+		bindTexture(new ResourceLocation("textures/entity/minecart.png"));
+		modelBogie.render(entity, 0, 0, -0.1F, 0, 0, 0.125F);
 		GlStateManager.popMatrix();
 
+		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+
 		final T entitySibling = (T) entity.world.getEntityByID(entity.getSiblingIDClient());
-		if (entitySibling == null) {
-			// System.out.println(entity.getSiblingIDClient());
+		if (entitySibling == null)
 			return;
-		}
 		final double x1 = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks;
 		final double y1 = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks;
 		final double z1 = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks;
@@ -52,26 +54,8 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y + 1.5, z);
 		GlStateManager.translate(midX, midY, midZ);
-		if (entity.isBeingRidden()) {
-			// Minecraft.getMinecraft().thePlayer.rotationYaw = (float)
-			// -Math.toDegrees(angleYaw);
-			// Minecraft.getMinecraft().thePlayer.prevRotationYaw = (float)
-			// -Math.toDegrees(angleYaw);
-			// Minecraft.getMinecraft().getRenderViewEntity().rotationYaw = (float)
-			// -Math.toDegrees(angleYaw);
-			// Minecraft.getMinecraft().getRenderViewEntity().prevRotationYaw = (float)
-			// -Math.toDegrees(angleYaw);
-			// Minecraft.getMinecraft().entityRenderer.updateCameraAndRender(partialTicks,
-			// nanoTime);
-		}
 		GlStateManager.rotate((float) Math.toDegrees(angleYaw), 0, 1, 0);
 		GlStateManager.rotate((float) Math.toDegrees(anglePitch), 1, 0, 0);
-
-		// bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		// vertexbuffer.begin(7, DefaultVertexFormats.ITEM);
-		// renderQuads(vertexbuffer, getModelTrain().getQuads(null, null, 0));
-		// tessellator.draw();
-
 		bindEntityTexture(entity);
 		GlStateManager.scale(-1, -1, 1);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
@@ -79,8 +63,6 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		final float rightDoor = entity.getRightDoor() / 60F;
 		render(entity, leftDoor, rightDoor);
 		GlStateManager.popMatrix();
-
-		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 	}
 
 	protected abstract void render(T entity, float leftDoor, float rightDoor);
