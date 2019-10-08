@@ -7,7 +7,6 @@ import mtr.entity.EntityTrain;
 import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +17,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public abstract class ItemSpawnTrain extends Item {
@@ -63,7 +63,7 @@ public abstract class ItemSpawnTrain extends Item {
 
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add(I18n.format("gui.train_" + EnumTrainType.getByIndex(stack.getItemDamage()).getName(), new Object[0]));
+		tooltip.add(new TextComponentTranslation("gui.train_" + EnumTrainType.getByIndex(stack.getItemDamage()).getName()).getFormattedText());
 	}
 
 	@Override

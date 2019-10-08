@@ -26,13 +26,11 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 	@Override
 	public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, z);
-		final float yaw = (float) MathTools.angleDifference(entity.rotationYaw, entity.prevRotationYaw) * partialTicks - entity.prevRotationYaw;
-		final float pitch = (entity.rotationPitch - entity.prevRotationPitch) * partialTicks - entity.prevRotationPitch;
-		GlStateManager.rotate(yaw, 0, 1, 0);
-		GlStateManager.rotate(pitch, 0, 0, 1);
+		GlStateManager.translate(x, y + 0.375, z);
+		GlStateManager.rotate(-entity.rotationYaw, 0, 1, 0);
+		GlStateManager.rotate(180 + entity.rotationPitch, 0, 0, 1);
 		bindTexture(new ResourceLocation("textures/entity/minecart.png"));
-		modelBogie.render(entity, 0, 0, -0.1F, 0, 0, 0.125F);
+		modelBogie.render(entity, 0, 0, -0.1F, 0, 0, 0.0625F);
 		GlStateManager.popMatrix();
 
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);

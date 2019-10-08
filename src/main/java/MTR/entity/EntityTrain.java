@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import mtr.Items;
 import mtr.MathTools;
 import mtr.item.ItemCrowbar;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityMinecart;
@@ -25,6 +24,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -51,7 +51,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	private UUID uuidSibling, uuidConnection;
 	private EntityTrain entitySibling, entityConnection;
 	private int section = -1, trainType;
-	private float prevAngleYaw;
+	private float prevAngleYaw, trainSpeed, trainSpeedKm;
 	private static final double TOLERANCE = 0.05;
 	private static final double ONE_OVER_ROOT_2 = 1 / Math.sqrt(2);
 	private static final double ROOT_2 = Math.sqrt(2);
@@ -90,57 +90,48 @@ public abstract class EntityTrain extends EntityMinecart {
 		double mX = motionX, mZ = motionZ;
 		if (entitySibling != null) {
 			if (entityConnection == null) {
-				if (section == 0 && mX == 0 && mZ == 0) {
-					EntityTrain train = this;
-					while (train != null && !isDead) {
-						train.section = -1;
-						train = train.getSection(-1, true);
-					}
-				} else if (section < 0 && isLeading()) {
-					section = 0;
-					EntityTrain train = entitySibling;
-					int i = 1;
-					while (train != null && !isDead) {
-						train.section = i;
-						train = train.getSection(i - 1, true);
-						i++;
-					}
-				}
+				if (section == 0 && mX == 0 && mZ == 0)
+					resetAllSections();
+				else if (section < 0 && isLeading())
+					setAllSections();
 			}
 
 			if (section > 0) {
 				final EntityTrain connection = getSection(section - 1, false);
-				final double diffX = connection.posX - posX;
-				final double diffZ = connection.posZ - posZ;
-				final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
-				final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
+				if (connection == null || connection.isDead) {
+					resetAllSections();
+					entityConnection = null;
+				} else {
+					final double diffX = connection.posX - posX;
+					final double diffZ = connection.posZ - posZ;
+					final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
+					final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
 
-				if (difference > 4)
-					setDead();
+					if (difference > 4)
+						setDead();
 
-				if (distance != 0) {
-					final double ratio = difference / distance;
-					mX = ratio * diffX;
-					mZ = ratio * diffZ;
-					if (Math.abs(mX) < TOLERANCE)
-						mX = 0;
-					if (Math.abs(mZ) < TOLERANCE)
-						mZ = 0;
+					if (distance != 0) {
+						final double ratio = difference / distance;
+						mX = ratio * diffX;
+						mZ = ratio * diffZ;
+						if (Math.abs(mX) < TOLERANCE)
+							mX = 0;
+						if (Math.abs(mZ) < TOLERANCE)
+							mZ = 0;
+					}
+
+					moveEntity(mX, mZ, true);
 				}
-
-				final double max = getMaxSpeed() + 0.05;
-				mX = MathHelper.clamp(mX, -max, max);
-				mZ = MathHelper.clamp(mZ, -max, max);
-			} else if (section < 0) {
+			}
+			if (section < 0) {
 				mX = 0;
 				mZ = 0;
-			} else if (section == 0) {
-				final double max = getMaxSpeed() * ((mX != 0 && mZ != 0) ? ONE_OVER_ROOT_2 : 1);
-				mX = MathHelper.clamp(mX, -max, max);
-				mZ = MathHelper.clamp(mZ, -max, max);
+				trainSpeed = trainSpeedKm = 0;
+			}
+			if (section == 0) {
+				moveEntity(mX, mZ, false);
 			}
 		}
-		move(MoverType.SELF, mX, 0, mZ);
 	}
 
 	@Override
@@ -156,16 +147,16 @@ public abstract class EntityTrain extends EntityMinecart {
 					entityConnection.setConnection(null);
 				setConnection(null);
 				itemCrowbar.train = null;
-				player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_disconnected")));
+				player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_disconnected"), true);
 			} else {
 				if (itemCrowbar.train == null) {
 					itemCrowbar.train = this;
-					player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_connecting")));
+					player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_connecting"), true);
 				} else {
 					itemCrowbar.train.setConnection(this);
 					setConnection(itemCrowbar.train);
 					itemCrowbar.train = null;
-					player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_connected")));
+					player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_connected"), true);
 				}
 			}
 			return true;
@@ -217,11 +208,10 @@ public abstract class EntityTrain extends EntityMinecart {
 	@Override
 	public void updatePassenger(Entity passenger) {
 		if (isPassenger(passenger)) {
-//			final Entity sibling = entitySibling;
-//			if (sibling != null) {
-//				passenger.setPosition((sibling.posX - posX) / 2D, (sibling.posY - posY) / 2D, (sibling.posZ - posZ) / 2D);
-//			}
+			// TODO
 			applyYawToPassenger(passenger);
+			if (!world.isRemote && passenger instanceof EntityPlayer)
+				((EntityPlayer) passenger).sendStatusMessage(new TextComponentString(trainSpeed + " m/s (" + trainSpeedKm + " km/h)"), true);
 		}
 		super.updatePassenger(passenger);
 	}
@@ -319,6 +309,36 @@ public abstract class EntityTrain extends EntityMinecart {
 		if ((entityConnection != null && entityConnection.section == number) == !invert)
 			return entityConnection;
 		return null;
+	}
+
+	private void moveEntity(double mX, double mZ, boolean catchUp) {
+		final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed() * ((mX != 0 && mZ != 0) ? ONE_OVER_ROOT_2 : 1);
+		mX = MathHelper.clamp(mX, -max, max);
+		mZ = MathHelper.clamp(mZ, -max, max);
+		move(MoverType.SELF, mX, 0, mZ);
+
+		final float speed = (float) Math.sqrt(sq(mX) + sq(mZ)) * 200;
+		trainSpeed = Math.round(speed) / 10;
+		trainSpeedKm = Math.round(speed * 3.6) / 10;
+	}
+
+	private void resetAllSections() {
+		EntityTrain train = this;
+		while (train != null && !isDead) {
+			train.section = -1;
+			train = train.getSection(-1, true);
+		}
+	}
+
+	private void setAllSections() {
+		section = 0;
+		EntityTrain train = entitySibling;
+		int i = 1;
+		while (train != null && !isDead) {
+			train.section = i;
+			train = train.getSection(i - 1, true);
+			i++;
+		}
 	}
 
 	private void setConnection(EntityTrain train) {
