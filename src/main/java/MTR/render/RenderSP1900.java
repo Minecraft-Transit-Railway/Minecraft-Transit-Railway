@@ -1,6 +1,7 @@
 package mtr.render;
 
 import mtr.entity.EntitySP1900;
+import mtr.entity.EntityTrain.EnumTrainType;
 import mtr.model.ModelSP1900;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -20,20 +21,17 @@ public class RenderSP1900 extends RenderTrain<EntitySP1900> {
 	}
 
 	@Override
-	protected void render(EntitySP1900 entity, float leftDoor, float rightDoor) {
-		final int head = 1;
+	protected void render(EntitySP1900 entity, EnumTrainType trainType, float leftDoor, float rightDoor) {
 		bindTexture(new ResourceLocation("mtr:textures/signs/door.png"));
-		model.renderDoorLabels(0.0625F, leftDoor, rightDoor, head == 6);
+		model.renderDoorLabels(0.0625F, leftDoor, rightDoor, trainType == EnumTrainType.FIRST_CLASS);
 		bindEntityTexture(entity);
 		model.render(entity, 0, 0, -0.1F, 0, 0, 0.0625F);
-		if (head == 6)
+		if (trainType == EnumTrainType.FIRST_CLASS)
 			model.renderFirstClass(0.0625F, leftDoor, rightDoor);
 		else {
 			model.renderDoors(0.0625F, leftDoor, rightDoor);
-			if (head == 7)
-				GlStateManager.rotate(180, 0, 1, 0);
 			model.renderMain(0.0625F);
-			if (head == 1 || head == 7)
+			if (trainType == EnumTrainType.HEAD)
 				model.renderEnd(0.0625F);
 			else
 				model.renderNonEnd(0.0625F);

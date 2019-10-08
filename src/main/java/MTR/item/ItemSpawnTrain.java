@@ -1,10 +1,14 @@
 package mtr.item;
 
+import java.util.List;
 import java.util.UUID;
 
 import mtr.entity.EntityTrain;
+import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -26,7 +30,9 @@ public abstract class ItemSpawnTrain extends Item {
 		setCreativeTab(CreativeTabs.TRANSPORTATION);
 	}
 
-	protected abstract EntityTrain getTrain(World worldIn, double x, double y, double z);
+	protected abstract EntityTrain getTrain(World worldIn, double x, double y, double z, int trainType);
+
+	protected abstract int getSubtypeCount();
 
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
@@ -40,10 +46,10 @@ public abstract class ItemSpawnTrain extends Item {
 				final BlockRailBase.EnumRailDirection railDirection = iBlockState.getBlock() instanceof BlockRailBase ? ((BlockRailBase) iBlockState.getBlock()).getRailDirection(worldIn, pos, iBlockState, null) : BlockRailBase.EnumRailDirection.NORTH_SOUTH;
 				final double yOffset = railDirection.isAscending() ? 0.5 : 0;
 
-				final EntityTrain entity1 = getTrain(worldIn, pos.getX() + 0.5, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5);
-				final int xOffset = player.getHorizontalFacing().getFrontOffsetX() * -entity1.getSpacing();
-				final int zOffset = player.getHorizontalFacing().getFrontOffsetZ() * -entity1.getSpacing();
-				final EntityTrain entity2 = getTrain(worldIn, pos.getX() + 0.5 + xOffset, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5 + zOffset);
+				final EntityTrain entity1 = getTrain(worldIn, pos.getX() + 0.5, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5, itemStack.getItemDamage() + 1);
+				final int xOffset = player.getHorizontalFacing().getFrontOffsetX() * -entity1.getSiblingSpacing();
+				final int zOffset = player.getHorizontalFacing().getFrontOffsetZ() * -entity1.getSiblingSpacing();
+				final EntityTrain entity2 = getTrain(worldIn, pos.getX() + 0.5 + xOffset, pos.getY() + 0.0625 + yOffset, pos.getZ() + 0.5 + zOffset, -itemStack.getItemDamage() - 1);
 				worldIn.spawnEntity(entity1);
 				worldIn.spawnEntity(entity2);
 				entity1.setUUID(entity2.getUniqueID(), new UUID(0, 0));
@@ -56,16 +62,19 @@ public abstract class ItemSpawnTrain extends Item {
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		return super.getUnlocalizedName() + "." + stack.getMetadata();
+	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		tooltip.add(I18n.format("gui.train_" + EnumTrainType.getByIndex(stack.getItemDamage()).getName(), new Object[0]));
 	}
-
-	protected abstract int getSubtypeCount();
 
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
 		if (isInCreativeTab(tab))
 			for (int i = 0; i < getSubtypeCount(); i++)
 				items.add(new ItemStack(this, 1, i));
+	}
+
+	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		return super.getUnlocalizedName() + "." + stack.getMetadata();
 	}
 }

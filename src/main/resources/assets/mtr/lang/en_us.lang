@@ -6,3 +6,11 @@ item.sp1900.0.name=SP1900 4-car
 item.sp1900.1.name=SP1900 7-car
 item.sp1900.2.name=SP1900 8-car
 item.sp1900.3.name=SP1900 12-car
+
+gui.crowbar_connecting=Connecting trains...
+gui.crowbar_connected=Trains connected.
+gui.crowbar_disconnected=Disconnected.
+gui.train_head=Head
+gui.train_car=Carriage
+gui.train_first_class=First Class Carriage
+gui.train_special=Special

@@ -8,12 +8,17 @@ public class EntitySP1900 extends EntityTrain {
 		super(worldIn);
 	}
 
-	public EntitySP1900(World worldIn, double x, double y, double z) {
-		super(worldIn, x, y, z);
+	public EntitySP1900(World worldIn, double x, double y, double z, int trainType) {
+		super(worldIn, x, y, z, trainType);
 	}
 
 	@Override
-	public int getSpacing() {
+	public int getSiblingSpacing() {
 		return 16;
+	}
+
+	@Override
+	public float getEndSpacing() {
+		return 4.5F;
 	}
 }

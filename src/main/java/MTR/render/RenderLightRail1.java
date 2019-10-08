@@ -3,6 +3,7 @@ package mtr.render;
 import java.io.IOException;
 
 import mtr.entity.EntityLightRail1;
+import mtr.entity.EntityTrain.EnumTrainType;
 import mtr.model.ModelLightRail1;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -23,7 +24,7 @@ public class RenderLightRail1 extends RenderTrain<EntityLightRail1> {
 	}
 
 	@Override
-	protected void render(EntityLightRail1 entity, float leftDoor, float rightDoor) {
+	protected void render(EntityLightRail1 entity, EnumTrainType trainType, float leftDoor, float rightDoor) {
 		int route = 751;
 		boolean p;
 		final boolean down = route < 0;

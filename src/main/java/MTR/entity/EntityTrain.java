@@ -1,10 +1,14 @@
 package mtr.entity;
 
+import java.util.Map;
 import java.util.UUID;
+
+import com.google.common.collect.Maps;
 
 import mtr.Items;
 import mtr.MathTools;
 import mtr.item.ItemCrowbar;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityMinecart;
@@ -14,11 +18,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,8 +37,9 @@ public abstract class EntityTrain extends EntityMinecart {
 		init();
 	}
 
-	public EntityTrain(World worldIn, double x, double y, double z) {
+	public EntityTrain(World worldIn, double x, double y, double z, int type) {
 		super(worldIn, x, y, z);
+		setTrainType(type);
 		init();
 	}
 
@@ -43,7 +50,7 @@ public abstract class EntityTrain extends EntityMinecart {
 
 	private UUID uuidSibling, uuidConnection;
 	private EntityTrain entitySibling, entityConnection;
-	private int section = -1;
+	private int section = -1, trainType;
 	private float prevAngleYaw;
 	private static final double TOLERANCE = 0.05;
 	private static final double ONE_OVER_ROOT_2 = 1 / Math.sqrt(2);
@@ -57,8 +64,12 @@ public abstract class EntityTrain extends EntityMinecart {
 	private int mtrSiblingID;
 	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
 	private int mtrConnectionID;
+	private static final DataParameter<Integer> MTR_TRAIN_TYPE = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
+	private int mtrTrainType;
 
-	public abstract int getSpacing();
+	public abstract int getSiblingSpacing();
+
+	public abstract float getEndSpacing();
 
 	@Override
 	public void killMinecart(DamageSource source) {
@@ -102,9 +113,9 @@ public abstract class EntityTrain extends EntityMinecart {
 				final double diffX = connection.posX - posX;
 				final double diffZ = connection.posZ - posZ;
 				final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
-				final double difference = distance - getSpacing();
+				final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
 
-				if (difference > 10)
+				if (difference > 4)
 					setDead();
 
 				if (distance != 0) {
@@ -142,16 +153,19 @@ public abstract class EntityTrain extends EntityMinecart {
 			final ItemCrowbar itemCrowbar = ((ItemCrowbar) item);
 			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == entitySibling) {
 				if (entityConnection != null)
-					entityConnection.entityConnection = null;
-				entityConnection = null;
+					entityConnection.setConnection(null);
+				setConnection(null);
 				itemCrowbar.train = null;
+				player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_disconnected")));
 			} else {
 				if (itemCrowbar.train == null) {
 					itemCrowbar.train = this;
+					player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_connecting")));
 				} else {
-					itemCrowbar.train.entityConnection = this;
-					entityConnection = itemCrowbar.train;
+					itemCrowbar.train.setConnection(this);
+					setConnection(itemCrowbar.train);
 					itemCrowbar.train = null;
+					player.sendMessage(new TextComponentString(I18n.format("gui.crowbar_connected")));
 				}
 			}
 			return true;
@@ -172,6 +186,8 @@ public abstract class EntityTrain extends EntityMinecart {
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
 		setUUID(nbt.getUniqueId("sibling"), nbt.getUniqueId("connection"));
+		setTrainType(nbt.getInteger("trainType"));
+		section = nbt.getInteger("section");
 	}
 
 	@Override
@@ -179,16 +195,20 @@ public abstract class EntityTrain extends EntityMinecart {
 		super.writeToNBT(compound);
 		compound.setUniqueId("sibling", uuidSibling);
 		compound.setUniqueId("connection", uuidConnection);
+		compound.setInteger("trainType", trainType);
+		compound.setInteger("section", section);
 		return compound;
 	}
 
 	@Override
 	public void onUpdate() {
-		if (!world.isRemote && entitySibling == null) {
-			final Entity generic = FMLCommonHandler.instance().getMinecraftServerInstance().getServer().getEntityFromUuid(uuidSibling);
-			if (generic != null && (generic instanceof EntityTrain)) {
-				entitySibling = (EntityTrain) generic;
-				dataManager.set(MTR_SIBLING_ID, entitySibling.getEntityId());
+		if (!world.isRemote) {
+			final boolean siblingNotSet = entitySibling == null;
+			final boolean connectionNotSet = entityConnection == null && uuidConnection.getMostSignificantBits() != 0 && uuidConnection.getLeastSignificantBits() != 0;
+			if (siblingNotSet || connectionNotSet) {
+				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+				entitySibling = setEntityFromUUID(server, uuidSibling, MTR_SIBLING_ID);
+				entityConnection = setEntityFromUUID(server, uuidConnection, MTR_CONNECTION_ID);
 			}
 		}
 		super.onUpdate();
@@ -229,6 +249,7 @@ public abstract class EntityTrain extends EntityMinecart {
 		dataManager.register(MTR_DOOR_RIGHT_OPENED, false);
 		dataManager.register(MTR_SIBLING_ID, 0);
 		dataManager.register(MTR_CONNECTION_ID, 0);
+		dataManager.register(MTR_TRAIN_TYPE, 0);
 	}
 
 	@Override
@@ -252,6 +273,12 @@ public abstract class EntityTrain extends EntityMinecart {
 		if (mtrSiblingID == 0)
 			mtrSiblingID = dataManager.get(MTR_SIBLING_ID);
 		return mtrSiblingID;
+	}
+
+	public int getTrainTypeClient() {
+		if (mtrTrainType == 0)
+			mtrTrainType = dataManager.get(MTR_TRAIN_TYPE);
+		return mtrTrainType;
 	}
 
 	public void setUUID(UUID sibling, UUID connection) {
@@ -294,7 +321,57 @@ public abstract class EntityTrain extends EntityMinecart {
 		return null;
 	}
 
+	private void setConnection(EntityTrain train) {
+		uuidConnection = train == null ? new UUID(0, 0) : train.getUniqueID();
+		entityConnection = train;
+	}
+
+	private EntityTrain setEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
+		final Entity genericEntity = server.getEntityFromUuid(uuid);
+		if (genericEntity != null && (genericEntity instanceof EntityTrain)) {
+			dataManager.set(parameter, genericEntity.getEntityId());
+			return (EntityTrain) genericEntity;
+		}
+		return null;
+	}
+
+	private void setTrainType(int type) {
+		trainType = type;
+		dataManager.set(MTR_TRAIN_TYPE, trainType);
+	}
+
 	private double sq(double d) {
 		return d * d;
+	}
+
+	public static enum EnumTrainType {
+		HEAD(0, "head"), CAR(1, "car"), FIRST_CLASS(2, "first_class");
+
+		private static final Map<Integer, EnumTrainType> BY_ID = Maps.<Integer, EnumTrainType>newHashMap();
+		private final int index;
+		private final String name;
+
+		private EnumTrainType(int indexIn, String nameIn) {
+			index = indexIn;
+			name = nameIn;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public static EnumTrainType getByIndex(int index) {
+			final EnumTrainType trainType = BY_ID.get(index);
+			return trainType == null ? CAR : trainType;
+		}
+
+		public static EnumTrainType getByDirection(int direction) {
+			return getByIndex(Math.abs(direction) - 1);
+		}
+
+		static {
+			for (final EnumTrainType trainType : values())
+				BY_ID.put(trainType.index, trainType);
+		}
 	}
 }

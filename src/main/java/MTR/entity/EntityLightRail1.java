@@ -8,12 +8,17 @@ public class EntityLightRail1 extends EntityTrain {
 		super(worldIn);
 	}
 
-	public EntityLightRail1(World worldIn, double x, double y, double z) {
-		super(worldIn, x, y, z);
+	public EntityLightRail1(World worldIn, double x, double y, double z, int trainType) {
+		super(worldIn, x, y, z, trainType);
 	}
 
 	@Override
-	public int getSpacing() {
-		return 3;
+	public int getSiblingSpacing() {
+		return 14;
+	}
+
+	@Override
+	public float getEndSpacing() {
+		return 4.5F;
 	}
 }

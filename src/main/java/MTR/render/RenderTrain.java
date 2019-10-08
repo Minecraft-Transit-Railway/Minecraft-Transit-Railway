@@ -2,6 +2,7 @@ package mtr.render;
 
 import mtr.MathTools;
 import mtr.entity.EntityTrain;
+import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelMinecart;
 import net.minecraft.client.renderer.GlStateManager;
@@ -50,20 +51,21 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		final double midZ = (z2 - z1) / 2D;
 		final double angleYaw = MathTools.angleBetweenPoints(x2, z2, x1, z1);
 		final double anglePitch = Math.asin((y1 - y2) / MathTools.distanceBetweenPoints(x1, z1, x2, z2));
+		final int trainType = entity.getTrainTypeClient();
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y + 1.5, z);
 		GlStateManager.translate(midX, midY, midZ);
-		GlStateManager.rotate((float) Math.toDegrees(angleYaw), 0, 1, 0);
-		GlStateManager.rotate((float) Math.toDegrees(anglePitch), 1, 0, 0);
+		GlStateManager.rotate((float) Math.toDegrees(angleYaw) + (trainType < 0 ? 180 : 0), 0, 1, 0);
+		GlStateManager.rotate((float) Math.toDegrees(anglePitch) * Math.signum(trainType), 1, 0, 0);
 		bindEntityTexture(entity);
 		GlStateManager.scale(-1, -1, 1);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 		final float leftDoor = entity.getLeftDoor() / 60F;
 		final float rightDoor = entity.getRightDoor() / 60F;
-		render(entity, leftDoor, rightDoor);
+		render(entity, EnumTrainType.getByDirection(trainType), leftDoor, rightDoor);
 		GlStateManager.popMatrix();
 	}
 
-	protected abstract void render(T entity, float leftDoor, float rightDoor);
+	protected abstract void render(T entity, EnumTrainType trainType, float leftDoor, float rightDoor);
 }
