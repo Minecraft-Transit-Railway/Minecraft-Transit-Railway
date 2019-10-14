@@ -2,7 +2,7 @@ package mtr;
 
 import org.apache.logging.log4j.Logger;
 
-import mtr.proxy.ClientProxy;
+import mtr.proxy.IProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -12,8 +12,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 @Mod(modid = MTR.MODID, version = MTR.VERSION)
 public class MTR {
 
-	@SidedProxy(clientSide = "mtr.proxy.ClientProxy")
-	public static ClientProxy clientProxy;
+	@SidedProxy(clientSide = "mtr.proxy.ClientProxy", serverSide = "mtr.proxy.ServerProxy")
+	public static IProxy proxy;
 
 	public static final String MODID = "mtr";
 	public static final String VERSION = "3.0.0";
@@ -23,7 +23,7 @@ public class MTR {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		logger = event.getModLog();
-		clientProxy.registerEntityRenderers();
+		proxy.preInit(event);
 	}
 
 	@EventHandler

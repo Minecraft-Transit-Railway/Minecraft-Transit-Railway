@@ -49,6 +49,7 @@ public abstract class EntityTrain extends EntityMinecart {
 		ignoreFrustumCheck = true;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public Midpoint midpointClient;
 
 	private UUID uuidSibling, uuidConnection;
@@ -243,26 +244,31 @@ public abstract class EntityTrain extends EntityMinecart {
 	protected void applyDrag() {
 	}
 
+	@SideOnly(Side.CLIENT)
 	public int getLeftDoorClient() {
 		return 0;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public int getRightDoorClient() {
 		return 0;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public int getSiblingIDClient() {
 		if (mtrSiblingID == 0)
 			mtrSiblingID = dataManager.get(MTR_SIBLING_ID);
 		return mtrSiblingID;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public int getConnectionIDClient() {
 		if (mtrConnectionID == 0)
 			mtrConnectionID = dataManager.get(MTR_CONNECTION_ID);
 		return mtrConnectionID;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public int getTrainTypeClient() {
 		if (mtrTrainType == 0)
 			mtrTrainType = dataManager.get(MTR_TRAIN_TYPE);
