@@ -3,7 +3,6 @@ package mtr.render;
 import org.lwjgl.opengl.GL11;
 
 import mtr.MathTools;
-import mtr.Midpoint;
 import mtr.entity.EntityTrain;
 import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.client.model.ModelBase;
@@ -17,7 +16,6 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -47,7 +45,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		final Entity entitySibling = entity.world.getEntityByID(entity.getSiblingIDClient());
 		if (entitySibling == null || !(entitySibling instanceof EntityTrain))
 			return;
-		entity.midpointClient = getMidpointClient(entity, entitySibling, partialTicks);
+		final Midpoint midpoint = getMidpointClient(entity, entitySibling, partialTicks);
 		final int trainType = entity.getTrainTypeClient();
 
 		GlStateManager.pushMatrix();
@@ -55,57 +53,72 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 
 		final Entity entityConnection = entity.world.getEntityByID(entity.getConnectionIDClient());
-		if (entityConnection != null && entityConnection instanceof EntityTrain && ((EntityTrain) entityConnection).midpointClient != null) {
-			final EntityTrain connectionTrain = (EntityTrain) entityConnection;
-			final Tuple<Vec3d, Vec3d> begin = getConnectionVector(entity);
-			final Tuple<Vec3d, Vec3d> end = getConnectionVectors(connectionTrain, connectionTrain.posX - entity.posX, connectionTrain.posY - entity.posY, connectionTrain.posZ - entity.posZ);
-			final Vec3d begin1 = begin.getFirst(), begin2 = begin.getSecond();
-			final Vec3d end1 = end.getFirst(), end2 = end.getSecond();
+		if (entityConnection != null && entityConnection instanceof EntityTrain) {
+			final Vec3d[] begin = new Vec3d[8], end = new Vec3d[8];
+			begin[0] = entity.connectionVectorClient[0] = getConnectionVector(entity, midpoint, 1, -0.25);
+			begin[1] = entity.connectionVectorClient[1] = getConnectionVector(entity, midpoint, -1, -0.25);
+			begin[2] = entity.connectionVectorClient[2] = getConnectionVector(entity, midpoint, 1, 2.25);
+			begin[3] = entity.connectionVectorClient[3] = getConnectionVector(entity, midpoint, -1, 2.25);
+			begin[4] = entity.connectionVectorClient[4] = getConnectionVector(entity, midpoint, 0.75, 0);
+			begin[5] = entity.connectionVectorClient[5] = getConnectionVector(entity, midpoint, -0.75, 0);
+			begin[6] = entity.connectionVectorClient[6] = getConnectionVector(entity, midpoint, 0.75, 2);
+			begin[7] = entity.connectionVectorClient[7] = getConnectionVector(entity, midpoint, -0.75, 2);
 
-			GlStateManager.pushMatrix();
-			GlStateManager.disableTexture2D();
-			final Tessellator tessellator = Tessellator.getInstance();
-			final BufferBuilder bufferBuilder = tessellator.getBuffer();
-			bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+			final T connectionTrain = (T) entityConnection;
+			boolean valid = true;
+			for (int i = 0; i < 8; i++) {
+				if (connectionTrain.connectionVectorClient[i] == null) {
+					valid = false;
+					break;
+				}
+				end[i] = connectionTrain.connectionVectorClient[i].addVector(connectionTrain.posX - entity.posX, connectionTrain.posY - entity.posY, connectionTrain.posZ - entity.posZ);
+			}
+			if (connectionTrain.connectionVectorClient != null && valid) {
+				GlStateManager.pushMatrix();
+				GlStateManager.disableTexture2D();
+				final Tessellator tessellator = Tessellator.getInstance();
+				final BufferBuilder bufferBuilder = tessellator.getBuffer();
+				bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-			bufferBuilder.pos(end1.x, end1.y, end1.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(end1.x, end1.y + 2, end1.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(begin2.x, begin2.y + 2, begin2.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(begin2.x, begin2.y, begin2.z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[0].x, end[0].y, end[0].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[2].x, end[2].y, end[2].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[3].x, begin[3].y, begin[3].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[1].x, begin[1].y, begin[1].z).color(128, 128, 128, 255).endVertex();
 
-			bufferBuilder.pos(end2.x, end2.y, end2.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(end2.x, end2.y + 2, end2.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(begin1.x, begin1.y + 2, begin1.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(begin1.x, begin1.y, begin1.z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[5].x, end[5].y, end[5].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[7].x, end[7].y, end[7].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[6].x, begin[6].y, begin[6].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[4].x, begin[4].y, begin[4].z).color(255, 255, 255, 255).endVertex();
 
-			bufferBuilder.pos(begin1.x, begin1.y + 2, begin1.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(begin2.x, begin2.y + 2, begin2.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(end1.x, end1.y + 2, end1.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(end2.x, end2.y + 2, end2.z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[2].x, begin[2].y, begin[2].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[3].x, begin[3].y, begin[3].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[2].x, end[2].y, end[2].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[3].x, end[3].y, end[3].z).color(128, 128, 128, 255).endVertex();
 
-			bufferBuilder.pos(begin2.x, begin2.y + 2, begin2.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(begin1.x, begin1.y + 2, begin1.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(end2.x, end2.y + 2, end2.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(end1.x, end1.y + 2, end1.z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[7].x, begin[7].y, begin[7].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[6].x, begin[6].y, begin[6].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[7].x, end[7].y, end[7].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[6].x, end[6].y, end[6].z).color(255, 255, 255, 255).endVertex();
 
-			bufferBuilder.pos(begin2.x, begin2.y, begin2.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(begin1.x, begin1.y, begin1.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(end2.x, end2.y, end2.z).color(128, 128, 128, 255).endVertex();
-			bufferBuilder.pos(end1.x, end1.y, end1.z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[1].x, begin[1].y, begin[1].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(begin[0].x, begin[0].y, begin[0].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[1].x, end[1].y, end[1].z).color(128, 128, 128, 255).endVertex();
+				bufferBuilder.pos(end[0].x, end[0].y, end[0].z).color(128, 128, 128, 255).endVertex();
 
-			bufferBuilder.pos(begin1.x, begin1.y, begin1.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(begin2.x, begin2.y, begin2.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(end1.x, end1.y, end1.z).color(255, 255, 255, 255).endVertex();
-			bufferBuilder.pos(end2.x, end2.y, end2.z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[4].x, begin[4].y, begin[4].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(begin[5].x, begin[5].y, begin[5].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[4].x, end[4].y, end[4].z).color(255, 255, 255, 255).endVertex();
+				bufferBuilder.pos(end[5].x, end[5].y, end[5].z).color(255, 255, 255, 255).endVertex();
 
-			tessellator.draw();
-			GlStateManager.enableTexture2D();
-			GlStateManager.popMatrix();
+				tessellator.draw();
+				GlStateManager.enableTexture2D();
+				GlStateManager.popMatrix();
+			}
 		}
 
-		GlStateManager.translate(entity.midpointClient.midX, entity.midpointClient.midY, entity.midpointClient.midZ);
-		GlStateManager.rotate((float) Math.toDegrees(entity.midpointClient.angleYaw) + (trainType < 0 ? 180 : 0), 0, 1, 0);
-		GlStateManager.rotate((float) Math.toDegrees(entity.midpointClient.anglePitch) * Math.signum(trainType), 1, 0, 0);
+		GlStateManager.translate(midpoint.midX, midpoint.midY, midpoint.midZ);
+		GlStateManager.rotate((float) Math.toDegrees(midpoint.angleYaw) + (trainType < 0 ? 180 : 0), 0, 1, 0);
+		GlStateManager.rotate((float) Math.toDegrees(midpoint.anglePitch) * Math.signum(trainType), 1, 0, 0);
 		GlStateManager.scale(-1, -1, 1);
 		bindEntityTexture(entity);
 		final float leftDoor = entity.getLeftDoorClient() / 60F;
@@ -136,19 +149,25 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		return new Midpoint(midX, midY, midZ, angleYaw, anglePitch);
 	}
 
-	private Tuple<Vec3d, Vec3d> getConnectionVector(EntityTrain train) {
-		final float zOffsetBegin = train.getSiblingSpacing() / 2F + train.getEndSpacing() - 0.5F;
-		Vec3d vector1 = new Vec3d(1, 0, zOffsetBegin);
-		Vec3d vector2 = new Vec3d(-1, 0, zOffsetBegin);
-		vector1 = vector1.rotatePitch(train.midpointClient.anglePitch).rotateYaw(train.midpointClient.angleYaw + (float) Math.PI);
-		vector2 = vector2.rotatePitch(train.midpointClient.anglePitch).rotateYaw(train.midpointClient.angleYaw + (float) Math.PI);
-		vector1 = vector1.addVector(train.midpointClient.midX, train.midpointClient.midY - 0.5, train.midpointClient.midZ);
-		vector2 = vector2.addVector(train.midpointClient.midX, train.midpointClient.midY - 0.5, train.midpointClient.midZ);
-		return new Tuple<Vec3d, Vec3d>(vector1, vector2);
+	private Vec3d getConnectionVector(T train, Midpoint midpoint, double xOffset, double yOffset) {
+		final float zOffsetBegin = train.getSiblingSpacing() / 2F + train.getEndSpacing() - 0.25F;
+		Vec3d vector = new Vec3d(xOffset, yOffset, zOffsetBegin);
+		vector = vector.rotatePitch(midpoint.anglePitch).rotateYaw(midpoint.angleYaw + (float) Math.PI);
+		vector = vector.addVector(midpoint.midX, midpoint.midY - 0.5, midpoint.midZ);
+		return vector;
 	}
 
-	private Tuple<Vec3d, Vec3d> getConnectionVectors(EntityTrain train, double offsetX, double offsetY, double offsetZ) {
-		final Tuple<Vec3d, Vec3d> vectors = getConnectionVector(train);
-		return new Tuple<Vec3d, Vec3d>(vectors.getFirst().addVector(offsetX, offsetY, offsetZ), vectors.getSecond().addVector(offsetX, offsetY, offsetZ));
+	private class Midpoint {
+
+		private final double midX, midY, midZ;
+		private final float angleYaw, anglePitch;
+
+		private Midpoint(double x, double y, double z, float yaw, float pitch) {
+			midX = x;
+			midY = y;
+			midZ = z;
+			angleYaw = yaw;
+			anglePitch = pitch;
+		}
 	}
 }
