@@ -90,8 +90,8 @@ public abstract class EntityTrain extends EntityMinecart {
 
 	@Override
 	public void moveMinecartOnRail(BlockPos pos) {
-		double mX = motionX, mZ = motionZ;
 		if (entitySibling != null) {
+			double mX = motionX, mZ = motionZ;
 			if (entityConnection == null) {
 				if (section == 0 && mX == 0 && mZ == 0)
 					resetAllSections();
@@ -103,37 +103,30 @@ public abstract class EntityTrain extends EntityMinecart {
 				final EntityTrain connection = getSection(section - 1, false);
 				if (connection == null || connection.isDead) {
 					resetAllSections();
-					entityConnection = null;
+					setConnection(null);
 				} else {
 					final double diffX = connection.posX - posX;
 					final double diffZ = connection.posZ - posZ;
 					final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
 					final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
 
-					if (difference > 4)
+					if (difference > 4) {
+						System.out.println(section + " " + distance + " dead");
 						setDead();
+					}
 
 					if (distance != 0) {
 						final double ratio = difference / distance;
 						mX = ratio * diffX;
 						mZ = ratio * diffZ;
-						if (Math.abs(mX) < TOLERANCE)
-							mX = 0;
-						if (Math.abs(mZ) < TOLERANCE)
-							mZ = 0;
 					}
-
-					moveEntity(mX, mZ, true);
 				}
 			}
 			if (section < 0) {
 				mX = 0;
 				mZ = 0;
-				trainSpeed = trainSpeedKm = 0;
 			}
-			if (section == 0) {
-				moveEntity(mX, mZ, false);
-			}
+			moveEntity(mX, mZ, section > 0);
 		}
 	}
 
@@ -144,7 +137,7 @@ public abstract class EntityTrain extends EntityMinecart {
 
 		final Item item = player.getHeldItem(hand).getItem();
 		if (!world.isRemote && item == Items.crowbar) {
-			final ItemCrowbar itemCrowbar = ((ItemCrowbar) item);
+			final ItemCrowbar itemCrowbar = (ItemCrowbar) item;
 			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == entitySibling) {
 				if (entityConnection != null)
 					entityConnection.setConnection(null);
@@ -203,6 +196,7 @@ public abstract class EntityTrain extends EntityMinecart {
 				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
 				entitySibling = getEntityFromUUID(server, uuidSibling, MTR_SIBLING_ID);
 				entityConnection = getEntityFromUUID(server, uuidConnection, MTR_CONNECTION_ID);
+				System.out.println("updating");
 			}
 		}
 		super.onUpdate();
@@ -211,7 +205,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	@Override
 	public void updatePassenger(Entity passenger) {
 		if (isPassenger(passenger)) {
-			// TODO
+			// TODO allow passenger to move
 			applyYawToPassenger(passenger);
 			if (!world.isRemote && passenger instanceof EntityPlayer)
 				((EntityPlayer) passenger).sendStatusMessage(new TextComponentString(trainSpeed + " m/s (" + trainSpeedKm + " km/h)"), true);
@@ -249,16 +243,11 @@ public abstract class EntityTrain extends EntityMinecart {
 	protected void applyDrag() {
 	}
 
-	@Override
-	protected double getMaxSpeed() {
-		return super.getMaxSpeed(); // TODO
-	}
-
-	public int getLeftDoor() {
+	public int getLeftDoorClient() {
 		return 0;
 	}
 
-	public int getRightDoor() {
+	public int getRightDoorClient() {
 		return 0;
 	}
 
@@ -299,8 +288,8 @@ public abstract class EntityTrain extends EntityMinecart {
 		if (Math.abs(motionX) < TOLERANCE && Math.abs(motionZ) < TOLERANCE) {
 			return false;
 		} else {
-			final boolean aheadX = (motionX > 0) == (posX > entitySibling.posX);
-			final boolean aheadZ = (motionZ > 0) == (posZ > entitySibling.posZ);
+			final boolean aheadX = motionX > 0 == posX > entitySibling.posX;
+			final boolean aheadZ = motionZ > 0 == posZ > entitySibling.posZ;
 			if (motionX != 0 && motionZ != 0) {
 				return aheadX && aheadZ;
 			} else {
@@ -321,14 +310,18 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	private void moveEntity(double mX, double mZ, boolean catchUp) {
-		final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed() * ((mX != 0 && mZ != 0) ? ONE_OVER_ROOT_2 : 1);
-		mX = MathHelper.clamp(mX, -max, max);
-		mZ = MathHelper.clamp(mZ, -max, max);
-		move(MoverType.SELF, mX, 0, mZ);
+		if (mX == 0 && mZ == 0) {
+			trainSpeed = trainSpeedKm = 0;
+		} else {
+			final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed() * (mX != 0 && mZ != 0 ? ONE_OVER_ROOT_2 : 1);
+			mX = MathHelper.clamp(mX, -max, max);
+			mZ = MathHelper.clamp(mZ, -max, max);
+			move(MoverType.SELF, mX, 0, mZ);
 
-		final float speed = (float) Math.sqrt(sq(mX) + sq(mZ)) * 200;
-		trainSpeed = Math.round(speed) / 10;
-		trainSpeedKm = Math.round(speed * 3.6) / 10;
+			final float speed = (float) Math.sqrt(sq(mX) + sq(mZ)) * 200;
+			trainSpeed = Math.round(speed) / 10;
+			trainSpeedKm = Math.round(speed * 3.6) / 10;
+		}
 	}
 
 	private void resetAllSections() {
@@ -350,20 +343,20 @@ public abstract class EntityTrain extends EntityMinecart {
 		}
 	}
 
+	private EntityTrain getEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
+		final Entity genericEntity = server.getEntityFromUuid(uuid);
+		if (genericEntity != null && genericEntity instanceof EntityTrain) {
+			dataManager.set(parameter, genericEntity.getEntityId());
+			return (EntityTrain) genericEntity;
+		}
+		return null;
+	}
+
 	private void setConnection(EntityTrain train) {
 		uuidConnection = train == null ? new UUID(0, 0) : train.getUniqueID();
 		entityConnection = train;
 		if (train != null)
 			dataManager.set(MTR_CONNECTION_ID, train.getEntityId());
-	}
-
-	private EntityTrain getEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
-		final Entity genericEntity = server.getEntityFromUuid(uuid);
-		if (genericEntity != null && (genericEntity instanceof EntityTrain)) {
-			dataManager.set(parameter, genericEntity.getEntityId());
-			return (EntityTrain) genericEntity;
-		}
-		return null;
 	}
 
 	private void setTrainType(int type) {
