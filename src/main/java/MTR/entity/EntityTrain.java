@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 
 import mtr.Items;
 import mtr.MathTools;
+import mtr.Midpoint;
 import mtr.item.ItemCrowbar;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -47,6 +48,8 @@ public abstract class EntityTrain extends EntityMinecart {
 		setSize(1, 3);
 		ignoreFrustumCheck = true;
 	}
+
+	public Midpoint midpointClient;
 
 	private UUID uuidSibling, uuidConnection;
 	private EntityTrain entitySibling, entityConnection;
@@ -198,8 +201,8 @@ public abstract class EntityTrain extends EntityMinecart {
 			final boolean connectionNotSet = entityConnection == null && uuidConnection.getMostSignificantBits() != 0 && uuidConnection.getLeastSignificantBits() != 0;
 			if (siblingNotSet || connectionNotSet) {
 				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
-				entitySibling = setEntityFromUUID(server, uuidSibling, MTR_SIBLING_ID);
-				entityConnection = setEntityFromUUID(server, uuidConnection, MTR_CONNECTION_ID);
+				entitySibling = getEntityFromUUID(server, uuidSibling, MTR_SIBLING_ID);
+				entityConnection = getEntityFromUUID(server, uuidConnection, MTR_CONNECTION_ID);
 			}
 		}
 		super.onUpdate();
@@ -263,6 +266,12 @@ public abstract class EntityTrain extends EntityMinecart {
 		if (mtrSiblingID == 0)
 			mtrSiblingID = dataManager.get(MTR_SIBLING_ID);
 		return mtrSiblingID;
+	}
+
+	public int getConnectionIDClient() {
+		if (mtrConnectionID == 0)
+			mtrConnectionID = dataManager.get(MTR_CONNECTION_ID);
+		return mtrConnectionID;
 	}
 
 	public int getTrainTypeClient() {
@@ -344,9 +353,11 @@ public abstract class EntityTrain extends EntityMinecart {
 	private void setConnection(EntityTrain train) {
 		uuidConnection = train == null ? new UUID(0, 0) : train.getUniqueID();
 		entityConnection = train;
+		if (train != null)
+			dataManager.set(MTR_CONNECTION_ID, train.getEntityId());
 	}
 
-	private EntityTrain setEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
+	private EntityTrain getEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
 		final Entity genericEntity = server.getEntityFromUuid(uuid);
 		if (genericEntity != null && (genericEntity instanceof EntityTrain)) {
 			dataManager.set(parameter, genericEntity.getEntityId());

@@ -3,7 +3,6 @@ package mtr.render;
 import mtr.entity.EntitySP1900;
 import mtr.entity.EntityTrain.EnumTrainType;
 import mtr.model.ModelSP1900;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -36,8 +35,10 @@ public class RenderSP1900 extends RenderTrain<EntitySP1900> {
 			else
 				model.renderNonEnd(0.0625F);
 		}
-		GlStateManager.disableLighting();
+	}
+
+	@Override
+	protected void renderLights() {
 		model.renderLights(0.0625F);
-		GlStateManager.enableLighting();
 	}
 }
