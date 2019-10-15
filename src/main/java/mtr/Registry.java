@@ -3,6 +3,8 @@ package mtr;
 import mtr.block.BlockLogo;
 import mtr.item.ItemBrush;
 import mtr.item.ItemCrowbar;
+import mtr.item.ItemLightRail1;
+import mtr.item.ItemMTrain;
 import mtr.item.ItemSP1900;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -37,6 +39,8 @@ public class Registry {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemName(new ItemBrush(), "brush"));
 		registry.register(setItemName(new ItemCrowbar(), "crowbar"));
+		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
+		registry.register(setItemName(new ItemMTrain(), "m_train"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
 	}
 
@@ -48,14 +52,17 @@ public class Registry {
 		// Items
 		registerItemModel(Items.brush);
 		registerItemModel(Items.crowbar);
-		registerItemModel(Items.sp1900, 4);
+		registerItemModel(Items.light_rail_1);
+		registerItemModel(Items.m_train, 2);
+		registerItemModel(Items.sp1900, 3);
 	}
 
 	@SubscribeEvent
 	public static void registerEntities(final RegistryEvent.Register<EntityEntry> event) {
 		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
-		registry.register(Entities.sp1900);
 		registry.register(Entities.light_rail_1);
+		registry.register(Entities.m_train);
+		registry.register(Entities.sp1900);
 	}
 
 	private static Block setBlockName(Block block, String name) {
@@ -84,6 +91,6 @@ public class Registry {
 
 	private static void registerItemModel(Item item, int metadataCount) {
 		for (int i = 0; i < metadataCount; i++)
-			ModelLoader.setCustomModelResourceLocation(item, i, new ModelResourceLocation(item.getRegistryName() + (metadataCount == 1 ? "" : ("_" + i)), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(item, i, new ModelResourceLocation(item.getRegistryName() + (metadataCount == 1 ? "" : "_" + i), "inventory"));
 	}
 }

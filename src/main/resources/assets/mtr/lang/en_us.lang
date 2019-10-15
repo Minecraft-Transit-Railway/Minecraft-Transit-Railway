@@ -2,10 +2,12 @@ tile.logo.name=MTR Logo
 
 item.brush.name=Brush
 item.crowbar.name=Crowbar
-item.sp1900.0.name=SP1900 4-car
-item.sp1900.1.name=SP1900 7-car
-item.sp1900.2.name=SP1900 8-car
-item.sp1900.3.name=SP1900 12-car
+item.light_rail_1.0.name=Light Rail (Phase 1)
+item.m_train.0.name=M Train
+item.m_train.1.name=M Train
+item.sp1900.0.name=SP1900
+item.sp1900.1.name=SP1900
+item.sp1900.2.name=SP1900
 
 gui.crowbar_connecting=Connecting trains...
 gui.crowbar_connected=Trains connected.

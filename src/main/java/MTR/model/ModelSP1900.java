@@ -3,6 +3,7 @@ package mtr.model;
 import mtr.MathTools;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.entity.Entity;
 
 public class ModelSP1900 extends ModelBase {
 	ModelRenderer Floor;
@@ -337,16 +338,16 @@ public class ModelSP1900 extends ModelBase {
 		Pole5a = MathTools.part(this, 330, 0, 0, 0, -0.5F, 2, 1, 1, -1F, -23F, 328F - shift, 1024, 512);
 		Pole5b = MathTools.part(this, 330, 0, -3F, -1F, -0.5F, 3, 1, 1, -1F, -22F, 328F - shift, 1024, 512);
 		Pole5c = MathTools.part(this, 330, 0, 0, -1F, -0.5F, 3, 1, 1, 1F, -22F, 328F - shift, 1024, 512);
-		Panel1 = MathTools.part(this, 100, 170, 0, 0, 0.1F, 36, 32, 0, -18F, -24F, 56F - shift, 1024, 512);
-		Panel2 = MathTools.part(this, 100, 170, 0, 0, -0.1F, 36, 32, 0, -18F, -24F, 88F - shift, 1024, 512);
-		Panel3 = MathTools.part(this, 100, 170, 0, 0, 0.1F, 36, 32, 0, -18F, -24F, 120 - shift, 1024, 512);
-		Panel4 = MathTools.part(this, 100, 170, 0, 0, -0.1F, 36, 32, 0, -18F, -24F, 152F - shift, 1024, 512);
-		Panel5 = MathTools.part(this, 100, 170, 0, 0, 0.1F, 36, 32, 0, -18F, -24F, 184F - shift, 1024, 512);
-		Panel6 = MathTools.part(this, 100, 170, 0, 0, -0.1F, 36, 32, 0, -18F, -24F, 216F - shift, 1024, 512);
-		Panel7 = MathTools.part(this, 100, 170, 0, 0, 0.1F, 36, 32, 0, -18F, -24F, 248F - shift, 1024, 512);
-		Panel8 = MathTools.part(this, 100, 170, 0, 0, -0.1F, 36, 32, 0, -18F, -24F, 280 - shift, 1024, 512);
-		Panel9 = MathTools.part(this, 100, 170, 0, 0, 0.1F, 36, 32, 0, -18F, -24F, 312F - shift, 1024, 512);
-		Panel10 = MathTools.part(this, 100, 170, 0, 0, -0.1F, 36, 32, 0, -18F, -24F, 344F - shift, 1024, 512);
+		Panel1 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 56F - shift, 1024, 512);
+		Panel2 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 88F - shift, 1024, 512);
+		Panel3 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 120 - shift, 1024, 512);
+		Panel4 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 152F - shift, 1024, 512);
+		Panel5 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 184F - shift, 1024, 512);
+		Panel6 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 216F - shift, 1024, 512);
+		Panel7 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 248F - shift, 1024, 512);
+		Panel8 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 280 - shift, 1024, 512);
+		Panel9 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 312F - shift, 1024, 512);
+		Panel10 = MathTools.part(this, 100, 170, 0, 0, 0, 36, 32, 0, -18F, -24F, 344F - shift, 1024, 512);
 		RoofLeft = MathTools.part(this, 80, 5, 0, -6F, 0, 1, 6, 392, 19F, -24F, 396F - shift, 1024, 512);
 		RoofRight = MathTools.part(this, 80, 5, 0, -6F, -0, 1, 6, 392, -19F, -24F, 4F - shift, 1024, 512);
 		RoofLeftFC = MathTools.part(this, 80, 5, -1, -6F, 0, 1, 6, 392, 19F, -24F, 4F - shift, 1024, 512);
@@ -411,40 +412,40 @@ public class ModelSP1900 extends ModelBase {
 		UpperRightWall4FC = MathTools.part(this, 0, 0, 0, -18F, 0, 2, 18, 36, -20, -6F, 246F - shift, 1024, 512);
 		UpperRightWall5FC = MathTools.part(this, 0, 0, 0, -18F, 0, 2, 18, 36, -20, -6F, 310F - shift, 1024, 512);
 
-		textureWidth = 28;
-		textureHeight = 8;
+		textureWidth = 30;
+		textureHeight = 19;
 
-		UpperLeftDoor1L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 72F - shift, 28, 8);
-		UpperLeftDoor2L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 88F - shift - 2, 28, 8);
-		UpperLeftDoor3L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 136F - shift, 28, 8);
-		UpperLeftDoor4L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 152F - shift - 2, 28, 8);
-		UpperLeftDoor5L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 200 - shift, 28, 8);
-		UpperLeftDoor6L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 216F - shift - 2, 28, 8);
-		UpperLeftDoor7L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 264F - shift, 28, 8);
-		UpperLeftDoor8L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 280 - shift - 2, 28, 8);
-		UpperLeftDoor9L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 328F - shift, 28, 8);
-		UpperLeftDoor10L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, 20.89F, -6F, 344F - shift - 2, 28, 8);
-		UpperRightDoor1L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 56F - shift + 2, 28, 8);
-		UpperRightDoor2L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 72F - shift, 28, 8);
-		UpperRightDoor3L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 120 - shift + 2, 28, 8);
-		UpperRightDoor4L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 136F - shift, 28, 8);
-		UpperRightDoor5L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 184F - shift + 2, 28, 8);
-		UpperRightDoor6L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 200 - shift, 28, 8);
-		UpperRightDoor7L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 248F - shift + 2, 28, 8);
-		UpperRightDoor8L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 264F - shift, 28, 8);
-		UpperRightDoor9L = MathTools.part(this, 14, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 312F - shift + 2, 28, 8);
-		UpperRightDoor10L = MathTools.part(this, 0, 2, 1, -18.2F, 0, 0, 8, 14, -20.89F, -6F, 328F - shift, 28, 8);
+		UpperLeftDoor1L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -160F + 32 - 0.5F, 30, 19);
+		UpperLeftDoor2L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -144F + 32 - 1.5F, 30, 19);
+		UpperLeftDoor3L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -80F + 16 - 0.5F, 30, 19);
+		UpperLeftDoor4L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, -64F + 16 - 1.5F, 30, 19);
+		UpperLeftDoor5L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 0F - 0.5F, 30, 19);
+		UpperLeftDoor6L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 16F - 1.5F, 30, 19);
+		UpperLeftDoor7L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 80F - 16 - 0.5F, 30, 19);
+		UpperLeftDoor8L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 96F - 16 - 1.5F, 30, 19);
+		UpperLeftDoor9L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 160F - 32 - 0.5F, 30, 19);
+		UpperLeftDoor10L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, 20.89F, -6F, 176F - 32 - 1.5F, 30, 19);
+		UpperRightDoor1L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -176F + 32 + 1.5F, 30, 19);
+		UpperRightDoor2L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -160F + 32 + 0.5F, 30, 19);
+		UpperRightDoor3L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -96F + 16 + 1.5F, 30, 19);
+		UpperRightDoor4L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -80F + 16 + 0.5F, 30, 19);
+		UpperRightDoor5L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, -16F + 1.5F, 30, 19);
+		UpperRightDoor6L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 0F + 0.5F, 30, 19);
+		UpperRightDoor7L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 64F - 16 + 1.5F, 30, 19);
+		UpperRightDoor8L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 80F - 16 + 0.5F, 30, 19);
+		UpperRightDoor9L = MathTools.part(this, 15, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 144F - 32 + 1.5F, 30, 19);
+		UpperRightDoor10L = MathTools.part(this, 0, 24, 0, -19F, 0, 1, 19, 14, -20.89F, -6F, 160F - 32 + 0.5F, 30, 19);
 
-		RoofLeft1L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 84 - shift, 28, 8);
-		RoofLeft2L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 148 - shift, 28, 8);
-		RoofLeft3L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 212 - shift, 28, 8);
-		RoofLeft4L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 276 - shift, 28, 8);
-		RoofLeft5L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 340 - shift, 28, 8);
-		RoofRight1L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 60F - shift, 28, 8);
-		RoofRight2L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 124F - shift, 28, 8);
-		RoofRight3L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 188F - shift, 28, 8);
-		RoofRight4L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 252F - shift, 28, 8);
-		RoofRight5L = MathTools.part(this, 2, 0, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 316F - shift, 28, 8);
+		RoofLeft1L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, -116 + 0.5F, 30, 19);
+		RoofLeft2L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, -52 + 0.5F, 30, 19);
+		RoofLeft3L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 12 + 0.5F, 30, 19);
+		RoofLeft4L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 76 + 0.5F, 30, 19);
+		RoofLeft5L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, 19.01F, -24F, 140 + 0.5F, 30, 19);
+		RoofRight1L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, -140 - 0.5F, 30, 19);
+		RoofRight2L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, -76 - 0.5F, 30, 19);
+		RoofRight3L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, -12 - 0.5F, 30, 19);
+		RoofRight4L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 52 - 0.5F, 30, 19);
+		RoofRight5L = MathTools.part(this, 3, 15, 0, -1.54F, 0, 0, 2, 24, -19.01F, -24F, 116 - 0.5F, 30, 19);
 
 		setRotation(LeftWall1, 0, (float) Math.PI, 0);
 		setRotation(LeftWall2, 0, (float) Math.PI, 0);
@@ -591,6 +592,12 @@ public class ModelSP1900 extends ModelBase {
 		setRotation(RoofRight3L, 0, 0, 0.1106539F);
 		setRotation(RoofRight4L, 0, 0, 0.1106539F);
 		setRotation(RoofRight5L, 0, 0, 0.1106539F);
+	}
+
+	@Override
+	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+		super.render(entity, f, f1, f2, f3, f4, f5);
+		setRotationAngles(f, f1, f2, f3, f4, f5, entity);
 	}
 
 	public void renderMain(float f5) {
@@ -1022,5 +1029,10 @@ public class ModelSP1900 extends ModelBase {
 		model.rotateAngleX = x;
 		model.rotateAngleY = y;
 		model.rotateAngleZ = z;
+	}
+
+	@Override
+	public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity entity) {
+		super.setRotationAngles(f, f1, f2, f3, f4, f5, entity);
 	}
 }
