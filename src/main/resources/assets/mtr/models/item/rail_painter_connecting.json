@@ -1,0 +1,8 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "blocks/rail_normal",
+		"layer1": "items/map_filled",
+		"layer2": "items/map_filled_markings"
+	}
+}

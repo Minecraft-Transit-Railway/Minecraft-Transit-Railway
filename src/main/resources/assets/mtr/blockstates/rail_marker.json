@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"facing=false": { "model": "mtr:rail_marker" },
+		"facing=true": { "model": "mtr:rail_marker", "y": 90 },
+		
+		"inventory": { "model": "mtr:rail_marker" }
+	}
+}

@@ -49,7 +49,6 @@ public abstract class EntityTrain extends EntityMinecart {
 		ignoreFrustumCheck = true;
 	}
 
-	@SideOnly(Side.CLIENT)
 	public Vec3d[] connectionVectorClient = new Vec3d[8];
 
 	private UUID uuidSibling, uuidConnection;
@@ -139,6 +138,9 @@ public abstract class EntityTrain extends EntityMinecart {
 		final Item item = player.getHeldItem(hand).getItem();
 		if (!world.isRemote && item == Items.crowbar) {
 			final ItemCrowbar itemCrowbar = (ItemCrowbar) item;
+			if (entityConnection != null && entityConnection.isDead)
+				setConnection(null);
+
 			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == entitySibling) {
 				if (entityConnection != null)
 					entityConnection.setConnection(null);
@@ -156,6 +158,7 @@ public abstract class EntityTrain extends EntityMinecart {
 					player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_connected"), true);
 				}
 			}
+
 			return true;
 		}
 
@@ -361,8 +364,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	private void setConnection(EntityTrain train) {
 		uuidConnection = train == null ? new UUID(0, 0) : train.getUniqueID();
 		entityConnection = train;
-		if (train != null)
-			dataManager.set(MTR_CONNECTION_ID, train.getEntityId());
+		dataManager.set(MTR_CONNECTION_ID, train == null ? 0 : train.getEntityId());
 	}
 
 	private void setTrainType(int type) {

@@ -1,0 +1,37 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:blocks/metal",
+		"arrow": "mtr:blocks/marker_arrow",
+		"rail": "blocks/rail_normal"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 8, 16 ],
+			"faces": {
+				"down":  { "texture": "#particle", "cullface": "down" },
+				"up":	{ "texture": "#particle" },
+				"east": { "texture": "#particle", "cullface": "east" },
+				"west": { "texture": "#particle", "cullface": "west" },
+				"north":  { "texture": "#particle", "cullface": "north" },
+				"south":  { "texture": "#particle", "cullface": "south" }
+			}
+		},
+		{
+			"from": [ 0, 8.01, 0 ],
+			"to": [ 16, 8.01, 16 ],
+			"faces": {
+				"up":  { "texture": "#arrow" }
+			}
+		},
+		{
+			"from": [ 0, 0, 8 ],
+			"to": [ 16, 16, 8 ],
+			"faces": {
+				"north":  { "texture": "#rail" },
+				"south":  { "texture": "#rail" }
+			}
+		}
+	]
+}

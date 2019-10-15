@@ -1,15 +1,15 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "items/minecart_normal",
-		"layer1": "items/stick"
+		"layer0": "blocks/rail_normal",
+		"layer1": "items/map_empty"
 	},
 	"overrides": [
 		{
 			"predicate": {
 				"connecting": 1
 			},
-			"model": "mtr:item/crowbar_connecting"
+			"model": "mtr:item/rail_painter_connecting"
 		}
 	]
 }

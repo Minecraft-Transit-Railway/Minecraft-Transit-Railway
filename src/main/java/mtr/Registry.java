@@ -1,10 +1,13 @@
 package mtr;
 
 import mtr.block.BlockLogo;
+import mtr.block.BlockRailMarker;
+import mtr.block.BlockRailScaffold;
 import mtr.item.ItemBrush;
 import mtr.item.ItemCrowbar;
 import mtr.item.ItemLightRail1;
 import mtr.item.ItemMTrain;
+import mtr.item.ItemRailPainter;
 import mtr.item.ItemSP1900;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -26,12 +29,16 @@ public class Registry {
 	public static void registerBlocks(final RegistryEvent.Register<Block> event) {
 		final IForgeRegistry<Block> registry = event.getRegistry();
 		registry.register(setBlockName(new BlockLogo(), "logo"));
+		registry.register(setBlockName(new BlockRailMarker(), "rail_marker"));
+		registry.register(setBlockName(new BlockRailScaffold(), "rail_scaffold"));
 	}
 
 	@SubscribeEvent
 	public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemBlock(Blocks.logo));
+		registry.register(setItemBlock(Blocks.rail_marker));
+		registry.register(setItemBlock(Blocks.rail_scaffold));
 	}
 
 	@SubscribeEvent
@@ -41,6 +48,7 @@ public class Registry {
 		registry.register(setItemName(new ItemCrowbar(), "crowbar"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
+		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
 	}
 
@@ -49,11 +57,14 @@ public class Registry {
 	public static void registerBlockModels(final ModelRegistryEvent event) {
 		// Blocks
 		registerBlockModel(Blocks.logo, 0);
+		registerBlockModel(Blocks.rail_marker, 0);
+		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items
 		registerItemModel(Items.brush);
 		registerItemModel(Items.crowbar);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);
+		registerItemModel(Items.rail_painter);
 		registerItemModel(Items.sp1900, 3);
 	}
 

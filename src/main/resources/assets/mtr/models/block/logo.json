@@ -1,7 +1,6 @@
 {
-	"parent": "mtr:block/cube_with_texture",
+	"parent": "mtr:block/cube_side_overlay_base",
 	"textures": {
-		"particle": "mtr:blocks/metal",
 		"main": "mtr:blocks/metal",
 		"side": "mtr:blocks/logo"
 	}
