@@ -33,12 +33,12 @@ public class MathTools {
 	}
 
 	/** Returns the angle (between 0 and 2*PI) between two points. */
-	public static double angleBetweenPoints(double xCenter, double zCenter, double x2, double z2) {
-		final double distance = distanceBetweenPoints(xCenter, zCenter, x2, z2);
+	public static double angleBetweenPoints(double xCentre, double zCentre, double x2, double z2) {
+		final double distance = distanceBetweenPoints(xCentre, zCentre, x2, z2);
 		if (distance == 0)
 			return 0;
-		double a = Math.acos((zCenter - z2) / distance);
-		if (xCenter < x2)
+		double a = Math.acos((zCentre - z2) / distance);
+		if (xCentre < x2)
 			a = 2 * Math.PI - a;
 		return a;
 	}

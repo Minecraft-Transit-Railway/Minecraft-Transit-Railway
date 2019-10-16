@@ -18,6 +18,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemCrowbar extends Item {
 
+	public EntityTrain train = null;
+
 	public ItemCrowbar() {
 		super();
 		setMaxStackSize(1);
@@ -27,14 +29,10 @@ public class ItemCrowbar extends Item {
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
 				// TODO send packet to client
-				if (stack.getItem() instanceof ItemCrowbar)
-					return ((ItemCrowbar) stack.getItem()).train != null ? 1 : 0;
-				return 0;
+				return train != null ? 1 : 0;
 			}
 		});
 	}
-
-	public EntityTrain train = null;
 
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {

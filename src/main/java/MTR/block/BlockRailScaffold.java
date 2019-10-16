@@ -7,7 +7,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -22,8 +24,11 @@ public class BlockRailScaffold extends Block {
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		removeBlock1(worldIn, pos);
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		final boolean success = playerIn.isSneaking();
+		if (success && !worldIn.isRemote)
+			removeBlock1(worldIn, pos);
+		return success;
 	}
 
 	@Override

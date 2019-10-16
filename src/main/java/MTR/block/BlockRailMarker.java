@@ -22,21 +22,29 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockRailMarker extends Block {
 
 	public static final PropertyBool FACING = PropertyBool.create("facing");
+	public static final PropertyBool KEEP = PropertyBool.create("keep");
 
 	public BlockRailMarker() {
 		super(Material.IRON);
 		setHardness(1);
-		setDefaultState(blockState.getBaseState().withProperty(FACING, false));
+		setTickRandomly(true);
+		setDefaultState(blockState.getBaseState().withProperty(FACING, false).withProperty(KEEP, false));
+	}
+
+	@Override
+	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random random) {
+		if (!state.getValue(KEEP))
+			worldIn.setBlockToAir(pos);
 	}
 
 	@Override
 	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-		return getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getHorizontalIndex() % 2 == 1);
+		return getDefaultState().withProperty(FACING, getStateFromPlayerRotation(placer)).withProperty(KEEP, true);
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(FACING, meta > 0);
+		return getDefaultState().withProperty(FACING, meta > 0).withProperty(KEEP, false);
 	}
 
 	@Override
@@ -82,6 +90,10 @@ public class BlockRailMarker extends Block {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING });
+		return new BlockStateContainer(this, new IProperty[] { FACING, KEEP });
+	}
+
+	public static boolean getStateFromPlayerRotation(EntityLivingBase placer) {
+		return placer.getHorizontalFacing().getHorizontalIndex() % 2 == 1;
 	}
 }
