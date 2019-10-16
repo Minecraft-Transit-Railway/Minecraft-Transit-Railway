@@ -25,10 +25,13 @@ public class BlockRailScaffold extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		final boolean success = playerIn.isSneaking();
-		if (success && !worldIn.isRemote)
-			removeBlock1(worldIn, pos);
-		return success;
+		worldIn.setBlockToAir(pos);
+		return true;
+	}
+
+	@Override
+	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
+		removeBlock1(worldIn, pos);
 	}
 
 	@Override
