@@ -2,6 +2,7 @@ tile.logo.name=MTR Logo
 tile.rail_marker.name=Rail Marker
 tile.rail_scaffold.name=Rail Scaffolding
 
+item.bridge_creator.name=Bridge Creator
 item.brush.name=Brush
 item.crowbar.name=Crowbar
 item.light_rail_1.0.name=Light Rail (Phase 1)

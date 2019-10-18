@@ -56,8 +56,6 @@ public abstract class EntityTrain extends EntityMinecart {
 	private int section = -1, trainType;
 	private float prevAngleYaw, trainSpeed, trainSpeedKm;
 	private static final double TOLERANCE = 0.05;
-	private static final double ONE_OVER_ROOT_2 = 1 / Math.sqrt(2);
-	private static final double ROOT_2 = Math.sqrt(2);
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private boolean mtrDoorLeft;
@@ -110,10 +108,8 @@ public abstract class EntityTrain extends EntityMinecart {
 					final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
 					final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
 
-					if (difference > 4) {
-						System.out.println(section + " " + distance + " dead");
+					if (difference > 4)
 						setDead();
-					}
 
 					if (distance != 0) {
 						final double ratio = difference / distance;
@@ -322,7 +318,7 @@ public abstract class EntityTrain extends EntityMinecart {
 		if (mX == 0 && mZ == 0) {
 			trainSpeed = trainSpeedKm = 0;
 		} else {
-			final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed() * (mX != 0 && mZ != 0 ? ONE_OVER_ROOT_2 : 1);
+			final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed();
 			mX = MathHelper.clamp(mX, -max, max);
 			mZ = MathHelper.clamp(mZ, -max, max);
 			move(MoverType.SELF, mX, 0, mZ);

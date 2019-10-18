@@ -29,7 +29,7 @@ public class ItemRailPainter extends Item {
 	public ItemRailPainter() {
 		super();
 		setMaxStackSize(1);
-		setCreativeTab(CreativeTabs.TRANSPORTATION);
+		setCreativeTab(CreativeTabs.TOOLS);
 		addPropertyOverride(new ResourceLocation("connecting"), new IItemPropertyGetter() {
 			@Override
 			@SideOnly(Side.CLIENT)
@@ -128,7 +128,7 @@ public class ItemRailPainter extends Item {
 
 		final double radius = Math.max(Math.abs(x1 - centreX), Math.abs(z1 - centreZ));
 
-		for (double i = Math.min(angle1, angle2); i <= Math.max(angle1, angle2); i += 1 / (32 * radius)) {
+		for (double i = Math.min(angle1, angle2); i <= Math.max(angle1, angle2); i += 1 / (1024 * radius)) {
 			final int x = (int) Math.floor(radius * Math.sin(i) + centreX + 0.5);
 			final int z = (int) Math.floor(radius * Math.cos(i) + centreZ + 0.5);
 			worldIn.setBlockState(new BlockPos(x, y, z), Blocks.rail_scaffold.getDefaultState());

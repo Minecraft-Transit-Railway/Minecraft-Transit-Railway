@@ -3,6 +3,7 @@ package mtr;
 import mtr.block.BlockLogo;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
+import mtr.item.ItemBridgeCreator;
 import mtr.item.ItemBrush;
 import mtr.item.ItemCrowbar;
 import mtr.item.ItemLightRail1;
@@ -44,6 +45,7 @@ public class Registry {
 	@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
+		registry.register(setItemName(new ItemBridgeCreator(), "bridge_creator"));
 		registry.register(setItemName(new ItemBrush(), "brush"));
 		registry.register(setItemName(new ItemCrowbar(), "crowbar"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
@@ -60,6 +62,7 @@ public class Registry {
 		registerBlockModel(Blocks.rail_marker, 0);
 		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items
+		registerItemModel(Items.bridge_creator);
 		registerItemModel(Items.brush);
 		registerItemModel(Items.crowbar);
 		registerItemModel(Items.light_rail_1);
