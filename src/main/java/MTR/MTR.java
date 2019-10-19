@@ -2,12 +2,15 @@ package mtr;
 
 import org.apache.logging.log4j.Logger;
 
+import mtr.gui.GuiHandler;
 import mtr.proxy.IProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 @Mod(modid = MTR.MODID, version = MTR.VERSION)
 public class MTR {
@@ -17,6 +20,9 @@ public class MTR {
 
 	public static final String MODID = "mtr";
 	public static final String VERSION = "3.0.0";
+
+	@Instance(MODID)
+	public static MTR instance;
 
 	private static Logger logger;
 
@@ -29,5 +35,6 @@ public class MTR {
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		logger.info("Hi!");
+		NetworkRegistry.INSTANCE.registerGuiHandler(MTR.instance, new GuiHandler());
 	}
 }

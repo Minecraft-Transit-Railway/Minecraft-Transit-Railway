@@ -1,0 +1,7 @@
+{
+	"parent": "block/cube_column",
+	"textures": {
+		"end": "blocks/crafting_table_top",
+		"side": "mtr:blocks/metal"
+	}
+}
