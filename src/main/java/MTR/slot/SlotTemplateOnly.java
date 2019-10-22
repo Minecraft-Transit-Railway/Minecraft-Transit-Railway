@@ -1,6 +1,6 @@
 package mtr.slot;
 
-import mtr.item.ItemTemplateFilled;
+import mtr.item.ItemTemplate;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -13,6 +13,6 @@ public class SlotTemplateOnly extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return stack.getItem() instanceof ItemTemplateFilled;
+		return stack.getItem() instanceof ItemTemplate;
 	}
 }

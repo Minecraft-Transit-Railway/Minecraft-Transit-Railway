@@ -11,6 +11,5 @@ public class Items {
 	public static final Item m_train = null;
 	public static final Item rail_painter = null;
 	public static final Item sp1900 = null;
-	public static final Item template_empty = null;
-	public static final Item template_filled = null;
+	public static final Item template = null;
 }

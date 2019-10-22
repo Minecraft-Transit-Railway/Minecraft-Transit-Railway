@@ -5,15 +5,11 @@ tile.rail_scaffold.name=Rail Scaffolding
 
 item.brush.name=Brush
 item.crowbar.name=Crowbar
-item.light_rail_1.0.name=Light Rail (Phase 1)
-item.m_train.0.name=M Train
-item.m_train.1.name=M Train
+item.light_rail_1.name=Light Rail (Phase 1)
+item.m_train.name=M Train
 item.rail_painter.name=Rail Painter
-item.sp1900.0.name=SP1900
-item.sp1900.1.name=SP1900
-item.sp1900.2.name=SP1900
-item.template_empty.name=Bridge Template
-item.template_filled.name=Bridge Template
+item.sp1900.name=SP1900
+item.template.name=Bridge Template
 
 gui.crowbar_connecting=Connecting trains...
 gui.crowbar_connected=Trains connected.

@@ -72,9 +72,4 @@ public abstract class ItemSpawnTrain extends Item {
 			for (int i = 0; i < getSubtypeCount(); i++)
 				items.add(new ItemStack(this, 1, i));
 	}
-
-	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		return super.getUnlocalizedName() + "." + stack.getMetadata();
-	}
 }

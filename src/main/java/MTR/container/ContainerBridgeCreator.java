@@ -21,15 +21,15 @@ public class ContainerBridgeCreator extends Container {
 		tileBridgeCreator = bridgeCreatorInventoryIn;
 
 		// container inventory
-		for (int indexY = 0; indexY < 6; ++indexY)
-			for (int indexX = 0; indexX < 6; ++indexX)
+		for (int indexY = 0; indexY < 6; indexY++)
+			for (int indexX = 0; indexX < 6; indexX++)
 				addSlotToContainer(new SlotBlockOnly(bridgeCreatorInventoryIn, indexX + indexY * 6, indexX * 18 + 8, indexY * 18 + 18));
 		// template and fuel slot
 		addSlotToContainer(new SlotTemplateOnly(bridgeCreatorInventoryIn, 36, 134, 36));
 		addSlotToContainer(new SlotFurnaceFuel(bridgeCreatorInventoryIn, 37, 134, 90));
 		// player inventory
-		for (int indexY = 0; indexY < 3; ++indexY)
-			for (int indexX = 0; indexX < 9; ++indexX)
+		for (int indexY = 0; indexY < 3; indexY++)
+			for (int indexX = 0; indexX < 9; indexX++)
 				addSlotToContainer(new Slot(playerInventory, indexX + indexY * 9 + 9, indexX * 18 + 8, indexY * 18 + 140));
 		// hotbar
 		for (int index = 0; index < 9; index++)

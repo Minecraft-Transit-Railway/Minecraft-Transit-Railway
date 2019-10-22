@@ -15,7 +15,7 @@ import net.minecraft.util.NonNullList;
 
 public class TileEntityBridgeCreator extends TileEntityLockableLoot implements ITickable {
 
-	private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
 	private int burnTime, totalBurnTime;
 
 	@Override
@@ -27,7 +27,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 			burnTime--;
 
 		if (!world.isRemote) {
-			final ItemStack itemstack = chestContents.get(getSizeInventory() - 1);
+			final ItemStack itemstack = inventory.get(getSizeInventory() - 1);
 			if (!prevBurning && !itemstack.isEmpty()) {
 				totalBurnTime = burnTime = TileEntityFurnace.getItemBurnTime(itemstack);
 				if (isBurning()) {
@@ -49,16 +49,16 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		chestContents = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+		inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
 		burnTime = compound.getInteger("burnTime");
 		totalBurnTime = compound.getInteger("totalBurnTime");
-		ItemStackHelper.loadAllItems(compound, chestContents);
+		ItemStackHelper.loadAllItems(compound, inventory);
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		ItemStackHelper.saveAllItems(compound, chestContents);
+		ItemStackHelper.saveAllItems(compound, inventory);
 		compound.setInteger("burnTime", burnTime);
 		compound.setInteger("totalBurnTime", totalBurnTime);
 		return compound;
@@ -100,13 +100,13 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 	@Override
 	public void clear() {
-		chestContents.clear();
+		inventory.clear();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		for (final ItemStack itemstack : chestContents)
-			if (!itemstack.isEmpty())
+		for (final ItemStack itemStack : inventory)
+			if (!itemStack.isEmpty())
 				return false;
 		return true;
 	}
@@ -133,7 +133,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 	@Override
 	protected NonNullList<ItemStack> getItems() {
-		return chestContents;
+		return inventory;
 	}
 
 	public boolean isBurning() {

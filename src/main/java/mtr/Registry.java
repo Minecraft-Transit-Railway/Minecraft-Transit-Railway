@@ -10,8 +10,7 @@ import mtr.item.ItemLightRail1;
 import mtr.item.ItemMTrain;
 import mtr.item.ItemRailPainter;
 import mtr.item.ItemSP1900;
-import mtr.item.ItemTemplateEmpty;
-import mtr.item.ItemTemplateFilled;
+import mtr.item.ItemTemplate;
 import mtr.tile.TileEntityBridgeCreator;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -61,8 +60,7 @@ public class Registry {
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
 		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
-		registry.register(setItemName(new ItemTemplateEmpty(), "template_empty"));
-		registry.register(setItemName(new ItemTemplateFilled(), "template_filled"));
+		registry.register(setItemName(new ItemTemplate(), "template"));
 	}
 
 	@SubscribeEvent
@@ -80,8 +78,7 @@ public class Registry {
 		registerItemModel(Items.m_train, 2);
 		registerItemModel(Items.rail_painter);
 		registerItemModel(Items.sp1900, 3);
-		registerItemModel(Items.template_empty);
-		registerItemModel(Items.template_filled);
+		registerItemModel(Items.template, 2);
 	}
 
 	@SubscribeEvent
