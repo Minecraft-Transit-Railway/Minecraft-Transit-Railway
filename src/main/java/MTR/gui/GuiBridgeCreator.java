@@ -5,11 +5,12 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiBridgeCreator extends GuiContainer {
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+	private static final ResourceLocation TEXTURE = new ResourceLocation("mtr:textures/gui/bridge_creator.png");
 	private final InventoryPlayer inventoryPlayer;
 	private final IInventory tileBridgeCreator;
 
@@ -37,9 +38,13 @@ public class GuiBridgeCreator extends GuiContainer {
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.getTextureManager().bindTexture(TEXTURE);
-		final int i = (width - xSize) / 2;
-		final int j = (height - ySize) / 2;
-		this.drawTexturedModalRect(i, j, 0, 0, xSize, 125);
-		this.drawTexturedModalRect(i, j + 125, 0, 126, xSize, 96);
+		final int x = (width - xSize) / 2;
+		final int y = (height - ySize) / 2;
+		drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+
+		if (TileEntityFurnace.isBurning(tileBridgeCreator)) {
+			final int offset = (int) Math.ceil(13D * tileBridgeCreator.getField(0) / tileBridgeCreator.getField(1));
+			drawTexturedModalRect(x + 134, y + 73 + 12 - offset, 176, 12 - offset, 14, offset + 1);
+		}
 	}
 }

@@ -12,6 +12,8 @@ item.rail_painter.name=Rail Painter
 item.sp1900.0.name=SP1900
 item.sp1900.1.name=SP1900
 item.sp1900.2.name=SP1900
+item.template_empty.name=Bridge Template
+item.template_filled.name=Bridge Template
 
 gui.crowbar_connecting=Connecting trains...
 gui.crowbar_connected=Trains connected.

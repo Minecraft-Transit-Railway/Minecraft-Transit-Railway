@@ -1,5 +1,6 @@
 package mtr.tile;
 
+import mtr.block.BlockBridgeCreator;
 import mtr.container.ContainerBridgeCreator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -7,6 +8,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
@@ -14,16 +16,42 @@ import net.minecraft.util.NonNullList;
 public class TileEntityBridgeCreator extends TileEntityLockableLoot implements ITickable {
 
 	private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+	private int burnTime, totalBurnTime;
 
 	@Override
 	public void update() {
+		final boolean prevBurning = isBurning();
+		boolean dirty = false;
 
+		if (isBurning())
+			burnTime--;
+
+		if (!world.isRemote) {
+			final ItemStack itemstack = chestContents.get(getSizeInventory() - 1);
+			if (!prevBurning && !itemstack.isEmpty()) {
+				totalBurnTime = burnTime = TileEntityFurnace.getItemBurnTime(itemstack);
+				if (isBurning()) {
+					dirty = true;
+					if (!itemstack.isEmpty())
+						itemstack.shrink(1);
+				}
+			}
+			if (prevBurning != isBurning()) {
+				dirty = true;
+				BlockBridgeCreator.setState(isBurning(), world, pos);
+			}
+		}
+
+		if (dirty)
+			markDirty();
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		chestContents = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+		burnTime = compound.getInteger("burnTime");
+		totalBurnTime = compound.getInteger("totalBurnTime");
 		ItemStackHelper.loadAllItems(compound, chestContents);
 	}
 
@@ -31,17 +59,48 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		ItemStackHelper.saveAllItems(compound, chestContents);
+		compound.setInteger("burnTime", burnTime);
+		compound.setInteger("totalBurnTime", totalBurnTime);
 		return compound;
 	}
 
 	@Override
-	protected NonNullList<ItemStack> getItems() {
-		return chestContents;
+	public int getField(int id) {
+		switch (id) {
+		case 0:
+			return burnTime;
+		case 1:
+			return totalBurnTime;
+		default:
+			return 0;
+		}
+	}
+
+	@Override
+	public void setField(int id, int value) {
+		switch (id) {
+		case 0:
+			burnTime = value;
+			break;
+		case 1:
+			totalBurnTime = value;
+			break;
+		}
+	}
+
+	@Override
+	public int getFieldCount() {
+		return 2;
 	}
 
 	@Override
 	public int getSizeInventory() {
-		return 36;
+		return 38;
+	}
+
+	@Override
+	public void clear() {
+		chestContents.clear();
 	}
 
 	@Override
@@ -70,5 +129,14 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	@Override
 	public String getGuiID() {
 		return "mtr:bridge_creator";
+	}
+
+	@Override
+	protected NonNullList<ItemStack> getItems() {
+		return chestContents;
+	}
+
+	public boolean isBurning() {
+		return burnTime > 0;
 	}
 }

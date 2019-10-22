@@ -1,5 +1,6 @@
 {
 	"variants": {
-		"normal": { "model": "mtr:bridge_creator" }
+		"burning=false": { "model": "mtr:bridge_creator_unlit" },
+		"burning=true": { "model": "mtr:bridge_creator_lit" }
 	}
 }
