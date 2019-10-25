@@ -4,16 +4,17 @@ import mtr.container.ContainerTemplate;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.items.IItemHandler;
 
 public class GuiTemplate extends GuiContainer {
 
 	private static final ResourceLocation TEXTURE = new ResourceLocation("mtr:textures/gui/template.png");
 	private final InventoryPlayer inventoryPlayer;
-	private final IInventory itemTemplate;
+	private final IItemHandler itemTemplate;
 
-	public GuiTemplate(InventoryPlayer inventory, IInventory iInventory) {
+	public GuiTemplate(InventoryPlayer inventory, IItemHandler iInventory) {
 		super(new ContainerTemplate(inventory, iInventory));
 		inventoryPlayer = inventory;
 		itemTemplate = iInventory;
@@ -29,7 +30,7 @@ public class GuiTemplate extends GuiContainer {
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		fontRenderer.drawString(itemTemplate.getDisplayName().getUnformattedText(), 8, 6, 4210752);
+		fontRenderer.drawString(new TextComponentTranslation("item.template.name").getFormattedText(), 8, 6, 4210752);
 		fontRenderer.drawString(inventoryPlayer.getDisplayName().getUnformattedText(), 8, ySize - 94, 4210752);
 	}
 

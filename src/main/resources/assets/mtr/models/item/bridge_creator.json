@@ -1,7 +1,3 @@
 {
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "items/iron_leggings",
-		"layer1": "items/iron_boots"
-	}
+	"parent": "mtr:block/bridge_creator"
 }

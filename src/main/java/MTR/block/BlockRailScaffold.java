@@ -4,7 +4,10 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,10 +20,13 @@ import net.minecraft.world.World;
 
 public class BlockRailScaffold extends Block {
 
+	public static final PropertyInteger PASS = PropertyInteger.create("pass", 0, 8);
+
 	public BlockRailScaffold() {
 		super(Material.WOOD);
 		setHardness(0.1F);
 		setCreativeTab(CreativeTabs.DECORATIONS);
+		setDefaultState(blockState.getBaseState().withProperty(PASS, 0));
 	}
 
 	@Override
@@ -37,6 +43,16 @@ public class BlockRailScaffold extends Block {
 	@Override
 	public int quantityDropped(Random random) {
 		return 0;
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta) {
+		return getDefaultState().withProperty(PASS, meta);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state) {
+		return state.getValue(PASS);
 	}
 
 	@Override
@@ -77,5 +93,10 @@ public class BlockRailScaffold extends Block {
 			world.setBlockToAir(pos);
 			((BlockRailScaffold) block).removeBlock1(world, pos);
 		}
+	}
+
+	@Override
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { PASS });
 	}
 }

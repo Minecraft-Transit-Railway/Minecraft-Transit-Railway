@@ -1,6 +1,7 @@
 {
 	"variants": {
 		"burning=false": { "model": "mtr:bridge_creator_unlit" },
-		"burning=true": { "model": "mtr:bridge_creator_lit" }
+		"burning=true": { "model": "mtr:bridge_creator_lit" },
+		"inventory": { "model": "mtr:bridge_creator_unlit" }
 	}
 }

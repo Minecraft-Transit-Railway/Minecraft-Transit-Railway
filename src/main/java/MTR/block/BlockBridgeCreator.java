@@ -31,7 +31,7 @@ public class BlockBridgeCreator extends BlockContainer {
 	public BlockBridgeCreator() {
 		super(Material.ROCK);
 		setHardness(2);
-		setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
+		setCreativeTab(CreativeTabs.DECORATIONS);
 		setDefaultState(blockState.getBaseState().withProperty(BURNING, false));
 	}
 

@@ -1,5 +1,5 @@
 {
-	"variants": {
-		"normal": { "model": "mtr:rail_scaffold" }
-	}
+	"multipart": [
+		{ "apply": { "model": "mtr:rail_scaffold" }}
+	]
 }
