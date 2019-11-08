@@ -30,6 +30,11 @@ public class BlockRailScaffold extends Block {
 	}
 
 	@Override
+	public int quantityDropped(IBlockState state, int fortune, Random random) {
+		return 0;
+	}
+
+	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		worldIn.setBlockToAir(pos);
 		return true;
@@ -41,11 +46,6 @@ public class BlockRailScaffold extends Block {
 	}
 
 	@Override
-	public int quantityDropped(Random random) {
-		return 0;
-	}
-
-	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState().withProperty(PASS, meta);
 	}
@@ -53,6 +53,11 @@ public class BlockRailScaffold extends Block {
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return state.getValue(PASS);
+	}
+
+	@Override
+	public int quantityDropped(Random random) {
+		return 0;
 	}
 
 	@Override

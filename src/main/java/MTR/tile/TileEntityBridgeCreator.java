@@ -1,16 +1,22 @@
 package mtr.tile;
 
-import mtr.Blocks;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockRailScaffold;
 import mtr.container.ContainerBridgeCreator;
 import mtr.slot.SlotBlockOnly;
 import mtr.slot.SlotTemplateOnly;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
@@ -19,11 +25,13 @@ import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -31,8 +39,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
 	private int burnTime, totalBurnTime;
-	private BlockPos scaffoldPos;
-	private IItemHandler templateShape;
+	private final Map<BlockPos, Block> structure = new HashMap<BlockPos, Block>();
 
 	@Override
 	public void update() {
@@ -43,35 +50,22 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 			burnTime--;
 
 		if (!world.isRemote) {
-			final ItemStack fuelStack = inventory.get(getSizeInventory() - 1);
+			final ItemStack fuelStack = getFuelStack();
+			if (structure.size() == 0)
+				generateStructure();
 
-			if (!isBurning() && !fuelStack.isEmpty()) {
-				if (scaffoldPos == null)
-					findScaffold(pos, 0);
-				getTemplateShape();
+			if (!isBurning() && !fuelStack.isEmpty() && !getTemplateStack().isEmpty() && structure.size() > 0) {
+				totalBurnTime = burnTime = TileEntityFurnace.getItemBurnTime(fuelStack);
 
-				if (scaffoldPos != null && templateShape != null) {
-					totalBurnTime = burnTime = TileEntityFurnace.getItemBurnTime(fuelStack);
-
-					if (isBurning()) {
-						dirty = true;
-						if (!fuelStack.isEmpty())
-							fuelStack.shrink(1);
-					}
+				if (isBurning()) {
+					dirty = true;
+					if (!fuelStack.isEmpty())
+						fuelStack.shrink(1);
 				}
 			}
 
-			if (isBurning() && burnTime % 10 == 0) {
-				if (templateShape == null)
-					getTemplateShape();
-				if (scaffoldPos != null && templateShape != null) {
-					final int pass = paintBlocks(scaffoldPos);
-					findScaffold(scaffoldPos, pass);
-					if (scaffoldPos == null)
-						findScaffold(pos, pass + 1);
-					System.out.println(pass + " " + scaffoldPos);
-				}
-			}
+			if (isBurning() && structure.size() > 0)
+				paintBlock();
 
 			if (prevBurning != isBurning()) {
 				dirty = true;
@@ -91,9 +85,6 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 		burnTime = compound.getInteger("burnTime");
 		totalBurnTime = compound.getInteger("totalBurnTime");
-
-		final int[] posArray = compound.getIntArray("scaffoldPos");
-		scaffoldPos = posArray.length == 3 ? new BlockPos(posArray[0], posArray[1], posArray[2]) : null;
 	}
 
 	@Override
@@ -103,13 +94,6 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 		compound.setInteger("burnTime", burnTime);
 		compound.setInteger("totalBurnTime", totalBurnTime);
-
-		if (scaffoldPos == null) {
-			compound.removeTag("scaffoldPos");
-		} else {
-			final int[] posArray = { scaffoldPos.getX(), scaffoldPos.getY(), scaffoldPos.getZ() };
-			compound.setIntArray("scaffoldPos", posArray);
-		}
 
 		return compound;
 	}
@@ -219,41 +203,32 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 		return inventory;
 	}
 
-	public boolean isBurning() {
+	private boolean isBurning() {
 		return burnTime > 0;
 	}
 
-	private void findScaffold(BlockPos findPos, int pass) {
-		final BlockPos[] positions = { findPos.north(), findPos.east(), findPos.south(), findPos.west() };
-		for (final BlockPos position : positions) {
-			final IBlockState state = world.getBlockState(position);
-			if (state.getBlock() instanceof BlockRailScaffold && state.getValue(BlockRailScaffold.PASS) == pass) {
-				scaffoldPos = position;
-				return;
-			}
-		}
-		scaffoldPos = null;
+	private ItemStack getFuelStack() {
+		return inventory.get(getSizeInventory() - 1);
 	}
 
-	private void getTemplateShape() {
-		final ItemStack templateStack = inventory.get(getSizeInventory() - 2);
-		if (templateStack.isEmpty())
-			templateShape = null;
-		else
-			templateShape = templateStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+	private ItemStack getTemplateStack() {
+		return inventory.get(getSizeInventory() - 2);
+	}
+
+	private BlockPos findNextScaffold(BlockPos thisPos, BlockPos prevPos) {
+		final BlockPos[] positions = { thisPos.north(), thisPos.east(), thisPos.south(), thisPos.west() };
+		for (final BlockPos position : positions)
+			if (!position.equals(prevPos) && world.getBlockState(position).getBlock() instanceof BlockRailScaffold)
+				return position;
+		return null;
 	}
 
 	private Block getBlockFromTemplate(int pass, int height) {
+		final IItemHandler templateShape = getTemplateStack().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 		if (templateShape == null)
 			return null;
-		if (pass < 0)
-			pass = 0;
-		if (pass > 8)
-			pass = 8;
-		if (height < -1)
-			height = -1;
-		if (height > 4)
-			height = 4;
+		pass = MathHelper.clamp(pass, 0, 8);
+		height = MathHelper.clamp(height, -1, 4);
 		final Item item = templateShape.getStackInSlot(pass - height * 9 + 36).getItem();
 		if (item instanceof ItemPickaxe)
 			return net.minecraft.init.Blocks.AIR;
@@ -261,29 +236,71 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 			return item instanceof ItemBlock ? Block.getBlockFromItem(item) : null;
 	}
 
-	private int paintBlocks(BlockPos buildPos) {
-		final IBlockState buildState = world.getBlockState(buildPos);
-		if (buildState.getBlock() instanceof BlockRailScaffold) {
-			final int pass = buildState.getValue(BlockRailScaffold.PASS);
-			final int radius = 8 - pass;
-			for (int x = -radius; x <= radius; x++)
-				for (int z = -radius; z <= radius; z++)
-					if (Math.abs(x) == radius || Math.abs(z) == radius)
-						for (int i = -1; i < 5; i++) {
-							final BlockPos currentPos = buildPos.add(x, i, z);
-							final IBlockState currentState = world.getBlockState(currentPos);
-							if (!(currentState.getBlock() instanceof BlockRailScaffold && pass < 8) && !(currentState.getBlock() instanceof BlockBridgeCreator)) {
-								final Block block = getBlockFromTemplate(pass, i);
-								if (block != null)
-									world.setBlockState(currentPos, block.getDefaultState());
-							}
-						}
+	private void paintBlock() {
+		final BlockPos currentPos = (BlockPos) structure.keySet().toArray()[0];
+		final IBlockState currentState = world.getBlockState(currentPos);
+		final Block currentBlock = currentState.getBlock();
+		final Block newBlock = structure.get(currentPos);
 
-			if (pass < 8)
-				world.setBlockState(buildPos, Blocks.rail_scaffold.getDefaultState().withProperty(BlockRailScaffold.PASS, pass + 1));
-			return pass;
+		if (currentBlock == newBlock || currentBlock.hasTileEntity(currentState)) {
+			structure.remove(currentPos);
 		} else {
-			return 0;
+			boolean canPlaceBlock = newBlock instanceof BlockAir;
+			if (!canPlaceBlock && newBlock != null)
+				for (int j = 0; j < getSizeInventory() - 2; j++)
+					if (inventory.get(j).getItem() == new ItemStack(newBlock).getItem()) {
+						inventory.get(j).shrink(1);
+						canPlaceBlock = true;
+						break;
+					}
+
+			if (canPlaceBlock) {
+				ItemStack droppedItemStack = new ItemStack(currentBlock.getItemDropped(currentState, new Random(), 0), currentBlock.quantityDropped(new Random()));
+
+				final BlockPos[] positions = { pos.north(), pos.east(), pos.south(), pos.west(), pos.up(), pos.down(), pos };
+				for (final BlockPos position : positions) {
+					if (droppedItemStack.isEmpty())
+						break;
+					final IInventory nearby = TileEntityHopper.getInventoryAtPosition(world, position.getX(), position.getY(), position.getZ());
+					if (nearby != null)
+						droppedItemStack = TileEntityHopper.putStackInInventoryAllSlots(null, nearby, droppedItemStack, null);
+				}
+
+				if (!droppedItemStack.isEmpty())
+					world.spawnEntity(new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), droppedItemStack));
+
+				world.setBlockState(currentPos, newBlock.getDefaultState());
+				structure.remove(currentPos);
+			}
+		}
+	}
+
+	private void generateStructure() {
+		final BlockPos startPos = findNextScaffold(pos, new BlockPos(0, 0, 0));
+		if (startPos == null)
+			return;
+
+		for (int pass = 0; pass < 9; pass++) {
+			final int radius = 8 - pass;
+			BlockPos scaffoldPos = startPos, prevPos = pos;
+			while (true) {
+				final BlockPos tempPos = scaffoldPos;
+				scaffoldPos = findNextScaffold(scaffoldPos, prevPos);
+				prevPos = tempPos;
+
+				if (scaffoldPos == null)
+					break;
+
+				for (int x = -radius; x <= radius; x++)
+					for (int z = -radius; z <= radius; z++)
+						if (Math.abs(x) == radius || Math.abs(z) == radius)
+							for (int i = -1; i < 5; i++) {
+								final BlockPos currentPos = scaffoldPos.add(x, i, z);
+								final Block newBlock = getBlockFromTemplate(pass, i);
+								if (newBlock != null)
+									structure.put(currentPos, newBlock);
+							}
+			}
 		}
 	}
 }

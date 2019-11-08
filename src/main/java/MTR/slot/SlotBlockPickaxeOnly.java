@@ -20,4 +20,9 @@ public class SlotBlockPickaxeOnly extends SlotItemHandler {
 	public static boolean isValid(ItemStack stack) {
 		return stack.getItem() instanceof ItemBlock || stack.getItem() instanceof ItemPickaxe;
 	}
+
+	@Override
+	public int getItemStackLimit(ItemStack stack) {
+		return 1;
+	}
 }

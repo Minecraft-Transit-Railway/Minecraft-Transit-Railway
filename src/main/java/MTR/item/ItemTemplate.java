@@ -18,6 +18,7 @@ public class ItemTemplate extends Item {
 	public ItemTemplate() {
 		super();
 		setHasSubtypes(true);
+		setMaxStackSize(1);
 		setCreativeTab(CreativeTabs.TOOLS);
 	}
 
