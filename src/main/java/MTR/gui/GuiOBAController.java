@@ -60,7 +60,7 @@ public class GuiOBAController extends GuiScreen {
 			switch (button.id) {
 			case 0:
 				if (tileEntity != null)
-					MTR.INSTANCE.sendToServer(new MessageOBAController(tileEntity.getPos(), commandTextField.getText()));
+					MTR.NETWORK.sendToServer(new MessageOBAController(tileEntity.getPos(), commandTextField.getText()));
 				break;
 			default:
 				break;

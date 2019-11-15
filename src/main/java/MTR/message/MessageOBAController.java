@@ -38,7 +38,18 @@ public class MessageOBAController implements IMessage {
 		stopIds = ByteBufUtils.readUTF8String(buf);
 	}
 
-	public static class MessageOBAControllerHandler implements IMessageHandler<MessageOBAController, IMessage> {
+	public static class MessageOBAControllerServerHandler implements IMessageHandler<MessageOBAController, IMessage> {
+
+		@Override
+		public IMessage onMessage(MessageOBAController message, MessageContext ctx) {
+			final TileEntity tileEntity = ctx.getServerHandler().player.world.getTileEntity(message.tileEntityPos);
+			if (tileEntity instanceof TileEntityOBAController)
+				((TileEntityOBAController) tileEntity).setStops(message.stopIds);
+			return null;
+		}
+	}
+
+	public static class MessageOBAControllerClientHandler implements IMessageHandler<MessageOBAController, IMessage> {
 
 		@Override
 		public IMessage onMessage(MessageOBAController message, MessageContext ctx) {

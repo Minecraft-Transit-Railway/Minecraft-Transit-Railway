@@ -15,7 +15,6 @@ import mtr.MTR;
 import mtr.block.BlockOBAController;
 import mtr.block.BlockOBAScreen;
 import mtr.message.MessageOBAData;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -141,19 +140,25 @@ public class TileEntityOBAController extends TileEntity implements ITickable, Ke
 					final long predicted = arrivalObject.getAsJsonPrimitive("predictedArrivalTime").getAsLong();
 					final long scheduled = arrivalObject.getAsJsonPrimitive("scheduledArrivalTime").getAsLong();
 					final int arrivalMin = (int) Math.round(((predicted == 0 ? scheduled : predicted) - Instant.now().toEpochMilli()) / 60000D);
-					arrivals[i] = arrivalMin == 0 ? I18n.format("gui.oba_now") : String.valueOf(arrivalMin) + I18n.format("gui.oba_min");
+					// arrivals[i] = arrivalMin == 0 ? I18n.format("gui.oba_now") :
+					// String.valueOf(arrivalMin) + I18n.format("gui.oba_min");
+					arrivals[i] = arrivalMin == 0 ? "NOW" : String.valueOf(arrivalMin) + " min";
 
 					vehicleIds[i] = arrivalObject.getAsJsonPrimitive("vehicleId").getAsString();
 
 					if (predicted == 0)
-						deviation[i] = I18n.format("gui.oba_scheduled");
+						deviation[i] = "Scheduled"; // I18n.format("gui.oba_scheduled");
 					else if (Math.abs(predicted - scheduled) < 30000)
-						deviation[i] = I18n.format("gui.oba_on_time");
+						deviation[i] = "On time"; // I18n.format("gui.oba_on_time");
 					else
-						deviation[i] = I18n.format(predicted > scheduled ? "gui.oba_delay_before" : "gui.oba_early_before") + String.valueOf((int) Math.round(Math.abs(predicted - scheduled) / 60000D)) + I18n.format(predicted > scheduled ? "gui.oba_delay_after" : "gui.oba_early_after");
+						// deviation[i] = I18n.format(predicted > scheduled ? "gui.oba_delay_before" :
+						// "gui.oba_early_before") + String.valueOf((int) Math.round(Math.abs(predicted
+						// - scheduled) / 60000D)) + I18n.format(predicted > scheduled ?
+						// "gui.oba_delay_after" : "gui.oba_early_after");
+						deviation[i] = String.valueOf((int) Math.round(Math.abs(predicted - scheduled) / 60000D)) + (predicted > scheduled ? " min delay" : " min early");
 				}
 
-				System.out.println("Successfully fetched data for " + stopIds);
+				// System.out.println("Successfully fetched data for " + stopIds);
 			} catch (final Exception e) {
 				displayBlock = null;
 				title = "";
@@ -166,7 +171,7 @@ public class TileEntityOBAController extends TileEntity implements ITickable, Ke
 				System.err.println("Failed to fetch data for " + stopIds);
 			}
 
-			MTR.INSTANCE.sendToAll(new MessageOBAData(pos, displayBlock, screenX, screenY, screenWidth, screenHeight, title, routes, destinations, arrivals, vehicleIds, deviation));
+			MTR.NETWORK.sendToAll(new MessageOBAData(pos, displayBlock, screenX, screenY, screenWidth, screenHeight, title, routes, destinations, arrivals, vehicleIds, deviation));
 		}
 	}
 }

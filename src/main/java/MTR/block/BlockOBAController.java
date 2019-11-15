@@ -36,7 +36,7 @@ public class BlockOBAController extends BlockContainer {
 		if (!worldIn.isRemote) {
 			final TileEntity tileEntity = worldIn.getTileEntity(pos);
 			if (tileEntity instanceof TileEntityOBAController)
-				MTR.INSTANCE.sendTo(new MessageOBAController(pos, ((TileEntityOBAController) tileEntity).getStops()), (EntityPlayerMP) playerIn);
+				MTR.NETWORK.sendTo(new MessageOBAController(pos, ((TileEntityOBAController) tileEntity).getStops()), (EntityPlayerMP) playerIn);
 		}
 		return true;
 	}

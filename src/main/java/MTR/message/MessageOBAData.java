@@ -83,7 +83,15 @@ public class MessageOBAData implements IMessage {
 		}
 	}
 
-	public static class MessageOBADataHandler implements IMessageHandler<MessageOBAData, IMessage> {
+	public static class MessageOBADataServerHandler implements IMessageHandler<MessageOBAData, IMessage> {
+
+		@Override
+		public IMessage onMessage(MessageOBAData message, MessageContext ctx) {
+			return null;
+		}
+	}
+
+	public static class MessageOBADataClientHandler implements IMessageHandler<MessageOBAData, IMessage> {
 
 		@Override
 		public IMessage onMessage(MessageOBAData message, MessageContext ctx) {
