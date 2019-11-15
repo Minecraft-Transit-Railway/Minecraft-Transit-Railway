@@ -1,0 +1,20 @@
+{
+	"multipart": [
+		{
+			"when": { "facing": "north" },
+			"apply": { "model": "mtr:oba_screen" }
+		},
+		{
+			"when": { "facing": "east" },
+			"apply": { "model": "mtr:oba_screen", "y": 90 }
+		},
+		{
+			"when": { "facing": "south" },
+			"apply": { "model": "mtr:oba_screen", "y": 180 }
+		},
+		{
+			"when": { "facing": "west" },
+			"apply": { "model": "mtr:oba_screen", "y": 270 }
+		}
+	]
+}
