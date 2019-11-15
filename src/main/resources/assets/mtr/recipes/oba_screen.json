@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"rsr",
+		"sgs",
+		"rsr"
+	],
+	"key": {
+		"g": {
+			"item": "minecraft:glowstone"
+		},
+		"s": {
+			"item": "minecraft:sign"
+		},
+		"r": {
+			"item": "minecraft:redstone"
+		}
+	},
+	"result": {
+		"item": "mtr:oba_screen",
+		"count": 16
+	}
+}
