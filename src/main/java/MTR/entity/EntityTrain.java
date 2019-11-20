@@ -53,8 +53,10 @@ public abstract class EntityTrain extends EntityMinecart {
 
 	private UUID uuidSibling, uuidConnection;
 	private EntityTrain entitySibling, entityConnection;
-	private int section = -1, trainType;
+	private int section = -1, trainType, doorCooldown;
 	private float prevAngleYaw, trainSpeed, trainSpeedKm;
+
+	private static final int DOOR_COOLDOWN_MAX = 40;
 	private static final double TOLERANCE = 0.05;
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
@@ -222,6 +224,27 @@ public abstract class EntityTrain extends EntityMinecart {
 	@Override
 	public double getMountedYOffset() {
 		return 1;
+	}
+
+	@Override
+	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
+		if (!world.isRemote && section <= 0 && uuidConnection.getMostSignificantBits() == 0 && uuidConnection.getLeastSignificantBits() == 0) {
+			if (receivingPower) {
+				if (doorCooldown > 0)
+					doorCooldown--;
+				if (doorCooldown == 0 && motionX == 0 && motionZ == 0 && entitySibling != null) {
+					motionX = Math.copySign(getMaxSpeed(), posX - entitySibling.posX);
+					motionZ = Math.copySign(getMaxSpeed(), posZ - entitySibling.posZ);
+				}
+			} else {
+				if (doorCooldown == 0) {
+					motionX = 0;
+					motionZ = 0;
+				}
+				if (doorCooldown < DOOR_COOLDOWN_MAX)
+					doorCooldown++;
+			}
+		}
 	}
 
 	@Override

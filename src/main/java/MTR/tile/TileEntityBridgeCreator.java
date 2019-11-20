@@ -51,10 +51,11 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 
 		if (!world.isRemote) {
 			final ItemStack fuelStack = getFuelStack();
-			if (structure.size() == 0)
+			final ItemStack templateStack = getTemplateStack();
+			if (!templateStack.isEmpty() && structure.size() == 0)
 				generateStructure();
 
-			if (!isBurning() && !fuelStack.isEmpty() && !getTemplateStack().isEmpty() && structure.size() > 0) {
+			if (!isBurning() && !fuelStack.isEmpty() && !templateStack.isEmpty() && structure.size() > 0) {
 				totalBurnTime = burnTime = TileEntityFurnace.getItemBurnTime(fuelStack);
 
 				if (isBurning()) {
@@ -283,7 +284,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 		for (int pass = 0; pass < 9; pass++) {
 			final int radius = 8 - pass;
 			BlockPos scaffoldPos = startPos, prevPos = pos;
-			while (true) {
+			for (int max = 0; max < 4096; max++) {
 				final BlockPos tempPos = scaffoldPos;
 				scaffoldPos = findNextScaffold(scaffoldPos, prevPos);
 				prevPos = tempPos;
