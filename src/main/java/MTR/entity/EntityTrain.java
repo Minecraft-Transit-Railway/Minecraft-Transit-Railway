@@ -60,9 +60,7 @@ public abstract class EntityTrain extends EntityMinecart {
 	private static final double TOLERANCE = 0.05;
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
-	private boolean mtrDoorLeft;
 	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
-	private boolean mtrDoorRight;
 	private static final DataParameter<Integer> MTR_SIBLING_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
 	private int mtrSiblingID;
 	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
@@ -96,7 +94,7 @@ public abstract class EntityTrain extends EntityMinecart {
 				if (section == 0 && mX == 0 && mZ == 0)
 					resetAllSections();
 				else if (section < 0 && isLeading())
-					setAllSections();
+					setAllSections(false, false);
 			}
 
 			if (section > 0) {
@@ -230,6 +228,8 @@ public abstract class EntityTrain extends EntityMinecart {
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
 		if (!world.isRemote && section <= 0 && uuidConnection.getMostSignificantBits() == 0 && uuidConnection.getLeastSignificantBits() == 0) {
 			if (receivingPower) {
+				setAllSections(false, false);
+				resetAllSections();
 				if (doorCooldown > 0)
 					doorCooldown--;
 				if (doorCooldown == 0 && motionX == 0 && motionZ == 0 && entitySibling != null) {
@@ -240,6 +240,10 @@ public abstract class EntityTrain extends EntityMinecart {
 				if (doorCooldown == 0) {
 					motionX = 0;
 					motionZ = 0;
+				}
+				if (doorCooldown == DOOR_COOLDOWN_MAX - 16) {
+					setAllSections(true, true);
+					resetAllSections();
 				}
 				if (doorCooldown < DOOR_COOLDOWN_MAX)
 					doorCooldown++;
@@ -267,13 +271,19 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public int getLeftDoorClient() {
-		return 0;
+	public boolean getLeftDoorClient() {
+		if (motionX != 0 || motionZ != 0)
+			return false;
+		else
+			return dataManager.get(MTR_DOOR_LEFT_OPENED);
 	}
 
 	@SideOnly(Side.CLIENT)
-	public int getRightDoorClient() {
-		return 0;
+	public boolean getRightDoorClient() {
+		if (motionX != 0 || motionZ != 0)
+			return false;
+		else
+			return dataManager.get(MTR_DOOR_RIGHT_OPENED);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -329,10 +339,10 @@ public abstract class EntityTrain extends EntityMinecart {
 		}
 	}
 
-	private EntityTrain getSection(int number, boolean invert) {
-		if ((entitySibling != null && entitySibling.section == number) == !invert)
+	private EntityTrain getSection(int number, boolean blacklist) {
+		if ((entitySibling != null && entitySibling.section == number) == !blacklist)
 			return entitySibling;
-		if ((entityConnection != null && entityConnection.section == number) == !invert)
+		if ((entityConnection != null && entityConnection.section == number) == !blacklist)
 			return entityConnection;
 		return null;
 	}
@@ -360,12 +370,16 @@ public abstract class EntityTrain extends EntityMinecart {
 		}
 	}
 
-	private void setAllSections() {
+	private void setAllSections(boolean leftDoor, boolean rightDoor) {
 		section = 0;
+		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
+		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
 		EntityTrain train = entitySibling;
 		int i = 1;
 		while (train != null && !isDead) {
 			train.section = i;
+			train.dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
+			train.dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
 			train = train.getSection(i - 1, true);
 			i++;
 		}

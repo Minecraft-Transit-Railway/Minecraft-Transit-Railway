@@ -121,8 +121,8 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		GlStateManager.rotate((float) Math.toDegrees(midpoint.anglePitch) * Math.signum(trainType), 1, 0, 0);
 		GlStateManager.scale(-1, -1, 1);
 		bindEntityTexture(entity);
-		final float leftDoor = entity.getLeftDoorClient() / 60F;
-		final float rightDoor = entity.getRightDoorClient() / 60F;
+		final float leftDoor = entity.getLeftDoorClient() ? 1 : 0;
+		final float rightDoor = entity.getRightDoorClient() ? 1 : 0;
 		render(entity, EnumTrainType.getByDirection(trainType), leftDoor, rightDoor);
 		GlStateManager.disableLighting();
 		renderLights();
