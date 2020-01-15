@@ -1,0 +1,24 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/psd_glass",
+			"body": "mtr:blocks/psd_top"
+		},
+		"model": "mtr:psd_top"
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"left": { "textures": { "body": "mtr:blocks/psd_top_left" } },
+			"right": { "textures": { "body": "mtr:blocks/psd_top_right" } },
+			"middle": {},
+			"single": {}
+		}
+	}
+}

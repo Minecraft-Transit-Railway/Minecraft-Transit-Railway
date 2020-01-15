@@ -1,0 +1,27 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{
+			"__comment": "Angled section",
+			"from": [ 8, 0, 6 ],
+			"to": [ 8, 16, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "y", "angle": 45, "rescale": true },
+			"faces": {
+				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#front2" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#back2" }
+			}
+		},
+		{
+			"__comment": "Glass section",
+			"from": [ 4, 0, 0 ],
+			"to": [ 6, 16, 6 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 0, 0, 6, 16 ], "texture": "#front" },
+				"west": { "uv": [ 10, 0, 16, 16 ], "texture": "#back" },
+				"south": { "texture": "#black" }
+			}
+		}
+	]
+}

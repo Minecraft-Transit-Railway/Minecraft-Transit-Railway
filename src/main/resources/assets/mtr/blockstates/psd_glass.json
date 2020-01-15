@@ -1,0 +1,41 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/psd_glass",
+			"light": "mtr:blocks/psd_side_light"
+		}
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"left": { "submodel": { "glass": { "model": "mtr:psd_glass_left" } } },
+			"right": { "submodel": { "glass": { "model": "mtr:psd_glass_right" } } },
+			"middle": { "submodel": { "glass": { "model": "mtr:psd_glass_middle" } } },
+			"single": { "submodel": { "glass": { "model": "mtr:psd_glass_single" } } }
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"bottom": "mtr:blocks/transparent",
+					"top": "mtr:blocks/black",
+					"front": "mtr:blocks/psd_glass_top",
+					"back": "mtr:blocks/psd_glass_top_back"
+				}
+			},
+			"false": {
+				"textures": {
+					"bottom": "mtr:blocks/black",
+					"top": "mtr:blocks/transparent",
+					"front": "mtr:blocks/psd_glass_bottom",
+					"back": "mtr:blocks/psd_glass_bottom_back"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,47 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/psd_door",
+			"black": "mtr:blocks/black",
+			"light": "mtr:blocks/psd_side_light"
+		}
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"left": { "submodel": { "door": { "model": "mtr:psd_door_left" } } },
+			"right": { "submodel": { "door": { "model": "mtr:psd_door_right" } } },
+			"leftend": { "submodel": { "door": { "model": "mtr:psd_door_end_left" } } },
+			"rightend": { "submodel": { "door": { "model": "mtr:psd_door_end_right" } } },
+			"open": {}
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"bottom": "mtr:blocks/transparent",
+					"top": "mtr:blocks/black",
+					"front": "mtr:blocks/psd_door_top",
+					"back": "mtr:blocks/psd_door_top_back",
+					"frontend": "mtr:blocks/psd_door_end_top",
+					"backend": "mtr:blocks/psd_door_end_top_back"
+				}
+			},
+			"false": {
+				"textures": {
+					"bottom": "mtr:blocks/black",
+					"top": "mtr:blocks/transparent",
+					"front": "mtr:blocks/psd_door_bottom",
+					"back": "mtr:blocks/psd_door_bottom_back",
+					"frontend": "mtr:blocks/psd_door_end_bottom",
+					"backend": "mtr:blocks/psd_door_end_bottom_back"
+				}
+			}
+		}
+	}
+}

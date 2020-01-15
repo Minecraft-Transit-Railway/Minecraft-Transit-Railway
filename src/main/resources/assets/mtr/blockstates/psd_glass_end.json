@@ -1,0 +1,52 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/psd_glass",
+			"black": "mtr:blocks/black",
+			"light": "mtr:blocks/psd_side_light"
+		}
+	},
+	"variants": {
+		"facing": {
+			"north": {},
+			"east": { "y": 90 },
+			"south": { "y": 180 },
+			"west": { "y": 270 }
+		},
+		"side": {
+			"left": { "submodel": { "glass": { "model": "mtr:psd_glass_end_left" } } },
+			"right": { "submodel": { "glass": { "model": "mtr:psd_glass_end_right" } } },
+			"leftred": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_left" } } },
+			"rightred": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_right" } } },
+			"leftdiagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_left" } } },
+			"rightdiagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_right" } } },
+			"middle": { "submodel": { "glass": { "model": "mtr:psd_glass_end_middle" } } },
+			"single": { "submodel": { "glass": { "model": "mtr:psd_glass_end_single" } } }
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"bottom": "mtr:blocks/transparent",
+					"top": "mtr:blocks/black",
+					"front": "mtr:blocks/psd_glass_top",
+					"back": "mtr:blocks/psd_glass_top_back",
+					"front2": "mtr:blocks/psd_glass_diagonal_top",
+					"back2": "mtr:blocks/psd_glass_diagonal_top_back",
+					"red": "mtr:blocks/psd_red_top"
+				}
+			},
+			"false": {
+				"textures": {
+					"bottom": "mtr:blocks/black",
+					"top": "mtr:blocks/transparent",
+					"front": "mtr:blocks/psd_glass_bottom",
+					"back": "mtr:blocks/psd_glass_bottom_back",
+					"front2": "mtr:blocks/psd_glass_diagonal_bottom",
+					"back2": "mtr:blocks/psd_glass_diagonal_bottom_back",
+					"red": "mtr:blocks/psd_red_bottom"
+				}
+			}
+		}
+	}
+}
