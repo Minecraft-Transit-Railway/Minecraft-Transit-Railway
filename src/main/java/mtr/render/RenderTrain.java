@@ -42,7 +42,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 
-		final Entity entitySibling = entity.world.getEntityByID(entity.getSiblingIDClient());
+		final Entity entitySibling = entity.getSiblingClient();
 		if (entitySibling == null || !(entitySibling instanceof EntityTrain))
 			return;
 		final Midpoint midpoint = getMidpointClient(entity, entitySibling, partialTicks);
@@ -52,7 +52,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		GlStateManager.translate(x, y + 1.5, z);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 
-		final Entity entityConnection = entity.world.getEntityByID(entity.getConnectionIDClient());
+		final Entity entityConnection = entity.getConnectionClient();
 		if (entityConnection != null && entityConnection instanceof EntityTrain) {
 			final Vec3d[] begin = new Vec3d[8], end = new Vec3d[8];
 			begin[0] = entity.connectionVectorClient[0] = getConnectionVector(entity, midpoint, 1, -0.25);

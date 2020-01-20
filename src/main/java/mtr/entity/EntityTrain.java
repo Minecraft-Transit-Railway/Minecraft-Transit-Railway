@@ -5,33 +5,28 @@ import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
-import mtr.Items;
+import mods.railcraft.api.carts.ILinkableCart;
+import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
+import mods.railcraft.common.carts.LinkageManager;
 import mtr.MathTools;
-import mtr.item.ItemCrowbar;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class EntityTrain extends EntityMinecart {
+public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements ILinkableCart {
 
 	public EntityTrain(World worldIn) {
 		super(worldIn);
@@ -51,31 +46,28 @@ public abstract class EntityTrain extends EntityMinecart {
 
 	public Vec3d[] connectionVectorClient = new Vec3d[8];
 
-	private UUID uuidSibling, uuidConnection;
+	private UUID uuidSibling;
 	private EntityTrain entitySibling, entityConnection;
-	private int section = -1, trainType, doorCooldown;
-	private float prevAngleYaw, trainSpeed, trainSpeedKm;
 
-	private static final int DOOR_COOLDOWN_MAX = 40;
-	private static final double TOLERANCE = 0.05;
+	private int trainType;
+
+	private int doorCooldown;
+	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm;
+
+	private static final int DOOR_COOLDOWN_MAX = 40, DISTANCE_OFFSET = 10;
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Integer> MTR_SIBLING_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int mtrSiblingID;
+	private int cacheSiblingID;
 	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int mtrConnectionID;
+	private int cacheConnectionID;
 	private static final DataParameter<Integer> MTR_TRAIN_TYPE = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int mtrTrainType;
+	private int cacheTrainType;
 
 	public abstract int getSiblingSpacing();
 
 	public abstract float getEndSpacing();
-
-	@Override
-	public void killMinecart(DamageSource source) {
-		setDead();
-	}
 
 	@Override
 	public void setDead() {
@@ -87,77 +79,8 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	@Override
-	public void moveMinecartOnRail(BlockPos pos) {
-		if (entitySibling != null) {
-			double mX = motionX, mZ = motionZ;
-			if (entityConnection == null) {
-				if (section == 0 && mX == 0 && mZ == 0)
-					resetAllSections();
-				else if (section < 0 && isLeading())
-					setAllSections(false, false);
-			}
-
-			if (section > 0) {
-				final EntityTrain connection = getSection(section - 1, false);
-				if (connection == null || connection.isDead) {
-					resetAllSections();
-					setConnection(null);
-				} else {
-					final double diffX = connection.posX - posX;
-					final double diffZ = connection.posZ - posZ;
-					final double distance = Math.sqrt(sq(diffX) + sq(diffZ));
-					final double difference = distance - (connection == entitySibling ? getSiblingSpacing() : getEndSpacing() + connection.getEndSpacing());
-
-					if (difference > 4)
-						setDead();
-
-					if (distance != 0) {
-						final double ratio = difference / distance;
-						mX = ratio * diffX;
-						mZ = ratio * diffZ;
-					}
-				}
-			}
-			if (section < 0) {
-				mX = 0;
-				mZ = 0;
-			}
-			moveEntity(mX, mZ, section > 0);
-		}
-	}
-
-	@Override
-	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-		if (super.processInitialInteract(player, hand))
-			return true;
-
-		final Item item = player.getHeldItem(hand).getItem();
-		if (!world.isRemote && item == Items.crowbar) {
-			final ItemCrowbar itemCrowbar = (ItemCrowbar) item;
-			if (entityConnection != null && entityConnection.isDead)
-				setConnection(null);
-
-			if (entityConnection != null || itemCrowbar.train == this || itemCrowbar.train == entitySibling) {
-				if (entityConnection != null)
-					entityConnection.setConnection(null);
-				setConnection(null);
-				itemCrowbar.train = null;
-				player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_disconnected"), true);
-			} else {
-				if (itemCrowbar.train == null) {
-					itemCrowbar.train = this;
-					player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_connecting"), true);
-				} else {
-					itemCrowbar.train.setConnection(this);
-					setConnection(itemCrowbar.train);
-					itemCrowbar.train = null;
-					player.sendStatusMessage(new TextComponentTranslation("gui.crowbar_connected"), true);
-				}
-			}
-
-			return true;
-		}
-
+	public boolean doInteract(EntityPlayer player, EnumHand hand) {
+		super.doInteract(player, hand);
 		if (player.isSneaking()) {
 			return false;
 		} else if (isBeingRidden()) {
@@ -170,35 +93,22 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
-		setUUID(nbt.getUniqueId("sibling"), nbt.getUniqueId("connection"));
-		setTrainType(nbt.getInteger("trainType"));
-		section = nbt.getInteger("section");
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
-		compound.setUniqueId("sibling", uuidSibling);
-		compound.setUniqueId("connection", uuidConnection);
-		compound.setInteger("trainType", trainType);
-		compound.setInteger("section", section);
-		return compound;
-	}
-
-	@Override
 	public void onUpdate() {
-		if (!world.isRemote) {
-			final boolean siblingNotSet = entitySibling == null;
-			final boolean connectionNotSet = entityConnection == null && uuidConnection.getMostSignificantBits() != 0 && uuidConnection.getLeastSignificantBits() != 0;
-			if (siblingNotSet || connectionNotSet) {
-				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
-				entitySibling = getEntityFromUUID(server, uuidSibling, MTR_SIBLING_ID);
-				entityConnection = getEntityFromUUID(server, uuidConnection, MTR_CONNECTION_ID);
-				System.out.println("updating");
-			}
+		if (!world.isRemote && entitySibling == null) {
+			final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+
+			entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
+
+			final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
+			final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
+			if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
+				entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
+			else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
+				entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
+			else
+				entityConnection = syncEntity(null, MTR_CONNECTION_ID);
 		}
+
 		super.onUpdate();
 	}
 
@@ -223,37 +133,58 @@ public abstract class EntityTrain extends EntityMinecart {
 	public double getMountedYOffset() {
 		return 1;
 	}
+//
+//	@Override
+//	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
+//		if (!world.isRemote && section <= 0 && uuidConnection.getMostSignificantBits() == 0 && uuidConnection.getLeastSignificantBits() == 0) {
+//			if (receivingPower) {
+//				setAllSections(false, false);
+//				resetAllSections();
+//				if (doorCooldown > 0)
+//					doorCooldown--;
+//				if (doorCooldown == 0 && motionX == 0 && motionZ == 0 && entitySibling != null) {
+//					motionX = Math.copySign(getMaxSpeed(), posX - entitySibling.posX);
+//					motionZ = Math.copySign(getMaxSpeed(), posZ - entitySibling.posZ);
+//				}
+//			} else {
+//				if (doorCooldown == 0) {
+//					motionX = 0;
+//					motionZ = 0;
+//				}
+//				if (doorCooldown == DOOR_COOLDOWN_MAX - 16) {
+//					setAllSections(true, true);
+//					resetAllSections();
+//				}
+//				if (doorCooldown < DOOR_COOLDOWN_MAX)
+//					doorCooldown++;
+//			}
+//		}
+//	}
 
 	@Override
-	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
-		if (!world.isRemote && section <= 0 && uuidConnection.getMostSignificantBits() == 0 && uuidConnection.getLeastSignificantBits() == 0) {
-			if (receivingPower) {
-				setAllSections(false, false);
-				resetAllSections();
-				if (doorCooldown > 0)
-					doorCooldown--;
-				if (doorCooldown == 0 && motionX == 0 && motionZ == 0 && entitySibling != null) {
-					motionX = Math.copySign(getMaxSpeed(), posX - entitySibling.posX);
-					motionZ = Math.copySign(getMaxSpeed(), posZ - entitySibling.posZ);
-				}
-			} else {
-				if (doorCooldown == 0) {
-					motionX = 0;
-					motionZ = 0;
-				}
-				if (doorCooldown == DOOR_COOLDOWN_MAX - 16) {
-					setAllSections(true, true);
-					resetAllSections();
-				}
-				if (doorCooldown < DOOR_COOLDOWN_MAX)
-					doorCooldown++;
-			}
-		}
+	public float getDistance(Entity entityIn) {
+		return super.getDistance(entityIn) - DISTANCE_OFFSET;
 	}
 
 	@Override
-	public Type getType() {
-		return Type.RIDEABLE;
+	public float getLinkageDistance(EntityMinecart cart) {
+		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) + 2;
+	}
+
+	@Override
+	public float getOptimalDistance(EntityMinecart cart) {
+		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) - DISTANCE_OFFSET / 2F;
+	}
+
+	@Override
+	public void onLinkCreated(EntityMinecart cart) {
+		if (cart != entitySibling && cart instanceof EntityTrain) {
+			entityConnection = (EntityTrain) cart;
+			dataManager.set(MTR_CONNECTION_ID, cart.getEntityId());
+		} else {
+			entityConnection = null;
+		}
+		System.out.println(cart);
 	}
 
 	@Override
@@ -267,137 +198,92 @@ public abstract class EntityTrain extends EntityMinecart {
 	}
 
 	@Override
-	protected void applyDrag() {
+	protected void readEntityFromNBT(NBTTagCompound compound) {
+		super.readEntityFromNBT(compound);
+		setUUID(compound.getUniqueId("sibling"));
+		setTrainType(compound.getInteger("trainType"));
+	}
+
+	@Override
+	protected void writeEntityToNBT(NBTTagCompound compound) {
+		super.writeEntityToNBT(compound);
+		compound.setUniqueId("sibling", uuidSibling);
+		compound.setInteger("trainType", trainType);
+	}
+
+	@Override
+	protected void openRailcraftGui(EntityPlayer player) {
 	}
 
 	@SideOnly(Side.CLIENT)
 	public boolean getLeftDoorClient() {
-		if (motionX != 0 || motionZ != 0)
-			return false;
-		else
-			return dataManager.get(MTR_DOOR_LEFT_OPENED);
+		return dataManager.get(MTR_DOOR_LEFT_OPENED);
 	}
 
 	@SideOnly(Side.CLIENT)
 	public boolean getRightDoorClient() {
-		if (motionX != 0 || motionZ != 0)
-			return false;
-		else
-			return dataManager.get(MTR_DOOR_RIGHT_OPENED);
+		return dataManager.get(MTR_DOOR_RIGHT_OPENED);
 	}
 
 	@SideOnly(Side.CLIENT)
-	public int getSiblingIDClient() {
-		if (mtrSiblingID == 0)
-			mtrSiblingID = dataManager.get(MTR_SIBLING_ID);
-		return mtrSiblingID;
+	public Entity getSiblingClient() {
+		if (cacheSiblingID == 0)
+			cacheSiblingID = dataManager.get(MTR_SIBLING_ID);
+		return world.getEntityByID(cacheSiblingID);
 	}
 
 	@SideOnly(Side.CLIENT)
-	public int getConnectionIDClient() {
-		if (mtrConnectionID == 0)
-			mtrConnectionID = dataManager.get(MTR_CONNECTION_ID);
-		return mtrConnectionID;
+	public Entity getConnectionClient() {
+		if (cacheConnectionID == 0)
+			cacheConnectionID = dataManager.get(MTR_CONNECTION_ID);
+		return world.getEntityByID(cacheConnectionID);
 	}
 
 	@SideOnly(Side.CLIENT)
 	public int getTrainTypeClient() {
-		if (mtrTrainType == 0)
-			mtrTrainType = dataManager.get(MTR_TRAIN_TYPE);
-		return mtrTrainType;
+		if (cacheTrainType == 0)
+			cacheTrainType = dataManager.get(MTR_TRAIN_TYPE);
+		return cacheTrainType;
 	}
 
-	public void setUUID(UUID sibling, UUID connection) {
+	public void setUUID(UUID sibling) {
 		uuidSibling = sibling;
-		uuidConnection = connection;
 	}
 
 	private void applyYawToPassenger(Entity passenger) {
-		final Entity sibling = world.isRemote ? world.getEntityByID(getSiblingIDClient()) : entitySibling;
+		final Entity sibling = world.isRemote ? getSiblingClient() : entitySibling;
 		if (sibling != null) {
-			final float angleYaw = (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
-			passenger.rotationYaw -= MathTools.angleDifference(angleYaw, prevAngleYaw);
-			prevAngleYaw = angleYaw;
+			passengerAngleYaw = (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
+			passenger.rotationYaw -= MathTools.angleDifference(passengerAngleYaw, prevPassengerAngleYaw);
+			prevPassengerAngleYaw = passengerAngleYaw;
 			passenger.setRotationYawHead(passenger.rotationYaw);
 		}
 	}
 
-	private boolean isLeading() {
-		if (Math.abs(motionX) < TOLERANCE && Math.abs(motionZ) < TOLERANCE) {
-			return false;
-		} else {
-			final boolean aheadX = motionX > 0 == posX > entitySibling.posX;
-			final boolean aheadZ = motionZ > 0 == posZ > entitySibling.posZ;
-			if (motionX != 0 && motionZ != 0) {
-				return aheadX && aheadZ;
-			} else {
-				if (motionX != 0)
-					return aheadX;
-				else
-					return aheadZ;
-			}
-		}
-	}
+	// private void setAllSections(boolean leftDoor, boolean rightDoor) {
+//		section = 0;
+//		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
+//		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
+//		EntityTrain train = entitySibling;
+//		int i = 1;
+//		while (train != null && !isDead) {
+//			train.section = i;
+//			train.dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
+//			train.dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
+//			train = train.getSection(i - 1, true);
+//			i++;
+//		}
+//	}
+//
 
-	private EntityTrain getSection(int number, boolean blacklist) {
-		if ((entitySibling != null && entitySibling.section == number) == !blacklist)
-			return entitySibling;
-		if ((entityConnection != null && entityConnection.section == number) == !blacklist)
-			return entityConnection;
-		return null;
-	}
-
-	private void moveEntity(double mX, double mZ, boolean catchUp) {
-		if (mX == 0 && mZ == 0) {
-			trainSpeed = trainSpeedKm = 0;
-		} else {
-			final double max = catchUp ? getMaxSpeed() + 0.05 : getMaxSpeed();
-			mX = MathHelper.clamp(mX, -max, max);
-			mZ = MathHelper.clamp(mZ, -max, max);
-			move(MoverType.SELF, mX, 0, mZ);
-
-			final float speed = (float) Math.sqrt(sq(mX) + sq(mZ)) * 200;
-			trainSpeed = Math.round(speed) / 10;
-			trainSpeedKm = Math.round(speed * 3.6) / 10;
-		}
-	}
-
-	private void resetAllSections() {
-		EntityTrain train = this;
-		while (train != null && !isDead) {
-			train.section = -1;
-			train = train.getSection(-1, true);
-		}
-	}
-
-	private void setAllSections(boolean leftDoor, boolean rightDoor) {
-		section = 0;
-		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
-		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
-		EntityTrain train = entitySibling;
-		int i = 1;
-		while (train != null && !isDead) {
-			train.section = i;
-			train.dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
-			train.dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
-			train = train.getSection(i - 1, true);
-			i++;
-		}
-	}
-
-	private EntityTrain getEntityFromUUID(MinecraftServer server, UUID uuid, DataParameter<Integer> parameter) {
-		final Entity genericEntity = server.getEntityFromUuid(uuid);
+	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {
 		if (genericEntity != null && genericEntity instanceof EntityTrain) {
 			dataManager.set(parameter, genericEntity.getEntityId());
 			return (EntityTrain) genericEntity;
+		} else {
+			dataManager.set(parameter, -1);
+			return null;
 		}
-		return null;
-	}
-
-	private void setConnection(EntityTrain train) {
-		uuidConnection = train == null ? new UUID(0, 0) : train.getUniqueID();
-		entityConnection = train;
-		dataManager.set(MTR_CONNECTION_ID, train == null ? 0 : train.getEntityId());
 	}
 
 	private void setTrainType(int type) {
