@@ -96,8 +96,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	public void onUpdate() {
 		if (!world.isRemote && entitySibling == null) {
 			final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
-
 			entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
+
+			LinkageManager.INSTANCE.createLink(this, entitySibling);
 
 			final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
 			final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
@@ -185,6 +186,12 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 			entityConnection = null;
 		}
 		System.out.println(cart);
+	}
+
+	@Override
+	public void onLinkBroken(EntityMinecart cart) {
+		LinkageManager.INSTANCE.repairLink(this, entitySibling);
+		LinkageManager.INSTANCE.createLink(this, entitySibling);
 	}
 
 	@Override

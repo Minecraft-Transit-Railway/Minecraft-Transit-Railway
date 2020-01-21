@@ -2,7 +2,6 @@ package mtr.item;
 
 import java.util.List;
 
-import mods.railcraft.api.carts.CartToolsAPI;
 import mtr.entity.EntityTrain;
 import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.block.BlockRailBase;
@@ -54,8 +53,6 @@ public abstract class ItemSpawnTrain extends Item {
 				worldIn.spawnEntity(entity2);
 				entity1.setUUID(entity2.getUniqueID());
 				entity2.setUUID(entity1.getUniqueID());
-
-				CartToolsAPI.linkageManager().createLink(entity1, entity2);
 			}
 
 			itemStack.shrink(1);
