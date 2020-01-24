@@ -55,15 +55,16 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm;
 
 	private static final int DOOR_COOLDOWN_MAX = 40, DISTANCE_OFFSET = 10;
+	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Integer> MTR_SIBLING_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int cacheSiblingID;
 	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int cacheConnectionID;
 	private static final DataParameter<Integer> MTR_TRAIN_TYPE = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private int cacheTrainType;
+
+	private int cacheSiblingID = ID_DEFAULT;
+	private int cacheTrainType = TRAIN_TYPE_DEFAULT;
 
 	public abstract int getSiblingSpacing();
 
@@ -179,17 +180,14 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public void onLinkCreated(EntityMinecart cart) {
-		if (cart != entitySibling && cart instanceof EntityTrain) {
-			entityConnection = (EntityTrain) cart;
-			dataManager.set(MTR_CONNECTION_ID, cart.getEntityId());
-		} else {
-			entityConnection = null;
-		}
-		System.out.println(cart);
+		entityConnection = syncEntity(cart != entitySibling ? cart : null, MTR_CONNECTION_ID);
 	}
 
 	@Override
 	public void onLinkBroken(EntityMinecart cart) {
+		if (cart == entityConnection)
+			entityConnection = syncEntity(null, MTR_CONNECTION_ID);
+
 		LinkageManager.INSTANCE.repairLink(this, entitySibling);
 		LinkageManager.INSTANCE.createLink(this, entitySibling);
 	}
@@ -199,9 +197,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		super.entityInit();
 		dataManager.register(MTR_DOOR_LEFT_OPENED, false);
 		dataManager.register(MTR_DOOR_RIGHT_OPENED, false);
-		dataManager.register(MTR_SIBLING_ID, 0);
-		dataManager.register(MTR_CONNECTION_ID, 0);
-		dataManager.register(MTR_TRAIN_TYPE, 0);
+		dataManager.register(MTR_SIBLING_ID, ID_DEFAULT);
+		dataManager.register(MTR_CONNECTION_ID, ID_DEFAULT);
+		dataManager.register(MTR_TRAIN_TYPE, TRAIN_TYPE_DEFAULT);
 	}
 
 	@Override
@@ -234,21 +232,19 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@SideOnly(Side.CLIENT)
 	public Entity getSiblingClient() {
-		if (cacheSiblingID == 0)
+		if (cacheSiblingID == ID_DEFAULT)
 			cacheSiblingID = dataManager.get(MTR_SIBLING_ID);
 		return world.getEntityByID(cacheSiblingID);
 	}
 
 	@SideOnly(Side.CLIENT)
 	public Entity getConnectionClient() {
-		if (cacheConnectionID == 0)
-			cacheConnectionID = dataManager.get(MTR_CONNECTION_ID);
-		return world.getEntityByID(cacheConnectionID);
+		return world.getEntityByID(dataManager.get(MTR_CONNECTION_ID));
 	}
 
 	@SideOnly(Side.CLIENT)
 	public int getTrainTypeClient() {
-		if (cacheTrainType == 0)
+		if (cacheTrainType == TRAIN_TYPE_DEFAULT)
 			cacheTrainType = dataManager.get(MTR_TRAIN_TYPE);
 		return cacheTrainType;
 	}
@@ -288,7 +284,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 			dataManager.set(parameter, genericEntity.getEntityId());
 			return (EntityTrain) genericEntity;
 		} else {
-			dataManager.set(parameter, -1);
+			dataManager.set(parameter, ID_DEFAULT);
 			return null;
 		}
 	}
