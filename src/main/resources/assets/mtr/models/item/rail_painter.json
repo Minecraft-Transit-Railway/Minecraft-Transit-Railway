@@ -2,7 +2,8 @@
 	"parent": "item/generated",
 	"textures": {
 		"layer0": "blocks/rail_normal",
-		"layer1": "mtr:items/template_empty"
+		"layer1": "items/stick",
+		"layer2": "mtr:items/brush"
 	},
 	"overrides": [
 		{

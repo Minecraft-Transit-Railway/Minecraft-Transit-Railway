@@ -7,7 +7,6 @@ import mtr.block.BlockOBAScreen;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
 import mtr.item.ItemBrush;
-import mtr.item.ItemCrowbar;
 import mtr.item.ItemLightRail1;
 import mtr.item.ItemMTrain;
 import mtr.item.ItemRailPainter;
@@ -63,7 +62,6 @@ public class Registry {
 	public static void registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemName(new ItemBrush(), "brush"));
-		registry.register(setItemName(new ItemCrowbar(), "crowbar"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
 		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
@@ -83,12 +81,11 @@ public class Registry {
 		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items
 		registerItemModel(Items.brush);
-		registerItemModel(Items.crowbar);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);
 		registerItemModel(Items.rail_painter);
 		registerItemModel(Items.sp1900, 3);
-		registerItemModel(Items.template, 2);
+		registerItemModel(Items.template);
 	}
 
 	@SubscribeEvent

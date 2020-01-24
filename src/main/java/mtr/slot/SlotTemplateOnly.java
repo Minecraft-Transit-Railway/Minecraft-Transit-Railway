@@ -17,6 +17,6 @@ public class SlotTemplateOnly extends Slot {
 	}
 
 	public static boolean isValid(ItemStack stack) {
-		return stack.getItem() instanceof ItemTemplate && stack.getItemDamage() == 1;
+		return stack.getItem() instanceof ItemTemplate;
 	}
 }

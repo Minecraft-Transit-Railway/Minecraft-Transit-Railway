@@ -6,7 +6,6 @@ tile.rail_marker.name=Rail Marker
 tile.rail_scaffold.name=Rail Scaffolding
 
 item.brush.name=Brush
-item.crowbar.name=Crowbar
 item.light_rail_1.name=Light Rail (Phase 1)
 item.m_train.name=M Train
 item.rail_painter.name=Rail Painter

@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
@@ -17,7 +16,6 @@ public class ItemTemplate extends Item {
 
 	public ItemTemplate() {
 		super();
-		setHasSubtypes(true);
 		setMaxStackSize(1);
 		setCreativeTab(CreativeTabs.TOOLS);
 	}
@@ -32,12 +30,5 @@ public class ItemTemplate extends Item {
 	@Override
 	public ICapabilityProvider initCapabilities(ItemStack stack, NBTTagCompound nbt) {
 		return new CapabilityInventoryProvider(54);
-	}
-
-	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (isInCreativeTab(tab))
-			for (int i = 0; i < 2; i++)
-				items.add(new ItemStack(this, 1, i));
 	}
 }
