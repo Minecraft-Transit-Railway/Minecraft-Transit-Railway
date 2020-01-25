@@ -17,10 +17,6 @@ public class Blocks {
 	public static final ItemBlock item_block_bridge_creator = null;
 	@ObjectHolder("logo")
 	public static final ItemBlock item_block_logo = null;
-	@ObjectHolder("oba_controller")
-	public static final ItemBlock item_block_oba_controller = null;
-	@ObjectHolder("oba_screen")
-	public static final ItemBlock item_block_oba_screen = null;
 	@ObjectHolder("rail_marker")
 	public static final ItemBlock item_block_rail_marker = null;
 	@ObjectHolder("rail_scaffold")

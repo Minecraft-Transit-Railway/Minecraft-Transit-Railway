@@ -1,7 +1,5 @@
 tile.bridge_creator.name=Bridge Creator
 tile.logo.name=MTR Logo
-tile.oba_controller.name=OneBusAway Controller
-tile.oba_screen.name=OneBusAway Arrivals Screen
 tile.rail_marker.name=Rail Marker
 tile.rail_scaffold.name=Rail Scaffolding
 
@@ -13,17 +11,6 @@ item.sp1900.name=SP1900
 item.template.name=Bridge Template
 
 gui.bus_stops=Bus Stops
-gui.crowbar_connecting=Connecting trains...
-gui.crowbar_connected=Trains connected.
-gui.crowbar_disconnected=Disconnected.
-gui.oba_delay_after= min delay
-gui.oba_delay_before=
-gui.oba_early_after= min early
-gui.oba_early_before=
-gui.oba_min= min
-gui.oba_now=NOW
-gui.oba_on_time=On time
-gui.oba_scheduled=Scheduled
 gui.rail_painter_connecting=Began painting...
 gui.rail_painter_connected=Scaffolding painted.
 gui.train_head=Head

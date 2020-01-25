@@ -1,6 +1,0 @@
-{
-	"variants": {
-		"enabled=true": { "model": "mtr:oba_controller_enabled" },
-		"enabled=false": { "model": "mtr:oba_controller_disabled" }
-	}
-}

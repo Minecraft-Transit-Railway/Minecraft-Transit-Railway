@@ -2,8 +2,6 @@ package mtr;
 
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockLogo;
-import mtr.block.BlockOBAController;
-import mtr.block.BlockOBAScreen;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
 import mtr.item.ItemBrush;
@@ -13,7 +11,6 @@ import mtr.item.ItemRailPainter;
 import mtr.item.ItemSP1900;
 import mtr.item.ItemTemplate;
 import mtr.tile.TileEntityBridgeCreator;
-import mtr.tile.TileEntityOBAController;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -38,13 +35,10 @@ public class Registry {
 		final IForgeRegistry<Block> registry = event.getRegistry();
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
 		registry.register(setBlockName(new BlockLogo(), "logo"));
-		registry.register(setBlockName(new BlockOBAController(), "oba_controller"));
-		registry.register(setBlockName(new BlockOBAScreen(), "oba_screen"));
 		registry.register(setBlockName(new BlockRailMarker(), "rail_marker"));
 		registry.register(setBlockName(new BlockRailScaffold(), "rail_scaffold"));
 		// Tile entities
 		GameRegistry.registerTileEntity(TileEntityBridgeCreator.class, new ResourceLocation("bridge_creator"));
-		GameRegistry.registerTileEntity(TileEntityOBAController.class, new ResourceLocation("oba_controller"));
 	}
 
 	@SubscribeEvent
@@ -52,8 +46,6 @@ public class Registry {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemBlock(Blocks.bridge_creator));
 		registry.register(setItemBlock(Blocks.logo));
-		registry.register(setItemBlock(Blocks.oba_controller));
-		registry.register(setItemBlock(Blocks.oba_screen));
 		registry.register(setItemBlock(Blocks.rail_marker));
 		registry.register(setItemBlock(Blocks.rail_scaffold));
 	}
@@ -75,8 +67,6 @@ public class Registry {
 		// Blocks
 		registerBlockModel(Blocks.bridge_creator, 0);
 		registerBlockModel(Blocks.logo, 0);
-		registerBlockModel(Blocks.oba_controller, 0);
-		registerBlockModel(Blocks.oba_screen, 0);
 		registerBlockModel(Blocks.rail_marker, 0);
 		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items

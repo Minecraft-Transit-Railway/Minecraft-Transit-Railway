@@ -3,7 +3,6 @@ package mtr.gui;
 import mtr.container.ContainerBridgeCreator;
 import mtr.container.ContainerTemplate;
 import mtr.item.ItemTemplate;
-import mtr.tile.TileEntityOBAController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -46,11 +45,6 @@ public class GuiHandler implements IGuiHandler {
 				stack = player.getHeldItemOffhand();
 			if (stack.getItem() instanceof ItemTemplate)
 				return new GuiTemplate(player.inventory, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
-			else
-				return null;
-		case 2:
-			if (tileEntity != null)
-				return new GuiOBAController((TileEntityOBAController) tileEntity);
 			else
 				return null;
 		default:
