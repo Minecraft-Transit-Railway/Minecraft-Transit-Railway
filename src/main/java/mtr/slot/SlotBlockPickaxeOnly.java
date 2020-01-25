@@ -14,15 +14,23 @@ public class SlotBlockPickaxeOnly extends SlotItemHandler {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return isValid(stack);
+		if (isValid(stack))
+			putStack(new ItemStack(stack.getItem(), 1));
+		return false;
 	}
 
-	public static boolean isValid(ItemStack stack) {
-		return stack.getItem() instanceof ItemBlock || stack.getItem() instanceof ItemPickaxe;
+	@Override
+	public ItemStack decrStackSize(int amount) {
+		getItemHandler().extractItem(getSlotIndex(), amount, false);
+		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public int getItemStackLimit(ItemStack stack) {
 		return 1;
+	}
+
+	public static boolean isValid(ItemStack stack) {
+		return stack.getItem() instanceof ItemBlock || stack.getItem() instanceof ItemPickaxe;
 	}
 }

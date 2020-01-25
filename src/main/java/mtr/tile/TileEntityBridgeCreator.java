@@ -31,7 +31,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -224,19 +223,6 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 		return null;
 	}
 
-	private Block getBlockFromTemplate(int pass, int height) {
-		final IItemHandler templateShape = getTemplateStack().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-		if (templateShape == null)
-			return null;
-		pass = MathHelper.clamp(pass, 0, 8);
-		height = MathHelper.clamp(height, -1, 4);
-		final Item item = templateShape.getStackInSlot(pass - height * 9 + 36).getItem();
-		if (item instanceof ItemPickaxe)
-			return net.minecraft.init.Blocks.AIR;
-		else
-			return item instanceof ItemBlock ? Block.getBlockFromItem(item) : null;
-	}
-
 	private void paintBlock() {
 		final BlockPos currentPos = (BlockPos) structure.keySet().toArray()[0];
 		final IBlockState currentState = world.getBlockState(currentPos);
@@ -281,6 +267,30 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 		if (startPos == null)
 			return;
 
+		final IItemHandler templateInventory = getTemplateStack().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+		if (templateInventory == null)
+			return;
+
+		final Block[] templateBlocks = new Block[54];
+		boolean hasBlockFlag = false;
+		for (int i = 0; i < 54; i++) {
+			if (i % 9 == 0)
+				hasBlockFlag = false;
+
+			final Item item = templateInventory.getStackInSlot(i).getItem();
+
+			if (item instanceof ItemPickaxe) {
+				templateBlocks[i] = net.minecraft.init.Blocks.AIR;
+			} else if (item instanceof ItemBlock) {
+				templateBlocks[i] = Block.getBlockFromItem(item);
+				hasBlockFlag = true;
+			} else if (hasBlockFlag) {
+				templateBlocks[i] = net.minecraft.init.Blocks.AIR;
+			} else {
+				templateBlocks[i] = null;
+			}
+		}
+
 		for (int pass = 0; pass < 9; pass++) {
 			final int radius = 8 - pass;
 			BlockPos scaffoldPos = startPos, prevPos = pos;
@@ -292,15 +302,18 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 				if (scaffoldPos == null)
 					break;
 
-				for (int x = -radius; x <= radius; x++)
-					for (int z = -radius; z <= radius; z++)
-						if (Math.abs(x) == radius || Math.abs(z) == radius)
-							for (int i = -1; i < 5; i++) {
-								final BlockPos currentPos = scaffoldPos.add(x, i, z);
-								final Block newBlock = getBlockFromTemplate(pass, i);
+				for (int x = -radius; x <= radius; x++) {
+					for (int z = -radius; z <= radius; z++) {
+						if (Math.abs(x) == radius || Math.abs(z) == radius) {
+							for (int y = -1; y < 5; y++) {
+								final BlockPos currentPos = scaffoldPos.add(x, y, z);
+								final Block newBlock = templateBlocks[pass - y * 9 + 36];
 								if (newBlock != null)
 									structure.put(currentPos, newBlock);
 							}
+						}
+					}
+				}
 			}
 		}
 	}
