@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.block.BlockBridgeCreator;
+import mtr.block.BlockDoorController;
 import mtr.block.BlockLogo;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
@@ -34,6 +35,7 @@ public class Registry {
 		// Blocks
 		final IForgeRegistry<Block> registry = event.getRegistry();
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
+		registry.register(setBlockName(new BlockDoorController(), "door_controller"));
 		registry.register(setBlockName(new BlockLogo(), "logo"));
 		registry.register(setBlockName(new BlockRailMarker(), "rail_marker"));
 		registry.register(setBlockName(new BlockRailScaffold(), "rail_scaffold"));
@@ -45,6 +47,7 @@ public class Registry {
 	public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemBlock(Blocks.bridge_creator));
+		registry.register(setItemBlock(Blocks.door_controller));
 		registry.register(setItemBlock(Blocks.logo));
 		registry.register(setItemBlock(Blocks.rail_marker));
 		registry.register(setItemBlock(Blocks.rail_scaffold));
@@ -66,6 +69,7 @@ public class Registry {
 	public static void registerBlockModels(final ModelRegistryEvent event) {
 		// Blocks
 		registerBlockModel(Blocks.bridge_creator, 0);
+		registerBlockModel(Blocks.door_controller, 0);
 		registerBlockModel(Blocks.logo, 0);
 		registerBlockModel(Blocks.rail_marker, 0);
 		registerBlockModel(Blocks.rail_scaffold, 0);
