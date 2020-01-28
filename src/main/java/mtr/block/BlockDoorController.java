@@ -1,8 +1,11 @@
 package mtr.block;
 
 import java.util.Random;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import mods.railcraft.common.blocks.tracks.TrackTools;
+import mods.railcraft.common.carts.LinkageManager;
 import mtr.entity.EntityTrain;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -14,6 +17,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -29,6 +33,7 @@ public class BlockDoorController extends Block {
 	public static final PropertyDirection FACING = PropertyDirection.create("facing");
 
 	private TrainState trainState;
+	private Supplier<Stream<EntityMinecart>> train;
 	private static final float TOLERANCE = 0.01F;
 
 	public BlockDoorController() {
@@ -41,8 +46,10 @@ public class BlockDoorController extends Block {
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		if (entityIn instanceof EntityTrain && Math.abs(entityIn.motionX) < TOLERANCE && Math.abs(entityIn.motionZ) < TOLERANCE) {
-			if (trainState == TrainState.GONE)
+			if (trainState == TrainState.GONE) {
+				train = () -> LinkageManager.INSTANCE.streamTrain((EntityMinecart) entityIn).filter(t -> t instanceof EntityTrain);
 				updateTick(worldIn, pos, state, null);
+			}
 		} else {
 			trainState = TrainState.GONE;
 		}
@@ -58,10 +65,12 @@ public class BlockDoorController extends Block {
 		switch (trainState) {
 		case OPENING_SOON:
 			trainState = TrainState.OPENED;
+			train.get().forEach(t -> ((EntityTrain) t).setDoors(true, true));
 			worldIn.scheduleUpdate(pos, this, 60);
 			break;
 		case OPENED:
 			trainState = TrainState.CLOSED;
+			train.get().forEach(t -> ((EntityTrain) t).setDoors(false, false));
 			worldIn.scheduleUpdate(pos, this, 40);
 			break;
 		case CLOSED:

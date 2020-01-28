@@ -6,6 +6,8 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import mods.railcraft.api.carts.ILinkableCart;
+import mods.railcraft.common.blocks.tracks.TrackTools;
+import mods.railcraft.common.blocks.tracks.outfitted.TrackKits;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
 import mtr.MathTools;
@@ -19,6 +21,8 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -40,7 +44,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	private void init() {
-		setSize(1, 3);
+		setSize(2, 3);
 		ignoreFrustumCheck = true;
 	}
 
@@ -51,10 +55,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	private int trainType;
 
-	private int doorCooldown;
 	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm;
 
-	private static final int DOOR_COOLDOWN_MAX = 40, DISTANCE_OFFSET = 10;
+	private static final int DISTANCE_OFFSET = 10;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
@@ -95,20 +98,32 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public void onUpdate() {
-		if (!world.isRemote && entitySibling == null) {
-			final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
-			entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
+		if (!world.isRemote) {
+			if (entitySibling == null) {
+				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+				entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
 
-			LinkageManager.INSTANCE.createLink(this, entitySibling);
+				LinkageManager.INSTANCE.createLink(this, entitySibling);
 
-			final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
-			final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
-			if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
-				entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
-			else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
-				entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
-			else
-				entityConnection = syncEntity(null, MTR_CONNECTION_ID);
+				final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
+				final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
+				if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
+					entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
+				else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
+					entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
+				else
+					entityConnection = syncEntity(null, MTR_CONNECTION_ID);
+			}
+
+			if (motionX == 0 && motionZ == 0) {
+				BlockPos railPos = new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY), MathHelper.floor(posZ));
+				if (TrackTools.isRailBlockAt(world, railPos.down()))
+					railPos = railPos.down();
+
+				if (TrackTools.getTrackKitAt(world, railPos) == TrackKits.LOCKING.getTrackKit()) {
+
+				}
+			}
 		}
 
 		super.onUpdate();
@@ -135,33 +150,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	public double getMountedYOffset() {
 		return 1;
 	}
-//
-//	@Override
-//	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
-//		if (!world.isRemote && section <= 0 && uuidConnection.getMostSignificantBits() == 0 && uuidConnection.getLeastSignificantBits() == 0) {
-//			if (receivingPower) {
-//				setAllSections(false, false);
-//				resetAllSections();
-//				if (doorCooldown > 0)
-//					doorCooldown--;
-//				if (doorCooldown == 0 && motionX == 0 && motionZ == 0 && entitySibling != null) {
-//					motionX = Math.copySign(getMaxSpeed(), posX - entitySibling.posX);
-//					motionZ = Math.copySign(getMaxSpeed(), posZ - entitySibling.posZ);
-//				}
-//			} else {
-//				if (doorCooldown == 0) {
-//					motionX = 0;
-//					motionZ = 0;
-//				}
-//				if (doorCooldown == DOOR_COOLDOWN_MAX - 16) {
-//					setAllSections(true, true);
-//					resetAllSections();
-//				}
-//				if (doorCooldown < DOOR_COOLDOWN_MAX)
-//					doorCooldown++;
-//			}
-//		}
-//	}
 
 	@Override
 	public float getDistance(Entity entityIn) {
@@ -253,6 +241,11 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		uuidSibling = sibling;
 	}
 
+	public void setDoors(boolean leftDoor, boolean rightDoor) {
+		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
+		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
+	}
+
 	private void applyYawToPassenger(Entity passenger) {
 		final Entity sibling = world.isRemote ? getSiblingClient() : entitySibling;
 		if (sibling != null) {
@@ -262,22 +255,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 			passenger.setRotationYawHead(passenger.rotationYaw);
 		}
 	}
-
-	// private void setAllSections(boolean leftDoor, boolean rightDoor) {
-//		section = 0;
-//		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
-//		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
-//		EntityTrain train = entitySibling;
-//		int i = 1;
-//		while (train != null && !isDead) {
-//			train.section = i;
-//			train.dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
-//			train.dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
-//			train = train.getSection(i - 1, true);
-//			i++;
-//		}
-//	}
-//
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {
 		if (genericEntity != null && genericEntity instanceof EntityTrain) {
@@ -292,10 +269,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private void setTrainType(int type) {
 		trainType = type;
 		dataManager.set(MTR_TRAIN_TYPE, trainType);
-	}
-
-	private double sq(double d) {
-		return d * d;
 	}
 
 	public static enum EnumTrainType {
