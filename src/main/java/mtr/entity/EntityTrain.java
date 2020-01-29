@@ -19,6 +19,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
@@ -241,19 +242,31 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		uuidSibling = sibling;
 	}
 
-	public void setDoors(boolean leftDoor, boolean rightDoor) {
-		dataManager.set(MTR_DOOR_LEFT_OPENED, leftDoor);
-		dataManager.set(MTR_DOOR_RIGHT_OPENED, rightDoor);
+	public void setDoors(EnumFacing doorDirection) {
+		if (doorDirection == null) {
+			dataManager.set(MTR_DOOR_LEFT_OPENED, false);
+			dataManager.set(MTR_DOOR_RIGHT_OPENED, false);
+		} else if (entitySibling != null) {
+			final EnumFacing trainFacing = EnumFacing.fromAngle(360 - getTrainAngle(entitySibling));
+			if ((trainFacing == doorDirection || trainFacing.rotateY() == doorDirection) != trainType < 0)
+				dataManager.set(MTR_DOOR_LEFT_OPENED, true);
+			else
+				dataManager.set(MTR_DOOR_RIGHT_OPENED, true);
+		}
 	}
 
 	private void applyYawToPassenger(Entity passenger) {
 		final Entity sibling = world.isRemote ? getSiblingClient() : entitySibling;
 		if (sibling != null) {
-			passengerAngleYaw = (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
+			passengerAngleYaw = getTrainAngle(sibling);
 			passenger.rotationYaw -= MathTools.angleDifference(passengerAngleYaw, prevPassengerAngleYaw);
 			prevPassengerAngleYaw = passengerAngleYaw;
 			passenger.setRotationYawHead(passenger.rotationYaw);
 		}
+	}
+
+	private float getTrainAngle(Entity sibling) {
+		return (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
 	}
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {

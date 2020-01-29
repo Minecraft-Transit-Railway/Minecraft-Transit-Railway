@@ -1,14 +1,13 @@
 {
 	"textures": {
 		"track": "blocks/rail_normal",
-		"door": "items/door_wood",
-		"redstone": "blocks/redstone_block"
+		"door": "items/door_wood"
 	},
 	"parent": "block/block",
 	"elements": [
 		{
-			"from": [ 6, 4.01, 1 ],
-			"to": [ 10, 4.01, 5 ],
+			"from": [ 6, 4.01, 2 ],
+			"to": [ 10, 4.01, 6 ],
 			"faces": {
 				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#track" }
 			}
@@ -21,19 +20,27 @@
 			}
 		},
 		{
+			"from": [ 4, 2, -0.01 ],
+			"to": [ 12, 4.01, 2 ],
+			"faces": {
+				"up": { "uv": [ 0, 0, 16, 4 ], "texture": "#tracklight" },
+				"north": { "uv": [ 0, 0, 16, 4 ], "texture": "#tracklight" }
+			}
+		},
+		{
 			"from": [ -0.01, 2, 6 ],
 			"to": [ 2, 4.01, 10 ],
 			"faces": {
-				"up": { "uv": [ 0, 4, 4, 12 ], "texture": "#redstone" },
-				"west": { "uv": [ 4, 0, 12, 4 ], "texture": "#redstone" }
+				"up": { "uv": [ 0, 4, 4, 12 ], "texture": "#doorlight" },
+				"west": { "uv": [ 4, 0, 12, 4 ], "texture": "#doorlight" }
 			}
 		},
 		{
 			"from": [ 14, 2, 6 ],
 			"to": [ 16.01, 4.01, 10 ],
 			"faces": {
-				"up": { "uv": [ 12, 4, 16, 12 ], "texture": "#redstone" },
-				"east": { "uv": [ 4, 0, 12, 4 ], "texture": "#redstone" }
+				"up": { "uv": [ 12, 4, 16, 12 ], "texture": "#doorlight" },
+				"east": { "uv": [ 4, 0, 12, 4 ], "texture": "#doorlight" }
 			}
 		}
 	]

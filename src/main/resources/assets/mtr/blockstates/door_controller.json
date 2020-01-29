@@ -1,7 +1,11 @@
 {
 	"forge_marker": 1,
 	"defaults": {
-		"model": "mtr:door_controller"
+		"model": "mtr:door_controller",
+		"textures": {
+			"doorlight": "blocks/wool_colored_black",
+			"tracklight": "blocks/wool_colored_black"
+		}
 	},
 	"variants": {
 		"facing": {
@@ -11,6 +15,13 @@
 			"east": { "submodel": { "overlay": { "model": "mtr:door_controller_overlay" } }, "y": 90, "uvlock": true },
 			"south": { "submodel": { "overlay": { "model": "mtr:door_controller_overlay" } }, "y": 180, "uvlock": true },
 			"west": { "submodel": { "overlay": { "model": "mtr:door_controller_overlay" } }, "y": 270, "uvlock": true }
+		},
+		"state": {
+			"opening_soon": {},
+			"opened": { "textures": { "doorlight": "blocks/redstone_block" } },
+			"closed": {},
+			"leaving": { "textures": { "tracklight": "blocks/redstone_block" } },
+			"gone": {}
 		}
 	}
 }
