@@ -36,22 +36,43 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		GlStateManager.translate(x, y + 0.375, z);
 		GlStateManager.rotate(-entity.rotationYaw, 0, 1, 0);
 		GlStateManager.rotate(180 + entity.rotationPitch, 0, 0, 1);
+
 		bindTexture(new ResourceLocation("textures/entity/minecart.png"));
 		modelBogie.render(entity, 0, 0, -0.1F, 0, 0, 0.0625F);
+
 		GlStateManager.popMatrix();
 
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 
-		final Entity entitySibling = entity.getSiblingClient();
-		if (entitySibling == null || !(entitySibling instanceof EntityTrain))
+		final EntityTrain entitySibling = entity.getSiblingClient();
+		if (entitySibling == null)
 			return;
-		final Midpoint midpoint = getMidpointClient(entity, entitySibling, partialTicks);
+		final Midpoint midpointSibling = getMidpointClient(entity, entitySibling, partialTicks);
 		final int trainType = entity.getTrainTypeClient();
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y + 1.5, z);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 
+		renderConnection(entity, midpointSibling);
+
+		GlStateManager.translate(midpointSibling.midX, midpointSibling.midY, midpointSibling.midZ);
+		GlStateManager.rotate((float) Math.toDegrees(midpointSibling.angleYaw) + (trainType < 0 ? 180 : 0), 0, 1, 0);
+		GlStateManager.rotate((float) Math.toDegrees(midpointSibling.anglePitch) * Math.signum(trainType), 1, 0, 0);
+		GlStateManager.scale(-1, -1, 1);
+
+		bindEntityTexture(entity);
+		render(entity, EnumTrainType.getByDirection(trainType), entity.getLeftDoorClient(entitySibling), entity.getRightDoorClient(entitySibling));
+
+		GlStateManager.disableLighting();
+
+		renderLights();
+
+		GlStateManager.enableLighting();
+		GlStateManager.popMatrix();
+	}
+
+	protected void renderConnection(T entity, Midpoint midpoint) {
 		final Entity entityConnection = entity.getConnectionClient();
 		if (entityConnection != null && entityConnection instanceof EntityTrain) {
 			final Vec3d[] begin = new Vec3d[8], end = new Vec3d[8];
@@ -76,6 +97,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 			if (connectionTrain.connectionVectorClient != null && valid) {
 				GlStateManager.pushMatrix();
 				GlStateManager.disableTexture2D();
+
 				final Tessellator tessellator = Tessellator.getInstance();
 				final BufferBuilder bufferBuilder = tessellator.getBuffer();
 				bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
@@ -111,23 +133,11 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 				bufferBuilder.pos(end[5].x, end[5].y, end[5].z).color(255, 255, 255, 255).endVertex();
 
 				tessellator.draw();
+
 				GlStateManager.enableTexture2D();
 				GlStateManager.popMatrix();
 			}
 		}
-
-		GlStateManager.translate(midpoint.midX, midpoint.midY, midpoint.midZ);
-		GlStateManager.rotate((float) Math.toDegrees(midpoint.angleYaw) + (trainType < 0 ? 180 : 0), 0, 1, 0);
-		GlStateManager.rotate((float) Math.toDegrees(midpoint.anglePitch) * Math.signum(trainType), 1, 0, 0);
-		GlStateManager.scale(-1, -1, 1);
-		bindEntityTexture(entity);
-		final float leftDoor = entity.getLeftDoorClient() ? 1 : 0;
-		final float rightDoor = entity.getRightDoorClient() ? 1 : 0;
-		render(entity, EnumTrainType.getByDirection(trainType), leftDoor, rightDoor);
-		GlStateManager.disableLighting();
-		renderLights();
-		GlStateManager.enableLighting();
-		GlStateManager.popMatrix();
 	}
 
 	protected abstract void render(T entity, EnumTrainType trainType, float leftDoor, float rightDoor);

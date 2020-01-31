@@ -22,6 +22,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -55,8 +56,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private EntityTrain entitySibling, entityConnection;
 
 	private int trainType;
-
-	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm;
+	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm, leftDoorClient, rightDoorClient;
+	private long leftDoorTimeClient, rightDoorTimeClient;
 
 	private static final int DISTANCE_OFFSET = 10;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
@@ -210,20 +211,40 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean getLeftDoorClient() {
-		return dataManager.get(MTR_DOOR_LEFT_OPENED);
+	public float getLeftDoorClient(EntityTrain entitySiblingClient) {
+		final boolean opened = dataManager.get(MTR_DOOR_LEFT_OPENED);
+		final Tuple tuple = getDoorClient(opened, leftDoorClient, leftDoorTimeClient);
+		leftDoorClient = (float) tuple.getFirst();
+		leftDoorTimeClient = (long) tuple.getSecond();
+
+		entitySiblingClient.leftDoorClient = leftDoorClient;
+		entitySiblingClient.leftDoorTimeClient = leftDoorTimeClient;
+
+		return leftDoorClient;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean getRightDoorClient() {
-		return dataManager.get(MTR_DOOR_RIGHT_OPENED);
+	public float getRightDoorClient(EntityTrain entitySiblingClient) {
+		final boolean opened = dataManager.get(MTR_DOOR_RIGHT_OPENED);
+		final Tuple tuple = getDoorClient(opened, rightDoorClient, rightDoorTimeClient);
+		rightDoorClient = (float) tuple.getFirst();
+		rightDoorTimeClient = (long) tuple.getSecond();
+
+		entitySiblingClient.rightDoorClient = rightDoorClient;
+		entitySiblingClient.rightDoorTimeClient = rightDoorTimeClient;
+
+		return rightDoorClient;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public Entity getSiblingClient() {
+	public EntityTrain getSiblingClient() {
 		if (cacheSiblingID == ID_DEFAULT)
 			cacheSiblingID = dataManager.get(MTR_SIBLING_ID);
-		return world.getEntityByID(cacheSiblingID);
+		final Entity entity = world.getEntityByID(cacheSiblingID);
+		if (entity instanceof EntityTrain)
+			return (EntityTrain) entity;
+		else
+			return null;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -267,6 +288,33 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	private float getTrainAngle(Entity sibling) {
 		return (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
+	}
+
+	@SideOnly(Side.CLIENT)
+	private Tuple getDoorClient(boolean open, float door, long doorTime) {
+		long newDoorTime;
+		if (open) {
+			if (door < 1) {
+				newDoorTime = System.currentTimeMillis();
+				if (doorTime == 0)
+					doorTime = newDoorTime;
+				door += (newDoorTime - doorTime) / 1000F;
+			} else {
+				newDoorTime = 0;
+				door = 1;
+			}
+		} else {
+			if (door > 0) {
+				newDoorTime = System.currentTimeMillis();
+				if (doorTime == 0)
+					doorTime = newDoorTime;
+				door -= (newDoorTime - doorTime) / 1000F;
+			} else {
+				newDoorTime = 0;
+				door = 0;
+			}
+		}
+		return new Tuple(door, newDoorTime);
 	}
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {
