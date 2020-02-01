@@ -3,7 +3,6 @@
 	"defaults": {
 		"model": "mtr:door_controller",
 		"textures": {
-			"doorlight": "blocks/wool_colored_black",
 			"tracklight": "blocks/wool_colored_black"
 		}
 	},
@@ -18,10 +17,14 @@
 		},
 		"state": {
 			"opening_soon": {},
-			"opened": { "textures": { "doorlight": "blocks/redstone_block" } },
+			"opened": {},
 			"closed": {},
 			"leaving": { "textures": { "tracklight": "blocks/redstone_block" } },
 			"gone": {}
+		},
+		"timer": {
+			"true": { "textures": { "door": "items/clock_00" } },
+			"false": { "textures": { "door": "items/redstone_dust" } }
 		}
 	}
 }

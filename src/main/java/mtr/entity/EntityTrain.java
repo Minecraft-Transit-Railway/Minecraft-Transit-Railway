@@ -211,28 +211,20 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	@SideOnly(Side.CLIENT)
-	public float getLeftDoorClient(EntityTrain entitySiblingClient) {
+	public float getLeftDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_LEFT_OPENED);
-		final Tuple tuple = getDoorClient(opened, leftDoorClient, leftDoorTimeClient);
+		final Tuple tuple = MathTools.updateDoor(opened, leftDoorClient, leftDoorTimeClient);
 		leftDoorClient = (float) tuple.getFirst();
 		leftDoorTimeClient = (long) tuple.getSecond();
-
-		entitySiblingClient.leftDoorClient = leftDoorClient;
-		entitySiblingClient.leftDoorTimeClient = leftDoorTimeClient;
-
 		return leftDoorClient;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public float getRightDoorClient(EntityTrain entitySiblingClient) {
+	public float getRightDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_RIGHT_OPENED);
-		final Tuple tuple = getDoorClient(opened, rightDoorClient, rightDoorTimeClient);
+		final Tuple tuple = MathTools.updateDoor(opened, rightDoorClient, rightDoorTimeClient);
 		rightDoorClient = (float) tuple.getFirst();
 		rightDoorTimeClient = (long) tuple.getSecond();
-
-		entitySiblingClient.rightDoorClient = rightDoorClient;
-		entitySiblingClient.rightDoorTimeClient = rightDoorTimeClient;
-
 		return rightDoorClient;
 	}
 
@@ -288,33 +280,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	private float getTrainAngle(Entity sibling) {
 		return (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
-	}
-
-	@SideOnly(Side.CLIENT)
-	private Tuple getDoorClient(boolean open, float door, long doorTime) {
-		long newDoorTime;
-		if (open) {
-			if (door < 1) {
-				newDoorTime = System.currentTimeMillis();
-				if (doorTime == 0)
-					doorTime = newDoorTime;
-				door += (newDoorTime - doorTime) / 1000F;
-			} else {
-				newDoorTime = 0;
-				door = 1;
-			}
-		} else {
-			if (door > 0) {
-				newDoorTime = System.currentTimeMillis();
-				if (doorTime == 0)
-					doorTime = newDoorTime;
-				door -= (newDoorTime - doorTime) / 1000F;
-			} else {
-				newDoorTime = 0;
-				door = 0;
-			}
-		}
-		return new Tuple(door, newDoorTime);
 	}
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {

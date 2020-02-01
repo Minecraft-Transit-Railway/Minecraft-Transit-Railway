@@ -2,9 +2,14 @@ package mtr;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MathTools {
+
+	private static final float DOOR_DURATION_MILLISECONDS = 2000F;
 
 	/** Returns whichever one of the two angles (a1 or a2) is closer to angle. */
 	public static double findCloserAngle(double angle, double a1, double a2) {
@@ -89,6 +94,34 @@ public class MathTools {
 		return a;
 	}
 
+	@SideOnly(Side.CLIENT)
+	public static Tuple updateDoor(boolean open, float door, long doorTime) {
+		long newDoorTime;
+		if (open) {
+			if (door < 1) {
+				newDoorTime = System.currentTimeMillis();
+				if (doorTime == 0)
+					doorTime = newDoorTime;
+				door += (newDoorTime - doorTime) / DOOR_DURATION_MILLISECONDS;
+			} else {
+				newDoorTime = 0;
+				door = 1;
+			}
+		} else {
+			if (door > 0) {
+				newDoorTime = System.currentTimeMillis();
+				if (doorTime == 0)
+					doorTime = newDoorTime;
+				door -= (newDoorTime - doorTime) / DOOR_DURATION_MILLISECONDS;
+			} else {
+				newDoorTime = 0;
+				door = 0;
+			}
+		}
+		return new Tuple(door, newDoorTime);
+	}
+
+	@SideOnly(Side.CLIENT)
 	public static ModelRenderer part(ModelBase model, int texOffsetX, int texOffsetZ, float offX, float offY, float offZ, int width, int height, int depth, float rotX, float rotY, float rotZ, int texSizeX, int texSizeZ) {
 		final ModelRenderer part = new ModelRenderer(model, texOffsetX, texOffsetZ);
 		part.addBox(offX, offY, offZ, width, height, depth);
