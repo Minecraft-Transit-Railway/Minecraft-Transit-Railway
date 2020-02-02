@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/cube_top_overlay_base",
+	"textures": {
+		"main": "blocks/stone",
+		"top": "mtr:blocks/platform_none"
+	}
+}

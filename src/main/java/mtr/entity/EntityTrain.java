@@ -6,8 +6,6 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import mods.railcraft.api.carts.ILinkableCart;
-import mods.railcraft.common.blocks.tracks.TrackTools;
-import mods.railcraft.common.blocks.tracks.outfitted.TrackKits;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
 import mtr.MathTools;
@@ -23,8 +21,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -105,25 +101,17 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
 				entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
 
-				LinkageManager.INSTANCE.createLink(this, entitySibling);
+				if (entitySibling != null) {
+					LinkageManager.INSTANCE.createLink(this, entitySibling);
 
-				final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
-				final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
-				if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
-					entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
-				else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
-					entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
-				else
-					entityConnection = syncEntity(null, MTR_CONNECTION_ID);
-			}
-
-			if (motionX == 0 && motionZ == 0) {
-				BlockPos railPos = new BlockPos(MathHelper.floor(posX), MathHelper.floor(posY), MathHelper.floor(posZ));
-				if (TrackTools.isRailBlockAt(world, railPos.down()))
-					railPos = railPos.down();
-
-				if (TrackTools.getTrackKitAt(world, railPos) == TrackKits.LOCKING.getTrackKit()) {
-
+					final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
+					final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
+					if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
+						entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
+					else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
+						entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
+					else
+						entityConnection = syncEntity(null, MTR_CONNECTION_ID);
 				}
 			}
 		}

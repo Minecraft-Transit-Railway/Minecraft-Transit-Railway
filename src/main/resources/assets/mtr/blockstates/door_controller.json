@@ -2,9 +2,7 @@
 	"forge_marker": 1,
 	"defaults": {
 		"model": "mtr:door_controller",
-		"textures": {
-			"tracklight": "blocks/wool_colored_black"
-		}
+		"textures": { "tracklight": "blocks/wool_colored_black" }
 	},
 	"variants": {
 		"facing": {

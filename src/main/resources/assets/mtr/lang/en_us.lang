@@ -1,6 +1,7 @@
 tile.bridge_creator.name=Bridge Creator
 tile.door_controller.name=Door Controller
 tile.logo.name=MTR Logo
+tile.platform.name=Platform
 tile.rail_marker.name=Rail Marker
 tile.rail_scaffold.name=Rail Scaffolding
 

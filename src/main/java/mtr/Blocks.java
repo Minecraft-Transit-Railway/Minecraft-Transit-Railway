@@ -11,6 +11,7 @@ public class Blocks {
 	public static final Block logo = null;
 	public static final Block oba_controller = null;
 	public static final Block oba_screen = null;
+	public static final Block platform = null;
 	public static final Block rail_marker = null;
 	public static final Block rail_scaffold = null;
 
@@ -20,6 +21,8 @@ public class Blocks {
 	public static final ItemBlock item_block_door_controller = null;
 	@ObjectHolder("logo")
 	public static final ItemBlock item_block_logo = null;
+	@ObjectHolder("platform")
+	public static final ItemBlock item_block_platform = null;
 	@ObjectHolder("rail_marker")
 	public static final ItemBlock item_block_rail_marker = null;
 	@ObjectHolder("rail_scaffold")

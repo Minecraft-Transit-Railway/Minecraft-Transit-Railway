@@ -62,7 +62,7 @@ public class BlockDoorController extends Block {
 		switch (state.getValue(STATE)) {
 		case OPENING_SOON:
 			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.OPENED));
-			setDoors(worldIn, pos, getTrackDirection(worldIn, pos));
+			setDoors(worldIn, pos, true);
 
 			if (state.getValue(TIMER))
 				worldIn.scheduleUpdate(pos, this, 120);
@@ -71,7 +71,7 @@ public class BlockDoorController extends Block {
 			break;
 		case OPENED:
 			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.CLOSED));
-			setDoors(worldIn, pos, null);
+			setDoors(worldIn, pos, false);
 			worldIn.scheduleUpdate(pos, this, 60);
 			break;
 		case CLOSED:
@@ -184,10 +184,21 @@ public class BlockDoorController extends Block {
 		return null;
 	}
 
-	private void setDoors(World worldIn, BlockPos pos, EnumFacing doorDirection) {
+	private void setDoors(World worldIn, BlockPos pos, boolean open) {
+		final EnumFacing trackDirection = getTrackDirection(worldIn, pos);
+
 		final List<EntityMinecart> train = worldIn.getEntitiesWithinAABB(EntityMinecart.class, new AxisAlignedBB(pos));
 		if (!train.isEmpty())
-			LinkageManager.INSTANCE.streamTrain(train.get(0)).filter(t -> t instanceof EntityTrain).forEach(t -> ((EntityTrain) t).setDoors(doorDirection));
+			LinkageManager.INSTANCE.streamTrain(train.get(0)).filter(t -> t instanceof EntityTrain).forEach(t -> ((EntityTrain) t).setDoors(open ? trackDirection : null));
+
+		final BlockPos platformPos = pos.offset(trackDirection.getOpposite());
+		final IBlockState platformState = worldIn.getBlockState(platformPos);
+		if (platformState.getBlock() instanceof BlockPlatform) {
+			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.NORTH, open);
+			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.EAST, open);
+			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.SOUTH, open);
+			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.WEST, open);
+		}
 	}
 
 	private enum TrainState implements IStringSerializable {
