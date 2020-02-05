@@ -1,18 +1,28 @@
 package mtr;
 
+import mtr.block.BlockAPGDoor;
+import mtr.block.BlockAPGGlass;
+import mtr.block.BlockAPGGlassEnd;
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockDoorController;
 import mtr.block.BlockLogo;
+import mtr.block.BlockPSDDoor;
+import mtr.block.BlockPSDGlass;
+import mtr.block.BlockPSDGlassEnd;
 import mtr.block.BlockPlatform;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
+import mtr.item.ItemAPG;
 import mtr.item.ItemBrush;
 import mtr.item.ItemLightRail1;
 import mtr.item.ItemMTrain;
+import mtr.item.ItemPSD;
 import mtr.item.ItemRailPainter;
 import mtr.item.ItemSP1900;
 import mtr.item.ItemTemplate;
+import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityBridgeCreator;
+import mtr.tile.TileEntityPSDDoor;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -35,23 +45,46 @@ public class Registry {
 	public static void registerBlocks(final RegistryEvent.Register<Block> event) {
 		// Blocks
 		final IForgeRegistry<Block> registry = event.getRegistry();
+
+		registry.register(setBlockName(new BlockAPGDoor(), "apg_door"));
+		registry.register(setBlockName(new BlockAPGGlass(), "apg_glass"));
+		registry.register(setBlockName(new BlockAPGGlassEnd(), "apg_glass_end"));
+
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
 		registry.register(setBlockName(new BlockDoorController(), "door_controller"));
 		registry.register(setBlockName(new BlockLogo(), "logo"));
 		registry.register(setBlockName(new BlockPlatform(), "platform"));
+
+		registry.register(setBlockName(new BlockPSDDoor(), "psd_door"));
+		registry.register(setBlockName(new BlockPSDGlass(), "psd_glass"));
+		registry.register(setBlockName(new BlockPSDGlassEnd(), "psd_glass_end"));
+
 		registry.register(setBlockName(new BlockRailMarker(), "rail_marker"));
 		registry.register(setBlockName(new BlockRailScaffold(), "rail_scaffold"));
+
 		// Tile entities
+		GameRegistry.registerTileEntity(TileEntityAPGDoor.class, new ResourceLocation("apg_door"));
 		GameRegistry.registerTileEntity(TileEntityBridgeCreator.class, new ResourceLocation("bridge_creator"));
+		GameRegistry.registerTileEntity(TileEntityPSDDoor.class, new ResourceLocation("psd_door"));
 	}
 
 	@SubscribeEvent
 	public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
+
+		registry.register(setItemBlock(Blocks.apg_door));
+		registry.register(setItemBlock(Blocks.apg_glass));
+		registry.register(setItemBlock(Blocks.apg_glass_end));
+
 		registry.register(setItemBlock(Blocks.bridge_creator));
 		registry.register(setItemBlock(Blocks.door_controller));
 		registry.register(setItemBlock(Blocks.logo));
 		registry.register(setItemBlock(Blocks.platform));
+
+		registry.register(setItemBlock(Blocks.psd_door));
+		registry.register(setItemBlock(Blocks.psd_glass));
+		registry.register(setItemBlock(Blocks.psd_glass_end));
+
 		registry.register(setItemBlock(Blocks.rail_marker));
 		registry.register(setItemBlock(Blocks.rail_scaffold));
 	}
@@ -59,9 +92,11 @@ public class Registry {
 	@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
+		registry.register(setItemName(new ItemAPG(), "apg"));
 		registry.register(setItemName(new ItemBrush(), "brush"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
+		registry.register(setItemName(new ItemPSD(), "psd"));
 		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
 		registry.register(setItemName(new ItemTemplate(), "template"));
@@ -78,9 +113,11 @@ public class Registry {
 		registerBlockModel(Blocks.rail_marker, 0);
 		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items
+		registerItemModel(Items.apg, 3);
 		registerItemModel(Items.brush);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);
+		registerItemModel(Items.psd, 3);
 		registerItemModel(Items.rail_painter);
 		registerItemModel(Items.sp1900, 3);
 		registerItemModel(Items.template);

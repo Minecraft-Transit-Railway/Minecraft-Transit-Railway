@@ -96,11 +96,6 @@ public class BlockBridgeCreator extends BlockContainer {
 	}
 
 	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { BURNING });
-	}
-
-	@Override
 	public boolean hasTileEntity(IBlockState state) {
 		return true;
 	}
@@ -108,6 +103,11 @@ public class BlockBridgeCreator extends BlockContainer {
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new TileEntityBridgeCreator();
+	}
+
+	@Override
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { BURNING });
 	}
 
 	public static void setState(boolean burning, World worldIn, BlockPos pos) {

@@ -1,18 +1,29 @@
+tile.apg_door.name=Automatic Platform Gates
+tile.apg_glass.name=Automatic Platform Gates
+tile.apg_glass_end.name=Automatic Platform Gates
 tile.bridge_creator.name=Bridge Creator
 tile.door_controller.name=Door Controller
 tile.logo.name=MTR Logo
 tile.platform.name=Platform
+tile.psd_door.name=Platform Screen Doors
+tile.psd_glass.name=Platform Screen Doors
+tile.psd_glass_end.name=Platform Screen Doors
 tile.rail_marker.name=Rail Marker
 tile.rail_scaffold.name=Rail Scaffolding
 
+item.apg.name=Automatic Platform Gates
 item.brush.name=Brush
 item.light_rail_1.name=Light Rail (Phase 1)
 item.m_train.name=M Train
+item.psd.name=Platform Screen Doors
 item.rail_painter.name=Rail Painter
 item.sp1900.name=SP1900
 item.template.name=Bridge Template
 
 gui.bus_stops=Bus Stops
+gui.psd_apg_door=Door section
+gui.psd_apg_glass=Glass section
+gui.psd_apg_glass_end=End section
 gui.rail_painter_connecting=Began painting...
 gui.rail_painter_connected=Scaffolding painted.
 gui.train_head=Head
