@@ -1,5 +1,7 @@
 package mtr.entity;
 
+import mtr.Items;
+import net.minecraft.item.Item;
 import net.minecraft.world.World;
 
 public class EntityMTrain extends EntityTrain {
@@ -20,5 +22,10 @@ public class EntityMTrain extends EntityTrain {
 	@Override
 	public float getEndSpacing() {
 		return 4.5F;
+	}
+
+	@Override
+	protected Item getTrainItem() {
+		return Items.m_train;
 	}
 }

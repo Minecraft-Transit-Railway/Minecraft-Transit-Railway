@@ -12,6 +12,7 @@ import mtr.MathTools;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -71,6 +72,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	public abstract float getEndSpacing();
 
+	protected abstract Item getTrainItem();
+
 	@Override
 	public void setDead() {
 		if (entitySibling != null)
@@ -78,6 +81,12 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		if (world.isRemote)
 			world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 0, 0, 0);
 		super.setDead();
+	}
+
+	@Override
+	public void killAndDrop(EntityMinecart cart) {
+		super.killAndDrop(cart);
+		dropItemWithOffset(getTrainItem(), 1, 0);
 	}
 
 	@Override
