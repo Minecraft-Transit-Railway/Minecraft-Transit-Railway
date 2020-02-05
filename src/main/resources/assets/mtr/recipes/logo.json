@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:iron_block"
+		},
+		{
+			"item": "minecraft:dye",
+			"data": 1
+		}
+	],
+	"result": {
+		"item": "mtr:logo",
+		"count": 1
+	}
+}

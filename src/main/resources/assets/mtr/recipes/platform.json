@@ -1,0 +1,41 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:stonebrick",
+			"data": 0
+		},
+		{
+			"item": "minecraft:dye",
+			"data": 11
+		},
+		{
+			"item": "minecraft:dye",
+			"data": 15
+		}
+	],
+	"result": {
+		"item": "mtr:platform",
+		"count": 6
+	}
+}

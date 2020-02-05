@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:m_train",
+			"data": 1
+		}
+	],
+	"result": {
+		"item": "mtr:m_train",
+		"count": 1,
+		"data": 0
+	}
+}

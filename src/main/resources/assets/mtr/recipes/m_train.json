@@ -1,0 +1,26 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:minecart"
+		},
+		{
+			"item": "minecraft:minecart"
+		},
+		{
+			"item": "minecraft:minecart"
+		},
+		{
+			"item": "minecraft:minecart"
+		},
+		{
+			"item": "minecraft:dye",
+			"data": 15
+		}
+	],
+	"result": {
+		"item": "mtr:m_train",
+		"count": 1,
+		"data": 0
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"iri",
+		"ifi",
+		"iii"
+	],
+	"key": {
+		"i": {
+			"item": "minecraft:iron_ingot"
+		},
+		"f": {
+			"item": "minecraft:furnace"
+		},
+		"r": {
+			"item": "minecraft:rail"
+		}
+	},
+	"result": {
+		"item": "mtr:bridge_creator",
+		"count": 1
+	}
+}
