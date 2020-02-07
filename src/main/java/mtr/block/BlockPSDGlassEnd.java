@@ -1,9 +1,13 @@
 package mtr.block;
 
+import java.util.Random;
+
+import mtr.Items;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -13,6 +17,16 @@ import net.minecraft.world.IBlockAccess;
 public class BlockPSDGlassEnd extends BlockPSDAPGBase {
 
 	public static final PropertyEnum<PSDGlassEnd> SIDE_END = PropertyEnum.create("side_end", PSDGlassEnd.class);
+
+	@Override
+	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+		return Items.psd;
+	}
+
+	@Override
+	public int damageDropped(IBlockState state) {
+		return 2;
+	}
 
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {

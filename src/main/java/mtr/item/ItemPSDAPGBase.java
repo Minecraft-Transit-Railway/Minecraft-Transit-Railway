@@ -31,8 +31,9 @@ public abstract class ItemPSDAPGBase extends Item {
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		pos = pos.offset(facing);
 
+		final ItemStack itemStack = player.getHeldItem(hand);
 		final boolean isPSD = this instanceof ItemPSD;
-		final int itemDamage = player.getHeldItem(hand).getItemDamage();
+		final int itemDamage = itemStack.getItemDamage();
 		final boolean isDoor = itemDamage == 0;
 		final EnumFacing playerFacing = player.getHorizontalFacing();
 
@@ -50,6 +51,7 @@ public abstract class ItemPSDAPGBase extends Item {
 			// TODO PSD top
 		}
 
+		itemStack.shrink(1);
 		return EnumActionResult.SUCCESS;
 	}
 

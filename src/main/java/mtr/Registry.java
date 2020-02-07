@@ -72,20 +72,10 @@ public class Registry {
 	public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 
-		registry.register(setItemBlock(Blocks.apg_door));
-		registry.register(setItemBlock(Blocks.apg_glass));
-		registry.register(setItemBlock(Blocks.apg_glass_end));
-
 		registry.register(setItemBlock(Blocks.bridge_creator));
 		registry.register(setItemBlock(Blocks.door_controller));
 		registry.register(setItemBlock(Blocks.logo));
 		registry.register(setItemBlock(Blocks.platform));
-
-		registry.register(setItemBlock(Blocks.psd_door));
-		registry.register(setItemBlock(Blocks.psd_glass));
-		registry.register(setItemBlock(Blocks.psd_glass_end));
-
-		registry.register(setItemBlock(Blocks.rail_marker));
 		registry.register(setItemBlock(Blocks.rail_scaffold));
 	}
 

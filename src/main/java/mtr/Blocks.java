@@ -24,13 +24,6 @@ public class Blocks {
 	public static final Block rail_marker = null;
 	public static final Block rail_scaffold = null;
 
-	@ObjectHolder("apg_door")
-	public static final ItemBlock item_block_apg_door = null;
-	@ObjectHolder("apg_glass")
-	public static final ItemBlock item_block_apg_glass = null;
-	@ObjectHolder("apg_glass_end")
-	public static final ItemBlock item_block_apg_glass_end = null;
-
 	@ObjectHolder("bridge_creator")
 	public static final ItemBlock item_block_bridge_creator = null;
 	@ObjectHolder("door_controller")
@@ -39,16 +32,6 @@ public class Blocks {
 	public static final ItemBlock item_block_logo = null;
 	@ObjectHolder("platform")
 	public static final ItemBlock item_block_platform = null;
-
-	@ObjectHolder("psd_door")
-	public static final ItemBlock item_block_psd_door = null;
-	@ObjectHolder("psd_glass")
-	public static final ItemBlock item_block_psd_glass = null;
-	@ObjectHolder("psd_glass_end")
-	public static final ItemBlock item_block_psd_glass_end = null;
-
-	@ObjectHolder("rail_marker")
-	public static final ItemBlock item_block_rail_marker = null;
 	@ObjectHolder("rail_scaffold")
 	public static final ItemBlock item_block_rail_scaffold = null;
 }
