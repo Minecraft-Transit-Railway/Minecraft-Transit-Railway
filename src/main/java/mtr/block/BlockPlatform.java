@@ -42,9 +42,31 @@ public class BlockPlatform extends BlockHorizontal {
 		if (facing == null)
 			facing = EnumFacing.NORTH;
 
-		final DoorType doorType = DoorType.NONE; // TODO
+		final Block blockAbove = worldIn.getBlockState(pos.up()).getBlock();
 
-		final int side = 0; // TODO
+		DoorType doorType;
+		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd)
+			doorType = DoorType.PSD;
+		else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass || blockAbove instanceof BlockAPGGlassEnd)
+			doorType = DoorType.APG;
+		else
+			doorType = DoorType.NONE;
+
+		final boolean aboveIsDoor = blockAbove instanceof BlockPSDAPGDoorBase;
+		final boolean leftAboveIsDoor = worldIn.getBlockState(pos.up().offset(facing.rotateYCCW())).getBlock() instanceof BlockPSDAPGDoorBase;
+		final boolean rightAboveIsDoor = worldIn.getBlockState(pos.up().offset(facing.rotateY())).getBlock() instanceof BlockPSDAPGDoorBase;
+
+		int side;
+		if (aboveIsDoor && rightAboveIsDoor)
+			side = 2;
+		else if (aboveIsDoor && leftAboveIsDoor)
+			side = 3;
+		else if (rightAboveIsDoor)
+			side = 1;
+		else if (leftAboveIsDoor)
+			side = 4;
+		else
+			side = 0;
 
 		return state.withProperty(FACING, facing).withProperty(DOOR_TYPE, doorType).withProperty(SIDE, side);
 	}

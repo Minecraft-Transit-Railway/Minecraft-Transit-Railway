@@ -6,6 +6,7 @@ import java.util.Random;
 import mods.railcraft.common.blocks.tracks.TrackTools;
 import mods.railcraft.common.carts.LinkageManager;
 import mods.railcraft.common.items.ItemCrowbar;
+import mtr.MTRUtilities;
 import mtr.entity.EntityTrain;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -102,7 +103,7 @@ public class BlockDoorController extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
+		if (MTRUtilities.getItemFromPlayer(playerIn, hand) instanceof ItemCrowbar) {
 			worldIn.setBlockState(pos, state.cycleProperty(TIMER));
 			return true;
 		} else {

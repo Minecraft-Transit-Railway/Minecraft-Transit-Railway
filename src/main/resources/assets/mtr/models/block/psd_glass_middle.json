@@ -1,6 +1,6 @@
 {
 	"parent": "block/block",
-	"elements":
+	"elements": [
 		{
 			"from": [ 2, 0, 8 ],
 			"to": [ 4, 16, 16 ],

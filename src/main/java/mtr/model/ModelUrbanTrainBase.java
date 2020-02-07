@@ -1,6 +1,6 @@
 package mtr.model;
 
-import mtr.MathTools;
+import mtr.MTRUtilities;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -1019,23 +1019,23 @@ public abstract class ModelUrbanTrainBase extends ModelBase {
 
 		for (int i = 0; i < 5; i++) {
 			// door left lower
-			DoorLeft[4 * i] = MathTools.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -160F + 80 * i, 312, 268);
-			DoorLeft[4 * i + 1] = MathTools.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -145F + 80 * i, 312, 268);
+			DoorLeft[4 * i] = MTRUtilities.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -160F + 80 * i, 312, 268);
+			DoorLeft[4 * i + 1] = MTRUtilities.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, 21F, -6F, -145F + 80 * i, 312, 268);
 			setRotation(DoorLeft[4 * i], 0F, (float) Math.PI, 0F);
 			setRotation(DoorLeft[4 * i + 1], 0F, (float) Math.PI, 0F);
 			// door left upper
-			DoorLeft[4 * i + 2] = MathTools.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -160F + 80 * i, 312, 268);
-			DoorLeft[4 * i + 3] = MathTools.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -145F + 80 * i, 312, 268);
+			DoorLeft[4 * i + 2] = MTRUtilities.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -160F + 80 * i, 312, 268);
+			DoorLeft[4 * i + 3] = MTRUtilities.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, 20.9F, -6F, -145F + 80 * i, 312, 268);
 			setRotation(DoorLeft[4 * i + 2], 0F, (float) Math.PI, -0.1106539F);
 			setRotation(DoorLeft[4 * i + 3], 0F, (float) Math.PI, -0.1106539F);
 			// door right lower
-			DoorRight[4 * i] = MathTools.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -175F + 80 * i, 312, 268);
-			DoorRight[4 * i + 1] = MathTools.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -160F + 80 * i, 312, 268);
+			DoorRight[4 * i] = MTRUtilities.part(this, 240, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -175F + 80 * i, 312, 268);
+			DoorRight[4 * i + 1] = MTRUtilities.part(this, 208, 102, 0.1F, 0F, 0F, 1, 14, 15, -21F, -6F, -160F + 80 * i, 312, 268);
 			setRotation(DoorRight[4 * i], 0F, 0F, 0F);
 			setRotation(DoorRight[4 * i + 1], 0F, 0F, 0F);
 			// door right upper
-			DoorRight[4 * i + 2] = MathTools.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -175F + 80 * i, 312, 268);
-			DoorRight[4 * i + 3] = MathTools.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -160F + 80 * i, 312, 268);
+			DoorRight[4 * i + 2] = MTRUtilities.part(this, 240, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -175F + 80 * i, 312, 268);
+			DoorRight[4 * i + 3] = MTRUtilities.part(this, 208, 68, 0F, -19F, 0F, 1, 19, 15, -20.9F, -6F, -160F + 80 * i, 312, 268);
 			setRotation(DoorRight[4 * i + 2], 0F, 0F, 0.1106539F);
 			setRotation(DoorRight[4 * i + 3], 0F, 0F, 0.1106539F);
 		}
@@ -1109,39 +1109,39 @@ public abstract class ModelUrbanTrainBase extends ModelBase {
 
 		for (int i = 0; i < 5; i++) {
 			// door left label lower
-			DoorLeftL[4 * i] = MathTools.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F, -160F - 0.5F + 80 * i, 30, 19);
-			DoorLeftL[4 * i + 1] = MathTools.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F, -145F - 0.5F + 80 * i, 30, 19);
+			DoorLeftL[4 * i] = MTRUtilities.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F, -160F - 0.5F + 80 * i, 30, 19);
+			DoorLeftL[4 * i + 1] = MTRUtilities.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, 20F, -6F, -145F - 0.5F + 80 * i, 30, 19);
 			setRotation(DoorLeftL[4 * i], 0, (float) Math.PI, 0);
 			setRotation(DoorLeftL[4 * i + 1], 0, (float) Math.PI, 0);
-			DoorLeftSideL[4 * i] = MathTools.part(this, 0, 7, 0F, 0F, -0.01F, 2, 9, 0, 20.5F, -6F, -174F + 80 * i, 30, 19);
-			DoorLeftSideL[4 * i + 1] = MathTools.part(this, 25, 7, 0F, 0F, 0.01F, 2, 9, 0, 20.5F, -6F, -146F + 80 * i, 30, 19);
+			DoorLeftSideL[4 * i] = MTRUtilities.part(this, 0, 7, 0F, 0F, -0.01F, 2, 9, 0, 20.5F, -6F, -174F + 80 * i, 30, 19);
+			DoorLeftSideL[4 * i + 1] = MTRUtilities.part(this, 25, 7, 0F, 0F, 0.01F, 2, 9, 0, 20.5F, -6F, -146F + 80 * i, 30, 19);
 			setRotation(DoorLeftSideL[4 * i], 0, (float) Math.PI, 0);
 			setRotation(DoorLeftSideL[4 * i + 1], 0, (float) Math.PI, 0);
 			// door left label upper
-			DoorLeftL[4 * i + 2] = MathTools.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F, -160F - 0.5F + 80 * i, 30, 19);
-			DoorLeftL[4 * i + 3] = MathTools.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F, -145F - 0.5F + 80 * i, 30, 19);
+			DoorLeftL[4 * i + 2] = MTRUtilities.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F, -160F - 0.5F + 80 * i, 30, 19);
+			DoorLeftL[4 * i + 3] = MTRUtilities.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, 20.89F, -6F, -145F - 0.5F + 80 * i, 30, 19);
 			setRotation(DoorLeftL[4 * i + 2], 0, (float) Math.PI, -0.1106539F);
 			setRotation(DoorLeftL[4 * i + 3], 0, (float) Math.PI, -0.1106539F);
-			DoorLeftSideL[4 * i + 2] = MathTools.part(this, 0, 0, 0F, -18.9F, -0.02F, 2, 19, 0, 20.5F, -6F, -174F + 80 * i, 30, 19);
-			DoorLeftSideL[4 * i + 3] = MathTools.part(this, 25, 0, 0F, -18.9F, 0.02F, 2, 19, 0, 20.5F, -6F, -146F + 80 * i, 30, 19);
+			DoorLeftSideL[4 * i + 2] = MTRUtilities.part(this, 0, 0, 0F, -18.9F, -0.02F, 2, 19, 0, 20.5F, -6F, -174F + 80 * i, 30, 19);
+			DoorLeftSideL[4 * i + 3] = MTRUtilities.part(this, 25, 0, 0F, -18.9F, 0.02F, 2, 19, 0, 20.5F, -6F, -146F + 80 * i, 30, 19);
 			setRotation(DoorLeftSideL[4 * i + 2], 0, (float) Math.PI, -0.1106539F);
 			setRotation(DoorLeftSideL[4 * i + 3], 0, (float) Math.PI, -0.1106539F);
 			// door right label lower
-			DoorRightL[4 * i] = MathTools.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F, -175F + 0.5F + 80 * i, 30, 19);
-			DoorRightL[4 * i + 1] = MathTools.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F, -160F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i] = MTRUtilities.part(this, 15, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F, -175F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i + 1] = MTRUtilities.part(this, 0, 11, 0.11F, -0.8F, 0F, 0, 12, 15, -20F, -6F, -160F + 0.5F + 80 * i, 30, 19);
 			setRotation(DoorRightL[4 * i], 0, 0, 0);
 			setRotation(DoorRightL[4 * i + 1], 0, 0, 0);
-			DoorRightSideL[4 * i] = MathTools.part(this, 25, 7, 0F, 0F, 0.01F, 2, 9, 0, -20.5F, -6F, -174F + 80 * i, 30, 19);
-			DoorRightSideL[4 * i + 1] = MathTools.part(this, 0, 7, 0F, 0F, -0.01F, 2, 9, 0, -20.5F, -6F, -146F + 80 * i, 30, 19);
+			DoorRightSideL[4 * i] = MTRUtilities.part(this, 25, 7, 0F, 0F, 0.01F, 2, 9, 0, -20.5F, -6F, -174F + 80 * i, 30, 19);
+			DoorRightSideL[4 * i + 1] = MTRUtilities.part(this, 0, 7, 0F, 0F, -0.01F, 2, 9, 0, -20.5F, -6F, -146F + 80 * i, 30, 19);
 			setRotation(DoorRightSideL[4 * i], 0, 0, 0);
 			setRotation(DoorRightSideL[4 * i + 1], 0, 0, 0);
 			// door right label upper
-			DoorRightL[4 * i + 2] = MathTools.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F, -175F + 0.5F + 80 * i, 30, 19);
-			DoorRightL[4 * i + 3] = MathTools.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F, -160F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i + 2] = MTRUtilities.part(this, 15, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F, -175F + 0.5F + 80 * i, 30, 19);
+			DoorRightL[4 * i + 3] = MTRUtilities.part(this, 0, 24, 0F, -19F, 0F, 1, 19, 14, -20.89F, -6F, -160F + 0.5F + 80 * i, 30, 19);
 			setRotation(DoorRightL[4 * i + 2], 0, 0, 0.1106539F);
 			setRotation(DoorRightL[4 * i + 3], 0, 0, 0.1106539F);
-			DoorRightSideL[4 * i + 2] = MathTools.part(this, 25, 0, 0F, -18.9F, 0.02F, 2, 19, 0, -20.5F, -6F, -174F + 80 * i, 30, 19);
-			DoorRightSideL[4 * i + 3] = MathTools.part(this, 0, 0, 0F, -18.9F, -0.02F, 2, 19, 0, -20.5F, -6F, -146F + 80 * i, 30, 19);
+			DoorRightSideL[4 * i + 2] = MTRUtilities.part(this, 25, 0, 0F, -18.9F, 0.02F, 2, 19, 0, -20.5F, -6F, -174F + 80 * i, 30, 19);
+			DoorRightSideL[4 * i + 3] = MTRUtilities.part(this, 0, 0, 0F, -18.9F, -0.02F, 2, 19, 0, -20.5F, -6F, -146F + 80 * i, 30, 19);
 			setRotation(DoorRightSideL[4 * i + 2], 0, 0, 0.1106539F);
 			setRotation(DoorRightSideL[4 * i + 3], 0, 0, 0.1106539F);
 		}

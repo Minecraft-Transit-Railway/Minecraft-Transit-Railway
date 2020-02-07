@@ -8,10 +8,10 @@
 	},
 	"variants": {
 		"facing": {
-			"north": {},
-			"east": { "y": 90 },
-			"south": { "y": 180 },
-			"west": { "y": 270 }
+			"west": {},
+			"north": { "y": 90 },
+			"east": { "y": 180 },
+			"south": { "y": 270 }
 		},
 		"side": {
 			"left": { "submodel": { "glass": { "model": "mtr:psd_glass_left" } } },

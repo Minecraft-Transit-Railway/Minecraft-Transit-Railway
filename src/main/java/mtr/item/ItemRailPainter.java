@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector2d;
 
 import mtr.Blocks;
-import mtr.MathTools;
+import mtr.MTRUtilities;
 import mtr.block.BlockRailMarker;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -118,8 +118,8 @@ public class ItemRailPainter extends Item {
 	}
 
 	private void placeScaffoldCircle(World worldIn, double centreX, double centreZ, double x1, double z1, double x2, double z2, int y) {
-		double angle1 = MathTools.angleBetweenPoints(centreX, centreZ, x1, z1) + Math.PI;
-		double angle2 = MathTools.angleBetweenPoints(centreX, centreZ, x2, z2) + Math.PI;
+		double angle1 = MTRUtilities.angleBetweenPoints(centreX, centreZ, x1, z1) + Math.PI;
+		double angle2 = MTRUtilities.angleBetweenPoints(centreX, centreZ, x2, z2) + Math.PI;
 
 		if (angle1 - angle2 > Math.PI)
 			angle2 += 2 * Math.PI;

@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import mods.railcraft.api.carts.ILinkableCart;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
-import mtr.MathTools;
+import mtr.MTRUtilities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -210,7 +210,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	@SideOnly(Side.CLIENT)
 	public float getLeftDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_LEFT_OPENED);
-		final Tuple tuple = MathTools.updateDoor(opened, leftDoorClient, leftDoorTimeClient);
+		final Tuple tuple = MTRUtilities.updateDoor(opened, leftDoorClient, leftDoorTimeClient);
 		leftDoorClient = (float) tuple.getFirst();
 		leftDoorTimeClient = (long) tuple.getSecond();
 		return leftDoorClient;
@@ -219,7 +219,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	@SideOnly(Side.CLIENT)
 	public float getRightDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_RIGHT_OPENED);
-		final Tuple tuple = MathTools.updateDoor(opened, rightDoorClient, rightDoorTimeClient);
+		final Tuple tuple = MTRUtilities.updateDoor(opened, rightDoorClient, rightDoorTimeClient);
 		rightDoorClient = (float) tuple.getFirst();
 		rightDoorTimeClient = (long) tuple.getSecond();
 		return rightDoorClient;
@@ -269,14 +269,14 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		final Entity sibling = world.isRemote ? getSiblingClient() : entitySibling;
 		if (sibling != null) {
 			passengerAngleYaw = getTrainAngle(sibling);
-			passenger.rotationYaw -= MathTools.angleDifference(passengerAngleYaw, prevPassengerAngleYaw);
+			passenger.rotationYaw -= MTRUtilities.angleDifference(passengerAngleYaw, prevPassengerAngleYaw);
 			prevPassengerAngleYaw = passengerAngleYaw;
 			passenger.setRotationYawHead(passenger.rotationYaw);
 		}
 	}
 
 	private float getTrainAngle(Entity sibling) {
-		return (float) Math.toDegrees(MathTools.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
+		return (float) Math.toDegrees(MTRUtilities.angleBetweenPoints(posX, posZ, sibling.posX, sibling.posZ));
 	}
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {

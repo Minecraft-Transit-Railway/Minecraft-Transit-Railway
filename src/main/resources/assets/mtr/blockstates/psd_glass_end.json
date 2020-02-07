@@ -9,18 +9,24 @@
 	},
 	"variants": {
 		"facing": {
-			"north": {},
-			"east": { "y": 90 },
-			"south": { "y": 180 },
-			"west": { "y": 270 }
+			"west": {},
+			"north": { "y": 90 },
+			"east": { "y": 180 },
+			"south": { "y": 270 }
 		},
 		"side": {
+			"left": {},
+			"right": {},
+			"middle": {},
+			"single": {}
+		},
+		"side_end": {
 			"left": { "submodel": { "glass": { "model": "mtr:psd_glass_end_left" } } },
 			"right": { "submodel": { "glass": { "model": "mtr:psd_glass_end_right" } } },
-			"leftred": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_left" } } },
-			"rightred": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_right" } } },
-			"leftdiagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_left" } } },
-			"rightdiagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_right" } } },
+			"left_red": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_left" } } },
+			"right_red": { "submodel": { "glass": { "model": "mtr:psd_glass_end_red_right" } } },
+			"left_diagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_left" } } },
+			"right_diagonal": { "submodel": { "glass": { "model": "mtr:psd_glass_diagonal_right" } } },
 			"middle": { "submodel": { "glass": { "model": "mtr:psd_glass_end_middle" } } },
 			"single": { "submodel": { "glass": { "model": "mtr:psd_glass_end_single" } } }
 		},

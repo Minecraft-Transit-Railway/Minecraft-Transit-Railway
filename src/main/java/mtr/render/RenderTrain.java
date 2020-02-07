@@ -2,7 +2,7 @@ package mtr.render;
 
 import org.lwjgl.opengl.GL11;
 
-import mtr.MathTools;
+import mtr.MTRUtilities;
 import mtr.entity.EntityTrain;
 import mtr.entity.EntityTrain.EnumTrainType;
 import net.minecraft.client.model.ModelBase;
@@ -169,8 +169,8 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 			midX = (x2 - x1) / 2D;
 			midY = (y2 - y1) / 2D;
 			midZ = (z2 - z1) / 2D;
-			angleYaw = (float) MathTools.angleBetweenPoints(x2, z2, x1, z1);
-			anglePitch = (float) Math.asin((y1 - y2) / MathTools.distanceBetweenPoints(x1, z1, x2, z2));
+			angleYaw = (float) MTRUtilities.angleBetweenPoints(x2, z2, x1, z1);
+			anglePitch = (float) Math.asin((y1 - y2) / MTRUtilities.distanceBetweenPoints(x1, z1, x2, z2));
 		}
 	}
 }

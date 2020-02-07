@@ -2,12 +2,16 @@ package mtr;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class MathTools {
+public class MTRUtilities {
 
 	private static final float DOOR_DURATION_MILLISECONDS = 2000F;
 
@@ -92,6 +96,14 @@ public class MathTools {
 		final double y2 = 0.5 * (k2 + k1) + 0.5 * (k2 - k1) * (Math.pow(r1, 2) - Math.pow(r2, 2)) / d2 + 2 * (h2 - h1) * K / d2;
 		final double[] a = { x1, y1, x2, y2 };
 		return a;
+	}
+
+	public static Item getItemFromPlayer(EntityPlayer player, EnumHand hand) {
+		final ItemStack stack = player.getHeldItem(hand);
+		if (stack != null)
+			return stack.getItem();
+		else
+			return null;
 	}
 
 	@SideOnly(Side.CLIENT)
