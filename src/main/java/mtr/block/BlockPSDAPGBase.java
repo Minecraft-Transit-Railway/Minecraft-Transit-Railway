@@ -20,7 +20,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,15 +36,12 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		for (int y = -1; y <= 1; y++)
-			if (Block.isEqualTo(this, worldIn.getBlockState(pos.up(y)).getBlock()))
-				worldIn.setBlockToAir(pos.up(y));
-	}
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+		final Block blockUp = worldIn.getBlockState(pos.up()).getBlock();
+		final Block blockDown = worldIn.getBlockState(pos.down()).getBlock();
 
-	@Override
-	public void onBlockDestroyedByExplosion(World worldIn, BlockPos pos, Explosion explosionIn) {
-		onBlockDestroyedByPlayer(worldIn, pos, null);
+		if (!Block.isEqualTo(this, blockUp) && !Block.isEqualTo(this, blockDown))
+			worldIn.setBlockToAir(pos);
 	}
 
 	@Override
@@ -103,7 +99,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	public EnumPushReaction getMobilityFlag(IBlockState state) {
-		return EnumPushReaction.IGNORE;
+		return EnumPushReaction.BLOCK;
 	}
 
 	@Override

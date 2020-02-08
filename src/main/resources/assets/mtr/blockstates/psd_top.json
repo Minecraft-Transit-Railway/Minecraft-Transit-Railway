@@ -9,16 +9,16 @@
 	},
 	"variants": {
 		"facing": {
-			"north": {},
-			"east": { "y": 90 },
-			"south": { "y": 180 },
-			"west": { "y": 270 }
+			"west": {},
+			"north": { "y": 90 },
+			"east": { "y": 180 },
+			"south": { "y": 270 }
 		},
 		"side": {
 			"left": { "textures": { "body": "mtr:blocks/psd_top_left" } },
 			"right": { "textures": { "body": "mtr:blocks/psd_top_right" } },
-			"middle": {},
-			"single": {}
+			"middle": { "textures": { "body": "mtr:blocks/psd_top" } },
+			"single": { "textures": { "body": "mtr:blocks/psd_top" } }
 		}
 	}
 }

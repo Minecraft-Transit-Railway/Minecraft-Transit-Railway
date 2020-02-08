@@ -2,13 +2,13 @@ package mtr;
 
 import mtr.block.BlockAPGDoor;
 import mtr.block.BlockAPGGlass;
-import mtr.block.BlockAPGGlassEnd;
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockDoorController;
 import mtr.block.BlockLogo;
 import mtr.block.BlockPSDDoor;
 import mtr.block.BlockPSDGlass;
 import mtr.block.BlockPSDGlassEnd;
+import mtr.block.BlockPSDTop;
 import mtr.block.BlockPlatform;
 import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
@@ -48,7 +48,6 @@ public class Registry {
 
 		registry.register(setBlockName(new BlockAPGDoor(), "apg_door"));
 		registry.register(setBlockName(new BlockAPGGlass(), "apg_glass"));
-		registry.register(setBlockName(new BlockAPGGlassEnd(), "apg_glass_end"));
 
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
 		registry.register(setBlockName(new BlockDoorController(), "door_controller"));
@@ -59,6 +58,7 @@ public class Registry {
 		registry.register(setBlockName(new BlockPSDGlass(), "psd_glass"));
 		registry.register(setBlockName(new BlockPSDGlassEnd(), "psd_glass_end"));
 
+		registry.register(setBlockName(new BlockPSDTop(), "psd_top"));
 		registry.register(setBlockName(new BlockRailMarker(), "rail_marker"));
 		registry.register(setBlockName(new BlockRailScaffold(), "rail_scaffold"));
 
@@ -100,10 +100,9 @@ public class Registry {
 		registerBlockModel(Blocks.door_controller, 0);
 		registerBlockModel(Blocks.logo, 0);
 		registerBlockModel(Blocks.platform, 0);
-		registerBlockModel(Blocks.rail_marker, 0);
 		registerBlockModel(Blocks.rail_scaffold, 0);
 		// Items
-		registerItemModel(Items.apg, 3);
+		registerItemModel(Items.apg, 2);
 		registerItemModel(Items.brush);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);

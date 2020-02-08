@@ -1,5 +1,6 @@
 package mtr.block;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -16,21 +17,20 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITi
 	public static final PropertyEnum<PSDAPGDoor> SIDE_DOOR = PropertyEnum.create("side_door", PSDAPGDoor.class);
 
 	@Override
-	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {
-		final PSDAPGSide side = state.getValue(SIDE);
-		EnumFacing offset;
-		if (side == PSDAPGSide.LEFT)
-			offset = state.getValue(FACING).rotateY();
-		else
-			offset = state.getValue(FACING).rotateYCCW();
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
 
-		for (int x = 0; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
-				final BlockPos checkPos = pos.up(y).offset(offset, x);
-				if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDAPGDoorBase)
-					worldIn.setBlockToAir(checkPos);
-			}
-		}
+		final PSDAPGSide side = state.getValue(SIDE);
+		final EnumFacing facing = state.getValue(FACING);
+
+		BlockPos newPos = pos;
+		if (side == PSDAPGSide.LEFT)
+			newPos = pos.offset(facing.rotateY());
+		else if (side == PSDAPGSide.RIGHT)
+			newPos = pos.offset(facing.rotateYCCW());
+
+		if (!Block.isEqualTo(this, worldIn.getBlockState(newPos).getBlock()))
+			worldIn.setBlockToAir(pos);
 	}
 
 	@Override

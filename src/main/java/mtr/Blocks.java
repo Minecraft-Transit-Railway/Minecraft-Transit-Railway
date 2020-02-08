@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 public class Blocks {
 	public static final Block apg_door = null;
 	public static final Block apg_glass = null;
-	public static final Block apg_glass_end = null;
 
 	public static final Block bridge_creator = null;
 	public static final Block door_controller = null;
@@ -21,6 +20,7 @@ public class Blocks {
 	public static final Block psd_glass = null;
 	public static final Block psd_glass_end = null;
 
+	public static final Block psd_top = null;
 	public static final Block rail_marker = null;
 	public static final Block rail_scaffold = null;
 

@@ -40,15 +40,17 @@ public abstract class ItemPSDAPGBase extends Item {
 		if (!blocksAreReplacable(worldIn, pos, playerFacing, isDoor ? 2 : 1, isPSD ? 3 : 2))
 			return EnumActionResult.FAIL;
 
-		for (int x = 0; x < (isDoor ? 2 : 1); x++)
+		for (int x = 0; x < (isDoor ? 2 : 1); x++) {
+			final BlockPos newPos = pos.offset(playerFacing.rotateY(), x);
+
 			for (int y = 0; y < 2; y++) {
 				final IBlockState state = getBlockStateFromItem(itemDamage, isPSD);
 				final PSDAPGSide side = isDoor ? x == 0 ? PSDAPGSide.LEFT : PSDAPGSide.RIGHT : PSDAPGSide.SINGLE;
-				worldIn.setBlockState(pos.up(y).offset(playerFacing.rotateY(), x), state.withProperty(BlockPSDAPGBase.FACING, playerFacing).withProperty(BlockPSDAPGBase.SIDE, side));
+				worldIn.setBlockState(newPos.up(y), state.withProperty(BlockPSDAPGBase.FACING, playerFacing).withProperty(BlockPSDAPGBase.SIDE, side));
 			}
 
-		if (isPSD) {
-			// TODO PSD top
+			if (isPSD)
+				worldIn.setBlockState(newPos.up(2), Blocks.psd_top.getDefaultState());
 		}
 
 		itemStack.shrink(1);
@@ -65,7 +67,7 @@ public abstract class ItemPSDAPGBase extends Item {
 			tooltip.add(new TextComponentTranslation("gui.psd_apg_glass").getFormattedText());
 			break;
 		case 2:
-			tooltip.add(new TextComponentTranslation("gui.psd_apg_glass_end").getFormattedText());
+			tooltip.add(new TextComponentTranslation("gui.psd_glass_end").getFormattedText());
 			break;
 		}
 	}
@@ -73,7 +75,7 @@ public abstract class ItemPSDAPGBase extends Item {
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
 		if (isInCreativeTab(tab))
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 2; i++)
 				items.add(new ItemStack(this, 1, i));
 	}
 
@@ -93,7 +95,7 @@ public abstract class ItemPSDAPGBase extends Item {
 		case 1:
 			return isPSD ? Blocks.psd_glass.getDefaultState() : Blocks.apg_glass.getDefaultState();
 		case 2:
-			return isPSD ? Blocks.psd_glass_end.getDefaultState() : Blocks.apg_glass_end.getDefaultState();
+			return Blocks.psd_glass_end.getDefaultState();
 		default:
 			return null;
 		}

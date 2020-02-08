@@ -1,0 +1,49 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures": {
+			"particle": "mtr:items/apg_glass"
+		}
+	},
+	"variants": {
+		"facing": {
+			"west": {},
+			"north": { "y": 90 },
+			"east": { "y": 180 },
+			"south": { "y": 270 }
+		},
+		"side": {
+			"left": { "submodel": { "glass": { "model": "mtr:apg_glass_left" } } },
+			"right": { "submodel": { "glass": { "model": "mtr:apg_glass_right" } } },
+			"middle": { "submodel": { "glass": { "model": "mtr:apg_glass_middle" } } },
+			"single": { "submodel": { "glass": { "model": "mtr:apg_glass_single" } } }
+		},
+		"side_end": {
+			"left": { "submodel": { "end": { "model": "mtr:apg_glass_end" } } },
+			"right": { "submodel": { "end": { "model": "mtr:apg_glass_end", "y": 180 } } },
+			"none": {}
+		},
+		"top": {
+			"true": {
+				"textures": {
+					"fronttop": "mtr:blocks/apg_glass_top",
+					"fronttopsingle": "mtr:blocks/apg_glass_single_top",
+					"sidetop": "mtr:blocks/psd_side_light",
+					"frontbottom": "mtr:blocks/transparent",
+					"frontbottomsingle": "mtr:blocks/transparent",
+					"sidebottom": "mtr:blocks/transparent"
+				}
+			},
+			"false": {
+				"textures": {
+					"fronttop": "mtr:blocks/transparent",
+					"fronttopsingle": "mtr:blocks/transparent",
+					"sidetop": "mtr:blocks/transparent",
+					"frontbottom": "mtr:blocks/apg_glass_bottom",
+					"frontbottomsingle": "mtr:blocks/apg_glass_single_bottom",
+					"sidebottom": "mtr:blocks/psd_side_light"
+				}
+			}
+		}
+	}
+}

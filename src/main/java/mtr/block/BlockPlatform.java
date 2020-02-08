@@ -47,7 +47,7 @@ public class BlockPlatform extends BlockHorizontal {
 		DoorType doorType;
 		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd)
 			doorType = DoorType.PSD;
-		else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass || blockAbove instanceof BlockAPGGlassEnd)
+		else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass)
 			doorType = DoorType.APG;
 		else
 			doorType = DoorType.NONE;

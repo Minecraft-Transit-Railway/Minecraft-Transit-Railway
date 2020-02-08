@@ -22,7 +22,7 @@
 				"north":  { "uv": [ 2, 0, 7, 1 ], "texture": "#body", "cullface": "north" },
 				"south":  { "uv": [ 2, 0, 7, 1 ], "texture": "#body", "cullface": "south" }
 			}
-		}
+		},
 		{
 			"__comment": "Bottom curve lower",
 			"from": [ 5, 0, 0 ],
