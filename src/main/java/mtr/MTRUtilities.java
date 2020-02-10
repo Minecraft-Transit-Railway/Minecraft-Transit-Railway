@@ -13,7 +13,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MTRUtilities {
 
-	private static final float DOOR_DURATION_MILLISECONDS = 2000F;
+	public static final int DOOR_DURATION_MILLISECONDS = 2000;
+	public static final int DOOR_DURATION_TICKS = DOOR_DURATION_MILLISECONDS / 50;
 
 	/** Returns whichever one of the two angles (a1 or a2) is closer to angle. */
 	public static double findCloserAngle(double angle, double a1, double a2) {
@@ -114,7 +115,7 @@ public class MTRUtilities {
 				newDoorTime = System.currentTimeMillis();
 				if (doorTime == 0)
 					doorTime = newDoorTime;
-				door += (newDoorTime - doorTime) / DOOR_DURATION_MILLISECONDS;
+				door += (newDoorTime - doorTime) / (float) DOOR_DURATION_MILLISECONDS;
 			} else {
 				newDoorTime = 0;
 				door = 1;
@@ -124,7 +125,7 @@ public class MTRUtilities {
 				newDoorTime = System.currentTimeMillis();
 				if (doorTime == 0)
 					doorTime = newDoorTime;
-				door -= (newDoorTime - doorTime) / DOOR_DURATION_MILLISECONDS;
+				door -= (newDoorTime - doorTime) / (float) DOOR_DURATION_MILLISECONDS;
 			} else {
 				newDoorTime = 0;
 				door = 0;

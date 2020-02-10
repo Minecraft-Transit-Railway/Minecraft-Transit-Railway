@@ -3,7 +3,7 @@ package mtr.block;
 import java.util.Random;
 
 import mtr.Items;
-import mtr.block.BlockPSDAPGBase.PSDAPGSide;
+import mtr.block.BlockPSDAPGBase.EnumPSDAPGSide;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.EnumPushReaction;
@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockPSDTop extends BlockHorizontal {
 
-	public static final PropertyEnum<PSDAPGSide> SIDE = PropertyEnum.create("side", PSDAPGSide.class);
+	public static final PropertyEnum<EnumPSDAPGSide> SIDE = PropertyEnum.create("side", EnumPSDAPGSide.class);
 
 	public BlockPSDTop() {
 		super(Material.ROCK);
@@ -70,7 +70,7 @@ public class BlockPSDTop extends BlockHorizontal {
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
 		final EnumFacing facing = getFacing(worldIn, pos);
-		final PSDAPGSide side = getSide(worldIn, pos);
+		final EnumPSDAPGSide side = getSide(worldIn, pos);
 		return state.withProperty(FACING, facing).withProperty(SIDE, side);
 	}
 
@@ -81,6 +81,11 @@ public class BlockPSDTop extends BlockHorizontal {
 
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		final Block blockBelow = source.getBlockState(pos.down()).getBlock();
+		if (blockBelow instanceof BlockPSDGlassEnd)
+			if (((BlockPSDGlassEnd) blockBelow).isVeryEnd(source, pos.down(), source.getBlockState(pos.down())))
+				return new AxisAlignedBB(0, 0, 0, 1, 1, 1);
+
 		switch (getFacing(source, pos)) {
 		case NORTH:
 			return new AxisAlignedBB(0, 0, 0, 1, 1, 0.375);
@@ -134,11 +139,11 @@ public class BlockPSDTop extends BlockHorizontal {
 			return EnumFacing.NORTH;
 	}
 
-	private PSDAPGSide getSide(IBlockAccess worldIn, BlockPos pos) {
+	private EnumPSDAPGSide getSide(IBlockAccess worldIn, BlockPos pos) {
 		final IBlockState stateBelow = worldIn.getBlockState(pos.down());
 		if (stateBelow.getBlock() instanceof BlockPSDAPGBase)
 			return stateBelow.getValue(SIDE);
 		else
-			return PSDAPGSide.SINGLE;
+			return EnumPSDAPGSide.SINGLE;
 	}
 }

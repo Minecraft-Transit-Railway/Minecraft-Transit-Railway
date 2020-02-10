@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockDoorController extends Block {
 
 	public static final PropertyDirection FACING = PropertyDirection.create("facing");
-	public static final PropertyEnum<TrainState> STATE = PropertyEnum.create("state", TrainState.class);
+	public static final PropertyEnum<EnumTrainState> STATE = PropertyEnum.create("state", EnumTrainState.class);
 	public static final PropertyBool TIMER = PropertyBool.create("timer");
 
 	private static final float TOLERANCE = 0.001F;
@@ -44,14 +44,14 @@ public class BlockDoorController extends Block {
 		super(Material.ROCK);
 		setHardness(2);
 		setCreativeTab(CreativeTabs.REDSTONE);
-		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.UP).withProperty(STATE, TrainState.GONE).withProperty(TIMER, false));
+		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.UP).withProperty(STATE, EnumTrainState.GONE).withProperty(TIMER, false));
 	}
 
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		if (entityIn instanceof EntityMinecart && Math.abs(entityIn.motionX) < TOLERANCE && Math.abs(entityIn.motionZ) < TOLERANCE) {
-			final boolean isGone = state.getValue(STATE) == TrainState.GONE;
-			final boolean isOpen = state.getValue(STATE) == TrainState.OPENED && !worldIn.isBlockPowered(pos);
+			final boolean isGone = state.getValue(STATE) == EnumTrainState.GONE;
+			final boolean isOpen = state.getValue(STATE) == EnumTrainState.OPENED && !worldIn.isBlockPowered(pos);
 			final boolean noUpdate = (state.getValue(TIMER) ? true : !isOpen) && !worldIn.isUpdateScheduled(pos, this);
 			if (isGone || noUpdate)
 				worldIn.scheduleUpdate(pos, this, 1);
@@ -62,28 +62,28 @@ public class BlockDoorController extends Block {
 	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
 		switch (state.getValue(STATE)) {
 		case OPENING_SOON:
-			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.OPENED));
+			worldIn.setBlockState(pos, state.withProperty(STATE, EnumTrainState.OPENED));
 			setDoors(worldIn, pos, true);
 
 			if (state.getValue(TIMER))
-				worldIn.scheduleUpdate(pos, this, 120);
+				worldIn.scheduleUpdate(pos, this, MTRUtilities.DOOR_DURATION_TICKS + 80);
 			else if (worldIn.isBlockPowered(pos))
 				worldIn.scheduleUpdate(pos, this, 1);
 			break;
 		case OPENED:
-			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.CLOSED));
+			worldIn.setBlockState(pos, state.withProperty(STATE, EnumTrainState.CLOSED));
 			setDoors(worldIn, pos, false);
-			worldIn.scheduleUpdate(pos, this, 60);
+			worldIn.scheduleUpdate(pos, this, MTRUtilities.DOOR_DURATION_TICKS + 20);
 			break;
 		case CLOSED:
-			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.LEAVING));
+			worldIn.setBlockState(pos, state.withProperty(STATE, EnumTrainState.LEAVING));
 			worldIn.scheduleUpdate(pos, this, 40);
 			break;
 		case LEAVING:
-			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.GONE));
+			worldIn.setBlockState(pos, state.withProperty(STATE, EnumTrainState.GONE));
 			break;
 		case GONE:
-			worldIn.setBlockState(pos, state.withProperty(STATE, TrainState.OPENING_SOON));
+			worldIn.setBlockState(pos, state.withProperty(STATE, EnumTrainState.OPENING_SOON));
 			worldIn.scheduleUpdate(pos, this, 20);
 			break;
 		}
@@ -97,7 +97,7 @@ public class BlockDoorController extends Block {
 
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		if (!state.getValue(TIMER) && state.getValue(STATE) == TrainState.OPENED && worldIn.isBlockPowered(pos))
+		if (!state.getValue(TIMER) && state.getValue(STATE) == EnumTrainState.OPENED && worldIn.isBlockPowered(pos))
 			worldIn.scheduleUpdate(pos, this, 1);
 	}
 
@@ -113,7 +113,7 @@ public class BlockDoorController extends Block {
 
 	@Override
 	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-		final boolean isLeaving = blockState.getValue(STATE) == TrainState.LEAVING;
+		final boolean isLeaving = blockState.getValue(STATE) == EnumTrainState.LEAVING;
 		final boolean isTrack = getTrackDirection(blockAccess, pos).getOpposite() == side;
 		return isLeaving && isTrack ? 15 : 0;
 	}
@@ -126,10 +126,10 @@ public class BlockDoorController extends Block {
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		int state = meta & 7;
-		if (state < 0 || state >= TrainState.values().length)
+		if (state < 0 || state >= EnumTrainState.values().length)
 			state = 0;
-		final TrainState trainState = TrainState.values()[state];
-		return getDefaultState().withProperty(STATE, trainState == TrainState.OPENED ? TrainState.OPENING_SOON : trainState).withProperty(TIMER, (meta & 8) > 0);
+		final EnumTrainState trainState = EnumTrainState.values()[state];
+		return getDefaultState().withProperty(STATE, trainState == EnumTrainState.OPENED ? EnumTrainState.OPENING_SOON : trainState).withProperty(TIMER, (meta & 8) > 0);
 	}
 
 	@Override
@@ -202,13 +202,13 @@ public class BlockDoorController extends Block {
 		}
 	}
 
-	private enum TrainState implements IStringSerializable {
+	private enum EnumTrainState implements IStringSerializable {
 
 		OPENING_SOON("opening_soon"), OPENED("opened"), CLOSED("closed"), LEAVING("leaving"), GONE("gone");
 
 		private String name;
 
-		private TrainState(String nameIn) {
+		private EnumTrainState(String nameIn) {
 			name = nameIn;
 		}
 

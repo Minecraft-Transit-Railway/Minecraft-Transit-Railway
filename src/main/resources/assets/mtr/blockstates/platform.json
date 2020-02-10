@@ -17,8 +17,9 @@
 			"apg": { "textures": { "main": "mtr:blocks/rock2", "top": "mtr:blocks/platform_none_2" } }
 		},
 		"open": {
-			"true": {},
-			"false": {}
+			"opened": {},
+			"closing": {},
+			"closed": {}
 		},
 		"side": {
 			"0": {},

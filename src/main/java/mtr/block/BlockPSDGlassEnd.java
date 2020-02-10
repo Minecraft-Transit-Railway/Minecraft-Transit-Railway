@@ -16,7 +16,7 @@ import net.minecraft.world.IBlockAccess;
 
 public class BlockPSDGlassEnd extends BlockPSDAPGBase {
 
-	public static final PropertyEnum<PSDGlassEnd> SIDE_END = PropertyEnum.create("side_end", PSDGlassEnd.class);
+	public static final PropertyEnum<EnumPSDGlassEnd> SIDE_END = PropertyEnum.create("side_end", EnumPSDGlassEnd.class);
 
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
@@ -30,14 +30,13 @@ public class BlockPSDGlassEnd extends BlockPSDAPGBase {
 
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		final PSDGlassEnd side = getSideEnd(worldIn, pos, state);
+		final EnumPSDGlassEnd side = getSideEnd(worldIn, pos, state);
 		return super.getActualState(state, worldIn, pos).withProperty(SIDE_END, side);
 	}
 
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-		final PSDGlassEnd side = getSideEnd(source, pos, state);
-		if (side == PSDGlassEnd.LEFT_DIAGONAL || side == PSDGlassEnd.RIGHT_DIAGONAL)
+		if (isVeryEnd(source, pos, state))
 			return new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 		else
 			return super.getBoundingBox(state, source, pos);
@@ -48,42 +47,47 @@ public class BlockPSDGlassEnd extends BlockPSDAPGBase {
 		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, SIDE_END, TOP });
 	}
 
-	private PSDGlassEnd getSideEnd(IBlockAccess worldIn, BlockPos pos, IBlockState state) {
-		final PSDAPGSide side = state.getValue(SIDE);
+	public boolean isVeryEnd(IBlockAccess worldIn, BlockPos pos, IBlockState state) {
+		final EnumPSDGlassEnd sideEnd = getSideEnd(worldIn, pos, state);
+		return sideEnd == EnumPSDGlassEnd.LEFT_DIAGONAL || sideEnd == EnumPSDGlassEnd.RIGHT_DIAGONAL;
+	}
 
-		if (side == PSDAPGSide.MIDDLE || side == PSDAPGSide.SINGLE)
-			return PSDGlassEnd.valueOf(side.name());
+	private EnumPSDGlassEnd getSideEnd(IBlockAccess worldIn, BlockPos pos, IBlockState state) {
+		final EnumPSDAPGSide side = state.getValue(SIDE);
+
+		if (side == EnumPSDAPGSide.MIDDLE || side == EnumPSDAPGSide.SINGLE)
+			return EnumPSDGlassEnd.valueOf(side.name());
 
 		final EnumFacing facing = state.getValue(FACING);
 
-		if (side == PSDAPGSide.LEFT) {
+		if (side == EnumPSDAPGSide.LEFT) {
 			final BlockPos checkPos = pos.offset(facing.rotateYCCW());
 			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDDoor)
-				return PSDGlassEnd.LEFT_RED;
+				return EnumPSDGlassEnd.LEFT_RED;
 			else if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDAPGBase)
-				return PSDGlassEnd.LEFT;
+				return EnumPSDGlassEnd.LEFT;
 			else
-				return PSDGlassEnd.LEFT_DIAGONAL;
-		} else if (side == PSDAPGSide.RIGHT) {
+				return EnumPSDGlassEnd.LEFT_DIAGONAL;
+		} else if (side == EnumPSDAPGSide.RIGHT) {
 			final BlockPos checkPos = pos.offset(facing.rotateY());
 			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDDoor)
-				return PSDGlassEnd.RIGHT_RED;
+				return EnumPSDGlassEnd.RIGHT_RED;
 			else if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDAPGBase)
-				return PSDGlassEnd.RIGHT;
+				return EnumPSDGlassEnd.RIGHT;
 			else
-				return PSDGlassEnd.RIGHT_DIAGONAL;
+				return EnumPSDGlassEnd.RIGHT_DIAGONAL;
 		}
 
-		return PSDGlassEnd.SINGLE;
+		return EnumPSDGlassEnd.SINGLE;
 	}
 
-	private enum PSDGlassEnd implements IStringSerializable {
+	private enum EnumPSDGlassEnd implements IStringSerializable {
 
 		LEFT("left"), RIGHT("right"), LEFT_RED("left_red"), RIGHT_RED("right_red"), LEFT_DIAGONAL("left_diagonal"), RIGHT_DIAGONAL("right_diagonal"), MIDDLE("middle"), SINGLE("single");
 
 		private final String name;
 
-		private PSDGlassEnd(String nameIn) {
+		private EnumPSDGlassEnd(String nameIn) {
 			name = nameIn;
 		}
 

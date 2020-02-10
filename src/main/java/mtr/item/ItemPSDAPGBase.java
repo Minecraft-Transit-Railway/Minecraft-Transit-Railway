@@ -4,7 +4,7 @@ import java.util.List;
 
 import mtr.Blocks;
 import mtr.block.BlockPSDAPGBase;
-import mtr.block.BlockPSDAPGBase.PSDAPGSide;
+import mtr.block.BlockPSDAPGBase.EnumPSDAPGSide;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -45,13 +45,14 @@ public abstract class ItemPSDAPGBase extends Item {
 
 			for (int y = 0; y < 2; y++) {
 				final IBlockState state = getBlockStateFromItem(itemDamage, isPSD);
-				final PSDAPGSide side = isDoor ? x == 0 ? PSDAPGSide.LEFT : PSDAPGSide.RIGHT : PSDAPGSide.SINGLE;
+				final EnumPSDAPGSide side = isDoor ? x == 0 ? EnumPSDAPGSide.LEFT : EnumPSDAPGSide.RIGHT : EnumPSDAPGSide.SINGLE;
 				worldIn.setBlockState(newPos.up(y), state.withProperty(BlockPSDAPGBase.FACING, playerFacing).withProperty(BlockPSDAPGBase.SIDE, side));
 			}
 
 			if (isPSD)
 				worldIn.setBlockState(newPos.up(2), Blocks.psd_top.getDefaultState());
 		}
+		// TODO known issue: placing one on top of the other can dupe blocks
 
 		itemStack.shrink(1);
 		return EnumActionResult.SUCCESS;
@@ -80,10 +81,18 @@ public abstract class ItemPSDAPGBase extends Item {
 	}
 
 	private boolean blocksAreReplacable(World worldIn, BlockPos pos, EnumFacing facing, int width, int height) {
-		for (int x = 0; x < width; x++)
-			for (int y = 0; y < height; y++)
-				if (!worldIn.getBlockState(pos.up(y).offset(facing.rotateY(), x)).getMaterial().isReplaceable())
+		for (int x = 0; x < width; x++) {
+			final BlockPos offsetPos = pos.offset(facing.rotateY(), x);
+			final boolean isPSDAPGBelow = worldIn.getBlockState(offsetPos.down()).getBlock() instanceof BlockPSDAPGBase;
+			final boolean isPSDAPGAbove = worldIn.getBlockState(offsetPos.up(2)).getBlock() instanceof BlockPSDAPGBase;
+
+			for (int y = 0; y < height; y++) {
+				final boolean isReplacable = worldIn.getBlockState(offsetPos.up(y)).getMaterial().isReplaceable();
+
+				if (!isReplacable || isPSDAPGBelow || isPSDAPGAbove)
 					return false;
+			}
+		}
 
 		return true;
 	}

@@ -27,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
-	public static final PropertyEnum<PSDAPGSide> SIDE = PropertyEnum.create("side", PSDAPGSide.class);
+	public static final PropertyEnum<EnumPSDAPGSide> SIDE = PropertyEnum.create("side", EnumPSDAPGSide.class);
 	public static final PropertyBool TOP = PropertyBool.create("top");
 
 	public BlockPSDAPGBase() {
@@ -68,7 +68,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		return state.withProperty(TOP, Block.isEqualTo(this, worldIn.getBlockState(pos.down()).getBlock()));
+		return state.withProperty(TOP, isTop(worldIn, pos));
 	}
 
 	@Override
@@ -78,20 +78,23 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(SIDE, PSDAPGSide.values()[meta >> 2]).withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
+		return getDefaultState().withProperty(SIDE, EnumPSDAPGSide.values()[meta >> 2]).withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
 	}
 
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		final boolean isAPG = this instanceof BlockAPGGlass || this instanceof BlockAPGDoor;
+		final double height = isAPG && isTop(source, pos) ? 0.5625 : 1;
+
 		switch (state.getValue(FACING)) {
 		case NORTH:
-			return new AxisAlignedBB(0, 0, 0, 1, 1, 0.125);
+			return new AxisAlignedBB(0, 0, 0, 1, height, 0.125);
 		case EAST:
-			return new AxisAlignedBB(0.875, 0, 0, 1, 1, 1);
+			return new AxisAlignedBB(0.875, 0, 0, 1, height, 1);
 		case SOUTH:
-			return new AxisAlignedBB(0, 0, 0.875, 1, 1, 1);
+			return new AxisAlignedBB(0, 0, 0.875, 1, height, 1);
 		case WEST:
-			return new AxisAlignedBB(0, 0, 0, 0.125, 1, 1);
+			return new AxisAlignedBB(0, 0, 0, 0.125, height, 1);
 		default:
 			return NULL_AABB;
 		}
@@ -128,6 +131,10 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP });
 	}
 
+	protected final boolean isTop(IBlockAccess worldIn, BlockPos pos) {
+		return Block.isEqualTo(this, worldIn.getBlockState(pos.down()).getBlock());
+	}
+
 	private void connectGlass(World worldIn, BlockPos pos, IBlockState state) {
 		final EnumFacing facing = state.getValue(FACING);
 
@@ -136,13 +143,13 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 		final boolean leftValid = Block.isEqualTo(this, leftState.getBlock());
 
 		if (leftValid) {
-			final PSDAPGSide side = leftState.getValue(SIDE);
-			PSDAPGSide newLeftSide;
+			final EnumPSDAPGSide side = leftState.getValue(SIDE);
+			EnumPSDAPGSide newLeftSide;
 
-			if (side == PSDAPGSide.RIGHT)
-				newLeftSide = PSDAPGSide.MIDDLE;
-			else if (side == PSDAPGSide.SINGLE)
-				newLeftSide = PSDAPGSide.LEFT;
+			if (side == EnumPSDAPGSide.RIGHT)
+				newLeftSide = EnumPSDAPGSide.MIDDLE;
+			else if (side == EnumPSDAPGSide.SINGLE)
+				newLeftSide = EnumPSDAPGSide.LEFT;
 			else
 				newLeftSide = side;
 
@@ -154,39 +161,39 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 		final boolean rightValid = Block.isEqualTo(this, rightState.getBlock());
 
 		if (rightValid) {
-			final PSDAPGSide side = rightState.getValue(SIDE);
-			PSDAPGSide newRightSide;
+			final EnumPSDAPGSide side = rightState.getValue(SIDE);
+			EnumPSDAPGSide newRightSide;
 
-			if (side == PSDAPGSide.LEFT)
-				newRightSide = PSDAPGSide.MIDDLE;
-			else if (side == PSDAPGSide.SINGLE)
-				newRightSide = PSDAPGSide.RIGHT;
+			if (side == EnumPSDAPGSide.LEFT)
+				newRightSide = EnumPSDAPGSide.MIDDLE;
+			else if (side == EnumPSDAPGSide.SINGLE)
+				newRightSide = EnumPSDAPGSide.RIGHT;
 			else
 				newRightSide = side;
 
 			worldIn.setBlockState(rightPos, rightState.withProperty(SIDE, newRightSide));
 		}
 
-		PSDAPGSide newSide;
+		EnumPSDAPGSide newSide;
 		if (leftValid && rightValid)
-			newSide = PSDAPGSide.MIDDLE;
+			newSide = EnumPSDAPGSide.MIDDLE;
 		else if (leftValid)
-			newSide = PSDAPGSide.RIGHT;
+			newSide = EnumPSDAPGSide.RIGHT;
 		else if (rightValid)
-			newSide = PSDAPGSide.LEFT;
+			newSide = EnumPSDAPGSide.LEFT;
 		else
-			newSide = PSDAPGSide.SINGLE;
+			newSide = EnumPSDAPGSide.SINGLE;
 
 		worldIn.setBlockState(pos, state.withProperty(SIDE, newSide));
 	}
 
-	public enum PSDAPGSide implements IStringSerializable {
+	public enum EnumPSDAPGSide implements IStringSerializable {
 
 		LEFT("left"), RIGHT("right"), MIDDLE("middle"), SINGLE("single");
 
 		private String name;
 
-		private PSDAPGSide(String nameIn) {
+		private EnumPSDAPGSide(String nameIn) {
 			name = nameIn;
 		}
 

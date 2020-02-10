@@ -1,12 +1,14 @@
 package mtr.block;
 
+import java.util.Random;
+
+import mtr.MTRUtilities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -23,15 +25,21 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockPlatform extends BlockHorizontal {
 
-	public static final PropertyEnum<DoorType> DOOR_TYPE = PropertyEnum.create("door_type", DoorType.class);
-	public static final PropertyBool OPEN = PropertyBool.create("open");
+	public static final PropertyEnum<EnumDoorType> DOOR_TYPE = PropertyEnum.create("door_type", EnumDoorType.class);
+	public static final PropertyEnum<EnumDoorState> OPEN = PropertyEnum.create("open", EnumDoorState.class);
 	public static final PropertyInteger SIDE = PropertyInteger.create("side", 0, 4);
 
 	public BlockPlatform() {
 		super(Material.ROCK);
 		setHardness(2);
 		setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
-		setDefaultState(blockState.getBaseState().withProperty(DOOR_TYPE, DoorType.NONE).withProperty(SIDE, 0));
+		setDefaultState(blockState.getBaseState().withProperty(DOOR_TYPE, EnumDoorType.NONE).withProperty(SIDE, 0));
+	}
+
+	@Override
+	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+		if (state.getValue(OPEN) == EnumDoorState.CLOSING)
+			worldIn.setBlockState(pos, state.withProperty(OPEN, EnumDoorState.CLOSED));
 	}
 
 	@Override
@@ -44,13 +52,13 @@ public class BlockPlatform extends BlockHorizontal {
 
 		final Block blockAbove = worldIn.getBlockState(pos.up()).getBlock();
 
-		DoorType doorType;
+		EnumDoorType doorType;
 		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd)
-			doorType = DoorType.PSD;
+			doorType = EnumDoorType.PSD;
 		else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass)
-			doorType = DoorType.APG;
+			doorType = EnumDoorType.APG;
 		else
-			doorType = DoorType.NONE;
+			doorType = EnumDoorType.NONE;
 
 		final boolean aboveIsDoor = blockAbove instanceof BlockPSDAPGDoorBase;
 		final boolean leftAboveIsDoor = worldIn.getBlockState(pos.up().offset(facing.rotateYCCW())).getBlock() instanceof BlockPSDAPGDoorBase;
@@ -73,12 +81,13 @@ public class BlockPlatform extends BlockHorizontal {
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return state.getValue(OPEN) ? 1 : 0;
+		return state.getValue(OPEN).ordinal();
 	}
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(OPEN, meta > 0);
+		final EnumDoorState doorState = EnumDoorState.values()[meta];
+		return getDefaultState().withProperty(OPEN, doorState == EnumDoorState.CLOSING ? EnumDoorState.CLOSED : doorState);
 	}
 
 	@Override
@@ -93,7 +102,8 @@ public class BlockPlatform extends BlockHorizontal {
 	}
 
 	public void updateOpen(World world, IBlockState state, BlockPos pos, EnumFacing direction, boolean open) {
-		world.setBlockState(pos, state.withProperty(OPEN, open));
+		world.setBlockState(pos, state.withProperty(OPEN, open ? EnumDoorState.OPENED : EnumDoorState.CLOSING));
+		world.scheduleUpdate(pos, this, MTRUtilities.DOOR_DURATION_TICKS);
 
 		final Block blockOffset = world.getBlockState(pos.offset(direction)).getBlock();
 		if (blockOffset instanceof BlockPlatform)
@@ -109,13 +119,29 @@ public class BlockPlatform extends BlockHorizontal {
 		return null;
 	}
 
-	private enum DoorType implements IStringSerializable {
+	public enum EnumDoorState implements IStringSerializable {
+
+		OPENED("opened"), CLOSING("closing"), CLOSED("closed");
+
+		private String name;
+
+		private EnumDoorState(String nameIn) {
+			name = nameIn;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+	}
+
+	private enum EnumDoorType implements IStringSerializable {
 
 		NONE("none"), PSD("psd"), APG("apg");
 
 		private String name;
 
-		private DoorType(String nameIn) {
+		private EnumDoorType(String nameIn) {
 			name = nameIn;
 		}
 
