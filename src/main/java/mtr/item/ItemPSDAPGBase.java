@@ -3,6 +3,7 @@ package mtr.item;
 import java.util.List;
 
 import mtr.Blocks;
+import mtr.MTRUtilities;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGBase.EnumPSDAPGSide;
 import net.minecraft.block.state.IBlockState;
@@ -37,7 +38,7 @@ public abstract class ItemPSDAPGBase extends Item {
 		final boolean isDoor = itemDamage == 0;
 		final EnumFacing playerFacing = player.getHorizontalFacing();
 
-		if (!blocksAreReplacable(worldIn, pos, playerFacing, isDoor ? 2 : 1, isPSD ? 3 : 2))
+		if (!MTRUtilities.blocksAreReplacable(worldIn, pos, playerFacing, isDoor ? 2 : 1, isPSD ? 3 : 2))
 			return EnumActionResult.FAIL;
 
 		for (int x = 0; x < (isDoor ? 2 : 1); x++) {
@@ -78,23 +79,6 @@ public abstract class ItemPSDAPGBase extends Item {
 		if (isInCreativeTab(tab))
 			for (int i = 0; i < 2; i++)
 				items.add(new ItemStack(this, 1, i));
-	}
-
-	private boolean blocksAreReplacable(World worldIn, BlockPos pos, EnumFacing facing, int width, int height) {
-		for (int x = 0; x < width; x++) {
-			final BlockPos offsetPos = pos.offset(facing.rotateY(), x);
-			final boolean isPSDAPGBelow = worldIn.getBlockState(offsetPos.down()).getBlock() instanceof BlockPSDAPGBase;
-			final boolean isPSDAPGAbove = worldIn.getBlockState(offsetPos.up(2)).getBlock() instanceof BlockPSDAPGBase;
-
-			for (int y = 0; y < height; y++) {
-				final boolean isReplacable = worldIn.getBlockState(offsetPos.up(y)).getMaterial().isReplaceable();
-
-				if (!isReplacable || isPSDAPGBelow || isPSDAPGAbove)
-					return false;
-			}
-		}
-
-		return true;
 	}
 
 	private IBlockState getBlockStateFromItem(int itemDamage, boolean isPSD) {

@@ -11,6 +11,10 @@ public class Blocks {
 
 	public static final Block bridge_creator = null;
 	public static final Block door_controller = null;
+
+	public static final Block escalator_side = null;
+	public static final Block escalator_step = null;
+
 	public static final Block logo = null;
 	public static final Block oba_controller = null;
 	public static final Block oba_screen = null;

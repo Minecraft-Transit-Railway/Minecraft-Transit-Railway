@@ -4,6 +4,8 @@ import mtr.block.BlockAPGDoor;
 import mtr.block.BlockAPGGlass;
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockDoorController;
+import mtr.block.BlockEscalatorSide;
+import mtr.block.BlockEscalatorStep;
 import mtr.block.BlockLogo;
 import mtr.block.BlockPSDDoor;
 import mtr.block.BlockPSDGlass;
@@ -14,6 +16,7 @@ import mtr.block.BlockRailMarker;
 import mtr.block.BlockRailScaffold;
 import mtr.item.ItemAPG;
 import mtr.item.ItemBrush;
+import mtr.item.ItemEscalator;
 import mtr.item.ItemLightRail1;
 import mtr.item.ItemMTrain;
 import mtr.item.ItemPSD;
@@ -51,6 +54,10 @@ public class Registry {
 
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
 		registry.register(setBlockName(new BlockDoorController(), "door_controller"));
+
+		registry.register(setBlockName(new BlockEscalatorSide(), "escalator_side"));
+		registry.register(setBlockName(new BlockEscalatorStep(), "escalator_step"));
+
 		registry.register(setBlockName(new BlockLogo(), "logo"));
 		registry.register(setBlockName(new BlockPlatform(), "platform"));
 
@@ -84,6 +91,7 @@ public class Registry {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 		registry.register(setItemName(new ItemAPG(), "apg"));
 		registry.register(setItemName(new ItemBrush(), "brush"));
+		registry.register(setItemName(new ItemEscalator(), "escalator"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
 		registry.register(setItemName(new ItemPSD(), "psd"));
@@ -104,6 +112,7 @@ public class Registry {
 		// Items
 		registerItemModel(Items.apg, 2);
 		registerItemModel(Items.brush);
+		registerItemModel(Items.escalator);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);
 		registerItemModel(Items.psd, 3);

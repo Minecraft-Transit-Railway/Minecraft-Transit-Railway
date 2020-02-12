@@ -1,0 +1,39 @@
+{
+	"forge_marker": 1,
+	"defaults": {},
+	"variants": {
+		"facing": {
+			"west": {},
+			"north": { "y": 90 },
+			"east": { "y": 180 },
+			"south": { "y": 270 }
+		},
+		"direction": {
+			"true": {},
+			"false": {}
+		},
+		"orientation": {
+			"landing": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
+			"flat": { "submodel": { "step": { "model": "mtr:escalator_step_flat" } } },
+			"slope": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } }
+		},
+		"side": {
+			"true": {
+				"textures": {
+					"mainleft": "mtr:blocks/transparent",
+					"stepleft": "mtr:blocks/transparent",
+					"mainright": "mtr:blocks/metal",
+					"stepright": "mtr:blocks/escalator_up"
+				}
+			},
+			"false": {
+				"textures": {
+					"mainleft": "mtr:blocks/metal",
+					"stepleft": "mtr:blocks/escalator_up",
+					"mainright": "mtr:blocks/transparent",
+					"stepright": "mtr:blocks/transparent"
+				}
+			}
+		}
+	}
+}

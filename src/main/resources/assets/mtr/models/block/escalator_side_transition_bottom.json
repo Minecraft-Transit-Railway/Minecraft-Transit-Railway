@@ -1,0 +1,55 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{   "__comment": "Left handrail",
+			"from": [ 8, 15, 13 ],
+			"to": [ 16, 16, 15 ],
+			"faces": {
+				"up": { "texture": "#handrailleft", "cullface": "up" },
+				"down": { "texture": "#handrailleft" },
+				"north": { "texture": "#handrailleft" },
+				"south": { "texture": "#handrailleft" },
+				"east": { "texture": "#handrailleft" },
+				"west": { "texture": "#handrailleft" }
+			}
+		},
+		{
+			"from": [ -1.425, 15, 13 ],
+			"to": [ 8, 16, 15 ],
+			"rotation": { "origin": [ 8, 15, 8 ], "axis": "z", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#handrailleft" },
+				"down": { "texture": "#handrailleft" },
+				"north": { "texture": "#handrailleft" },
+				"south": { "texture": "#handrailleft" },
+				"east": { "texture": "#handrailleft" },
+				"west": { "texture": "#handrailleft" }
+			}
+		},
+		{   "__comment": "Right handrail",
+			"from": [ 8, 15, 1 ],
+			"to": [ 16, 16, 3 ],
+			"faces": {
+				"up": { "texture": "#handrailright", "cullface": "up" },
+				"down": { "texture": "#handrailright" },
+				"north": { "texture": "#handrailright" },
+				"south": { "texture": "#handrailright" },
+				"east": { "texture": "#handrailright" },
+				"west": { "texture": "#handrailright" }
+			}
+		},
+		{
+			"from": [ -1.425, 15, 1 ],
+			"to": [ 8, 16, 3 ],
+			"rotation": { "origin": [ 8, 15, 8 ], "axis": "z", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#handrailright" },
+				"down": { "texture": "#handrailright" },
+				"north": { "texture": "#handrailright" },
+				"south": { "texture": "#handrailright" },
+				"east": { "texture": "#handrailright" },
+				"west": { "texture": "#handrailright" }
+			}
+		}
+	]
+}

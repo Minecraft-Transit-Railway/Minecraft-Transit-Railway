@@ -1,0 +1,60 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:blocks/metal",
+		"main": "mtr:blocks/metal"
+	},
+	"elements": [
+		{   "__comment": "Bottom",
+			"from": [ 0, -7, 0 ],
+			"to": [ 16, -8, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"down": { "texture": "#main" },
+				"up": { "texture": "#main" },
+				"east": { "texture": "#main" },
+				"west": { "texture": "#main" }
+			}
+		},
+		{   "__comment": "Main left",
+			"from": [ 0, 8, 12 ],
+			"to": [ 16, -8, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"up": { "texture": "#mainleft" },
+				"north": { "texture": "#mainleft" },
+				"south": { "texture": "#mainleft" },
+				"east": { "texture": "#mainleft" },
+				"west": { "texture": "#mainleft" }
+			}
+		},
+		{   "__comment": "Step left",
+			"from": [ 0, 8, 0 ],
+			"to": [ 16, 8, 12 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#stepleft", "rotation": 270 }
+			}
+		},
+		{   "__comment": "Main right",
+			"from": [ 0, 8, 0 ],
+			"to": [ 16, -8, 4 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"up": { "texture": "#mainright" },
+				"north": { "texture": "#mainright" },
+				"south": { "texture": "#mainright" },
+				"east": { "texture": "#mainright" },
+				"west": { "texture": "#mainright" }
+			}
+		},
+		{   "__comment": "Step right",
+			"from": [ 0, 8, 4 ],
+			"to": [ 16, 8, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"up": { "uv": [ 16, 0, 0, 16 ], "texture": "#stepright", "rotation": 270 }
+			}
+		}
+	]
+}
