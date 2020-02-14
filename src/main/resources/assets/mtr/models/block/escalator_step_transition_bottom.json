@@ -1,0 +1,32 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{   "__comment": "Bottom",
+			"from": [ 0, 0, 0 ],
+			"to": [ 8, 1, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"down": { "texture": "#main" },
+				"up": { "texture": "#main" }
+			}
+		},
+		{   "__comment": "Main left",
+			"from": [ 0, 0, 12 ],
+			"to": [ 8, 8, 16.01 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"north": { "texture": "#mainleft" },
+				"south": { "texture": "#mainleft" }
+			}
+		},
+		{   "__comment": "Main right",
+			"from": [ 0, 0, -0.01 ],
+			"to": [ 8, 8, 4 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
+			"faces": {
+				"north": { "texture": "#mainright" },
+				"south": { "texture": "#mainright" }
+			}
+		}
+	]
+}

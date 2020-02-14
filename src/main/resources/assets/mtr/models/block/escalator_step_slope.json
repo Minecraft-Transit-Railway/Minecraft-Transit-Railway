@@ -1,13 +1,9 @@
 {
 	"parent": "block/block",
-	"textures": {
-		"particle": "mtr:blocks/metal",
-		"main": "mtr:blocks/metal"
-	},
 	"elements": [
 		{   "__comment": "Bottom",
-			"from": [ 0, -7, 0 ],
-			"to": [ 16, -8, 16 ],
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 1, 16 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {
 				"down": { "texture": "#main" },
@@ -17,15 +13,15 @@
 			}
 		},
 		{   "__comment": "Main left",
-			"from": [ 0, 8, 12 ],
-			"to": [ 16, -8, 16 ],
+			"from": [ 0, 0, 12 ],
+			"to": [ 16, 8, 16.01 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {
-				"up": { "texture": "#mainleft" },
+				"up": { "uv": [ 0, 12, 16, 16 ], "texture": "#mainleft" },
 				"north": { "texture": "#mainleft" },
 				"south": { "texture": "#mainleft" },
-				"east": { "texture": "#mainleft" },
-				"west": { "texture": "#mainleft" }
+				"east": { "uv": [ 0, 8, 4, 16 ], "texture": "#mainleft" },
+				"west": { "uv": [ 12, 8, 16, 16 ], "texture": "#mainleft" }
 			}
 		},
 		{   "__comment": "Step left",
@@ -37,15 +33,15 @@
 			}
 		},
 		{   "__comment": "Main right",
-			"from": [ 0, 8, 0 ],
-			"to": [ 16, -8, 4 ],
+			"from": [ 0, 0, -0.01 ],
+			"to": [ 16, 8, 4 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {
-				"up": { "texture": "#mainright" },
+				"up": { "uv": [ 0, 0, 16, 4 ], "texture": "#mainright" },
 				"north": { "texture": "#mainright" },
 				"south": { "texture": "#mainright" },
-				"east": { "texture": "#mainright" },
-				"west": { "texture": "#mainright" }
+				"east": { "uv": [ 12, 8, 16, 16 ], "texture": "#mainright" },
+				"west": { "uv": [ 0, 8, 4, 16 ], "texture": "#mainright" }
 			}
 		},
 		{   "__comment": "Step right",

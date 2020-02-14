@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:psd",
+			"data": 2
+		}
+	],
+	"result": {
+		"item": "mtr:psd",
+		"count": 1,
+		"data": 0
+	}
+}

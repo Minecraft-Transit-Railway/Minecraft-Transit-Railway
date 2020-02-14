@@ -1,0 +1,21 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:redstone"
+		},
+		{
+			"item": "minecraft:iron_block"
+		},
+		{
+			"item": "minecraft:stone_brick_stairs"
+		},
+		{
+			"item": "minecraft:glass_pane"
+		}
+	],
+	"result": {
+		"item": "mtr:escalator",
+		"count": 8
+	}
+}

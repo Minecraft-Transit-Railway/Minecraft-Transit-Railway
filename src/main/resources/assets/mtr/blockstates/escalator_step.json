@@ -1,6 +1,11 @@
 {
 	"forge_marker": 1,
-	"defaults": {},
+	"defaults": {
+		"textures": {
+			"particle": "mtr:blocks/metal",
+			"main": "mtr:blocks/metal"
+		}
+	},
 	"variants": {
 		"facing": {
 			"west": {},
@@ -9,13 +14,16 @@
 			"south": { "y": 270 }
 		},
 		"direction": {
-			"true": {},
-			"false": {}
+			"true": { "textures": { "step": "mtr:blocks/escalator_up" } },
+			"false": { "textures": { "step": "mtr:blocks/escalator_down" } }
 		},
 		"orientation": {
-			"landing": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
+			"landing_bottom": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
+			"landing_top": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
 			"flat": { "submodel": { "step": { "model": "mtr:escalator_step_flat" } } },
-			"slope": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } }
+			"slope": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } },
+			"transition_bottom": { "submodel": { "step": { "model": "mtr:escalator_step_flat" }, "transition": { "model": "mtr:escalator_step_transition_bottom" } } },
+			"transition_top": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } }
 		},
 		"side": {
 			"true": {
@@ -23,13 +31,13 @@
 					"mainleft": "mtr:blocks/transparent",
 					"stepleft": "mtr:blocks/transparent",
 					"mainright": "mtr:blocks/metal",
-					"stepright": "mtr:blocks/escalator_up"
+					"stepright": "#step"
 				}
 			},
 			"false": {
 				"textures": {
 					"mainleft": "mtr:blocks/metal",
-					"stepleft": "mtr:blocks/escalator_up",
+					"stepleft": "#step",
 					"mainright": "mtr:blocks/transparent",
 					"stepright": "mtr:blocks/transparent"
 				}

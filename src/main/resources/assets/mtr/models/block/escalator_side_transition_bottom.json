@@ -1,5 +1,8 @@
 {
 	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:blocks/black"
+	},
 	"elements": [
 		{   "__comment": "Left handrail",
 			"from": [ 8, 15, 13 ],
@@ -18,12 +21,12 @@
 			"to": [ 8, 16, 15 ],
 			"rotation": { "origin": [ 8, 15, 8 ], "axis": "z", "angle": -22.5 },
 			"faces": {
-				"up": { "texture": "#handrailleft" },
-				"down": { "texture": "#handrailleft" },
-				"north": { "texture": "#handrailleft" },
-				"south": { "texture": "#handrailleft" },
-				"east": { "texture": "#handrailleft" },
-				"west": { "texture": "#handrailleft" }
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" },
+				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" },
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" },
+				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailleft" }
 			}
 		},
 		{   "__comment": "Right handrail",
@@ -43,12 +46,12 @@
 			"to": [ 8, 16, 3 ],
 			"rotation": { "origin": [ 8, 15, 8 ], "axis": "z", "angle": -22.5 },
 			"faces": {
-				"up": { "texture": "#handrailright" },
-				"down": { "texture": "#handrailright" },
-				"north": { "texture": "#handrailright" },
-				"south": { "texture": "#handrailright" },
-				"east": { "texture": "#handrailright" },
-				"west": { "texture": "#handrailright" }
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" },
+				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" },
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" },
+				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#handrailright" }
 			}
 		}
 	]

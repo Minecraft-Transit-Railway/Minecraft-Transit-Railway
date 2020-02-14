@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:apg",
+			"data": 0
+		}
+	],
+	"result": {
+		"item": "mtr:apg",
+		"count": 1,
+		"data": 1
+	}
+}

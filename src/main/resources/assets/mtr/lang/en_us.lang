@@ -13,6 +13,7 @@ tile.rail_scaffold.name=Rail Scaffolding
 
 item.apg.name=Automatic Platform Gates
 item.brush.name=Brush
+item.escalator.name=Escalator
 item.light_rail_1.name=Light Rail (Phase 1)
 item.m_train.name=M Train
 item.psd.name=Platform Screen Doors

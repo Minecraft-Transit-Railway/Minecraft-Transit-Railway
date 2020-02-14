@@ -9,9 +9,12 @@
 			"south": { "y": 270 }
 		},
 		"orientation": {
-			"landing": { "submodel": { "step": { "model": "mtr:escalator_side_landing" } } },
+			"landing_bottom": { "submodel": { "step": { "model": "mtr:escalator_side_landing_bottom" } } },
+			"landing_top": { "submodel": { "step": { "model": "mtr:escalator_side_landing_top", "y": 180 } } },
 			"flat": { "submodel": { "step": { "model": "mtr:escalator_side_flat" } } },
-			"slope": { "submodel": { "step": { "model": "mtr:escalator_side_slope" } } }
+			"slope": { "submodel": { "step": { "model": "mtr:escalator_side_slope" } } },
+			"transition_bottom": { "submodel": { "step": { "model": "mtr:escalator_side_transition_bottom" } } },
+			"transition_top": { "submodel": { "step": { "model": "mtr:escalator_side_transition_top" } } }
 		},
 		"side": {
 			"true": {
