@@ -2,17 +2,24 @@ package mtr.block;
 
 import java.util.List;
 
+import mods.railcraft.common.items.ItemCrowbar;
+import mtr.MTRUtilities;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BlockEscalatorStep extends BlockEscalatorBase {
+
+	public static final PropertyBool DIRECTION = PropertyBool.create("direction");
 
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
@@ -84,7 +91,56 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		if (MTRUtilities.getItemFromPlayer(playerIn, hand) instanceof ItemCrowbar) {
+			final boolean direction = !state.getValue(DIRECTION);
+			final EnumFacing blockFacing = state.getValue(FACING);
+
+			update(worldIn, pos, blockFacing, direction);
+			update(worldIn, pos, blockFacing.getOpposite(), direction);
+
+			final BlockPos sidePos = pos.offset(state.getValue(SIDE) ? blockFacing.rotateYCCW() : blockFacing.rotateY());
+			if (isStep(worldIn, sidePos, direction)) {
+				final BlockEscalatorStep block = (BlockEscalatorStep) worldIn.getBlockState(sidePos).getBlock();
+				block.update(worldIn, sidePos, blockFacing, direction);
+				block.update(worldIn, sidePos, blockFacing.getOpposite(), direction);
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state) {
+		return (state.getValue(DIRECTION) ? 8 : 0) + super.getMetaFromState(state);
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta) {
+		return super.getStateFromMeta(meta).withProperty(DIRECTION, (meta & 8) > 0);
+	}
+
+	@Override
 	protected BlockStateContainer createBlockState() {
 		return new BlockStateContainer(this, new IProperty[] { FACING, DIRECTION, ORIENTATION, SIDE });
+	}
+
+	private void update(World worldIn, BlockPos pos, EnumFacing offset, boolean direction) {
+		worldIn.setBlockState(pos, worldIn.getBlockState(pos).withProperty(DIRECTION, direction));
+		final BlockPos offsetPos = pos.offset(offset);
+
+		if (isStep(worldIn, offsetPos, direction))
+			update(worldIn, offsetPos, offset, direction);
+		if (isStep(worldIn, offsetPos.up(), direction))
+			update(worldIn, offsetPos.up(), offset, direction);
+		if (isStep(worldIn, offsetPos.down(), direction))
+			update(worldIn, offsetPos.down(), offset, direction);
+	}
+
+	private boolean isStep(World worldIn, BlockPos pos, boolean direction) {
+		final Block block = worldIn.getBlockState(pos).getBlock();
+		return block instanceof BlockEscalatorStep;
 	}
 }

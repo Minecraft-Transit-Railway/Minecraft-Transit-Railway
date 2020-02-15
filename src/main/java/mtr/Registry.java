@@ -3,6 +3,7 @@ package mtr;
 import mtr.block.BlockAPGDoor;
 import mtr.block.BlockAPGGlass;
 import mtr.block.BlockBridgeCreator;
+import mtr.block.BlockCeiling;
 import mtr.block.BlockDoorController;
 import mtr.block.BlockEscalatorSide;
 import mtr.block.BlockEscalatorStep;
@@ -53,6 +54,7 @@ public class Registry {
 		registry.register(setBlockName(new BlockAPGGlass(), "apg_glass"));
 
 		registry.register(setBlockName(new BlockBridgeCreator(), "bridge_creator"));
+		registry.register(setBlockName(new BlockCeiling(), "ceiling"));
 		registry.register(setBlockName(new BlockDoorController(), "door_controller"));
 
 		registry.register(setBlockName(new BlockEscalatorSide(), "escalator_side"));
@@ -80,6 +82,7 @@ public class Registry {
 		final IForgeRegistry<Item> registry = event.getRegistry();
 
 		registry.register(setItemBlock(Blocks.bridge_creator));
+		registry.register(setItemBlock(Blocks.ceiling));
 		registry.register(setItemBlock(Blocks.door_controller));
 		registry.register(setItemBlock(Blocks.logo));
 		registry.register(setItemBlock(Blocks.platform));
@@ -105,6 +108,7 @@ public class Registry {
 	public static void registerBlockModels(final ModelRegistryEvent event) {
 		// Blocks
 		registerBlockModel(Blocks.bridge_creator, 0);
+		registerBlockModel(Blocks.ceiling, 0);
 		registerBlockModel(Blocks.door_controller, 0);
 		registerBlockModel(Blocks.logo, 0);
 		registerBlockModel(Blocks.platform, 0);

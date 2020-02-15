@@ -1,0 +1,16 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "mtr:ceiling"
+	},
+	"variants": {
+		"facing": {
+			"false": {},
+			"true": { "y": 90 }
+		},
+		"light": {
+			"true": {},
+			"false": { "textures": { "light": "mtr:blocks/transparent" } }
+		}
+	}
+}

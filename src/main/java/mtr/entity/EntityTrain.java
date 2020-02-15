@@ -133,8 +133,11 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		if (isPassenger(passenger)) {
 			// TODO allow passenger to move
 			applyYawToPassenger(passenger);
-			if (!world.isRemote && passenger instanceof EntityPlayer)
+			if (!world.isRemote && passenger instanceof EntityPlayer) {
+				trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
+				trainSpeedKm = trainSpeed * 3.6F;
 				((EntityPlayer) passenger).sendStatusMessage(new TextComponentString(trainSpeed + " m/s (" + trainSpeedKm + " km/h)"), true);
+			}
 		}
 		super.updatePassenger(passenger);
 	}

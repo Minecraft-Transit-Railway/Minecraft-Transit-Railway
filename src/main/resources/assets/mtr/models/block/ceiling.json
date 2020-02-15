@@ -1,0 +1,47 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:blocks/metal",
+		"light": "mtr:blocks/white",
+		"side": "mtr:blocks/metal"
+	},
+	"elements": [
+		{   "__comment": "Bar 1",
+			"from": [ 3.5, 7, 0 ],
+			"to": [ 4.5, 10, 16 ],
+			"faces": {
+				"down": { "texture": "#side" },
+				"up": { "texture": "#side" },
+				"east": { "texture": "#side" },
+				"west": { "texture": "#side" },
+				"north": { "texture": "#side", "cullface": "north" },
+				"south": { "texture": "#side", "cullface": "south" }
+			}
+		},
+		{   "__comment": "Bar 2",
+			"from": [ 11.5, 7, 0 ],
+			"to": [ 12.5, 10, 16 ],
+			"faces": {
+				"down": { "texture": "#side" },
+				"up": { "texture": "#side" },
+				"east": { "texture": "#side" },
+				"west": { "texture": "#side" },
+				"north": { "texture": "#side", "cullface": "north" },
+				"south": { "texture": "#side", "cullface": "south" }
+			}
+		},
+		{   "__comment": "Light",
+			"from": [ 6.5, 9, 0 ],
+			"to": [ 9.5, 10, 16 ],
+			"shade": false,
+			"faces": {
+				"down": { "texture": "#light" },
+				"up": { "texture": "#light" },
+				"east": { "texture": "#light" },
+				"west": { "texture": "#light" },
+				"north": { "texture": "#light", "cullface": "north" },
+				"south": { "texture": "#light", "cullface": "south" }
+			}
+		}
+	]
+}

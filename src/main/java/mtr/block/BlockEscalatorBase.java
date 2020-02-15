@@ -25,7 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class BlockEscalatorBase extends BlockHorizontal {
 
-	public static final PropertyBool DIRECTION = PropertyBool.create("direction");
 	public static final PropertyEnum<EnumEscalatorOrientation> ORIENTATION = PropertyEnum.create("orientation", EnumEscalatorOrientation.class);
 	public static final PropertyBool SIDE = PropertyBool.create("side");
 
@@ -67,7 +66,7 @@ public abstract class BlockEscalatorBase extends BlockHorizontal {
 
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(SIDE, meta >= 4).withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
+		return getDefaultState().withProperty(SIDE, (meta & 4) > 0).withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
 	}
 
 	@Override

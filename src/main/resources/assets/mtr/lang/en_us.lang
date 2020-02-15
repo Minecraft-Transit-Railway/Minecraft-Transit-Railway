@@ -1,6 +1,7 @@
 tile.apg_door.name=Automatic Platform Gates
 tile.apg_glass.name=Automatic Platform Gates
 tile.bridge_creator.name=Bridge Creator
+tile.ceiling.name=Ceiling
 tile.door_controller.name=Door Controller
 tile.logo.name=MTR Logo
 tile.platform.name=Platform

@@ -49,6 +49,7 @@ public class ItemEscalator extends Item {
 		worldIn.setBlockState(pos1.up(), sideState.withProperty(BlockEscalatorSide.SIDE, false));
 		worldIn.setBlockState(pos2.up(), sideState.withProperty(BlockEscalatorSide.SIDE, true));
 
+		player.getHeldItem(hand).shrink(1);
 		return EnumActionResult.SUCCESS;
 	}
 }

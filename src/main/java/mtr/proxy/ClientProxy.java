@@ -17,6 +17,9 @@ public class ClientProxy implements IProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityLightRail1.class, RenderLightRail1::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMTrain.class, RenderMTrain::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntitySP1900.class, RenderSP1900::new);
+
+		// ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPSDDoor.class, new
+		// TileEntityPSDDoorRenderer());
 	}
 
 	@Override
