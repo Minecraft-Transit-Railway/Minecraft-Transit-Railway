@@ -41,25 +41,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITi
 
 		if (isOpen(worldIn, pos))
 			return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.OPEN);
-
-		final EnumPSDAPGSide side = state.getValue(SIDE);
-		final EnumFacing facing = state.getValue(FACING);
-
-		if (side == EnumPSDAPGSide.LEFT) {
-			final BlockPos checkPos = pos.offset(facing.rotateYCCW());
-			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
-				return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.LEFT_END);
-			else
-				return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.LEFT);
-		} else if (side == EnumPSDAPGSide.RIGHT) {
-			final BlockPos checkPos = pos.offset(facing.rotateY());
-			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
-				return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.RIGHT_END);
-			else
-				return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.RIGHT);
-		}
-
-		return state;
+		else
+			return state.withProperty(SIDE_DOOR, getActualDoorState(worldIn, state, pos));
 	}
 
 	@Override
@@ -75,18 +58,39 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITi
 		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, SIDE_DOOR, TOP });
 	}
 
-	private boolean isOpen(IBlockAccess worldIn, BlockPos pos) {
-		for (int i = 1; i <= 2; i++) {
-			final IBlockState platformState = worldIn.getBlockState(pos.down(i));
-			if (platformState.getBlock() instanceof BlockPlatform && platformState.getValue(BlockPlatform.OPEN) != EnumDoorState.CLOSED)
-				return true;
-		}
-
-		return false;
-
+	public final boolean isOpen(IBlockAccess worldIn, BlockPos pos) {
+		return getOpenedState(worldIn, pos) != EnumDoorState.CLOSED;
 	}
 
-	private enum EnumPSDAPGDoor implements IStringSerializable {
+	public final EnumDoorState getOpenedState(IBlockAccess worldIn, BlockPos pos) {
+		for (int i = 1; i <= 2; i++) {
+			final IBlockState platformState = worldIn.getBlockState(pos.down(i));
+			if (platformState.getBlock() instanceof BlockPlatform)
+				return platformState.getValue(BlockPlatform.OPEN);
+		}
+		return EnumDoorState.CLOSED;
+	}
+
+	public final EnumPSDAPGDoor getActualDoorState(IBlockAccess worldIn, IBlockState state, BlockPos pos) {
+		final EnumPSDAPGSide side = state.getValue(SIDE);
+		final EnumFacing facing = state.getValue(FACING);
+
+		if (side == EnumPSDAPGSide.LEFT) {
+			final BlockPos checkPos = pos.offset(facing.rotateYCCW());
+			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
+				return EnumPSDAPGDoor.LEFT_END;
+			else
+				return EnumPSDAPGDoor.LEFT;
+		} else {
+			final BlockPos checkPos = pos.offset(facing.rotateY());
+			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
+				return EnumPSDAPGDoor.RIGHT_END;
+			else
+				return EnumPSDAPGDoor.RIGHT;
+		}
+	}
+
+	public enum EnumPSDAPGDoor implements IStringSerializable {
 
 		LEFT("left"), RIGHT("right"), LEFT_END("left_end"), RIGHT_END("right_end"), OPEN("open");
 

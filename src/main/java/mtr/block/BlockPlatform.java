@@ -121,7 +121,7 @@ public class BlockPlatform extends BlockHorizontal {
 
 	public enum EnumDoorState implements IStringSerializable {
 
-		OPENED("opened"), CLOSING("closing"), CLOSED("closed");
+		CLOSED("closed"), CLOSING("closing"), OPENED("opened");
 
 		private String name;
 

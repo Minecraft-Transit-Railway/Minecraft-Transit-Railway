@@ -131,7 +131,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP });
 	}
 
-	protected final boolean isTop(IBlockAccess worldIn, BlockPos pos) {
+	public final boolean isTop(IBlockAccess worldIn, BlockPos pos) {
 		return Block.isEqualTo(this, worldIn.getBlockState(pos.down()).getBlock());
 	}
 
