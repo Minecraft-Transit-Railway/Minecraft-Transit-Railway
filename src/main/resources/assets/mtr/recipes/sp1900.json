@@ -14,8 +14,8 @@
 			"item": "minecraft:minecart"
 		},
 		{
-			"item": "minecraft:dye",
-			"data": 1
+			"type": "forge:ore_dict",
+			"ore": "dyeRed"
 		}
 	],
 	"result": {
