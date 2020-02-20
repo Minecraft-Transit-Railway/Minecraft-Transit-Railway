@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -28,11 +29,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockPSDTop extends BlockHorizontal {
 
+	public static final PropertyEnum<EnumDoorLight> DOOR_LIGHT = PropertyEnum.create("door_light", EnumDoorLight.class);
 	public static final PropertyEnum<EnumPSDAPGSide> SIDE = PropertyEnum.create("side", EnumPSDAPGSide.class);
 
 	public BlockPSDTop() {
 		super(Material.ROCK);
 		setHardness(2);
+		setLightLevel(1);
 	}
 
 	@Override
@@ -69,9 +72,14 @@ public class BlockPSDTop extends BlockHorizontal {
 
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+		EnumDoorLight doorLight = EnumDoorLight.NONE;
+		final Block blockBelow = worldIn.getBlockState(pos.down()).getBlock();
+		if (blockBelow instanceof BlockPSDAPGDoorBase)
+			doorLight = ((BlockPSDAPGDoorBase) blockBelow).isOpen(worldIn, pos.down()) ? EnumDoorLight.ON : EnumDoorLight.OFF;
+
 		final EnumFacing facing = getFacing(worldIn, pos);
 		final EnumPSDAPGSide side = getSide(worldIn, pos);
-		return state.withProperty(FACING, facing).withProperty(SIDE, side);
+		return state.withProperty(DOOR_LIGHT, doorLight).withProperty(FACING, facing).withProperty(SIDE, side);
 	}
 
 	@Override
@@ -128,7 +136,7 @@ public class BlockPSDTop extends BlockHorizontal {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE });
+		return new BlockStateContainer(this, new IProperty[] { DOOR_LIGHT, FACING, SIDE });
 	}
 
 	private EnumFacing getFacing(IBlockAccess worldIn, BlockPos pos) {
@@ -145,5 +153,21 @@ public class BlockPSDTop extends BlockHorizontal {
 			return stateBelow.getValue(SIDE);
 		else
 			return EnumPSDAPGSide.SINGLE;
+	}
+
+	private enum EnumDoorLight implements IStringSerializable {
+
+		ON("on"), OFF("off"), NONE("none");
+
+		private final String name;
+
+		private EnumDoorLight(String nameIn) {
+			name = nameIn;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
 	}
 }

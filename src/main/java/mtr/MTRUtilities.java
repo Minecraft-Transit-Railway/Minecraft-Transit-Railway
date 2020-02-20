@@ -133,7 +133,7 @@ public class MTRUtilities {
 		if (open) {
 			if (door < 1) {
 				newDoorTime = System.currentTimeMillis();
-				if (doorTime == 0)
+				if (newDoorTime - doorTime > DOOR_DURATION_MILLISECONDS)
 					doorTime = newDoorTime;
 				door += (newDoorTime - doorTime) / (float) DOOR_DURATION_MILLISECONDS;
 			} else {
@@ -143,7 +143,7 @@ public class MTRUtilities {
 		} else {
 			if (door > 0) {
 				newDoorTime = System.currentTimeMillis();
-				if (doorTime == 0)
+				if (newDoorTime - doorTime > DOOR_DURATION_MILLISECONDS)
 					doorTime = newDoorTime;
 				door -= (newDoorTime - doorTime) / (float) DOOR_DURATION_MILLISECONDS;
 			} else {

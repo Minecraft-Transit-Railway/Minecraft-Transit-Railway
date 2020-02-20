@@ -8,6 +8,11 @@
 		"model": "mtr:psd_top"
 	},
 	"variants": {
+		"door_light": {
+			"on": { "submodel": { "light": { "model": "mtr:psd_top_light_on" } } },
+			"off": { "submodel": { "light": { "model": "mtr:psd_top_light_off" } } },
+			"none": {}
+		},
 		"facing": {
 			"west": {},
 			"north": { "y": 90 },
@@ -15,8 +20,8 @@
 			"south": { "y": 270 }
 		},
 		"side": {
-			"left": { "textures": { "body": "mtr:blocks/psd_top_left" } },
-			"right": { "textures": { "body": "mtr:blocks/psd_top_right" } },
+			"left": { "textures": { "body": "mtr:blocks/psd_top_left", "lightright": "mtr:blocks/transparent" } },
+			"right": { "textures": { "body": "mtr:blocks/psd_top_right", "lightleft": "mtr:blocks/transparent" } },
 			"middle": { "textures": { "body": "mtr:blocks/psd_top" } },
 			"single": { "textures": { "body": "mtr:blocks/psd_top" } }
 		}

@@ -1,0 +1,29 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"lightleft": "mtr:blocks/light_on",
+		"lightright": "mtr:blocks/light_on"
+	},
+	"elements": [
+		{
+			"from": [ 5, 0, 0 ],
+			"to": [ 6, 1, 1 ],
+			"shade": false,
+			"faces": {
+				"down": { "texture": "#lightleft" },
+				"east": { "texture": "#lightleft" },
+				"south": { "texture": "#lightleft" }
+			}
+		},
+		{
+			"from": [ 5, 0, 15 ],
+			"to": [ 6, 1, 16 ],
+			"shade": false,
+			"faces": {
+				"down": { "texture": "#lightright" },
+				"east": { "texture": "#lightright" },
+				"north": { "texture": "#lightright" }
+			}
+		}
+	]
+}
