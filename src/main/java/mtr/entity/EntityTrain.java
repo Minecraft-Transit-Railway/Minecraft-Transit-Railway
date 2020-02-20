@@ -70,7 +70,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	public abstract int getSiblingSpacing();
 
-	public abstract float getEndSpacing();
+	public abstract int getEndSpacing();
 
 	protected abstract Item getTrainItem();
 

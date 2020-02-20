@@ -16,12 +16,12 @@ public class EntityMTrain extends EntityTrain {
 
 	@Override
 	public int getSiblingSpacing() {
-		return 16;
+		return 15;
 	}
 
 	@Override
-	public float getEndSpacing() {
-		return 4.5F;
+	public int getEndSpacing() {
+		return 5;
 	}
 
 	@Override
