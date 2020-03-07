@@ -3,11 +3,7 @@ package mtr;
 import mtr.block.BlockPSDAPGBase;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -19,7 +15,9 @@ public class MTRUtilities {
 	public static final int DOOR_DURATION_MILLISECONDS = 2000;
 	public static final int DOOR_DURATION_TICKS = DOOR_DURATION_MILLISECONDS / 50;
 
-	/** Returns whichever one of the two angles (a1 or a2) is closer to angle. */
+	/**
+	 * Returns whichever one of the two angles (a1 or a2) is closer to angle.
+	 */
 	public static double findCloserAngle(double angle, double a1, double a2) {
 		double b1 = Math.abs(a1 - angle), b2 = Math.abs(a2 - angle);
 		if (b1 > 180)
@@ -32,7 +30,9 @@ public class MTRUtilities {
 			return a1;
 	}
 
-	/** Returns the geometric wrapped angle difference of a1 minus a2. */
+	/**
+	 * Returns the geometric wrapped angle difference of a1 minus a2.
+	 */
 	public static double angleDifference(double a1, double a2) {
 		if (a1 < 0)
 			a1 += 360;
@@ -45,7 +45,9 @@ public class MTRUtilities {
 		return a1 - a2;
 	}
 
-	/** Returns the angle (between 0 and 2*PI) between two points. */
+	/**
+	 * Returns the angle (between 0 and 2*PI) between two points.
+	 */
 	public static double angleBetweenPoints(double xCentre, double zCentre, double x2, double z2) {
 		final double distance = distanceBetweenPoints(xCentre, zCentre, x2, z2);
 		if (distance == 0)
@@ -56,17 +58,23 @@ public class MTRUtilities {
 		return a;
 	}
 
-	/** Returns the distance between two points. */
+	/**
+	 * Returns the distance between two points.
+	 */
 	public static double distanceBetweenPoints(double x1, double z1, double x2, double z2) {
 		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(z1 - z2, 2));
 	}
 
-	/** Returns the distance between two points. */
+	/**
+	 * Returns the distance between two points.
+	 */
 	public static double distanceBetweenPoints(double x1, double y1, double z1, double x2, double y2, double z2) {
 		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
 	}
 
-	/** Returns the distance between two BlockPos. */
+	/**
+	 * Returns the distance between two BlockPos.
+	 */
 	public static double distanceBetweenPoints(BlockPos pos1, BlockPos pos2) {
 		return distanceBetweenPoints(pos1.getX(), pos1.getZ(), pos2.getX(), pos2.getZ());
 	}
@@ -91,17 +99,6 @@ public class MTRUtilities {
 		return 0;
 	}
 
-	public static double[] circleIntersection(double h1, double k1, double r1, double h2, double k2, double r2) {
-		final double d2 = Math.pow(h2 - h1, 2) + Math.pow(k2 - k1, 2);
-		final double K = 0.25 * Math.sqrt((Math.pow(r1 + r2, 2) - d2) * (d2 - Math.pow(r1 - r2, 2)));
-		final double x1 = 0.5 * (h2 + h1) + 0.5 * (h2 - h1) * (Math.pow(r1, 2) - Math.pow(r2, 2)) / d2 + 2 * (k2 - k1) * K / d2;
-		final double x2 = 0.5 * (h2 + h1) + 0.5 * (h2 - h1) * (Math.pow(r1, 2) - Math.pow(r2, 2)) / d2 - 2 * (k2 - k1) * K / d2;
-		final double y1 = 0.5 * (k2 + k1) + 0.5 * (k2 - k1) * (Math.pow(r1, 2) - Math.pow(r2, 2)) / d2 - 2 * (h2 - h1) * K / d2;
-		final double y2 = 0.5 * (k2 + k1) + 0.5 * (k2 - k1) * (Math.pow(r1, 2) - Math.pow(r2, 2)) / d2 + 2 * (h2 - h1) * K / d2;
-		final double[] a = { x1, y1, x2, y2 };
-		return a;
-	}
-
 	public static boolean blocksAreReplacable(World worldIn, BlockPos pos, EnumFacing facing, int width, int height) {
 		for (int x = 0; x < width; x++) {
 			final BlockPos offsetPos = pos.offset(facing.rotateY(), x);
@@ -119,16 +116,8 @@ public class MTRUtilities {
 		return true;
 	}
 
-	public static Item getItemFromPlayer(EntityPlayer player, EnumHand hand) {
-		final ItemStack stack = player.getHeldItem(hand);
-		if (stack != null)
-			return stack.getItem();
-		else
-			return null;
-	}
-
 	@SideOnly(Side.CLIENT)
-	public static Tuple updateDoor(boolean open, float door, long doorTime) {
+	public static Tuple<Float, Long> updateDoor(boolean open, float door, long doorTime) {
 		long newDoorTime;
 		if (open) {
 			if (door < 1) {
@@ -151,7 +140,7 @@ public class MTRUtilities {
 				door = 0;
 			}
 		}
-		return new Tuple(door, newDoorTime);
+		return new Tuple<>(door, newDoorTime);
 	}
 
 	@SideOnly(Side.CLIENT)

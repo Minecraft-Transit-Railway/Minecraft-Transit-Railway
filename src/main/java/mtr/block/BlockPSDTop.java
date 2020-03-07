@@ -1,14 +1,11 @@
 package mtr.block;
 
-import java.util.Random;
-
 import mtr.Items;
 import mtr.block.BlockPSDAPGBase.EnumPSDAPGSide;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -26,6 +23,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Random;
 
 public class BlockPSDTop extends BlockHorizontal {
 
@@ -95,16 +94,16 @@ public class BlockPSDTop extends BlockHorizontal {
 				return new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 
 		switch (getFacing(source, pos)) {
-		case NORTH:
-			return new AxisAlignedBB(0, 0, 0, 1, 1, 0.375);
-		case EAST:
-			return new AxisAlignedBB(0.625, 0, 0, 1, 1, 1);
-		case SOUTH:
-			return new AxisAlignedBB(0, 0, 0.625, 1, 1, 1);
-		case WEST:
-			return new AxisAlignedBB(0, 0, 0, 0.375, 1, 1);
-		default:
-			return NULL_AABB;
+			case NORTH:
+				return new AxisAlignedBB(0, 0, 0, 1, 1, 0.375);
+			case EAST:
+				return new AxisAlignedBB(0.625, 0, 0, 1, 1, 1);
+			case SOUTH:
+				return new AxisAlignedBB(0, 0, 0.625, 1, 1, 1);
+			case WEST:
+				return new AxisAlignedBB(0, 0, 0, 0.375, 1, 1);
+			default:
+				return NULL_AABB;
 		}
 	}
 
@@ -136,7 +135,7 @@ public class BlockPSDTop extends BlockHorizontal {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { DOOR_LIGHT, FACING, SIDE });
+		return new BlockStateContainer(this, DOOR_LIGHT, FACING, SIDE);
 	}
 
 	private EnumFacing getFacing(IBlockAccess worldIn, BlockPos pos) {
@@ -161,7 +160,7 @@ public class BlockPSDTop extends BlockHorizontal {
 
 		private final String name;
 
-		private EnumDoorLight(String nameIn) {
+		EnumDoorLight(String nameIn) {
 			name = nameIn;
 		}
 

@@ -1,9 +1,5 @@
 package mtr.tile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
 import mtr.block.BlockBridgeCreator;
 import mtr.block.BlockRailScaffold;
 import mtr.container.ContainerBridgeCreator;
@@ -34,11 +30,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 public class TileEntityBridgeCreator extends TileEntityLockableLoot implements ITickable, ISidedInventory {
 
-	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 	private int burnTime, totalBurnTime;
-	private final Map<BlockPos, Block> structure = new HashMap<BlockPos, Block>();
+	private final Map<BlockPos, Block> structure = new HashMap<>();
 
 	@Override
 	public void update() {
@@ -80,7 +80,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+		inventory = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		ItemStackHelper.loadAllItems(compound, inventory);
 
 		burnTime = compound.getInteger("burnTime");
@@ -116,8 +116,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 				slots[i] = i;
 			return slots;
 		} else {
-			final int[] slots = { getSizeInventory() - 2, getSizeInventory() - 1 };
-			return slots;
+			return new int[]{getSizeInventory() - 2, getSizeInventory() - 1};
 		}
 	}
 
@@ -134,24 +133,24 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	@Override
 	public int getField(int id) {
 		switch (id) {
-		case 0:
-			return burnTime;
-		case 1:
-			return totalBurnTime;
-		default:
-			return 0;
+			case 0:
+				return burnTime;
+			case 1:
+				return totalBurnTime;
+			default:
+				return 0;
 		}
 	}
 
 	@Override
 	public void setField(int id, int value) {
 		switch (id) {
-		case 0:
-			burnTime = value;
-			break;
-		case 1:
-			totalBurnTime = value;
-			break;
+			case 0:
+				burnTime = value;
+				break;
+			case 1:
+				totalBurnTime = value;
+				break;
 		}
 	}
 
@@ -216,7 +215,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 	}
 
 	private BlockPos findNextScaffold(BlockPos thisPos, BlockPos prevPos) {
-		final BlockPos[] positions = { thisPos.north(), thisPos.east(), thisPos.south(), thisPos.west() };
+		final BlockPos[] positions = {thisPos.north(), thisPos.east(), thisPos.south(), thisPos.west()};
 		for (final BlockPos position : positions)
 			if (!position.equals(prevPos) && world.getBlockState(position).getBlock() instanceof BlockRailScaffold)
 				return position;
@@ -244,7 +243,7 @@ public class TileEntityBridgeCreator extends TileEntityLockableLoot implements I
 			if (canPlaceBlock) {
 				ItemStack droppedItemStack = new ItemStack(currentBlock.getItemDropped(currentState, new Random(), 0), currentBlock.quantityDropped(new Random()));
 
-				final BlockPos[] positions = { pos.north(), pos.east(), pos.south(), pos.west(), pos.up(), pos.down(), pos };
+				final BlockPos[] positions = {pos.north(), pos.east(), pos.south(), pos.west(), pos.up(), pos.down(), pos};
 				for (final BlockPos position : positions) {
 					if (droppedItemStack.isEmpty())
 						break;

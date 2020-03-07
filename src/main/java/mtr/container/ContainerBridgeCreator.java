@@ -3,11 +3,7 @@ package mtr.container;
 import mtr.slot.SlotBlockOnly;
 import mtr.slot.SlotTemplateOnly;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotFurnaceFuel;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -81,8 +77,7 @@ public class ContainerBridgeCreator extends Container {
 	@Override
 	public void detectAndSendChanges() {
 		super.detectAndSendChanges();
-		for (int i = 0; i < listeners.size(); i++) {
-			final IContainerListener listener = listeners.get(i);
+		for (final IContainerListener listener : listeners) {
 			if (burnTime != tileBridgeCreator.getField(0))
 				listener.sendWindowProperty(this, 0, tileBridgeCreator.getField(0));
 			if (totalBurnTime != tileBridgeCreator.getField(1))

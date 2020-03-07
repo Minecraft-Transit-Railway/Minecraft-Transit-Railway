@@ -1,7 +1,5 @@
 package mtr.item;
 
-import java.util.List;
-
 import mtr.Blocks;
 import mtr.MTRUtilities;
 import mtr.block.BlockPSDAPGBase;
@@ -19,6 +17,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public abstract class ItemPSDAPGBase extends Item {
 
@@ -62,15 +62,15 @@ public abstract class ItemPSDAPGBase extends Item {
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		switch (stack.getItemDamage()) {
-		case 0:
-			tooltip.add(new TextComponentTranslation("gui.psd_apg_door").getFormattedText());
-			break;
-		case 1:
-			tooltip.add(new TextComponentTranslation("gui.psd_apg_glass").getFormattedText());
-			break;
-		case 2:
-			tooltip.add(new TextComponentTranslation("gui.psd_glass_end").getFormattedText());
-			break;
+			case 0:
+				tooltip.add(new TextComponentTranslation("gui.psd_apg_door").getFormattedText());
+				break;
+			case 1:
+				tooltip.add(new TextComponentTranslation("gui.psd_apg_glass").getFormattedText());
+				break;
+			case 2:
+				tooltip.add(new TextComponentTranslation("gui.psd_glass_end").getFormattedText());
+				break;
 		}
 	}
 
@@ -83,14 +83,14 @@ public abstract class ItemPSDAPGBase extends Item {
 
 	private IBlockState getBlockStateFromItem(int itemDamage, boolean isPSD) {
 		switch (itemDamage) {
-		case 0:
-			return isPSD ? Blocks.psd_door.getDefaultState() : Blocks.apg_door.getDefaultState();
-		case 1:
-			return isPSD ? Blocks.psd_glass.getDefaultState() : Blocks.apg_glass.getDefaultState();
-		case 2:
-			return Blocks.psd_glass_end.getDefaultState();
-		default:
-			return null;
+			case 0:
+				return isPSD ? Blocks.psd_door.getDefaultState() : Blocks.apg_door.getDefaultState();
+			case 1:
+				return isPSD ? Blocks.psd_glass.getDefaultState() : Blocks.apg_glass.getDefaultState();
+			case 2:
+				return Blocks.psd_glass_end.getDefaultState();
+			default:
+				return null;
 		}
 	}
 }

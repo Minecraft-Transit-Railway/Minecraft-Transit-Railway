@@ -3,7 +3,6 @@ package mtr.block;
 import mtr.block.BlockPlatform.EnumDoorState;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -55,7 +54,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITi
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, SIDE_DOOR, TOP });
+		return new BlockStateContainer(this, FACING, SIDE, SIDE_DOOR, TOP);
 	}
 
 	public final boolean isOpen(IBlockAccess worldIn, BlockPos pos) {
@@ -96,7 +95,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITi
 
 		private final String name;
 
-		private EnumPSDAPGDoor(String nameIn) {
+		EnumPSDAPGDoor(String nameIn) {
 			name = nameIn;
 		}
 

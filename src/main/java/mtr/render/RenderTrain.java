@@ -1,7 +1,5 @@
 package mtr.render;
 
-import org.lwjgl.opengl.GL11;
-
 import mtr.MTRUtilities;
 import mtr.entity.EntityTrain;
 import mtr.entity.EntityTrain.EnumTrainType;
@@ -19,12 +17,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 // https://wiki.mcjty.eu/modding/index.php/Render_Block_TESR_/_OBJ-1.9
 @SideOnly(Side.CLIENT)
 public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 
-	protected ModelBase modelBogie = new ModelMinecart();
+	protected final ModelBase modelBogie = new ModelMinecart();
 
 	public RenderTrain(RenderManager renderManager) {
 		super(renderManager);
@@ -56,7 +55,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
 
 		final Entity entityConnection = entity.getConnectionClient();
-		if (entityConnection != null && entityConnection instanceof EntityTrain)
+		if (entityConnection instanceof EntityTrain)
 			renderConnection(entity, (EntityTrain) entityConnection, midpointSibling);
 
 		GlStateManager.translate(midpointSibling.midX, midpointSibling.midY, midpointSibling.midZ);
@@ -154,7 +153,7 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		return vector;
 	}
 
-	private class Midpoint {
+	private static class Midpoint {
 
 		private final double midX, midY, midZ;
 		private final float angleYaw, anglePitch;

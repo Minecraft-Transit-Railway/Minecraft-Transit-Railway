@@ -1,12 +1,10 @@
 package mtr.block;
 
 import mods.railcraft.common.items.ItemCrowbar;
-import mtr.MTRUtilities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -46,7 +44,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!(this instanceof BlockPSDAPGDoorBase) && MTRUtilities.getItemFromPlayer(playerIn, hand) instanceof ItemCrowbar) {
+		if (!(this instanceof BlockPSDAPGDoorBase) && playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
 			for (int y = -1; y <= 1; y++)
 				if (Block.isEqualTo(this, worldIn.getBlockState(pos.up(y)).getBlock()))
 					connectGlass(worldIn, pos.up(y), state);
@@ -87,16 +85,16 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 		final double height = isAPG && isTop(source, pos) ? 0.5625 : 1;
 
 		switch (state.getValue(FACING)) {
-		case NORTH:
-			return new AxisAlignedBB(0, 0, 0, 1, height, 0.125);
-		case EAST:
-			return new AxisAlignedBB(0.875, 0, 0, 1, height, 1);
-		case SOUTH:
-			return new AxisAlignedBB(0, 0, 0.875, 1, height, 1);
-		case WEST:
-			return new AxisAlignedBB(0, 0, 0, 0.125, height, 1);
-		default:
-			return NULL_AABB;
+			case NORTH:
+				return new AxisAlignedBB(0, 0, 0, 1, height, 0.125);
+			case EAST:
+				return new AxisAlignedBB(0.875, 0, 0, 1, height, 1);
+			case SOUTH:
+				return new AxisAlignedBB(0, 0, 0.875, 1, height, 1);
+			case WEST:
+				return new AxisAlignedBB(0, 0, 0, 0.125, height, 1);
+			default:
+				return NULL_AABB;
 		}
 	}
 
@@ -128,7 +126,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING, SIDE, TOP });
+		return new BlockStateContainer(this, FACING, SIDE, TOP);
 	}
 
 	public final boolean isTop(IBlockAccess worldIn, BlockPos pos) {
@@ -191,9 +189,9 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 		LEFT("left"), RIGHT("right"), MIDDLE("middle"), SINGLE("single");
 
-		private String name;
+		private final String name;
 
-		private EnumPSDAPGSide(String nameIn) {
+		EnumPSDAPGSide(String nameIn) {
 			name = nameIn;
 		}
 

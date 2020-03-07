@@ -1,7 +1,5 @@
 package mtr.block;
 
-import java.util.Random;
-
 import mtr.Items;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
@@ -22,6 +20,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Random;
 
 public abstract class BlockEscalatorBase extends BlockHorizontal {
 
@@ -132,7 +132,7 @@ public abstract class BlockEscalatorBase extends BlockHorizontal {
 
 		private final String name;
 
-		private EnumEscalatorOrientation(String nameIn) {
+		EnumEscalatorOrientation(String nameIn) {
 			name = nameIn;
 		}
 

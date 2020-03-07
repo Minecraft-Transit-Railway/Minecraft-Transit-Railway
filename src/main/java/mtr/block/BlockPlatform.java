@@ -1,14 +1,11 @@
 package mtr.block;
 
-import java.util.Random;
-
 import mtr.MTRUtilities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -22,6 +19,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Random;
 
 public class BlockPlatform extends BlockHorizontal {
 
@@ -98,7 +97,7 @@ public class BlockPlatform extends BlockHorizontal {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING, DOOR_TYPE, OPEN, SIDE });
+		return new BlockStateContainer(this, FACING, DOOR_TYPE, OPEN, SIDE);
 	}
 
 	public void updateOpen(World world, IBlockState state, BlockPos pos, EnumFacing direction, boolean open) {
@@ -110,7 +109,7 @@ public class BlockPlatform extends BlockHorizontal {
 			((BlockPlatform) blockOffset).updateOpen(world, state, pos.offset(direction), direction, open);
 	}
 
-	private EnumFacing searchBlock(IBlockAccess worldIn, BlockPos pos, Class blockClass, int maxRadius) {
+	private EnumFacing searchBlock(IBlockAccess worldIn, BlockPos pos, Class<? extends Block> blockClass, int maxRadius) {
 		for (int radius = 1; radius <= maxRadius; radius++)
 			for (final EnumFacing facing : EnumFacing.HORIZONTALS)
 				if (blockClass.isInstance(worldIn.getBlockState(pos.offset(facing, radius)).getBlock()))
@@ -123,9 +122,9 @@ public class BlockPlatform extends BlockHorizontal {
 
 		CLOSED("closed"), CLOSING("closing"), OPENED("opened");
 
-		private String name;
+		private final String name;
 
-		private EnumDoorState(String nameIn) {
+		EnumDoorState(String nameIn) {
 			name = nameIn;
 		}
 
@@ -139,9 +138,9 @@ public class BlockPlatform extends BlockHorizontal {
 
 		NONE("none"), PSD("psd"), APG("apg");
 
-		private String name;
+		private final String name;
 
-		private EnumDoorType(String nameIn) {
+		EnumDoorType(String nameIn) {
 			name = nameIn;
 		}
 

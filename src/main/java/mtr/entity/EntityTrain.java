@@ -1,10 +1,6 @@
 package mtr.entity;
 
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.collect.Maps;
-
 import mods.railcraft.api.carts.ILinkableCart;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
@@ -29,6 +25,9 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Map;
+import java.util.UUID;
+
 public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements ILinkableCart {
 
 	public EntityTrain(World worldIn) {
@@ -47,7 +46,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		ignoreFrustumCheck = true;
 	}
 
-	public Vec3d[] connectionVectorClient = new Vec3d[8];
+	public final Vec3d[] connectionVectorClient = new Vec3d[8];
 
 	private UUID uuidSibling;
 	private EntityTrain entitySibling, entityConnection;
@@ -59,11 +58,11 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private static final int DISTANCE_OFFSET = 10;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
 
-	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
-	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.<Boolean>createKey(EntityTrain.class, DataSerializers.BOOLEAN);
-	private static final DataParameter<Integer> MTR_SIBLING_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
-	private static final DataParameter<Integer> MTR_TRAIN_TYPE = EntityDataManager.<Integer>createKey(EntityTrain.class, DataSerializers.VARINT);
+	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
+	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
+	private static final DataParameter<Integer> MTR_SIBLING_ID = EntityDataManager.createKey(EntityTrain.class, DataSerializers.VARINT);
+	private static final DataParameter<Integer> MTR_CONNECTION_ID = EntityDataManager.createKey(EntityTrain.class, DataSerializers.VARINT);
+	private static final DataParameter<Integer> MTR_TRAIN_TYPE = EntityDataManager.createKey(EntityTrain.class, DataSerializers.VARINT);
 
 	private int cacheSiblingID = ID_DEFAULT;
 	private int cacheTrainType = TRAIN_TYPE_DEFAULT;
@@ -115,9 +114,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 					final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
 					final EntityMinecart linkB = LinkageManager.INSTANCE.getLinkedCartB(this);
-					if (linkA != null && linkA instanceof EntityTrain && linkA != entitySibling)
+					if (linkA instanceof EntityTrain && linkA != entitySibling)
 						entityConnection = syncEntity(linkA, MTR_CONNECTION_ID);
-					else if (linkB != null && linkB instanceof EntityTrain && linkB != entitySibling)
+					else if (linkB instanceof EntityTrain && linkB != entitySibling)
 						entityConnection = syncEntity(linkB, MTR_CONNECTION_ID);
 					else
 						entityConnection = syncEntity(null, MTR_CONNECTION_ID);
@@ -135,7 +134,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 			applyYawToPassenger(passenger);
 			if (!world.isRemote && passenger instanceof EntityPlayer) {
 				trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
-				trainSpeedKm = trainSpeed * 3.6F;
+				trainSpeedKm = Math.round(trainSpeed * 36) / 10F;
+				trainSpeed = Math.round(trainSpeed * 10) / 10F;
 				((EntityPlayer) passenger).sendStatusMessage(new TextComponentString(trainSpeed + " m/s (" + trainSpeedKm + " km/h)"), true);
 			}
 		}
@@ -213,18 +213,18 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	@SideOnly(Side.CLIENT)
 	public float getLeftDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_LEFT_OPENED);
-		final Tuple tuple = MTRUtilities.updateDoor(opened, leftDoorClient, leftDoorTimeClient);
-		leftDoorClient = (float) tuple.getFirst();
-		leftDoorTimeClient = (long) tuple.getSecond();
+		final Tuple<Float, Long> tuple = MTRUtilities.updateDoor(opened, leftDoorClient, leftDoorTimeClient);
+		leftDoorClient = tuple.getFirst();
+		leftDoorTimeClient = tuple.getSecond();
 		return leftDoorClient;
 	}
 
 	@SideOnly(Side.CLIENT)
 	public float getRightDoorClient() {
 		final boolean opened = dataManager.get(MTR_DOOR_RIGHT_OPENED);
-		final Tuple tuple = MTRUtilities.updateDoor(opened, rightDoorClient, rightDoorTimeClient);
-		rightDoorClient = (float) tuple.getFirst();
-		rightDoorTimeClient = (long) tuple.getSecond();
+		final Tuple<Float, Long> tuple = MTRUtilities.updateDoor(opened, rightDoorClient, rightDoorTimeClient);
+		rightDoorClient = tuple.getFirst();
+		rightDoorTimeClient = tuple.getSecond();
 		return rightDoorClient;
 	}
 
@@ -283,7 +283,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	private EntityTrain syncEntity(Entity genericEntity, DataParameter<Integer> parameter) {
-		if (genericEntity != null && genericEntity instanceof EntityTrain) {
+		if (genericEntity instanceof EntityTrain) {
 			dataManager.set(parameter, genericEntity.getEntityId());
 			return (EntityTrain) genericEntity;
 		} else {
@@ -297,14 +297,14 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		dataManager.set(MTR_TRAIN_TYPE, trainType);
 	}
 
-	public static enum EnumTrainType {
+	public enum EnumTrainType {
 		HEAD(0, "head"), CAR(1, "car"), FIRST_CLASS(2, "first_class");
 
-		private static final Map<Integer, EnumTrainType> BY_ID = Maps.<Integer, EnumTrainType>newHashMap();
+		private static final Map<Integer, EnumTrainType> BY_ID = Maps.newHashMap();
 		private final int index;
 		private final String name;
 
-		private EnumTrainType(int indexIn, String nameIn) {
+		EnumTrainType(int indexIn, String nameIn) {
 			index = indexIn;
 			name = nameIn;
 		}

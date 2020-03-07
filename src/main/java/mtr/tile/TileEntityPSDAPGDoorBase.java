@@ -16,9 +16,9 @@ public abstract class TileEntityPSDAPGDoorBase extends TileEntity {
 	@SideOnly(Side.CLIENT)
 	public float getDoorClient() {
 		final EnumDoorState opened = ((BlockPSDAPGDoorBase) world.getBlockState(pos).getBlock()).getOpenedState(world, pos);
-		final Tuple tuple = MTRUtilities.updateDoor(opened == EnumDoorState.OPENED, doorClient, doorTimeClient);
-		doorClient = (float) tuple.getFirst();
-		doorTimeClient = (long) tuple.getSecond();
+		final Tuple<Float, Long> tuple = MTRUtilities.updateDoor(opened == EnumDoorState.OPENED, doorClient, doorTimeClient);
+		doorClient = tuple.getFirst();
+		doorTimeClient = tuple.getSecond();
 		return doorClient;
 	}
 }

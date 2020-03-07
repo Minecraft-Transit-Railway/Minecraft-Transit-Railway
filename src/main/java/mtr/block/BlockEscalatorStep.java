@@ -1,11 +1,7 @@
 package mtr.block;
 
-import java.util.List;
-
 import mods.railcraft.common.items.ItemCrowbar;
-import mtr.MTRUtilities;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -16,6 +12,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class BlockEscalatorStep extends BlockEscalatorBase {
 
@@ -39,20 +37,20 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		final float speed = 0.1F;
 
 		switch (facing) {
-		case NORTH:
-			entityIn.motionZ += direction ? -speed : speed;
-			break;
-		case EAST:
-			entityIn.motionX += direction ? speed : -speed;
-			break;
-		case SOUTH:
-			entityIn.motionZ += direction ? speed : -speed;
-			break;
-		case WEST:
-			entityIn.motionX += direction ? -speed : speed;
-			break;
-		default:
-			break;
+			case NORTH:
+				entityIn.motionZ += direction ? -speed : speed;
+				break;
+			case EAST:
+				entityIn.motionX += direction ? speed : -speed;
+				break;
+			case SOUTH:
+				entityIn.motionZ += direction ? speed : -speed;
+				break;
+			case WEST:
+				entityIn.motionX += direction ? -speed : speed;
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -65,19 +63,19 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 			for (int step = 0; step < maxSteps; step++) {
 				AxisAlignedBB box = NULL_AABB;
 				switch (state.getValue(FACING)) {
-				case NORTH:
-					box = new AxisAlignedBB(0, 0, 0, 1, step / maxSteps, 1 - step / maxSteps);
-					break;
-				case EAST:
-					box = new AxisAlignedBB(step / maxSteps, 0, 0, 1, step / maxSteps, 1);
-					break;
-				case SOUTH:
-					box = new AxisAlignedBB(0, 0, step / maxSteps, 1, step / maxSteps, 1);
-					break;
-				case WEST:
-					box = new AxisAlignedBB(0, 0, 0, 1 - step / maxSteps, step / maxSteps, 1);
-					break;
-				default:
+					case NORTH:
+						box = new AxisAlignedBB(0, 0, 0, 1, step / maxSteps, 1 - step / maxSteps);
+						break;
+					case EAST:
+						box = new AxisAlignedBB(step / maxSteps, 0, 0, 1, step / maxSteps, 1);
+						break;
+					case SOUTH:
+						box = new AxisAlignedBB(0, 0, step / maxSteps, 1, step / maxSteps, 1);
+						break;
+					case WEST:
+						box = new AxisAlignedBB(0, 0, 0, 1 - step / maxSteps, step / maxSteps, 1);
+						break;
+					default:
 				}
 				addCollisionBoxToList(pos, entityBox, collidingBoxes, box);
 			}
@@ -92,7 +90,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (MTRUtilities.getItemFromPlayer(playerIn, hand) instanceof ItemCrowbar) {
+		if (playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
 			final boolean direction = !state.getValue(DIRECTION);
 			final EnumFacing blockFacing = state.getValue(FACING);
 
@@ -124,7 +122,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING, DIRECTION, ORIENTATION, SIDE });
+		return new BlockStateContainer(this, FACING, DIRECTION, ORIENTATION, SIDE);
 	}
 
 	private void update(World worldIn, BlockPos pos, EnumFacing offset, boolean direction) {

@@ -1,29 +1,7 @@
 package mtr;
 
-import mtr.block.BlockAPGDoor;
-import mtr.block.BlockAPGGlass;
-import mtr.block.BlockBridgeCreator;
-import mtr.block.BlockCeiling;
-import mtr.block.BlockDoorController;
-import mtr.block.BlockEscalatorSide;
-import mtr.block.BlockEscalatorStep;
-import mtr.block.BlockLogo;
-import mtr.block.BlockPSDDoor;
-import mtr.block.BlockPSDGlass;
-import mtr.block.BlockPSDGlassEnd;
-import mtr.block.BlockPSDTop;
-import mtr.block.BlockPlatform;
-import mtr.block.BlockRailMarker;
-import mtr.block.BlockRailScaffold;
-import mtr.item.ItemAPG;
-import mtr.item.ItemBrush;
-import mtr.item.ItemEscalator;
-import mtr.item.ItemLightRail1;
-import mtr.item.ItemMTrain;
-import mtr.item.ItemPSD;
-import mtr.item.ItemRailPainter;
-import mtr.item.ItemSP1900;
-import mtr.item.ItemTemplate;
+import mtr.block.*;
+import mtr.item.*;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityBridgeCreator;
 import mtr.tile.TileEntityPSDDoor;
@@ -107,12 +85,12 @@ public class Registry {
 	@SideOnly(Side.CLIENT)
 	public static void registerBlockModels(final ModelRegistryEvent event) {
 		// Blocks
-		registerBlockModel(Blocks.bridge_creator, 0);
-		registerBlockModel(Blocks.ceiling, 0);
-		registerBlockModel(Blocks.door_controller, 0);
-		registerBlockModel(Blocks.logo, 0);
-		registerBlockModel(Blocks.platform, 0);
-		registerBlockModel(Blocks.rail_scaffold, 0);
+		registerBlockModel(Blocks.bridge_creator);
+		registerBlockModel(Blocks.ceiling);
+		registerBlockModel(Blocks.door_controller);
+		registerBlockModel(Blocks.logo);
+		registerBlockModel(Blocks.platform);
+		registerBlockModel(Blocks.rail_scaffold);
 		// Items
 		registerItemModel(Items.apg, 2);
 		registerItemModel(Items.brush);
@@ -149,8 +127,8 @@ public class Registry {
 		return item;
 	}
 
-	private static void registerBlockModel(Block block, int metadata) {
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), metadata, new ModelResourceLocation(MTR.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
+	private static void registerBlockModel(Block block) {
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(MTR.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
 	}
 
 	private static void registerItemModel(Item item) {
