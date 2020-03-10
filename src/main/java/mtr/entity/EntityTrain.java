@@ -2,10 +2,18 @@ package mtr.entity;
 
 import com.google.common.collect.Maps;
 import mods.railcraft.api.carts.ILinkableCart;
+import mods.railcraft.common.carts.CartTools;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
+import mods.railcraft.common.carts.Train;
+import mods.railcraft.common.core.RailcraftConfig;
+import mods.railcraft.common.util.entity.RCEntitySelectors;
+import mods.railcraft.common.util.entity.RailcraftDamageSource;
 import mtr.MTRUtilities;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -18,8 +26,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -42,7 +53,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	private void init() {
-		setSize(2, 3);
 		ignoreFrustumCheck = true;
 	}
 
@@ -52,11 +62,13 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private EntityTrain entitySibling, entityConnection;
 
 	private int trainType;
-	private float passengerAngleYaw, prevPassengerAngleYaw, trainSpeed, trainSpeedKm, leftDoorClient, rightDoorClient;
+	private float speedBoost, prevPassengerAngleYaw, leftDoorClient, rightDoorClient;
 	private long leftDoorTimeClient, rightDoorTimeClient;
 
-	private static final int DISTANCE_OFFSET = 10;
+	private static final int RC_LINKING_DISTANCE_OFFSET = 100;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
+	private static final float ENGINE_TRIGGER_SPEED = 0.05F;
+	private static final ITextComponent DISMOUNT_TEXT = new TextComponentTranslation("mount.onboard", GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode()));
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
@@ -107,7 +119,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		if (!world.isRemote) {
 			if (entitySibling == null) {
 				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
-				entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
+				if (server != null)
+					entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
 
 				if (entitySibling != null) {
 					LinkageManager.INSTANCE.createLink(this, entitySibling);
@@ -128,15 +141,40 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	}
 
 	@Override
+	public boolean isPoweredCart() {
+		return speedBoost > 0;
+	}
+
+	@Override
+	public void applyEntityCollision(Entity entityIn) {
+		if (!world.isRemote) {
+			if (!entityIn.isEntityAlive())
+				return;
+			if (Train.streamCarts(this).noneMatch(t -> t.isPassenger(entityIn))
+					&& (Math.abs(motionX) > 0.2 || Math.abs(motionZ) > 0.2 || CartTools.isTravellingHighSpeed(this))
+					&& RCEntitySelectors.KILLABLE.test(entityIn)) {
+				final EntityLivingBase living = (EntityLivingBase) entityIn;
+				living.attackEntityFrom(RailcraftDamageSource.TRAIN, 25);
+				if (living.getHealth() > 0) {
+					final float yaw = (rotationYaw - 90) * (float) Math.PI / 180.0F;
+					living.addVelocity(-MathHelper.sin(yaw) * 0.5F, 0.2D, MathHelper.cos(yaw) * 0.5F);
+				}
+				return;
+			}
+		}
+		super.applyEntityCollision(entityIn);
+	}
+
+	@Override
 	public void updatePassenger(Entity passenger) {
 		if (isPassenger(passenger)) {
 			// TODO allow passenger to move
 			applyYawToPassenger(passenger);
 			if (!world.isRemote && passenger instanceof EntityPlayer) {
-				trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
-				trainSpeedKm = Math.round(trainSpeed * 36) / 10F;
-				trainSpeed = Math.round(trainSpeed * 10) / 10F;
-				((EntityPlayer) passenger).sendStatusMessage(new TextComponentString(trainSpeed + " m/s (" + trainSpeedKm + " km/h)"), true);
+				final float trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
+				final boolean opened = trainSpeed == 0 && dataManager.get(MTR_DOOR_LEFT_OPENED) || dataManager.get(MTR_DOOR_RIGHT_OPENED);
+				final ITextComponent message = opened ? DISMOUNT_TEXT : new TextComponentString(String.format("%s m/s (%s km/h)", Math.round(trainSpeed * 10) / 10F, Math.round(trainSpeed * 36) / 10F));
+				((EntityPlayer) passenger).sendStatusMessage(message, true);
 			}
 		}
 		super.updatePassenger(passenger);
@@ -155,7 +193,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public float getDistance(Entity entityIn) {
-		return super.getDistance(entityIn) - DISTANCE_OFFSET;
+		return super.getDistance(entityIn) - RC_LINKING_DISTANCE_OFFSET;
 	}
 
 	@Override
@@ -165,7 +203,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public float getOptimalDistance(EntityMinecart cart) {
-		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) - DISTANCE_OFFSET / 2F;
+		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) - RC_LINKING_DISTANCE_OFFSET / 2F;
 	}
 
 	@Override
@@ -190,6 +228,26 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		dataManager.register(MTR_SIBLING_ID, ID_DEFAULT);
 		dataManager.register(MTR_CONNECTION_ID, ID_DEFAULT);
 		dataManager.register(MTR_TRAIN_TYPE, TRAIN_TYPE_DEFAULT);
+	}
+
+	@Override
+	protected void applyDrag() {
+		if (entitySibling == null) return;
+		final boolean isHead = entityConnection == null;
+		final boolean isMoving = Math.abs(motionX) > ENGINE_TRIGGER_SPEED || Math.abs(motionZ) > ENGINE_TRIGGER_SPEED;
+		final boolean isSameDirection = (posX - entitySibling.posX) * motionX >= 0 && (posZ - entitySibling.posZ) * motionZ >= 0;
+		if (isHead && isMoving && isSameDirection) {
+			final float force = RailcraftConfig.locomotiveHorsepower() * 0.01F * (CartTools.isTravellingHighSpeed(this) ? 3.5F : 1) * speedBoost;
+			final double yaw = Math.toRadians(getTrainAngle(entitySibling));
+			motionX += Math.cos(yaw) * force;
+			motionZ += Math.sin(yaw) * force;
+			System.out.println(CartTools.isTravellingHighSpeed(this) + " " + speedBoost);
+			if (speedBoost < 2)
+				speedBoost += 0.01;
+		} else {
+			speedBoost = 0;
+			super.applyDrag();
+		}
 	}
 
 	@Override
@@ -271,7 +329,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private void applyYawToPassenger(Entity passenger) {
 		final Entity sibling = world.isRemote ? getSiblingClient() : entitySibling;
 		if (sibling != null) {
-			passengerAngleYaw = getTrainAngle(sibling);
+			final float passengerAngleYaw = getTrainAngle(sibling);
 			passenger.rotationYaw -= MTRUtilities.angleDifference(passengerAngleYaw, prevPassengerAngleYaw);
 			prevPassengerAngleYaw = passengerAngleYaw;
 			passenger.setRotationYawHead(passenger.rotationYaw);
