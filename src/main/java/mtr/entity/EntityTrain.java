@@ -61,8 +61,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private UUID uuidSibling;
 	private EntityTrain entitySibling, entityConnection;
 
-	private int trainType;
-	private float speedBoost, prevPassengerAngleYaw, leftDoorClient, rightDoorClient;
+	private int trainType, speedBoost;
+	private float prevPassengerAngleYaw, leftDoorClient, rightDoorClient;
 	private long leftDoorTimeClient, rightDoorTimeClient;
 
 	private static final int RC_LINKING_DISTANCE_OFFSET = 100;
@@ -138,11 +138,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		}
 
 		super.onUpdate();
-	}
-
-	@Override
-	public boolean isPoweredCart() {
-		return speedBoost > 0;
 	}
 
 	@Override
@@ -232,18 +227,21 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	protected void applyDrag() {
-		if (entitySibling == null) return;
+		if (world.isRemote || entitySibling == null) return;
+
 		final boolean isHead = entityConnection == null;
 		final boolean isMoving = Math.abs(motionX) > ENGINE_TRIGGER_SPEED || Math.abs(motionZ) > ENGINE_TRIGGER_SPEED;
 		final boolean isSameDirection = (posX - entitySibling.posX) * motionX >= 0 && (posZ - entitySibling.posZ) * motionZ >= 0;
 		if (isHead && isMoving && isSameDirection) {
-			final float force = RailcraftConfig.locomotiveHorsepower() * 0.01F * (CartTools.isTravellingHighSpeed(this) ? 3.5F : 1) * speedBoost;
-			final double yaw = Math.toRadians(getTrainAngle(entitySibling));
-			motionX += Math.cos(yaw) * force;
-			motionZ += Math.sin(yaw) * force;
-			System.out.println(CartTools.isTravellingHighSpeed(this) + " " + speedBoost);
-			if (speedBoost < 2)
-				speedBoost += 0.01;
+			if (speedBoost < 20) {
+				speedBoost++;
+				super.applyDrag();
+			} else {
+				final float force = RailcraftConfig.locomotiveHorsepower() * 0.01F * (CartTools.isTravellingHighSpeed(this) ? 3.5F : 1);
+				final double yaw = Math.toRadians(getTrainAngle(entitySibling));
+				motionX += Math.cos(yaw) * force;
+				motionZ += Math.sin(yaw) * force;
+			}
 		} else {
 			speedBoost = 0;
 			super.applyDrag();
