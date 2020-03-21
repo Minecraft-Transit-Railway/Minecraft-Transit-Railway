@@ -2,11 +2,11 @@ package mtr.entity;
 
 import com.google.common.collect.Maps;
 import mods.railcraft.api.carts.ILinkableCart;
+import mods.railcraft.api.tracks.TrackToolsAPI;
 import mods.railcraft.common.carts.CartTools;
 import mods.railcraft.common.carts.EntityCartWorldspikeAdmin;
 import mods.railcraft.common.carts.LinkageManager;
 import mods.railcraft.common.carts.Train;
-import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.util.entity.RCEntitySelectors;
 import mods.railcraft.common.util.entity.RailcraftDamageSource;
 import mtr.MTRUtilities;
@@ -54,6 +54,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	private void init() {
 		ignoreFrustumCheck = true;
+		setSize(1.0625F, 3);
 	}
 
 	public final Vec3d[] connectionVectorClient = new Vec3d[8];
@@ -61,13 +62,14 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private UUID uuidSibling;
 	private EntityTrain entitySibling, entityConnection;
 
-	private int trainType, speedBoost;
+	private boolean hasLeadingControl;
+	private int trainType;
 	private float prevPassengerAngleYaw, leftDoorClient, rightDoorClient;
 	private long leftDoorTimeClient, rightDoorTimeClient;
 
 	private static final int RC_LINKING_DISTANCE_OFFSET = 100;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
-	private static final float ENGINE_TRIGGER_SPEED = 0.05F;
+	private static final float ENGINE_TRIGGER_SPEED = 0.1F;
 	private static final ITextComponent DISMOUNT_TEXT = new TextComponentTranslation("mount.onboard", GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode()));
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
@@ -89,7 +91,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	public void setDead() {
 		if (entitySibling != null)
 			entitySibling.isDead = true;
-		if (world.isRemote)
+		if (world.isRemote && Minecraft.getMinecraft().player.getDistance(this) < 16)
 			world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, posX, posY, posZ, 0, 0, 0);
 		super.setDead();
 	}
@@ -122,7 +124,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 				if (server != null)
 					entitySibling = syncEntity(server.getEntityFromUuid(uuidSibling), MTR_SIBLING_ID);
 
-				if (entitySibling != null) {
+				if (entitySibling == null) {
+					setDead();
+				} else {
 					LinkageManager.INSTANCE.createLink(this, entitySibling);
 
 					final EntityMinecart linkA = LinkageManager.INSTANCE.getLinkedCartA(this);
@@ -134,6 +138,8 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 					else
 						entityConnection = syncEntity(null, MTR_CONNECTION_ID);
 				}
+			} else if (getDistance(entitySibling) + RC_LINKING_DISTANCE_OFFSET - 5 > getSiblingSpacing()) {
+				setDead();
 			}
 		}
 
@@ -188,7 +194,10 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public float getDistance(Entity entityIn) {
-		return super.getDistance(entityIn) - RC_LINKING_DISTANCE_OFFSET;
+		if (entityIn instanceof EntityTrain)
+			return super.getDistance(entityIn) - RC_LINKING_DISTANCE_OFFSET;
+		else
+			return super.getDistance(entityIn);
 	}
 
 	@Override
@@ -198,7 +207,7 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	public float getOptimalDistance(EntityMinecart cart) {
-		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) - RC_LINKING_DISTANCE_OFFSET / 2F;
+		return (cart == entitySibling ? getSiblingSpacing() / 2F : getEndSpacing()) - (cart instanceof EntityTrain ? RC_LINKING_DISTANCE_OFFSET / 2F : 0);
 	}
 
 	@Override
@@ -211,8 +220,15 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		if (cart == entityConnection)
 			entityConnection = syncEntity(null, MTR_CONNECTION_ID);
 
-		LinkageManager.INSTANCE.repairLink(this, entitySibling);
-		LinkageManager.INSTANCE.createLink(this, entitySibling);
+		if (entitySibling != null) {
+			LinkageManager.INSTANCE.repairLink(this, entitySibling);
+			LinkageManager.INSTANCE.createLink(this, entitySibling);
+		}
+	}
+
+	@Override
+	public boolean canBeAdjusted(EntityMinecart cart) {
+		return !isLeading();
 	}
 
 	@Override
@@ -227,24 +243,9 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 
 	@Override
 	protected void applyDrag() {
-		if (world.isRemote || entitySibling == null) return;
-
-		final boolean isHead = entityConnection == null;
-		final boolean isMoving = Math.abs(motionX) > ENGINE_TRIGGER_SPEED || Math.abs(motionZ) > ENGINE_TRIGGER_SPEED;
-		final boolean isSameDirection = (posX - entitySibling.posX) * motionX >= 0 && (posZ - entitySibling.posZ) * motionZ >= 0;
-		if (isHead && isMoving && isSameDirection) {
-			if (speedBoost < 20) {
-				speedBoost++;
-				super.applyDrag();
-			} else {
-				final float force = RailcraftConfig.locomotiveHorsepower() * 0.01F * (CartTools.isTravellingHighSpeed(this) ? 3.5F : 1);
-				final double yaw = Math.toRadians(getTrainAngle(entitySibling));
-				motionX += Math.cos(yaw) * force;
-				motionZ += Math.sin(yaw) * force;
-			}
-		} else {
-			speedBoost = 0;
-			super.applyDrag();
+		if (Math.abs(motionX) > ENGINE_TRIGGER_SPEED || Math.abs(motionZ) > ENGINE_TRIGGER_SPEED) {
+			motionX *= 1.0526315789473685;
+			motionZ *= 1.0526315789473685;
 		}
 	}
 
@@ -321,6 +322,20 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 				dataManager.set(MTR_DOOR_LEFT_OPENED, true);
 			else
 				dataManager.set(MTR_DOOR_RIGHT_OPENED, true);
+		}
+	}
+
+	private boolean isLeading() {
+		if (entitySibling != null && entityConnection == null
+				&& (Math.abs(motionX) > ENGINE_TRIGGER_SPEED || Math.abs(motionZ) > ENGINE_TRIGGER_SPEED)
+				&& Train.streamCarts(this).filter(t -> t instanceof EntityTrain && t != this).noneMatch(t -> ((EntityTrain) t).hasLeadingControl)
+				&& ((posX - entitySibling.posX) * motionX >= 0 && (posZ - entitySibling.posZ) * motionZ >= 0)
+				&& Train.streamCarts(this).noneMatch(TrackToolsAPI::isCartLockedDown)) {
+			hasLeadingControl = true;
+			return true;
+		} else {
+			hasLeadingControl = false;
+			return false;
 		}
 	}
 
