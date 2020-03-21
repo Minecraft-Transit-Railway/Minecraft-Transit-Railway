@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.block.*;
+import mtr.entity.EntityTrain;
 import mtr.item.*;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityBridgeCreator;
@@ -9,10 +10,14 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -23,6 +28,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod.EventBusSubscriber
 public class Registry {
+
 	@SubscribeEvent
 	public static void registerBlocks(final RegistryEvent.Register<Block> event) {
 		// Blocks
@@ -111,6 +117,26 @@ public class Registry {
 		registry.register(Entities.sp1900);
 	}
 
+	@SubscribeEvent
+	public static void entityMount(final EntityMountEvent event) {
+		if (event.getEntityBeingMounted() instanceof EntityTrain && event.isDismounting()) {
+			final BlockPos passengerPos = event.getEntityBeingMounted().getPosition();
+			BlockPos newPos = passengerPos.offset(EnumFacing.NORTH, 2);
+			World world = event.getWorldObj();
+
+			for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+				BlockPos scanPos = passengerPos.offset(facing, 2);
+				if (isSafeBlockForDismount(world, scanPos)) {
+					newPos = scanPos;
+					if (world.getBlockState(scanPos).getBlock() instanceof BlockPlatform)
+						break;
+				}
+			}
+
+			event.getEntityMounting().setPosition(newPos.getX() + 0.5, newPos.getY() + 1, newPos.getZ() + 0.5);
+		}
+	}
+
 	private static Block setBlockName(Block block, String name) {
 		block.setRegistryName(name);
 		block.setUnlocalizedName(name);
@@ -138,5 +164,9 @@ public class Registry {
 	private static void registerItemModel(Item item, int metadataCount) {
 		for (int i = 0; i < metadataCount; i++)
 			ModelLoader.setCustomModelResourceLocation(item, i, new ModelResourceLocation(item.getRegistryName() + (metadataCount == 1 ? "" : "_" + i), "inventory"));
+	}
+
+	private static boolean isSafeBlockForDismount(World world, BlockPos pos) {
+		return world.isBlockFullCube(pos) && !world.isBlockFullCube(pos.up()) && !world.isBlockFullCube(pos.up(2));
 	}
 }

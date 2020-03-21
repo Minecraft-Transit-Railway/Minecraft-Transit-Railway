@@ -70,7 +70,6 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 	private static final int RC_LINKING_DISTANCE_OFFSET = 100;
 	private static final int ID_DEFAULT = -1, TRAIN_TYPE_DEFAULT = 0;
 	private static final float ENGINE_TRIGGER_SPEED = 0.1F;
-	private static final ITextComponent DISMOUNT_TEXT = new TextComponentTranslation("mount.onboard", GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode()));
 
 	private static final DataParameter<Boolean> MTR_DOOR_LEFT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> MTR_DOOR_RIGHT_OPENED = EntityDataManager.createKey(EntityTrain.class, DataSerializers.BOOLEAN);
@@ -171,11 +170,17 @@ public abstract class EntityTrain extends EntityCartWorldspikeAdmin implements I
 		if (isPassenger(passenger)) {
 			// TODO allow passenger to move
 			applyYawToPassenger(passenger);
-			if (!world.isRemote && passenger instanceof EntityPlayer) {
-				final float trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
-				final boolean opened = trainSpeed == 0 && dataManager.get(MTR_DOOR_LEFT_OPENED) || dataManager.get(MTR_DOOR_RIGHT_OPENED);
-				final ITextComponent message = opened ? DISMOUNT_TEXT : new TextComponentString(String.format("%s m/s (%s km/h)", Math.round(trainSpeed * 10) / 10F, Math.round(trainSpeed * 36) / 10F));
-				((EntityPlayer) passenger).sendStatusMessage(message, true);
+			if (passenger instanceof EntityPlayer) {
+				final boolean opened = dataManager.get(MTR_DOOR_LEFT_OPENED) || dataManager.get(MTR_DOOR_RIGHT_OPENED);
+
+				if (world.isRemote && opened) {
+					((EntityPlayer) passenger).sendStatusMessage(new TextComponentTranslation("mount.onboard", GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode())), true);
+				} else if (!world.isRemote && !opened) {
+					final float trainSpeed = (float) Math.sqrt(motionX * motionX + motionZ * motionZ) * 20;
+					final ITextComponent message = new TextComponentString(String.format("%s m/s (%s km/h)", Math.round(trainSpeed * 10) / 10F, Math.round(trainSpeed * 36) / 10F));
+
+					((EntityPlayer) passenger).sendStatusMessage(message, true);
+				}
 			}
 		}
 		super.updatePassenger(passenger);
