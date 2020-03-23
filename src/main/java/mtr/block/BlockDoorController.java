@@ -112,9 +112,10 @@ public class BlockDoorController extends Block {
 
 	@Override
 	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-		final boolean isLeaving = blockState.getValue(STATE) == EnumTrainState.LEAVING;
-		final boolean isTrack = getTrackDirection(blockAccess, pos).getOpposite() == side;
-		return isLeaving && isTrack ? 15 : 0;
+		final EnumFacing trackDirection = getTrackDirection(blockAccess, pos);
+		if (trackDirection == null)
+			return 0;
+		return blockState.getValue(STATE) == EnumTrainState.LEAVING && trackDirection.getOpposite() == side ? 15 : 0;
 	}
 
 	@Override
@@ -125,7 +126,7 @@ public class BlockDoorController extends Block {
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		int state = meta & 7;
-		if (state < 0 || state >= EnumTrainState.values().length)
+		if (state >= EnumTrainState.values().length)
 			state = 0;
 		final EnumTrainState trainState = EnumTrainState.values()[state];
 		return getDefaultState().withProperty(STATE, trainState == EnumTrainState.OPENED ? EnumTrainState.OPENING_SOON : trainState).withProperty(TIMER, (meta & 8) > 0);
@@ -191,13 +192,15 @@ public class BlockDoorController extends Block {
 		if (!train.isEmpty())
 			LinkageManager.INSTANCE.streamTrain(train.get(0)).filter(t -> t instanceof EntityTrain).forEach(t -> ((EntityTrain) t).setDoors(open ? trackDirection : null));
 
-		final BlockPos platformPos = pos.offset(trackDirection.getOpposite());
-		final IBlockState platformState = worldIn.getBlockState(platformPos);
-		if (platformState.getBlock() instanceof BlockPlatform) {
-			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.NORTH, open);
-			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.EAST, open);
-			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.SOUTH, open);
-			((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.WEST, open);
+		if (trackDirection != null) {
+			final BlockPos platformPos = pos.offset(trackDirection.getOpposite());
+			final IBlockState platformState = worldIn.getBlockState(platformPos);
+			if (platformState.getBlock() instanceof BlockPlatform) {
+				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.NORTH, open);
+				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.EAST, open);
+				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.SOUTH, open);
+				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.WEST, open);
+			}
 		}
 	}
 

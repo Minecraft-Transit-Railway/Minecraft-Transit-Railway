@@ -12,7 +12,7 @@ public class BlockLogo extends Block {
 	public BlockLogo() {
 		super(Material.ROCK);
 		setHardness(2);
-		setLightLevel(0.5625F);
+		setLightLevel(0.625F);
 		setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
 	}
 

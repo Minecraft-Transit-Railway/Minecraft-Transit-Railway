@@ -87,16 +87,15 @@ public abstract class RenderTrain<T extends EntityTrain> extends Render<T> {
 		begin[6] = entity.connectionVectorClient[6] = getConnectionVector(entity, midpoint, 0.75, 2);
 		begin[7] = entity.connectionVectorClient[7] = getConnectionVector(entity, midpoint, -0.75, 2);
 
-		final T connectionTrain = (T) entityConnection;
 		boolean valid = true;
 		for (int i = 0; i < 8; i++) {
-			if (connectionTrain.connectionVectorClient[i] == null) {
+			if (entityConnection.connectionVectorClient[i] == null) {
 				valid = false;
 				break;
 			}
-			end[i] = connectionTrain.connectionVectorClient[i].addVector(connectionTrain.posX - entity.posX, connectionTrain.posY - entity.posY, connectionTrain.posZ - entity.posZ);
+			end[i] = entityConnection.connectionVectorClient[i].addVector(entityConnection.posX - entity.posX, entityConnection.posY - entity.posY, entityConnection.posZ - entity.posZ);
 		}
-		if (connectionTrain.connectionVectorClient != null && valid) {
+		if (valid) {
 			GlStateManager.pushMatrix();
 			GlStateManager.disableTexture2D();
 

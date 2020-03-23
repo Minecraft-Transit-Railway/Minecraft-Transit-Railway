@@ -53,7 +53,6 @@ public abstract class ItemPSDAPGBase extends Item {
 			if (isPSD)
 				worldIn.setBlockState(newPos.up(2), Blocks.psd_top.getDefaultState());
 		}
-		// TODO known issue: placing one on top of the other can dupe blocks
 
 		itemStack.shrink(1);
 		return EnumActionResult.SUCCESS;
@@ -83,14 +82,13 @@ public abstract class ItemPSDAPGBase extends Item {
 
 	private IBlockState getBlockStateFromItem(int itemDamage, boolean isPSD) {
 		switch (itemDamage) {
+			default:
 			case 0:
 				return isPSD ? Blocks.psd_door.getDefaultState() : Blocks.apg_door.getDefaultState();
 			case 1:
 				return isPSD ? Blocks.psd_glass.getDefaultState() : Blocks.apg_glass.getDefaultState();
 			case 2:
 				return Blocks.psd_glass_end.getDefaultState();
-			default:
-				return null;
 		}
 	}
 }
