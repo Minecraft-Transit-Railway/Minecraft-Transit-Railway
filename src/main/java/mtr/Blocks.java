@@ -20,6 +20,7 @@ public class Blocks {
 	public static final Block oba_controller = null;
 	public static final Block oba_screen = null;
 	public static final Block platform = null;
+	public static final Block pids_1 = null;
 
 	public static final Block psd_door = null;
 	public static final Block psd_glass = null;

@@ -10,6 +10,7 @@ public class Items {
 	public static final Item escalator = null;
 	public static final Item light_rail_1 = null;
 	public static final Item m_train = null;
+	public static final Item pids_1 = null;
 	public static final Item psd = null;
 	public static final Item rail_painter = null;
 	public static final Item sp1900 = null;

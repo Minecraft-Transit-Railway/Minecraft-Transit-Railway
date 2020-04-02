@@ -13,8 +13,8 @@
 		},
 		"door_type": {
 			"none": {},
-			"psd": { "textures": { "main": "mtr:blocks/rock1", "top": "mtr:blocks/transparent" } },
-			"apg": { "textures": { "main": "mtr:blocks/rock2", "top": "mtr:blocks/platform_none_2" } }
+			"psd": { "textures": { "main": "mtr:blocks/rock_1", "top": "mtr:blocks/transparent" } },
+			"apg": { "textures": { "main": "mtr:blocks/rock_2", "top": "mtr:blocks/platform_none_2" } }
 		},
 		"open": {
 			"opened": {},

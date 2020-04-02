@@ -46,6 +46,7 @@ public class Registry {
 
 		registry.register(setBlockName(new BlockLogo(), "logo"));
 		registry.register(setBlockName(new BlockPlatform(), "platform"));
+		registry.register(setBlockName(new BlockPIDS1(), "pids_1"));
 
 		registry.register(setBlockName(new BlockPSDDoor(), "psd_door"));
 		registry.register(setBlockName(new BlockPSDGlass(), "psd_glass"));
@@ -81,6 +82,7 @@ public class Registry {
 		registry.register(setItemName(new ItemEscalator(), "escalator"));
 		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
 		registry.register(setItemName(new ItemMTrain(), "m_train"));
+		registry.register(setItemName(new ItemPIDS1(), "pids_1"));
 		registry.register(setItemName(new ItemPSD(), "psd"));
 		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
 		registry.register(setItemName(new ItemSP1900(), "sp1900"));
@@ -103,6 +105,7 @@ public class Registry {
 		registerItemModel(Items.escalator);
 		registerItemModel(Items.light_rail_1);
 		registerItemModel(Items.m_train, 2);
+		registerItemModel(Items.pids_1);
 		registerItemModel(Items.psd, 3);
 		registerItemModel(Items.rail_painter);
 		registerItemModel(Items.sp1900, 3);
