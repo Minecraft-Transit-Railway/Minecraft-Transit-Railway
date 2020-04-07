@@ -1,10 +1,8 @@
 package mtr.block;
 
-import mods.railcraft.common.blocks.tracks.TrackTools;
-import mods.railcraft.common.carts.LinkageManager;
-import mods.railcraft.common.items.ItemCrowbar;
+import mods.railcraft.api.tracks.TrackToolsAPI;
 import mtr.MTRUtilities;
-import mtr.entity.EntityTrain;
+import mtr.item.ItemBrush;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -28,7 +26,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.List;
 import java.util.Random;
 
 public class BlockDoorController extends Block {
@@ -102,7 +99,7 @@ public class BlockDoorController extends Block {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
+		if (playerIn.getHeldItem(hand).getItem() instanceof ItemBrush) {
 			worldIn.setBlockState(pos, state.cycleProperty(TIMER));
 			return true;
 		} else {
@@ -174,34 +171,34 @@ public class BlockDoorController extends Block {
 	}
 
 	private EnumFacing getTrackDirection(IBlockAccess worldIn, BlockPos pos) {
-		if (TrackTools.isRailBlockAt(worldIn, pos.north()))
+		if (TrackToolsAPI.isRailBlockAt(worldIn, pos.north()))
 			return EnumFacing.NORTH;
-		if (TrackTools.isRailBlockAt(worldIn, pos.east()))
+		if (TrackToolsAPI.isRailBlockAt(worldIn, pos.east()))
 			return EnumFacing.EAST;
-		if (TrackTools.isRailBlockAt(worldIn, pos.south()))
+		if (TrackToolsAPI.isRailBlockAt(worldIn, pos.south()))
 			return EnumFacing.SOUTH;
-		if (TrackTools.isRailBlockAt(worldIn, pos.west()))
+		if (TrackToolsAPI.isRailBlockAt(worldIn, pos.west()))
 			return EnumFacing.WEST;
 		return null;
 	}
 
 	private void setDoors(World worldIn, BlockPos pos, boolean open) {
-		final EnumFacing trackDirection = getTrackDirection(worldIn, pos);
-
-		final List<EntityMinecart> train = worldIn.getEntitiesWithinAABB(EntityMinecart.class, new AxisAlignedBB(pos));
-		if (!train.isEmpty())
-			LinkageManager.INSTANCE.streamTrain(train.get(0)).filter(t -> t instanceof EntityTrain).forEach(t -> ((EntityTrain) t).setDoors(open ? trackDirection : null));
-
-		if (trackDirection != null) {
-			final BlockPos platformPos = pos.offset(trackDirection.getOpposite());
-			final IBlockState platformState = worldIn.getBlockState(platformPos);
-			if (platformState.getBlock() instanceof BlockPlatform) {
-				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.NORTH, open);
-				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.EAST, open);
-				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.SOUTH, open);
-				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.WEST, open);
-			}
-		}
+//		final EnumFacing trackDirection = getTrackDirection(worldIn, pos);
+//
+//		final List<EntityMinecart> train = worldIn.getEntitiesWithinAABB(EntityMinecart.class, new AxisAlignedBB(pos));
+//		if (!train.isEmpty())
+//			LinkageManager.INSTANCE.streamTrain(train.get(0)).filter(t -> t instanceof EntityTrain).forEach(t -> ((EntityTrain) t).setDoors(open ? trackDirection : null));
+//
+//		if (trackDirection != null) {
+//			final BlockPos platformPos = pos.offset(trackDirection.getOpposite());
+//			final IBlockState platformState = worldIn.getBlockState(platformPos);
+//			if (platformState.getBlock() instanceof BlockPlatform) {
+//				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.NORTH, open);
+//				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.EAST, open);
+//				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.SOUTH, open);
+//				((BlockPlatform) platformState.getBlock()).updateOpen(worldIn, platformState, platformPos, EnumFacing.WEST, open);
+//			}
+//		}
 	}
 
 	private enum EnumTrainState implements IStringSerializable {

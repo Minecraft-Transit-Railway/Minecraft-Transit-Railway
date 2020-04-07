@@ -1,7 +1,5 @@
 package mtr;
 
-import org.apache.logging.log4j.Logger;
-
 import mtr.gui.GuiHandler;
 import mtr.proxy.IProxy;
 import net.minecraftforge.fml.common.Mod;
@@ -12,8 +10,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import org.apache.logging.log4j.Logger;
 
-@Mod(modid = MTR.MODID, version = MTR.VERSION, dependencies = MTR.DEPENDENCIES)
+@Mod(modid = MTR.MODID, version = MTR.VERSION)
 public class MTR {
 
 	@SidedProxy(clientSide = "mtr.proxy.ClientProxy", serverSide = "mtr.proxy.ServerProxy")
@@ -21,7 +20,6 @@ public class MTR {
 
 	public static final String MODID = "mtr";
 	public static final String VERSION = "3.0.0";
-	public static final String DEPENDENCIES = "required-after:railcraft";
 
 	@Instance(MODID)
 	public static MTR instance;

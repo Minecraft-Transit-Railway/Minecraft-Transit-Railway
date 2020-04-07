@@ -1,7 +1,6 @@
 package mtr;
 
 import mtr.block.*;
-import mtr.entity.EntityTrain;
 import mtr.item.*;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityBridgeCreator;
@@ -10,17 +9,14 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -80,12 +76,10 @@ public class Registry {
 		registry.register(setItemName(new ItemAPG(), "apg"));
 		registry.register(setItemName(new ItemBrush(), "brush"));
 		registry.register(setItemName(new ItemEscalator(), "escalator"));
-		registry.register(setItemName(new ItemLightRail1(), "light_rail_1"));
-		registry.register(setItemName(new ItemMTrain(), "m_train"));
 		registry.register(setItemName(new ItemPIDS1(), "pids_1"));
 		registry.register(setItemName(new ItemPSD(), "psd"));
 		registry.register(setItemName(new ItemRailPainter(), "rail_painter"));
-		registry.register(setItemName(new ItemSP1900(), "sp1900"));
+		registry.register(setItemName(new ItemRailScanner(), "rail_scanner"));
 		registry.register(setItemName(new ItemTemplate(), "template"));
 	}
 
@@ -108,37 +102,41 @@ public class Registry {
 		registerItemModel(Items.pids_1);
 		registerItemModel(Items.psd, 3);
 		registerItemModel(Items.rail_painter);
+		registerItemModel(Items.rail_scanner);
 		registerItemModel(Items.sp1900, 3);
 		registerItemModel(Items.template);
 	}
 
-	@SubscribeEvent
-	public static void registerEntities(final RegistryEvent.Register<EntityEntry> event) {
-		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
-		registry.register(Entities.light_rail_1);
-		registry.register(Entities.m_train);
-		registry.register(Entities.sp1900);
-	}
+//	@SubscribeEvent
+//	public static void entityMount(final EntityMountEvent event) {
+//		if (event.getEntityBeingMounted() instanceof EntityTrain && event.isDismounting()) {
+//			final BlockPos passengerPos = event.getEntityBeingMounted().getPosition();
+//			BlockPos newPos = passengerPos.offset(EnumFacing.NORTH, 2);
+//			World world = event.getWorldObj();
+//
+//			for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+//				BlockPos scanPos = passengerPos.offset(facing, 2);
+//				if (isSafeBlockForDismount(world, scanPos)) {
+//					newPos = scanPos;
+//					if (world.getBlockState(scanPos).getBlock() instanceof BlockPlatform)
+//						break;
+//				}
+//			}
+//
+//			event.getEntityMounting().setPosition(newPos.getX() + 0.5, newPos.getY() + 1, newPos.getZ() + 0.5);
+//		}
+//	}
 
-	@SubscribeEvent
-	public static void entityMount(final EntityMountEvent event) {
-		if (event.getEntityBeingMounted() instanceof EntityTrain && event.isDismounting()) {
-			final BlockPos passengerPos = event.getEntityBeingMounted().getPosition();
-			BlockPos newPos = passengerPos.offset(EnumFacing.NORTH, 2);
-			World world = event.getWorldObj();
-
-			for (EnumFacing facing : EnumFacing.HORIZONTALS) {
-				BlockPos scanPos = passengerPos.offset(facing, 2);
-				if (isSafeBlockForDismount(world, scanPos)) {
-					newPos = scanPos;
-					if (world.getBlockState(scanPos).getBlock() instanceof BlockPlatform)
-						break;
-				}
-			}
-
-			event.getEntityMounting().setPosition(newPos.getX() + 0.5, newPos.getY() + 1, newPos.getZ() + 0.5);
-		}
-	}
+//	@SubscribeEvent
+//	public static void placeRail(final PlayerInteractEvent event) {
+//		if (event.getSide().isServer()) {
+//			World world = event.getWorld();
+//			EnumFacing facing = event.getFace();
+//			if (facing != null) {
+//				//System.out.println(world.getBlockState(event.getPos().offset(facing)));
+//			}
+//		}
+//	}
 
 	private static Block setBlockName(Block block, String name) {
 		block.setRegistryName(name);

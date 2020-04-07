@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mods.railcraft.common.items.ItemCrowbar;
+import mtr.item.ItemBrush;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.EnumPushReaction;
@@ -45,7 +45,7 @@ public abstract class BlockPSDAPGBase extends BlockHorizontal {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!(this instanceof BlockPSDAPGDoorBase) && playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
+		if (!(this instanceof BlockPSDAPGDoorBase) && playerIn.getHeldItem(hand).getItem() instanceof ItemBrush) {
 			for (int y = -1; y <= 1; y++)
 				if (Block.isEqualTo(this, worldIn.getBlockState(pos.up(y)).getBlock()))
 					connectGlass(worldIn, pos.up(y), state);

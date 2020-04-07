@@ -13,6 +13,7 @@ public class Items {
 	public static final Item pids_1 = null;
 	public static final Item psd = null;
 	public static final Item rail_painter = null;
+	public static final Item rail_scanner = null;
 	public static final Item sp1900 = null;
 	public static final Item template = null;
 }

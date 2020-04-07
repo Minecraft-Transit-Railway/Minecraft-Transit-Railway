@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mods.railcraft.common.items.ItemCrowbar;
+import mtr.item.ItemBrush;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
@@ -90,7 +90,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (playerIn.getHeldItem(hand).getItem() instanceof ItemCrowbar) {
+		if (playerIn.getHeldItem(hand).getItem() instanceof ItemBrush) {
 			final boolean direction = !state.getValue(DIRECTION);
 			final EnumFacing blockFacing = state.getValue(FACING);
 
