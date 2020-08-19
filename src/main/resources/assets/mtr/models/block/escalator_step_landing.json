@@ -1,8 +1,8 @@
 {
-	"parent": "block/upper_slab",
+	"parent": "block/slab_top",
 	"textures": {
-		"bottom": "blocks/iron_block",
-		"top": "blocks/iron_block",
-		"side": "blocks/iron_block"
+		"bottom": "mtr:block/metal",
+		"top": "block/iron_block",
+		"side": "mtr:block/metal"
 	}
 }

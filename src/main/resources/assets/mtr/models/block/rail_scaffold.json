@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/quarter_slab_bottom_base",
-	"textures": {
-		"side": "blocks/piston_side",
-		"top": "blocks/piston_top_normal"
-	}
-}

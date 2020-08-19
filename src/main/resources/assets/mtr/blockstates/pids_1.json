@@ -1,14 +1,8 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"model": "mtr:pids_1"
-	},
 	"variants": {
-		"facing": {
-			"north": {},
-			"east": { "y": 90 },
-			"south": { "y": 180 },
-			"west": { "y": 270 }
-		}
+		"facing=north": { "model": "mtr:block/pids_1" },
+		"facing=east": { "model": "mtr:block/pids_1", "y": 90 },
+		"facing=south": { "model": "mtr:block/pids_1", "y": 180 },
+		"facing=west": { "model": "mtr:block/pids_1", "y": 270 }
 	}
 }

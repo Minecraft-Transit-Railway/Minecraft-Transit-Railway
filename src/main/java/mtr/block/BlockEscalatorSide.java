@@ -1,45 +1,57 @@
 package mtr.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldAccess;
 
 public class BlockEscalatorSide extends BlockEscalatorBase {
 
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
-		if (!(worldIn.getBlockState(pos.down()).getBlock() instanceof BlockEscalatorStep))
-			worldIn.setBlockToAir(pos);
-	}
-
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-		final EnumEscalatorOrientation orientation = getOrientation(source, pos, state);
-		final boolean isBottom = orientation == EnumEscalatorOrientation.LANDING_BOTTOM;
-		final boolean isTop = orientation == EnumEscalatorOrientation.LANDING_TOP;
-		final boolean side = state.getValue(SIDE);
-
-		switch (state.getValue(FACING)) {
-			case NORTH:
-				return new AxisAlignedBB(side ? 0.75 : 0, 0, isTop ? 0.5 : 0, side ? 1 : 0.25, 1, isBottom ? 0.5 : 1);
-			case EAST:
-				return new AxisAlignedBB(isBottom ? 0.5 : 0, 0, side ? 0.75 : 0, isTop ? 0.5 : 1, 1, side ? 1 : 0.25);
-			case SOUTH:
-				return new AxisAlignedBB(side ? 0 : 0.75, 0, isBottom ? 0.5 : 0, side ? 0.25 : 1, 1, isTop ? 0.5 : 1);
-			case WEST:
-				return new AxisAlignedBB(isTop ? 0.5 : 0, 0, side ? 0 : 0.75, isBottom ? 0.5 : 1, 1, side ? 0.25 : 1);
-			default:
-				return NULL_AABB;
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		if (direction == Direction.DOWN && !(world.getBlockState(pos.down()).getBlock() instanceof BlockEscalatorStep)) {
+			return Blocks.AIR.getDefaultState();
+		} else {
+			return super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
 		}
 	}
 
 	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, FACING, ORIENTATION, SIDE);
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.combineAndSimplify(getOutlineShape(state, world, pos, context), super.getCollisionShape(state, world, pos, context), BooleanBiFunction.AND);
+	}
+
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
+		final boolean isBottom = orientation == EnumEscalatorOrientation.LANDING_BOTTOM;
+		final boolean isTop = orientation == EnumEscalatorOrientation.LANDING_TOP;
+		final boolean side = state.get(SIDE);
+
+		switch (state.get(FACING)) {
+			case NORTH:
+				return Block.createCuboidShape(side ? 12 : 0, 0, isTop ? 8 : 0, side ? 16 : 4, 16, isBottom ? 8 : 16);
+			case EAST:
+				return Block.createCuboidShape(isBottom ? 8 : 0, 0, side ? 12 : 0, isTop ? 8 : 16, 16, side ? 16 : 4);
+			case SOUTH:
+				return Block.createCuboidShape(side ? 0 : 12, 0, isBottom ? 8 : 0, side ? 4 : 16, 16, isTop ? 8 : 16);
+			case WEST:
+				return Block.createCuboidShape(isTop ? 8 : 0, 0, side ? 0 : 12, isBottom ? 8 : 16, 16, side ? 4 : 16);
+			default:
+				return VoxelShapes.empty();
+		}
+	}
+
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, ORIENTATION, SIDE);
 	}
 }

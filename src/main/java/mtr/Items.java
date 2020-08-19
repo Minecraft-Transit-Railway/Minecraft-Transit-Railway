@@ -1,19 +1,18 @@
 package mtr;
 
+import mtr.item.ItemEscalator;
+import mtr.item.ItemPSDAPGBase;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
+import net.minecraft.item.ItemGroup;
 
-@ObjectHolder(MTR.MODID)
 public class Items {
-	public static final Item apg = null;
-	public static final Item brush = null;
-	public static final Item escalator = null;
-	public static final Item light_rail_1 = null;
-	public static final Item m_train = null;
-	public static final Item pids_1 = null;
-	public static final Item psd = null;
-	public static final Item rail_painter = null;
-	public static final Item rail_scanner = null;
-	public static final Item sp1900 = null;
-	public static final Item template = null;
+
+	public static final Item APG_DOOR = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG);
+	public static final Item APG_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG);
+	public static final Item APG_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG);
+	public static final Item BRUSH = new Item(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
+	public static final Item ESCALATOR = new ItemEscalator(new Item.Settings().group(ItemGroup.REDSTONE));
+	public static final Item PSD_DOOR = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD);
+	public static final Item PSD_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD);
+	public static final Item PSD_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD);
 }

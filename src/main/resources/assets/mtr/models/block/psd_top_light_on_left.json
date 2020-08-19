@@ -1,0 +1,18 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"light": "mtr:block/light_on"
+	},
+	"elements": [
+		{
+			"from": [ 5, 0, 0 ],
+			"to": [ 6, 1, 1 ],
+			"shade": false,
+			"faces": {
+				"down": { "texture": "#light" },
+				"east": { "texture": "#light" },
+				"south": { "texture": "#light" }
+			}
+		}
+	]
+}

@@ -1,209 +1,76 @@
 package mtr.block;
 
-import mtr.item.ItemBrush;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.EnumPushReaction;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPSDAPGBase extends BlockHorizontal {
+public abstract class BlockPSDAPGBase extends HorizontalFacingBlock {
 
-	public static final PropertyEnum<EnumPSDAPGSide> SIDE = PropertyEnum.create("side", EnumPSDAPGSide.class);
-	public static final PropertyBool TOP = PropertyBool.create("top");
+	public static final BooleanProperty TOP = BooleanProperty.of("top");
 
 	public BlockPSDAPGBase() {
-		super(Material.ROCK);
-		setHardness(2);
+		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		final Block blockUp = worldIn.getBlockState(pos.up()).getBlock();
-		final Block blockDown = worldIn.getBlockState(pos.down()).getBlock();
-
-		if (!Block.isEqualTo(this, blockUp) && !Block.isEqualTo(this, blockDown))
-			worldIn.setBlockToAir(pos);
-	}
-
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!(this instanceof BlockPSDAPGDoorBase) && playerIn.getHeldItem(hand).getItem() instanceof ItemBrush) {
-			for (int y = -1; y <= 1; y++)
-				if (Block.isEqualTo(this, worldIn.getBlockState(pos.up(y)).getBlock()))
-					connectGlass(worldIn, pos.up(y), state);
-			return true;
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		boolean isTop = state.get(TOP);
+		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !newState.isOf(this)) {
+			return Blocks.AIR.getDefaultState();
 		} else {
-			return false;
+			return state;
 		}
 	}
 
 	@Override
-	public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis) {
-		return false;
+	public BlockState rotate(BlockState state, BlockRotation rotation) {
+		return state;
 	}
 
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-		return new ItemStack(getItemDropped(state, null, 0), 1, damageDropped(state));
+	public BlockState mirror(BlockState state, BlockMirror mirror) {
+		return state;
 	}
 
 	@Override
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		return state.withProperty(TOP, isTop(worldIn, pos));
+	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+		return new ItemStack(asItem());
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state) {
-		return (state.getValue(SIDE).ordinal() << 2) + state.getValue(FACING).getHorizontalIndex();
-	}
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		final double height = isAPG() && state.get(TOP) ? 9 : 16;
 
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(SIDE, EnumPSDAPGSide.values()[meta >> 2]).withProperty(FACING, EnumFacing.getHorizontal(meta & 3));
-	}
-
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-		final boolean isAPG = this instanceof BlockAPGGlass || this instanceof BlockAPGDoor;
-		final double height = isAPG && isTop(source, pos) ? 0.5625 : 1;
-
-		switch (state.getValue(FACING)) {
+		switch (state.get(FACING)) {
 			case NORTH:
-				return new AxisAlignedBB(0, 0, 0, 1, height, 0.125);
+				return Block.createCuboidShape(0, 0, 0, 16, height, 4);
 			case EAST:
-				return new AxisAlignedBB(0.875, 0, 0, 1, height, 1);
+				return Block.createCuboidShape(12, 0, 0, 16, height, 16);
 			case SOUTH:
-				return new AxisAlignedBB(0, 0, 0.875, 1, height, 1);
+				return Block.createCuboidShape(0, 0, 12, 16, height, 16);
 			case WEST:
-				return new AxisAlignedBB(0, 0, 0, 0.125, height, 1);
+				return Block.createCuboidShape(0, 0, 0, 4, height, 16);
 			default:
-				return NULL_AABB;
+				return VoxelShapes.fullCube();
 		}
 	}
 
 	@Override
-	public EnumPushReaction getMobilityFlag(IBlockState state) {
-		return EnumPushReaction.BLOCK;
+	public PistonBehavior getPistonBehavior(BlockState state) {
+		return PistonBehavior.BLOCK;
 	}
 
-	@Override
-	public boolean isFullCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isTopSolid(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
-		return BlockFaceShape.UNDEFINED;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.CUTOUT;
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, FACING, SIDE, TOP);
-	}
-
-	public final boolean isTop(IBlockAccess worldIn, BlockPos pos) {
-		return Block.isEqualTo(this, worldIn.getBlockState(pos.down()).getBlock());
-	}
-
-	private void connectGlass(World worldIn, BlockPos pos, IBlockState state) {
-		final EnumFacing facing = state.getValue(FACING);
-
-		final BlockPos leftPos = pos.offset(facing.rotateYCCW());
-		final IBlockState leftState = worldIn.getBlockState(leftPos);
-		final boolean leftValid = Block.isEqualTo(this, leftState.getBlock());
-
-		if (leftValid) {
-			final EnumPSDAPGSide side = leftState.getValue(SIDE);
-			EnumPSDAPGSide newLeftSide;
-
-			if (side == EnumPSDAPGSide.RIGHT)
-				newLeftSide = EnumPSDAPGSide.MIDDLE;
-			else if (side == EnumPSDAPGSide.SINGLE)
-				newLeftSide = EnumPSDAPGSide.LEFT;
-			else
-				newLeftSide = side;
-
-			worldIn.setBlockState(leftPos, leftState.withProperty(SIDE, newLeftSide));
-		}
-
-		final BlockPos rightPos = pos.offset(facing.rotateY());
-		final IBlockState rightState = worldIn.getBlockState(rightPos);
-		final boolean rightValid = Block.isEqualTo(this, rightState.getBlock());
-
-		if (rightValid) {
-			final EnumPSDAPGSide side = rightState.getValue(SIDE);
-			EnumPSDAPGSide newRightSide;
-
-			if (side == EnumPSDAPGSide.LEFT)
-				newRightSide = EnumPSDAPGSide.MIDDLE;
-			else if (side == EnumPSDAPGSide.SINGLE)
-				newRightSide = EnumPSDAPGSide.RIGHT;
-			else
-				newRightSide = side;
-
-			worldIn.setBlockState(rightPos, rightState.withProperty(SIDE, newRightSide));
-		}
-
-		EnumPSDAPGSide newSide;
-		if (leftValid && rightValid)
-			newSide = EnumPSDAPGSide.MIDDLE;
-		else if (leftValid)
-			newSide = EnumPSDAPGSide.RIGHT;
-		else if (rightValid)
-			newSide = EnumPSDAPGSide.LEFT;
-		else
-			newSide = EnumPSDAPGSide.SINGLE;
-
-		worldIn.setBlockState(pos, state.withProperty(SIDE, newSide));
-	}
-
-	public enum EnumPSDAPGSide implements IStringSerializable {
-
-		LEFT("left"), RIGHT("right"), MIDDLE("middle"), SINGLE("single");
-
-		private final String name;
-
-		EnumPSDAPGSide(String nameIn) {
-			name = nameIn;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
+	protected boolean isAPG() {
+		return this instanceof BlockAPGDoor || this instanceof BlockAPGGlass || this instanceof BlockAPGGlassEnd;
 	}
 }

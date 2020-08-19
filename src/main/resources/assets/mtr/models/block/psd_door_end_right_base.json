@@ -1,0 +1,34 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"black": "mtr:block/black",
+		"light": "mtr:block/psd_side_light",
+		"particle": "mtr:item/psd_door"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 8 ],
+			"to": [ 2, 16, 16 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 16, 0, 8, 16 ], "texture": "#front" },
+				"west": { "uv": [ 8, 0, 0, 16 ], "texture": "#back" },
+				"north": { "texture": "#black" },
+				"south": { "texture": "#black", "cullface": "south" }
+			}
+		},
+		{
+			"from": [ 2, 0, 0 ],
+			"to": [ 4, 16, 8 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 8, 0, 0, 16 ], "texture": "#front" },
+				"west": { "uv": [ 16, 0, 8, 16 ], "texture": "#back" },
+				"north": { "texture": "#black", "cullface": "north" },
+				"south": { "texture": "#light" }
+			}
+		}
+	]
+}

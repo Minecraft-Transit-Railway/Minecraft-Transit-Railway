@@ -1,47 +1,356 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"textures": {
-			"particle": "mtr:blocks/metal",
-			"main": "mtr:blocks/metal"
-		}
-	},
 	"variants": {
-		"facing": {
-			"west": {},
-			"north": { "y": 90 },
-			"east": { "y": 180 },
-			"south": { "y": 270 }
+		"direction=false,facing=west,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
 		},
-		"direction": {
-			"true": { "textures": { "step": "mtr:blocks/escalator_up" } },
-			"false": { "textures": { "step": "mtr:blocks/escalator_down" } }
+		"direction=false,facing=north,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing"
 		},
-		"orientation": {
-			"landing_bottom": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
-			"landing_top": { "submodel": { "step": { "model": "mtr:escalator_step_landing" } } },
-			"flat": { "submodel": { "step": { "model": "mtr:escalator_step_flat" } } },
-			"slope": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } },
-			"transition_bottom": { "submodel": { "step": { "model": "mtr:escalator_step_flat" }, "transition": { "model": "mtr:escalator_step_transition_bottom" } } },
-			"transition_top": { "submodel": { "step": { "model": "mtr:escalator_step_slope" } } }
+		"direction=false,facing=east,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
 		},
-		"side": {
-			"true": {
-				"textures": {
-					"mainleft": "mtr:blocks/transparent",
-					"stepleft": "mtr:blocks/transparent",
-					"mainright": "mtr:blocks/metal",
-					"stepright": "#step"
-				}
-			},
-			"false": {
-				"textures": {
-					"mainleft": "mtr:blocks/metal",
-					"stepleft": "#step",
-					"mainright": "mtr:blocks/transparent",
-					"stepright": "mtr:blocks/transparent"
-				}
-			}
+		"direction=false,facing=south,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=west,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=north,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=east,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=south,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=west,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=north,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=east,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=south,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=west,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=north,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=east,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=false,facing=south,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=false,facing=west,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_down"
+		},
+		"direction=false,facing=north,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_down"
+		},
+		"direction=false,facing=north,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down"
+		},
+		"direction=false,facing=north,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down"
+		},
+		"direction=false,facing=north,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_down"
+		},
+		"direction=false,facing=north,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_down"
+		},
+		"direction=false,facing=north,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down"
+		},
+		"direction=false,facing=north,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_down",
+			"y": 270
+		},
+		"direction=false,facing=west,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down"
+		},
+		"direction=false,facing=north,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 90
+		},
+		"direction=false,facing=east,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 180
+		},
+		"direction=false,facing=south,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_down",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=north,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=east,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=south,orientation=landing_bottom,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=west,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=north,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=east,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=south,orientation=landing_bottom,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=west,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=north,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=east,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=south,orientation=landing_top,side=false": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=west,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=north,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=east,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing",
+			"y": 90
+		},
+		"direction=true,facing=south,orientation=landing_top,side=true": {
+			"model": "mtr:block/escalator_step_landing"
+		},
+		"direction=true,facing=west,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_up"
+		},
+		"direction=true,facing=north,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=flat,side=false": {
+			"model": "mtr:block/escalator_step_flat_left_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_up"
+		},
+		"direction=true,facing=north,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=flat,side=true": {
+			"model": "mtr:block/escalator_step_flat_right_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up"
+		},
+		"direction=true,facing=north,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=slope,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up"
+		},
+		"direction=true,facing=north,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=slope,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_up"
+		},
+		"direction=true,facing=north,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=transition_bottom,side=false": {
+			"model": "mtr:block/escalator_step_transition_bottom_left_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_up"
+		},
+		"direction=true,facing=north,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=transition_bottom,side=true": {
+			"model": "mtr:block/escalator_step_transition_bottom_right_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up"
+		},
+		"direction=true,facing=north,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=transition_top,side=false": {
+			"model": "mtr:block/escalator_step_slope_left_up",
+			"y": 270
+		},
+		"direction=true,facing=west,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up"
+		},
+		"direction=true,facing=north,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 90
+		},
+		"direction=true,facing=east,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 180
+		},
+		"direction=true,facing=south,orientation=transition_top,side=true": {
+			"model": "mtr:block/escalator_step_slope_right_up",
+			"y": 270
 		}
 	}
 }

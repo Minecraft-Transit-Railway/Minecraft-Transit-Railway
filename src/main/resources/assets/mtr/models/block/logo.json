@@ -1,9 +1,9 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:blocks/metal",
-		"main": "mtr:blocks/metal",
-		"side": "mtr:blocks/logo"
+		"particle": "mtr:block/metal",
+		"main": "mtr:block/metal",
+		"side": "mtr:block/logo"
 	},
 	"elements": [
 		{

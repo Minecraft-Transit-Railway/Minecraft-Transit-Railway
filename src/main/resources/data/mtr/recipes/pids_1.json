@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"iii",
+		"gcg",
+		"iii"
+	],
+	"key": {
+		"i": {
+			"tag": "c:iron_ingots"
+		},
+		"g": {
+			"tag": "c:glowstone_dusts"
+		},
+		"c": {
+			"item": "minecraft:clock"
+		}
+	},
+	"result": {
+		"item": "mtr:pids_1",
+		"count": 8
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:item/psd_glass"
+	},
+	"elements": [
+		{
+			"from": [ 2, 0, 8 ],
+			"to": [ 4, 16, 16 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 4, 0, 12, 16 ], "texture": "#front" },
+				"west": { "uv": [ 12, 0, 4, 16 ], "texture": "#back" }
+			}
+		},
+		{
+			"from": [ 2, 0, 0 ],
+			"to": [ 4, 16, 8 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 12, 0, 4, 16 ], "texture": "#front" },
+				"west": { "uv": [ 4, 0, 12, 16 ], "texture": "#back" }
+			}
+		}
+	]
+}

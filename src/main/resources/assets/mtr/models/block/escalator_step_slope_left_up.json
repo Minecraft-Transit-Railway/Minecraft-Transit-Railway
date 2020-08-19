@@ -1,0 +1,6 @@
+{
+	"parent": "mtr:block/escalator_step_slope_left_base",
+	"textures": {
+		"step": "mtr:block/escalator_up"
+	}
+}

@@ -1,20 +1,12 @@
 package mtr.block;
 
-import java.util.Random;
-
 import mtr.Items;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 
-public class BlockPSDGlass extends BlockPSDAPGBase {
+public class BlockPSDGlass extends BlockPSDAPGGlassBase {
 
 	@Override
-	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return Items.psd;
-	}
-
-	@Override
-	public int damageDropped(IBlockState state) {
-		return 1;
+	public Item asItem() {
+		return Items.PSD_GLASS;
 	}
 }

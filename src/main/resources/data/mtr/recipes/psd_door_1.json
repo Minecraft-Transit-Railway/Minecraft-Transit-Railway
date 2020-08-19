@@ -1,0 +1,24 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"tag": "c:redstone_blocks"
+		},
+		{
+			"item": "minecraft:iron_door"
+		},
+		{
+			"tag": "c:glowstone_dusts"
+		},
+		{
+			"item": "minecraft:glass_pane"
+		},
+		{
+			"item": "minecraft:glass_pane"
+		}
+	],
+	"result": {
+		"item": "mtr:psd_door",
+		"count": 8
+	}
+}

@@ -1,0 +1,52 @@
+{
+	"textures": {
+		"particle": "mtr:item/apg_glass"
+	},
+	"elements": [
+		{
+			"from": [ 2, 0, 0 ],
+			"to": [ 4, 8, 16 ],
+			"faces": {
+				"east": { "uv": [ 16, 8, 0, 16 ], "texture": "#fronttop" },
+				"west": { "uv": [ 0, 8, 16, 16 ], "texture": "#fronttop" },
+				"north": { "texture": "#sidetop", "cullface": "north" }
+			}
+		},
+		{
+			"from": [ 2, 0, 0 ],
+			"to": [ 4, 16, 16 ],
+			"faces": {
+				"east": { "uv": [ 16, 0, 0, 16 ], "texture": "#frontbottom" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#frontbottom" },
+				"north": { "texture": "#sidebottom", "cullface": "north" }
+			}
+		},
+		{
+			"from": [ 0.835, 8.8, 0 ],
+			"to": [ 3, 9, 16 ],
+			"rotation": { "origin": [ 3, 9, 8 ], "axis": "z", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#sidetop" },
+				"north": { "texture": "#sidetop", "cullface": "north" }
+			}
+		},
+		{
+			"from": [ 1, 8, 0 ],
+			"to": [ 4, 8.172, 16 ],
+			"faces": {
+				"down": { "texture": "#sidetop" },
+				"west": { "texture": "#sidetop" },
+				"north": { "texture": "#sidetop" }
+			}
+		},
+		{
+			"from": [ 3, 8, 0 ],
+			"to": [ 4, 9, 16 ],
+			"faces": {
+				"up": { "texture": "#sidetop" },
+				"east": { "uv": [ 16, 7, 0, 8 ], "texture": "#fronttop" },
+				"north": { "texture": "#sidetop", "cullface": "north" }
+			}
+		}
+	]
+}

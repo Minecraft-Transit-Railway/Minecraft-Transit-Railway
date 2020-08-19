@@ -1,24 +1,13 @@
 package mtr.tile;
 
-import mtr.MTRUtilities;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockPlatform.EnumDoorState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 
-public abstract class TileEntityPSDAPGDoorBase extends TileEntity {
+public abstract class TileEntityPSDAPGDoorBase extends BlockEntity {
 
-	private float doorClient;
-	private long doorTimeClient;
-
-	@SideOnly(Side.CLIENT)
-	public float getDoorClient() {
-		final EnumDoorState opened = ((BlockPSDAPGDoorBase) world.getBlockState(pos).getBlock()).getOpenedState(world, pos);
-		final Tuple<Float, Long> tuple = MTRUtilities.updateDoor(opened == EnumDoorState.OPENED, doorClient, doorTimeClient);
-		doorClient = tuple.getFirst();
-		doorTimeClient = tuple.getSecond();
-		return doorClient;
+	public TileEntityPSDAPGDoorBase(BlockEntityType<?> type) {
+		super(type);
 	}
+
+	// TODO
 }

@@ -1,7 +1,0 @@
-{
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "blocks/rail_normal",
-		"layer1": "items/iron_helmet"
-	}
-}

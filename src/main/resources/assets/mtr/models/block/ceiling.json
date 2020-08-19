@@ -1,9 +1,8 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:blocks/metal",
-		"light": "mtr:blocks/white",
-		"side": "mtr:blocks/metal"
+		"particle": "mtr:block/metal",
+		"side": "mtr:block/metal"
 	},
 	"elements": [
 		{   "__comment": "Bar 1",
@@ -28,19 +27,6 @@
 				"west": { "texture": "#side" },
 				"north": { "texture": "#side", "cullface": "north" },
 				"south": { "texture": "#side", "cullface": "south" }
-			}
-		},
-		{   "__comment": "Light",
-			"from": [ 6.5, 9, 0 ],
-			"to": [ 9.5, 10, 16 ],
-			"shade": false,
-			"faces": {
-				"down": { "texture": "#light" },
-				"up": { "texture": "#light" },
-				"east": { "texture": "#light" },
-				"west": { "texture": "#light" },
-				"north": { "texture": "#light", "cullface": "north" },
-				"south": { "texture": "#light", "cullface": "south" }
 			}
 		}
 	]

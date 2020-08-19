@@ -1,8 +1,0 @@
-{
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "blocks/rail_golden_powered",
-		"layer1": "items/stick",
-		"layer2": "mtr:items/brush"
-	}
-}

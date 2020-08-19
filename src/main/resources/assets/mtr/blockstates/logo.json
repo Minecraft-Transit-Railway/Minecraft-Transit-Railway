@@ -1,5 +1,5 @@
 {
 	"variants": {
-		"normal": { "model": "mtr:logo" }
+		"": { "model": "mtr:block/logo" }
 	}
 }

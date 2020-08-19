@@ -1,92 +1,52 @@
 package mtr.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldAccess;
 
 public class BlockCeiling extends Block {
 
-	public static final PropertyBool FACING = PropertyBool.create("facing");
-	public static final PropertyBool LIGHT = PropertyBool.create("light");
+	public static final BooleanProperty FACING = BooleanProperty.of("facing");
+	public static final BooleanProperty LIGHT = BooleanProperty.of("light");
 
-	public BlockCeiling() {
-		super(Material.ROCK);
-		setHardness(2);
-		setLightLevel(1);
-		setCreativeTab(CreativeTabs.DECORATIONS);
+	public BlockCeiling(Settings settings) {
+		super(settings);
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
-		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getAxis() == Axis.X));
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
+		return getDefaultState().with(FACING, facing).with(LIGHT, hasLight(facing, ctx.getBlockPos()));
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-		return new AxisAlignedBB(0, 0.4375F, 0, 1, 0.625F, 1);
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return Block.createCuboidShape(0, 7, 0, 16, 10, 16);
 	}
 
 	@Override
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		if (state.getValue(FACING))
-			return state.withProperty(LIGHT, pos.getZ() % 3 == 0);
-		else
-			return state.withProperty(LIGHT, pos.getX() % 3 == 0);
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		return state.with(LIGHT, hasLight(state.get(FACING), pos));
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state) {
-		return state.getValue(FACING) ? 1 : 0;
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, LIGHT);
 	}
 
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(FACING, meta > 0);
-	}
-
-	@Override
-	public boolean isFullCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isTopSolid(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
-		return BlockFaceShape.UNDEFINED;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.CUTOUT;
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, FACING, LIGHT);
+	private boolean hasLight(boolean facing, BlockPos pos) {
+		if (facing) {
+			return pos.getZ() % 3 == 0;
+		} else {
+			return pos.getX() % 3 == 0;
+		}
 	}
 }

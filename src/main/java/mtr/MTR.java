@@ -1,42 +1,85 @@
 package mtr;
 
-import mtr.gui.GuiHandler;
-import mtr.proxy.IProxy;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import org.apache.logging.log4j.Logger;
+import mtr.tile.TileEntityAPGDoor;
+import mtr.tile.TileEntityPSDDoor;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.item.BedItem;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
-@Mod(modid = MTR.MODID, version = MTR.VERSION)
-public class MTR {
+import java.util.function.Supplier;
 
-	@SidedProxy(clientSide = "mtr.proxy.ClientProxy", serverSide = "mtr.proxy.ServerProxy")
-	public static IProxy proxy;
+public class MTR implements ModInitializer, ClientModInitializer {
 
-	public static final String MODID = "mtr";
-	public static final String VERSION = "3.0.0";
+	@Override
+	public void onInitialize() {
+		registerItem("apg_door", Items.APG_DOOR);
+		registerItem("apg_glass", Items.APG_GLASS);
+		registerItem("apg_glass_end", Items.APG_GLASS_END);
+		registerItem("brush", Items.BRUSH);
+		registerItem("escalator", Items.ESCALATOR);
+		registerItem("psd_door", Items.PSD_DOOR);
+		registerItem("psd_glass", Items.PSD_GLASS);
+		registerItem("psd_glass_end", Items.PSD_GLASS_END);
 
-	@Instance(MODID)
-	public static MTR instance;
+		registerBlock("apg_door", Blocks.APG_DOOR);
+		registerBlock("apg_glass", Blocks.APG_GLASS);
+		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
+		registerBlock("ceiling", Blocks.CEILING, new BlockItem(Blocks.CEILING, new Item.Settings().group(ItemGroup.DECORATIONS)));
+		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
+		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
+		registerBlock("logo", Blocks.LOGO, new BlockItem(Blocks.LOGO, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
+		registerBlock("pids_1", Blocks.PIDS_1, new BedItem(Blocks.PIDS_1, new Item.Settings().group(ItemGroup.DECORATIONS)));
+		registerBlock("platform", Blocks.PLATFORM, new BlockItem(Blocks.PLATFORM, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
+		registerBlock("psd_door", Blocks.PSD_DOOR);
+		registerBlock("psd_glass", Blocks.PSD_GLASS);
+		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
+		registerBlock("psd_top", Blocks.PSD_TOP);
 
-	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("MTR");
-	private static Logger logger;
+		TileEntities.APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
+		TileEntities.PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
-		proxy.preInit(event);
+		ServerTickEvents.END_SERVER_TICK.register((event) -> {
+			// TODO
+		});
 	}
 
-	@EventHandler
-	public void init(FMLInitializationEvent event) {
-		logger.info("Hi!");
-		NetworkRegistry.INSTANCE.registerGuiHandler(MTR.instance, new GuiHandler());
-		proxy.init(event);
+	@Override
+	public void onInitializeClient() {
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_DOOR, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS_END, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
+	}
+
+	private static void registerItem(String path, Item item) {
+		Registry.register(Registry.ITEM, new Identifier("mtr", path), item);
+	}
+
+	private static void registerBlock(String path, Block block) {
+		Registry.register(Registry.BLOCK, new Identifier("mtr", path), block);
+	}
+
+	private static void registerBlock(String path, Block block, BlockItem blockItem) {
+		registerBlock(path, block);
+		Registry.register(Registry.ITEM, new Identifier("mtr", path), blockItem);
+	}
+
+	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
+		return Registry.register(Registry.BLOCK_ENTITY_TYPE, "mtr:" + path, BlockEntityType.Builder.create(supplier, block).build(null));
 	}
 }

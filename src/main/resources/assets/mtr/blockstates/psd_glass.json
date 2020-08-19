@@ -1,41 +1,124 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"textures": {
-			"particle": "mtr:items/psd_glass",
-			"light": "mtr:blocks/psd_side_light"
-		}
-	},
 	"variants": {
-		"facing": {
-			"west": {},
-			"north": { "y": 90 },
-			"east": { "y": 180 },
-			"south": { "y": 270 }
+		"facing=west,side=left,top=false": {
+			"model": "mtr:block/psd_glass_bottom_left"
 		},
-		"side": {
-			"left": { "submodel": { "glass": { "model": "mtr:psd_glass_left" } } },
-			"right": { "submodel": { "glass": { "model": "mtr:psd_glass_right" } } },
-			"middle": { "submodel": { "glass": { "model": "mtr:psd_glass_middle" } } },
-			"single": { "submodel": { "glass": { "model": "mtr:psd_glass_single" } } }
+		"facing=north,side=left,top=false": {
+			"model": "mtr:block/psd_glass_bottom_left",
+			"y": 90
 		},
-		"top": {
-			"true": {
-				"textures": {
-					"bottom": "mtr:blocks/transparent",
-					"top": "mtr:blocks/black",
-					"front": "mtr:blocks/psd_glass_top",
-					"back": "mtr:blocks/psd_glass_top_back"
-				}
-			},
-			"false": {
-				"textures": {
-					"bottom": "mtr:blocks/black",
-					"top": "mtr:blocks/transparent",
-					"front": "mtr:blocks/psd_glass_bottom",
-					"back": "mtr:blocks/psd_glass_bottom_back"
-				}
-			}
+		"facing=east,side=left,top=false": {
+			"model": "mtr:block/psd_glass_bottom_left",
+			"y": 180
+		},
+		"facing=south,side=left,top=false": {
+			"model": "mtr:block/psd_glass_bottom_left",
+			"y": 270
+		},
+		"facing=west,side=left,top=true": {
+			"model": "mtr:block/psd_glass_top_left"
+		},
+		"facing=north,side=left,top=true": {
+			"model": "mtr:block/psd_glass_top_left",
+			"y": 90
+		},
+		"facing=east,side=left,top=true": {
+			"model": "mtr:block/psd_glass_top_left",
+			"y": 180
+		},
+		"facing=south,side=left,top=true": {
+			"model": "mtr:block/psd_glass_top_left",
+			"y": 270
+		},
+		"facing=west,side=right,top=false": {
+			"model": "mtr:block/psd_glass_bottom_right"
+		},
+		"facing=north,side=right,top=false": {
+			"model": "mtr:block/psd_glass_bottom_right",
+			"y": 90
+		},
+		"facing=east,side=right,top=false": {
+			"model": "mtr:block/psd_glass_bottom_right",
+			"y": 180
+		},
+		"facing=south,side=right,top=false": {
+			"model": "mtr:block/psd_glass_bottom_right",
+			"y": 270
+		},
+		"facing=west,side=right,top=true": {
+			"model": "mtr:block/psd_glass_top_right"
+		},
+		"facing=north,side=right,top=true": {
+			"model": "mtr:block/psd_glass_top_right",
+			"y": 90
+		},
+		"facing=east,side=right,top=true": {
+			"model": "mtr:block/psd_glass_top_right",
+			"y": 180
+		},
+		"facing=south,side=right,top=true": {
+			"model": "mtr:block/psd_glass_top_right",
+			"y": 270
+		},
+		"facing=west,side=middle,top=false": {
+			"model": "mtr:block/psd_glass_bottom_middle"
+		},
+		"facing=north,side=middle,top=false": {
+			"model": "mtr:block/psd_glass_bottom_middle",
+			"y": 90
+		},
+		"facing=east,side=middle,top=false": {
+			"model": "mtr:block/psd_glass_bottom_middle",
+			"y": 180
+		},
+		"facing=south,side=middle,top=false": {
+			"model": "mtr:block/psd_glass_bottom_middle",
+			"y": 270
+		},
+		"facing=west,side=middle,top=true": {
+			"model": "mtr:block/psd_glass_top_middle"
+		},
+		"facing=north,side=middle,top=true": {
+			"model": "mtr:block/psd_glass_top_middle",
+			"y": 90
+		},
+		"facing=east,side=middle,top=true": {
+			"model": "mtr:block/psd_glass_top_middle",
+			"y": 180
+		},
+		"facing=south,side=middle,top=true": {
+			"model": "mtr:block/psd_glass_top_middle",
+			"y": 270
+		},
+		"facing=west,side=single,top=false": {
+			"model": "mtr:block/psd_glass_bottom_single"
+		},
+		"facing=north,side=single,top=false": {
+			"model": "mtr:block/psd_glass_bottom_single",
+			"y": 90
+		},
+		"facing=east,side=single,top=false": {
+			"model": "mtr:block/psd_glass_bottom_single",
+			"y": 180
+		},
+		"facing=south,side=single,top=false": {
+			"model": "mtr:block/psd_glass_bottom_single",
+			"y": 270
+		},
+		"facing=west,side=single,top=true": {
+			"model": "mtr:block/psd_glass_top_single"
+		},
+		"facing=north,side=single,top=true": {
+			"model": "mtr:block/psd_glass_top_single",
+			"y": 90
+		},
+		"facing=east,side=single,top=true": {
+			"model": "mtr:block/psd_glass_top_single",
+			"y": 180
+		},
+		"facing=south,side=single,top=true": {
+			"model": "mtr:block/psd_glass_top_single",
+			"y": 270
 		}
 	}
 }

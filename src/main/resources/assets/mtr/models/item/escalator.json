@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "mtr:items/escalator"
+		"layer0": "mtr:item/escalator"
 	}
 }

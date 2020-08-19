@@ -1,0 +1,12 @@
+{
+	"parent": "mtr:block/apg_door_left_base",
+	"textures": {
+		"fronttop": "mtr:block/transparent",
+		"blacktop": "mtr:block/transparent",
+		"sidetop": "mtr:block/transparent",
+		"frontbottom": "mtr:block/apg_door_bottom",
+		"frontbottom2": "mtr:block/apg_door_top",
+		"blackbottom": "mtr:block/black",
+		"sidebottom": "mtr:block/psd_side_light"
+	}
+}

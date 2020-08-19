@@ -1,8 +1,0 @@
-{
-	"parent": "mtr:block/quarter_slab_bottom_base",
-	"textures": {
-		"particle": "mtr:blocks/metal",
-		"side": "mtr:blocks/metal",
-		"top": "mtr:blocks/metal"
-	}
-}

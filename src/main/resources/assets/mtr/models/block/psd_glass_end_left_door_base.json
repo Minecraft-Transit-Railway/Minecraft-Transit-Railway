@@ -1,0 +1,41 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"black": "mtr:block/black",
+		"particle": "mtr:item/psd_glass_end"
+	},
+	"elements": [
+		{
+			"__comment": "Glass section",
+			"from": [ 4, 0, 8 ],
+			"to": [ 6, 16, 10 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 0, 0, 2, 16 ], "texture": "#front" },
+				"west": { "uv": [ 6, 14, 16, 16 ], "texture": "#back" }
+			}
+		},
+		{
+			"__comment": "Red section",
+			"from": [ 4, 0, 10 ],
+			"to": [ 7, 16, 16 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top", "cullface": "up" },
+				"east": { "uv": [ 0, 0, 6, 16 ], "texture": "#red" },
+				"west": { "texture": "#black" },
+				"north": { "uv": [ 13, 0, 16, 16 ], "texture": "#red" },
+				"south": { "uv": [ 16, 0, 13, 16 ], "texture": "#red", "cullface": "south" }
+			}
+		},
+		{
+			"__comment": "Small bottom section",
+			"from": [ 6, 0, 10 ],
+			"to": [ 6, 2, 16 ],
+			"faces": {
+				"east": { "uv": [ 10, 14, 16, 16 ], "texture": "#front" }
+			}
+		}
+	]
+}

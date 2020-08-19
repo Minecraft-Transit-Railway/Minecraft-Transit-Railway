@@ -1,106 +1,75 @@
 package mtr.block;
 
-import mtr.block.BlockPlatform.EnumDoorState;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.block.*;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements ITileEntityProvider {
+public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockEntityProvider {
 
-	public static final PropertyEnum<EnumPSDAPGDoor> SIDE_DOOR = PropertyEnum.create("side_door", EnumPSDAPGDoor.class);
-
-	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
-
-		final EnumPSDAPGSide side = state.getValue(SIDE);
-		final EnumFacing facing = state.getValue(FACING);
-
-		BlockPos newPos = pos;
-		if (side == EnumPSDAPGSide.LEFT)
-			newPos = pos.offset(facing.rotateY());
-		else if (side == EnumPSDAPGSide.RIGHT)
-			newPos = pos.offset(facing.rotateYCCW());
-
-		if (!Block.isEqualTo(this, worldIn.getBlockState(newPos).getBlock()))
-			worldIn.setBlockToAir(pos);
-	}
+	public static final BooleanProperty END = BooleanProperty.of("end");
+	public static final BooleanProperty OPEN = BooleanProperty.of("open");
+	public static final EnumProperty<EnumPSDAPGDoorSide> SIDE = EnumProperty.of("side", EnumPSDAPGDoorSide.class);
 
 	@Override
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		state = super.getActualState(state, worldIn, pos);
-
-		if (isOpen(worldIn, pos))
-			return state.withProperty(SIDE_DOOR, EnumPSDAPGDoor.OPEN);
-		else
-			return state.withProperty(SIDE_DOOR, getActualDoorState(worldIn, state, pos));
-	}
-
-	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
-		if (isOpen(worldIn, pos))
-			return NULL_AABB;
-		else
-			return getBoundingBox(blockState, worldIn, pos);
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, FACING, SIDE, SIDE_DOOR, TOP);
-	}
-
-	public final boolean isOpen(IBlockAccess worldIn, BlockPos pos) {
-		return getOpenedState(worldIn, pos) != EnumDoorState.CLOSED;
-	}
-
-	public final EnumDoorState getOpenedState(IBlockAccess worldIn, BlockPos pos) {
-		for (int i = 1; i <= 2; i++) {
-			final IBlockState platformState = worldIn.getBlockState(pos.down(i));
-			if (platformState.getBlock() instanceof BlockPlatform)
-				return platformState.getValue(BlockPlatform.OPEN);
-		}
-		return EnumDoorState.CLOSED;
-	}
-
-	public final EnumPSDAPGDoor getActualDoorState(IBlockAccess worldIn, IBlockState state, BlockPos pos) {
-		final EnumPSDAPGSide side = state.getValue(SIDE);
-		final EnumFacing facing = state.getValue(FACING);
-
-		if (side == EnumPSDAPGSide.LEFT) {
-			final BlockPos checkPos = pos.offset(facing.rotateYCCW());
-			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
-				return EnumPSDAPGDoor.LEFT_END;
-			else
-				return EnumPSDAPGDoor.LEFT;
+	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		if (getSideDirection(state) == direction && !newState.isOf(this)) {
+			return Blocks.AIR.getDefaultState();
 		} else {
-			final BlockPos checkPos = pos.offset(facing.rotateY());
-			if (worldIn.getBlockState(checkPos).getBlock() instanceof BlockPSDGlassEnd)
-				return EnumPSDAPGDoor.RIGHT_END;
-			else
-				return EnumPSDAPGDoor.RIGHT;
+			BlockState superState = super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
+			if (superState.getBlock() == Blocks.AIR) {
+				return superState;
+			} else {
+				final boolean end = world.getBlockState(pos.offset(getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
+				return superState.with(OPEN, isOpen(world, pos)).with(END, end);
+			}
+		}
+
+	}
+
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		if (isOpen(world, pos)) {
+			return VoxelShapes.empty();
+		} else {
+			return super.getOutlineShape(state, world, pos, context);
 		}
 	}
 
-	public enum EnumPSDAPGDoor implements IStringSerializable {
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(END, FACING, SIDE, OPEN, TOP);
+	}
 
-		LEFT("left"), RIGHT("right"), LEFT_END("left_end"), RIGHT_END("right_end"), OPEN("open");
+	public final boolean isOpen(BlockView world, BlockPos pos) {
+		// TODO
+		return false;
+	}
+
+	private Direction getSideDirection(BlockState state) {
+		final Direction facing = state.get(FACING);
+		return state.get(SIDE) == EnumPSDAPGDoorSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+	}
+
+	public enum EnumPSDAPGDoorSide implements StringIdentifiable {
+
+		LEFT("left"), RIGHT("right");
 
 		private final String name;
 
-		EnumPSDAPGDoor(String nameIn) {
-			name = nameIn;
+		EnumPSDAPGDoorSide(String name) {
+			this.name = name;
 		}
 
 		@Override
-		public String getName() {
+		public String asString() {
 			return name;
 		}
 	}

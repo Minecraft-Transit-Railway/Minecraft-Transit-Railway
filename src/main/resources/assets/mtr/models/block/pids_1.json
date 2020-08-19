@@ -1,13 +1,12 @@
 {
-	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:blocks/metal",
-		"back": "mtr:blocks/black",
-		"pids1": "mtr:blocks/pids_1",
-		"pids2": "mtr:blocks/pids_2",
-		"pids3": "mtr:blocks/pids_3",
-		"pids4": "mtr:blocks/pids_4",
-		"pids5": "mtr:blocks/pids_5"
+		"particle": "mtr:block/metal",
+		"back": "mtr:block/black",
+		"pids1": "mtr:block/pids_1",
+		"pids2": "mtr:block/pids_2",
+		"pids3": "mtr:block/pids_3",
+		"pids4": "mtr:block/pids_4",
+		"pids5": "mtr:block/pids_5"
 	},
 	"elements": [
 		{   "__comment": "Main",

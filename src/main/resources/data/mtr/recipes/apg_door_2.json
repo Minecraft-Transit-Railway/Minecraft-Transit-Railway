@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:apg_glass_end"
+		}
+	],
+	"result": {
+		"item": "mtr:apg_door"
+	}
+}

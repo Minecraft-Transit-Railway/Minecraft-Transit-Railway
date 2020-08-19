@@ -1,31 +1,19 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:blocks/black"
+		"particle": "mtr:block/black"
 	},
 	"elements": [
-		{   "__comment": "Left handrail",
+		{
 			"from": [ 0, 15, 13 ],
 			"to": [ 16, 16, 15 ],
 			"faces": {
-				"up": { "texture": "#handrailleft", "cullface": "up" },
-				"down": { "texture": "#handrailleft" },
-				"north": { "texture": "#handrailleft" },
-				"south": { "texture": "#handrailleft" },
-				"east": { "texture": "#handrailleft" },
-				"west": { "texture": "#handrailleft" }
-			}
-		},
-		{   "__comment": "Right handrail",
-			"from": [ 0, 15, 1 ],
-			"to": [ 16, 16, 3 ],
-			"faces": {
-				"up": { "texture": "#handrailright", "cullface": "up" },
-				"down": { "texture": "#handrailright" },
-				"north": { "texture": "#handrailright" },
-				"south": { "texture": "#handrailright" },
-				"east": { "texture": "#handrailright" },
-				"west": { "texture": "#handrailright" }
+				"up": { "texture": "#particle", "cullface": "up" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
 			}
 		}
 	]
