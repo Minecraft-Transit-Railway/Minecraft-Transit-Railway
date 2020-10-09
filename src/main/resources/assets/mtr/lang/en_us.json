@@ -14,6 +14,7 @@
 	"item.mtr.apg_glass": "Automatic Platform Gates",
 	"item.mtr.apg_glass_end": "Automatic Platform Gates",
 	"item.mtr.brush": "Brush",
+	"item.mtr.dashboard": "Railway Dashboard",
 	"item.mtr.escalator": "Escalator",
 	"item.mtr.pids_1": "Passenger Information Display System",
 	"item.mtr.psd_door": "Platform Screen Doors",
@@ -21,5 +22,6 @@
 	"item.mtr.psd_glass_end": "Platform Screen Doors",
 	"tooltip.mtr.psd_apg_door": "Door section",
 	"tooltip.mtr.psd_apg_glass": "Glass section",
-	"tooltip.mtr.psd_apg_glass_end": "Glass end section"
+	"tooltip.mtr.psd_apg_glass_end": "Glass end section",
+	"gui.mtr.stations": "Stations"
 }

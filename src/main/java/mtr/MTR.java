@@ -1,11 +1,13 @@
 package mtr;
 
+import mtr.data.PacketTrainDataGui;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityPSDDoor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -21,12 +23,15 @@ import java.util.function.Supplier;
 
 public class MTR implements ModInitializer, ClientModInitializer {
 
+	public static final String MOD_ID = "mtr";
+
 	@Override
 	public void onInitialize() {
 		registerItem("apg_door", Items.APG_DOOR);
 		registerItem("apg_glass", Items.APG_GLASS);
 		registerItem("apg_glass_end", Items.APG_GLASS_END);
 		registerItem("brush", Items.BRUSH);
+		registerItem("dashboard", Items.DASHBOARD);
 		registerItem("escalator", Items.ESCALATOR);
 		registerItem("psd_door", Items.PSD_DOOR);
 		registerItem("psd_glass", Items.PSD_GLASS);
@@ -64,22 +69,24 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
+
+		ClientSidePacketRegistry.INSTANCE.register(PacketTrainDataGui.ID, PacketTrainDataGui::receiveS2C);
 	}
 
 	private static void registerItem(String path, Item item) {
-		Registry.register(Registry.ITEM, new Identifier("mtr", path), item);
+		Registry.register(Registry.ITEM, new Identifier(MOD_ID, path), item);
 	}
 
 	private static void registerBlock(String path, Block block) {
-		Registry.register(Registry.BLOCK, new Identifier("mtr", path), block);
+		Registry.register(Registry.BLOCK, new Identifier(MOD_ID, path), block);
 	}
 
 	private static void registerBlock(String path, Block block, BlockItem blockItem) {
 		registerBlock(path, block);
-		Registry.register(Registry.ITEM, new Identifier("mtr", path), blockItem);
+		Registry.register(Registry.ITEM, new Identifier(MOD_ID, path), blockItem);
 	}
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, "mtr:" + path, BlockEntityType.Builder.create(supplier, block).build(null));
+		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
 	}
 }

@@ -21,15 +21,6 @@ public class TrainData extends PersistentState {
 		stations = new HashSet<>();
 	}
 
-	public void addStation(Station station) {
-		stations.add(station);
-		markDirty();
-	}
-
-	public Set<Station> getStations() {
-		return stations;
-	}
-
 	@Override
 	public void fromTag(CompoundTag tag) {
 		CompoundTag tagStations = tag.getCompound(KEY_STATIONS);
@@ -48,6 +39,15 @@ public class TrainData extends PersistentState {
 		}
 		tag.put(KEY_STATIONS, tagStations);
 		return tag;
+	}
+
+	public void addStation(Station station) {
+		stations.add(station);
+		markDirty();
+	}
+
+	public Set<Station> getStations() {
+		return stations;
 	}
 
 	public static TrainData getInstance(World world) {

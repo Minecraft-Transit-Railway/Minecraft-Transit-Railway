@@ -1,6 +1,7 @@
 package mtr.data;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketByteBuf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,15 @@ public final class Station {
 		}
 	}
 
+	public Station(PacketByteBuf packet) {
+		name = packet.readString();
+		platforms = new ArrayList<>();
+		final int platformCount = packet.readInt();
+		for (int i = 0; i < platformCount; i++) {
+			platforms.add(new Platform(packet));
+		}
+	}
+
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putString(KEY_NAME, name);
@@ -37,6 +47,14 @@ public final class Station {
 			i++;
 		}
 		return tag;
+	}
+
+	public void writePacket(PacketByteBuf packet) {
+		packet.writeString(name);
+		packet.writeInt(platforms.size());
+		for (final Platform platform : platforms) {
+			platform.writePacket(packet);
+		}
 	}
 
 	public String getName() {
@@ -53,6 +71,6 @@ public final class Station {
 
 	@Override
 	public String toString() {
-		return String.format("Station (%s): %s}", name, platforms);
+		return String.format("Station (%s): %s", name, platforms);
 	}
 }

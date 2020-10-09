@@ -1,6 +1,7 @@
 package mtr.data;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -28,12 +29,24 @@ public final class Platform {
 		length = tag.getInt(KEY_LENGTH);
 	}
 
+	public Platform(PacketByteBuf packet) {
+		pos = packet.readBlockPos();
+		axis = packet.readBoolean() ? Direction.Axis.X : Direction.Axis.Z;
+		length = packet.readInt();
+	}
+
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putIntArray(KEY_POS, new int[]{pos.getX(), pos.getY(), pos.getZ()});
 		tag.putBoolean(KEY_AXIS, axis == Direction.Axis.X);
 		tag.putInt(KEY_LENGTH, length);
 		return tag;
+	}
+
+	public void writePacket(PacketByteBuf packet) {
+		packet.writeBlockPos(pos);
+		packet.writeBoolean(axis == Direction.Axis.X);
+		packet.writeInt(length);
 	}
 
 	public boolean isInPlatform(BlockPos checkPos) {
