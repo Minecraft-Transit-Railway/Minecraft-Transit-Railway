@@ -8,8 +8,8 @@ import java.util.List;
 
 public final class Station {
 
-	private final String name;
-	private final List<Platform> platforms;
+	public final String name;
+	public final List<Platform> platforms;
 
 	private static final String KEY_NAME = "name";
 	private static final String KEY_PLATFORM = "platform_";
@@ -55,18 +55,6 @@ public final class Station {
 		for (final Platform platform : platforms) {
 			platform.writePacket(packet);
 		}
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void addPlatform(Platform platform) {
-		platforms.add(platform);
-	}
-
-	public List<Platform> getPlatforms() {
-		return platforms;
 	}
 
 	@Override

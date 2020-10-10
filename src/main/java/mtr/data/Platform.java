@@ -7,9 +7,9 @@ import net.minecraft.util.math.Direction;
 
 public final class Platform {
 
-	private final BlockPos pos;
-	private final Direction.Axis axis;
-	private final int length;
+	public final BlockPos pos;
+	public final Direction.Axis axis;
+	public final int length;
 
 	private static final int RADIUS = 4;
 	private static final String KEY_POS = "pos";
