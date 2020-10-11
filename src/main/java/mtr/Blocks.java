@@ -17,6 +17,7 @@ public class Blocks {
 	public static final Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).lightLevel(10));
 	public static final Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).lightLevel(5));
 	public static final Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
+	public static final Block PLATFORM_RAIL = new BlockPlatformRail(FabricBlockSettings.of(Material.METAL, MaterialColor.BROWN).requiresTool().hardness(2).nonOpaque());
 	public static final Block PSD_DOOR = new BlockPSDDoor();
 	public static final Block PSD_GLASS = new BlockPSDGlass();
 	public static final Block PSD_GLASS_END = new BlockPSDGlassEnd();

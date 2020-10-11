@@ -46,6 +46,7 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		registerBlock("logo", Blocks.LOGO, new BlockItem(Blocks.LOGO, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
 		registerBlock("pids_1", Blocks.PIDS_1, new BedItem(Blocks.PIDS_1, new Item.Settings().group(ItemGroup.DECORATIONS)));
 		registerBlock("platform", Blocks.PLATFORM, new BlockItem(Blocks.PLATFORM, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
+		registerBlock("platform_rail", Blocks.PLATFORM_RAIL, new BlockItem(Blocks.PLATFORM_RAIL, new Item.Settings().group(ItemGroup.TRANSPORTATION)));
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
@@ -66,6 +67,7 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS_END, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_RAIL, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());

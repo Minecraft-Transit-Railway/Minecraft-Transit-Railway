@@ -10,6 +10,7 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
+import mtr.data.Platform;
 import mtr.data.Station;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +30,7 @@ public class GuiDashboard extends LightweightGuiDescription {
 	private static final int SQUARE_SIZE = 20;
 	private static final int LEFT_PANEL_WIDTH = 128;
 
-	public GuiDashboard(Set<Station> stations) {
+	public GuiDashboard(Set<Station> stations, Set<Platform> platforms) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final Window window = minecraftClient.getWindow();
 		final int windowWidth = window.getScaledWidth();
@@ -45,7 +46,7 @@ public class GuiDashboard extends LightweightGuiDescription {
 			mapCenterX = player.getX();
 			mapCenterY = player.getZ();
 		}
-		WidgetMap map = new WidgetMap(windowWidth - LEFT_PANEL_WIDTH, windowHeight, mapCenterX, mapCenterY, stations);
+		WidgetMap map = new WidgetMap(windowWidth - LEFT_PANEL_WIDTH, windowHeight, mapCenterX, mapCenterY, stations, platforms);
 		root.add(map, LEFT_PANEL_WIDTH, 0, windowWidth - LEFT_PANEL_WIDTH, windowHeight);
 
 		WPlainPanel leftPanel = new WPlainPanel();

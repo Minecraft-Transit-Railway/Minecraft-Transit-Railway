@@ -16,45 +16,39 @@ public class WidgetMap extends WWidget {
 
 	private double centerX, centerY;
 	private final Set<Station> stations;
+	private final Set<Platform> platforms;
 	private double scale;
 
 	private static final int SCALE_UPPER_LIMIT = 8;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
 
-	private static final int PLATFORM_RADIUS = 2;
 	private static final int TEXT_PADDING = 6;
 	private static final int ARGB_WHITE = 0xFFFFFFFF;
 	private static final int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 
-	public WidgetMap(int width, int height, double playerX, double playerZ, Set<Station> stations) {
+	public WidgetMap(int width, int height, double playerX, double playerZ, Set<Station> stations, Set<Platform> platforms) {
 		this.width = width;
 		this.height = height;
 		centerX = playerX;
 		centerY = playerZ;
 		this.stations = stations;
+		this.platforms = platforms;
 		scale = 1;
 	}
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-		for (Station station : stations) {
-			for (Platform platform : station.platforms) {
-				BlockPos posTopLeft = platform.pos.add(-PLATFORM_RADIUS, 0, -PLATFORM_RADIUS);
-				BlockPos posBottomRight = platform.pos.add(PLATFORM_RADIUS, 0, PLATFORM_RADIUS);
-				BlockPos posStart = platform.pos;
-				BlockPos posEnd = platform.pos;
+		for (Platform platform : platforms) {
+			BlockPos posStart = platform.pos;
+			BlockPos posEnd = platform.pos;
 
-				if (platform.axis == Direction.Axis.X) {
-					posBottomRight = posBottomRight.add(platform.length, 0, 1);
-					posEnd = posEnd.add(platform.length, 0, 1);
-				} else {
-					posBottomRight = posBottomRight.add(1, 0, platform.length);
-					posEnd = posEnd.add(1, 0, platform.length);
-				}
-
-				drawRectangle(worldPosToCoords(posTopLeft), worldPosToCoords(posBottomRight), ARGB_WHITE_TRANSLUCENT);
-				drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE);
+			if (platform.axis == Direction.Axis.X) {
+				posEnd = posEnd.add(platform.length + 1, 0, 1);
+			} else {
+				posEnd = posEnd.add(1, 0, platform.length + 1);
 			}
+
+			drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE_TRANSLUCENT);
 		}
 
 		Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX, mouseY);

@@ -3,62 +3,43 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class Station {
 
 	public final String name;
-	public final List<Platform> platforms;
+	public final long id;
 
 	private static final String KEY_NAME = "name";
-	private static final String KEY_PLATFORM = "platform_";
+	private static final String KEY_ID = "id";
 
 	public Station(String name) {
 		this.name = name;
-		platforms = new ArrayList<>();
+		id = System.currentTimeMillis();
 	}
 
 	public Station(CompoundTag tag) {
 		name = tag.getString(KEY_NAME);
-		platforms = new ArrayList<>();
-		for (final String key : tag.getKeys()) {
-			if (!key.equals(KEY_NAME)) {
-				platforms.add(new Platform(tag.getCompound(key)));
-			}
-		}
+		id = tag.getLong(KEY_ID);
 	}
 
 	public Station(PacketByteBuf packet) {
 		name = packet.readString();
-		platforms = new ArrayList<>();
-		final int platformCount = packet.readInt();
-		for (int i = 0; i < platformCount; i++) {
-			platforms.add(new Platform(packet));
-		}
+		id = packet.readLong();
 	}
 
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putString(KEY_NAME, name);
-		int i = 0;
-		for (final Platform platform : platforms) {
-			tag.put(KEY_PLATFORM + i, platform.toCompoundTag());
-			i++;
-		}
+		tag.putLong(KEY_ID, id);
 		return tag;
 	}
 
 	public void writePacket(PacketByteBuf packet) {
 		packet.writeString(name);
-		packet.writeInt(platforms.size());
-		for (final Platform platform : platforms) {
-			platform.writePacket(packet);
-		}
+		packet.writeLong(id);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Station (%s): %s", name, platforms);
+		return String.format("Station %s (%s)", id, name);
 	}
 }

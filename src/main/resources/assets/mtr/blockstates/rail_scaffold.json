@@ -1,5 +1,0 @@
-{
-	"multipart": [
-		{ "apply": { "model": "mtr:rail_scaffold" }}
-	]
-}
