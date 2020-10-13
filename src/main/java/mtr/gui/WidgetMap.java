@@ -24,8 +24,9 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private double centerX, centerY;
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
+
 	private double scale;
-	private boolean isDrawing;
+	private Station editingStation;
 	private Pair<Integer, Integer> drawStation1, drawStation2;
 
 	private final WButton buttonAddStation;
@@ -52,7 +53,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		mapHeight = height - SQUARE_SIZE;
 
 		buttonAddStation = new WButton(new TranslatableText("gui.mtr.add_station"));
-		buttonAddStation.setOnClick(() -> setIsDrawing(true));
+		buttonAddStation.setOnClick(() -> startDrawing(new Station()));
 
 		textField = new WTextField();
 		textField.setSuggestion(new TranslatableText("gui.mtr.station_name"));
@@ -60,7 +61,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		buttonDoneDrawing = new WButton(new TranslatableText("gui.done"));
 
 		buttonCancel = new WButton(new TranslatableText("gui.cancel"));
-		buttonCancel.setOnClick(() -> setIsDrawing(false));
+		buttonCancel.setOnClick(this::stopDrawing);
 
 		WButton buttonZoomIn = new WButton(new LiteralText("+"));
 		buttonZoomIn.setOnClick(() -> scale(1));
@@ -70,7 +71,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		buttonZoomOut.setOnClick(() -> scale(-1));
 		add(buttonZoomOut, width - SQUARE_SIZE, mapHeight, SQUARE_SIZE, SQUARE_SIZE);
 
-		setIsDrawing(false);
+		stopDrawing();
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 			drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE_TRANSLUCENT);
 		}
 
-		if (isDrawing) {
+		if (editingStation != null) {
 			if (drawStation1 != null && drawStation2 != null) {
 				drawRectangle(worldPosToCoords(drawStation1), worldPosToCoords(drawStation2), ARGB_ORANGE_TRANSLUCENT);
 			}
@@ -101,7 +102,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@Override
 	public void onMouseDrag(int x, int y, int button, double deltaX, double deltaY) {
-		if (isDrawing && button == LEFT_MOUSE_BUTTON) {
+		if (editingStation != null && button == LEFT_MOUSE_BUTTON) {
 			drawStation2 = coordsToWorldPos((int) Math.round(x + deltaX), (int) Math.round(y + deltaY));
 			if (drawStation1.getLeft().equals(drawStation2.getLeft())) {
 				drawStation2 = new Pair<>(drawStation2.getLeft() + 1, drawStation2.getRight());
@@ -118,7 +119,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@Override
 	public WWidget onMouseDown(int x, int y, int button) {
-		if (isDrawing && button == LEFT_MOUSE_BUTTON) {
+		if (editingStation != null && button == LEFT_MOUSE_BUTTON) {
 			drawStation1 = coordsToWorldPos(x, y);
 			drawStation2 = new Pair<>(drawStation1.getLeft() + 1, drawStation1.getRight() + 1);
 		}
@@ -146,8 +147,8 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	public void setOnDoneDrawing(OnDoneDrawing onDoneDrawing) {
 		buttonDoneDrawing.setOnClick(() -> {
-			onDoneDrawing.onDoneDrawing(textField.getText(), drawStation1, drawStation2);
-			setIsDrawing(false);
+			onDoneDrawing.onDoneDrawing(editingStation, textField.getText(), drawStation1, drawStation2);
+			stopDrawing();
 		});
 	}
 
@@ -156,23 +157,30 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		centerY = (station.corner1.getRight() + station.corner2.getRight()) / 2D;
 	}
 
-	private void setIsDrawing(boolean isDrawing) {
-		this.isDrawing = isDrawing;
+	public void startDrawing(Station editingStation) {
+		this.editingStation = editingStation;
+		drawStation1 = editingStation.corner1;
+		drawStation2 = editingStation.corner2;
+		buttonDoneDrawing.setEnabled(drawStation1 != null && drawStation2 != null);
+		textField.setText(editingStation.name);
+
+		remove(buttonAddStation);
+		add(textField, 0, mapHeight, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, SQUARE_SIZE);
+		add(buttonDoneDrawing, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
+		add(buttonCancel, width - SQUARE_SIZE * 2 - BUTTON_WIDTH, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
+		validate(guiDescription);
+	}
+
+	private void stopDrawing() {
+		editingStation = null;
 		drawStation1 = drawStation2 = null;
 		buttonDoneDrawing.setEnabled(false);
 		textField.setText("");
 
-		if (isDrawing) {
-			remove(buttonAddStation);
-			add(textField, 0, mapHeight, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, SQUARE_SIZE);
-			add(buttonDoneDrawing, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
-			add(buttonCancel, width - SQUARE_SIZE * 2 - BUTTON_WIDTH, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
-		} else {
-			remove(textField);
-			remove(buttonDoneDrawing);
-			remove(buttonCancel);
-			add(buttonAddStation, 0, mapHeight, width - SQUARE_SIZE * 2, SQUARE_SIZE);
-		}
+		remove(textField);
+		remove(buttonDoneDrawing);
+		remove(buttonCancel);
+		add(buttonAddStation, 0, mapHeight, width - SQUARE_SIZE * 2, SQUARE_SIZE);
 		validate(guiDescription);
 	}
 
@@ -209,6 +217,6 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@FunctionalInterface
 	public interface OnDoneDrawing {
-		void onDoneDrawing(String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
+		void onDoneDrawing(Station station, String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
 	}
 }

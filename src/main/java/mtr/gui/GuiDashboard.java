@@ -2,8 +2,9 @@ package mtr.gui;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
-import io.github.cottonmc.cotton.gui.widget.*;
-import io.github.cottonmc.cotton.gui.widget.data.Axis;
+import io.github.cottonmc.cotton.gui.widget.WLabel;
+import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
+import io.github.cottonmc.cotton.gui.widget.WScrollPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.data.PacketTrainDataGui;
@@ -33,8 +34,7 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		WPlainPanel root = new WPlainPanel();
 		setRootPanel(root);
 
-		WBox boxPanelStations = new WBox(Axis.VERTICAL);
-		boxPanelStations.setSpacing(0);
+		WidgetStationNames stationNames = new WidgetStationNames(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING);
 
 		final double mapCenterX, mapCenterY;
 		if (minecraftClient.player == null) {
@@ -45,13 +45,12 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 			mapCenterY = minecraftClient.player.getZ();
 		}
 		WidgetMap map = new WidgetMap(this, windowWidth - LEFT_PANEL_WIDTH - MAP_LEFT_PADDING, windowHeight, mapCenterX, mapCenterY, stations, platforms);
-		map.setOnDoneDrawing((name, corner1, corner2) -> {
-			Station station = new Station(name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name);
-			station.changeArea(corner1, corner2);
+		map.setOnDoneDrawing((station, name, corner1, corner2) -> {
+			stations.remove(station);
+			station.setName(name);
+			station.setArea(corner1, corner2);
 			stations.add(station);
-			PacketTrainDataGui.sendC2S(stations, platforms);
-			createWidgetStationName(stations, platforms, station, map, boxPanelStations, root);
-			root.validate(this);
+			sendData(stationNames, map, stations, platforms);
 		});
 		root.add(map, LEFT_PANEL_WIDTH + MAP_LEFT_PADDING, 0, windowWidth - LEFT_PANEL_WIDTH - MAP_LEFT_PADDING, windowHeight);
 
@@ -64,26 +63,25 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		label.setVerticalAlignment(VerticalAlignment.CENTER);
 		root.add(label, 0, 0, LEFT_PANEL_WIDTH, SQUARE_SIZE);
 
-		for (Station station : stations) {
-			createWidgetStationName(stations, platforms, station, map, boxPanelStations, root);
-		}
-
-		WScrollPanel scrollPanel = new WScrollPanel(boxPanelStations);
+		WScrollPanel scrollPanel = new WScrollPanel(stationNames);
 		scrollPanel.setScrollingHorizontally(TriState.FALSE);
 		scrollPanel.setScrollingVertically(TriState.TRUE);
 		root.add(scrollPanel, 0, SQUARE_SIZE, LEFT_PANEL_WIDTH, windowHeight - SQUARE_SIZE);
+		refreshStations(stationNames, map, stations, platforms);
 
 		root.validate(this);
 	}
 
-	private void createWidgetStationName(Set<Station> stations, Set<Platform> platforms, Station station, WidgetMap map, WBox panel, WWidget root) {
-		WidgetStationName panelStation = new WidgetStationName(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING, station.name);
-		panelStation.setOnClick(() -> map.find(station), () -> {
+	private void refreshStations(WidgetStationNames stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms) {
+		stationNames.refreshStations(stations, map::find, map::startDrawing, (station) -> {
 			stations.remove(station);
-			PacketTrainDataGui.sendC2S(stations, platforms);
-			panel.remove(panelStation);
-			root.validate(this);
+			sendData(stationNames, map, stations, platforms);
 		});
-		panel.add(panelStation);
+	}
+
+	private void sendData(WidgetStationNames stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms) {
+		PacketTrainDataGui.sendC2S(stations, platforms);
+		refreshStations(stationNames, map, stations, platforms);
+		stationNames.validate(stationNames.getHost());
 	}
 }

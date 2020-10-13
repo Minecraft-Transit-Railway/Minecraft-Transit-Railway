@@ -2,11 +2,12 @@ package mtr.data;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 
-public final class Station {
+public final class Station implements Comparable<Station> {
 
-	public final String name;
+	public String name;
 	public Pair<Integer, Integer> corner1, corner2;
 
 	private static final String KEY_NAME = "name";
@@ -15,8 +16,14 @@ public final class Station {
 	private static final String KEY_X_MAX = "x_max";
 	private static final String KEY_Z_MAX = "z_max";
 
-	public Station(String name) {
+	public Station(String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
 		this.name = name;
+		this.corner1 = corner1;
+		this.corner2 = corner2;
+	}
+
+	public Station() {
+		name = "";
 	}
 
 	public Station(CompoundTag tag) {
@@ -49,9 +56,19 @@ public final class Station {
 		packet.writeInt(corner2.getRight());
 	}
 
-	public void changeArea(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
+	public void setName(String name) {
+		this.name = name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name;
+	}
+
+	public void setArea(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
 		this.corner1 = corner1;
 		this.corner2 = corner2;
+	}
+
+
+	@Override
+	public int compareTo(Station stationCompare) {
+		return name.toLowerCase().compareTo(stationCompare.name.toLowerCase());
 	}
 
 	@Override

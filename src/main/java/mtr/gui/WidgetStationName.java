@@ -13,13 +13,16 @@ import net.minecraft.util.Identifier;
 public class WidgetStationName extends WPlainPanel implements IGui {
 
 	private final String name;
-	private final WButton buttonFind, buttonDelete;
+	private final WButton buttonFind, buttonEdit, buttonDelete;
 
 	public WidgetStationName(int width, String name) {
 		this.name = name;
 
 		buttonFind = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
-		add(buttonFind, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
+		add(buttonFind, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);
+
+		buttonEdit = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_edit.png")));
+		add(buttonEdit, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
 
 		buttonDelete = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
 		add(buttonDelete, width - SQUARE_SIZE, 0, SQUARE_SIZE, SQUARE_SIZE);
@@ -33,8 +36,9 @@ public class WidgetStationName extends WPlainPanel implements IGui {
 		}
 	}
 
-	public void setOnClick(Runnable onFind, Runnable onDelete) {
+	public void setOnClick(Runnable onFind, Runnable onEdit, Runnable onDelete) {
 		buttonFind.setOnClick(onFind);
+		buttonEdit.setOnClick(onEdit);
 		buttonDelete.setOnClick(onDelete);
 	}
 }
