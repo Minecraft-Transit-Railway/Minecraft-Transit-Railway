@@ -76,9 +76,21 @@ public class TrainData extends PersistentState {
 	}
 
 	public Set<Platform> getPlatforms(WorldAccess world) {
+		validateData(world);
+		return platforms;
+	}
+
+	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms) {
+		this.stations.clear();
+		this.stations.addAll(stations);
+		this.platforms.clear();
+		this.platforms.addAll(platforms);
+		validateData(world);
+	}
+
+	private void validateData(WorldAccess world) {
 		platforms.removeIf(platform -> !platform.hasRail(world));
 		markDirty();
-		return platforms;
 	}
 
 	public static TrainData getInstance(World world) {

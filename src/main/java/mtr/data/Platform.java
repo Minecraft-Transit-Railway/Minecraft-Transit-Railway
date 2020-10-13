@@ -11,22 +11,19 @@ import net.minecraft.world.WorldAccess;
 
 public final class Platform {
 
-	public final BlockPos pos;
-	public final Direction.Axis axis;
-	public final int length;
-	public final long stationId;
+	private final BlockPos pos;
+	private final Direction.Axis axis;
+	private final int length;
 
 	private static final int RADIUS = 4;
 	private static final String KEY_POS = "pos";
 	private static final String KEY_AXIS = "axis";
 	private static final String KEY_LENGTH = "length";
-	private static final String KEY_STATION_ID = "station_id";
 
 	public Platform(BlockPos pos, Direction.Axis axis, int length) {
 		this.pos = pos;
 		this.axis = axis;
 		this.length = length;
-		stationId = 0;
 	}
 
 	public Platform(CompoundTag tag) {
@@ -34,14 +31,12 @@ public final class Platform {
 		pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
 		axis = tag.getBoolean(KEY_AXIS) ? Direction.Axis.X : Direction.Axis.Z;
 		length = tag.getInt(KEY_LENGTH);
-		stationId = tag.getLong(KEY_STATION_ID);
 	}
 
 	public Platform(PacketByteBuf packet) {
 		pos = packet.readBlockPos();
 		axis = packet.readBoolean() ? Direction.Axis.X : Direction.Axis.Z;
 		length = packet.readInt();
-		stationId = packet.readLong();
 	}
 
 	public CompoundTag toCompoundTag() {
@@ -49,7 +44,6 @@ public final class Platform {
 		tag.putIntArray(KEY_POS, new int[]{pos.getX(), pos.getY(), pos.getZ()});
 		tag.putBoolean(KEY_AXIS, axis == Direction.Axis.X);
 		tag.putInt(KEY_LENGTH, length);
-		tag.putLong(KEY_STATION_ID, stationId);
 		return tag;
 	}
 
@@ -57,7 +51,18 @@ public final class Platform {
 		packet.writeBlockPos(pos);
 		packet.writeBoolean(axis == Direction.Axis.X);
 		packet.writeInt(length);
-		packet.writeLong(stationId);
+	}
+
+	public BlockPos getPos1() {
+		return pos;
+	}
+
+	public BlockPos getPos2() {
+		if (axis == Direction.Axis.X) {
+			return pos.offset(Direction.EAST, length);
+		} else {
+			return pos.offset(Direction.SOUTH, length);
+		}
 	}
 
 	public boolean isInPlatform(BlockPos checkPos) {
@@ -77,12 +82,19 @@ public final class Platform {
 	}
 
 	public boolean overlaps(Platform platform) {
-		if (platform.axis != axis || platform.pos.getY() != pos.getY()) {
+		BlockPos pos3 = platform.pos;
+
+		if (platform.axis != axis || pos3.getY() != pos.getY()) {
 			return false;
-		} else if (axis == Direction.Axis.X) {
-			return platform.pos.getZ() == pos.getZ() && (isBetween(platform.pos.getX(), pos.getX(), pos.getX() + length) || isBetween(pos.getX(), platform.pos.getX(), platform.pos.getX() + platform.length));
 		} else {
-			return platform.pos.getX() == pos.getX() && (isBetween(platform.pos.getZ(), pos.getZ(), pos.getZ() + length) || isBetween(pos.getZ(), platform.pos.getZ(), platform.pos.getZ() + platform.length));
+			BlockPos pos2 = getPos2();
+			BlockPos pos4 = platform.getPos2();
+
+			if (axis == Direction.Axis.X) {
+				return pos3.getZ() == pos.getZ() && (isBetween(pos3.getX(), pos.getX(), pos2.getX()) || isBetween(pos.getX(), pos3.getX(), pos4.getX()));
+			} else {
+				return pos3.getX() == pos.getX() && (isBetween(pos3.getZ(), pos.getZ(), pos2.getZ()) || isBetween(pos.getZ(), pos3.getZ(), pos4.getZ()));
+			}
 		}
 	}
 
@@ -105,7 +117,7 @@ public final class Platform {
 		return true;
 	}
 
-	private boolean isBetween(int value, int lower, int upper) {
+	private static boolean isBetween(int value, int lower, int upper) {
 		return value >= lower && value <= upper;
 	}
 

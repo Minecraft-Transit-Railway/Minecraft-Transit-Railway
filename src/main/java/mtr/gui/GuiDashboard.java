@@ -2,32 +2,28 @@ package mtr.gui;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
-import io.github.cottonmc.cotton.gui.widget.WButton;
+import io.github.cottonmc.cotton.gui.widget.WBox;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WScrollPanel;
+import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
-import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
-import mtr.MTR;
+import mtr.data.PacketTrainDataGui;
 import mtr.data.Platform;
 import mtr.data.Station;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
 import java.util.Set;
 
-public class GuiDashboard extends LightweightGuiDescription {
+public class GuiDashboard extends LightweightGuiDescription implements IGui {
 
 	private static final int LEFT_PANEL_RIGHT_PADDING = 5;
-	private static final int TEXT_PADDING = 6;
 	private static final int PANEL_BACKGROUND_PADDING = 8;
-	private static final int SQUARE_SIZE = 20;
 	private static final int LEFT_PANEL_WIDTH = 128;
 
 	public GuiDashboard(Set<Station> stations, Set<Platform> platforms) {
@@ -58,38 +54,24 @@ public class GuiDashboard extends LightweightGuiDescription {
 		label.setVerticalAlignment(VerticalAlignment.CENTER);
 		root.add(label, 0, 0, LEFT_PANEL_WIDTH, SQUARE_SIZE);
 
-		WPlainPanel panelStations = new WPlainPanel();
-		int i = 0;
+		WBox panelStations = new WBox(Axis.VERTICAL);
 		for (Station station : stations) {
-			WLabel labelStationName = new WLabel(new TranslatableText(station.name));
-			labelStationName.setVerticalAlignment(VerticalAlignment.CENTER);
-			panelStations.add(labelStationName, TEXT_PADDING, i * SQUARE_SIZE, 0, SQUARE_SIZE);
+			WidgetStationName panelStation = new WidgetStationName(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING, station.name);
+			panelStation.setOnClick(() -> {
+				stations.remove(station);
+				PacketTrainDataGui.sendC2S(stations, platforms);
+				panelStations.remove(panelStation);
+				panelStations.layout();
+			});
 
-			WButton buttonFind = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
-			panelStations.add(buttonFind, LEFT_PANEL_WIDTH - SQUARE_SIZE * 2 - PANEL_BACKGROUND_PADDING, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-
-			WButton buttonDelete = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
-			panelStations.add(buttonDelete, LEFT_PANEL_WIDTH - SQUARE_SIZE - PANEL_BACKGROUND_PADDING, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-
-			i++;
+			panelStations.add(panelStation);
 		}
+		panelStations.setSpacing(0);
 
 		WScrollPanel scrollPanel = new WScrollPanel(panelStations);
 		scrollPanel.setScrollingHorizontally(TriState.FALSE);
 		scrollPanel.setScrollingVertically(TriState.TRUE);
 		root.add(scrollPanel, 0, SQUARE_SIZE, LEFT_PANEL_WIDTH, windowHeight - SQUARE_SIZE);
-
-		WButton buttonZoomIn = new WButton(new LiteralText("+"));
-		buttonZoomIn.setOnClick(() -> {
-			map.scale(1);
-		});
-		root.add(buttonZoomIn, windowWidth - SQUARE_SIZE, windowHeight - SQUARE_SIZE * 2, SQUARE_SIZE, SQUARE_SIZE);
-
-		WButton buttonZoomOut = new WButton(new LiteralText("-"));
-		buttonZoomOut.setOnClick(() -> {
-			map.scale(-1);
-		});
-		root.add(buttonZoomOut, windowWidth - SQUARE_SIZE, windowHeight - SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
 
 		root.validate(this);
 	}

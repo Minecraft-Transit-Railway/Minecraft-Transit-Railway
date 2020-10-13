@@ -1,18 +1,19 @@
 package mtr.gui;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import io.github.cottonmc.cotton.gui.widget.WWidget;
+import io.github.cottonmc.cotton.gui.widget.WButton;
+import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import mtr.data.Platform;
 import mtr.data.Station;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 import java.util.Set;
 
-public class WidgetMap extends WWidget {
+public class WidgetMap extends WPlainPanel implements IGui {
 
 	private double centerX, centerY;
 	private final Set<Station> stations;
@@ -22,10 +23,6 @@ public class WidgetMap extends WWidget {
 	private static final int SCALE_UPPER_LIMIT = 8;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
 
-	private static final int TEXT_PADDING = 6;
-	private static final int ARGB_WHITE = 0xFFFFFFFF;
-	private static final int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
-
 	public WidgetMap(int width, int height, double playerX, double playerZ, Set<Station> stations, Set<Platform> platforms) {
 		this.width = width;
 		this.height = height;
@@ -34,25 +31,29 @@ public class WidgetMap extends WWidget {
 		this.stations = stations;
 		this.platforms = platforms;
 		scale = 1;
+
+		WButton buttonZoomIn = new WButton(new LiteralText("+"));
+		buttonZoomIn.setOnClick(() -> scale(1));
+		add(buttonZoomIn, width - SQUARE_SIZE, height - SQUARE_SIZE * 2, SQUARE_SIZE, SQUARE_SIZE);
+
+		WButton buttonZoomOut = new WButton(new LiteralText("-"));
+		buttonZoomOut.setOnClick(() -> scale(-1));
+		add(buttonZoomOut, width - SQUARE_SIZE, height - SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
 	}
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		for (Platform platform : platforms) {
-			BlockPos posStart = platform.pos;
-			BlockPos posEnd = platform.pos;
-
-			if (platform.axis == Direction.Axis.X) {
-				posEnd = posEnd.add(platform.length + 1, 0, 1);
-			} else {
-				posEnd = posEnd.add(1, 0, platform.length + 1);
-			}
+			BlockPos posStart = platform.getPos1();
+			BlockPos posEnd = platform.getPos2().add(1, 0, 1);
 
 			drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE_TRANSLUCENT);
 		}
 
 		Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX, mouseY);
 		ScreenDrawing.drawStringWithShadow(matrices, String.format("(%d, %d)", mouseWorldPos.getLeft(), mouseWorldPos.getRight()), HorizontalAlignment.RIGHT, x + width - TEXT_PADDING, TEXT_PADDING, 0, ARGB_WHITE);
+
+		super.paint(matrices, x, y, mouseX, mouseY);
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class WidgetMap extends WWidget {
 		return true;
 	}
 
-	public void scale(double amount) {
+	private void scale(double amount) {
 		scale *= Math.pow(2, amount);
 		if (scale > SCALE_UPPER_LIMIT) {
 			scale = SCALE_UPPER_LIMIT;

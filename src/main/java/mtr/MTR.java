@@ -8,6 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -54,6 +55,8 @@ public class MTR implements ModInitializer, ClientModInitializer {
 
 		TileEntities.APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
 		TileEntities.PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
+
+		ServerSidePacketRegistry.INSTANCE.register(PacketTrainDataGui.ID, PacketTrainDataGui::receiveC2S);
 
 		ServerTickEvents.END_SERVER_TICK.register((event) -> {
 			// TODO
