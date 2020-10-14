@@ -27,6 +27,7 @@
 	"gui.mtr.add_station": "Add Station",
 	"gui.mtr.draw_station_1": "Left click and drag to draw station area",
 	"gui.mtr.draw_station_2": "Right click and drag to move map",
+	"gui.mtr.routes": "Routes",
 	"gui.mtr.station_color": "Color",
 	"gui.mtr.station_name": "Station Name",
 	"gui.mtr.stations": "Stations",

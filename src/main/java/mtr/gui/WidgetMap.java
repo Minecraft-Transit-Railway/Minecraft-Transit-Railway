@@ -39,7 +39,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private static final int BUTTON_WIDTH = 64;
 	private static final int LINE_HEIGHT = 10;
 	private static final int LEFT_MOUSE_BUTTON = 0;
-	private static final int SCALE_UPPER_LIMIT = 8;
+	private static final int SCALE_UPPER_LIMIT = 16;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
 	private static final int MAX_STATION_LENGTH = 128;
 	private static final int MAX_COLOR_LENGTH = 6;
@@ -76,7 +76,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		for (Station station : stations) {
-			drawRectangle(worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color);
+			drawRectangle(matrices, worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color, scale > 1 ? station.name : "");
 		}
 		for (Platform platform : platforms) {
 			BlockPos posStart = platform.getPos1();
@@ -214,12 +214,19 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	}
 
 	private void drawRectangle(Pair<Double, Double> topLeft, Pair<Double, Double> bottomRight, int color) {
+		drawRectangle(null, topLeft, bottomRight, color, "");
+	}
+
+	private void drawRectangle(MatrixStack matrices, Pair<Double, Double> topLeft, Pair<Double, Double> bottomRight, int color, String text) {
 		double x1 = Math.min(topLeft.getLeft(), bottomRight.getLeft());
 		double y1 = Math.min(topLeft.getRight(), bottomRight.getRight());
 		double x2 = Math.max(topLeft.getLeft(), bottomRight.getLeft());
 		double y2 = Math.max(topLeft.getRight(), bottomRight.getRight());
 		if (x1 < width && y1 < mapHeight && x2 >= 0 && y2 >= 0) {
 			ScreenDrawing.coloredRect((int) Math.round(x + x1), (int) Math.round(y + y1), Math.max((int) Math.round(x2 - x1), 1), Math.max((int) Math.round(y2 - y1), 1), color);
+			if (matrices != null && !text.isEmpty()) {
+				ScreenDrawing.drawStringWithShadow(matrices, text, HorizontalAlignment.CENTER, (int) Math.round(x + (x1 + x2) / 2), (int) Math.round(y - TEXT_FIELD_PADDING + (y1 + y2) / 2), 0, ARGB_WHITE);
+			}
 		}
 	}
 
