@@ -8,19 +8,19 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.icon.Icon;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
-import mtr.data.Station;
+import mtr.data.NamedColoredBase;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-public class WidgetStationName extends WPlainPanel implements IGui {
+public class WidgetNameColor<T extends NamedColoredBase> extends WPlainPanel implements IGui {
 
 	private final String name;
 	private final int color;
 	private final WidgetScrollableButton buttonFind, buttonEdit, buttonDelete;
 
-	public WidgetStationName(int width, Station station) {
-		name = station.name;
-		color = station.color;
+	public WidgetNameColor(int width, T t) {
+		name = t.name;
+		color = t.color;
 
 		buttonFind = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
 		add(buttonFind, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);

@@ -7,6 +7,7 @@ import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import mtr.data.Platform;
+import mtr.data.Route;
 import mtr.data.Station;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -27,15 +28,18 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	private double scale;
 	private Station editingStation;
+	private Route editingRoute;
 	private Pair<Integer, Integer> drawStation1, drawStation2;
 
 	private final WButton buttonAddStation;
+	private final WButton buttonAddRoute;
 	private final WTextField textFieldName;
 	private final WTextField textFieldColor;
-	private final WButton buttonDoneDrawing;
+	private final WButton buttonDoneEditingStation;
+	private final WButton buttonDoneEditingRoute;
 	private final WButton buttonCancel;
 
-	private final int mapHeight;
+	private final int mapHeight, longWidth;
 	private static final int BUTTON_WIDTH = 64;
 	private static final int LINE_HEIGHT = 10;
 	private static final int LEFT_MOUSE_BUTTON = 0;
@@ -53,24 +57,30 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		this.platforms = platforms;
 		scale = 1;
 		mapHeight = height - SQUARE_SIZE;
+		longWidth = width - SQUARE_SIZE * 2 - BUTTON_WIDTH;
 
 		buttonAddStation = new WButton(new TranslatableText("gui.mtr.add_station"));
-		buttonAddStation.setOnClick(() -> startDrawing(new Station()));
+		buttonAddStation.setOnClick(() -> startEditingStation(new Station()));
+
+		buttonAddRoute = new WButton(new TranslatableText("gui.mtr.add_route"));
+		buttonAddRoute.setOnClick(() -> startEditingRoute(new Route()));
 
 		textFieldName = new WTextField();
 		textFieldName.setMaxLength(MAX_STATION_LENGTH);
-		textFieldName.setSuggestion(new TranslatableText("gui.mtr.station_name"));
+		textFieldName.setSuggestion(new TranslatableText("gui.mtr.name"));
 
 		textFieldColor = new WTextField();
 		textFieldColor.setMaxLength(MAX_COLOR_LENGTH);
-		textFieldColor.setSuggestion(new TranslatableText("gui.mtr.station_color"));
+		textFieldColor.setSuggestion(new TranslatableText("gui.mtr.color"));
 
-		buttonDoneDrawing = new WButton(new TranslatableText("gui.done"));
+		buttonDoneEditingStation = new WButton(new TranslatableText("gui.done"));
+
+		buttonDoneEditingRoute = new WButton(new TranslatableText("gui.done"));
 
 		buttonCancel = new WButton(new TranslatableText("gui.cancel"));
-		buttonCancel.setOnClick(this::stopDrawing);
+		buttonCancel.setOnClick(this::stopEditing);
 
-		stopDrawing();
+		stopEditing();
 	}
 
 	@Override
@@ -109,7 +119,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 			if (drawStation1.getRight().equals(drawStation2.getRight())) {
 				drawStation2 = new Pair<>(drawStation2.getLeft(), drawStation2.getRight() + 1);
 			}
-			buttonDoneDrawing.setEnabled(true);
+			buttonDoneEditingStation.setEnabled(true);
 		} else {
 			centerX -= deltaX / scale;
 			centerY -= deltaY / scale;
@@ -144,16 +154,27 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		return true;
 	}
 
-	public void setOnDoneDrawing(OnDoneDrawing onDoneDrawing) {
-		buttonDoneDrawing.setOnClick(() -> {
+	public void setOnDoneEditing(OnDoneEditingStation onDoneEditingStation, OnDoneEditingRoute onDoneEditingRoute) {
+		buttonDoneEditingStation.setOnClick(() -> {
 			String name = textFieldName.getText();
 			int color = 0;
 			try {
 				color = Integer.parseInt(textFieldColor.getText(), 16);
 			} catch (Exception ignored) {
 			}
-			onDoneDrawing.onDoneDrawing(editingStation, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, drawStation1, drawStation2, color);
-			stopDrawing();
+			onDoneEditingStation.onDoneEditingStation(editingStation, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, drawStation1, drawStation2, color);
+			stopEditing();
+		});
+
+		buttonDoneEditingRoute.setOnClick(() -> {
+			String name = textFieldName.getText();
+			int color = 0;
+			try {
+				color = Integer.parseInt(textFieldColor.getText(), 16);
+			} catch (Exception ignored) {
+			}
+			onDoneEditingRoute.onDoneEditingRoute(editingRoute, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, color);
+			stopEditing();
 		});
 	}
 
@@ -162,33 +183,44 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		centerY = (station.corner1.getRight() + station.corner2.getRight()) / 2D;
 	}
 
-	public void startDrawing(Station editingStation) {
-		this.editingStation = editingStation;
-		drawStation1 = editingStation.corner1;
-		drawStation2 = editingStation.corner2;
-		buttonDoneDrawing.setEnabled(drawStation1 != null && drawStation2 != null);
-		textFieldName.setText(editingStation.name);
-		final int color = editingStation.color;
-		textFieldColor.setText(StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0"));
-
-		children.clear();
-		final int longWidth = width - SQUARE_SIZE * 2 - BUTTON_WIDTH;
-		add(textFieldName, TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, longWidth - TEXT_FIELD_PADDING, SQUARE_SIZE);
-		add(textFieldColor, longWidth + TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, BUTTON_WIDTH - TEXT_FIELD_PADDING, SQUARE_SIZE);
-		add(buttonDoneDrawing, 0, mapHeight, longWidth, SQUARE_SIZE);
-		add(buttonCancel, longWidth, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
-		addOtherWidgets();
+	public void find(Route route) {
 	}
 
-	private void stopDrawing() {
-		editingStation = null;
-		drawStation1 = drawStation2 = null;
-		buttonDoneDrawing.setEnabled(false);
-		textFieldName.setText("");
-		textFieldColor.setText("");
+	public void startEditingStation(Station editingStation) {
+		this.editingStation = editingStation;
+		editingRoute = null;
+		drawStation1 = editingStation.corner1;
+		drawStation2 = editingStation.corner2;
+		buttonDoneEditingStation.setEnabled(drawStation1 != null && drawStation2 != null);
+		textFieldName.setText(editingStation.name);
+		textFieldColor.setText(parseColor(editingStation.color));
 
 		children.clear();
-		add(buttonAddStation, 0, mapHeight, width - SQUARE_SIZE * 2, SQUARE_SIZE);
+		add(buttonDoneEditingStation, 0, mapHeight, longWidth, SQUARE_SIZE);
+		addEditingWidgets();
+	}
+
+	public void startEditingRoute(Route editingRoute) {
+		editingStation = null;
+		this.editingRoute = editingRoute;
+		buttonDoneEditingStation.setEnabled(true);
+		textFieldName.setText(editingRoute.name);
+		textFieldColor.setText(parseColor(editingRoute.color));
+
+		children.clear();
+		add(buttonDoneEditingRoute, 0, mapHeight, longWidth, SQUARE_SIZE);
+		addEditingWidgets();
+	}
+
+	private void stopEditing() {
+		editingStation = null;
+		editingRoute = null;
+		drawStation1 = drawStation2 = null;
+
+		children.clear();
+		final int buttonWidth = (longWidth + BUTTON_WIDTH) / 2;
+		add(buttonAddStation, 0, mapHeight, buttonWidth, SQUARE_SIZE);
+		add(buttonAddRoute, buttonWidth, mapHeight, buttonWidth, SQUARE_SIZE);
 		addOtherWidgets();
 	}
 
@@ -230,6 +262,13 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		}
 	}
 
+	private void addEditingWidgets() {
+		add(textFieldName, TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, longWidth - TEXT_FIELD_PADDING, SQUARE_SIZE);
+		add(textFieldColor, longWidth + TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, BUTTON_WIDTH - TEXT_FIELD_PADDING, SQUARE_SIZE);
+		add(buttonCancel, longWidth, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
+		addOtherWidgets();
+	}
+
 	private void addOtherWidgets() {
 		WButton buttonZoomIn = new WButton(new LiteralText("+"));
 		buttonZoomIn.setOnClick(() -> scale(1));
@@ -244,8 +283,17 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		}
 	}
 
+	private String parseColor(int color) {
+		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
+	}
+
 	@FunctionalInterface
-	public interface OnDoneDrawing {
-		void onDoneDrawing(Station station, String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2, int color);
+	public interface OnDoneEditingStation {
+		void onDoneEditingStation(Station station, String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2, int color);
+	}
+
+	@FunctionalInterface
+	public interface OnDoneEditingRoute {
+		void onDoneEditingRoute(Route route, String name, int color);
 	}
 }

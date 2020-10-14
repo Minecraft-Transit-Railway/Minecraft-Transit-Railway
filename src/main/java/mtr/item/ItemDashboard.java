@@ -20,7 +20,7 @@ public class ItemDashboard extends Item {
 		if (!world.isClient()) {
 			TrainData trainData = TrainData.getInstance(world);
 			if (trainData != null) {
-				PacketTrainDataGui.sendS2C(user, trainData.getStations(), trainData.getPlatforms(world));
+				PacketTrainDataGui.sendS2C(user, trainData.getStations(), trainData.getPlatforms(world), trainData.getRoutes());
 			}
 		}
 		return super.use(world, user, hand);

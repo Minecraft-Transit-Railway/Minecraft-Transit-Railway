@@ -16,14 +16,18 @@ public class TrainData extends PersistentState {
 	public static final String KEY_STATION = "station_";
 	public static final String KEY_PLATFORMS = "platforms";
 	public static final String KEY_PLATFORM = "platform_";
+	public static final String KEY_ROUTES = "routes";
+	public static final String KEY_ROUTE = "route_";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
+	private final Set<Route> routes;
 
 	public TrainData() {
 		super(NAME);
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
+		routes = new HashSet<>();
 	}
 
 	@Override
@@ -36,6 +40,11 @@ public class TrainData extends PersistentState {
 		final CompoundTag tagNewPlatforms = tag.getCompound(KEY_PLATFORMS);
 		for (String key : tagNewPlatforms.getKeys()) {
 			platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
+		}
+
+		final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
+		for (String key : tagNewRoutes.getKeys()) {
+			routes.add(new Route(tagNewRoutes.getCompound(key)));
 		}
 	}
 
@@ -56,6 +65,14 @@ public class TrainData extends PersistentState {
 			j++;
 		}
 		tag.put(KEY_PLATFORMS, tagNewPlatforms);
+
+		final CompoundTag tagNewRoutes = new CompoundTag();
+		int k = 0;
+		for (Route route : routes) {
+			tagNewRoutes.put(KEY_ROUTE + k, route.toCompoundTag());
+			k++;
+		}
+		tag.put(KEY_ROUTES, tagNewRoutes);
 
 		return tag;
 	}
@@ -80,11 +97,17 @@ public class TrainData extends PersistentState {
 		return platforms;
 	}
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms) {
+	public Set<Route> getRoutes() {
+		return routes;
+	}
+
+	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
 		this.stations.clear();
 		this.stations.addAll(stations);
 		this.platforms.clear();
 		this.platforms.addAll(platforms);
+		this.routes.clear();
+		this.routes.addAll(routes);
 		validateData(world);
 	}
 
