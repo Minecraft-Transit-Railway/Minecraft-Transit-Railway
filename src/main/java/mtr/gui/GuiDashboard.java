@@ -4,7 +4,6 @@ import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
-import io.github.cottonmc.cotton.gui.widget.WScrollPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.data.PacketTrainDataGui;
@@ -65,7 +64,7 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		label.setVerticalAlignment(VerticalAlignment.CENTER);
 		root.add(label, 0, 0, LEFT_PANEL_WIDTH, SQUARE_SIZE);
 
-		WScrollPanel scrollPanel = new WScrollPanel(stationNames);
+		WidgetBetterScrollPanel scrollPanel = new WidgetBetterScrollPanel(stationNames);
 		scrollPanel.setScrollingHorizontally(TriState.FALSE);
 		scrollPanel.setScrollingVertically(TriState.TRUE);
 		root.add(scrollPanel, 0, SQUARE_SIZE, LEFT_PANEL_WIDTH, windowHeight - SQUARE_SIZE);

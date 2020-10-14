@@ -5,6 +5,7 @@ import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.github.cottonmc.cotton.gui.widget.icon.Icon;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
 import mtr.data.Station;
@@ -15,19 +16,19 @@ public class WidgetStationName extends WPlainPanel implements IGui {
 
 	private final String name;
 	private final int color;
-	private final WButton buttonFind, buttonEdit, buttonDelete;
+	private final WidgetScrollableButton buttonFind, buttonEdit, buttonDelete;
 
 	public WidgetStationName(int width, Station station) {
-		this.name = station.name;
-		this.color = station.color;
+		name = station.name;
+		color = station.color;
 
-		buttonFind = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
+		buttonFind = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
 		add(buttonFind, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);
 
-		buttonEdit = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_edit.png")));
+		buttonEdit = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_edit.png")));
 		add(buttonEdit, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
 
-		buttonDelete = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
+		buttonDelete = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
 		add(buttonDelete, width - SQUARE_SIZE, 0, SQUARE_SIZE, SQUARE_SIZE);
 	}
 
@@ -40,9 +41,30 @@ public class WidgetStationName extends WPlainPanel implements IGui {
 		}
 	}
 
+	@Override
+	public void onMouseScroll(int x, int y, double amount) {
+		if (parent != null && parent.getParent() != null) {
+			parent.getParent().onMouseScroll(x, y, amount);
+		}
+	}
+
 	public void setOnClick(Runnable onFind, Runnable onEdit, Runnable onDelete) {
 		buttonFind.setOnClick(onFind);
 		buttonEdit.setOnClick(onEdit);
 		buttonDelete.setOnClick(onDelete);
+	}
+
+	private static class WidgetScrollableButton extends WButton {
+
+		public WidgetScrollableButton(Icon icon) {
+			super(icon);
+		}
+
+		@Override
+		public void onMouseScroll(int x, int y, double amount) {
+			if (parent != null) {
+				parent.onMouseScroll(x, y, amount);
+			}
+		}
 	}
 }
