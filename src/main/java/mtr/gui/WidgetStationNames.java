@@ -22,7 +22,7 @@ public class WidgetStationNames extends WBox implements IGui {
 		List<Station> stationsSorted = new ArrayList<>(stations);
 		Collections.sort(stationsSorted);
 		for (Station station : stationsSorted) {
-			WidgetStationName panelStation = new WidgetStationName(width, station.name);
+			WidgetStationName panelStation = new WidgetStationName(width, station);
 			panelStation.setOnClick(() -> onFind.onClick(station), () -> onEdit.onClick(station), () -> onDelete.onClick(station));
 			add(panelStation);
 		}

@@ -1,6 +1,5 @@
 package mtr.gui;
 
-import io.github.cottonmc.cotton.gui.GuiDescription;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
@@ -15,12 +14,13 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Random;
 import java.util.Set;
 
 public class WidgetMap extends WPlainPanel implements IGui {
 
-	private final GuiDescription guiDescription;
 	private double centerX, centerY;
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
@@ -30,7 +30,8 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private Pair<Integer, Integer> drawStation1, drawStation2;
 
 	private final WButton buttonAddStation;
-	private final WTextField textField;
+	private final WTextField textFieldName;
+	private final WTextField textFieldColor;
 	private final WButton buttonDoneDrawing;
 	private final WButton buttonCancel;
 
@@ -40,9 +41,10 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private static final int LEFT_MOUSE_BUTTON = 0;
 	private static final int SCALE_UPPER_LIMIT = 8;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
+	private static final int MAX_STATION_LENGTH = 128;
+	private static final int MAX_COLOR_LENGTH = 6;
 
-	public WidgetMap(GuiDescription guiDescription, int width, int height, double playerX, double playerZ, Set<Station> stations, Set<Platform> platforms) {
-		this.guiDescription = guiDescription;
+	public WidgetMap(int width, int height, double playerX, double playerZ, Set<Station> stations, Set<Platform> platforms) {
 		this.width = width;
 		this.height = height;
 		centerX = playerX;
@@ -55,21 +57,18 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		buttonAddStation = new WButton(new TranslatableText("gui.mtr.add_station"));
 		buttonAddStation.setOnClick(() -> startDrawing(new Station()));
 
-		textField = new WTextField();
-		textField.setSuggestion(new TranslatableText("gui.mtr.station_name"));
+		textFieldName = new WTextField();
+		textFieldName.setMaxLength(MAX_STATION_LENGTH);
+		textFieldName.setSuggestion(new TranslatableText("gui.mtr.station_name"));
+
+		textFieldColor = new WTextField();
+		textFieldColor.setMaxLength(MAX_COLOR_LENGTH);
+		textFieldColor.setSuggestion(new TranslatableText("gui.mtr.station_color"));
 
 		buttonDoneDrawing = new WButton(new TranslatableText("gui.done"));
 
 		buttonCancel = new WButton(new TranslatableText("gui.cancel"));
 		buttonCancel.setOnClick(this::stopDrawing);
-
-		WButton buttonZoomIn = new WButton(new LiteralText("+"));
-		buttonZoomIn.setOnClick(() -> scale(1));
-		add(buttonZoomIn, width - SQUARE_SIZE * 2, mapHeight, SQUARE_SIZE, SQUARE_SIZE);
-
-		WButton buttonZoomOut = new WButton(new LiteralText("-"));
-		buttonZoomOut.setOnClick(() -> scale(-1));
-		add(buttonZoomOut, width - SQUARE_SIZE, mapHeight, SQUARE_SIZE, SQUARE_SIZE);
 
 		stopDrawing();
 	}
@@ -77,7 +76,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		for (Station station : stations) {
-			drawRectangle(worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLUE_TRANSLUCENT);
+			drawRectangle(worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color);
 		}
 		for (Platform platform : platforms) {
 			BlockPos posStart = platform.getPos1();
@@ -87,7 +86,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 		if (editingStation != null) {
 			if (drawStation1 != null && drawStation2 != null) {
-				drawRectangle(worldPosToCoords(drawStation1), worldPosToCoords(drawStation2), ARGB_ORANGE_TRANSLUCENT);
+				drawRectangle(worldPosToCoords(drawStation1), worldPosToCoords(drawStation2), ARGB_WHITE_TRANSLUCENT);
 			}
 
 			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.draw_station_1").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING, 0, ARGB_WHITE);
@@ -147,7 +146,13 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	public void setOnDoneDrawing(OnDoneDrawing onDoneDrawing) {
 		buttonDoneDrawing.setOnClick(() -> {
-			onDoneDrawing.onDoneDrawing(editingStation, textField.getText(), drawStation1, drawStation2);
+			String name = textFieldName.getText();
+			int color = 0;
+			try {
+				color = Integer.parseInt(textFieldColor.getText(), 16);
+			} catch (Exception ignored) {
+			}
+			onDoneDrawing.onDoneDrawing(editingStation, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, drawStation1, drawStation2, color);
 			stopDrawing();
 		});
 	}
@@ -162,26 +167,29 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		drawStation1 = editingStation.corner1;
 		drawStation2 = editingStation.corner2;
 		buttonDoneDrawing.setEnabled(drawStation1 != null && drawStation2 != null);
-		textField.setText(editingStation.name);
+		textFieldName.setText(editingStation.name);
+		final int color = editingStation.color;
+		textFieldColor.setText(StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0"));
 
-		remove(buttonAddStation);
-		add(textField, 0, mapHeight, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, SQUARE_SIZE);
-		add(buttonDoneDrawing, width - SQUARE_SIZE * 2 - BUTTON_WIDTH * 2, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
-		add(buttonCancel, width - SQUARE_SIZE * 2 - BUTTON_WIDTH, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
-		validate(guiDescription);
+		children.clear();
+		final int longWidth = width - SQUARE_SIZE * 2 - BUTTON_WIDTH;
+		add(textFieldName, TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, longWidth - TEXT_FIELD_PADDING, SQUARE_SIZE);
+		add(textFieldColor, longWidth + TEXT_FIELD_PADDING / 2, mapHeight - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, BUTTON_WIDTH - TEXT_FIELD_PADDING, SQUARE_SIZE);
+		add(buttonDoneDrawing, 0, mapHeight, longWidth, SQUARE_SIZE);
+		add(buttonCancel, longWidth, mapHeight, BUTTON_WIDTH, SQUARE_SIZE);
+		addOtherWidgets();
 	}
 
 	private void stopDrawing() {
 		editingStation = null;
 		drawStation1 = drawStation2 = null;
 		buttonDoneDrawing.setEnabled(false);
-		textField.setText("");
+		textFieldName.setText("");
+		textFieldColor.setText("");
 
-		remove(textField);
-		remove(buttonDoneDrawing);
-		remove(buttonCancel);
+		children.clear();
 		add(buttonAddStation, 0, mapHeight, width - SQUARE_SIZE * 2, SQUARE_SIZE);
-		validate(guiDescription);
+		addOtherWidgets();
 	}
 
 	private void scale(double amount) {
@@ -215,8 +223,22 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		}
 	}
 
+	private void addOtherWidgets() {
+		WButton buttonZoomIn = new WButton(new LiteralText("+"));
+		buttonZoomIn.setOnClick(() -> scale(1));
+		add(buttonZoomIn, width - SQUARE_SIZE * 2, mapHeight, SQUARE_SIZE, SQUARE_SIZE);
+
+		WButton buttonZoomOut = new WButton(new LiteralText("-"));
+		buttonZoomOut.setOnClick(() -> scale(-1));
+		add(buttonZoomOut, width - SQUARE_SIZE, mapHeight, SQUARE_SIZE, SQUARE_SIZE);
+
+		if (getHost() != null) {
+			validate(getHost());
+		}
+	}
+
 	@FunctionalInterface
 	public interface OnDoneDrawing {
-		void onDoneDrawing(Station station, String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
+		void onDoneDrawing(Station station, String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2, int color);
 	}
 }

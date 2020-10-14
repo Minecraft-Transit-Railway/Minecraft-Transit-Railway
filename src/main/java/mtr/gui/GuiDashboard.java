@@ -44,11 +44,13 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 			mapCenterX = minecraftClient.player.getX();
 			mapCenterY = minecraftClient.player.getZ();
 		}
-		WidgetMap map = new WidgetMap(this, windowWidth - LEFT_PANEL_WIDTH - MAP_LEFT_PADDING, windowHeight, mapCenterX, mapCenterY, stations, platforms);
-		map.setOnDoneDrawing((station, name, corner1, corner2) -> {
+		WidgetMap map = new WidgetMap(windowWidth - LEFT_PANEL_WIDTH - MAP_LEFT_PADDING, windowHeight, mapCenterX, mapCenterY, stations, platforms);
+		map.setOnDoneDrawing((station, name, corner1, corner2, color) -> {
 			stations.remove(station);
-			station.setName(name);
-			station.setArea(corner1, corner2);
+			station.name = name;
+			station.corner1 = corner1;
+			station.corner2 = corner2;
+			station.color = color;
 			stations.add(station);
 			sendData(stationNames, map, stations, platforms);
 		});
@@ -58,7 +60,7 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		leftPanel.setBackgroundPainter(BackgroundPainter.VANILLA);
 		root.add(leftPanel, 0, PANEL_BACKGROUND_PADDING, LEFT_PANEL_WIDTH - LEFT_PANEL_RIGHT_PADDING, windowHeight);
 
-		WLabel label = new WLabel(new TranslatableText("gui.mtr.stations"));
+		WLabel label = new WLabel(String.format("%s (%d)", new TranslatableText("gui.mtr.stations").getString(), stations.size()));
 		label.setHorizontalAlignment(HorizontalAlignment.CENTER);
 		label.setVerticalAlignment(VerticalAlignment.CENTER);
 		root.add(label, 0, 0, LEFT_PANEL_WIDTH, SQUARE_SIZE);

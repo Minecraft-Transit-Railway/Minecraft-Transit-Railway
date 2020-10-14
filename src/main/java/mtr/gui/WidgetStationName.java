@@ -7,16 +7,19 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
+import mtr.data.Station;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 public class WidgetStationName extends WPlainPanel implements IGui {
 
 	private final String name;
+	private final int color;
 	private final WButton buttonFind, buttonEdit, buttonDelete;
 
-	public WidgetStationName(int width, String name) {
-		this.name = name;
+	public WidgetStationName(int width, Station station) {
+		this.name = station.name;
+		this.color = station.color;
 
 		buttonFind = new WButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
 		add(buttonFind, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);
@@ -30,7 +33,8 @@ public class WidgetStationName extends WPlainPanel implements IGui {
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-		ScreenDrawing.drawString(matrices, name, HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
+		ScreenDrawing.coloredRect(x + TEXT_PADDING, y + TEXT_PADDING, SQUARE_SIZE - TEXT_PADDING * 2, SQUARE_SIZE - TEXT_PADDING * 2, ARGB_BLACK + color);
+		ScreenDrawing.drawString(matrices, name, HorizontalAlignment.LEFT, x + SQUARE_SIZE, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
 		if (isWithinBounds(mouseX, mouseY)) {
 			super.paint(matrices, x, y, mouseX, mouseY);
 		}
