@@ -6,31 +6,30 @@ import net.minecraft.util.Pair;
 
 public final class Station extends NamedColoredBase {
 
+	public final long id;
 	public Pair<Integer, Integer> corner1, corner2;
 
+	private static final String KEY_ID = "id";
 	private static final String KEY_X_MIN = "x_min";
 	private static final String KEY_Z_MIN = "z_min";
 	private static final String KEY_X_MAX = "x_max";
 	private static final String KEY_Z_MAX = "z_max";
 
-	public Station(String name, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
-		this.name = name;
-		this.corner1 = corner1;
-		this.corner2 = corner2;
-	}
-
 	public Station() {
 		super();
+		id = System.currentTimeMillis();
 	}
 
 	public Station(CompoundTag tag) {
 		super(tag);
+		id = tag.getLong(KEY_ID);
 		corner1 = new Pair<>(tag.getInt(KEY_X_MIN), tag.getInt(KEY_Z_MIN));
 		corner2 = new Pair<>(tag.getInt(KEY_X_MAX), tag.getInt(KEY_Z_MAX));
 	}
 
 	public Station(PacketByteBuf packet) {
 		super(packet);
+		id = packet.readLong();
 		corner1 = new Pair<>(packet.readInt(), packet.readInt());
 		corner2 = new Pair<>(packet.readInt(), packet.readInt());
 	}
@@ -38,6 +37,7 @@ public final class Station extends NamedColoredBase {
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
+		tag.putLong(KEY_ID, id);
 		tag.putInt(KEY_X_MIN, corner1.getLeft());
 		tag.putInt(KEY_Z_MIN, corner1.getRight());
 		tag.putInt(KEY_X_MAX, corner2.getLeft());
@@ -48,6 +48,7 @@ public final class Station extends NamedColoredBase {
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
+		packet.writeLong(id);
 		packet.writeInt(corner1.getLeft());
 		packet.writeInt(corner1.getRight());
 		packet.writeInt(corner2.getLeft());

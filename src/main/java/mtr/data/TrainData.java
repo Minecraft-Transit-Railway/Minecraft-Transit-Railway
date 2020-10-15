@@ -11,13 +11,13 @@ import java.util.Set;
 
 public class TrainData extends PersistentState {
 
-	public static final String NAME = "mtr_train_data";
-	public static final String KEY_STATIONS = "stations";
-	public static final String KEY_STATION = "station_";
-	public static final String KEY_PLATFORMS = "platforms";
-	public static final String KEY_PLATFORM = "platform_";
-	public static final String KEY_ROUTES = "routes";
-	public static final String KEY_ROUTE = "route_";
+	private static final String NAME = "mtr_train_data";
+	private static final String KEY_STATIONS = "stations";
+	private static final String KEY_STATION = "station_";
+	private static final String KEY_PLATFORMS = "platforms";
+	private static final String KEY_PLATFORM = "platform_";
+	private static final String KEY_ROUTES = "routes";
+	private static final String KEY_ROUTE = "route_";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
