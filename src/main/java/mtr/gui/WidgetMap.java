@@ -6,6 +6,7 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
@@ -41,7 +42,6 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	private final int mapHeight, longWidth;
 	private static final int BUTTON_WIDTH = 64;
-	private static final int LINE_HEIGHT = 10;
 	private static final int LEFT_MOUSE_BUTTON = 0;
 	private static final int SCALE_UPPER_LIMIT = 16;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
@@ -257,7 +257,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		if (x1 < width && y1 < mapHeight && x2 >= 0 && y2 >= 0) {
 			ScreenDrawing.coloredRect((int) Math.round(x + x1), (int) Math.round(y + y1), Math.max((int) Math.round(x2 - x1), 1), Math.max((int) Math.round(y2 - y1), 1), color);
 			if (matrices != null && !text.isEmpty()) {
-				ScreenDrawing.drawStringWithShadow(matrices, text, HorizontalAlignment.CENTER, (int) Math.round(x + (x1 + x2) / 2), (int) Math.round(y - TEXT_FIELD_PADDING + (y1 + y2) / 2), 0, ARGB_WHITE);
+				IGui.drawStringWithFont(matrices, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, x + (int) Math.round((x1 + x2) / 2), y + (int) Math.round((y1 + y2) / 2), false);
 			}
 		}
 	}
