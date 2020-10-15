@@ -35,7 +35,7 @@ public class WidgetNameColor<T extends NamedColoredBase> extends WPlainPanel imp
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		ScreenDrawing.coloredRect(x + TEXT_PADDING, y + TEXT_PADDING, SQUARE_SIZE - TEXT_PADDING * 2, SQUARE_SIZE - TEXT_PADDING * 2, ARGB_BLACK + color);
-		ScreenDrawing.drawString(matrices, name, HorizontalAlignment.LEFT, x + SQUARE_SIZE, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
+		ScreenDrawing.drawString(matrices, name.replace('|', ' '), HorizontalAlignment.LEFT, x + SQUARE_SIZE, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
 		if (isWithinBounds(mouseX, mouseY)) {
 			super.paint(matrices, x, y, mouseX, mouseY);
 		}
