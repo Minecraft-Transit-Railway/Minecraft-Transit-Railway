@@ -113,7 +113,12 @@ public class TrainData extends PersistentState {
 
 	private void validateData(WorldAccess world) {
 		platforms.removeIf(platform -> !platform.hasRail(world));
+		routes.forEach(route -> route.stationIds.removeIf(stationId -> stations.stream().noneMatch(station -> station.id == stationId)));
 		markDirty();
+	}
+
+	public static boolean isBetween(int value, int value1, int value2) {
+		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);
 	}
 
 	public static TrainData getInstance(World world) {

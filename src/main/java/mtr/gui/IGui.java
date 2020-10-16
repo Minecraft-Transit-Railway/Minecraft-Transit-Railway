@@ -25,6 +25,10 @@ public interface IGui {
 	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
 
+	static String formatStationName(String name) {
+		return name.replace('|', ' ');
+	}
+
 	static void drawStringWithFont(MatrixStack matrices, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, int x, int y, boolean verticalChinese) {
 		if (verticalChinese) {
 			StringBuilder textBuilder = new StringBuilder();
@@ -44,7 +48,7 @@ public interface IGui {
 			text = text.replace("||", "|");
 		}
 		final String[] textSplit = text.split("\\|");
-		
+
 		final int[] lineHeights = new int[textSplit.length];
 		for (int i = 0; i < textSplit.length; i++) {
 			final boolean hasChinese = textSplit[i].codePoints().anyMatch(codePoint -> Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN);
