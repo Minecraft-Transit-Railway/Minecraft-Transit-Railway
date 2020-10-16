@@ -55,10 +55,11 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 			station.color = color;
 			stations.add(station);
 			sendStationData(stationNames, map, stations, platforms, routes);
-		}, (route, name, color) -> {
+		}, (route, name, color, moreStations) -> {
 			routes.remove(route);
 			route.name = name;
 			route.color = color;
+			moreStations.forEach(station -> route.stationIds.add(station.id));
 			routes.add(route);
 			sendRouteData(routeNames, map, stations, platforms, routes);
 		});
@@ -99,10 +100,7 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 	}
 
 	private void refreshRoutes(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		routeNames.refreshList(routes, map::find, map::startEditingRoute, (route) -> {
-			routes.remove(route);
-			sendRouteData(routeNames, map, stations, platforms, routes);
-		});
+		routeNames.refreshList(routes, stations, map::startEditingRoute, routes::remove, () -> sendRouteData(routeNames, map, stations, platforms, routes));
 	}
 
 	private void sendRouteData(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {

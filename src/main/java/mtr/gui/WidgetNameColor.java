@@ -8,25 +8,28 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.icon.Icon;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
-import mtr.data.NamedColoredBase;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-public class WidgetNameColor<T extends NamedColoredBase> extends WPlainPanel implements IGui {
+public class WidgetNameColor extends WPlainPanel implements IGui {
 
 	private final String name;
 	private final int color;
-	private final WidgetScrollableButton buttonFind, buttonEdit, buttonDelete;
+	private final WidgetScrollableButton button1, button2, buttonDelete;
 
-	public WidgetNameColor(int width, T t) {
-		name = t.name;
-		color = t.color;
+	public WidgetNameColor(int width, String name, int color, String button1Path, String button2Path) {
+		this.name = name;
+		this.color = color;
 
-		buttonFind = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_find.png")));
-		add(buttonFind, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);
+		button1 = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/" + button1Path + ".png")));
+		if (button1Path != null) {
+			add(button1, width - SQUARE_SIZE * 3, 0, SQUARE_SIZE, SQUARE_SIZE);
+		}
 
-		buttonEdit = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_edit.png")));
-		add(buttonEdit, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
+		button2 = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/" + button2Path + ".png")));
+		if (button2Path != null) {
+			add(button2, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
+		}
 
 		buttonDelete = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
 		add(buttonDelete, width - SQUARE_SIZE, 0, SQUARE_SIZE, SQUARE_SIZE);
@@ -34,8 +37,10 @@ public class WidgetNameColor<T extends NamedColoredBase> extends WPlainPanel imp
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-		ScreenDrawing.coloredRect(x + TEXT_PADDING, y + TEXT_PADDING, SQUARE_SIZE - TEXT_PADDING * 2, SQUARE_SIZE - TEXT_PADDING * 2, ARGB_BLACK + color);
-		ScreenDrawing.drawString(matrices, name.replace('|', ' '), HorizontalAlignment.LEFT, x + SQUARE_SIZE, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
+		if (color >= 0) {
+			ScreenDrawing.coloredRect(x + TEXT_PADDING, y + TEXT_PADDING, SQUARE_SIZE - TEXT_PADDING * 2, SQUARE_SIZE - TEXT_PADDING * 2, ARGB_BLACK + color);
+		}
+		ScreenDrawing.drawString(matrices, IGui.formatStationName(name), HorizontalAlignment.LEFT, x + SQUARE_SIZE, y + TEXT_PADDING, 0, WLabel.DEFAULT_TEXT_COLOR);
 		if (isWithinBounds(mouseX, mouseY)) {
 			super.paint(matrices, x, y, mouseX, mouseY);
 		}
@@ -48,9 +53,17 @@ public class WidgetNameColor<T extends NamedColoredBase> extends WPlainPanel imp
 		}
 	}
 
-	public void setOnClick(Runnable onFind, Runnable onEdit, Runnable onDelete) {
-		buttonFind.setOnClick(onFind);
-		buttonEdit.setOnClick(onEdit);
+	public void setOnClick(Runnable onButton1, Runnable onButton2, Runnable onDelete) {
+		if (onButton1 == null) {
+			button1.setEnabled(false);
+		} else {
+			button1.setOnClick(onButton1);
+		}
+		if (onButton2 == null) {
+			button2.setEnabled(false);
+		} else {
+			button2.setOnClick(onButton2);
+		}
 		buttonDelete.setOnClick(onDelete);
 	}
 

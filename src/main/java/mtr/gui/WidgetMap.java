@@ -18,6 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -31,6 +33,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private Station editingStation;
 	private Route editingRoute;
 	private Pair<Integer, Integer> drawStation1, drawStation2;
+	private List<Station> moreStations;
 
 	private final WButton buttonAddStation;
 	private final WButton buttonAddRoute;
@@ -99,8 +102,15 @@ public class WidgetMap extends WPlainPanel implements IGui {
 				drawRectangle(worldPosToCoords(drawStation1), worldPosToCoords(drawStation2), ARGB_WHITE_TRANSLUCENT);
 			}
 
-			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.draw_station_1").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING, 0, ARGB_WHITE);
-			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.draw_station_2").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING + LINE_HEIGHT, 0, ARGB_WHITE);
+			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.edit_station_1").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING, 0, ARGB_WHITE);
+			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.edit_station_2").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING + LINE_HEIGHT, 0, ARGB_WHITE);
+		}
+
+		if (editingRoute != null) {
+			ScreenDrawing.drawStringWithShadow(matrices, new TranslatableText("gui.mtr.edit_route").asOrderedText(), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING, 0, ARGB_WHITE);
+			for (int i = 0; i < moreStations.size(); i++) {
+				ScreenDrawing.drawStringWithShadow(matrices, IGui.formatStationName(moreStations.get(i).name), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING * 2 + LINE_HEIGHT * (i + 1), 0, ARGB_WHITE);
+			}
 		}
 
 		Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX, mouseY);
@@ -131,6 +141,9 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		if (editingStation != null && button == LEFT_MOUSE_BUTTON) {
 			drawStation1 = coordsToWorldPos(x, y);
 			drawStation2 = new Pair<>(drawStation1.getLeft() + 1, drawStation1.getRight() + 1);
+		} else if (editingRoute != null) {
+			Pair<Integer, Integer> worldPos = coordsToWorldPos(x, y);
+			stations.stream().filter(station -> station.inStation(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(station -> moreStations.add(station));
 		}
 		return super.onMouseDown(x, y, button);
 	}
@@ -173,7 +186,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 				color = Integer.parseInt(textFieldColor.getText(), 16);
 			} catch (Exception ignored) {
 			}
-			onDoneEditingRoute.onDoneEditingRoute(editingRoute, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, color);
+			onDoneEditingRoute.onDoneEditingRoute(editingRoute, name.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : name, color, moreStations);
 			stopEditing();
 		});
 	}
@@ -181,9 +194,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	public void find(Station station) {
 		centerX = (station.corner1.getLeft() + station.corner2.getLeft()) / 2D;
 		centerY = (station.corner1.getRight() + station.corner2.getRight()) / 2D;
-	}
-
-	public void find(Route route) {
+		scale = Math.max(2, scale);
 	}
 
 	public void startEditingStation(Station editingStation) {
@@ -203,6 +214,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	public void startEditingRoute(Route editingRoute) {
 		editingStation = null;
 		this.editingRoute = editingRoute;
+		moreStations = new ArrayList<>();
 		buttonDoneEditingStation.setEnabled(true);
 		textFieldName.setText(editingRoute.name);
 		textFieldColor.setText(parseColor(editingRoute.color));
@@ -216,6 +228,7 @@ public class WidgetMap extends WPlainPanel implements IGui {
 		editingStation = null;
 		editingRoute = null;
 		drawStation1 = drawStation2 = null;
+		moreStations = new ArrayList<>();
 
 		children.clear();
 		final int buttonWidth = (longWidth + BUTTON_WIDTH) / 2;
@@ -294,6 +307,6 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@FunctionalInterface
 	public interface OnDoneEditingRoute {
-		void onDoneEditingRoute(Route route, String name, int color);
+		void onDoneEditingRoute(Route route, String name, int color, List<Station> moreStations);
 	}
 }
