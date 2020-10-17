@@ -6,10 +6,7 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WTabPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
-import mtr.data.PacketTrainDataGui;
-import mtr.data.Platform;
-import mtr.data.Route;
-import mtr.data.Station;
+import mtr.data.*;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
@@ -25,7 +22,7 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 	private static final int TAB_HEIGHT = 30;
 	private static final int LEFT_PANEL_WIDTH = 160;
 
-	public GuiDashboard(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	public GuiDashboard(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		final Window window = minecraftClient.getWindow();
 		final int windowWidth = window.getScaledWidth();
@@ -54,14 +51,14 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 			station.corner2 = corner2;
 			station.color = color;
 			stations.add(station);
-			sendStationData(stationNames, map, stations, platforms, routes);
+			sendStationData(stationNames, map, stations, platforms, routes, trains);
 		}, (route, name, color, moreStations) -> {
 			routes.remove(route);
 			route.name = name;
 			route.color = color;
 			moreStations.forEach(station -> route.stationIds.add(station.id));
 			routes.add(route);
-			sendRouteData(routeNames, map, stations, platforms, routes);
+			sendRouteData(routeNames, map, stations, platforms, routes, trains);
 		});
 		root.add(map, LEFT_PANEL_WIDTH, 0, windowWidth - LEFT_PANEL_WIDTH, windowHeight);
 
@@ -69,13 +66,13 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		scrollPanelStations.setScrollingHorizontally(TriState.FALSE);
 		scrollPanelStations.setScrollingVertically(TriState.TRUE);
 		scrollPanelStations.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
-		refreshStations(stationNames, map, stations, platforms, routes);
+		refreshStations(stationNames, map, stations, platforms, routes, trains);
 
 		WidgetBetterScrollPanel scrollPanelRoutes = new WidgetBetterScrollPanel(routeNames);
 		scrollPanelRoutes.setScrollingHorizontally(TriState.FALSE);
 		scrollPanelRoutes.setScrollingVertically(TriState.TRUE);
 		scrollPanelRoutes.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
-		refreshRoutes(routeNames, map, stations, platforms, routes);
+		refreshRoutes(routeNames, map, stations, platforms, routes, trains);
 
 		WTabPanel tabPanel = new WTabPanel();
 		tabPanel.setBackgroundPainter((left, top, panel) -> ScreenDrawing.coloredRect(left, top, panel.getWidth() + PANEL_BACKGROUND_PADDING, panel.getHeight(), ARGB_BLACK));
@@ -86,26 +83,26 @@ public class GuiDashboard extends LightweightGuiDescription implements IGui {
 		root.validate(this);
 	}
 
-	private void refreshStations(WidgetNameColors<Station> stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	private void refreshStations(WidgetNameColors<Station> stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		stationNames.refreshList(stations, map::find, map::startEditingStation, (station) -> {
 			stations.remove(station);
-			sendStationData(stationNames, map, stations, platforms, routes);
+			sendStationData(stationNames, map, stations, platforms, routes, trains);
 		});
 	}
 
-	private void sendStationData(WidgetNameColors<Station> stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		PacketTrainDataGui.sendC2S(stations, platforms, routes);
-		refreshStations(stationNames, map, stations, platforms, routes);
+	private void sendStationData(WidgetNameColors<Station> stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+		PacketTrainDataGui.sendC2S(stations, platforms, routes, trains);
+		refreshStations(stationNames, map, stations, platforms, routes, trains);
 		stationNames.validate(stationNames.getHost());
 	}
 
-	private void refreshRoutes(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		routeNames.refreshList(routes, stations, map::startEditingRoute, routes::remove, () -> sendRouteData(routeNames, map, stations, platforms, routes));
+	private void refreshRoutes(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+		routeNames.refreshList(routes, stations, map::startEditingRoute, routes::remove, () -> sendRouteData(routeNames, map, stations, platforms, routes, trains));
 	}
 
-	private void sendRouteData(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		PacketTrainDataGui.sendC2S(stations, platforms, routes);
-		refreshRoutes(routeNames, map, stations, platforms, routes);
+	private void sendRouteData(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+		PacketTrainDataGui.sendC2S(stations, platforms, routes, trains);
+		refreshRoutes(routeNames, map, stations, platforms, routes, trains);
 		routeNames.validate(routeNames.getHost());
 	}
 

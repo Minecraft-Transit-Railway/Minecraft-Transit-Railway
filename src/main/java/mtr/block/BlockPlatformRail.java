@@ -1,7 +1,7 @@
 package mtr.block;
 
 import mtr.data.Platform;
-import mtr.data.TrainData;
+import mtr.data.RailwayData;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -36,9 +36,9 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
 		super.onBlockAdded(state, world, pos, oldState, notify);
 		if (!world.isClient()) {
-			TrainData trainData = TrainData.getInstance(world);
-			if (trainData != null) {
-				trainData.addPlatform(scanPlatform(world, pos, state));
+			RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.addPlatform(scanPlatform(world, pos, state));
 			}
 		}
 	}

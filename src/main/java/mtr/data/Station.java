@@ -56,7 +56,7 @@ public final class Station extends NamedColoredBase {
 	}
 
 	public boolean inStation(int x, int z) {
-		return TrainData.isBetween(x, corner1.getLeft(), corner2.getLeft()) && TrainData.isBetween(z, corner1.getRight(), corner2.getRight());
+		return RailwayData.isBetween(x, corner1.getLeft(), corner2.getLeft()) && RailwayData.isBetween(z, corner1.getRight(), corner2.getRight());
 	}
 
 	@Override

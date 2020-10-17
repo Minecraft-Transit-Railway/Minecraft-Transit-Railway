@@ -12,8 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,29 +20,29 @@ public final class PacketTrainDataGui {
 
 	public static final Identifier ID = new Identifier(MTR.MOD_ID, "train_data_gui");
 
-	public static void sendS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID, send(stations, platforms, routes));
+	public static void sendS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID, send(stations, platforms, routes, trains));
 	}
 
 	public static void receiveS2C(PacketContext packetContext, PacketByteBuf packet) {
-		Triple<Set<Station>, Set<Platform>, Set<Route>> data = receive(packet);
-		MinecraftClient.getInstance().openScreen(new CottonClientScreen(new GuiDashboard(data.getLeft(), data.getMiddle(), data.getRight())));
+		Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> data = receive(packet);
+		MinecraftClient.getInstance().openScreen(new CottonClientScreen(new GuiDashboard(data.t1, data.t2, data.t3, data.t4)));
 	}
 
-	public static void sendC2S(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID, send(stations, platforms, routes));
+	public static void sendC2S(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+		ClientSidePacketRegistry.INSTANCE.sendToServer(ID, send(stations, platforms, routes, trains));
 	}
 
 	public static void receiveC2S(PacketContext packetContext, PacketByteBuf packet) {
 		World world = packetContext.getPlayer().world;
-		TrainData trainData = TrainData.getInstance(world);
-		if (trainData != null) {
-			Triple<Set<Station>, Set<Platform>, Set<Route>> data = receive(packet);
-			trainData.setData(world, data.getLeft(), data.getMiddle(), data.getRight());
+		RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> data = receive(packet);
+			railwayData.setData(world, data.t1, data.t2, data.t3, data.t4);
 		}
 	}
 
-	private static PacketByteBuf send(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	private static PacketByteBuf send(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
 		packet.writeInt(stations.size());
 		for (Station station : stations) {
@@ -58,10 +56,14 @@ public final class PacketTrainDataGui {
 		for (Route route : routes) {
 			route.writePacket(packet);
 		}
+		packet.writeInt(trains.size());
+		for (Train train : trains) {
+			train.writePacket(packet);
+		}
 		return packet;
 	}
 
-	private static Triple<Set<Station>, Set<Platform>, Set<Route>> receive(PacketByteBuf packet) {
+	private static Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> receive(PacketByteBuf packet) {
 		final Set<Station> stations = new HashSet<>();
 		final int stationCount = packet.readInt();
 		for (int i = 0; i < stationCount; i++) {
@@ -77,6 +79,26 @@ public final class PacketTrainDataGui {
 		for (int i = 0; i < routeCount; i++) {
 			routes.add(new Route(packet));
 		}
-		return new ImmutableTriple<>(stations, platforms, routes);
+		final Set<Train> trains = new HashSet<>();
+		final int trainCount = packet.readInt();
+		for (int i = 0; i < trainCount; i++) {
+			trains.add(new Train(packet));
+		}
+		return new Quadruple<>(stations, platforms, routes, trains);
+	}
+
+	private static class Quadruple<T1, T2, T3, T4> {
+
+		public final T1 t1;
+		public final T2 t2;
+		public final T3 t3;
+		public final T4 t4;
+
+		private Quadruple(T1 t1, T2 t2, T3 t3, T4 t4) {
+			this.t1 = t1;
+			this.t2 = t2;
+			this.t3 = t3;
+			this.t4 = t4;
+		}
 	}
 }

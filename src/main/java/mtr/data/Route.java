@@ -11,7 +11,6 @@ public final class Route extends NamedColoredBase {
 	public final List<Long> stationIds;
 
 	private static final String KEY_STATION_IDS = "station_ids";
-	private static final String KEY_STATION_ID = "station_id_";
 
 	public Route() {
 		super();
@@ -21,9 +20,9 @@ public final class Route extends NamedColoredBase {
 	public Route(CompoundTag tag) {
 		super(tag);
 		stationIds = new ArrayList<>();
-		final CompoundTag tagStations = tag.getCompound(KEY_STATION_IDS);
-		for (String key : tagStations.getKeys()) {
-			stationIds.add(tagStations.getLong(key));
+		long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
+		for (long stationId : stationIdsArray) {
+			stationIds.add(stationId);
 		}
 	}
 
@@ -38,14 +37,8 @@ public final class Route extends NamedColoredBase {
 
 	@Override
 	public CompoundTag toCompoundTag() {
-		final CompoundTag tagStationIds = new CompoundTag();
-		int i = 0;
-		for (Long stationId : stationIds) {
-			tagStationIds.putLong(KEY_STATION_ID + i, stationId);
-			i++;
-		}
 		final CompoundTag tag = super.toCompoundTag();
-		tag.put(KEY_STATION_IDS, tagStationIds);
+		tag.putLongArray(KEY_STATION_IDS, stationIds);
 		return tag;
 	}
 

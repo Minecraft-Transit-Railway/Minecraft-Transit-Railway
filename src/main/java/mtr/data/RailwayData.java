@@ -9,7 +9,7 @@ import net.minecraft.world.WorldAccess;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TrainData extends PersistentState {
+public class RailwayData extends PersistentState {
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -18,16 +18,20 @@ public class TrainData extends PersistentState {
 	private static final String KEY_PLATFORM = "platform_";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_ROUTE = "route_";
+	private static final String KEY_TRAINS = "trains";
+	private static final String KEY_TRAIN = "train_";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
+	private final Set<Train> trains;
 
-	public TrainData() {
+	public RailwayData() {
 		super(NAME);
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
+		trains = new HashSet<>();
 	}
 
 	@Override
@@ -45,6 +49,11 @@ public class TrainData extends PersistentState {
 		final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
 		for (String key : tagNewRoutes.getKeys()) {
 			routes.add(new Route(tagNewRoutes.getCompound(key)));
+		}
+
+		final CompoundTag tagNewTrains = tag.getCompound(KEY_TRAINS);
+		for (String key : tagNewTrains.getKeys()) {
+			trains.add(new Train(tagNewTrains.getCompound(key)));
 		}
 	}
 
@@ -74,6 +83,14 @@ public class TrainData extends PersistentState {
 		}
 		tag.put(KEY_ROUTES, tagNewRoutes);
 
+		final CompoundTag tagNewTrains = new CompoundTag();
+		int l = 0;
+		for (Train train : trains) {
+			tagNewTrains.put(KEY_TRAIN + l, train.toCompoundTag());
+			l++;
+		}
+		tag.put(KEY_TRAINS, tagNewTrains);
+
 		return tag;
 	}
 
@@ -101,13 +118,19 @@ public class TrainData extends PersistentState {
 		return routes;
 	}
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	public Set<Train> getTrains() {
+		return trains;
+	}
+
+	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		this.stations.clear();
 		this.stations.addAll(stations);
 		this.platforms.clear();
 		this.platforms.addAll(platforms);
 		this.routes.clear();
 		this.routes.addAll(routes);
+		this.trains.clear();
+		this.trains.addAll(trains);
 		validateData(world);
 	}
 
@@ -121,12 +144,12 @@ public class TrainData extends PersistentState {
 		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);
 	}
 
-	public static TrainData getInstance(World world) {
+	public static RailwayData getInstance(World world) {
 		MinecraftServer minecraftServer = world.getServer();
 		if (minecraftServer == null) {
 			return null;
 		} else {
-			return minecraftServer.getOverworld().getPersistentStateManager().getOrCreate(TrainData::new, NAME);
+			return minecraftServer.getOverworld().getPersistentStateManager().getOrCreate(RailwayData::new, NAME);
 		}
 	}
 }

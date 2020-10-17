@@ -91,9 +91,9 @@ public final class Platform {
 			BlockPos pos4 = platform.getPos2();
 
 			if (axis == Direction.Axis.X) {
-				return pos3.getZ() == pos.getZ() && (TrainData.isBetween(pos3.getX(), pos.getX(), pos2.getX()) || TrainData.isBetween(pos.getX(), pos3.getX(), pos4.getX()));
+				return pos3.getZ() == pos.getZ() && (RailwayData.isBetween(pos3.getX(), pos.getX(), pos2.getX()) || RailwayData.isBetween(pos.getX(), pos3.getX(), pos4.getX()));
 			} else {
-				return pos3.getX() == pos.getX() && (TrainData.isBetween(pos3.getZ(), pos.getZ(), pos2.getZ()) || TrainData.isBetween(pos.getZ(), pos3.getZ(), pos4.getZ()));
+				return pos3.getX() == pos.getX() && (RailwayData.isBetween(pos3.getZ(), pos.getZ(), pos2.getZ()) || RailwayData.isBetween(pos.getZ(), pos3.getZ(), pos4.getZ()));
 			}
 		}
 	}
