@@ -1,9 +1,8 @@
 package mtr.data;
 
-import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
-import mtr.gui.GuiDashboard;
+import mtr.gui.DashboardScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
@@ -26,7 +25,7 @@ public final class PacketTrainDataGui {
 
 	public static void receiveS2C(PacketContext packetContext, PacketByteBuf packet) {
 		Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> data = receive(packet);
-		MinecraftClient.getInstance().openScreen(new CottonClientScreen(new GuiDashboard(data.t1, data.t2, data.t3, data.t4)));
+		MinecraftClient.getInstance().openScreen(new DashboardScreen(data.t1, data.t2, data.t3, data.t4));
 	}
 
 	public static void sendC2S(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
