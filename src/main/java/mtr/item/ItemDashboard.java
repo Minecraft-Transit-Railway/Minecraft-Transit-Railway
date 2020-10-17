@@ -1,7 +1,7 @@
 package mtr.item;
 
 import mtr.data.PacketTrainDataGui;
-import mtr.data.TrainData;
+import mtr.data.RailwayData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,9 +18,9 @@ public class ItemDashboard extends Item {
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		if (!world.isClient()) {
-			TrainData trainData = TrainData.getInstance(world);
-			if (trainData != null) {
-				PacketTrainDataGui.sendS2C(user, trainData.getStations(), trainData.getPlatforms(world), trainData.getRoutes());
+			RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				PacketTrainDataGui.sendS2C(user, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), railwayData.getTrains());
 			}
 		}
 		return super.use(world, user, hand);
