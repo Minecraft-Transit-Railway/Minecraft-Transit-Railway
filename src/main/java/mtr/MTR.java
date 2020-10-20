@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.data.PacketTrainDataGui;
+import mtr.data.RailwayData;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityPSDDoor;
 import net.fabricmc.api.ClientModInitializer;
@@ -58,8 +59,13 @@ public class MTR implements ModInitializer, ClientModInitializer {
 
 		ServerSidePacketRegistry.INSTANCE.register(PacketTrainDataGui.ID, PacketTrainDataGui::receiveC2S);
 
-		ServerTickEvents.END_SERVER_TICK.register((event) -> {
-			// TODO
+		ServerTickEvents.START_SERVER_TICK.register((event) -> {
+			event.getWorlds().forEach(world -> {
+				RailwayData railwayData = RailwayData.getInstance(world);
+				if (railwayData != null) {
+					railwayData.simulateTrains(world);
+				}
+			});
 		});
 	}
 

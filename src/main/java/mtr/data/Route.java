@@ -20,8 +20,8 @@ public final class Route extends NamedColoredBase {
 	public Route(CompoundTag tag) {
 		super(tag);
 		stationIds = new ArrayList<>();
-		long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
-		for (long stationId : stationIdsArray) {
+		final long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
+		for (final long stationId : stationIdsArray) {
 			stationIds.add(stationId);
 		}
 	}
@@ -46,7 +46,7 @@ public final class Route extends NamedColoredBase {
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeInt(stationIds.size());
-		for (long stationId : stationIds) {
+		for (final long stationId : stationIds) {
 			packet.writeLong(stationId);
 		}
 	}
