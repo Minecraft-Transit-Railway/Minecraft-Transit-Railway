@@ -27,8 +27,7 @@ public final class Platform {
 	}
 
 	public Platform(CompoundTag tag) {
-		final int[] posArray = tag.getIntArray(KEY_POS);
-		pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
+		pos = BlockPos.fromLong(tag.getLong(KEY_POS));
 		axis = tag.getBoolean(KEY_AXIS) ? Direction.Axis.X : Direction.Axis.Z;
 		length = tag.getInt(KEY_LENGTH);
 	}
@@ -41,7 +40,7 @@ public final class Platform {
 
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
-		tag.putIntArray(KEY_POS, new int[]{pos.getX(), pos.getY(), pos.getZ()});
+		tag.putLong(KEY_POS, pos.asLong());
 		tag.putBoolean(KEY_AXIS, axis == Direction.Axis.X);
 		tag.putInt(KEY_LENGTH, length);
 		return tag;
@@ -82,13 +81,13 @@ public final class Platform {
 	}
 
 	public boolean overlaps(Platform platform) {
-		BlockPos pos3 = platform.pos;
+		final BlockPos pos3 = platform.pos;
 
 		if (platform.axis != axis || pos3.getY() != pos.getY()) {
 			return false;
 		} else {
-			BlockPos pos2 = getPos2();
-			BlockPos pos4 = platform.getPos2();
+			final BlockPos pos2 = getPos2();
+			final BlockPos pos4 = platform.getPos2();
 
 			if (axis == Direction.Axis.X) {
 				return pos3.getZ() == pos.getZ() && (RailwayData.isBetween(pos3.getX(), pos.getX(), pos2.getX()) || RailwayData.isBetween(pos.getX(), pos3.getX(), pos4.getX()));
@@ -109,7 +108,7 @@ public final class Platform {
 			checkShape = RailShape.NORTH_SOUTH;
 		}
 		for (int i = 0; i <= length; i++) {
-			BlockState state = world.getBlockState(pos.offset(direction, i));
+			final BlockState state = world.getBlockState(pos.offset(direction, i));
 			if (!(state.getBlock() instanceof BlockPlatformRail) || state.get(BlockPlatformRail.SHAPE) != checkShape) {
 				return false;
 			}

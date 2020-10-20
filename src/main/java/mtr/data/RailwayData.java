@@ -1,7 +1,9 @@
 package mtr.data;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -118,8 +120,47 @@ public class RailwayData extends PersistentState {
 		return routes;
 	}
 
+	public void addTrain(Train train) {
+		trains.add(train);
+		markDirty();
+	}
+
 	public Set<Train> getTrains() {
 		return trains;
+	}
+
+	public void removeTrains() {
+		trains.clear();
+	}
+
+	public void simulateTrains(WorldAccess world) {
+		trains.forEach(train -> {
+			if (train.path.isEmpty()) {
+				train.speed = 0;
+
+				if (train.stationIds.isEmpty()) {
+					// TODO train is dead
+				} else {
+					RailPathFinder railPathFinder = new RailPathFinder(world, new BlockPos(train.posX, train.posY, train.posZ), getStationById(train.stationIds.get(0)));
+					train.path.clear();
+					train.path.addAll(railPathFinder.findPath());
+					train.stationIds.remove(0);
+				}
+			} else {
+				if (train.speed < train.trainType.getMaxSpeed()) {
+					train.speed += train.trainType.getAcceleration();
+				}
+
+				final BlockPos newPos = train.path.remove(0);
+				final Vec3d movement = new Vec3d(newPos.getX() + 0.5 - train.posX, newPos.getY() + 0.5 - train.posY, newPos.getZ() + 0.5 - train.posZ).normalize().multiply(train.speed);
+				train.posX += movement.x;
+				train.posY += movement.y;
+				train.posZ += movement.z;
+
+				// TODO fix train movement logic
+			}
+		});
+		markDirty();
 	}
 
 	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
@@ -134,9 +175,14 @@ public class RailwayData extends PersistentState {
 		validateData(world);
 	}
 
+	private Station getStationById(long id) {
+		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
+	}
+
 	private void validateData(WorldAccess world) {
 		platforms.removeIf(platform -> !platform.hasRail(world));
-		routes.forEach(route -> route.stationIds.removeIf(stationId -> stations.stream().noneMatch(station -> station.id == stationId)));
+		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stationId) == null));
+		trains.removeIf(train -> train.stationIds.isEmpty());
 		markDirty();
 	}
 
@@ -145,11 +191,10 @@ public class RailwayData extends PersistentState {
 	}
 
 	public static RailwayData getInstance(World world) {
-		MinecraftServer minecraftServer = world.getServer();
-		if (minecraftServer == null) {
-			return null;
+		if (world instanceof ServerWorld) {
+			return ((ServerWorld) world).getPersistentStateManager().getOrCreate(RailwayData::new, NAME);
 		} else {
-			return minecraftServer.getOverworld().getPersistentStateManager().getOrCreate(RailwayData::new, NAME);
+			return null;
 		}
 	}
 }
