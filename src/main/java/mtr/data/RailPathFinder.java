@@ -21,6 +21,8 @@ public class RailPathFinder {
 	private final BlockPos destinationPos;
 	private final Set<BlockPos> blacklist;
 
+	private static final int SMOOTHING_RADIUS = 2;
+
 	public RailPathFinder(WorldAccess world, BlockPos start, Station destinationStation) {
 		this.world = world;
 		path = new ArrayList<>();
@@ -30,7 +32,7 @@ public class RailPathFinder {
 		blacklist = new HashSet<>();
 	}
 
-	public List<BlockPos> findPath() {
+	public List<Pos3f> findPath() {
 		boolean enteredPlatform = false;
 		while (!path.isEmpty()) {
 			final BlockPos lastPos = path.get(path.size() - 1);
@@ -39,7 +41,24 @@ public class RailPathFinder {
 
 			if (enteredPlatform && !inStationPlatform) {
 				removeLastItem();
-				return path;
+
+				List<Pos3f> smoothedPath = new ArrayList<>();
+				final int pathLength = path.size();
+
+				for (int i = 0; i < pathLength; i++) {
+					if (i >= SMOOTHING_RADIUS && i < pathLength - SMOOTHING_RADIUS) {
+						final Pos3f positionFloat = new Pos3f(0, 0, 0);
+						for (int j = i - SMOOTHING_RADIUS; j <= i + SMOOTHING_RADIUS; j++) {
+							positionFloat.add(new Pos3f(path.get(j)));
+						}
+
+						positionFloat.scale(1F / (SMOOTHING_RADIUS * 2 + 1));
+						smoothedPath.add(positionFloat);
+					} else {
+						smoothedPath.add(new Pos3f(path.get(i)));
+					}
+				}
+				return smoothedPath;
 			} else {
 				if (inStationPlatform) {
 					enteredPlatform = true;
@@ -117,7 +136,7 @@ public class RailPathFinder {
 	}
 
 	private double distanceToDestination(BlockPos pos) {
-		return MathHelper.fastInverseSqrt(MathHelper.square(pos.getX() - destinationPos.getX()) + MathHelper.square(pos.getY() - destinationPos.getY()) + MathHelper.square(pos.getZ() - destinationPos.getZ()));
+		return MathHelper.fastInverseSqrt((double) (MathHelper.square(pos.getX() - destinationPos.getX()) + MathHelper.square(pos.getY() - destinationPos.getY()) + MathHelper.square(pos.getZ() - destinationPos.getZ())));
 	}
 
 	private void removeLastItem() {

@@ -11,6 +11,8 @@ public abstract class NamedColoredBase implements Comparable<NamedColoredBase> {
 	private static final String KEY_NAME = "name";
 	private static final String KEY_COLOR = "color";
 
+	private static final int PACKET_STRING_READ_LENGTH = 32767;
+
 	public NamedColoredBase() {
 		name = "";
 	}
@@ -21,7 +23,7 @@ public abstract class NamedColoredBase implements Comparable<NamedColoredBase> {
 	}
 
 	public NamedColoredBase(PacketByteBuf packet) {
-		name = packet.readString();
+		name = packet.readString(PACKET_STRING_READ_LENGTH);
 		color = packet.readInt();
 	}
 

@@ -1,6 +1,7 @@
 package mtr;
 
-import mtr.data.PacketTrainDataGui;
+import mtr.data.PacketTrainDataGuiClient;
+import mtr.data.PacketTrainDataGuiServer;
 import mtr.data.RailwayData;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityPSDDoor;
@@ -57,7 +58,7 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		TileEntities.APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
 		TileEntities.PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
 
-		ServerSidePacketRegistry.INSTANCE.register(PacketTrainDataGui.ID, PacketTrainDataGui::receiveC2S);
+		ServerSidePacketRegistry.INSTANCE.register(PacketTrainDataGuiServer.ID, PacketTrainDataGuiServer::receiveC2S);
 
 		ServerTickEvents.START_SERVER_TICK.register((event) -> {
 			event.getWorlds().forEach(world -> {
@@ -81,7 +82,7 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
 
-		ClientSidePacketRegistry.INSTANCE.register(PacketTrainDataGui.ID, PacketTrainDataGui::receiveS2C);
+		ClientSidePacketRegistry.INSTANCE.register(PacketTrainDataGuiClient.ID, PacketTrainDataGuiClient::receiveS2C);
 	}
 
 	private static void registerItem(String path, Item item) {
