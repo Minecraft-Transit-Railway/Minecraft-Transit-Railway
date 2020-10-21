@@ -103,7 +103,7 @@ public class DashboardScreen extends CottonClientScreen {
 		}
 
 		private void sendStationData(WidgetNameColors<Station> stationNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
-			PacketTrainDataGui.sendC2S(stations, platforms, routes, trains);
+			PacketTrainDataGuiClient.sendC2S(stations, platforms, routes, trains);
 			refreshStations(stationNames, map, stations, platforms, routes, trains);
 			stationNames.validate(stationNames.getHost());
 		}
@@ -113,7 +113,7 @@ public class DashboardScreen extends CottonClientScreen {
 		}
 
 		private void sendRouteData(WidgetNameColors<Route> routeNames, WidgetMap map, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
-			PacketTrainDataGui.sendC2S(stations, platforms, routes, trains);
+			PacketTrainDataGuiClient.sendC2S(stations, platforms, routes, trains);
 			refreshRoutes(routeNames, map, stations, platforms, routes, trains);
 			routeNames.validate(routeNames.getHost());
 		}

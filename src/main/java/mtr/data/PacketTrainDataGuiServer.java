@@ -2,11 +2,8 @@ package mtr.data;
 
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
-import mtr.gui.DashboardScreen;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -15,21 +12,12 @@ import net.minecraft.world.World;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class PacketTrainDataGui {
+public class PacketTrainDataGuiServer {
 
 	public static final Identifier ID = new Identifier(MTR.MOD_ID, "train_data_gui");
 
 	public static void sendS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID, send(stations, platforms, routes, trains));
-	}
-
-	public static void receiveS2C(PacketContext packetContext, PacketByteBuf packet) {
-		Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> data = receive(packet);
-		MinecraftClient.getInstance().openScreen(new DashboardScreen(data.t1, data.t2, data.t3, data.t4));
-	}
-
-	public static void sendC2S(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID, send(stations, platforms, routes, trains));
 	}
 
 	public static void receiveC2S(PacketContext packetContext, PacketByteBuf packet) {
@@ -41,7 +29,7 @@ public final class PacketTrainDataGui {
 		}
 	}
 
-	private static PacketByteBuf send(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+	protected static PacketByteBuf send(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
 		packet.writeInt(stations.size());
 		for (Station station : stations) {
@@ -62,7 +50,7 @@ public final class PacketTrainDataGui {
 		return packet;
 	}
 
-	private static Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> receive(PacketByteBuf packet) {
+	protected static Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> receive(PacketByteBuf packet) {
 		final Set<Station> stations = new HashSet<>();
 		final int stationCount = packet.readInt();
 		for (int i = 0; i < stationCount; i++) {
@@ -86,7 +74,7 @@ public final class PacketTrainDataGui {
 		return new Quadruple<>(stations, platforms, routes, trains);
 	}
 
-	private static class Quadruple<T1, T2, T3, T4> {
+	protected static class Quadruple<T1, T2, T3, T4> {
 
 		public final T1 t1;
 		public final T2 t2;

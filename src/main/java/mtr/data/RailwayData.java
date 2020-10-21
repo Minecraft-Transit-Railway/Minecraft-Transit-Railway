@@ -3,7 +3,7 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -151,13 +151,18 @@ public class RailwayData extends PersistentState {
 					train.speed += train.trainType.getAcceleration();
 				}
 
-				final BlockPos newPos = train.path.remove(0);
-				final Vec3d movement = new Vec3d(newPos.getX() + 0.5 - train.posX, newPos.getY() + 0.5 - train.posY, newPos.getZ() + 0.5 - train.posZ).normalize().multiply(train.speed);
-				train.posX += movement.x;
-				train.posY += movement.y;
-				train.posZ += movement.z;
+				final Pos3f newPos = train.path.get(0);
+				final Pos3f movement = new Pos3f(newPos.getX() - train.posX, newPos.getY() - train.posY, newPos.getZ() - train.posZ);
 
-				// TODO fix train movement logic
+				if (movement.lengthSquared() < MathHelper.square(2 * train.speed)) {
+					train.path.remove(0);
+				}
+
+				movement.normalize();
+				movement.scale(train.speed);
+				train.posX += movement.getX();
+				train.posY += movement.getY();
+				train.posZ += movement.getZ();
 			}
 		});
 		markDirty();

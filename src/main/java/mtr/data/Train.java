@@ -6,16 +6,15 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class Train {
 
 	public final TrainType trainType;
 	public final List<Long> stationIds;
 
-	public double posX, posY, posZ, yaw, speed;
+	public float posX, posY, posZ, yaw, speed;
 
-	public final List<BlockPos> path;
+	public final List<Pos3f> path;
 
 	private final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_STATION_IDS = "station_ids";
@@ -24,13 +23,14 @@ public final class Train {
 	private static final String KEY_POS_Z = "pos_z";
 	private static final String KEY_YAW = "yaw";
 	private static final String KEY_SPEED = "speed";
+	private static final String KEY_PATH_LENGTH = "path_length";
 	private static final String KEY_PATH = "path";
 
 	public Train(TrainType trainType, BlockPos pos) {
 		this.trainType = trainType;
-		posX = pos.getX() + 0.5;
-		posY = pos.getY() + 0.5;
-		posZ = pos.getZ() + 0.5;
+		posX = pos.getX() + 0.5F;
+		posY = pos.getY() + 0.5F;
+		posZ = pos.getZ() + 0.5F;
 		stationIds = new ArrayList<>();
 		path = new ArrayList<>();
 	}
@@ -43,16 +43,19 @@ public final class Train {
 			stationIds.add(stationId);
 		}
 
-		posX = tag.getDouble(KEY_POS_X);
-		posY = tag.getDouble(KEY_POS_Y);
-		posZ = tag.getDouble(KEY_POS_Z);
-		yaw = tag.getDouble(KEY_YAW);
-		speed = tag.getDouble(KEY_SPEED);
+		posX = tag.getFloat(KEY_POS_X);
+		posY = tag.getFloat(KEY_POS_Y);
+		posZ = tag.getFloat(KEY_POS_Z);
+		yaw = tag.getFloat(KEY_YAW);
+		speed = tag.getFloat(KEY_SPEED);
 
 		path = new ArrayList<>();
-		final long[] pathArray = tag.getLongArray(KEY_PATH);
-		for (final long blockPosLong : pathArray) {
-			path.add(BlockPos.fromLong(blockPosLong));
+		final int pathLength = tag.getInt(KEY_PATH_LENGTH);
+		for (int i = 0; i < pathLength; i++) {
+			final float x = tag.getFloat(String.format("%s_%d_X", KEY_PATH, i));
+			final float y = tag.getFloat(String.format("%s_%d_Y", KEY_PATH, i));
+			final float z = tag.getFloat(String.format("%s_%d_Z", KEY_PATH, i));
+			path.add(new Pos3f(x, y, z));
 		}
 	}
 
@@ -64,16 +67,16 @@ public final class Train {
 			stationIds.add(packet.readLong());
 		}
 
-		posX = packet.readDouble();
-		posY = packet.readDouble();
-		posZ = packet.readDouble();
-		yaw = packet.readDouble();
-		speed = packet.readDouble();
+		posX = packet.readFloat();
+		posY = packet.readFloat();
+		posZ = packet.readFloat();
+		yaw = packet.readFloat();
+		speed = packet.readFloat();
 
 		path = new ArrayList<>();
 		final int pathLength = packet.readInt();
 		for (int i = 0; i < pathLength; i++) {
-			path.add(packet.readBlockPos());
+			path.add(new Pos3f(packet.readFloat(), packet.readFloat(), packet.readFloat()));
 		}
 	}
 
@@ -82,13 +85,19 @@ public final class Train {
 		tag.putInt(KEY_TRAIN_TYPE, trainType.ordinal());
 		tag.putLongArray(KEY_STATION_IDS, stationIds);
 
-		tag.putDouble(KEY_POS_X, posX);
-		tag.putDouble(KEY_POS_Y, posY);
-		tag.putDouble(KEY_POS_Z, posZ);
-		tag.putDouble(KEY_YAW, yaw);
-		tag.putDouble(KEY_SPEED, speed);
+		tag.putFloat(KEY_POS_X, posX);
+		tag.putFloat(KEY_POS_Y, posY);
+		tag.putFloat(KEY_POS_Z, posZ);
+		tag.putFloat(KEY_YAW, yaw);
+		tag.putFloat(KEY_SPEED, speed);
 
-		tag.putLongArray(KEY_PATH, path.stream().map(BlockPos::asLong).collect(Collectors.toList()));
+		final int pathLength = path.size();
+		tag.putInt(KEY_PATH_LENGTH, pathLength);
+		for (int i = 0; i < pathLength; i++) {
+			tag.putFloat(String.format("%s_%d_X", KEY_PATH, i), path.get(i).getX());
+			tag.putFloat(String.format("%s_%d_Y", KEY_PATH, i), path.get(i).getY());
+			tag.putFloat(String.format("%s_%d_Z", KEY_PATH, i), path.get(i).getZ());
+		}
 
 		return tag;
 	}
@@ -100,16 +109,18 @@ public final class Train {
 			packet.writeLong(stationId);
 		}
 
-		packet.writeDouble(posX);
-		packet.writeDouble(posY);
-		packet.writeDouble(posZ);
-		packet.writeDouble(yaw);
-		packet.writeDouble(speed);
+		packet.writeFloat(posX);
+		packet.writeFloat(posY);
+		packet.writeFloat(posZ);
+		packet.writeFloat(yaw);
+		packet.writeFloat(speed);
 
 		packet.writeInt(path.size());
-		for (final BlockPos blockPos : path) {
-			packet.writeBlockPos(blockPos);
-		}
+		path.forEach(pos3f -> {
+			packet.writeFloat(pos3f.getX());
+			packet.writeFloat(pos3f.getY());
+			packet.writeFloat(pos3f.getZ());
+		});
 	}
 
 	@Override
@@ -118,9 +129,9 @@ public final class Train {
 	}
 
 	public enum TrainType {
-		SP1900(0.5F, 0.1F),
-		M_TRAIN(0.5F, 0.1F),
-		LIGHT_RAIL_1(0.5F, 0.1F);
+		SP1900(0.5F, 0.01F),
+		M_TRAIN(0.5F, 0.01F),
+		LIGHT_RAIL_1(0.5F, 0.01F);
 
 		// blocks per tick
 		private final float maxSpeed;
