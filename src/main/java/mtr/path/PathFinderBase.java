@@ -1,6 +1,6 @@
-package mtr.data;
+package mtr.path;
 
-import mtr.block.BlockPlatformRail;
+import mtr.data.Pos3f;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.RailShape;
@@ -10,73 +10,50 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
-public class RailPathFinder {
+public abstract class PathFinderBase {
 
-	private final WorldAccess world;
-	private final List<BlockPos> path;
-	private final Station destinationStation;
-	private final BlockPos destinationPos;
-	private final Set<BlockPos> blacklist;
+	protected final WorldAccess world;
+	protected final List<BlockPos> path;
+	protected final Set<BlockPos> blacklist;
 
-	private static final int SMOOTHING_RADIUS = 2;
+	protected static final int SMOOTHING_RADIUS = 2;
 
-	public RailPathFinder(WorldAccess world, BlockPos start, Station destinationStation) {
+	protected PathFinderBase(WorldAccess world) {
 		this.world = world;
 		path = new ArrayList<>();
-		path.add(start);
-		this.destinationStation = destinationStation;
-		destinationPos = new BlockPos((destinationStation.corner1.getLeft() + destinationStation.corner2.getLeft()) / 2, 0, (destinationStation.corner1.getRight() + destinationStation.corner2.getRight()) / 2);
 		blacklist = new HashSet<>();
 	}
 
-	public List<Pos3f> findPath() {
-		boolean enteredPlatform = false;
-		while (!path.isEmpty()) {
-			final BlockPos lastPos = path.get(path.size() - 1);
-			final boolean inStation = destinationStation.inStation(lastPos.getX(), lastPos.getZ());
-			final boolean inStationPlatform = inStation && world.getBlockState(lastPos).getBlock() instanceof BlockPlatformRail;
+	public abstract List<Pos3f> findPath();
 
-			if (enteredPlatform && !inStationPlatform) {
-				removeLastItem();
+	protected List<Pos3f> smoothPath() {
+		final List<Pos3f> smoothedPath = new ArrayList<>();
+		final int pathLength = path.size();
 
-				List<Pos3f> smoothedPath = new ArrayList<>();
-				final int pathLength = path.size();
-
-				for (int i = 0; i < pathLength; i++) {
-					if (i >= SMOOTHING_RADIUS && i < pathLength - SMOOTHING_RADIUS) {
-						final Pos3f positionFloat = new Pos3f(0, 0, 0);
-						for (int j = i - SMOOTHING_RADIUS; j <= i + SMOOTHING_RADIUS; j++) {
-							positionFloat.add(new Pos3f(path.get(j)));
-						}
-
-						positionFloat.scale(1F / (SMOOTHING_RADIUS * 2 + 1));
-						smoothedPath.add(positionFloat);
-					} else {
-						smoothedPath.add(new Pos3f(path.get(i)));
-					}
+		for (int i = 0; i < pathLength; i++) {
+			if (i >= SMOOTHING_RADIUS && i < pathLength - SMOOTHING_RADIUS) {
+				final Pos3f positionFloat = new Pos3f(0, 0, 0);
+				for (int j = i - SMOOTHING_RADIUS; j <= i + SMOOTHING_RADIUS; j++) {
+					positionFloat.add(new Pos3f(path.get(j)));
 				}
-				return smoothedPath;
+
+				positionFloat.scale(1F / (SMOOTHING_RADIUS * 2 + 1));
+				smoothedPath.add(positionFloat);
 			} else {
-				if (inStationPlatform) {
-					enteredPlatform = true;
-				}
-
-				Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos).filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, distanceToDestination(blockPos))).min(BlockPosWeighted::compareTo);
-				if (blockPosWeighted.isPresent()) {
-					blacklist.add(blockPosWeighted.get().pos);
-					path.add(blockPosWeighted.get().pos);
-				} else {
-					removeLastItem();
-				}
+				smoothedPath.add(new Pos3f(path.get(i)));
 			}
 		}
-		return new ArrayList<>();
+
+		return smoothedPath;
 	}
 
-	private Stream<BlockPos> getConnectedPositions(BlockPos pos) {
+	protected Stream<BlockPos> getConnectedPositions(BlockPos pos) {
 		final Set<BlockPos> positions = new HashSet<>();
 		final BlockState state = world.getBlockState(pos);
 
@@ -135,26 +112,26 @@ public class RailPathFinder {
 		return false;
 	}
 
-	private double distanceToDestination(BlockPos pos) {
-		return MathHelper.fastInverseSqrt((double) (MathHelper.square(pos.getX() - destinationPos.getX()) + MathHelper.square(pos.getY() - destinationPos.getY()) + MathHelper.square(pos.getZ() - destinationPos.getZ())));
-	}
-
-	private void removeLastItem() {
+	protected void removeLastItem() {
 		path.remove(path.size() - 1);
 	}
 
-	private static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
+	public static double distanceBetween(BlockPos pos1, BlockPos pos2) {
+		return Math.sqrt(MathHelper.square(pos1.getX() - pos2.getX()) + MathHelper.square(pos1.getY() - pos2.getY()) + MathHelper.square(pos1.getZ() - pos2.getZ()));
+	}
 
-		private final BlockPos pos;
-		private final double weight;
+	protected static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
 
-		private BlockPosWeighted(BlockPos pos, double weight) {
+		protected final BlockPos pos;
+		protected final double weight;
+
+		protected BlockPosWeighted(BlockPos pos, double weight) {
 			this.pos = pos;
 			this.weight = weight;
 		}
 
 		@Override
-		public int compareTo(@NotNull RailPathFinder.BlockPosWeighted o) {
+		public int compareTo(@NotNull RoutePathFinder.BlockPosWeighted o) {
 			return Double.compare(weight, o.weight);
 		}
 	}
