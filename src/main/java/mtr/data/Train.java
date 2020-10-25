@@ -3,8 +3,10 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Train {
@@ -12,25 +14,36 @@ public final class Train {
 	public final TrainType trainType;
 	public final List<Long> stationIds;
 
-	public float posX, posY, posZ, yaw, speed;
+	public float[] posX, posY, posZ;
+	public int[] pathIndex;
+	public float speed;
 
 	public final List<Pos3f> path;
 
 	private final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_STATION_IDS = "station_ids";
+	private static final String KEY_TRAIN_LENGTH = "train_length";
 	private static final String KEY_POS_X = "pos_x";
 	private static final String KEY_POS_Y = "pos_y";
 	private static final String KEY_POS_Z = "pos_z";
-	private static final String KEY_YAW = "yaw";
+	private static final String KEY_PATH_INDEX = "path_index";
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_PATH_LENGTH = "path_length";
 	private static final String KEY_PATH = "path";
 
-	public Train(TrainType trainType, BlockPos pos) {
+	public Train(TrainType trainType, BlockPos pos, int cars, Direction spawnDirection) {
 		this.trainType = trainType;
-		posX = pos.getX() + 0.5F;
-		posY = pos.getY() + 0.5F;
-		posZ = pos.getZ() + 0.5F;
+		posX = new float[cars + 1];
+		posY = new float[cars + 1];
+		posZ = new float[cars + 1];
+		for (int i = 0; i <= cars; i++) {
+			final BlockPos carPos = pos.offset(spawnDirection, i * trainType.getSpacing());
+			posX[i] = carPos.getX() + 0.5F;
+			posY[i] = carPos.getY() + 0.5F;
+			posZ[i] = carPos.getZ() + 0.5F;
+		}
+		pathIndex = new int[cars + 1];
+		resetPathIndex();
 		stationIds = new ArrayList<>();
 		path = new ArrayList<>();
 	}
@@ -43,10 +56,18 @@ public final class Train {
 			stationIds.add(stationId);
 		}
 
-		posX = tag.getFloat(KEY_POS_X);
-		posY = tag.getFloat(KEY_POS_Y);
-		posZ = tag.getFloat(KEY_POS_Z);
-		yaw = tag.getFloat(KEY_YAW);
+		final int trainLength = tag.getInt(KEY_TRAIN_LENGTH);
+		posX = new float[trainLength];
+		posY = new float[trainLength];
+		posZ = new float[trainLength];
+		pathIndex = new int[trainLength];
+		for (int i = 0; i < trainLength; i++) {
+			posX[i] = tag.getFloat(KEY_POS_X + i);
+			posY[i] = tag.getFloat(KEY_POS_Y + i);
+			posZ[i] = tag.getFloat(KEY_POS_Z + i);
+			pathIndex[i] = tag.getInt(KEY_PATH_INDEX + i);
+		}
+
 		speed = tag.getFloat(KEY_SPEED);
 
 		path = new ArrayList<>();
@@ -67,10 +88,18 @@ public final class Train {
 			stationIds.add(packet.readLong());
 		}
 
-		posX = packet.readFloat();
-		posY = packet.readFloat();
-		posZ = packet.readFloat();
-		yaw = packet.readFloat();
+		final int trainLength = packet.readInt();
+		posX = new float[trainLength];
+		posY = new float[trainLength];
+		posZ = new float[trainLength];
+		pathIndex = new int[trainLength];
+		for (int i = 0; i < trainLength; i++) {
+			posX[i] = packet.readFloat();
+			posY[i] = packet.readFloat();
+			posZ[i] = packet.readFloat();
+			pathIndex[i] = packet.readInt();
+		}
+
 		speed = packet.readFloat();
 
 		path = new ArrayList<>();
@@ -85,10 +114,15 @@ public final class Train {
 		tag.putInt(KEY_TRAIN_TYPE, trainType.ordinal());
 		tag.putLongArray(KEY_STATION_IDS, stationIds);
 
-		tag.putFloat(KEY_POS_X, posX);
-		tag.putFloat(KEY_POS_Y, posY);
-		tag.putFloat(KEY_POS_Z, posZ);
-		tag.putFloat(KEY_YAW, yaw);
+		final int trainLength = posX.length;
+		tag.putInt(KEY_TRAIN_LENGTH, trainLength);
+		for (int i = 0; i < trainLength; i++) {
+			tag.putFloat(KEY_POS_X + i, posX[i]);
+			tag.putFloat(KEY_POS_Y + i, posY[i]);
+			tag.putFloat(KEY_POS_Z + i, posZ[i]);
+			tag.putInt(KEY_PATH_INDEX + i, pathIndex[i]);
+		}
+
 		tag.putFloat(KEY_SPEED, speed);
 
 		final int pathLength = path.size();
@@ -109,10 +143,16 @@ public final class Train {
 			packet.writeLong(stationId);
 		}
 
-		packet.writeFloat(posX);
-		packet.writeFloat(posY);
-		packet.writeFloat(posZ);
-		packet.writeFloat(yaw);
+
+		final int trainLength = posX.length;
+		packet.writeInt(trainLength);
+		for (int i = 0; i < trainLength; i++) {
+			packet.writeFloat(posX[i]);
+			packet.writeFloat(posY[i]);
+			packet.writeFloat(posZ[i]);
+			packet.writeInt(pathIndex[i]);
+		}
+
 		packet.writeFloat(speed);
 
 		packet.writeInt(path.size());
@@ -123,23 +163,33 @@ public final class Train {
 		});
 	}
 
+	public void resetPathIndex() {
+		// TODO trains reversing direction
+		final int cars = pathIndex.length;
+		for (int i = 0; i < cars; i++) {
+			pathIndex[i] = (cars - i - 1) * trainType.spacing;
+		}
+	}
+
 	@Override
 	public String toString() {
-		return String.format("Train %s: (%f, %f, %f) %s %f", trainType.name(), posX, posY, posZ, stationIds, speed);
+		return String.format("Train %s: (%s, %s, %s) %s %f", trainType.name(), Arrays.toString(posX), Arrays.toString(posY), Arrays.toString(posZ), stationIds, speed);
 	}
 
 	public enum TrainType {
-		SP1900(0.5F, 0.01F),
-		M_TRAIN(0.5F, 0.01F),
-		LIGHT_RAIL_1(0.5F, 0.01F);
+		SP1900(0.5F, 0.01F, 2),
+		M_TRAIN(0.5F, 0.01F, 2),
+		LIGHT_RAIL_1(0.5F, 0.01F, 2);
 
 		// blocks per tick
 		private final float maxSpeed;
 		private final float acceleration;
+		private final int spacing;
 
-		TrainType(float maxSpeed, float acceleration) {
+		TrainType(float maxSpeed, float acceleration, int spacing) {
 			this.maxSpeed = maxSpeed;
 			this.acceleration = acceleration;
+			this.spacing = spacing;
 		}
 
 		public float getMaxSpeed() {
@@ -148,6 +198,10 @@ public final class Train {
 
 		public float getAcceleration() {
 			return acceleration;
+		}
+
+		public int getSpacing() {
+			return spacing;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.path.RoutePathFinder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -135,15 +136,21 @@ public class RailwayData extends PersistentState {
 
 	public void simulateTrains(WorldAccess world) {
 		trains.forEach(train -> {
-			if (train.path.isEmpty()) {
+			final int trainLength = train.posX.length;
+
+			if (train.path.size() <= train.pathIndex[0] || train.path.size() <= train.pathIndex[trainLength - 1]) {
 				train.speed = 0;
 
 				if (train.stationIds.isEmpty()) {
 					// TODO train is dead
 				} else {
-					RailPathFinder railPathFinder = new RailPathFinder(world, new BlockPos(train.posX, train.posY, train.posZ), getStationById(train.stationIds.get(0)));
+					final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
+					final BlockPos start2 = new BlockPos(train.posX[trainLength - 1], train.posY[trainLength - 1], train.posZ[trainLength - 1]);
+					final RoutePathFinder routePathFinder = new RoutePathFinder(world, start1, start2, getStationById(train.stationIds.get(0)));
+
 					train.path.clear();
-					train.path.addAll(railPathFinder.findPath());
+					train.path.addAll(routePathFinder.findPath());
+					train.resetPathIndex();
 					train.stationIds.remove(0);
 				}
 			} else {
@@ -151,18 +158,22 @@ public class RailwayData extends PersistentState {
 					train.speed += train.trainType.getAcceleration();
 				}
 
-				final Pos3f newPos = train.path.get(0);
-				final Pos3f movement = new Pos3f(newPos.getX() - train.posX, newPos.getY() - train.posY, newPos.getZ() - train.posZ);
+				for (int i = 0; i < trainLength; i++) {
+					if (train.pathIndex[i] < train.path.size()) {
+						final Pos3f newPos = train.path.get(train.pathIndex[i]);
+						final Pos3f movement = new Pos3f(newPos.getX() - train.posX[i], newPos.getY() - train.posY[i], newPos.getZ() - train.posZ[i]);
 
-				if (movement.lengthSquared() < MathHelper.square(2 * train.speed)) {
-					train.path.remove(0);
+						if (movement.lengthSquared() < MathHelper.square(2 * train.speed)) {
+							train.pathIndex[i]++;
+						}
+
+						movement.normalize();
+						movement.scale(train.speed);
+						train.posX[i] += movement.getX();
+						train.posY[i] += movement.getY();
+						train.posZ[i] += movement.getZ();
+					}
 				}
-
-				movement.normalize();
-				movement.scale(train.speed);
-				train.posX += movement.getX();
-				train.posY += movement.getY();
-				train.posZ += movement.getZ();
 			}
 		});
 		markDirty();
