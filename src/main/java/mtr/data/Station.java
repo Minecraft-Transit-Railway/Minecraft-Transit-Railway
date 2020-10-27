@@ -3,6 +3,7 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 
 public final class Station extends NamedColoredBase {
 
@@ -57,6 +58,10 @@ public final class Station extends NamedColoredBase {
 
 	public boolean inStation(int x, int z) {
 		return RailwayData.isBetween(x, corner1.getLeft(), corner2.getLeft()) && RailwayData.isBetween(z, corner1.getRight(), corner2.getRight());
+	}
+
+	public BlockPos getCenter() {
+		return new BlockPos((corner1.getLeft() + corner2.getLeft()) / 2, 0, (corner1.getRight() + corner2.getRight()) / 2);
 	}
 
 	@Override

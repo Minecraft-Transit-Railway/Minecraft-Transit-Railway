@@ -24,10 +24,12 @@ public abstract class PathFinderBase {
 
 	protected static final int SMOOTHING_RADIUS = 2;
 
-	protected PathFinderBase(WorldAccess world) {
+	protected PathFinderBase(WorldAccess world, BlockPos start) {
 		this.world = world;
 		path = new ArrayList<>();
+		path.add(start);
 		blacklist = new HashSet<>();
+		blacklist.add(start);
 	}
 
 	public abstract List<Pos3f> findPath();
