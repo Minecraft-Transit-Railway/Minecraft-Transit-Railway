@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -144,13 +145,16 @@ public class RailwayData extends PersistentState {
 				if (train.stationIds.isEmpty()) {
 					// TODO train is dead
 				} else {
+					final Station station = getStationById(train.stationIds.get(0));
 					final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
 					final BlockPos start2 = new BlockPos(train.posX[trainLength - 1], train.posY[trainLength - 1], train.posZ[trainLength - 1]);
-					final RoutePathFinder routePathFinder = new RoutePathFinder(world, start1, start2, getStationById(train.stationIds.get(0)));
+					final BlockPos destinationPos = station.getCenter();
+					final boolean reverse = PathFinderBase.distanceBetween(start1, destinationPos) > PathFinderBase.distanceBetween(start2, destinationPos);
+					final RoutePathFinder routePathFinder = new RoutePathFinder(world, reverse ? start1 : start2, station);
 
+					train.resetPathIndex(reverse);
 					train.path.clear();
 					train.path.addAll(routePathFinder.findPath());
-					train.resetPathIndex();
 					train.stationIds.remove(0);
 				}
 			} else {

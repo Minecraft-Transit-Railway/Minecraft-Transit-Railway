@@ -43,7 +43,6 @@ public final class Train {
 			posZ[i] = carPos.getZ() + 0.5F;
 		}
 		pathIndex = new int[cars + 1];
-		resetPathIndex();
 		stationIds = new ArrayList<>();
 		path = new ArrayList<>();
 	}
@@ -163,11 +162,10 @@ public final class Train {
 		});
 	}
 
-	public void resetPathIndex() {
-		// TODO trains reversing direction
+	public void resetPathIndex(boolean reverse) {
 		final int cars = pathIndex.length;
 		for (int i = 0; i < cars; i++) {
-			pathIndex[i] = (cars - i - 1) * trainType.spacing;
+			pathIndex[i] = (reverse ? i : (cars - i - 1)) * trainType.spacing;
 		}
 	}
 

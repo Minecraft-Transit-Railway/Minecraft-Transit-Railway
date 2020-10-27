@@ -15,18 +15,10 @@ public class RoutePathFinder extends PathFinderBase {
 	private final Station destinationStation;
 	private final BlockPos destinationPos;
 
-	public RoutePathFinder(WorldAccess world, BlockPos start1, BlockPos start2, Station destinationStation) {
-		super(world);
+	public RoutePathFinder(WorldAccess world, BlockPos start, Station destinationStation) {
+		super(world, start);
 		this.destinationStation = destinationStation;
-		destinationPos = new BlockPos((destinationStation.corner1.getLeft() + destinationStation.corner2.getLeft()) / 2, 0, (destinationStation.corner1.getRight() + destinationStation.corner2.getRight()) / 2);
-
-		if (distanceBetween(start1, destinationPos) > distanceBetween(start2, destinationPos)) {
-			path.add(start1);
-			blacklist.add(start1);
-		} else {
-			path.add(start2);
-			blacklist.add(start2);
-		}
+		destinationPos = destinationStation.getCenter();
 	}
 
 	@Override
