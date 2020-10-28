@@ -2,6 +2,9 @@ package mtr.data;
 
 import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -11,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class RailwayData extends PersistentState {
@@ -136,6 +140,8 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(WorldAccess world) {
+		final float viewDistance = MinecraftClient.getInstance().gameRenderer.getViewDistance();
+
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
 
@@ -176,6 +182,32 @@ public class RailwayData extends PersistentState {
 						train.posX[i] += movement.getX();
 						train.posY[i] += movement.getY();
 						train.posZ[i] += movement.getZ();
+					}
+				}
+			}
+
+			final List<? extends PlayerEntity> players = world.getPlayers();
+			for (int i = 0; i < trainLength - 1; i++) {
+				final float xAverage = (train.posX[i] + train.posX[i + 1]) / 2;
+				final float yAverage = (train.posY[i] + train.posY[i + 1]) / 2;
+				final float zAverage = (train.posZ[i] + train.posZ[i + 1]) / 2;
+				final boolean playerNearby = players.stream().anyMatch(player -> PathFinderBase.distanceBetween(new BlockPos(xAverage, yAverage, zAverage), player.getBlockPos()) < viewDistance);
+
+				if (playerNearby && train.entities[i] == null) {
+					// TODO don't use armor stand
+					train.entities[i] = new ArmorStandEntity((World) world, xAverage, yAverage, zAverage);
+					train.entities[i].setNoGravity(true);
+					train.entities[i].setInvulnerable(true);
+					world.spawnEntity(train.entities[i]);
+				}
+				if (train.entities[i] != null) {
+					if (playerNearby) {
+						final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i] - train.posX[i + 1], train.posZ[i + 1] - train.posZ[i]));
+						final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
+						train.entities[i].updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
+					} else {
+						train.entities[i].kill();
+						train.entities[i] = null;
 					}
 				}
 			}

@@ -1,8 +1,8 @@
 package mtr;
 
-import mtr.data.PacketTrainDataGuiClient;
-import mtr.data.PacketTrainDataGuiServer;
 import mtr.data.RailwayData;
+import mtr.packet.PacketTrainDataGuiClient;
+import mtr.packet.PacketTrainDataGuiServer;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityPSDDoor;
 import net.fabricmc.api.ClientModInitializer;
