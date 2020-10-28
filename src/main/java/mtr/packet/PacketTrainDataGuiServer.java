@@ -1,7 +1,8 @@
-package mtr.data;
+package mtr.packet;
 
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
+import mtr.data.*;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,5 +1,9 @@
-package mtr.data;
+package mtr.packet;
 
+import mtr.data.Platform;
+import mtr.data.Route;
+import mtr.data.Station;
+import mtr.data.Train;
 import mtr.gui.DashboardScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;

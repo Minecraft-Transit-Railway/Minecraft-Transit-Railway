@@ -1,5 +1,6 @@
 package mtr.data;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -14,8 +15,9 @@ public final class Train {
 	public final TrainType trainType;
 	public final List<Long> stationIds;
 
-	public float[] posX, posY, posZ;
-	public int[] pathIndex;
+	public final float[] posX, posY, posZ;
+	public final int[] pathIndex;
+	public final Entity[] entities;
 	public float speed;
 
 	public final List<Pos3f> path;
@@ -43,6 +45,7 @@ public final class Train {
 			posZ[i] = carPos.getZ() + 0.5F;
 		}
 		pathIndex = new int[cars + 1];
+		entities = new Entity[cars];
 		stationIds = new ArrayList<>();
 		path = new ArrayList<>();
 	}
@@ -60,6 +63,7 @@ public final class Train {
 		posY = new float[trainLength];
 		posZ = new float[trainLength];
 		pathIndex = new int[trainLength];
+		entities = new Entity[trainLength - 1];
 		for (int i = 0; i < trainLength; i++) {
 			posX[i] = tag.getFloat(KEY_POS_X + i);
 			posY[i] = tag.getFloat(KEY_POS_Y + i);
@@ -92,6 +96,7 @@ public final class Train {
 		posY = new float[trainLength];
 		posZ = new float[trainLength];
 		pathIndex = new int[trainLength];
+		entities = new Entity[trainLength - 1];
 		for (int i = 0; i < trainLength; i++) {
 			posX[i] = packet.readFloat();
 			posY[i] = packet.readFloat();
