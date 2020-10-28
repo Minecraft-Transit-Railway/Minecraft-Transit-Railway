@@ -19,9 +19,12 @@
 			"mtr.MTR"
 		],
 		"client": [
-			"mtr.MTR"
+			"mtr.MTRClient"
 		]
 	},
+	"mixins": [
+		"mtr.mixins.json"
+	],
 	"depends": {
 		"fabricloader": ">=0.7.4",
 		"fabric": "*",

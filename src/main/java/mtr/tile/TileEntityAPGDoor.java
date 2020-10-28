@@ -1,10 +1,10 @@
 package mtr.tile;
 
-import mtr.TileEntities;
+import mtr.MTR;
 
 public class TileEntityAPGDoor extends TileEntityPSDAPGDoorBase {
 
 	public TileEntityAPGDoor() {
-		super(TileEntities.APG_DOOR);
+		super(MTR.APG_DOOR);
 	}
 }

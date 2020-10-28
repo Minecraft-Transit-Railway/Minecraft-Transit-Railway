@@ -1,20 +1,23 @@
 package mtr;
 
 import mtr.data.RailwayData;
-import mtr.packet.PacketTrainDataGuiClient;
+import mtr.entity.EntityLightRail1;
+import mtr.entity.EntityMTrain;
+import mtr.entity.EntitySP1900;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.tile.TileEntityAPGDoor;
 import mtr.tile.TileEntityPSDDoor;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.BedItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -24,9 +27,16 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
 
-public class MTR implements ModInitializer, ClientModInitializer {
+public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
+
+	public static final BlockEntityType<TileEntityAPGDoor> APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
+	public static final BlockEntityType<TileEntityPSDDoor> PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
+
+	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, 1, 1);
+	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, 1, 1);
+	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, 1, 1);
 
 	@Override
 	public void onInitialize() {
@@ -55,34 +65,14 @@ public class MTR implements ModInitializer, ClientModInitializer {
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
 
-		TileEntities.APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
-		TileEntities.PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
-
 		ServerSidePacketRegistry.INSTANCE.register(PacketTrainDataGuiServer.ID, PacketTrainDataGuiServer::receiveC2S);
 
-		ServerTickEvents.START_SERVER_TICK.register((event) -> {
-			event.getWorlds().forEach(world -> {
-				RailwayData railwayData = RailwayData.getInstance(world);
-				if (railwayData != null) {
-					railwayData.simulateTrains(world);
-				}
-			});
-		});
-	}
-
-	@Override
-	public void onInitializeClient() {
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_DOOR, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS_END, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_RAIL, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
-
-		ClientSidePacketRegistry.INSTANCE.register(PacketTrainDataGuiClient.ID, PacketTrainDataGuiClient::receiveS2C);
+		ServerTickEvents.START_SERVER_TICK.register((event) -> event.getWorlds().forEach(world -> {
+			RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.simulateTrains(world);
+			}
+		}));
 	}
 
 	private static void registerItem(String path, Item item) {
@@ -100,5 +90,9 @@ public class MTR implements ModInitializer, ClientModInitializer {
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
+	}
+
+	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory, float width, float height) {
+		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MTR.MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(width, height)).build());
 	}
 }

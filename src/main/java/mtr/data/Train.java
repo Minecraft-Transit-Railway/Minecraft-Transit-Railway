@@ -1,10 +1,15 @@
 package mtr.data;
 
+import mtr.entity.EntityLightRail1;
+import mtr.entity.EntityMTrain;
+import mtr.entity.EntitySP1900;
+import mtr.entity.EntityTrainBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,19 +185,21 @@ public final class Train {
 	}
 
 	public enum TrainType {
-		SP1900(0.5F, 0.01F, 2),
-		M_TRAIN(0.5F, 0.01F, 2),
-		LIGHT_RAIL_1(0.5F, 0.01F, 2);
+		SP1900(0.5F, 0.01F, 2, EntitySP1900::new),
+		M_TRAIN(0.5F, 0.01F, 2, EntityMTrain::new),
+		LIGHT_RAIL_1(0.5F, 0.01F, 2, EntityLightRail1::new);
 
 		// blocks per tick
 		private final float maxSpeed;
 		private final float acceleration;
 		private final int spacing;
+		private final EntityTrainFactory entityFactory;
 
-		TrainType(float maxSpeed, float acceleration, int spacing) {
+		TrainType(float maxSpeed, float acceleration, int spacing, EntityTrainFactory entityTrainFactory) {
 			this.maxSpeed = maxSpeed;
 			this.acceleration = acceleration;
 			this.spacing = spacing;
+			entityFactory = entityTrainFactory;
 		}
 
 		public float getMaxSpeed() {
@@ -206,5 +213,14 @@ public final class Train {
 		public int getSpacing() {
 			return spacing;
 		}
+
+		public EntityTrainBase create(World world, double x, double y, double z) {
+			return entityFactory.create(world, x, y, z);
+		}
+
+		private interface EntityTrainFactory {
+			EntityTrainBase create(World world, double x, double y, double z);
+		}
 	}
+
 }
