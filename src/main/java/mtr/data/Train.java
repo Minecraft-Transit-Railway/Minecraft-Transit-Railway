@@ -185,9 +185,9 @@ public final class Train {
 	}
 
 	public enum TrainType {
-		SP1900(0.5F, 0.01F, 2, EntitySP1900::new),
-		M_TRAIN(0.5F, 0.01F, 2, EntityMTrain::new),
-		LIGHT_RAIL_1(0.5F, 0.01F, 2, EntityLightRail1::new);
+		SP1900(0.5F, 0.01F, 25, EntitySP1900::new),
+		M_TRAIN(0.5F, 0.01F, 25, EntityMTrain::new),
+		LIGHT_RAIL_1(0.5F, 0.01F, 25, EntityLightRail1::new);
 
 		// blocks per tick
 		private final float maxSpeed;
@@ -222,5 +222,4 @@ public final class Train {
 			EntityTrainBase create(World world, double x, double y, double z);
 		}
 	}
-
 }

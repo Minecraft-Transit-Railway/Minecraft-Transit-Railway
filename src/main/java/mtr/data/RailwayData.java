@@ -142,8 +142,9 @@ public class RailwayData extends PersistentState {
 	public void simulateTrains(WorldAccess world) {
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
+			final int distanceRemaining = train.path.size() - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
 
-			if (train.path.size() <= train.pathIndex[0] || train.path.size() <= train.pathIndex[trainLength - 1]) {
+			if (distanceRemaining <= 0) {
 				train.speed = 0;
 
 				if (train.stationIds.isEmpty()) {
@@ -162,7 +163,11 @@ public class RailwayData extends PersistentState {
 					train.stationIds.remove(0);
 				}
 			} else {
-				if (train.speed < train.trainType.getMaxSpeed()) {
+				if (MathHelper.square(train.speed) >= 2 * train.trainType.getAcceleration() * (distanceRemaining - 1)) {
+					if (train.speed >= train.trainType.getAcceleration() * 2) {
+						train.speed -= train.trainType.getAcceleration();
+					}
+				} else if (train.speed < train.trainType.getMaxSpeed()) {
 					train.speed += train.trainType.getAcceleration();
 				}
 
