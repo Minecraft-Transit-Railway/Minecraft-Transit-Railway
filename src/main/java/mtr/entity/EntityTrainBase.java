@@ -21,6 +21,7 @@ public abstract class EntityTrainBase extends Entity {
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
 		setNoGravity(true);
+		noClip = true;
 	}
 
 	protected EntityTrainBase(EntityType<?> type, World world, double x, double y, double z) {

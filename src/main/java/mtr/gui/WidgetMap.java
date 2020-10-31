@@ -10,12 +10,15 @@ import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.Heightmap;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -42,6 +45,8 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	private final WButton buttonDoneEditingStation;
 	private final WButton buttonDoneEditingRoute;
 	private final WButton buttonCancel;
+
+	private final ClientWorld world = MinecraftClient.getInstance().world;
 
 	private final int mapHeight, longWidth;
 	private static final int BUTTON_WIDTH = 64;
@@ -88,6 +93,19 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
+		if (scale >= 1) {
+			final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
+			final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
+			for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i++) {
+				for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j++) {
+					if (world != null) {
+						final int color = world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color;
+						drawRectangle(worldPosToCoords(new Pair<>(i, j)), worldPosToCoords(new Pair<>(i + 1, j + 1)), ARGB_BLACK + color);
+					}
+				}
+			}
+		}
+
 		for (Station station : stations) {
 			drawRectangle(matrices, worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color, scale > 1 ? station.name : "");
 		}
