@@ -1,7 +1,9 @@
 package mtr.data;
 
+import mtr.block.BlockTrainSpawner;
 import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -11,6 +13,7 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,18 +22,16 @@ public class RailwayData extends PersistentState {
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
-	private static final String KEY_STATION = "station_";
 	private static final String KEY_PLATFORMS = "platforms";
-	private static final String KEY_PLATFORM = "platform_";
 	private static final String KEY_ROUTES = "routes";
-	private static final String KEY_ROUTE = "route_";
 	private static final String KEY_TRAINS = "trains";
-	private static final String KEY_TRAIN = "train_";
+	private static final String KEY_TRAIN_SPAWNERS = "train_spawners";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
 	private final Set<Train> trains;
+	private final Set<TrainSpawner> trainSpawners;
 
 	private final int VIEW_DISTANCE = 32;
 
@@ -40,6 +41,7 @@ public class RailwayData extends PersistentState {
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
 		trains = new HashSet<>();
+		trainSpawners = new HashSet<>();
 	}
 
 	@Override
@@ -63,6 +65,11 @@ public class RailwayData extends PersistentState {
 		for (String key : tagNewTrains.getKeys()) {
 			trains.add(new Train(tagNewTrains.getCompound(key)));
 		}
+
+		final CompoundTag tagNewTrainSpawners = tag.getCompound(KEY_TRAIN_SPAWNERS);
+		for (String key : tagNewTrainSpawners.getKeys()) {
+			trainSpawners.add(new TrainSpawner(tagNewTrainSpawners.getCompound(key)));
+		}
 	}
 
 	@Override
@@ -70,7 +77,7 @@ public class RailwayData extends PersistentState {
 		final CompoundTag tagStations = new CompoundTag();
 		int i = 0;
 		for (Station station : stations) {
-			tagStations.put(KEY_STATION + i, station.toCompoundTag());
+			tagStations.put(KEY_STATIONS + i, station.toCompoundTag());
 			i++;
 		}
 		tag.put(KEY_STATIONS, tagStations);
@@ -78,7 +85,7 @@ public class RailwayData extends PersistentState {
 		final CompoundTag tagNewPlatforms = new CompoundTag();
 		int j = 0;
 		for (Platform platform : platforms) {
-			tagNewPlatforms.put(KEY_PLATFORM + j, platform.toCompoundTag());
+			tagNewPlatforms.put(KEY_PLATFORMS + j, platform.toCompoundTag());
 			j++;
 		}
 		tag.put(KEY_PLATFORMS, tagNewPlatforms);
@@ -86,7 +93,7 @@ public class RailwayData extends PersistentState {
 		final CompoundTag tagNewRoutes = new CompoundTag();
 		int k = 0;
 		for (Route route : routes) {
-			tagNewRoutes.put(KEY_ROUTE + k, route.toCompoundTag());
+			tagNewRoutes.put(KEY_ROUTES + k, route.toCompoundTag());
 			k++;
 		}
 		tag.put(KEY_ROUTES, tagNewRoutes);
@@ -94,17 +101,20 @@ public class RailwayData extends PersistentState {
 		final CompoundTag tagNewTrains = new CompoundTag();
 		int l = 0;
 		for (Train train : trains) {
-			tagNewTrains.put(KEY_TRAIN + l, train.toCompoundTag());
+			tagNewTrains.put(KEY_TRAINS + l, train.toCompoundTag());
 			l++;
 		}
 		tag.put(KEY_TRAINS, tagNewTrains);
 
-		return tag;
-	}
+		final CompoundTag tagNewTrainSpawners = new CompoundTag();
+		int m = 0;
+		for (TrainSpawner trainSpawner : trainSpawners) {
+			tagNewTrainSpawners.put(KEY_TRAIN_SPAWNERS + m, trainSpawner.toCompoundTag());
+			m++;
+		}
+		tag.put(KEY_TRAIN_SPAWNERS, tagNewTrainSpawners);
 
-	public void addStation(Station station) {
-		stations.add(station);
-		markDirty();
+		return tag;
 	}
 
 	public Set<Station> getStations() {
@@ -136,6 +146,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void removeTrains() {
+		trains.forEach(train -> Arrays.stream(train.entities).forEach(Entity::kill));
 		trains.clear();
 	}
 
@@ -215,15 +226,26 @@ public class RailwayData extends PersistentState {
 		markDirty();
 	}
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+	public Set<TrainSpawner> getTrainSpawners() {
+		return trainSpawners;
+	}
+
+	public void addTrainSpawner(TrainSpawner trainSpawner) {
+		trainSpawners.add(trainSpawner);
+		markDirty();
+	}
+
+	public void setData(WorldAccess world, Set<Station> stations, Set<Route> routes) {
 		this.stations.clear();
 		this.stations.addAll(stations);
-		this.platforms.clear();
-		this.platforms.addAll(platforms);
 		this.routes.clear();
 		this.routes.addAll(routes);
-		this.trains.clear();
-		this.trains.addAll(trains);
+		validateData(world);
+	}
+
+	public void setData(WorldAccess world, TrainSpawner newTrainSpawner) {
+		trainSpawners.removeIf(trainSpawner -> trainSpawner.pos.equals(newTrainSpawner.pos));
+		trainSpawners.add(newTrainSpawner);
 		validateData(world);
 	}
 
@@ -235,6 +257,7 @@ public class RailwayData extends PersistentState {
 		platforms.removeIf(platform -> !platform.hasRail(world));
 		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stationId) == null));
 		trains.removeIf(train -> train.stationIds.isEmpty());
+		trainSpawners.removeIf(trainSpawner -> !(world.getBlockState(trainSpawner.pos).getBlock() instanceof BlockTrainSpawner));
 		markDirty();
 	}
 

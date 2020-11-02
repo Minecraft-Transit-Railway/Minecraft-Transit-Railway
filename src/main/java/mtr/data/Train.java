@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class Train {
+public final class Train extends DataBase {
 
 	public final TrainType trainType;
 	public final List<Long> stationIds;
@@ -118,6 +118,7 @@ public final class Train {
 		}
 	}
 
+	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putInt(KEY_TRAIN_TYPE, trainType.ordinal());
@@ -145,6 +146,7 @@ public final class Train {
 		return tag;
 	}
 
+	@Override
 	public void writePacket(PacketByteBuf packet) {
 		packet.writeInt(trainType.ordinal());
 		packet.writeInt(stationIds.size());

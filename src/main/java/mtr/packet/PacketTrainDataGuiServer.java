@@ -1,92 +1,61 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
-import mtr.MTR;
 import mtr.data.*;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.HashSet;
 import java.util.Set;
 
-public class PacketTrainDataGuiServer {
+public class PacketTrainDataGuiServer implements IPacket {
 
-	public static final Identifier ID = new Identifier(MTR.MOD_ID, "train_data_gui");
-
-	public static void sendS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
-		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID, send(stations, platforms, routes, trains));
-	}
-
-	public static void receiveC2S(PacketContext packetContext, PacketByteBuf packet) {
-		World world = packetContext.getPlayer().world;
-		RailwayData railwayData = RailwayData.getInstance(world);
-		if (railwayData != null) {
-			Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> data = receive(packet);
-			railwayData.setData(world, data.t1, data.t2, data.t3, data.t4);
-		}
-	}
-
-	protected static PacketByteBuf send(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Train> trains) {
+	public static void sendStationsPlatformsAndRoutesS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, boolean openGui) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-		packet.writeInt(stations.size());
-		for (Station station : stations) {
-			station.writePacket(packet);
-		}
-		packet.writeInt(platforms.size());
-		for (Platform platform : platforms) {
-			platform.writePacket(packet);
-		}
-		packet.writeInt(routes.size());
-		for (Route route : routes) {
-			route.writePacket(packet);
-		}
-		packet.writeInt(trains.size());
-		for (Train train : trains) {
-			train.writePacket(packet);
-		}
-		return packet;
+		IPacket.sendData(packet, stations);
+		IPacket.sendData(packet, platforms);
+		IPacket.sendData(packet, routes);
+		packet.writeBoolean(openGui);
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_STATIONS_PLATFORMS_AND_ROUTES, packet);
 	}
 
-	protected static Quadruple<Set<Station>, Set<Platform>, Set<Route>, Set<Train>> receive(PacketByteBuf packet) {
-		final Set<Station> stations = new HashSet<>();
-		final int stationCount = packet.readInt();
-		for (int i = 0; i < stationCount; i++) {
-			stations.add(new Station(packet));
-		}
-		final Set<Platform> platforms = new HashSet<>();
-		final int platformCount = packet.readInt();
-		for (int i = 0; i < platformCount; i++) {
-			platforms.add(new Platform(packet));
-		}
-		final Set<Route> routes = new HashSet<>();
-		final int routeCount = packet.readInt();
-		for (int i = 0; i < routeCount; i++) {
-			routes.add(new Route(packet));
-		}
-		final Set<Train> trains = new HashSet<>();
-		final int trainCount = packet.readInt();
-		for (int i = 0; i < trainCount; i++) {
-			trains.add(new Train(packet));
-		}
-		return new Quadruple<>(stations, platforms, routes, trains);
+	public static void sendStationsAndRoutesS2C(PlayerEntity player, Set<Station> stations, Set<Route> routes) {
+		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
+		IPacket.sendData(packet, stations);
+		IPacket.sendData(packet, routes);
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_STATIONS_AND_ROUTES, packet);
 	}
 
-	protected static class Quadruple<T1, T2, T3, T4> {
+	public static void receiveStationsAndRoutesC2S(PacketContext packetContext, PacketByteBuf packet) {
+		final World world = packetContext.getPlayer().world;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final Set<Station> stations = IPacket.receiveData(packet, Station::new);
+			final Set<Route> routes = IPacket.receiveData(packet, Route::new);
+			railwayData.setData(world, stations, routes);
+			world.getPlayers().forEach(player -> sendStationsAndRoutesS2C(player, stations, routes));
+		}
+	}
 
-		public final T1 t1;
-		public final T2 t2;
-		public final T3 t3;
-		public final T4 t4;
+	public static void sendRoutesTrainSpawnersAndPosS2C(PlayerEntity player, Set<Route> routes, Set<TrainSpawner> trainSpawners, BlockPos pos, boolean openGui) {
+		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
+		IPacket.sendData(packet, routes);
+		IPacket.sendData(packet, trainSpawners);
+		packet.writeBlockPos(pos);
+		packet.writeBoolean(openGui);
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_ROUTES_TRAIN_SPAWNERS_AND_POS, packet);
+	}
 
-		private Quadruple(T1 t1, T2 t2, T3 t3, T4 t4) {
-			this.t1 = t1;
-			this.t2 = t2;
-			this.t3 = t3;
-			this.t4 = t4;
+	public static void receiveTrainSpawnerC2S(PacketContext packetContext, PacketByteBuf packet) {
+		final World world = packetContext.getPlayer().world;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final TrainSpawner trainSpawner = new TrainSpawner(packet);
+			railwayData.setData(world, trainSpawner);
+			world.getPlayers().forEach(player -> sendRoutesTrainSpawnersAndPosS2C(player, railwayData.getRoutes(), railwayData.getTrainSpawners(), trainSpawner.pos, false));
 		}
 	}
 }

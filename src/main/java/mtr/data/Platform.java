@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public final class Platform {
+public final class Platform extends DataBase {
 
 	private final BlockPos pos;
 	private final Direction.Axis axis;
@@ -38,6 +38,7 @@ public final class Platform {
 		length = packet.readInt();
 	}
 
+	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putLong(KEY_POS, pos.asLong());
@@ -46,6 +47,7 @@ public final class Platform {
 		return tag;
 	}
 
+	@Override
 	public void writePacket(PacketByteBuf packet) {
 		packet.writeBlockPos(pos);
 		packet.writeBoolean(axis == Direction.Axis.X);

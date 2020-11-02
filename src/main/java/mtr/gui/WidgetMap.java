@@ -29,6 +29,7 @@ import java.util.Set;
 public class WidgetMap extends WPlainPanel implements IGui {
 
 	private double centerX, centerY;
+	private final double playerX, playerZ;
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 
@@ -59,6 +60,8 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	public WidgetMap(int width, int height, double playerX, double playerZ, Set<Station> stations, Set<Platform> platforms) {
 		this.width = width;
 		this.height = height;
+		this.playerX = playerX;
+		this.playerZ = playerZ;
 		centerX = playerX;
 		centerY = playerZ;
 		this.stations = stations;
@@ -93,26 +96,27 @@ public class WidgetMap extends WPlainPanel implements IGui {
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
+		ScreenDrawing.coloredRect(x, y, width, height, ARGB_BLACK);
 		if (scale >= 1) {
 			final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
 			final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
 			for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i++) {
 				for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j++) {
 					if (world != null) {
-						final int color = world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color;
+						final int color = ScreenDrawing.multiplyColor(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color, 0.5F);
 						drawRectangle(worldPosToCoords(new Pair<>(i, j)), worldPosToCoords(new Pair<>(i + 1, j + 1)), ARGB_BLACK + color);
 					}
 				}
 			}
 		}
 
-		for (Station station : stations) {
-			drawRectangle(matrices, worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color, scale > 1 ? station.name : "");
-		}
 		for (Platform platform : platforms) {
 			BlockPos posStart = platform.getPos1();
 			BlockPos posEnd = platform.getPos2().add(1, 0, 1);
-			drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE_TRANSLUCENT);
+			drawRectangle(worldPosToCoords(posStart), worldPosToCoords(posEnd), ARGB_WHITE);
+		}
+		for (Station station : stations) {
+			drawRectangle(matrices, worldPosToCoords(station.corner1), worldPosToCoords(station.corner2), ARGB_BLACK_TRANSLUCENT + station.color, scale > 1 ? station.name : "");
 		}
 
 		if (editingStation != null) {
@@ -130,6 +134,13 @@ public class WidgetMap extends WPlainPanel implements IGui {
 				ScreenDrawing.drawStringWithShadow(matrices, IGui.formatStationName(moreStations.get(i).name), HorizontalAlignment.LEFT, x + TEXT_PADDING, y + TEXT_PADDING * 2 + LINE_HEIGHT * (i + 1), 0, ARGB_WHITE);
 			}
 		}
+
+		final Pair<Double, Double> playerCoords = worldPosToCoords(playerX, playerZ);
+		final int playerCoordsX = (int) Math.round(playerCoords.getLeft());
+		final int playerCoordsY = (int) Math.round(playerCoords.getRight());
+		ScreenDrawing.coloredRect(x + playerCoordsX - 2, y + playerCoordsY - 3, 4, 6, ARGB_WHITE);
+		ScreenDrawing.coloredRect(x + playerCoordsX - 3, y + playerCoordsY - 2, 6, 4, ARGB_WHITE);
+		ScreenDrawing.coloredRect(x + playerCoordsX - 2, y + playerCoordsY - 2, 4, 4, ARGB_BLUE);
 
 		Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX, mouseY);
 		ScreenDrawing.drawStringWithShadow(matrices, String.format("(%d, %d)", mouseWorldPos.getLeft(), mouseWorldPos.getRight()), HorizontalAlignment.RIGHT, x + width - TEXT_PADDING, y + TEXT_PADDING, 0, ARGB_WHITE);
@@ -265,8 +276,12 @@ public class WidgetMap extends WPlainPanel implements IGui {
 	}
 
 	private Pair<Double, Double> worldPosToCoords(Pair<Integer, Integer> worldPos) {
-		double left = (worldPos.getLeft() - centerX) * scale + width / 2D;
-		double right = (worldPos.getRight() - centerY) * scale + mapHeight / 2D;
+		return worldPosToCoords(worldPos.getLeft(), worldPos.getRight());
+	}
+
+	private Pair<Double, Double> worldPosToCoords(double posX, double posZ) {
+		double left = (posX - centerX) * scale + width / 2D;
+		double right = (posZ - centerY) * scale + mapHeight / 2D;
 		return new Pair<>(left, right);
 	}
 

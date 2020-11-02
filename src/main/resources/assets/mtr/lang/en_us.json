@@ -11,6 +11,7 @@
 	"block.mtr.psd_glass": "Platform Screen Doors",
 	"block.mtr.psd_glass_end": "Platform Screen Doors",
 	"block.mtr.psd_top": "Platform Screen Doors",
+	"block.mtr.train_spawner": "Train Spawner",
 	"item.mtr.apg_door": "Automatic Platform Gates",
 	"item.mtr.apg_glass": "Automatic Platform Gates",
 	"item.mtr.apg_glass_end": "Automatic Platform Gates",
@@ -26,6 +27,8 @@
 	"tooltip.mtr.psd_apg_glass_end": "Glass end section",
 	"gui.mtr.add_route": "Add Route",
 	"gui.mtr.add_station": "Add Station",
+	"gui.mtr.added": "Added",
+	"gui.mtr.available": "Available",
 	"gui.mtr.color": "Color",
 	"gui.mtr.edit_route": "Click on a station to add it to the route",
 	"gui.mtr.edit_station_1": "Left click and drag to draw station area",
@@ -33,5 +36,6 @@
 	"gui.mtr.name": "Name",
 	"gui.mtr.routes": "Routes",
 	"gui.mtr.stations": "Stations",
+	"gui.mtr.trains": "Trains",
 	"gui.mtr.untitled": "Untitled"
 }
