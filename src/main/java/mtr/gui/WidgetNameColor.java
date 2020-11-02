@@ -15,9 +15,9 @@ public class WidgetNameColor extends WPlainPanel implements IGui {
 
 	private final String name;
 	private final int color;
-	private final WidgetScrollableButton button1, button2, buttonDelete;
+	private final WidgetScrollableButton button1, button2, button3;
 
-	public WidgetNameColor(int width, String name, int color, String button1Path, String button2Path) {
+	public WidgetNameColor(int width, String name, int color, String button1Path, String button2Path, String button3Path) {
 		this.name = name;
 		this.color = color;
 
@@ -31,8 +31,8 @@ public class WidgetNameColor extends WPlainPanel implements IGui {
 			add(button2, width - SQUARE_SIZE * 2, 0, SQUARE_SIZE, SQUARE_SIZE);
 		}
 
-		buttonDelete = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_delete.png")));
-		add(buttonDelete, width - SQUARE_SIZE, 0, SQUARE_SIZE, SQUARE_SIZE);
+		button3 = new WidgetScrollableButton(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/" + button3Path + ".png")));
+		add(button3, width - SQUARE_SIZE, 0, SQUARE_SIZE, SQUARE_SIZE);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class WidgetNameColor extends WPlainPanel implements IGui {
 		}
 	}
 
-	public void setOnClick(Runnable onButton1, Runnable onButton2, Runnable onDelete) {
+	public void setOnClick(Runnable onButton1, Runnable onButton2, Runnable onButton3) {
 		if (onButton1 == null) {
 			button1.setEnabled(false);
 		} else {
@@ -64,7 +64,11 @@ public class WidgetNameColor extends WPlainPanel implements IGui {
 		} else {
 			button2.setOnClick(onButton2);
 		}
-		buttonDelete.setOnClick(onDelete);
+		if (onButton3 == null) {
+			button3.setEnabled(false);
+		} else {
+			button3.setOnClick(onButton3);
+		}
 	}
 
 	private static class WidgetScrollableButton extends WButton {
