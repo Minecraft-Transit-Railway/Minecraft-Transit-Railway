@@ -3,6 +3,7 @@ package mtr;
 import mtr.data.RailwayData;
 import mtr.entity.EntityLightRail1;
 import mtr.entity.EntityMTrain;
+import mtr.entity.EntityMinecart;
 import mtr.entity.EntitySP1900;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -35,6 +36,7 @@ public class MTR implements ModInitializer {
 	public static final BlockEntityType<TileEntityAPGDoor> APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
 	public static final BlockEntityType<TileEntityPSDDoor> PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
 
+	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, 1, 1);
 	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, 24, 4);
 	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, 24, 4);
 	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, 24, 4);

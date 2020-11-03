@@ -3,6 +3,8 @@ package mtr.data;
 import mtr.block.BlockTrainSpawner;
 import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.RailBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -13,10 +15,7 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RailwayData extends PersistentState {
 
@@ -146,11 +145,13 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void removeTrains() {
-		trains.forEach(train -> Arrays.stream(train.entities).forEach(Entity::kill));
+		trains.forEach(train -> Arrays.stream(train.entities).filter(Objects::nonNull).forEach(Entity::kill));
 		trains.clear();
 	}
 
 	public void simulateTrains(WorldAccess world) {
+		final long millis = System.currentTimeMillis();
+
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
 			final int distanceRemaining = train.path.size() - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
@@ -223,6 +224,22 @@ public class RailwayData extends PersistentState {
 				}
 			}
 		});
+
+		trainSpawners.forEach(trainSpawner -> {
+			final int interval = 5; // TODO get seconds
+			final boolean spawnTime = (millis / 50) % (interval * 20) == 0;
+			if (spawnTime && !trainSpawner.routeIds.isEmpty() && !trainSpawner.trainTypes.isEmpty()) {
+				final BlockPos pos = trainSpawner.pos;
+				final BlockState state = world.getBlockState(pos);
+				if (state.getBlock() instanceof BlockTrainSpawner && world.getBlockState(pos.up()).getBlock() instanceof RailBlock) {
+					// TODO randomise train types and routes
+					final Train newTrain = new Train(trainSpawner.trainTypes.toArray(new Train.TrainType[0])[0], pos.up(), 5, state.get(BlockTrainSpawner.FACING).getOpposite());
+					newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.toArray(new Long[0])[0]).stationIds);
+					trains.add(newTrain);
+				}
+			}
+		});
+
 		markDirty();
 	}
 
@@ -251,6 +268,10 @@ public class RailwayData extends PersistentState {
 
 	private Station getStationById(long id) {
 		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
+	}
+
+	private Route getRouteById(long id) {
+		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
 	}
 
 	private void validateData(WorldAccess world) {

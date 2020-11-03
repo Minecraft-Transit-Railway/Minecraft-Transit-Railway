@@ -37,5 +37,9 @@
 	"gui.mtr.routes": "Routes",
 	"gui.mtr.stations": "Stations",
 	"gui.mtr.trains": "Trains",
-	"gui.mtr.untitled": "Untitled"
+	"gui.mtr.untitled": "Untitled",
+	"train.mtr.MINECART": "Minecart",
+	"train.mtr.SP1900": "SP1900",
+	"train.mtr.M_TRAIN": "M Train",
+	"train.mtr.LIGHT_RAIL_1": "Light Rail (Phase 1)"
 }

@@ -1,12 +1,9 @@
 package mtr.data;
 
-import mtr.entity.EntityLightRail1;
-import mtr.entity.EntityMTrain;
-import mtr.entity.EntitySP1900;
-import mtr.entity.EntityTrainBase;
-import net.minecraft.entity.Entity;
+import mtr.entity.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -22,7 +19,7 @@ public final class Train extends DataBase {
 
 	public final float[] posX, posY, posZ;
 	public final int[] pathIndex;
-	public final Entity[] entities;
+	public final EntityTrainBase[] entities;
 	public float speed;
 
 	public final List<Pos3f> path;
@@ -50,7 +47,7 @@ public final class Train extends DataBase {
 			posZ[i] = carPos.getZ() + 0.5F;
 		}
 		pathIndex = new int[cars + 1];
-		entities = new Entity[cars];
+		entities = new EntityTrainBase[cars];
 		stationIds = new ArrayList<>();
 		path = new ArrayList<>();
 	}
@@ -68,7 +65,7 @@ public final class Train extends DataBase {
 		posY = new float[trainLength];
 		posZ = new float[trainLength];
 		pathIndex = new int[trainLength];
-		entities = new Entity[trainLength - 1];
+		entities = new EntityTrainBase[trainLength - 1];
 		for (int i = 0; i < trainLength; i++) {
 			posX[i] = tag.getFloat(KEY_POS_X + i);
 			posY[i] = tag.getFloat(KEY_POS_Y + i);
@@ -101,7 +98,7 @@ public final class Train extends DataBase {
 		posY = new float[trainLength];
 		posZ = new float[trainLength];
 		pathIndex = new int[trainLength];
-		entities = new Entity[trainLength - 1];
+		entities = new EntityTrainBase[trainLength - 1];
 		for (int i = 0; i < trainLength; i++) {
 			posX[i] = packet.readFloat();
 			posY[i] = packet.readFloat();
@@ -154,7 +151,6 @@ public final class Train extends DataBase {
 			packet.writeLong(stationId);
 		}
 
-
 		final int trainLength = posX.length;
 		packet.writeInt(trainLength);
 		for (int i = 0; i < trainLength; i++) {
@@ -187,21 +183,31 @@ public final class Train extends DataBase {
 	}
 
 	public enum TrainType {
-		SP1900(0.5F, 0.01F, 25, EntitySP1900::new),
-		M_TRAIN(0.5F, 0.01F, 25, EntityMTrain::new),
-		LIGHT_RAIL_1(0.5F, 0.01F, 25, EntityLightRail1::new);
+		MINECART(0x666666, 0.5F, 0.01F, 2, EntityMinecart::new),
+		SP1900(0xB42249, 0.5F, 0.01F, 25, EntitySP1900::new),
+		M_TRAIN(0x999999, 0.5F, 0.01F, 25, EntityMTrain::new),
+		LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 25, EntityLightRail1::new);
 
-		// blocks per tick
-		private final float maxSpeed;
+		private final int color;
+		private final float maxSpeed; // blocks per tick
 		private final float acceleration;
 		private final int spacing;
 		private final EntityTrainFactory entityFactory;
 
-		TrainType(float maxSpeed, float acceleration, int spacing, EntityTrainFactory entityTrainFactory) {
+		TrainType(int color, float maxSpeed, float acceleration, int spacing, EntityTrainFactory entityTrainFactory) {
+			this.color = color;
 			this.maxSpeed = maxSpeed;
 			this.acceleration = acceleration;
 			this.spacing = spacing;
 			entityFactory = entityTrainFactory;
+		}
+
+		public String getName() {
+			return new TranslatableText("train.mtr." + toString()).getString();
+		}
+
+		public int getColor() {
+			return color;
 		}
 
 		public float getMaxSpeed() {

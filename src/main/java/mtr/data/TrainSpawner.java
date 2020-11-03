@@ -7,18 +7,22 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class TrainSpawner extends DataBase {
 
 	public final BlockPos pos;
 	public final Set<Long> routeIds;
+	public final Set<Train.TrainType> trainTypes;
 
 	private static final String KEY_POS = "pos";
 	private static final String KEY_ROUTE_IDS = "route_ids";
+	private static final String KEY_TRAIN_TYPES = "train_types";
 
-	public TrainSpawner(BlockPos pos, Set<Long> routeIds) {
+	public TrainSpawner(BlockPos pos, Set<Long> routeIds, Set<Train.TrainType> trainTypes) {
 		this.pos = pos;
 		this.routeIds = routeIds;
+		this.trainTypes = trainTypes;
 	}
 
 	public TrainSpawner(CompoundTag tag) {
@@ -28,14 +32,24 @@ public final class TrainSpawner extends DataBase {
 		for (final long routeId : routeIdsArray) {
 			routeIds.add(routeId);
 		}
+		trainTypes = new HashSet<>();
+		final int[] trainTypesIndices = tag.getIntArray(KEY_TRAIN_TYPES);
+		for (final int trainTypeIndex : trainTypesIndices) {
+			trainTypes.add(Train.TrainType.values()[trainTypeIndex]);
+		}
 	}
 
 	public TrainSpawner(PacketByteBuf packet) {
 		pos = packet.readBlockPos();
 		routeIds = new HashSet<>();
-		final int stationCount = packet.readInt();
-		for (int i = 0; i < stationCount; i++) {
+		final int routeCount = packet.readInt();
+		for (int i = 0; i < routeCount; i++) {
 			routeIds.add(packet.readLong());
+		}
+		trainTypes = new HashSet<>();
+		final int trainTypeCount = packet.readInt();
+		for (int i = 0; i < trainTypeCount; i++) {
+			trainTypes.add(Train.TrainType.values()[packet.readInt()]);
 		}
 	}
 
@@ -44,6 +58,7 @@ public final class TrainSpawner extends DataBase {
 		final CompoundTag tag = new CompoundTag();
 		tag.putLong(KEY_POS, pos.asLong());
 		tag.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(routeIds));
+		tag.putIntArray(KEY_TRAIN_TYPES, trainTypes.stream().map(Enum::ordinal).collect(Collectors.toList()));
 		return tag;
 	}
 
@@ -51,9 +66,9 @@ public final class TrainSpawner extends DataBase {
 	public void writePacket(PacketByteBuf packet) {
 		packet.writeBlockPos(pos);
 		packet.writeInt(routeIds.size());
-		for (final long routeId : routeIds) {
-			packet.writeLong(routeId);
-		}
+		routeIds.forEach(packet::writeLong);
+		packet.writeInt(trainTypes.size());
+		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
 	}
 
 	@Override

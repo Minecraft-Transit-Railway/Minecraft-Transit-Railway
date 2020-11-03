@@ -29,7 +29,7 @@ public class BlockTrainSpawner extends HorizontalFacingBlock {
 		if (!world.isClient()) {
 			RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.addTrainSpawner(new TrainSpawner(pos, new HashSet<>()));
+				railwayData.addTrainSpawner(new TrainSpawner(pos, new HashSet<>(), new HashSet<>()));
 			}
 		}
 	}

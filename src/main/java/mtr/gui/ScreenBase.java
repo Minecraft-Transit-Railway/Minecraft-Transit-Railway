@@ -3,8 +3,6 @@ package mtr.gui;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import mtr.data.*;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,9 +27,5 @@ public abstract class ScreenBase extends CottonClientScreen implements IGui {
 		public static final Set<TrainSpawner> trainSpawners = new HashSet<>();
 
 		public abstract void refreshInterface();
-
-		public static LiteralText translationAndCount(String key, int count) {
-			return new LiteralText(String.format("%s (%d)", new TranslatableText(key).getString(), count));
-		}
 	}
 }
