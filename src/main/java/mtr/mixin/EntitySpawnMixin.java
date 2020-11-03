@@ -3,6 +3,7 @@ package mtr.mixin;
 import mtr.MTR;
 import mtr.entity.EntityLightRail1;
 import mtr.entity.EntityMTrain;
+import mtr.entity.EntityMinecart;
 import mtr.entity.EntitySP1900;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
@@ -29,7 +30,9 @@ public class EntitySpawnMixin {
 		final EntityType<?> entityType = packet.getEntityTypeId();
 
 		final Entity entity;
-		if (entityType == MTR.SP1900) {
+		if (entityType == MTR.MINECART) {
+			entity = new EntityMinecart(world, x, y, z);
+		} else if (entityType == MTR.SP1900) {
 			entity = new EntitySP1900(world, x, y, z);
 		} else if (entityType == MTR.M_TRAIN) {
 			entity = new EntityMTrain(world, x, y, z);

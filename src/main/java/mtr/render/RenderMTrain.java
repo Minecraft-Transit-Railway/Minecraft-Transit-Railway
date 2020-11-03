@@ -8,17 +8,20 @@ import net.minecraft.util.Identifier;
 
 public class RenderMTrain extends RenderTrainBase<EntityMTrain> {
 
+	private static final Identifier texture = new Identifier("mtr:textures/entity/m_train.png");
+	private static final ModelMTrain model = new ModelMTrain();
+
 	public RenderMTrain(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
 	public Identifier getTexture(EntityMTrain entity) {
-		return new Identifier("mtr:textures/entity/m_train.png");
+		return texture;
 	}
 
 	@Override
 	protected Model getModel() {
-		return new ModelMTrain();
+		return model;
 	}
 }

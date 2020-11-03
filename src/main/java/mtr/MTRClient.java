@@ -4,6 +4,7 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderLightRail1;
 import mtr.render.RenderMTrain;
+import mtr.render.RenderMinecart;
 import mtr.render.RenderSP1900;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -25,6 +26,7 @@ public class MTRClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
 
+		EntityRendererRegistry.INSTANCE.register(MTR.MINECART, (dispatcher, context) -> new RenderMinecart(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.SP1900, (dispatcher, context) -> new RenderSP1900(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN, (dispatcher, context) -> new RenderMTrain(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.LIGHT_RAIL_1, (dispatcher, context) -> new RenderLightRail1(dispatcher));

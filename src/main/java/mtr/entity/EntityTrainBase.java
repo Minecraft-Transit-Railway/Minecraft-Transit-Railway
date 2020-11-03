@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -31,6 +32,11 @@ public abstract class EntityTrainBase extends Entity {
 		prevX = x;
 		prevY = y;
 		prevZ = z;
+	}
+
+	@Override
+	public void onStoppedTrackingBy(ServerPlayerEntity player) {
+		kill();
 	}
 
 	@Override

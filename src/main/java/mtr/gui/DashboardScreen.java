@@ -9,6 +9,7 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public class DashboardScreen extends ScreenBase {
@@ -79,8 +80,8 @@ public class DashboardScreen extends ScreenBase {
 
 			WTabPanel tabPanel = new WTabPanel();
 			tabPanel.setBackgroundPainter((left, top, panel) -> ScreenDrawing.coloredRect(left, top, panel.getWidth() + PANEL_BACKGROUND_PADDING, panel.getHeight(), ARGB_BLACK));
-			tabPanel.add(scrollPanelStations, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/block/logo.png"))).tooltip(translationAndCount("gui.mtr.stations", stations.size())));
-			tabPanel.add(scrollPanelRoutes, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(translationAndCount("gui.mtr.routes", routes.size())));
+			tabPanel.add(scrollPanelStations, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/block/logo.png"))).tooltip(new TranslatableText("gui.mtr.stations")));
+			tabPanel.add(scrollPanelRoutes, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(new TranslatableText("gui.mtr.routes")));
 			root.add(tabPanel, 0, 0, LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight);
 
 			refreshInterface();
