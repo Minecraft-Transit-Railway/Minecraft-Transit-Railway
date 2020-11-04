@@ -5,6 +5,7 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WTabPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
+import mtr.data.Station;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
@@ -20,8 +21,8 @@ public class DashboardScreen extends ScreenBase {
 
 	private static class GuiDashboard extends ScreenBase.GuiBase {
 
-		private final WidgetStationList widgetStationList;
-		private final WidgetRouteChildrenList widgetRouteChildrenList;
+		private final WidgetSet<Station> widgetStationSet;
+		private final WidgetRouteChildrenSet widgetRouteChildrenSet;
 		private final WidgetMap widgetMap;
 
 		private static final int PANEL_BACKGROUND_PADDING = 8;
@@ -38,8 +39,8 @@ public class DashboardScreen extends ScreenBase {
 			WPlainPanel root = new WPlainPanel();
 			setRootPanel(root);
 
-			widgetStationList = new WidgetStationList(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
-			widgetRouteChildrenList = new WidgetRouteChildrenList(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
+			widgetStationSet = new WidgetSet<>(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
+			widgetRouteChildrenSet = new WidgetRouteChildrenSet(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
 
 			final double mapCenterX, mapCenterY;
 			if (minecraftClient.player == null) {
@@ -68,12 +69,12 @@ public class DashboardScreen extends ScreenBase {
 			});
 			root.add(widgetMap, LEFT_PANEL_WIDTH, 0, windowWidth - LEFT_PANEL_WIDTH, windowHeight);
 
-			WidgetBetterScrollPanel scrollPanelStations = new WidgetBetterScrollPanel(widgetStationList);
+			WidgetBetterScrollPanel scrollPanelStations = new WidgetBetterScrollPanel(widgetStationSet);
 			scrollPanelStations.setScrollingHorizontally(TriState.FALSE);
 			scrollPanelStations.setScrollingVertically(TriState.TRUE);
 			scrollPanelStations.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
 
-			WidgetBetterScrollPanel scrollPanelRoutes = new WidgetBetterScrollPanel(widgetRouteChildrenList);
+			WidgetBetterScrollPanel scrollPanelRoutes = new WidgetBetterScrollPanel(widgetRouteChildrenSet);
 			scrollPanelRoutes.setScrollingHorizontally(TriState.FALSE);
 			scrollPanelRoutes.setScrollingVertically(TriState.TRUE);
 			scrollPanelRoutes.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
@@ -90,17 +91,17 @@ public class DashboardScreen extends ScreenBase {
 
 		@Override
 		public void refreshInterface() {
-			widgetStationList.refreshList(stations, widgetMap::find, widgetMap::startEditingStation, (station) -> {
+			widgetStationSet.refreshList(stations, "icon_find", widgetMap::find, "icon_edit", widgetMap::startEditingStation, "icon_delete", station -> {
 				stations.remove(station);
 				sendData();
-			});
-			widgetRouteChildrenList.refreshList(routes, stations, widgetMap::startEditingRoute, routes::remove, this::sendData);
+			}, null);
+			widgetRouteChildrenSet.refreshList(routes, widgetMap::startEditingRoute, routes::remove, this::sendData);
 			rootPanel.validate(this);
 		}
 
-		private void sendData() {
+		@Override
+		public void sendData() {
 			PacketTrainDataGuiClient.sendStationsAndRoutesC2S(stations, routes);
-			refreshInterface();
 		}
 	}
 }

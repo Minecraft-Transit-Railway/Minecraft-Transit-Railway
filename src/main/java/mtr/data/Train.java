@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class Train extends DataBase {
+public final class Train extends NamedColoredBase {
 
 	public final TrainType trainType;
 	public final List<Long> stationIds;
@@ -36,6 +36,7 @@ public final class Train extends DataBase {
 	private static final String KEY_PATH = "path";
 
 	public Train(TrainType trainType, BlockPos pos, int cars, Direction spawnDirection) {
+		super();
 		this.trainType = trainType;
 		posX = new float[cars + 1];
 		posY = new float[cars + 1];
@@ -53,7 +54,10 @@ public final class Train extends DataBase {
 	}
 
 	public Train(CompoundTag tag) {
+		super(tag);
 		trainType = TrainType.values()[tag.getInt(KEY_TRAIN_TYPE)];
+		name = trainType.getName();
+		color = trainType.color;
 		stationIds = new ArrayList<>();
 		final long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
 		for (final long stationId : stationIdsArray) {
@@ -86,7 +90,10 @@ public final class Train extends DataBase {
 	}
 
 	public Train(PacketByteBuf packet) {
+		super(packet);
 		trainType = TrainType.values()[packet.readInt()];
+		name = trainType.getName();
+		color = trainType.color;
 		stationIds = new ArrayList<>();
 		final int stationCount = packet.readInt();
 		for (int i = 0; i < stationCount; i++) {
@@ -117,7 +124,7 @@ public final class Train extends DataBase {
 
 	@Override
 	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
+		final CompoundTag tag = super.toCompoundTag();
 		tag.putInt(KEY_TRAIN_TYPE, trainType.ordinal());
 		tag.putLongArray(KEY_STATION_IDS, stationIds);
 
@@ -145,6 +152,8 @@ public final class Train extends DataBase {
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
+		super.writePacket(packet);
+
 		packet.writeInt(trainType.ordinal());
 		packet.writeInt(stationIds.size());
 		for (final long stationId : stationIds) {

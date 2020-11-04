@@ -16,7 +16,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 public class BlockTrainSpawner extends HorizontalFacingBlock {
 
@@ -29,7 +29,8 @@ public class BlockTrainSpawner extends HorizontalFacingBlock {
 		if (!world.isClient()) {
 			RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.addTrainSpawner(new TrainSpawner(pos, new HashSet<>(), new HashSet<>()));
+				railwayData.addTrainSpawner(new TrainSpawner(pos, new ArrayList<>(), new ArrayList<>()));
+				PacketTrainDataGuiServer.broadcastS2C(world, railwayData);
 			}
 		}
 	}
@@ -47,7 +48,7 @@ public class BlockTrainSpawner extends HorizontalFacingBlock {
 			if (!world.isClient()) {
 				RailwayData railwayData = RailwayData.getInstance(world);
 				if (railwayData != null) {
-					PacketTrainDataGuiServer.sendRoutesTrainSpawnersAndPosS2C(player, railwayData.getRoutes(), railwayData.getTrainSpawners(), pos, true);
+					PacketTrainDataGuiServer.openTrainSpawnerScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), railwayData.getTrainSpawners(), pos);
 					return ActionResult.PASS;
 				}
 			}
