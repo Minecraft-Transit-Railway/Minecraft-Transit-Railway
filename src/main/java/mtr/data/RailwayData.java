@@ -69,10 +69,13 @@ public class RailwayData extends PersistentState {
 		for (String key : tagNewTrainSpawners.getKeys()) {
 			trainSpawners.add(new TrainSpawner(tagNewTrainSpawners.getCompound(key)));
 		}
+
+		validateData();
 	}
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
+		validateData();
 		final CompoundTag tagStations = new CompoundTag();
 		int i = 0;
 		for (Station station : stations) {
@@ -127,11 +130,12 @@ public class RailwayData extends PersistentState {
 	}
 
 	public Set<Platform> getPlatforms(WorldAccess world) {
-		validateData(world);
+		validatePlatformsAndTrainSpawners(world);
 		return platforms;
 	}
 
 	public Set<Route> getRoutes() {
+		validateData();
 		return routes;
 	}
 
@@ -233,8 +237,8 @@ public class RailwayData extends PersistentState {
 				final BlockState state = world.getBlockState(pos);
 				if (state.getBlock() instanceof BlockTrainSpawner && world.getBlockState(pos.up()).getBlock() instanceof RailBlock) {
 					// TODO randomise train types and routes
-					final Train newTrain = new Train(trainSpawner.trainTypes.toArray(new Train.TrainType[0])[0], pos.up(), 5, state.get(BlockTrainSpawner.FACING).getOpposite());
-					newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.toArray(new Long[0])[0]).stationIds);
+					final Train newTrain = new Train(trainSpawner.trainTypes.get(0), pos.up(), 5, state.get(BlockTrainSpawner.FACING).getOpposite());
+					newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.get(0)).stationIds);
 					trains.add(newTrain);
 				}
 			}
@@ -252,18 +256,18 @@ public class RailwayData extends PersistentState {
 		markDirty();
 	}
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Route> routes) {
+	public void setData(Set<Station> stations, Set<Route> routes) {
 		this.stations.clear();
 		this.stations.addAll(stations);
 		this.routes.clear();
 		this.routes.addAll(routes);
-		validateData(world);
+		validateData();
 	}
 
 	public void setData(WorldAccess world, TrainSpawner newTrainSpawner) {
 		trainSpawners.removeIf(trainSpawner -> trainSpawner.pos.equals(newTrainSpawner.pos));
 		trainSpawners.add(newTrainSpawner);
-		validateData(world);
+		validatePlatformsAndTrainSpawners(world);
 	}
 
 	private Station getStationById(long id) {
@@ -274,11 +278,16 @@ public class RailwayData extends PersistentState {
 		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
 	}
 
-	private void validateData(WorldAccess world) {
+	private void validatePlatformsAndTrainSpawners(WorldAccess world) {
 		platforms.removeIf(platform -> !platform.hasRail(world));
+		trainSpawners.removeIf(trainSpawner -> !(world.getBlockState(trainSpawner.pos).getBlock() instanceof BlockTrainSpawner));
+		validateData();
+	}
+
+	private void validateData() {
 		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stationId) == null));
 		trains.removeIf(train -> train.stationIds.isEmpty());
-		trainSpawners.removeIf(trainSpawner -> !(world.getBlockState(trainSpawner.pos).getBlock() instanceof BlockTrainSpawner));
+		trainSpawners.forEach(trainSpawner -> trainSpawner.routeIds.removeIf(routeId -> getRouteById(routeId) == null));
 		markDirty();
 	}
 

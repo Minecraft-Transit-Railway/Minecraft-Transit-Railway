@@ -31,8 +31,8 @@ public class MTRClient implements ClientModInitializer {
 		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN, (dispatcher, context) -> new RenderMTrain(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.LIGHT_RAIL_1, (dispatcher, context) -> new RenderLightRail1(dispatcher));
 
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiClient::receiveStationsAndRoutesS2C);
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_PLATFORMS_AND_ROUTES, PacketTrainDataGuiClient::receiveStationsPlatformsAndRoutesS2C);
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_ROUTES_TRAIN_SPAWNERS_AND_POS, PacketTrainDataGuiClient::receiveRoutesAndTrainSpawnerS2C);
+		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_DASHBOARD_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openDashboardScreenS2C(packetByteBuf));
+		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_TRAIN_SPAWNER_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openTrainSpawnerScreenS2C(packetByteBuf));
+		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_ALL, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveAll(packetByteBuf));
 	}
 }

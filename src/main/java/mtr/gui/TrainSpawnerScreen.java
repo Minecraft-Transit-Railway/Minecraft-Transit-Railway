@@ -1,10 +1,9 @@
 package mtr.gui;
 
-import io.github.cottonmc.cotton.gui.widget.WLabel;
-import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
-import io.github.cottonmc.cotton.gui.widget.WTabPanel;
+import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
+import mtr.data.Route;
 import mtr.data.Train;
 import mtr.data.TrainSpawner;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -13,13 +12,13 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-public class TrainSpawnerScreen extends ScreenBase implements IGui {
+public class TrainSpawnerScreen extends ScreenBase {
 
 	public TrainSpawnerScreen(BlockPos pos) {
 		super(new GuiSpawner(pos));
@@ -27,13 +26,16 @@ public class TrainSpawnerScreen extends ScreenBase implements IGui {
 
 	private static class GuiSpawner extends ScreenBase.GuiBase {
 
-		private final WidgetRouteOnlyList widgetRoutesAvailable, widgetRoutesAdded;
-		private final WidgetTrainTypeList widgetTrainsAvailable, widgetTrainsAdded;
+		private final WidgetSet<Route> widgetRoutesAvailable;
+		private final WidgetRouteList widgetRoutesAdded;
+		private final WidgetTrainTypeList widgetTrainsAvailable;
+		private final WidgetTrainTypeList widgetTrainsAdded;
 		private final BlockPos pos;
-		private final Set<Long> selectedRoutes = new HashSet<>();
-		private final Set<Train.TrainType> selectedTrains = new HashSet<>();
+		private final List<Long> selectedRouteIds = new ArrayList<>();
+		private final List<Train.TrainType> selectedTrains = new ArrayList<>();
 
-		private static final int PANEL_SIZE = 160;
+		private static final int PANEL_WIDTH = 160;
+		private static final int PANEL_HEIGHT = 120;
 		private static final int SCROLL_BAR_WIDTH = 8;
 
 		private GuiSpawner(BlockPos pos) {
@@ -42,43 +44,23 @@ public class TrainSpawnerScreen extends ScreenBase implements IGui {
 			WTabPanel root = new WTabPanel();
 			setRootPanel(root);
 
-			WPlainPanel panelRoutes = new WPlainPanel();
-			panelRoutes.add(new WLabel(new TranslatableText("gui.mtr.available")), TEXT_PADDING, TEXT_PADDING);
-			panelRoutes.add(new WLabel(new TranslatableText("gui.mtr.added")), PANEL_SIZE + TEXT_PADDING, TEXT_PADDING);
+			widgetRoutesAvailable = new WidgetSet<>(PANEL_WIDTH - SCROLL_BAR_WIDTH);
+			widgetRoutesAdded = new WidgetRouteList(PANEL_WIDTH - SCROLL_BAR_WIDTH);
+			widgetTrainsAvailable = new WidgetTrainTypeList(PANEL_WIDTH - SCROLL_BAR_WIDTH);
+			widgetTrainsAdded = new WidgetTrainTypeList(PANEL_WIDTH - SCROLL_BAR_WIDTH);
 
-			widgetRoutesAvailable = new WidgetRouteOnlyList(PANEL_SIZE - SCROLL_BAR_WIDTH);
-			widgetRoutesAdded = new WidgetRouteOnlyList(PANEL_SIZE - SCROLL_BAR_WIDTH);
+			WPlainPanel panelSettings = new WPlainPanel();
 
-			WidgetBetterScrollPanel scrollPanelRoutesAvailable = new WidgetBetterScrollPanel(widgetRoutesAvailable);
-			scrollPanelRoutesAvailable.setScrollingHorizontally(TriState.FALSE);
-			scrollPanelRoutesAvailable.setScrollingVertically(TriState.TRUE);
-			panelRoutes.add(scrollPanelRoutesAvailable, 0, SQUARE_SIZE, PANEL_SIZE, PANEL_SIZE);
+			WToggleButton toggleRemoveTrains = new WToggleButton(new TranslatableText("gui.mtr.remove_trains"));
+			panelSettings.add(toggleRemoveTrains, 0, 0);
+			WToggleButton toggleShuffleRoutes = new WToggleButton(new TranslatableText("gui.mtr.shuffle_routes"));
+			panelSettings.add(toggleShuffleRoutes, 0, SQUARE_SIZE);
+			WToggleButton toggleShuffleTrains = new WToggleButton(new TranslatableText("gui.mtr.shuffle_trains"));
+			panelSettings.add(toggleShuffleTrains, 0, SQUARE_SIZE * 2);
 
-			WidgetBetterScrollPanel scrollPanelRoutesAdded = new WidgetBetterScrollPanel(widgetRoutesAdded);
-			scrollPanelRoutesAdded.setScrollingHorizontally(TriState.FALSE);
-			scrollPanelRoutesAdded.setScrollingVertically(TriState.TRUE);
-			panelRoutes.add(scrollPanelRoutesAdded, PANEL_SIZE, SQUARE_SIZE, PANEL_SIZE, PANEL_SIZE);
-
-			WPlainPanel panelTrains = new WPlainPanel();
-			panelTrains.add(new WLabel(new TranslatableText("gui.mtr.available")), TEXT_PADDING, TEXT_PADDING);
-			panelTrains.add(new WLabel(new TranslatableText("gui.mtr.added")), PANEL_SIZE + TEXT_PADDING, TEXT_PADDING);
-
-			widgetTrainsAvailable = new WidgetTrainTypeList(PANEL_SIZE - SCROLL_BAR_WIDTH);
-			widgetTrainsAdded = new WidgetTrainTypeList(PANEL_SIZE - SCROLL_BAR_WIDTH);
-
-			WidgetBetterScrollPanel scrollPanelTrainsAvailable = new WidgetBetterScrollPanel(widgetTrainsAvailable);
-			scrollPanelTrainsAvailable.setScrollingHorizontally(TriState.FALSE);
-			scrollPanelTrainsAvailable.setScrollingVertically(TriState.TRUE);
-			panelTrains.add(scrollPanelTrainsAvailable, 0, SQUARE_SIZE, PANEL_SIZE, PANEL_SIZE);
-
-			WidgetBetterScrollPanel scrollPanelTrainsAdded = new WidgetBetterScrollPanel(widgetTrainsAdded);
-			scrollPanelTrainsAdded.setScrollingHorizontally(TriState.FALSE);
-			scrollPanelTrainsAdded.setScrollingVertically(TriState.TRUE);
-			panelTrains.add(scrollPanelTrainsAdded, PANEL_SIZE, SQUARE_SIZE, PANEL_SIZE, PANEL_SIZE);
-
-
-			root.add(panelRoutes, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(new TranslatableText("gui.mtr.routes")));
-			root.add(panelTrains, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/item/train.png"))).tooltip(new TranslatableText("gui.mtr.trains")));
+			root.add(createSelectionScreen(widgetRoutesAvailable, widgetRoutesAdded), tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(new TranslatableText("gui.mtr.routes")));
+			root.add(createSelectionScreen(widgetTrainsAvailable, widgetTrainsAdded), tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/item/train.png"))).tooltip(new TranslatableText("gui.mtr.trains")));
+			root.add(panelSettings, tab -> tab.icon(new TextureIcon(new Identifier("textures/item/iron_pickaxe.png"))).tooltip(new TranslatableText("gui.mtr.settings")));
 
 			refreshInterface();
 			root.validate(this);
@@ -86,35 +68,53 @@ public class TrainSpawnerScreen extends ScreenBase implements IGui {
 
 		@Override
 		public void refreshInterface() {
-			selectedRoutes.clear();
+			selectedRouteIds.clear();
 			selectedTrains.clear();
 			final Optional<TrainSpawner> optionalTrainSpawner = trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst();
 			if (optionalTrainSpawner.isPresent()) {
-				selectedRoutes.addAll(optionalTrainSpawner.get().routeIds);
+				selectedRouteIds.addAll(optionalTrainSpawner.get().routeIds);
 				selectedTrains.addAll(optionalTrainSpawner.get().trainTypes);
 			}
-			widgetRoutesAvailable.refreshList(routes.stream().filter(route -> !selectedRoutes.contains(route.id)).collect(Collectors.toSet()), "icon_add", route -> {
-				selectedRoutes.add(route.id);
-				sendRouteData();
-			});
-			widgetRoutesAdded.refreshList(routes.stream().filter(route -> selectedRoutes.contains(route.id)).collect(Collectors.toSet()), "icon_delete", route -> {
-				selectedRoutes.remove(route.id);
-				sendRouteData();
-			});
-			widgetTrainsAvailable.refreshList(Arrays.stream(Train.TrainType.values()).filter(trainType -> !selectedTrains.contains(trainType)).collect(Collectors.toList()), "icon_add", (trainType) -> {
+
+			widgetRoutesAvailable.refreshList(routes, null, null, null, null, "icon_add", route -> {
+				selectedRouteIds.add(route.id);
+				sendData();
+			}, null);
+			widgetRoutesAdded.refreshList(selectedRouteIds.stream().map(GuiSpawner::getRouteById).collect(Collectors.toList()), this::sendData, selectedRouteIds);
+			widgetTrainsAvailable.refreshList(Arrays.asList(Train.TrainType.values()), trainType -> {
 				selectedTrains.add(trainType);
-				sendRouteData();
+				sendData();
 			});
-			widgetTrainsAdded.refreshList(Arrays.stream(Train.TrainType.values()).filter(selectedTrains::contains).collect(Collectors.toList()), "icon_delete", (trainType) -> {
-				selectedTrains.remove(trainType);
-				sendRouteData();
-			});
+			widgetTrainsAdded.refreshList(selectedTrains, this::sendData, selectedTrains);
+
 			rootPanel.validate(this);
 		}
 
-		private void sendRouteData() {
-			PacketTrainDataGuiClient.sendTrainSpawnerC2S(new TrainSpawner(pos, selectedRoutes, selectedTrains));
-			refreshInterface();
+		@Override
+		public void sendData() {
+			PacketTrainDataGuiClient.sendTrainSpawnerC2S(new TrainSpawner(pos, selectedRouteIds, selectedTrains));
+		}
+
+		private static Route getRouteById(long id) {
+			return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
+		}
+
+		private static WPlainPanel createSelectionScreen(WBox widgetAvailable, WBox widgetAdded) {
+			WPlainPanel panelTrains = new WPlainPanel();
+			panelTrains.add(new WLabel(new TranslatableText("gui.mtr.available")), TEXT_PADDING, TEXT_PADDING);
+			panelTrains.add(new WLabel(new TranslatableText("gui.mtr.added")), PANEL_WIDTH + TEXT_PADDING, TEXT_PADDING);
+
+			WidgetBetterScrollPanel scrollPanelTrainsAvailable = new WidgetBetterScrollPanel(widgetAvailable);
+			scrollPanelTrainsAvailable.setScrollingHorizontally(TriState.FALSE);
+			scrollPanelTrainsAvailable.setScrollingVertically(TriState.TRUE);
+			panelTrains.add(scrollPanelTrainsAvailable, 0, SQUARE_SIZE, PANEL_WIDTH, PANEL_HEIGHT);
+
+			WidgetBetterScrollPanel scrollPanelTrainsAdded = new WidgetBetterScrollPanel(widgetAdded);
+			scrollPanelTrainsAdded.setScrollingHorizontally(TriState.FALSE);
+			scrollPanelTrainsAdded.setScrollingVertically(TriState.TRUE);
+			panelTrains.add(scrollPanelTrainsAdded, PANEL_WIDTH, SQUARE_SIZE, PANEL_WIDTH, PANEL_HEIGHT);
+
+			return panelTrains;
 		}
 
 		@Override

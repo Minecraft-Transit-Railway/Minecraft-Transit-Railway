@@ -27,5 +27,7 @@ public abstract class ScreenBase extends CottonClientScreen implements IGui {
 		public static final Set<TrainSpawner> trainSpawners = new HashSet<>();
 
 		public abstract void refreshInterface();
+
+		public abstract void sendData();
 	}
 }
