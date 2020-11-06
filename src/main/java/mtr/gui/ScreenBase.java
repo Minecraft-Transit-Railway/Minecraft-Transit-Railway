@@ -25,6 +25,7 @@ public abstract class ScreenBase extends CottonClientScreen implements IGui {
 		public static final Set<Route> routes = new HashSet<>();
 		public static final Set<Train> trains = new HashSet<>();
 		public static final Set<TrainSpawner> trainSpawners = new HashSet<>();
+		public static boolean refreshingInterface = false;
 
 		public abstract void refreshInterface();
 
