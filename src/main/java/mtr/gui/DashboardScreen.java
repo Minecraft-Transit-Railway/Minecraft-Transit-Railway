@@ -6,6 +6,7 @@ import io.github.cottonmc.cotton.gui.widget.WTabPanel;
 import io.github.cottonmc.cotton.gui.widget.icon.TextureIcon;
 import mtr.MTR;
 import mtr.data.Station;
+import mtr.data.Train;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
@@ -23,6 +24,7 @@ public class DashboardScreen extends ScreenBase {
 
 		private final WidgetSet<Station> widgetStationSet;
 		private final WidgetRouteChildrenSet widgetRouteChildrenSet;
+		private final WidgetSet<Train> widgetTrainSet;
 		private final WidgetMap widgetMap;
 
 		private static final int PANEL_BACKGROUND_PADDING = 8;
@@ -41,6 +43,7 @@ public class DashboardScreen extends ScreenBase {
 
 			widgetStationSet = new WidgetSet<>(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
 			widgetRouteChildrenSet = new WidgetRouteChildrenSet(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
+			widgetTrainSet = new WidgetSet<>(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 3);
 
 			final double mapCenterX, mapCenterY;
 			if (minecraftClient.player == null) {
@@ -79,24 +82,37 @@ public class DashboardScreen extends ScreenBase {
 			scrollPanelRoutes.setScrollingVertically(TriState.TRUE);
 			scrollPanelRoutes.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
 
+			WidgetBetterScrollPanel scrollPanelTrains = new WidgetBetterScrollPanel(widgetTrainSet);
+			scrollPanelTrains.setScrollingHorizontally(TriState.FALSE);
+			scrollPanelTrains.setScrollingVertically(TriState.TRUE);
+			scrollPanelTrains.setSize(LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight - TAB_HEIGHT - PANEL_BACKGROUND_PADDING * 2);
+
 			WTabPanel tabPanel = new WTabPanel();
 			tabPanel.setBackgroundPainter((left, top, panel) -> ScreenDrawing.coloredRect(left, top, panel.getWidth() + PANEL_BACKGROUND_PADDING, panel.getHeight(), ARGB_BLACK));
 			tabPanel.add(scrollPanelStations, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/block/logo.png"))).tooltip(new TranslatableText("gui.mtr.stations")));
 			tabPanel.add(scrollPanelRoutes, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(new TranslatableText("gui.mtr.routes")));
+			tabPanel.add(scrollPanelTrains, tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/item/train.png"))).tooltip(new TranslatableText("gui.mtr.trains")));
 			root.add(tabPanel, 0, 0, LEFT_PANEL_WIDTH - PANEL_BACKGROUND_PADDING * 2, windowHeight);
 
 			refreshInterface();
-			root.validate(this);
 		}
 
 		@Override
 		public void refreshInterface() {
-			widgetStationSet.refreshList(stations, "icon_find", widgetMap::find, "icon_edit", widgetMap::startEditingStation, "icon_delete", station -> {
-				stations.remove(station);
-				sendData();
-			}, null);
-			widgetRouteChildrenSet.refreshList(routes, widgetMap::startEditingRoute, routes::remove, this::sendData);
-			rootPanel.validate(this);
+			if (!refreshingInterface) {
+				refreshingInterface = true;
+
+				widgetStationSet.refreshList(stations, "icon_find", widgetMap::find, "icon_edit", widgetMap::startEditingStation, "icon_delete", station -> {
+					stations.remove(station);
+					sendData();
+				}, null);
+				widgetRouteChildrenSet.refreshList(routes, widgetMap::startEditingRoute, routes::remove, this::sendData);
+				widgetTrainSet.refreshList(trains, null, null, null, null, "icon_find", train -> {
+				}, null);
+				rootPanel.validate(this);
+			}
+
+			refreshingInterface = false;
 		}
 
 		@Override

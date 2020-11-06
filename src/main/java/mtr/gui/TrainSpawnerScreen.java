@@ -15,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TrainSpawnerScreen extends ScreenBase {
@@ -30,9 +29,11 @@ public class TrainSpawnerScreen extends ScreenBase {
 		private final WidgetRouteList widgetRoutesAdded;
 		private final WidgetTrainTypeList widgetTrainsAvailable;
 		private final WidgetTrainTypeList widgetTrainsAdded;
+		private final WToggleButton widgetToggleRemoveTrains, widgetToggleShuffleRoutes, widgetToggleShuffleTrains;
 		private final BlockPos pos;
 		private final List<Long> selectedRouteIds = new ArrayList<>();
 		private final List<Train.TrainType> selectedTrains = new ArrayList<>();
+		private boolean removeTrains, shuffleRoutes, shuffleTrains;
 
 		private static final int PANEL_WIDTH = 160;
 		private static final int PANEL_HEIGHT = 120;
@@ -51,48 +52,74 @@ public class TrainSpawnerScreen extends ScreenBase {
 
 			WPlainPanel panelSettings = new WPlainPanel();
 
-			WToggleButton toggleRemoveTrains = new WToggleButton(new TranslatableText("gui.mtr.remove_trains"));
-			panelSettings.add(toggleRemoveTrains, 0, 0);
-			WToggleButton toggleShuffleRoutes = new WToggleButton(new TranslatableText("gui.mtr.shuffle_routes"));
-			panelSettings.add(toggleShuffleRoutes, 0, SQUARE_SIZE);
-			WToggleButton toggleShuffleTrains = new WToggleButton(new TranslatableText("gui.mtr.shuffle_trains"));
-			panelSettings.add(toggleShuffleTrains, 0, SQUARE_SIZE * 2);
+			widgetToggleRemoveTrains = new WToggleButton(new TranslatableText("gui.mtr.remove_trains"));
+			widgetToggleRemoveTrains.setOnToggle((toggled) -> {
+				removeTrains = toggled;
+				sendData();
+			});
+			panelSettings.add(widgetToggleRemoveTrains, 0, 0);
+
+			widgetToggleShuffleRoutes = new WToggleButton(new TranslatableText("gui.mtr.shuffle_routes"));
+			widgetToggleShuffleRoutes.setOnToggle((toggled) -> {
+				shuffleRoutes = toggled;
+				sendData();
+			});
+			panelSettings.add(widgetToggleShuffleRoutes, 0, SQUARE_SIZE);
+
+			widgetToggleShuffleTrains = new WToggleButton(new TranslatableText("gui.mtr.shuffle_trains"));
+			widgetToggleShuffleTrains.setOnToggle((toggled) -> {
+				shuffleTrains = toggled;
+				sendData();
+			});
+			panelSettings.add(widgetToggleShuffleTrains, 0, SQUARE_SIZE * 2);
 
 			root.add(createSelectionScreen(widgetRoutesAvailable, widgetRoutesAdded), tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/gui/icon_routes.png"))).tooltip(new TranslatableText("gui.mtr.routes")));
 			root.add(createSelectionScreen(widgetTrainsAvailable, widgetTrainsAdded), tab -> tab.icon(new TextureIcon(new Identifier(MTR.MOD_ID, "textures/item/train.png"))).tooltip(new TranslatableText("gui.mtr.trains")));
 			root.add(panelSettings, tab -> tab.icon(new TextureIcon(new Identifier("textures/item/iron_pickaxe.png"))).tooltip(new TranslatableText("gui.mtr.settings")));
 
 			refreshInterface();
-			root.validate(this);
 		}
 
 		@Override
 		public void refreshInterface() {
-			selectedRouteIds.clear();
-			selectedTrains.clear();
-			final Optional<TrainSpawner> optionalTrainSpawner = trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst();
-			if (optionalTrainSpawner.isPresent()) {
-				selectedRouteIds.addAll(optionalTrainSpawner.get().routeIds);
-				selectedTrains.addAll(optionalTrainSpawner.get().trainTypes);
+			if (!refreshingInterface) {
+				refreshingInterface = true;
+
+				selectedRouteIds.clear();
+				selectedTrains.clear();
+				final TrainSpawner trainSpawner = getTrainSpawner();
+				if (trainSpawner != null) {
+					selectedRouteIds.addAll(trainSpawner.routeIds);
+					selectedTrains.addAll(trainSpawner.trainTypes);
+					removeTrains = trainSpawner.removeTrains;
+					shuffleRoutes = trainSpawner.shuffleRoutes;
+					shuffleTrains = trainSpawner.shuffleTrains;
+				}
+
+				widgetRoutesAvailable.refreshList(routes, null, null, null, null, "icon_add", route -> {
+					selectedRouteIds.add(route.id);
+					sendData();
+				}, null);
+				widgetRoutesAdded.refreshList(selectedRouteIds.stream().map(GuiSpawner::getRouteById).collect(Collectors.toList()), this::sendData, selectedRouteIds);
+				widgetTrainsAvailable.refreshList(Arrays.asList(Train.TrainType.values()), trainType -> {
+					selectedTrains.add(trainType);
+					sendData();
+				});
+				widgetTrainsAdded.refreshList(selectedTrains, this::sendData, selectedTrains);
+
+				widgetToggleRemoveTrains.setToggle(removeTrains);
+				widgetToggleShuffleRoutes.setToggle(shuffleRoutes);
+				widgetToggleShuffleTrains.setToggle(shuffleTrains);
+
+				rootPanel.validate(this);
 			}
 
-			widgetRoutesAvailable.refreshList(routes, null, null, null, null, "icon_add", route -> {
-				selectedRouteIds.add(route.id);
-				sendData();
-			}, null);
-			widgetRoutesAdded.refreshList(selectedRouteIds.stream().map(GuiSpawner::getRouteById).collect(Collectors.toList()), this::sendData, selectedRouteIds);
-			widgetTrainsAvailable.refreshList(Arrays.asList(Train.TrainType.values()), trainType -> {
-				selectedTrains.add(trainType);
-				sendData();
-			});
-			widgetTrainsAdded.refreshList(selectedTrains, this::sendData, selectedTrains);
-
-			rootPanel.validate(this);
+			refreshingInterface = false;
 		}
 
 		@Override
 		public void sendData() {
-			PacketTrainDataGuiClient.sendTrainSpawnerC2S(new TrainSpawner(pos, selectedRouteIds, selectedTrains));
+			PacketTrainDataGuiClient.sendTrainSpawnerC2S(new TrainSpawner(pos, selectedRouteIds, selectedTrains, removeTrains, shuffleRoutes, shuffleTrains));
 		}
 
 		private static Route getRouteById(long id) {
@@ -115,6 +142,10 @@ public class TrainSpawnerScreen extends ScreenBase {
 			panelTrains.add(scrollPanelTrainsAdded, PANEL_WIDTH, SQUARE_SIZE, PANEL_WIDTH, PANEL_HEIGHT);
 
 			return panelTrains;
+		}
+
+		private TrainSpawner getTrainSpawner() {
+			return trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst().orElse(null);
 		}
 
 		@Override

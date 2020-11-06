@@ -1,10 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
-import mtr.data.Platform;
-import mtr.data.Route;
-import mtr.data.Station;
-import mtr.data.TrainSpawner;
+import mtr.data.*;
 import mtr.gui.DashboardScreen;
 import mtr.gui.ScreenBase;
 import mtr.gui.TrainSpawnerScreen;
@@ -26,6 +23,17 @@ public class PacketTrainDataGuiClient implements IPacket {
 	public static void openTrainSpawnerScreenS2C(PacketByteBuf packet) {
 		if (receiveAll(packet)) {
 			MinecraftClient.getInstance().openScreen(new TrainSpawnerScreen(packet.readBlockPos()));
+		}
+	}
+
+	public static void receiveTrainsS2C(PacketByteBuf packet) {
+		final Set<Train> trains = IPacket.receiveData(packet, Train::new);
+		ScreenBase.GuiBase.trains.clear();
+		ScreenBase.GuiBase.trains.addAll(trains);
+
+		final Screen screen = MinecraftClient.getInstance().currentScreen;
+		if (screen instanceof DashboardScreen) {
+			((DashboardScreen.GuiBase) ((DashboardScreen) screen).getDescription()).refreshInterface();
 		}
 	}
 

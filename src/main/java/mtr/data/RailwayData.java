@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockTrainSpawner;
+import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
 import net.minecraft.block.BlockState;
@@ -10,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
@@ -148,13 +150,9 @@ public class RailwayData extends PersistentState {
 		return trains;
 	}
 
-	public void removeTrains() {
-		trains.forEach(train -> Arrays.stream(train.entities).filter(Objects::nonNull).forEach(Entity::kill));
-		trains.clear();
-	}
-
 	public void simulateTrains(WorldAccess world) {
 		final long millis = System.currentTimeMillis();
+		final Set<Train> trainsToRemove = new HashSet<>();
 
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
@@ -165,6 +163,7 @@ public class RailwayData extends PersistentState {
 
 				if (train.stationIds.isEmpty()) {
 					// TODO train is dead
+					trainsToRemove.add(train);
 				} else {
 					final Station station = getStationById(train.stationIds.get(0));
 					final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
@@ -201,6 +200,13 @@ public class RailwayData extends PersistentState {
 						train.posX[i] += movement.getX();
 						train.posY[i] += movement.getY();
 						train.posZ[i] += movement.getZ();
+
+						if (i == 0 || i == trainLength - 1) {
+							final BlockPos posBelow = new BlockPos(train.posX[i], train.posY[i] - 1, train.posZ[i]);
+							if (world.getBlockState(posBelow).getBlock() instanceof BlockTrainSpawner && getTrainSpawnerByPos(posBelow).removeTrains) {
+								trainsToRemove.add(train);
+							}
+						}
 					}
 				}
 			}
@@ -229,17 +235,29 @@ public class RailwayData extends PersistentState {
 			}
 		});
 
+		trainsToRemove.forEach(this::removeTrain);
+		if ((millis / 50) % 20 == 0) {
+			PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
+		}
+
 		trainSpawners.forEach(trainSpawner -> {
 			final int interval = 5; // TODO get seconds
 			final boolean spawnTime = (millis / 50) % (interval * 20) == 0;
+
 			if (spawnTime && !trainSpawner.routeIds.isEmpty() && !trainSpawner.trainTypes.isEmpty()) {
 				final BlockPos pos = trainSpawner.pos;
 				final BlockState state = world.getBlockState(pos);
-				if (state.getBlock() instanceof BlockTrainSpawner && world.getBlockState(pos.up()).getBlock() instanceof RailBlock) {
-					// TODO randomise train types and routes
-					final Train newTrain = new Train(trainSpawner.trainTypes.get(0), pos.up(), 5, state.get(BlockTrainSpawner.FACING).getOpposite());
-					newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.get(0)).stationIds);
-					trains.add(newTrain);
+
+				if (state.getBlock() instanceof BlockTrainSpawner) {
+					final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
+					final BlockPos spawnPos = pos.up().offset(spawnDirection);
+
+					if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock) {
+						// TODO randomise train types and routes
+						final Train newTrain = new Train(trainSpawner.trainTypes.get(0), spawnPos, 5, spawnDirection);
+						newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.get(0)).stationIds);
+						trains.add(newTrain);
+					}
 				}
 			}
 		});
@@ -276,6 +294,15 @@ public class RailwayData extends PersistentState {
 
 	private Route getRouteById(long id) {
 		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
+	}
+
+	private TrainSpawner getTrainSpawnerByPos(BlockPos pos) {
+		return trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst().orElse(null);
+	}
+
+	private void removeTrain(Train train) {
+		Arrays.stream(train.entities).filter(Objects::nonNull).forEach(Entity::kill);
+		trains.remove(train);
 	}
 
 	private void validatePlatformsAndTrainSpawners(WorldAccess world) {
