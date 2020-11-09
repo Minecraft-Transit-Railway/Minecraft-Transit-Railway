@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import mtr.data.*;
 import mtr.gui.DashboardScreen;
 import mtr.gui.ScreenBase;
+import mtr.gui.TestScreen;
 import mtr.gui.TrainSpawnerScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -16,7 +17,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 
 	public static void openDashboardScreenS2C(PacketByteBuf packet) {
 		if (receiveAll(packet)) {
-			MinecraftClient.getInstance().openScreen(new DashboardScreen());
+			MinecraftClient.getInstance().openScreen(new TestScreen());
 		}
 	}
 

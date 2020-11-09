@@ -4,6 +4,7 @@ import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.MTR;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
@@ -15,6 +16,7 @@ import java.util.stream.IntStream;
 public interface IGui {
 
 	int SQUARE_SIZE = 20;
+	int TEXT_HEIGHT = 8;
 	int TEXT_PADDING = 6;
 	int TEXT_FIELD_PADDING = 4;
 	int LINE_HEIGHT = 10;
@@ -63,5 +65,23 @@ public interface IGui {
 			ScreenDrawing.drawStringWithShadow(matrices, orderedText, horizontalAlignment, x, offset, 0, ARGB_WHITE);
 			offset += lineHeights[i];
 		}
+	}
+
+	static int divideColorRGB(int color, int amount) {
+		final int r = ((color >> 16) & 0xFF) / amount;
+		final int g = ((color >> 8) & 0xFF) / amount;
+		final int b = (color & 0xFF) / amount;
+		return (r << 16) + (g << 8) + b;
+	}
+
+	static void drawRectangle(BufferBuilder buffer, double x1, double y1, double x2, double y2, int color) {
+		final float a = (color >> 24 & 0xFF) / 255F;
+		final float r = (color >> 16 & 0xFF) / 255F;
+		final float g = (color >> 8 & 0xFF) / 255F;
+		final float b = (color & 0xFF) / 255F;
+		buffer.vertex(x1, y1, 0).color(r, g, b, a).next();
+		buffer.vertex(x1, y2, 0).color(r, g, b, a).next();
+		buffer.vertex(x2, y2, 0).color(r, g, b, a).next();
+		buffer.vertex(x2, y1, 0).color(r, g, b, a).next();
 	}
 }
