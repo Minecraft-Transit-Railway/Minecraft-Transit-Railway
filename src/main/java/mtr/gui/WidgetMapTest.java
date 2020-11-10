@@ -3,13 +3,14 @@ package mtr.gui;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.Platform;
-import mtr.data.Route;
 import mtr.data.Station;
+import mtr.data.Train;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
@@ -21,49 +22,43 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class WidgetMapTest implements Drawable, Element, IGui {
 
-	private final int x;
-	private final int y;
-	private final int width;
-	private final int height;
-	private final double playerX, playerZ;
-	private final Runnable onMapChange;
-	private final ClientWorld world;
-	private final TextRenderer textRenderer;
-
+	private int x;
+	private int y;
+	private int width;
+	private int height;
 	private double scale;
 	private double centerX;
 	private double centerY;
-	private Station editingStation;
-	private Route editingRoute;
 	private Pair<Integer, Integer> drawStation1, drawStation2;
-	private List<Station> moreStations;
+	private int mapState;
 
-	private static final int LEFT_MOUSE_BUTTON = 0;
+	private final OnDrawCorners onDrawCorners;
+	private final OnClickStation onClickStation;
+	private final ClientWorld world;
+	private final ClientPlayerEntity player;
+	private final TextRenderer textRenderer;
+
+	private static final int ARGB_BLUE = 0xFF4285F4;
 	private static final int SCALE_UPPER_LIMIT = 16;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
 
-	public WidgetMapTest(int x, int y, int width, int height, Runnable onMapChange) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.onMapChange = onMapChange;
+	public WidgetMapTest(OnDrawCorners onDrawCorners, OnClickStation onClickStation) {
+		this.onDrawCorners = onDrawCorners;
+		this.onClickStation = onClickStation;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
+		player = minecraftClient.player;
 		textRenderer = minecraftClient.textRenderer;
-		if (minecraftClient.player == null) {
-			centerX = playerX = 0;
-			centerY = playerZ = 0;
+		if (player == null) {
+			centerX = 0;
+			centerY = 0;
 		} else {
-			centerX = playerX = minecraftClient.player.getX();
-			centerY = playerZ = minecraftClient.player.getZ();
+			centerX = player.getX();
+			centerY = player.getZ();
 		}
 		scale = 1;
 	}
@@ -97,33 +92,35 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 		for (Station station : ScreenBase.GuiBase.stations) {
 			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 		}
-
-		if (editingStation != null) {
-			if (drawStation1 != null && drawStation2 != null) {
-				drawRectangleFromWorldCoords(buffer, drawStation1, drawStation2, ARGB_WHITE_TRANSLUCENT);
+		for (Train train : ScreenBase.GuiBase.trains) {
+			for (int i = 0; i < train.posX.length - 1; i++) {
+				final double carX = (train.posX[i] + train.posX[i + 1]) / 2;
+				final double carZ = (train.posZ[i] + train.posZ[i + 1]) / 2;
+				drawRectangleFromWorldCoords(buffer, carX - 0.5, carZ - 0.5, carX + 0.5, carZ + 0.5, ARGB_BLACK + train.color);
 			}
 		}
 
-		final double playerCoordX = (playerX - centerX) * scale + width / 2D;
-		final double playerCoordY = (playerZ - centerY) * scale + height / 2D;
-		drawRectangle(buffer, playerCoordX - 2, playerCoordY - 3, playerCoordX + 2, playerCoordY + 3, ARGB_WHITE);
-		drawRectangle(buffer, playerCoordX - 3, playerCoordY - 2, playerCoordX + 3, playerCoordY + 2, ARGB_WHITE);
-		drawRectangle(buffer, playerCoordX - 2, playerCoordY - 2, playerCoordX + 2, playerCoordY + 2, ARGB_BLUE);
+		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {
+			drawRectangleFromWorldCoords(buffer, drawStation1, drawStation2, ARGB_WHITE_TRANSLUCENT);
+		}
+
+		if (player != null) {
+			final double playerCoordX = (player.getX() - centerX) * scale + width / 2D;
+			final double playerCoordY = (player.getZ() - centerY) * scale + height / 2D;
+			drawRectangle(buffer, playerCoordX - 2, playerCoordY - 3, playerCoordX + 2, playerCoordY + 3, ARGB_WHITE);
+			drawRectangle(buffer, playerCoordX - 3, playerCoordY - 2, playerCoordX + 3, playerCoordY + 2, ARGB_WHITE);
+			drawRectangle(buffer, playerCoordX - 2, playerCoordY - 2, playerCoordX + 2, playerCoordY + 2, ARGB_BLUE);
+		}
 
 		tessellator.draw();
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 
 
-		if (editingStation != null) {
+		if (mapState == 1) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_station").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
-		}
-
-		if (editingRoute != null) {
+		} else if (mapState == 2) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
-			for (int i = 0; i < moreStations.size(); i++) {
-				DrawableHelper.drawStringWithShadow(matrices, textRenderer, IGui.formatStationName(moreStations.get(i).name), x + TEXT_PADDING, y + TEXT_PADDING * 2 + LINE_HEIGHT * (i + 1), ARGB_WHITE);
-			}
 		}
 
 		final Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
@@ -133,7 +130,7 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		if (editingStation != null && button == LEFT_MOUSE_BUTTON) {
+		if (mapState == 1) {
 			drawStation2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
 			if (drawStation1.getLeft().equals(drawStation2.getLeft())) {
 				drawStation2 = new Pair<>(drawStation2.getLeft() + 1, drawStation2.getRight());
@@ -141,6 +138,7 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 			if (drawStation1.getRight().equals(drawStation2.getRight())) {
 				drawStation2 = new Pair<>(drawStation2.getLeft(), drawStation2.getRight() + 1);
 			}
+			onDrawCorners.onDrawCorners(drawStation1, drawStation2);
 		} else {
 			centerX -= deltaX / scale;
 			centerY -= deltaY / scale;
@@ -151,14 +149,13 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
-			if (editingStation != null && button == LEFT_MOUSE_BUTTON) {
+			if (mapState == 1) {
 				drawStation1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				drawStation2 = new Pair<>(drawStation1.getLeft() + 1, drawStation1.getRight() + 1);
-			} else if (editingRoute != null) {
-				Pair<Integer, Integer> worldPos = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				ScreenBase.GuiBase.stations.stream().filter(station -> station.inStation(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(station -> moreStations.add(station));
+				drawStation2 = null;
+			} else if (mapState == 2) {
+				final Pair<Integer, Integer> worldPos = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
+				ScreenBase.GuiBase.stations.stream().filter(station -> station.inStation(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(station -> onClickStation.onClickStation(station.id));
 			}
-			onMapChange.run();
 			return true;
 		} else {
 			return false;
@@ -182,7 +179,14 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height - SQUARE_SIZE * 2;
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE && mouseY >= y + height - SQUARE_SIZE * 2);
+	}
+
+	public void setPositionAndSize(int x, int y, int width, int height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
 	}
 
 	public void scale(double amount) {
@@ -190,43 +194,24 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 		scale = MathHelper.clamp(scale, SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
 	}
 
+	public void find(double x1, double z1, double x2, double z2) {
+		centerX = (x1 + x2) / 2;
+		centerY = (z1 + z2) / 2;
+		scale = Math.max(2, scale);
+	}
+
 	public void startEditingStation(Station editingStation) {
-		this.editingStation = editingStation;
-		editingRoute = null;
+		mapState = 1;
 		drawStation1 = editingStation.corner1;
 		drawStation2 = editingStation.corner2;
 	}
 
-	public void startEditingRoute(Route editingRoute) {
-		editingStation = null;
-		this.editingRoute = editingRoute;
-		moreStations = new ArrayList<>();
+	public void startEditingRoute() {
+		mapState = 2;
 	}
 
 	public void stopEditing() {
-		editingStation = null;
-		editingRoute = null;
-	}
-
-	public boolean stationDrawn() {
-		return drawStation1 != null && drawStation2 != null;
-	}
-
-	public void onDoneEditingStation(String name, int color) {
-		ScreenBase.GuiBase.stations.remove(editingStation);
-		editingStation.name = name;
-		editingStation.corner1 = drawStation1;
-		editingStation.corner2 = drawStation2;
-		editingStation.color = color;
-		ScreenBase.GuiBase.stations.add(editingStation);
-	}
-
-	public void onDoneEditingRoute(String name, int color) {
-		ScreenBase.GuiBase.routes.remove(editingRoute);
-		editingRoute.name = name;
-		editingRoute.color = color;
-		moreStations.forEach(station -> editingRoute.stationIds.add(station.id));
-		ScreenBase.GuiBase.routes.add(editingRoute);
+		mapState = 0;
 	}
 
 	private Pair<Integer, Integer> coordsToWorldPos(int mouseX, int mouseY) {
@@ -255,5 +240,15 @@ public class WidgetMapTest implements Drawable, Element, IGui {
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
 			IGui.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
 		}
+	}
+
+	@FunctionalInterface
+	public interface OnDrawCorners {
+		void onDrawCorners(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
+	}
+
+	@FunctionalInterface
+	public interface OnClickStation {
+		void onClickStation(long stationId);
 	}
 }

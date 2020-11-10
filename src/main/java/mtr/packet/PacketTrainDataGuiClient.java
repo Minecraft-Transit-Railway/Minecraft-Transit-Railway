@@ -28,9 +28,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 	}
 
 	public static void receiveTrainsS2C(PacketByteBuf packet) {
-		final Set<Train> trains = IPacket.receiveData(packet, Train::new);
-		ScreenBase.GuiBase.trains.clear();
-		ScreenBase.GuiBase.trains.addAll(trains);
+		ScreenBase.GuiBase.trains = IPacket.receiveData(packet, Train::new);
 
 		final Screen screen = MinecraftClient.getInstance().currentScreen;
 		if (screen instanceof DashboardScreen) {
@@ -52,19 +50,10 @@ public class PacketTrainDataGuiClient implements IPacket {
 	}
 
 	public static boolean receiveAll(PacketByteBuf packet) {
-		final Set<Station> stations = IPacket.receiveData(packet, Station::new);
-		final Set<Platform> platforms = IPacket.receiveData(packet, Platform::new);
-		final Set<Route> routes = IPacket.receiveData(packet, Route::new);
-		final Set<TrainSpawner> trainSpawners = IPacket.receiveData(packet, TrainSpawner::new);
-
-		ScreenBase.GuiBase.stations.clear();
-		ScreenBase.GuiBase.stations.addAll(stations);
-		ScreenBase.GuiBase.platforms.clear();
-		ScreenBase.GuiBase.platforms.addAll(platforms);
-		ScreenBase.GuiBase.routes.clear();
-		ScreenBase.GuiBase.routes.addAll(routes);
-		ScreenBase.GuiBase.trainSpawners.clear();
-		ScreenBase.GuiBase.trainSpawners.addAll(trainSpawners);
+		ScreenBase.GuiBase.stations = IPacket.receiveData(packet, Station::new);
+		ScreenBase.GuiBase.platforms = IPacket.receiveData(packet, Platform::new);
+		ScreenBase.GuiBase.routes = IPacket.receiveData(packet, Route::new);
+		ScreenBase.GuiBase.trainSpawners = IPacket.receiveData(packet, TrainSpawner::new);
 
 		final Screen screen = MinecraftClient.getInstance().currentScreen;
 		if (screen instanceof ScreenBase) {
