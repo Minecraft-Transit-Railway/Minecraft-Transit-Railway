@@ -20,11 +20,11 @@ public abstract class ScreenBase extends CottonClientScreen implements IGui {
 
 	public abstract static class GuiBase extends LightweightGuiDescription {
 
-		public static final Set<Station> stations = new HashSet<>();
-		public static final Set<Platform> platforms = new HashSet<>();
-		public static final Set<Route> routes = new HashSet<>();
-		public static final Set<Train> trains = new HashSet<>();
-		public static final Set<TrainSpawner> trainSpawners = new HashSet<>();
+		public static Set<Station> stations = new HashSet<>();
+		public static Set<Platform> platforms = new HashSet<>();
+		public static Set<Route> routes = new HashSet<>();
+		public static Set<Train> trains = new HashSet<>();
+		public static Set<TrainSpawner> trainSpawners = new HashSet<>();
 		public static boolean refreshingInterface = false;
 
 		public abstract void refreshInterface();

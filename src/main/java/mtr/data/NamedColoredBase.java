@@ -3,6 +3,8 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 
+import java.util.Random;
+
 public abstract class NamedColoredBase extends DataBase implements Comparable<NamedColoredBase> {
 
 	public final long id;
@@ -16,7 +18,7 @@ public abstract class NamedColoredBase extends DataBase implements Comparable<Na
 	private static final int PACKET_STRING_READ_LENGTH = 32767;
 
 	public NamedColoredBase() {
-		id = System.currentTimeMillis();
+		id = new Random().nextInt(Integer.MAX_VALUE);
 		name = "";
 	}
 

@@ -166,15 +166,18 @@ public class RailwayData extends PersistentState {
 					trainsToRemove.add(train);
 				} else {
 					final Station station = getStationById(train.stationIds.get(0));
-					final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
-					final BlockPos start2 = new BlockPos(train.posX[trainLength - 1], train.posY[trainLength - 1], train.posZ[trainLength - 1]);
-					final BlockPos destinationPos = station.getCenter();
-					final boolean reverse = PathFinderBase.distanceBetween(start1, destinationPos) > PathFinderBase.distanceBetween(start2, destinationPos);
-					final RoutePathFinder routePathFinder = new RoutePathFinder(world, reverse ? start1 : start2, station);
 
-					train.resetPathIndex(reverse);
-					train.path.clear();
-					train.path.addAll(routePathFinder.findPath());
+					if (station != null) {
+						final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
+						final BlockPos start2 = new BlockPos(train.posX[trainLength - 1], train.posY[trainLength - 1], train.posZ[trainLength - 1]);
+						final BlockPos destinationPos = station.getCenter();
+						final boolean reverse = PathFinderBase.distanceBetween(start1, destinationPos) > PathFinderBase.distanceBetween(start2, destinationPos);
+						final RoutePathFinder routePathFinder = new RoutePathFinder(world, reverse ? start1 : start2, station);
+
+						train.resetPathIndex(reverse);
+						train.path.clear();
+						train.path.addAll(routePathFinder.findPath());
+					}
 					train.stationIds.remove(0);
 				}
 			} else {
@@ -236,9 +239,7 @@ public class RailwayData extends PersistentState {
 		});
 
 		trainsToRemove.forEach(this::removeTrain);
-		if ((millis / 50) % 20 == 0) {
-			PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
-		}
+		PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
 
 		trainSpawners.forEach(trainSpawner -> {
 			final int interval = 5; // TODO get seconds
@@ -251,11 +252,12 @@ public class RailwayData extends PersistentState {
 				if (state.getBlock() instanceof BlockTrainSpawner) {
 					final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
 					final BlockPos spawnPos = pos.up().offset(spawnDirection);
+					final Route route = getRouteById(trainSpawner.routeIds.get(0));
 
-					if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock) {
+					if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock && route != null) {
 						// TODO randomise train types and routes
 						final Train newTrain = new Train(trainSpawner.trainTypes.get(0), spawnPos, 5, spawnDirection);
-						newTrain.stationIds.addAll(getRouteById(trainSpawner.routeIds.get(0)).stationIds);
+						newTrain.stationIds.addAll(route.stationIds);
 						trains.add(newTrain);
 					}
 				}

@@ -56,7 +56,7 @@ public final class Train extends NamedColoredBase {
 	public Train(CompoundTag tag) {
 		super(tag);
 		trainType = TrainType.values()[tag.getInt(KEY_TRAIN_TYPE)];
-		name = trainType.getName();
+		name = getName();
 		color = trainType.color;
 		stationIds = new ArrayList<>();
 		final long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
@@ -92,7 +92,7 @@ public final class Train extends NamedColoredBase {
 	public Train(PacketByteBuf packet) {
 		super(packet);
 		trainType = TrainType.values()[packet.readInt()];
-		name = trainType.getName();
+		name = getName();
 		color = trainType.color;
 		stationIds = new ArrayList<>();
 		final int stationCount = packet.readInt();
@@ -186,9 +186,13 @@ public final class Train extends NamedColoredBase {
 		}
 	}
 
+	private String getName() {
+		return trainType.getName() + " " + id;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("Train %s: (%s, %s, %s) %s %f", trainType.name(), Arrays.toString(posX), Arrays.toString(posY), Arrays.toString(posZ), stationIds, speed);
+		return String.format("Train %s: (%s, %s, %s) %s %f", getName(), Arrays.toString(posX), Arrays.toString(posY), Arrays.toString(posZ), stationIds, speed);
 	}
 
 	public enum TrainType {

@@ -4,6 +4,7 @@ import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.MTR;
+import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -24,7 +25,6 @@ public interface IGui {
 	int RGB_WHITE = 0xFFFFFF;
 	int ARGB_WHITE = 0xFFFFFFFF;
 	int ARGB_BLACK = 0xFF000000;
-	int ARGB_BLUE = 0xFF4285F4;
 	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
 
@@ -65,6 +65,12 @@ public interface IGui {
 			ScreenDrawing.drawStringWithShadow(matrices, orderedText, horizontalAlignment, x, offset, 0, ARGB_WHITE);
 			offset += lineHeights[i];
 		}
+	}
+
+	static void setPositionAndWidth(AbstractButtonWidget widget, int x, int y, int widgetWidth) {
+		widget.x = x;
+		widget.y = y;
+		widget.setWidth(widgetWidth);
 	}
 
 	static int divideColorRGB(int color, int amount) {
