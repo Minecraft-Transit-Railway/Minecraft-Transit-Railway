@@ -1,9 +1,7 @@
 package mtr.gui;
 
-import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
-import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import mtr.MTR;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.util.math.MatrixStack;
@@ -35,7 +33,7 @@ public interface IGui {
 		return name.replace('|', ' ');
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, int x, int y, boolean verticalChinese) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, int x, int y, boolean verticalChinese) {
 		if (verticalChinese) {
 			StringBuilder textBuilder = new StringBuilder();
 			for (int i = 0; i < text.length(); i++) {
@@ -62,10 +60,10 @@ public interface IGui {
 		}
 
 		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
-		int offset = y - IntStream.of(lineHeights).sum() * verticalAlignment.ordinal() / 2;
+		int offset = y - IntStream.of(lineHeights).sum() * verticalAlignment / 2;
 		for (int i = 0; i < textSplit.length; i++) {
-			OrderedText orderedText = new LiteralText(textSplit[i]).fillStyle(style).asOrderedText();
-			ScreenDrawing.drawStringWithShadow(matrices, orderedText, horizontalAlignment, x, offset, 0, ARGB_WHITE);
+			final OrderedText orderedText = new LiteralText(textSplit[i]).fillStyle(style).asOrderedText();
+			textRenderer.drawWithShadow(matrices, orderedText, x + horizontalAlignment * textRenderer.getWidth(orderedText) / 2F, offset, ARGB_WHITE);
 			offset += lineHeights[i];
 		}
 	}
