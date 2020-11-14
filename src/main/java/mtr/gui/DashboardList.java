@@ -28,6 +28,7 @@ public class DashboardList implements IGui {
 	private final TexturedButtonWidget buttonEdit;
 	private final TexturedButtonWidget buttonUp;
 	private final TexturedButtonWidget buttonDown;
+	private final TexturedButtonWidget buttonAdd;
 	private final TexturedButtonWidget buttonDelete;
 
 	private final RegisterButton registerButton;
@@ -38,13 +39,16 @@ public class DashboardList implements IGui {
 	private boolean hasFind;
 	private boolean hasEdit;
 	private boolean hasSort;
+	private boolean hasAdd;
+	private boolean hasDelete;
 
-	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onEdit, OnClick onDelete, GetList<T> getList, Runnable onUpDownCallback) {
+	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList, Runnable onUpDownCallback) {
 		this.registerButton = registerButton;
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
 		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> onUp(getList, onUpDownCallback));
 		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> onDown(getList, onUpDownCallback));
+		buttonAdd = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
 		buttonDelete = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}
 
@@ -53,28 +57,32 @@ public class DashboardList implements IGui {
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
+		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
 		registerButton.registerButton(buttonFind);
 		registerButton.registerButton(buttonEdit);
 		registerButton.registerButton(buttonUp);
 		registerButton.registerButton(buttonDown);
+		registerButton.registerButton(buttonAdd);
 		registerButton.registerButton(buttonDelete);
 	}
 
-	public void setData(Set<? extends NamedColoredBase> dataSet, boolean hasFind, boolean hasEdit, boolean hasSort) {
+	public void setData(Set<? extends NamedColoredBase> dataSet, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		List<? extends NamedColoredBase> dataList = new ArrayList<>(dataSet);
 		Collections.sort(dataList);
-		setData(dataList, hasFind, hasEdit, hasSort);
+		setData(dataList, hasFind, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends NamedColoredBase> dataList, boolean hasFind, boolean hasEdit, boolean hasSort) {
+	public void setData(List<? extends NamedColoredBase> dataList, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
 		this.hasEdit = hasEdit;
 		this.hasSort = hasSort;
+		this.hasAdd = hasAdd;
+		this.hasDelete = hasDelete;
 
-		final int maxScrollOffset = dataSorted.size() - itemsToShow() - 1;
+		final int maxScrollOffset = dataSorted.size() - itemsToShow();
 		if (scrollOffset > maxScrollOffset) {
 			scrollOffset = Math.max(maxScrollOffset, 0);
 		}
@@ -107,6 +115,7 @@ public class DashboardList implements IGui {
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
+		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
 		if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + SQUARE_SIZE * itemsToShow()) {
@@ -117,15 +126,17 @@ public class DashboardList implements IGui {
 				buttonEdit.visible = hasEdit;
 				buttonUp.visible = hasSort;
 				buttonDown.visible = hasSort;
-				buttonDelete.visible = true;
+				buttonAdd.visible = hasAdd;
+				buttonDelete.visible = hasDelete;
 
 				buttonUp.active = hoverIndex + scrollOffset > 0;
 				buttonDown.active = hoverIndex + scrollOffset < dataSize - 1;
 
-				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (2 + (hasEdit ? 1 : 0) + (hasSort ? 2 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (2 + (hasSort ? 2 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * 3, y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * 2, y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * (2 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonAdd, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonDelete, x + width - SQUARE_SIZE, y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
 			}
 		}
@@ -134,7 +145,7 @@ public class DashboardList implements IGui {
 	public void mouseScrolled(double amount) {
 		if (scrollOffset > 0 && amount > 0) {
 			scrollOffset--;
-		} else if (scrollOffset < dataSorted.size() - itemsToShow() - 1 && amount < 0) {
+		} else if (scrollOffset < dataSorted.size() - itemsToShow() && amount < 0) {
 			scrollOffset++;
 		}
 	}

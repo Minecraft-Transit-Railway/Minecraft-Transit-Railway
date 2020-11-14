@@ -5,7 +5,7 @@ import mtr.data.*;
 import mtr.gui.DashboardScreen;
 import mtr.gui.ScreenBase;
 import mtr.gui.TestScreen;
-import mtr.gui.TrainSpawnerScreen;
+import mtr.gui.TestScreen2;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,7 +23,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 
 	public static void openTrainSpawnerScreenS2C(PacketByteBuf packet) {
 		if (receiveAll(packet)) {
-			MinecraftClient.getInstance().openScreen(new TrainSpawnerScreen(packet.readBlockPos()));
+			MinecraftClient.getInstance().openScreen(new TestScreen2(packet.readBlockPos()));
 		}
 	}
 
