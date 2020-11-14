@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 public interface IGui {
 
 	int SQUARE_SIZE = 20;
+	int PANEL_WIDTH = 144;
 	int TEXT_HEIGHT = 8;
 	int TEXT_PADDING = 6;
 	int TEXT_FIELD_PADDING = 4;
@@ -27,6 +28,8 @@ public interface IGui {
 	int ARGB_BLACK = 0xFF000000;
 	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
+	int ARGB_LIGHT_GRAY = 0xFFA8A8A8;
+	int ARGB_BACKGROUND = 0xFF121212;
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');

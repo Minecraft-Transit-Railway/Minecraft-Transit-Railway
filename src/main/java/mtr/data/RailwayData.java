@@ -165,7 +165,7 @@ public class RailwayData extends PersistentState {
 					// TODO train is dead
 					trainsToRemove.add(train);
 				} else {
-					final Station station = getStationById(train.stationIds.get(0));
+					final Station station = getStationById(stations, train.stationIds.get(0));
 
 					if (station != null) {
 						final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
@@ -206,7 +206,7 @@ public class RailwayData extends PersistentState {
 
 						if (i == 0 || i == trainLength - 1) {
 							final BlockPos posBelow = new BlockPos(train.posX[i], train.posY[i] - 1, train.posZ[i]);
-							if (world.getBlockState(posBelow).getBlock() instanceof BlockTrainSpawner && getTrainSpawnerByPos(posBelow).removeTrains) {
+							if (world.getBlockState(posBelow).getBlock() instanceof BlockTrainSpawner && getTrainSpawnerByPos(trainSpawners, posBelow).removeTrains) {
 								trainsToRemove.add(train);
 							}
 						}
@@ -252,7 +252,7 @@ public class RailwayData extends PersistentState {
 				if (state.getBlock() instanceof BlockTrainSpawner) {
 					final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
 					final BlockPos spawnPos = pos.up().offset(spawnDirection);
-					final Route route = getRouteById(trainSpawner.routeIds.get(0));
+					final Route route = getRouteById(routes, trainSpawner.routeIds.get(0));
 
 					if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock && route != null) {
 						// TODO randomise train types and routes
@@ -290,18 +290,6 @@ public class RailwayData extends PersistentState {
 		validatePlatformsAndTrainSpawners(world);
 	}
 
-	private Station getStationById(long id) {
-		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
-	}
-
-	private Route getRouteById(long id) {
-		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
-	}
-
-	private TrainSpawner getTrainSpawnerByPos(BlockPos pos) {
-		return trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst().orElse(null);
-	}
-
 	private void removeTrain(Train train) {
 		Arrays.stream(train.entities).filter(Objects::nonNull).forEach(Entity::kill);
 		trains.remove(train);
@@ -314,10 +302,22 @@ public class RailwayData extends PersistentState {
 	}
 
 	private void validateData() {
-		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stationId) == null));
+		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stations, stationId) == null));
 		trains.removeIf(train -> train.stationIds.isEmpty());
-		trainSpawners.forEach(trainSpawner -> trainSpawner.routeIds.removeIf(routeId -> getRouteById(routeId) == null));
+		trainSpawners.forEach(trainSpawner -> trainSpawner.routeIds.removeIf(routeId -> getRouteById(routes, routeId) == null));
 		markDirty();
+	}
+
+	public static Station getStationById(Set<Station> stations, long id) {
+		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
+	}
+
+	public static Route getRouteById(Set<Route> routes, long id) {
+		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
+	}
+
+	public static TrainSpawner getTrainSpawnerByPos(Set<TrainSpawner> trainSpawners, BlockPos pos) {
+		return trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst().orElse(null);
 	}
 
 	public static boolean isBetween(int value, int value1, int value2) {

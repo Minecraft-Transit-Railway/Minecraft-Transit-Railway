@@ -10,12 +10,13 @@ import java.util.stream.Collectors;
 
 public final class TrainSpawner extends DataBase {
 
+	public boolean removeTrains;
+	public boolean shuffleRoutes;
+	public boolean shuffleTrains;
+
 	public final BlockPos pos;
 	public final List<Long> routeIds;
 	public final List<Train.TrainType> trainTypes;
-	public final boolean removeTrains;
-	public final boolean shuffleRoutes;
-	public final boolean shuffleTrains;
 
 	private static final String KEY_POS = "pos";
 	private static final String KEY_ROUTE_IDS = "route_ids";

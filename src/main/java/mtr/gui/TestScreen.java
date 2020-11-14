@@ -1,9 +1,6 @@
 package mtr.gui;
 
-import mtr.data.NamedColoredBase;
-import mtr.data.Route;
-import mtr.data.Station;
-import mtr.data.Train;
+import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -46,12 +43,9 @@ public class TestScreen extends Screen implements IGui {
 
 	private final DashboardList dashboardList;
 
-	private static final int LEFT_PANEL_WIDTH = 144;
 	private static final int COLOR_WIDTH = 48;
 	private static final int MAX_STATION_LENGTH = 128;
 	private static final int MAX_COLOR_LENGTH = 6;
-
-	private static final int ARGB_BACKGROUND = 0xFF121212;
 
 	public TestScreen() {
 		super(new LiteralText(""));
@@ -59,8 +53,8 @@ public class TestScreen extends Screen implements IGui {
 		widgetMap = new WidgetMapTest(this::onDrawCorners, this::onClickStation);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.name"));
-		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.color"));
+		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(0));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(1));
@@ -72,7 +66,7 @@ public class TestScreen extends Screen implements IGui {
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, this::onDelete, this::getList, TestScreen::sendUpdate);
+		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, null, this::onDelete, this::getList, TestScreen::sendUpdate);
 
 		onSelectTab(0);
 	}
@@ -82,24 +76,24 @@ public class TestScreen extends Screen implements IGui {
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
 
-		widgetMap.setPositionAndSize(LEFT_PANEL_WIDTH, 0, width - LEFT_PANEL_WIDTH, height);
+		widgetMap.setPositionAndSize(PANEL_WIDTH, 0, width - PANEL_WIDTH, height);
 
-		IGui.setPositionAndWidth(buttonTabStations, 0, 0, LEFT_PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonTabRoutes, LEFT_PANEL_WIDTH / tabCount, 0, LEFT_PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonTabTrains, 2 * LEFT_PANEL_WIDTH / tabCount, 0, LEFT_PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonAddStation, 0, bottomRowY, LEFT_PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, LEFT_PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, LEFT_PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, LEFT_PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
+		IGui.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
+		IGui.setPositionAndWidth(buttonTabTrains, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
+		IGui.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE, bottomRowY - SQUARE_SIZE, SQUARE_SIZE);
 		IGui.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
 
-		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, LEFT_PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldColor, LEFT_PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IGui.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
-		dashboardList.width = LEFT_PANEL_WIDTH;
+		dashboardList.width = PANEL_WIDTH;
 		dashboardList.height = height - SQUARE_SIZE * 2;
 
 		buttonDoneEditingRoute.visible = false;
@@ -140,7 +134,7 @@ public class TestScreen extends Screen implements IGui {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		renderBackground(matrices);
 		widgetMap.render(matrices, mouseX, mouseY, delta);
-		DrawableHelper.fill(matrices, 0, 0, LEFT_PANEL_WIDTH, height, ARGB_BACKGROUND);
+		DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
 		dashboardList.render(matrices, textRenderer);
 		super.render(matrices, mouseX, mouseY, delta);
 		textFieldName.render(matrices, mouseX, mouseY, delta);
@@ -165,18 +159,18 @@ public class TestScreen extends Screen implements IGui {
 
 		switch (selectedTab) {
 			default:
-				dashboardList.setData(ScreenBase.GuiBase.stations, true, true, false);
+				dashboardList.setData(ScreenBase.GuiBase.stations, true, true, false, false, true);
 				break;
 			case 1:
 				if (editingRoute == null) {
-					dashboardList.setData(ScreenBase.GuiBase.routes, false, true, false);
+					dashboardList.setData(ScreenBase.GuiBase.routes, false, true, false, false, true);
 				} else {
-					List<Station> routeStations = editingRoute.stationIds.stream().map(stationId -> ScreenBase.GuiBase.stations.stream().filter(station -> station.id == stationId).findFirst().orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
-					dashboardList.setData(routeStations, false, false, true);
+					List<Station> routeStations = editingRoute.stationIds.stream().map(stationId -> RailwayData.getStationById(ScreenBase.GuiBase.stations, stationId)).filter(Objects::nonNull).collect(Collectors.toList());
+					dashboardList.setData(routeStations, false, false, true, false, true);
 				}
 				break;
 			case 2:
-				dashboardList.setData(ScreenBase.GuiBase.trains, true, false, false);
+				dashboardList.setData(ScreenBase.GuiBase.trains, true, false, false, false, true);
 				break;
 		}
 	}
