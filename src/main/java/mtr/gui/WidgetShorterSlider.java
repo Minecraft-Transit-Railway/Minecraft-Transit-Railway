@@ -8,15 +8,16 @@ import net.minecraft.text.LiteralText;
 public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	private final int maxValue;
+	private final OnSlide onSlide;
 	private final SetMessage setMessage;
 
 	private static final int SLIDER_WIDTH = 6;
 
-	public WidgetShorterSlider(int x, int width, int maxValue, SetMessage setMessage) {
+	public WidgetShorterSlider(int x, int width, int maxValue, OnSlide onSlide, SetMessage setMessage) {
 		super(x, 0, width, 0, new LiteralText(""), 0);
 		this.maxValue = maxValue;
+		this.onSlide = onSlide;
 		this.setMessage = setMessage;
-		updateMessage();
 	}
 
 	@Override
@@ -46,6 +47,12 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	@Override
 	protected void applyValue() {
+		onSlide.onSlide(getIntValue());
+	}
+
+	public void setValue(int valueInt) {
+		value = (double) valueInt / maxValue;
+		updateMessage();
 	}
 
 	public void setHeight(int height) {
@@ -54,6 +61,11 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	private int getIntValue() {
 		return (int) Math.round(value * maxValue);
+	}
+
+	@FunctionalInterface
+	public interface OnSlide {
+		void onSlide(int value);
 	}
 
 	@FunctionalInterface

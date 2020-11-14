@@ -16,8 +16,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-
 public class BlockTrainSpawner extends HorizontalFacingBlock {
 
 	public BlockTrainSpawner(Settings settings) {
@@ -29,7 +27,7 @@ public class BlockTrainSpawner extends HorizontalFacingBlock {
 		if (!world.isClient()) {
 			RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.addTrainSpawner(new TrainSpawner(pos, new ArrayList<>(), new ArrayList<>()));
+				railwayData.addTrainSpawner(new TrainSpawner(pos));
 				PacketTrainDataGuiServer.broadcastS2C(world, railwayData);
 			}
 		}
