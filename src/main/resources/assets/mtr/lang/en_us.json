@@ -43,6 +43,7 @@
 	"gui.mtr.shuffle_trains": "Shuffle trains",
 	"gui.mtr.stations": "Stations",
 	"gui.mtr.tph": "/hr",
+	"gui.mtr.train_spawner_schedule": "Train Spawner Schedule",
 	"gui.mtr.trains": "Trains",
 	"gui.mtr.trains_per_hour": "Trains Per Hour",
 	"gui.mtr.untitled": "Untitled",

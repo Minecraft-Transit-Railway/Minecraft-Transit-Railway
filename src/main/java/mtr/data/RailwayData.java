@@ -141,15 +141,6 @@ public class RailwayData extends PersistentState {
 		return routes;
 	}
 
-	public void addTrain(Train train) {
-		trains.add(train);
-		markDirty();
-	}
-
-	public Set<Train> getTrains() {
-		return trains;
-	}
-
 	public void simulateTrains(WorldAccess world) {
 		final long millis = System.currentTimeMillis();
 		final Set<Train> trainsToRemove = new HashSet<>();

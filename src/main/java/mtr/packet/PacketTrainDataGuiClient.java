@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
+import mtr.gui.ScheduleScreen;
 import mtr.gui.TrainSpawnerScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -26,6 +27,14 @@ public class PacketTrainDataGuiClient implements IPacket {
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		if (!(minecraftClient.currentScreen instanceof TrainSpawnerScreen)) {
 			MinecraftClient.getInstance().openScreen(new TrainSpawnerScreen(packet.readBlockPos()));
+		}
+	}
+
+	public static void openScheduleScreenS2C(PacketByteBuf packet) {
+		receiveAll(packet);
+		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		if (!(minecraftClient.currentScreen instanceof ScheduleScreen)) {
+			MinecraftClient.getInstance().openScreen(new ScheduleScreen(packet.readBlockPos()));
 		}
 	}
 

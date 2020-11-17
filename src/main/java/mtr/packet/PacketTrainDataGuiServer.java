@@ -24,6 +24,12 @@ public class PacketTrainDataGuiServer implements IPacket {
 		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_TRAIN_SPAWNER_SCREEN, packet);
 	}
 
+	public static void openScheduleScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<TrainSpawner> trainSpawners, BlockPos trainSpawnerPos) {
+		final PacketByteBuf packet = sendAll(stations, platforms, routes, trainSpawners);
+		packet.writeBlockPos(trainSpawnerPos);
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_SCHEDULE_SCREEN, packet);
+	}
+
 	public static void sendTrainsS2C(WorldAccess world, Set<Train> trains) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
 		IPacket.sendData(packet, trains);

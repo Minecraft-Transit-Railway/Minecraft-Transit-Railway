@@ -114,8 +114,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	public void tick() {
 		final TrainSpawner trainSpawner = getTrainSpawner();
 
-		routeList.setData(trainSpawner.routeIds.stream().map(routeId -> RailwayData.getRouteById(ClientData.routes, routeId)).collect(Collectors.toList()), false, false, true, false, true)
-		;
+		routeList.setData(trainSpawner.routeIds.stream().map(routeId -> RailwayData.getRouteById(ClientData.routes, routeId)).collect(Collectors.toList()), false, false, true, false, true);
 		trainList.setData(trainSpawner.trainTypes.stream().map(trainType -> new NamedColoredConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, true, false, true);
 
 		for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
@@ -133,7 +132,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 			renderBackground(matrices);
 			addNewList.render(matrices, textRenderer);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr." + (addingRoute ? "add_route" : "add_train")).getString(), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr." + (addingRoute ? "add_route" : "add_train")), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 		} else {
 			drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
 			drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
@@ -142,11 +141,11 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 			trainList.render(matrices, textRenderer);
 			super.render(matrices, mouseX, mouseY, delta);
 
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr.game_time").getString(), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour").getString(), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr.settings").getString(), rightPanelsX + getRightPanelWidth(), TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr.routes").getString(), rightPanelsX + getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, textRenderer, new TranslatableText("gui.mtr.trains").getString(), rightPanelsX + 3 * getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), rightPanelsX + getRightPanelWidth(), TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.routes"), rightPanelsX + getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), rightPanelsX + 3 * getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 
 			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / TrainSpawner.HOURS_IN_DAY);
 			for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
@@ -256,8 +255,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	}
 
 	private TrainSpawner getTrainSpawner() {
-		return ClientData.
-				trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(spawnerPos)).findFirst().orElse(null);
+		return RailwayData.getTrainSpawnerByPos(ClientData.trainSpawners, spawnerPos);
 	}
 
 	private void sendUpdate() {
