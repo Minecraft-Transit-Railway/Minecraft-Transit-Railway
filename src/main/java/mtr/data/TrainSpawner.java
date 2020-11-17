@@ -3,6 +3,8 @@ package mtr.data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public final class TrainSpawner extends DataBase {
 	public final int[] frequencies;
 
 	public static final int HOURS_IN_DAY = 24;
+	public static final int TICKS_PER_HOUR = 1000;
 
 	private static final String KEY_POS = "pos";
 	private static final String KEY_ROUTE_IDS = "route_ids";
@@ -33,20 +36,10 @@ public final class TrainSpawner extends DataBase {
 		this.pos = pos;
 		routeIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
-		frequencies = new int[24];
+		frequencies = new int[HOURS_IN_DAY];
 		removeTrains = true;
 		shuffleRoutes = false;
 		shuffleTrains = true;
-	}
-
-	public TrainSpawner(BlockPos pos, List<Long> routeIds, List<Train.TrainType> trainTypes, boolean removeTrains, boolean shuffleRoutes, boolean shuffleTrains) {
-		this.pos = pos;
-		this.routeIds = routeIds;
-		this.trainTypes = trainTypes;
-		frequencies = new int[24];
-		this.removeTrains = removeTrains;
-		this.shuffleRoutes = shuffleRoutes;
-		this.shuffleTrains = shuffleTrains;
 	}
 
 	public TrainSpawner(CompoundTag tag) {
@@ -117,6 +110,53 @@ public final class TrainSpawner extends DataBase {
 		packet.writeBoolean(removeTrains);
 		packet.writeBoolean(shuffleRoutes);
 		packet.writeBoolean(shuffleTrains);
+	}
+
+	public List<Triple<Integer, Long, Train.TrainType>> generateSchedule() {
+		final List<Triple<Integer, Long, Train.TrainType>> schedule = new ArrayList<>();
+
+		if (routeIds.size() > 0 && trainTypes.size() > 0) {
+			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
+			int lastRouteIndex = -1;
+			int lastTrainTypeIndex = -1;
+
+			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
+				final float headway = getHeadway(i / TICKS_PER_HOUR);
+				if (headway > 0 && i >= headway + lastTime) {
+
+					final long route;
+					if (shuffleRoutes) {
+						route = -1;
+					} else {
+						lastRouteIndex++;
+						if (lastRouteIndex >= routeIds.size()) {
+							lastRouteIndex = 0;
+						}
+						route = routeIds.get(lastRouteIndex);
+					}
+
+					final Train.TrainType trainType;
+					if (shuffleTrains) {
+						trainType = null;
+					} else {
+						lastTrainTypeIndex++;
+						if (lastTrainTypeIndex >= trainTypes.size()) {
+							lastTrainTypeIndex = 0;
+						}
+						trainType = trainTypes.get(lastTrainTypeIndex);
+					}
+
+					schedule.add(new ImmutableTriple<>(i, route, trainType));
+					lastTime = i;
+				}
+			}
+		}
+
+		return schedule;
+	}
+
+	public float getHeadway(int hour) {
+		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
 	}
 
 	@Override

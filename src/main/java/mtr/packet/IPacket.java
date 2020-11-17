@@ -12,6 +12,7 @@ public interface IPacket {
 
 	Identifier ID_OPEN_DASHBOARD_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_dashboard_screen");
 	Identifier ID_OPEN_TRAIN_SPAWNER_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_train_spawner_screen");
+	Identifier ID_OPEN_SCHEDULE_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_schedule_screen");
 	Identifier ID_TRAINS = new Identifier(MTR.MOD_ID, "packet_trains");
 	Identifier ID_STATIONS_AND_ROUTES = new Identifier(MTR.MOD_ID, "packet_stations_and_routes");
 	Identifier ID_TRAIN_SPAWNER = new Identifier(MTR.MOD_ID, "packet_train_spawner");

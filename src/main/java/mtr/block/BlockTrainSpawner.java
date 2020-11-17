@@ -40,18 +40,18 @@ public class BlockTrainSpawner extends HorizontalFacingBlock {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (player.getStackInHand(hand).getItem() != Items.BRUSH) {
-			return ActionResult.FAIL;
-		} else {
-			if (!world.isClient()) {
-				RailwayData railwayData = RailwayData.getInstance(world);
-				if (railwayData != null) {
+		if (!world.isClient()) {
+			RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				if (player.getStackInHand(hand).getItem() == Items.BRUSH) {
 					PacketTrainDataGuiServer.openTrainSpawnerScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), railwayData.getTrainSpawners(), pos);
-					return ActionResult.PASS;
+				} else {
+					PacketTrainDataGuiServer.openScheduleScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), railwayData.getTrainSpawners(), pos);
 				}
+				return ActionResult.CONSUME;
 			}
-			return ActionResult.SUCCESS;
 		}
+		return ActionResult.SUCCESS;
 	}
 
 	@Override
