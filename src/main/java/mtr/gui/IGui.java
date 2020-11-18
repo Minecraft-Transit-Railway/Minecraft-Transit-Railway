@@ -27,7 +27,6 @@ public interface IGui {
 	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
 	int ARGB_LIGHT_GRAY = 0xFFAAAAAA;
-	int ARGB_GREEN = 0xFF59FF5F;
 	int ARGB_BACKGROUND = 0xFF121212;
 
 	static String formatStationName(String name) {

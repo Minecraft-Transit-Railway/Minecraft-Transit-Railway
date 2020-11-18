@@ -19,10 +19,13 @@ public final class TrainSpawner extends DataBase {
 	public final BlockPos pos;
 	public final List<Long> routeIds;
 	public final List<Train.TrainType> trainTypes;
-	public final int[] frequencies;
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;
+
+	private List<Triple<Integer, Long, Train.TrainType>> schedule;
+
+	private final int[] frequencies;
 
 	private static final String KEY_POS = "pos";
 	private static final String KEY_ROUTE_IDS = "route_ids";
@@ -40,6 +43,7 @@ public final class TrainSpawner extends DataBase {
 		removeTrains = true;
 		shuffleRoutes = false;
 		shuffleTrains = true;
+		schedule = new ArrayList<>();
 	}
 
 	public TrainSpawner(CompoundTag tag) {
@@ -58,6 +62,7 @@ public final class TrainSpawner extends DataBase {
 		}
 
 		frequencies = tag.getIntArray(KEY_FREQUENCIES);
+		generateSchedule();
 
 		removeTrains = tag.getBoolean(KEY_REMOVE_TRAINS);
 		shuffleRoutes = tag.getBoolean(KEY_SHUFFLE_ROUTES);
@@ -80,6 +85,7 @@ public final class TrainSpawner extends DataBase {
 		}
 
 		frequencies = packet.readIntArray();
+		generateSchedule();
 
 		removeTrains = packet.readBoolean();
 		shuffleRoutes = packet.readBoolean();
@@ -112,8 +118,31 @@ public final class TrainSpawner extends DataBase {
 		packet.writeBoolean(shuffleTrains);
 	}
 
-	public List<Triple<Integer, Long, Train.TrainType>> generateSchedule() {
-		final List<Triple<Integer, Long, Train.TrainType>> schedule = new ArrayList<>();
+	public int getFrequency(int index) {
+		if (index >= 0 && index < HOURS_IN_DAY) {
+			return frequencies[index];
+		} else {
+			return 0;
+		}
+	}
+
+	public void setFrequencies(int frequency, int index) {
+		if (index >= 0 && index < HOURS_IN_DAY) {
+			frequencies[index] = frequency;
+		}
+		generateSchedule();
+	}
+
+	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
+		return schedule;
+	}
+
+	public float getHeadway(int hour) {
+		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
+	}
+
+	private void generateSchedule() {
+		final List<Triple<Integer, Long, Train.TrainType>> tempSchedule = new ArrayList<>();
 
 		if (routeIds.size() > 0 && trainTypes.size() > 0) {
 			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
@@ -146,17 +175,13 @@ public final class TrainSpawner extends DataBase {
 						trainType = trainTypes.get(lastTrainTypeIndex);
 					}
 
-					schedule.add(new ImmutableTriple<>(i, route, trainType));
+					tempSchedule.add(new ImmutableTriple<>(i, route, trainType));
 					lastTime = i;
 				}
 			}
 		}
 
-		return schedule;
-	}
-
-	public float getHeadway(int hour) {
-		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
+		schedule = tempSchedule;
 	}
 
 	@Override

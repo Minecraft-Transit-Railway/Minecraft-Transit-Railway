@@ -20,10 +20,13 @@ public class ScheduleScreen extends Screen implements IGui {
 	private final List<Triple<Integer, Long, Train.TrainType>> schedule;
 	private final int maxRouteWidth, maxTrainTypeWidth;
 
+	private static final int ARGB_GOLD = 0xFFFFAA00;
+	private static final int ARGB_GREEN = 0xFF55FF55;
+
 	public ScheduleScreen(BlockPos spawnerPos) {
 		super(new LiteralText(""));
 		final TrainSpawner trainSpawner = RailwayData.getTrainSpawnerByPos(ClientData.trainSpawners, spawnerPos);
-		schedule = trainSpawner.generateSchedule();
+		schedule = trainSpawner.getSchedule();
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		maxRouteWidth = trainSpawner.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getRouteById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
 		maxTrainTypeWidth = trainSpawner.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
@@ -61,7 +64,9 @@ public class ScheduleScreen extends Screen implements IGui {
 					final int index = row + rows * column;
 					if (index < schedule.size()) {
 						final Triple<Integer, Long, Train.TrainType> scheduleEntry = schedule.get(index);
-						drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, Math.abs(time - scheduleEntry.getLeft()) < 50 ? ARGB_GREEN : ARGB_WHITE);
+						final int timeDifference = time - scheduleEntry.getLeft();
+						final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
+						drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
 						drawStringWithShadow(matrices, textRenderer, cutToWidth(getRouteString(scheduleEntry.getMiddle()), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
 						drawStringWithShadow(matrices, textRenderer, cutToWidth(getTrainTypeString(scheduleEntry.getRight()), trainTypeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth + routeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
 					}

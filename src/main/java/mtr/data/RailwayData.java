@@ -13,9 +13,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
@@ -142,7 +144,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(WorldAccess world) {
-		final long millis = System.currentTimeMillis();
+		final int worldTime = (int) (world.getLunarTime() + 6000) % (TrainSpawner.HOURS_IN_DAY * TrainSpawner.TICKS_PER_HOUR);
 		final Set<Train> trainsToRemove = new HashSet<>();
 
 		trains.forEach(train -> {
@@ -232,28 +234,32 @@ public class RailwayData extends PersistentState {
 		trainsToRemove.forEach(this::removeTrain);
 		PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
 
-		trainSpawners.forEach(trainSpawner -> {
-			final int interval = 5; // TODO get seconds
-			final boolean spawnTime = (millis / 50) % (interval * 20) == 0;
+		// TODO spawn trains even if daylight cycle is false
+		if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
+			trainSpawners.forEach(trainSpawner -> {
+				final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = trainSpawner.getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
 
-			if (spawnTime && !trainSpawner.routeIds.isEmpty() && !trainSpawner.trainTypes.isEmpty()) {
-				final BlockPos pos = trainSpawner.pos;
-				final BlockState state = world.getBlockState(pos);
+				if (optionalScheduleEntry.isPresent()) {
+					final BlockPos pos = trainSpawner.pos;
+					final BlockState state = world.getBlockState(pos);
 
-				if (state.getBlock() instanceof BlockTrainSpawner) {
-					final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
-					final BlockPos spawnPos = pos.up().offset(spawnDirection);
-					final Route route = getRouteById(routes, trainSpawner.routeIds.get(0));
+					if (state.getBlock() instanceof BlockTrainSpawner) {
+						final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
+						final BlockPos spawnPos = pos.up().offset(spawnDirection);
 
-					if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock && route != null) {
-						// TODO randomise train types and routes
-						final Train newTrain = new Train(trainSpawner.trainTypes.get(0), spawnPos, 5, spawnDirection);
-						newTrain.stationIds.addAll(route.stationIds);
-						trains.add(newTrain);
+						if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock) {
+							final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
+							final Route route = getRouteById(routes, trainSpawner.shuffleRoutes ? getRandomElementFromList(trainSpawner.routeIds) : scheduleEntry.getMiddle());
+							final Train.TrainType trainType = trainSpawner.shuffleTrains ? getRandomElementFromList(trainSpawner.trainTypes) : scheduleEntry.getRight();
+
+							final Train newTrain = new Train(trainType, spawnPos, 5, spawnDirection);
+							newTrain.stationIds.addAll(route.stationIds);
+							trains.add(newTrain);
+						}
 					}
 				}
-			}
-		});
+			});
+		}
 
 		markDirty();
 	}
@@ -297,6 +303,10 @@ public class RailwayData extends PersistentState {
 		trains.removeIf(train -> train.stationIds.isEmpty());
 		trainSpawners.forEach(trainSpawner -> trainSpawner.routeIds.removeIf(routeId -> getRouteById(routes, routeId) == null));
 		markDirty();
+	}
+
+	private static <T> T getRandomElementFromList(List<T> list) {
+		return list.get(new Random().nextInt(list.size()));
 	}
 
 	public static Station getStationById(Set<Station> stations, long id) {
