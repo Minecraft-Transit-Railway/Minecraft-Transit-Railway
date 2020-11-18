@@ -54,7 +54,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 		for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
 			final int index = i;
 			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> {
-				getTrainSpawner().frequencies[index] = value;
+				getTrainSpawner().setFrequencies(value, index);
 				sendUpdate();
 			}, TrainSpawnerScreen::getSliderString);
 		}
@@ -118,7 +118,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 		trainList.setData(trainSpawner.trainTypes.stream().map(trainType -> new NamedColoredConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, true, false, true);
 
 		for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(trainSpawner.frequencies[i]);
+			sliders[i].setValue(trainSpawner.getFrequency(i));
 		}
 
 		buttonRemoveTrains.setChecked(trainSpawner.removeTrains);
