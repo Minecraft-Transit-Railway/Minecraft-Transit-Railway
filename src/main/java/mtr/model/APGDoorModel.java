@@ -57,7 +57,7 @@ public class APGDoorModel extends CustomBlockModelBase {
 			emitter.emit();
 
 			emitter.square(facing.getOpposite(), 0, 0, 1, 1, 0.875F);
-			emitter.spriteBake(0, SPRITES[(top ? 3 : 2)], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
+			emitter.spriteBake(0, SPRITES[top ? 3 : 2], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
 			emitter.square(facing.getOpposite(), -open, 0, 1 - open, 1, 0.875F);
 			emitter.spriteColor(0, -1, -1, -1, -1);
 			emitter.emit();
@@ -72,38 +72,34 @@ public class APGDoorModel extends CustomBlockModelBase {
 			emitter.spriteColor(0, -1, -1, -1, -1);
 			emitter.emit();
 
+			drawThinTexture(emitter, facing, side);
 			if (top) {
-				switch (facing) {
-					case NORTH:
-						emitter.square(Direction.UP, 0, 0.5F, 1, 0.53125F, 0.5F);
-						break;
-					case EAST:
-						emitter.square(Direction.UP, 0.5F, 0, 0.53125F, 1, 0.5F);
-						break;
-					case SOUTH:
-						emitter.square(Direction.UP, 0, 0.46875F, 1, 0.5F, 0.5F);
-						break;
-					case WEST:
-						emitter.square(Direction.UP, 0.53125F, 0, 0.5F, 1, 0.5F);
-						break;
-				}
-				emitter.spriteBake(0, SPRITES[3], MutableQuadView.BAKE_LOCK_UV + facing.getHorizontal() + (side ? 0 : MutableQuadView.BAKE_FLIP_U));
-				switch (facing) {
-					case NORTH:
-						emitter.square(Direction.UP, -open, 0.875F, 1 - open, 0.9375F, 0.5F);
-						break;
-					case EAST:
-						emitter.square(Direction.UP, 0.875F, open, 0.9375F, 1 + open, 0.5F);
-						break;
-					case SOUTH:
-						emitter.square(Direction.UP, open, 0.0625F, 1 + open, 0.125F, 0.5F);
-						break;
-					case WEST:
-						emitter.square(Direction.UP, 0.0625F, -open, 0.125F, 1 - open, 0.5F);
-						break;
-				}
+				customShape(emitter, facing, -open, 0.5F, 0.0625F, -open, 0.5F, 0.125F, 1 - open, 0.5F, 0.125F, 1 - open, 0.5F, 0.0625F);
+			} else {
+				customShape(emitter, facing, -open, 0.375F, 0, -open, 0.4375F, 0.0625F, 1 - open, 0.4375F, 0.0625F, 1 - open, 0.375F, 0);
+
+				drawThinTexture(emitter, facing, side);
+				emitter.square(facing, open, 0, 1 + open, 0.375F, 0);
 				emitter.spriteColor(0, -1, -1, -1, -1);
 				emitter.emit();
+
+				emitter.square(facing.rotateYClockwise(), 0.9375F, 0, 1, 0.375F, open);
+				emitter.spriteBake(0, SPRITES[side ? 1 : 0], MutableQuadView.BAKE_LOCK_UV);
+				emitter.spriteColor(0, -1, -1, -1, -1);
+				emitter.emit();
+
+				emitter.square(facing.rotateYClockwise(), 0.9375F, 0.375F, 1, 0.4375F, open);
+				emitter.spriteBake(0, SPRITES[side ? 1 : 0], MutableQuadView.BAKE_LOCK_UV);
+				customShape(emitter, facing.rotateYClockwise(), 0.0625F, 0.375F, open, 0.0625F, 0.4375F, open, 0.0625F, 0.375F, open, 0, 0.375F, open);
+
+				emitter.square(facing.rotateYCounterclockwise(), 0, 0, 0.0625F, 0.375F, -open);
+				emitter.spriteBake(0, SPRITES[side ? 0 : 1], MutableQuadView.BAKE_LOCK_UV);
+				emitter.spriteColor(0, -1, -1, -1, -1);
+				emitter.emit();
+
+				emitter.square(facing.rotateYCounterclockwise(), 0, 0.375F, 0.0625F, 0.4375F, -open);
+				emitter.spriteBake(0, SPRITES[side ? 0 : 1], MutableQuadView.BAKE_LOCK_UV);
+				customShape(emitter, facing.rotateYCounterclockwise(), 0.9375F, 0.375F, -open, 0.9375F, 0.4375F, -open, 0.9375F, 0.375F, -open, 1, 0.375F, -open);
 			}
 
 			return builder.build();
@@ -119,11 +115,16 @@ public class APGDoorModel extends CustomBlockModelBase {
 
 	@Override
 	public Sprite getSprite() {
-		return SPRITES[0];
+		return SPRITES[3];
 	}
 
 	@Override
 	protected Block getBlock() {
 		return new BlockAPGDoor();
+	}
+
+	private void drawThinTexture(QuadEmitter emitter, Direction facing, boolean side) {
+		emitter.square(facing, 0, 0.46875F, 1, 0.5F, 0);
+		emitter.spriteBake(0, SPRITES[3], MutableQuadView.BAKE_LOCK_UV + (side ? 0 : MutableQuadView.BAKE_FLIP_U));
 	}
 }

@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.google.common.collect.ImmutableMap;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.Block;
@@ -89,4 +90,35 @@ public abstract class CustomBlockModelBase implements UnbakedModel, BakedModel, 
 	protected abstract Mesh bake(BlockState state, Function<SpriteIdentifier, Sprite> textureGetter);
 
 	protected abstract Block getBlock();
+
+	protected static void customShape(QuadEmitter emitter, Direction facing, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4) {
+		switch (facing) {
+			case NORTH:
+				emitter.pos(2, x1, y1, z1);
+				emitter.pos(3, x2, y2, z2);
+				emitter.pos(0, x3, y3, z3);
+				emitter.pos(1, x4, y4, z4);
+				break;
+			case EAST:
+				emitter.pos(2, 1 - z1, y1, x1);
+				emitter.pos(3, 1 - z2, y2, x2);
+				emitter.pos(0, 1 - z3, y3, x3);
+				emitter.pos(1, 1 - z4, y4, x4);
+				break;
+			case SOUTH:
+				emitter.pos(2, 1 - x1, y1, 1 - z1);
+				emitter.pos(3, 1 - x2, y2, 1 - z2);
+				emitter.pos(0, 1 - x3, y3, 1 - z3);
+				emitter.pos(1, 1 - x4, y4, 1 - z4);
+				break;
+			case WEST:
+				emitter.pos(2, z1, y1, 1 - x1);
+				emitter.pos(3, z2, y2, 1 - x2);
+				emitter.pos(0, z3, y3, 1 - x3);
+				emitter.pos(1, z4, y4, 1 - x4);
+				break;
+		}
+		emitter.spriteColor(0, -1, -1, -1, -1);
+		emitter.emit();
+	}
 }

@@ -78,7 +78,7 @@ public class PSDDoorModel extends CustomBlockModelBase {
 
 	@Override
 	public Sprite getSprite() {
-		return SPRITES[0];
+		return SPRITES[2];
 	}
 
 	@Override
