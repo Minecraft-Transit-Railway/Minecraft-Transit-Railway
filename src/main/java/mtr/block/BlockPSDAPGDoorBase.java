@@ -1,9 +1,13 @@
 package mtr.block;
 
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -12,10 +16,12 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockEntityProvider {
+public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
+
+	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.of("end");
-	public static final BooleanProperty OPEN = BooleanProperty.of("open");
+	public static final IntProperty OPEN = IntProperty.of("open", 0, MAX_OPEN_VALUE);
 	public static final EnumProperty<EnumPSDAPGDoorSide> SIDE = EnumProperty.of("side", EnumPSDAPGDoorSide.class);
 
 	@Override
@@ -28,7 +34,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 				return superState;
 			} else {
 				final boolean end = world.getBlockState(pos.offset(getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
-				return superState.with(OPEN, isOpen(world, pos)).with(END, end);
+				return superState.with(END, end);
 			}
 		}
 
@@ -36,8 +42,25 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (isOpen(world, pos)) {
-			return VoxelShapes.empty();
+		final int open = state.get(OPEN);
+		if (open > 0) {
+			final int height = isAPG() && state.get(TOP) ? 9 : 16;
+			final EnumPSDAPGDoorSide side = state.get(SIDE);
+			final double open1 = open / 2D;
+			final double open2 = 16 - open / 2D;
+
+			switch (state.get(FACING)) {
+				case NORTH:
+					return Block.createCuboidShape(side == EnumPSDAPGDoorSide.LEFT ? 0 : open1, 0, 0, side == EnumPSDAPGDoorSide.RIGHT ? 16 : open2, height, 4);
+				case EAST:
+					return Block.createCuboidShape(12, 0, side == EnumPSDAPGDoorSide.LEFT ? 0 : open1, 16, height, side == EnumPSDAPGDoorSide.RIGHT ? 16 : open2);
+				case SOUTH:
+					return Block.createCuboidShape(side == EnumPSDAPGDoorSide.RIGHT ? 0 : open1, 0, 12, side == EnumPSDAPGDoorSide.LEFT ? 16 : open2, height, 16);
+				case WEST:
+					return Block.createCuboidShape(0, 0, side == EnumPSDAPGDoorSide.RIGHT ? 0 : open1, 4, height, side == EnumPSDAPGDoorSide.LEFT ? 16 : open2);
+				default:
+					return VoxelShapes.fullCube();
+			}
 		} else {
 			return super.getOutlineShape(state, world, pos, context);
 		}
@@ -46,11 +69,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(END, FACING, SIDE, OPEN, TOP);
-	}
-
-	public final boolean isOpen(BlockView world, BlockPos pos) {
-		// TODO
-		return false;
 	}
 
 	private Direction getSideDirection(BlockState state) {

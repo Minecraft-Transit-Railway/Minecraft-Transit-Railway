@@ -21,6 +21,7 @@ public final class Train extends NamedColoredBase {
 	public final int[] pathIndex;
 	public final EntityTrainBase[] entities;
 	public float speed;
+	public int stationCoolDown;
 
 	public final List<Pos3f> path;
 
@@ -34,6 +35,7 @@ public final class Train extends NamedColoredBase {
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_PATH_LENGTH = "path_length";
 	private static final String KEY_PATH = "path";
+	private static final String KEY_STATION_COOL_DOWN = "station_cool_down";
 
 	public Train(TrainType trainType, BlockPos pos, int cars, Direction spawnDirection) {
 		super();
@@ -44,7 +46,7 @@ public final class Train extends NamedColoredBase {
 		for (int i = 0; i <= cars; i++) {
 			final BlockPos carPos = pos.offset(spawnDirection, i * trainType.getSpacing());
 			posX[i] = carPos.getX() + 0.5F;
-			posY[i] = carPos.getY() + 0.5F;
+			posY[i] = carPos.getY();
 			posZ[i] = carPos.getZ() + 0.5F;
 		}
 		pathIndex = new int[cars + 1];
@@ -78,6 +80,7 @@ public final class Train extends NamedColoredBase {
 		}
 
 		speed = tag.getFloat(KEY_SPEED);
+		stationCoolDown = tag.getInt(KEY_STATION_COOL_DOWN);
 
 		path = new ArrayList<>();
 		final int pathLength = tag.getInt(KEY_PATH_LENGTH);
@@ -114,6 +117,7 @@ public final class Train extends NamedColoredBase {
 		}
 
 		speed = packet.readFloat();
+		stationCoolDown = packet.readInt();
 
 		path = new ArrayList<>();
 		final int pathLength = packet.readInt();
@@ -138,6 +142,7 @@ public final class Train extends NamedColoredBase {
 		}
 
 		tag.putFloat(KEY_SPEED, speed);
+		tag.putInt(KEY_STATION_COOL_DOWN, stationCoolDown);
 
 		final int pathLength = path.size();
 		tag.putInt(KEY_PATH_LENGTH, pathLength);
@@ -170,6 +175,7 @@ public final class Train extends NamedColoredBase {
 		}
 
 		packet.writeFloat(speed);
+		packet.writeInt(stationCoolDown);
 
 		packet.writeInt(path.size());
 		path.forEach(pos3f -> {

@@ -2,12 +2,14 @@ package mtr.block;
 
 import mtr.data.Platform;
 import mtr.data.RailwayData;
+import mtr.entity.EntityTrainBase;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.enums.RailShape;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
@@ -55,6 +57,19 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	}
 
 	@Override
+	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+		if (!world.isClient && entity instanceof EntityTrainBase) {
+			final EntityTrainBase entityTrainBase = (EntityTrainBase) entity;
+			final RailShape railShape = state.get(SHAPE);
+			for (int x = -2; x <= 2; x++) {
+				for (int y = 0; y <= 2; y++) {
+					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.stationCoolDown);
+				}
+			}
+		}
+	}
+
+	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
@@ -82,6 +97,31 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	@Override
 	public PistonBehavior getPistonBehavior(BlockState state) {
 		return PistonBehavior.BLOCK;
+	}
+
+	@Override
+	protected BlockState updateBlockState(World world, BlockPos pos, BlockState state, boolean forceUpdate) {
+		try {
+			return super.updateBlockState(world, pos, state, forceUpdate);
+		} catch (Exception e) {
+			return state;
+		}
+	}
+
+	private void updateStationCoolDown(World world, BlockPos pos, int coolDown) {
+		BlockState state = world.getBlockState(pos);
+
+		if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
+			if (coolDown < RailwayData.TRAIN_STOP_TIME || coolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
+				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, 0));
+			} else if (coolDown < RailwayData.TRAIN_STOP_TIME + BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
+				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, coolDown - RailwayData.TRAIN_STOP_TIME));
+			} else if (coolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
+				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - coolDown));
+			} else {
+				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, BlockPSDAPGDoorBase.MAX_OPEN_VALUE));
+			}
+		}
 	}
 
 	private void checkAndBreak(World world, BlockPos pos, BlockState state, Direction direction) {

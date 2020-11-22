@@ -7,8 +7,6 @@ import mtr.entity.EntityMinecart;
 import mtr.entity.EntitySP1900;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.tile.TileEntityAPGDoor;
-import mtr.tile.TileEntityPSDDoor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
@@ -32,9 +30,6 @@ import java.util.function.Supplier;
 public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
-
-	public static final BlockEntityType<TileEntityAPGDoor> APG_DOOR = registerTileEntity("apg_door", TileEntityAPGDoor::new, Blocks.APG_DOOR);
-	public static final BlockEntityType<TileEntityPSDDoor> PSD_DOOR = registerTileEntity("psd_door", TileEntityPSDDoor::new, Blocks.PSD_DOOR);
 
 	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, 1, 1);
 	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, 24, 4);

@@ -25,6 +25,7 @@ public class RenderMinecart extends RenderTrainBase<EntityMinecart> {
 	@Override
 	public void render(EntityMinecart entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
 		matrices.push();
+		matrices.translate(0, 0.5, 0);
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(yaw + 90));
 		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(180 + MathHelper.lerp(tickDelta, entity.prevPitch, entity.pitch)));
 		model.setAngles(entity, 0, 0, -0.1F, 0, 0);

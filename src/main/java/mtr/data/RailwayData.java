@@ -23,6 +23,9 @@ import java.util.*;
 
 public class RailwayData extends PersistentState {
 
+	public static final int STATION_COOL_DOWN = 120;
+	public static final int TRAIN_STOP_TIME = 20;
+
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
@@ -30,13 +33,13 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_TRAINS = "trains";
 	private static final String KEY_TRAIN_SPAWNERS = "train_spawners";
 
+	private static final int VIEW_DISTANCE = 32;
+
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
 	private final Set<Train> trains;
 	private final Set<TrainSpawner> trainSpawners;
-
-	private final int VIEW_DISTANCE = 32;
 
 	public RailwayData() {
 		super(NAME);
@@ -154,8 +157,10 @@ public class RailwayData extends PersistentState {
 			if (distanceRemaining <= 0) {
 				train.speed = 0;
 
-				if (train.stationIds.isEmpty()) {
-					// TODO train is dead
+				if (train.stationCoolDown < STATION_COOL_DOWN) {
+					train.stationCoolDown++;
+				} else if (train.stationIds.isEmpty()) {
+					// TODO dead train finds path to station spawner
 					trainsToRemove.add(train);
 				} else {
 					final Station station = getStationById(stations, train.stationIds.get(0));
@@ -170,6 +175,7 @@ public class RailwayData extends PersistentState {
 						train.resetPathIndex(reverse);
 						train.path.clear();
 						train.path.addAll(routePathFinder.findPath());
+						train.stationCoolDown = 0;
 					}
 					train.stationIds.remove(0);
 				}
@@ -223,6 +229,7 @@ public class RailwayData extends PersistentState {
 						final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i + 1] - train.posX[i], train.posZ[i + 1] - train.posZ[i]));
 						final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
 						train.entities[i].updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
+						train.entities[i].stationCoolDown = train.stationCoolDown;
 					} else {
 						train.entities[i].kill();
 						train.entities[i] = null;
