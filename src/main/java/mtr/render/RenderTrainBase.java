@@ -21,7 +21,7 @@ public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityR
 	@Override
 	public void render(T entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
 		matrices.push();
-		matrices.translate(0, 1, 0);
+		matrices.translate(0, 1.5, 0);
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(yaw));
 		matrices.multiply(Vector3f.NEGATIVE_X.getDegreesQuaternion(180 + MathHelper.lerp(tickDelta, entity.prevPitch, entity.pitch)));
 		VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getModel().getLayer(getTexture(entity)));

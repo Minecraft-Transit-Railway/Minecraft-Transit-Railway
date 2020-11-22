@@ -17,7 +17,7 @@ public class Pos3f {
 
 	public Pos3f(BlockPos pos) {
 		x = pos.getX() + 0.5F;
-		y = pos.getY() + 0.5F;
+		y = pos.getY();
 		z = pos.getZ() + 0.5F;
 	}
 

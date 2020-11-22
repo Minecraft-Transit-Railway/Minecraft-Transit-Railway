@@ -32,7 +32,7 @@ public class EntityMinecart extends EntityTrainBase {
 
 	@Override
 	public double getMountedHeightOffset() {
-		return -0.5;
+		return 0;
 	}
 
 	@Override

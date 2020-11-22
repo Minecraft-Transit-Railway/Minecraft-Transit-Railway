@@ -12,6 +12,8 @@ import net.minecraft.world.World;
 
 public abstract class EntityTrainBase extends Entity {
 
+	public int stationCoolDown;
+
 	private int clientInterpolationSteps;
 	private double clientX;
 	private double clientY;
@@ -54,6 +56,8 @@ public abstract class EntityTrainBase extends Entity {
 				refreshPosition();
 			}
 			setRotation(yaw, pitch);
+		} else {
+			checkBlockCollision();
 		}
 	}
 

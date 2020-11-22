@@ -49,7 +49,7 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final double height = isAPG() && state.get(TOP) ? 9 : 16;
+		final int height = isAPG() && state.get(TOP) ? 9 : 16;
 
 		switch (state.get(FACING)) {
 			case NORTH:

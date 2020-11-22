@@ -106,7 +106,7 @@ public class BlockPSDTop extends HorizontalFacingBlock {
 		final BlockState stateBelow = world.getBlockState(pos.down());
 		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
 			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
-				doorLight = ((BlockPSDAPGDoorBase) stateBelow.getBlock()).isOpen(world, pos.down()) ? EnumDoorLight.ON : EnumDoorLight.OFF;
+				doorLight = stateBelow.get(BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
 				side = stateBelow.get(BlockPSDAPGDoorBase.SIDE) == BlockPSDAPGDoorBase.EnumPSDAPGDoorSide.LEFT ? BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT : BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.RIGHT;
 			} else {
 				side = stateBelow.get(SIDE);
