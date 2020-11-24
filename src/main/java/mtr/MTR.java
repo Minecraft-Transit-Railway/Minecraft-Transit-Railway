@@ -62,10 +62,9 @@ public class MTR implements ModInitializer {
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
-		registerBlock("train_spawner", Blocks.TRAIN_SPAWNER, new BlockItem(Blocks.TRAIN_SPAWNER, new Item.Settings().group(ItemGroup.DECORATIONS)));
 
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiServer::receiveStationsAndRoutesC2S);
-		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_TRAIN_SPAWNER, PacketTrainDataGuiServer::receiveTrainSpawnerC2S);
+		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_PLATFORM, PacketTrainDataGuiServer::receivePlatformC2S);
 
 		ServerTickEvents.START_SERVER_TICK.register((event) -> event.getWorlds().forEach(world -> {
 			RailwayData railwayData = RailwayData.getInstance(world);

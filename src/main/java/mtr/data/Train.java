@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class Train extends NamedColoredBase {
+public final class Train extends DataBase {
 
 	public final TrainType trainType;
 	public final List<Long> stationIds;

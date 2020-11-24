@@ -2,7 +2,7 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mtr.data.NamedColoredBase;
+import mtr.data.DataBase;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
@@ -33,7 +33,7 @@ public class DashboardList implements IGui {
 
 	private final RegisterButton registerButton;
 
-	private List<NamedColoredBase> dataSorted = new ArrayList<>();
+	private List<DataBase> dataSorted = new ArrayList<>();
 	private int hoverIndex, scrollOffset;
 
 	private boolean hasFind;
@@ -68,13 +68,13 @@ public class DashboardList implements IGui {
 		registerButton.registerButton(buttonDelete);
 	}
 
-	public void setData(Set<? extends NamedColoredBase> dataSet, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
-		List<? extends NamedColoredBase> dataList = new ArrayList<>(dataSet);
+	public void setData(Set<? extends DataBase> dataSet, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+		List<? extends DataBase> dataList = new ArrayList<>(dataSet);
 		Collections.sort(dataList);
 		setData(dataList, hasFind, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends NamedColoredBase> dataList, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(List<? extends DataBase> dataList, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
 		this.hasEdit = hasEdit;
@@ -92,7 +92,7 @@ public class DashboardList implements IGui {
 		for (int i = 0; i < itemsToShow(); i++) {
 			if (i + scrollOffset < dataSorted.size()) {
 				final int drawY = SQUARE_SIZE * i + TEXT_PADDING;
-				final NamedColoredBase data = dataSorted.get(i + scrollOffset);
+				final DataBase data = dataSorted.get(i + scrollOffset);
 
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
@@ -188,7 +188,7 @@ public class DashboardList implements IGui {
 
 	@FunctionalInterface
 	public interface OnClick {
-		void onClick(NamedColoredBase data, int index);
+		void onClick(DataBase data, int index);
 	}
 
 	@FunctionalInterface

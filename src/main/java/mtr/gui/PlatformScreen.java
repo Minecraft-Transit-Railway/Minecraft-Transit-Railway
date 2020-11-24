@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrainSpawnerScreen extends Screen implements IGui {
+public class PlatformScreen extends Screen implements IGui {
 
 	private boolean addingRoute, addingTrain;
 
@@ -29,7 +29,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = 50;
 
-	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[TrainSpawner.HOURS_IN_DAY];
+	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Platform.HOURS_IN_DAY];
 
 	private final ButtonWidget buttonAddRoute;
 	private final ButtonWidget buttonAddTrains;
@@ -42,7 +42,7 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	private final DashboardList routeList;
 	private final DashboardList trainList;
 
-	public TrainSpawnerScreen(BlockPos spawnerPos) {
+	public PlatformScreen(BlockPos spawnerPos) {
 		super(new LiteralText(""));
 		this.spawnerPos = spawnerPos;
 
@@ -51,12 +51,12 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + client.textRenderer.getWidth(getSliderString(0));
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + client.textRenderer.getWidth(getSliderString(1));
 
-		for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
+		for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
 			final int index = i;
 			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> {
-				getTrainSpawner().setFrequencies(value, index);
+				getPlatform().setFrequencies(value, index);
 				sendUpdate();
-			}, TrainSpawnerScreen::getSliderString);
+			}, PlatformScreen::getSliderString);
 		}
 
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> onAddingRoute());
@@ -112,18 +112,18 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 
 	@Override
 	public void tick() {
-		final TrainSpawner trainSpawner = getTrainSpawner();
+		final Platform platform = getPlatform();
 
-		routeList.setData(trainSpawner.routeIds.stream().map(routeId -> RailwayData.getRouteById(ClientData.routes, routeId)).collect(Collectors.toList()), false, false, true, false, true);
-		trainList.setData(trainSpawner.trainTypes.stream().map(trainType -> new NamedColoredConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, true, false, true);
+		routeList.setData(platform.routeIds.stream().map(routeId -> RailwayData.getRouteById(ClientData.routes, routeId)).collect(Collectors.toList()), false, false, true, false, true);
+		trainList.setData(platform.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, true, false, true);
 
-		for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(trainSpawner.getFrequency(i));
+		for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
+			sliders[i].setValue(platform.getFrequency(i));
 		}
 
-		buttonRemoveTrains.setChecked(trainSpawner.removeTrains);
-		buttonShuffleRoutes.setChecked(trainSpawner.shuffleRoutes);
-		buttonShuffleTrains.setChecked(trainSpawner.shuffleTrains);
+		buttonRemoveTrains.setChecked(platform.removeTrains);
+		buttonShuffleRoutes.setChecked(platform.shuffleRoutes);
+		buttonShuffleTrains.setChecked(platform.shuffleTrains);
 	}
 
 	@Override
@@ -147,8 +147,8 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.routes"), rightPanelsX + getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), rightPanelsX + 3 * getRightPanelWidth() / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 
-			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / TrainSpawner.HOURS_IN_DAY);
-			for (int i = 0; i < TrainSpawner.HOURS_IN_DAY; i++) {
+			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Platform.HOURS_IN_DAY);
+			for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
 				drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
 				sliders[i].y = SQUARE_SIZE + lineHeight * i;
 				sliders[i].setHeight(lineHeight);
@@ -182,37 +182,37 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	}
 
 	private void onAddingTrain() {
-		addNewList.setData(Arrays.stream(Train.TrainType.values()).map(trainType -> new NamedColoredConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, true, false);
+		addNewList.setData(Arrays.stream(Train.TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, true, false);
 		setAdding(false, true);
 	}
 
-	private void onAdded(NamedColoredBase data, int index) {
+	private void onAdded(DataBase data, int index) {
 		if (addingRoute) {
-			getTrainSpawner().routeIds.add(data.id);
+			getPlatform().routeIds.add(data.id);
 			sendUpdate();
 		} else if (addingTrain) {
-			getTrainSpawner().trainTypes.add(Train.TrainType.values()[index]);
+			getPlatform().trainTypes.add(Train.TrainType.values()[index]);
 			sendUpdate();
 		}
 		setAdding(false, false);
 	}
 
-	private void onDeleteRoute(NamedColoredBase data, int index) {
-		getTrainSpawner().routeIds.remove(index);
+	private void onDeleteRoute(DataBase data, int index) {
+		getPlatform().routeIds.remove(index);
 		sendUpdate();
 	}
 
-	private void onDeleteTrain(NamedColoredBase data, int index) {
-		getTrainSpawner().trainTypes.remove(index);
+	private void onDeleteTrain(DataBase data, int index) {
+		getPlatform().trainTypes.remove(index);
 		sendUpdate();
 	}
 
 	private List<Long> getRouteList() {
-		return getTrainSpawner().routeIds;
+		return getPlatform().routeIds;
 	}
 
 	private List<Train.TrainType> getTrainList() {
-		return getTrainSpawner().trainTypes;
+		return getPlatform().trainTypes;
 	}
 
 	private void setAdding(boolean addingRoute, boolean addingTrain) {
@@ -236,17 +236,17 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 	}
 
 	private void onRemoveTrainsCheckedChanged(boolean checked) {
-		getTrainSpawner().removeTrains = checked;
+		getPlatform().removeTrains = checked;
 		sendUpdate();
 	}
 
 	private void onShuffleRoutesCheckedChanged(boolean checked) {
-		getTrainSpawner().shuffleRoutes = checked;
+		getPlatform().shuffleRoutes = checked;
 		sendUpdate();
 	}
 
 	private void onShuffleTrainsCheckedChanged(boolean checked) {
-		getTrainSpawner().shuffleTrains = checked;
+		getPlatform().shuffleTrains = checked;
 		sendUpdate();
 	}
 
@@ -254,12 +254,12 @@ public class TrainSpawnerScreen extends Screen implements IGui {
 		return (width - rightPanelsX) / 2;
 	}
 
-	private TrainSpawner getTrainSpawner() {
-		return RailwayData.getTrainSpawnerByPos(ClientData.trainSpawners, spawnerPos);
+	private Platform getPlatform() {
+		return RailwayData.getPlatformByPos(ClientData.platforms, spawnerPos);
 	}
 
 	private void sendUpdate() {
-		PacketTrainDataGuiClient.sendTrainSpawnerC2S(getTrainSpawner());
+		PacketTrainDataGuiClient.sendPlatformC2S(getPlatform());
 	}
 
 	private static String getSliderString(int value) {
