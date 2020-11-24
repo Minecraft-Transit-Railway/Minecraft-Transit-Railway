@@ -5,7 +5,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -20,6 +19,7 @@ public abstract class EntityTrainBase extends Entity {
 	private double clientZ;
 	private double clientYaw;
 	private double clientPitch;
+	private int killTimer;
 
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
@@ -34,11 +34,6 @@ public abstract class EntityTrainBase extends Entity {
 		prevX = x;
 		prevY = y;
 		prevZ = z;
-	}
-
-	@Override
-	public void onStoppedTrackingBy(ServerPlayerEntity player) {
-		kill();
 	}
 
 	@Override
@@ -58,7 +53,17 @@ public abstract class EntityTrainBase extends Entity {
 			setRotation(yaw, pitch);
 		} else {
 			checkBlockCollision();
+			killTimer++;
+			if (killTimer > 2) {
+				kill();
+			}
 		}
+	}
+
+	@Override
+	public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+		super.updatePositionAndAngles(x, y, z, yaw, pitch);
+		killTimer = 0;
 	}
 
 	@Override

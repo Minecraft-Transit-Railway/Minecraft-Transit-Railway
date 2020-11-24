@@ -6,21 +6,20 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.MaterialColor;
 
-public class Blocks {
+public interface Blocks {
 
-	public static final Block APG_DOOR = new BlockAPGDoor();
-	public static final Block APG_GLASS = new BlockAPGGlass();
-	public static final Block APG_GLASS_END = new BlockAPGGlassEnd();
-	public static final Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).hardness(2).luminance(15));
-	public static final Block ESCALATOR_SIDE = new BlockEscalatorSide();
-	public static final Block ESCALATOR_STEP = new BlockEscalatorStep();
-	public static final Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
-	public static final Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).luminance(5));
-	public static final Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
-	public static final Block PLATFORM_RAIL = new BlockPlatformRail(FabricBlockSettings.of(Material.METAL, MaterialColor.BROWN).requiresTool().hardness(2).nonOpaque());
-	public static final Block PSD_DOOR = new BlockPSDDoor();
-	public static final Block PSD_GLASS = new BlockPSDGlass();
-	public static final Block PSD_GLASS_END = new BlockPSDGlassEnd();
-	public static final Block PSD_TOP = new BlockPSDTop(FabricBlockSettings.of(Material.GLASS, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
-	public static final Block TRAIN_SPAWNER = new BlockTrainSpawner(FabricBlockSettings.of(Material.METAL, MaterialColor.STONE).requiresTool().hardness(2));
+	Block APG_DOOR = new BlockAPGDoor();
+	Block APG_GLASS = new BlockAPGGlass();
+	Block APG_GLASS_END = new BlockAPGGlassEnd();
+	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).hardness(2).luminance(15));
+	Block ESCALATOR_SIDE = new BlockEscalatorSide();
+	Block ESCALATOR_STEP = new BlockEscalatorStep();
+	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
+	Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).luminance(5));
+	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
+	Block PLATFORM_RAIL = new BlockPlatformRail(FabricBlockSettings.of(Material.METAL, MaterialColor.BROWN).requiresTool().hardness(2).nonOpaque());
+	Block PSD_DOOR = new BlockPSDDoor();
+	Block PSD_GLASS = new BlockPSDGlass();
+	Block PSD_GLASS_END = new BlockPSDGlassEnd();
+	Block PSD_TOP = new BlockPSDTop(FabricBlockSettings.of(Material.GLASS, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
 }

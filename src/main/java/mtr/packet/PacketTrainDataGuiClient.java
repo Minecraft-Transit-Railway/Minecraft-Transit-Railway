@@ -1,11 +1,14 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
-import mtr.data.*;
+import mtr.data.Platform;
+import mtr.data.Route;
+import mtr.data.Station;
+import mtr.data.Train;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
+import mtr.gui.PlatformScreen;
 import mtr.gui.ScheduleScreen;
-import mtr.gui.TrainSpawnerScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
@@ -22,11 +25,11 @@ public class PacketTrainDataGuiClient implements IPacket {
 		}
 	}
 
-	public static void openTrainSpawnerScreenS2C(PacketByteBuf packet) {
+	public static void openPlatformScreenS2C(PacketByteBuf packet) {
 		receiveAll(packet);
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		if (!(minecraftClient.currentScreen instanceof TrainSpawnerScreen)) {
-			MinecraftClient.getInstance().openScreen(new TrainSpawnerScreen(packet.readBlockPos()));
+		if (!(minecraftClient.currentScreen instanceof PlatformScreen)) {
+			MinecraftClient.getInstance().openScreen(new PlatformScreen(packet.readBlockPos()));
 		}
 	}
 
@@ -49,16 +52,15 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientSidePacketRegistry.INSTANCE.sendToServer(ID_STATIONS_AND_ROUTES, packet);
 	}
 
-	public static void sendTrainSpawnerC2S(TrainSpawner trainSpawner) {
+	public static void sendPlatformC2S(Platform platform) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-		trainSpawner.writePacket(packet);
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID_TRAIN_SPAWNER, packet);
+		platform.writePacket(packet);
+		ClientSidePacketRegistry.INSTANCE.sendToServer(ID_PLATFORM, packet);
 	}
 
 	public static void receiveAll(PacketByteBuf packet) {
 		ClientData.stations = IPacket.receiveData(packet, Station::new);
 		ClientData.platforms = IPacket.receiveData(packet, Platform::new);
 		ClientData.routes = IPacket.receiveData(packet, Route::new);
-		ClientData.trainSpawners = IPacket.receiveData(packet, TrainSpawner::new);
 	}
 }

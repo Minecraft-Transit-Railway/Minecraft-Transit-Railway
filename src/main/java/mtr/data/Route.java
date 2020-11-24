@@ -6,7 +6,7 @@ import net.minecraft.network.PacketByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Route extends NamedColoredBase {
+public final class Route extends DataBase {
 
 	public final List<Long> stationIds;
 

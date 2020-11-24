@@ -1,8 +1,8 @@
 package mtr.gui;
 
+import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Train;
-import mtr.data.TrainSpawner;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -25,17 +25,17 @@ public class ScheduleScreen extends Screen implements IGui {
 
 	public ScheduleScreen(BlockPos spawnerPos) {
 		super(new LiteralText(""));
-		final TrainSpawner trainSpawner = RailwayData.getTrainSpawnerByPos(ClientData.trainSpawners, spawnerPos);
-		schedule = trainSpawner.getSchedule();
+		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, spawnerPos);
+		schedule = platform.getSchedule();
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		maxRouteWidth = trainSpawner.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getRouteById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
-		maxTrainTypeWidth = trainSpawner.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
+		maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getRouteById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
+		maxTrainTypeWidth = platform.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
 	}
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		renderBackground(matrices);
-		final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (TrainSpawner.HOURS_IN_DAY * TrainSpawner.TICKS_PER_HOUR)) : 0;
+		final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR)) : 0;
 		final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
 		drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_spawner_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
 		drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
@@ -81,8 +81,8 @@ public class ScheduleScreen extends Screen implements IGui {
 	}
 
 	private String getTimeString(int time) {
-		final String hourString = StringUtils.leftPad(String.valueOf(time / TrainSpawner.TICKS_PER_HOUR), 2, "0");
-		final String minuteString = StringUtils.leftPad(String.valueOf((int) (0.06 * (time % TrainSpawner.TICKS_PER_HOUR))), 2, "0");
+		final String hourString = StringUtils.leftPad(String.valueOf(time / Platform.TICKS_PER_HOUR), 2, "0");
+		final String minuteString = StringUtils.leftPad(String.valueOf((int) (0.06 * (time % Platform.TICKS_PER_HOUR))), 2, "0");
 		return hourString + ":" + minuteString;
 	}
 

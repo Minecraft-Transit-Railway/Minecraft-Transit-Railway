@@ -1,8 +1,10 @@
 package mtr.block;
 
+import mtr.Items;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.entity.EntityTrainBase;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,7 +18,10 @@ import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.Tag;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -67,6 +72,31 @@ public class BlockPlatformRail extends AbstractRailBlock {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (!world.isClient()) {
+			final RailwayData railwayData = RailwayData.getInstance(world);
+
+			if (railwayData != null) {
+				BlockPos platformPos = pos;
+				final Direction moveDirection = state.get(SHAPE) == RailShape.NORTH_SOUTH ? Direction.NORTH : Direction.WEST;
+				while (world.getBlockState(platformPos).getBlock() instanceof BlockPlatformRail && world.getBlockState(platformPos).get(SHAPE) == state.get(SHAPE)) {
+					platformPos = platformPos.offset(moveDirection);
+				}
+				platformPos = platformPos.offset(moveDirection.getOpposite());
+
+				if (player.getStackInHand(hand).getItem() == Items.BRUSH) {
+					PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
+				} else {
+					PacketTrainDataGuiServer.openScheduleScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
+				}
+
+				return ActionResult.CONSUME;
+			}
+		}
+		return ActionResult.SUCCESS;
 	}
 
 	@Override

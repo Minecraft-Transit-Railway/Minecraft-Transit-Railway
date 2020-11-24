@@ -1,23 +1,19 @@
 package mtr.data;
 
-import mtr.block.BlockTrainSpawner;
+import mtr.block.BlockPlatform;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathFinderBase;
 import mtr.path.RoutePathFinder;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RailBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
@@ -39,7 +35,6 @@ public class RailwayData extends PersistentState {
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
 	private final Set<Train> trains;
-	private final Set<TrainSpawner> trainSpawners;
 
 	public RailwayData() {
 		super(NAME);
@@ -47,7 +42,6 @@ public class RailwayData extends PersistentState {
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
 		trains = new HashSet<>();
-		trainSpawners = new HashSet<>();
 	}
 
 	@Override
@@ -70,11 +64,6 @@ public class RailwayData extends PersistentState {
 		final CompoundTag tagNewTrains = tag.getCompound(KEY_TRAINS);
 		for (String key : tagNewTrains.getKeys()) {
 			trains.add(new Train(tagNewTrains.getCompound(key)));
-		}
-
-		final CompoundTag tagNewTrainSpawners = tag.getCompound(KEY_TRAIN_SPAWNERS);
-		for (String key : tagNewTrainSpawners.getKeys()) {
-			trainSpawners.add(new TrainSpawner(tagNewTrainSpawners.getCompound(key)));
 		}
 
 		validateData();
@@ -115,14 +104,6 @@ public class RailwayData extends PersistentState {
 		}
 		tag.put(KEY_TRAINS, tagNewTrains);
 
-		final CompoundTag tagNewTrainSpawners = new CompoundTag();
-		int m = 0;
-		for (TrainSpawner trainSpawner : trainSpawners) {
-			tagNewTrainSpawners.put(KEY_TRAIN_SPAWNERS + m, trainSpawner.toCompoundTag());
-			m++;
-		}
-		tag.put(KEY_TRAIN_SPAWNERS, tagNewTrainSpawners);
-
 		return tag;
 	}
 
@@ -137,7 +118,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public Set<Platform> getPlatforms(WorldAccess world) {
-		validatePlatformsAndTrainSpawners(world);
+		validatePlatforms(world);
 		return platforms;
 	}
 
@@ -147,7 +128,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(WorldAccess world) {
-		final int worldTime = (int) (world.getLunarTime() + 6000) % (TrainSpawner.HOURS_IN_DAY * TrainSpawner.TICKS_PER_HOUR);
+		final int worldTime = (int) (world.getLunarTime() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR);
 		final Set<Train> trainsToRemove = new HashSet<>();
 
 		trains.forEach(train -> {
@@ -205,7 +186,7 @@ public class RailwayData extends PersistentState {
 
 						if (i == 0 || i == trainLength - 1) {
 							final BlockPos posBelow = new BlockPos(train.posX[i], train.posY[i] - 1, train.posZ[i]);
-							if (world.getBlockState(posBelow).getBlock() instanceof BlockTrainSpawner && getTrainSpawnerByPos(trainSpawners, posBelow).removeTrains) {
+							if (world.getBlockState(posBelow).getBlock() instanceof BlockPlatform && getPlatformByPos(platforms, posBelow).removeTrains) {
 								trainsToRemove.add(train);
 							}
 						}
@@ -241,29 +222,11 @@ public class RailwayData extends PersistentState {
 		trainsToRemove.forEach(this::removeTrain);
 		PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
 
-		// TODO spawn trains even if daylight cycle is false
 		if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
-			trainSpawners.forEach(trainSpawner -> {
-				final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = trainSpawner.getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
-
-				if (optionalScheduleEntry.isPresent()) {
-					final BlockPos pos = trainSpawner.pos;
-					final BlockState state = world.getBlockState(pos);
-
-					if (state.getBlock() instanceof BlockTrainSpawner) {
-						final Direction spawnDirection = state.get(BlockTrainSpawner.FACING);
-						final BlockPos spawnPos = pos.up().offset(spawnDirection);
-
-						if (world.getBlockState(spawnPos).getBlock() instanceof RailBlock) {
-							final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
-							final Route route = getRouteById(routes, trainSpawner.shuffleRoutes ? getRandomElementFromList(trainSpawner.routeIds) : scheduleEntry.getMiddle());
-							final Train.TrainType trainType = trainSpawner.shuffleTrains ? getRandomElementFromList(trainSpawner.trainTypes) : scheduleEntry.getRight();
-
-							final Train newTrain = new Train(trainType, spawnPos, 5, spawnDirection);
-							newTrain.stationIds.addAll(route.stationIds);
-							trains.add(newTrain);
-						}
-					}
+			platforms.forEach(platform -> {
+				final Train newTrain = platform.createTrainOnPlatform(routes, worldTime);
+				if (newTrain != null) {
+					trains.add(newTrain);
 				}
 			});
 		}
@@ -271,14 +234,7 @@ public class RailwayData extends PersistentState {
 		markDirty();
 	}
 
-	public Set<TrainSpawner> getTrainSpawners() {
-		return trainSpawners;
-	}
-
-	public void addTrainSpawner(TrainSpawner trainSpawner) {
-		trainSpawners.add(trainSpawner);
-		markDirty();
-	}
+	// writing data
 
 	public void setData(Set<Station> stations, Set<Route> routes) {
 		this.stations.clear();
@@ -288,10 +244,10 @@ public class RailwayData extends PersistentState {
 		validateData();
 	}
 
-	public void setData(WorldAccess world, TrainSpawner newTrainSpawner) {
-		trainSpawners.removeIf(trainSpawner -> trainSpawner.pos.equals(newTrainSpawner.pos));
-		trainSpawners.add(newTrainSpawner);
-		validatePlatformsAndTrainSpawners(world);
+	public void setData(WorldAccess world, Platform newPlatform) {
+		platforms.removeIf(platform -> platform.getPos1().equals(newPlatform.getPos1()));
+		platforms.add(newPlatform);
+		validatePlatforms(world);
 	}
 
 	private void removeTrain(Train train) {
@@ -299,22 +255,21 @@ public class RailwayData extends PersistentState {
 		trains.remove(train);
 	}
 
-	private void validatePlatformsAndTrainSpawners(WorldAccess world) {
+	// validation
+
+	private void validatePlatforms(WorldAccess world) {
 		platforms.removeIf(platform -> !platform.hasRail(world));
-		trainSpawners.removeIf(trainSpawner -> !(world.getBlockState(trainSpawner.pos).getBlock() instanceof BlockTrainSpawner));
 		validateData();
 	}
 
 	private void validateData() {
 		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stations, stationId) == null));
 		trains.removeIf(train -> train.stationIds.isEmpty());
-		trainSpawners.forEach(trainSpawner -> trainSpawner.routeIds.removeIf(routeId -> getRouteById(routes, routeId) == null));
+		platforms.forEach(platform -> platform.routeIds.removeIf(routeId -> getRouteById(routes, routeId) == null));
 		markDirty();
 	}
 
-	private static <T> T getRandomElementFromList(List<T> list) {
-		return list.get(new Random().nextInt(list.size()));
-	}
+	// static finders
 
 	public static Station getStationById(Set<Station> stations, long id) {
 		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
@@ -324,9 +279,11 @@ public class RailwayData extends PersistentState {
 		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
 	}
 
-	public static TrainSpawner getTrainSpawnerByPos(Set<TrainSpawner> trainSpawners, BlockPos pos) {
-		return trainSpawners.stream().filter(trainSpawner -> trainSpawner.pos.equals(pos)).findFirst().orElse(null);
+	public static Platform getPlatformByPos(Set<Platform> platforms, BlockPos pos) {
+		return platforms.stream().filter(platform -> platform.getPos1().equals(pos)).findFirst().orElse(null);
 	}
+
+	// other
 
 	public static boolean isBetween(int value, int value1, int value2) {
 		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);

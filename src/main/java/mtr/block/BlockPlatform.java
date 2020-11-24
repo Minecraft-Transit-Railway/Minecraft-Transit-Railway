@@ -27,6 +27,12 @@ public class BlockPlatform extends HorizontalFacingBlock {
 			facing = searchBlock(world, pos, AirBlock.class, 1);
 		}
 		if (facing == null) {
+			facing = searchBlock(world, pos.up(), AbstractRailBlock.class, 3);
+		}
+		if (facing == null) {
+			facing = searchBlock(world, pos.up(), AirBlock.class, 1);
+		}
+		if (facing == null) {
 			facing = Direction.NORTH;
 		}
 

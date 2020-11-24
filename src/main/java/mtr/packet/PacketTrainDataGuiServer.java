@@ -14,19 +14,19 @@ import java.util.Set;
 
 public class PacketTrainDataGuiServer implements IPacket {
 
-	public static void openDashboardScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<TrainSpawner> trainSpawners) {
-		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_DASHBOARD_SCREEN, sendAll(stations, platforms, routes, trainSpawners));
+	public static void openDashboardScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_DASHBOARD_SCREEN, sendAll(stations, platforms, routes));
 	}
 
-	public static void openTrainSpawnerScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<TrainSpawner> trainSpawners, BlockPos trainSpawnerPos) {
-		final PacketByteBuf packet = sendAll(stations, platforms, routes, trainSpawners);
-		packet.writeBlockPos(trainSpawnerPos);
-		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_TRAIN_SPAWNER_SCREEN, packet);
+	public static void openPlatformScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos platformPos) {
+		final PacketByteBuf packet = sendAll(stations, platforms, routes);
+		packet.writeBlockPos(platformPos);
+		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_PLATFORM_SCREEN, packet);
 	}
 
-	public static void openScheduleScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<TrainSpawner> trainSpawners, BlockPos trainSpawnerPos) {
-		final PacketByteBuf packet = sendAll(stations, platforms, routes, trainSpawners);
-		packet.writeBlockPos(trainSpawnerPos);
+	public static void openScheduleScreenS2C(PlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos platformPos) {
+		final PacketByteBuf packet = sendAll(stations, platforms, routes);
+		packet.writeBlockPos(platformPos);
 		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_OPEN_SCHEDULE_SCREEN, packet);
 	}
 
@@ -47,27 +47,26 @@ public class PacketTrainDataGuiServer implements IPacket {
 		}
 	}
 
-	public static void receiveTrainSpawnerC2S(PacketContext packetContext, PacketByteBuf packet) {
+	public static void receivePlatformC2S(PacketContext packetContext, PacketByteBuf packet) {
 		final World world = packetContext.getPlayer().world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
-			final TrainSpawner trainSpawner = new TrainSpawner(packet);
-			railwayData.setData(world, trainSpawner);
+			final Platform platform = new Platform(packet);
+			railwayData.setData(world, platform);
 			broadcastS2C(world, railwayData);
 		}
 	}
 
 	public static void broadcastS2C(WorldAccess world, RailwayData railwayData) {
-		final PacketByteBuf packet = sendAll(railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), railwayData.getTrainSpawners());
+		final PacketByteBuf packet = sendAll(railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
 		world.getPlayers().forEach(player -> ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ID_ALL, packet));
 	}
 
-	private static PacketByteBuf sendAll(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<TrainSpawner> trainSpawners) {
+	private static PacketByteBuf sendAll(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
 		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
 		IPacket.sendData(packet, stations);
 		IPacket.sendData(packet, platforms);
 		IPacket.sendData(packet, routes);
-		IPacket.sendData(packet, trainSpawners);
 		return packet;
 	}
 }
