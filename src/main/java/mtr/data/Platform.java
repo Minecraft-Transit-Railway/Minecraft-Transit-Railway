@@ -39,11 +39,12 @@ public final class Platform extends DataBase {
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_TRAIN_TYPES = "train_types";
 	private static final String KEY_FREQUENCIES = "frequencies";
-	private static final String KEY_REMOVE_TRAINS = "remove_trains";
 	private static final String KEY_SHUFFLE_ROUTES = "shuffle_routes";
 	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
 
 	public Platform(BlockPos pos, Direction.Axis axis, int length) {
+		super();
+		name = "1";
 		this.pos = pos;
 		this.axis = axis;
 		this.length = length;
@@ -166,57 +167,6 @@ public final class Platform extends DataBase {
 		generateSchedule();
 	}
 
-	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
-		return schedule;
-	}
-
-	public float getHeadway(int hour) {
-		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
-	}
-
-	private void generateSchedule() {
-		final List<Triple<Integer, Long, Train.TrainType>> tempSchedule = new ArrayList<>();
-
-		if (routeIds.size() > 0 && trainTypes.size() > 0) {
-			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
-			int lastRouteIndex = -1;
-			int lastTrainTypeIndex = -1;
-
-			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
-				final float headway = getHeadway(i / TICKS_PER_HOUR);
-				if (headway > 0 && i >= headway + lastTime) {
-
-					final long route;
-					if (shuffleRoutes) {
-						route = -1;
-					} else {
-						lastRouteIndex++;
-						if (lastRouteIndex >= routeIds.size()) {
-							lastRouteIndex = 0;
-						}
-						route = routeIds.get(lastRouteIndex);
-					}
-
-					final Train.TrainType trainType;
-					if (shuffleTrains) {
-						trainType = null;
-					} else {
-						lastTrainTypeIndex++;
-						if (lastTrainTypeIndex >= trainTypes.size()) {
-							lastTrainTypeIndex = 0;
-						}
-						trainType = trainTypes.get(lastTrainTypeIndex);
-					}
-
-					tempSchedule.add(new ImmutableTriple<>(i, route, trainType));
-					lastTime = i;
-				}
-			}
-		}
-
-		schedule = tempSchedule;
-	}
-
 	public boolean overlaps(Platform platform) {
 		final BlockPos pos3 = platform.pos;
 
@@ -267,12 +217,63 @@ public final class Platform extends DataBase {
 			final Train.TrainType trainType = shuffleTrains ? getRandomElementFromList(trainTypes) : scheduleEntry.getRight();
 
 			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
-			newTrain.paths.addAll(route.getPath(world, platforms));
+			newTrain.paths.addAll(route.getPath(world, platforms, this));
 			newTrain.resetPathIndex();
 			return newTrain;
 		} else {
 			return null;
 		}
+	}
+
+	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
+		return schedule;
+	}
+
+	public float getHeadway(int hour) {
+		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
+	}
+
+	private void generateSchedule() {
+		final List<Triple<Integer, Long, Train.TrainType>> tempSchedule = new ArrayList<>();
+
+		if (routeIds.size() > 0 && trainTypes.size() > 0) {
+			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
+			int lastRouteIndex = -1;
+			int lastTrainTypeIndex = -1;
+
+			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
+				final float headway = getHeadway(i / TICKS_PER_HOUR);
+				if (headway > 0 && i >= headway + lastTime) {
+
+					final long route;
+					if (shuffleRoutes) {
+						route = -1;
+					} else {
+						lastRouteIndex++;
+						if (lastRouteIndex >= routeIds.size()) {
+							lastRouteIndex = 0;
+						}
+						route = routeIds.get(lastRouteIndex);
+					}
+
+					final Train.TrainType trainType;
+					if (shuffleTrains) {
+						trainType = null;
+					} else {
+						lastTrainTypeIndex++;
+						if (lastTrainTypeIndex >= trainTypes.size()) {
+							lastTrainTypeIndex = 0;
+						}
+						trainType = trainTypes.get(lastTrainTypeIndex);
+					}
+
+					tempSchedule.add(new ImmutableTriple<>(i, route, trainType));
+					lastTime = i;
+				}
+			}
+		}
+
+		schedule = tempSchedule;
 	}
 
 	private static <T> T getRandomElementFromList(List<T> list) {

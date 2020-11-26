@@ -63,6 +63,12 @@ public class Pos3f {
 		}
 	}
 
+	public Pos3f rotateY(float angle) {
+		float cos = MathHelper.cos(angle);
+		float sin = MathHelper.sin(angle);
+		return new Pos3f(x * cos + z * sin, y, z * cos - x * sin);
+	}
+
 	@Override
 	public String toString() {
 		return "[" + x + ", " + y + ", " + z + "]";

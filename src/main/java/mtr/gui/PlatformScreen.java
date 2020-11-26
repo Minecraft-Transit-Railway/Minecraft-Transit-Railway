@@ -5,6 +5,7 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -25,9 +26,10 @@ public class PlatformScreen extends Screen implements IGui {
 	private final int rightPanelsX;
 
 	private static final int SLIDER_WIDTH = 48;
-	private static final int SETTINGS_HEIGHT = SQUARE_SIZE * 3 + TEXT_PADDING;
+	private static final int SETTINGS_HEIGHT = SQUARE_SIZE * 4 + TEXT_PADDING + TEXT_FIELD_PADDING;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = 50;
+	private static final int MAX_PLATFORM_NAME_LENGTH = 10;
 
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Platform.HOURS_IN_DAY];
 
@@ -36,6 +38,8 @@ public class PlatformScreen extends Screen implements IGui {
 	private final ButtonWidget buttonCancel;
 	private final WidgetBetterCheckbox buttonShuffleRoutes;
 	private final WidgetBetterCheckbox buttonShuffleTrains;
+
+	private final TextFieldWidget textFieldName;
 
 	private final DashboardList addNewList;
 	private final DashboardList routeList;
@@ -64,6 +68,8 @@ public class PlatformScreen extends Screen implements IGui {
 		buttonShuffleRoutes = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_routes"), this::onShuffleRoutesCheckedChanged);
 		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), this::onShuffleTrainsCheckedChanged);
 
+		textFieldName = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+
 		addNewList = new DashboardList(this::addButton, null, null, this::onAdded, null, null, this::sendUpdate);
 		routeList = new DashboardList(this::addButton, null, null, null, this::onDeleteRoute, this::getRouteList, this::sendUpdate);
 		trainList = new DashboardList(this::addButton, null, null, null, this::onDeleteTrain, this::getTrainList, this::sendUpdate);
@@ -74,8 +80,9 @@ public class PlatformScreen extends Screen implements IGui {
 		IGui.setPositionAndWidth(buttonAddRoute, rightPanelsX, height - SQUARE_SIZE, getRightPanelWidth());
 		IGui.setPositionAndWidth(buttonAddTrains, rightPanelsX + getRightPanelWidth(), height - SQUARE_SIZE, getRightPanelWidth());
 		IGui.setPositionAndWidth(buttonCancel, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonShuffleRoutes, rightPanelsX + TEXT_PADDING, SQUARE_SIZE, getRightPanelWidth());
-		IGui.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2, getRightPanelWidth());
+		IGui.setPositionAndWidth(buttonShuffleRoutes, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, getRightPanelWidth());
+		IGui.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING, getRightPanelWidth());
+		IGui.setPositionAndWidth(textFieldName, rightPanelsX + getRightPanelWidth(), SQUARE_SIZE, getRightPanelWidth() - TEXT_PADDING - TEXT_FIELD_PADDING);
 
 		addNewList.y = SQUARE_SIZE * 2;
 		addNewList.height = height - SQUARE_SIZE * 4;
@@ -88,6 +95,14 @@ public class PlatformScreen extends Screen implements IGui {
 		trainList.y = SETTINGS_HEIGHT + SQUARE_SIZE;
 		trainList.height = height - SETTINGS_HEIGHT - SQUARE_SIZE * 2;
 		trainList.width = getRightPanelWidth();
+
+		textFieldName.setText(getPlatform().name);
+		textFieldName.setMaxLength(MAX_PLATFORM_NAME_LENGTH);
+		textFieldName.setChangedListener(text -> {
+			textFieldName.setSuggestion(text.isEmpty() ? "1" : "");
+			getPlatform().name = IGui.textOrUntitled(textFieldName.getText());
+			sendUpdate();
+		});
 
 		addNewList.init();
 		routeList.init();
@@ -103,11 +118,14 @@ public class PlatformScreen extends Screen implements IGui {
 		addButton(buttonShuffleRoutes);
 		addButton(buttonShuffleTrains);
 
+		addChild(textFieldName);
+
 		setAdding(false, false);
 	}
 
 	@Override
 	public void tick() {
+		textFieldName.tick();
 		final Platform platform = getPlatform();
 
 		routeList.setData(platform.routeIds.stream().map(routeId -> RailwayData.getDataById(ClientData.routes, routeId)).collect(Collectors.toList()), false, false, true, false, true);
@@ -132,10 +150,12 @@ public class PlatformScreen extends Screen implements IGui {
 			drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
 			drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
 			renderBackground(matrices);
+			textFieldName.render(matrices, mouseX, mouseY, delta);
 			routeList.render(matrices, textRenderer);
 			trainList.render(matrices, textRenderer);
 			super.render(matrices, mouseX, mouseY, delta);
 
+			drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.platform_number"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), rightPanelsX + getRightPanelWidth(), TEXT_PADDING, ARGB_LIGHT_GRAY);
@@ -223,6 +243,7 @@ public class PlatformScreen extends Screen implements IGui {
 		buttonCancel.visible = adding;
 		buttonShuffleRoutes.visible = !adding;
 		buttonShuffleTrains.visible = !adding;
+		textFieldName.visible = !adding;
 
 		addNewList.x = adding ? (width - PANEL_WIDTH) / 2 : width;
 		routeList.x = adding ? width : rightPanelsX;

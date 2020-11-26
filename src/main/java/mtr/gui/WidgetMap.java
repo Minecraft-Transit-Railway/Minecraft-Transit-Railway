@@ -105,11 +105,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 
 		if (player != null) {
-			final double playerCoordX = (player.getX() - centerX) * scale + width / 2D;
-			final double playerCoordY = (player.getZ() - centerY) * scale + height / 2D;
-			drawRectangle(buffer, playerCoordX - 2, playerCoordY - 3, playerCoordX + 2, playerCoordY + 3, ARGB_WHITE);
-			drawRectangle(buffer, playerCoordX - 3, playerCoordY - 2, playerCoordX + 3, playerCoordY + 2, ARGB_WHITE);
-			drawRectangle(buffer, playerCoordX - 2, playerCoordY - 2, playerCoordX + 2, playerCoordY + 2, ARGB_BLUE);
+			drawFromWorldCoords(player.getX(), player.getZ(), (x1, y1) -> {
+				drawRectangle(buffer, x1 - 2, y1 - 3, x1 + 2, y1 + 3, ARGB_WHITE);
+				drawRectangle(buffer, x1 - 3, y1 - 2, x1 + 3, y1 + 2, ARGB_WHITE);
+				drawRectangle(buffer, x1 - 2, y1 - 2, x1 + 2, y1 + 2, ARGB_BLUE);
+			});
 		}
 
 		tessellator.draw();
@@ -121,6 +121,18 @@ public class WidgetMap implements Drawable, Element, IGui {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_station").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		} else if (mapState == 2) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+		}
+		if (scale >= 8) {
+			for (Platform platform : ClientData.platforms) {
+				final BlockPos pos = platform.getMidPos();
+				drawFromWorldCoords(pos.getX() + 0.5, pos.getZ() + 0.5, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platform.name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+			}
+		}
+		if (scale >= 2) {
+			for (Station station : ClientData.stations) {
+				final BlockPos pos = station.getCenter();
+				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, station.name, 1, 1, x + (int) x1, y + (int) y1, false));
+			}
 		}
 
 		final Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
@@ -220,6 +232,12 @@ public class WidgetMap implements Drawable, Element, IGui {
 		return new Pair<>(left, right);
 	}
 
+	private void drawFromWorldCoords(double worldX, double worldZ, DrawFromWorldCoords callback) {
+		final double coordsX = (worldX - centerX) * scale + width / 2D;
+		final double coordsY = (worldZ - centerY) * scale + height / 2D;
+		callback.drawFromWorldCoords(coordsX, coordsY);
+	}
+
 	private void drawRectangleFromWorldCoords(BufferBuilder buffer, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2, int color) {
 		drawRectangleFromWorldCoords(buffer, corner1.getLeft(), corner1.getRight(), corner2.getLeft(), corner2.getRight(), color);
 	}
@@ -250,5 +268,10 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@FunctionalInterface
 	public interface OnClickPlatform {
 		void onClickPlatform(long stationId);
+	}
+
+	@FunctionalInterface
+	private interface DrawFromWorldCoords {
+		void drawFromWorldCoords(double x1, double y1);
 	}
 }

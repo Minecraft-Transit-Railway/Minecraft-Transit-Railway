@@ -165,8 +165,15 @@ public class DashboardScreen extends Screen implements IGui {
 				if (editingRoute == null) {
 					dashboardList.setData(ClientData.routes, false, true, false, false, true);
 				} else {
-					List<Platform> routePlatforms = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).collect(Collectors.toList());
-					dashboardList.setData(routePlatforms, false, false, true, false, true);
+					final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
+						final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+						if (station != null) {
+							return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
+						} else {
+							return new DataConverter(String.format("(%s)", platform.name), 0);
+						}
+					}).collect(Collectors.toList());
+					dashboardList.setData(routeData, false, false, true, false, true);
 				}
 				break;
 			case 2:
@@ -274,7 +281,7 @@ public class DashboardScreen extends Screen implements IGui {
 		if (isNew) {
 			ClientData.stations.add(editingStation);
 		}
-		editingStation.name = textOrUntitled(textFieldName.getText());
+		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
 		stopEditing();
 	}
@@ -283,7 +290,7 @@ public class DashboardScreen extends Screen implements IGui {
 		if (isNew) {
 			ClientData.routes.add(editingRoute);
 		}
-		editingRoute.name = textOrUntitled(textFieldName.getText());
+		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());
 		stopEditing();
 	}
@@ -323,10 +330,6 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private static String colorIntToString(int color) {
 		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
-	}
-
-	private static String textOrUntitled(String text) {
-		return text.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : text;
 	}
 
 	private static boolean nonNullCorners(Station station) {
