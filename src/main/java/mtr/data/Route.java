@@ -1,53 +1,68 @@
 package mtr.data;
 
+import mtr.path.RoutePathFinder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class Route extends DataBase {
 
-	public final List<Long> stationIds;
+	public final List<Long> platformIds;
 
-	private static final String KEY_STATION_IDS = "station_ids";
+	private static final String KEY_PLATFORM_IDS = "platform_ids";
 
 	public Route() {
 		super();
-		stationIds = new ArrayList<>();
+		platformIds = new ArrayList<>();
 	}
 
 	public Route(CompoundTag tag) {
 		super(tag);
-		stationIds = new ArrayList<>();
-		final long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
-		for (final long stationId : stationIdsArray) {
-			stationIds.add(stationId);
+		platformIds = new ArrayList<>();
+		final long[] platformIdsArray = tag.getLongArray(KEY_PLATFORM_IDS);
+		for (final long platformId : platformIdsArray) {
+			platformIds.add(platformId);
 		}
 	}
 
 	public Route(PacketByteBuf packet) {
 		super(packet);
-		stationIds = new ArrayList<>();
-		final int stationCount = packet.readInt();
-		for (int i = 0; i < stationCount; i++) {
-			stationIds.add(packet.readLong());
+		platformIds = new ArrayList<>();
+		final int platformCount = packet.readInt();
+		for (int i = 0; i < platformCount; i++) {
+			platformIds.add(packet.readLong());
 		}
 	}
 
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
-		tag.putLongArray(KEY_STATION_IDS, stationIds);
+		tag.putLongArray(KEY_PLATFORM_IDS, platformIds);
 		return tag;
 	}
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
-		packet.writeInt(stationIds.size());
-		for (final long stationId : stationIds) {
-			packet.writeLong(stationId);
+		packet.writeInt(platformIds.size());
+		for (final long platformId : platformIds) {
+			packet.writeLong(platformId);
 		}
+	}
+
+	public List<List<Pos3f>> getPath(WorldAccess world, Set<Platform> platforms) {
+		final List<List<Pos3f>> path = new ArrayList<>();
+		for (int i = 0; i < platformIds.size() - 1; i++) {
+			final Platform platformStart = RailwayData.getDataById(platforms, platformIds.get(i));
+			final Platform platformEnd = RailwayData.getDataById(platforms, platformIds.get(i + 1));
+			if (platformStart != null && platformEnd != null) {
+				path.add(new RoutePathFinder(world, platformStart.getMidPos(), platformEnd.getMidPos()).findPath());
+			}
+		}
+		return path;
 	}
 }

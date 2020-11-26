@@ -1,9 +1,7 @@
 package mtr.data;
 
-import mtr.block.BlockPlatform;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathFinderBase;
-import mtr.path.RoutePathFinder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +25,6 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_TRAINS = "trains";
-	private static final String KEY_TRAIN_SPAWNERS = "train_spawners";
 
 	private static final int VIEW_DISTANCE = 32;
 
@@ -133,32 +130,20 @@ public class RailwayData extends PersistentState {
 
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
-			final int distanceRemaining = train.path.size() - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
+			final boolean isDeadTrain = train.paths.isEmpty();
+			final int distanceRemaining = isDeadTrain ? 0 : train.paths.get(0).size() - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
 
 			if (distanceRemaining <= 0) {
 				train.speed = 0;
 
-				if (train.stationCoolDown < STATION_COOL_DOWN) {
-					train.stationCoolDown++;
-				} else if (train.stationIds.isEmpty()) {
-					// TODO dead train finds path to station spawner
+				if (isDeadTrain) {
 					trainsToRemove.add(train);
+				} else if (train.stationCoolDown < STATION_COOL_DOWN) {
+					train.stationCoolDown++;
 				} else {
-					final Station station = getStationById(stations, train.stationIds.get(0));
-
-					if (station != null) {
-						final BlockPos start1 = new BlockPos(train.posX[0], train.posY[0], train.posZ[0]);
-						final BlockPos start2 = new BlockPos(train.posX[trainLength - 1], train.posY[trainLength - 1], train.posZ[trainLength - 1]);
-						final BlockPos destinationPos = station.getCenter();
-						final boolean reverse = PathFinderBase.distanceBetween(start1, destinationPos) > PathFinderBase.distanceBetween(start2, destinationPos);
-						final RoutePathFinder routePathFinder = new RoutePathFinder(world, reverse ? start1 : start2, station);
-
-						train.resetPathIndex(reverse);
-						train.path.clear();
-						train.path.addAll(routePathFinder.findPath());
-						train.stationCoolDown = 0;
-					}
-					train.stationIds.remove(0);
+					train.paths.remove(0);
+					train.resetPathIndex();
+					train.stationCoolDown = 0;
 				}
 			} else {
 				if (MathHelper.square(train.speed) >= 2 * train.trainType.getAcceleration() * (distanceRemaining - 1)) {
@@ -170,8 +155,8 @@ public class RailwayData extends PersistentState {
 				}
 
 				for (int i = 0; i < trainLength; i++) {
-					if (train.pathIndex[i] < train.path.size()) {
-						final Pos3f newPos = train.path.get(train.pathIndex[i]);
+					if (train.pathIndex[i] < train.paths.get(0).size()) {
+						final Pos3f newPos = train.paths.get(0).get(train.pathIndex[i]);
 						final Pos3f movement = new Pos3f(newPos.getX() - train.posX[i], newPos.getY() - train.posY[i], newPos.getZ() - train.posZ[i]);
 
 						if (movement.lengthSquared() < MathHelper.square(2 * train.speed)) {
@@ -183,13 +168,6 @@ public class RailwayData extends PersistentState {
 						train.posX[i] += movement.getX();
 						train.posY[i] += movement.getY();
 						train.posZ[i] += movement.getZ();
-
-						if (i == 0 || i == trainLength - 1) {
-							final BlockPos posBelow = new BlockPos(train.posX[i], train.posY[i] - 1, train.posZ[i]);
-							if (world.getBlockState(posBelow).getBlock() instanceof BlockPlatform && getPlatformByPos(platforms, posBelow).removeTrains) {
-								trainsToRemove.add(train);
-							}
-						}
 					}
 				}
 			}
@@ -224,7 +202,7 @@ public class RailwayData extends PersistentState {
 
 		if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
 			platforms.forEach(platform -> {
-				final Train newTrain = platform.createTrainOnPlatform(routes, worldTime);
+				final Train newTrain = platform.createTrainOnPlatform(world, platforms, routes, worldTime);
 				if (newTrain != null) {
 					trains.add(newTrain);
 				}
@@ -263,20 +241,16 @@ public class RailwayData extends PersistentState {
 	}
 
 	private void validateData() {
-		routes.forEach(route -> route.stationIds.removeIf(stationId -> getStationById(stations, stationId) == null));
-		trains.removeIf(train -> train.stationIds.isEmpty());
-		platforms.forEach(platform -> platform.routeIds.removeIf(routeId -> getRouteById(routes, routeId) == null));
+		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
+		trains.removeIf(train -> train.paths.isEmpty());
+		platforms.forEach(platform -> platform.routeIds.removeIf(routeId -> getDataById(routes, routeId) == null));
 		markDirty();
 	}
 
 	// static finders
 
-	public static Station getStationById(Set<Station> stations, long id) {
-		return stations.stream().filter(station -> station.id == id).findFirst().orElse(null);
-	}
-
-	public static Route getRouteById(Set<Route> routes, long id) {
-		return routes.stream().filter(route -> route.id == id).findFirst().orElse(null);
+	public static <T extends DataBase> T getDataById(Set<T> data, long id) {
+		return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
 	}
 
 	public static Platform getPlatformByPos(Set<Platform> platforms, BlockPos pos) {

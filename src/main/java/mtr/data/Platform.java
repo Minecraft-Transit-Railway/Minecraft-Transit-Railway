@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public final class Platform extends DataBase {
 
-	public boolean removeTrains;
 	public boolean shuffleRoutes;
 	public boolean shuffleTrains;
 
@@ -51,7 +50,6 @@ public final class Platform extends DataBase {
 		routeIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
 		frequencies = new int[HOURS_IN_DAY];
-		removeTrains = true;
 		shuffleRoutes = false;
 		shuffleTrains = true;
 		schedule = new ArrayList<>();
@@ -78,7 +76,6 @@ public final class Platform extends DataBase {
 		frequencies = tag.getIntArray(KEY_FREQUENCIES);
 		generateSchedule();
 
-		removeTrains = tag.getBoolean(KEY_REMOVE_TRAINS);
 		shuffleRoutes = tag.getBoolean(KEY_SHUFFLE_ROUTES);
 		shuffleTrains = tag.getBoolean(KEY_SHUFFLE_TRAINS);
 	}
@@ -104,7 +101,6 @@ public final class Platform extends DataBase {
 		frequencies = packet.readIntArray();
 		generateSchedule();
 
-		removeTrains = packet.readBoolean();
 		shuffleRoutes = packet.readBoolean();
 		shuffleTrains = packet.readBoolean();
 	}
@@ -118,7 +114,6 @@ public final class Platform extends DataBase {
 		tag.putLongArray(KEY_ROUTE_IDS, routeIds);
 		tag.putIntArray(KEY_TRAIN_TYPES, trainTypes.stream().map(Enum::ordinal).collect(Collectors.toList()));
 		tag.putIntArray(KEY_FREQUENCIES, frequencies);
-		tag.putBoolean(KEY_REMOVE_TRAINS, removeTrains);
 		tag.putBoolean(KEY_SHUFFLE_ROUTES, shuffleRoutes);
 		tag.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
 		return tag;
@@ -135,7 +130,6 @@ public final class Platform extends DataBase {
 		packet.writeInt(trainTypes.size());
 		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
 		packet.writeIntArray(frequencies);
-		packet.writeBoolean(removeTrains);
 		packet.writeBoolean(shuffleRoutes);
 		packet.writeBoolean(shuffleTrains);
 	}
@@ -150,6 +144,11 @@ public final class Platform extends DataBase {
 		} else {
 			return pos.offset(Direction.SOUTH, length);
 		}
+	}
+
+	public BlockPos getMidPos() {
+		final BlockPos pos2 = getPos2();
+		return new BlockPos((pos.getX() + pos2.getX()) / 2, pos.getY(), (pos.getZ() + pos2.getZ()) / 2);
 	}
 
 	public int getFrequency(int index) {
@@ -254,16 +253,22 @@ public final class Platform extends DataBase {
 		return true;
 	}
 
-	public Train createTrainOnPlatform(Set<Route> routes, int worldTime) {
+	public boolean inPlatform(int x, int z) {
+		final BlockPos pos2 = getPos2();
+		return RailwayData.isBetween(x, pos.getX(), pos2.getX()) && RailwayData.isBetween(z, pos.getZ(), pos2.getZ());
+	}
+
+	public Train createTrainOnPlatform(WorldAccess world, Set<Platform> platforms, Set<Route> routes, int worldTime) {
 		final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
 		final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
 		if (optionalScheduleEntry.isPresent()) {
 			final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
-			final Route route = RailwayData.getRouteById(routes, shuffleRoutes ? getRandomElementFromList(routeIds) : scheduleEntry.getMiddle());
+			final Route route = RailwayData.getDataById(routes, shuffleRoutes ? getRandomElementFromList(routeIds) : scheduleEntry.getMiddle());
 			final Train.TrainType trainType = shuffleTrains ? getRandomElementFromList(trainTypes) : scheduleEntry.getRight();
 
 			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
-			newTrain.stationIds.addAll(route.stationIds);
+			newTrain.paths.addAll(route.getPath(world, platforms));
+			newTrain.resetPathIndex();
 			return newTrain;
 		} else {
 			return null;

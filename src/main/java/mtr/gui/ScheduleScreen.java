@@ -23,12 +23,12 @@ public class ScheduleScreen extends Screen implements IGui {
 	private static final int ARGB_GOLD = 0xFFFFAA00;
 	private static final int ARGB_GREEN = 0xFF55FF55;
 
-	public ScheduleScreen(BlockPos spawnerPos) {
+	public ScheduleScreen(BlockPos platformPos) {
 		super(new LiteralText(""));
-		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, spawnerPos);
+		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
 		schedule = platform.getSchedule();
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getRouteById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
+		maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getDataById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
 		maxTrainTypeWidth = platform.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
 	}
 
@@ -37,7 +37,7 @@ public class ScheduleScreen extends Screen implements IGui {
 		renderBackground(matrices);
 		final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR)) : 0;
 		final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
-		drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_spawner_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
+		drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
 		drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
 
 		final int rows = (height - SQUARE_SIZE - TEXT_PADDING) / LINE_HEIGHT;
@@ -87,7 +87,7 @@ public class ScheduleScreen extends Screen implements IGui {
 	}
 
 	private String getRouteString(long routeId) {
-		return routeId < 0 ? "" : RailwayData.getRouteById(ClientData.routes, routeId).name;
+		return routeId < 0 ? "" : RailwayData.getDataById(ClientData.routes, routeId).name;
 	}
 
 	private String getTrainTypeString(Train.TrainType trainType) {
