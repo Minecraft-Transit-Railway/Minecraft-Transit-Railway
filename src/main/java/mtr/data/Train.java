@@ -15,7 +15,7 @@ import java.util.List;
 public final class Train extends DataBase {
 
 	public final TrainType trainType;
-	public final List<Long> stationIds;
+	public final List<List<Pos3f>> paths;
 
 	public final float[] posX, posY, posZ;
 	public final int[] pathIndex;
@@ -23,17 +23,14 @@ public final class Train extends DataBase {
 	public float speed;
 	public int stationCoolDown;
 
-	public final List<Pos3f> path;
-
 	private final String KEY_TRAIN_TYPE = "train_type";
-	private static final String KEY_STATION_IDS = "station_ids";
 	private static final String KEY_TRAIN_LENGTH = "train_length";
 	private static final String KEY_POS_X = "pos_x";
 	private static final String KEY_POS_Y = "pos_y";
 	private static final String KEY_POS_Z = "pos_z";
 	private static final String KEY_PATH_INDEX = "path_index";
 	private static final String KEY_SPEED = "speed";
-	private static final String KEY_PATH_LENGTH = "path_length";
+	private static final String KEY_PATHS_LENGTH = "paths_length";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_STATION_COOL_DOWN = "station_cool_down";
 
@@ -51,8 +48,7 @@ public final class Train extends DataBase {
 		}
 		pathIndex = new int[cars + 1];
 		entities = new EntityTrainBase[cars];
-		stationIds = new ArrayList<>();
-		path = new ArrayList<>();
+		paths = new ArrayList<>();
 	}
 
 	public Train(CompoundTag tag) {
@@ -60,11 +56,6 @@ public final class Train extends DataBase {
 		trainType = TrainType.values()[tag.getInt(KEY_TRAIN_TYPE)];
 		name = getName();
 		color = trainType.color;
-		stationIds = new ArrayList<>();
-		final long[] stationIdsArray = tag.getLongArray(KEY_STATION_IDS);
-		for (final long stationId : stationIdsArray) {
-			stationIds.add(stationId);
-		}
 
 		final int trainLength = tag.getInt(KEY_TRAIN_LENGTH);
 		posX = new float[trainLength];
@@ -82,13 +73,18 @@ public final class Train extends DataBase {
 		speed = tag.getFloat(KEY_SPEED);
 		stationCoolDown = tag.getInt(KEY_STATION_COOL_DOWN);
 
-		path = new ArrayList<>();
-		final int pathLength = tag.getInt(KEY_PATH_LENGTH);
-		for (int i = 0; i < pathLength; i++) {
-			final float x = tag.getFloat(String.format("%s_%d_X", KEY_PATH, i));
-			final float y = tag.getFloat(String.format("%s_%d_Y", KEY_PATH, i));
-			final float z = tag.getFloat(String.format("%s_%d_Z", KEY_PATH, i));
-			path.add(new Pos3f(x, y, z));
+		paths = new ArrayList<>();
+		final int pathsLength = tag.getInt(KEY_PATHS_LENGTH);
+		for (int i = 0; i < pathsLength; i++) {
+			final List<Pos3f> path = new ArrayList<>();
+			final int pathLength = tag.getInt(String.format("%s_%d", KEY_PATHS_LENGTH, i));
+			for (int j = 0; j < pathLength; j++) {
+				final float x = tag.getFloat(String.format("%s_%d_%d_X", KEY_PATH, i, j));
+				final float y = tag.getFloat(String.format("%s_%d_%d_Y", KEY_PATH, i, j));
+				final float z = tag.getFloat(String.format("%s_%d_%d_Z", KEY_PATH, i, j));
+				path.add(new Pos3f(x, y, z));
+			}
+			paths.add(path);
 		}
 	}
 
@@ -97,11 +93,6 @@ public final class Train extends DataBase {
 		trainType = TrainType.values()[packet.readInt()];
 		name = getName();
 		color = trainType.color;
-		stationIds = new ArrayList<>();
-		final int stationCount = packet.readInt();
-		for (int i = 0; i < stationCount; i++) {
-			stationIds.add(packet.readLong());
-		}
 
 		final int trainLength = packet.readInt();
 		posX = new float[trainLength];
@@ -119,10 +110,15 @@ public final class Train extends DataBase {
 		speed = packet.readFloat();
 		stationCoolDown = packet.readInt();
 
-		path = new ArrayList<>();
-		final int pathLength = packet.readInt();
-		for (int i = 0; i < pathLength; i++) {
-			path.add(new Pos3f(packet.readFloat(), packet.readFloat(), packet.readFloat()));
+		paths = new ArrayList<>();
+		final int pathsLength = packet.readInt();
+		for (int i = 0; i < pathsLength; i++) {
+			final List<Pos3f> path = new ArrayList<>();
+			final int pathLength = packet.readInt();
+			for (int j = 0; j < pathLength; j++) {
+				path.add(new Pos3f(packet.readFloat(), packet.readFloat(), packet.readFloat()));
+			}
+			paths.add(path);
 		}
 	}
 
@@ -130,7 +126,6 @@ public final class Train extends DataBase {
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
 		tag.putInt(KEY_TRAIN_TYPE, trainType.ordinal());
-		tag.putLongArray(KEY_STATION_IDS, stationIds);
 
 		final int trainLength = posX.length;
 		tag.putInt(KEY_TRAIN_LENGTH, trainLength);
@@ -144,12 +139,17 @@ public final class Train extends DataBase {
 		tag.putFloat(KEY_SPEED, speed);
 		tag.putInt(KEY_STATION_COOL_DOWN, stationCoolDown);
 
-		final int pathLength = path.size();
-		tag.putInt(KEY_PATH_LENGTH, pathLength);
-		for (int i = 0; i < pathLength; i++) {
-			tag.putFloat(String.format("%s_%d_X", KEY_PATH, i), path.get(i).getX());
-			tag.putFloat(String.format("%s_%d_Y", KEY_PATH, i), path.get(i).getY());
-			tag.putFloat(String.format("%s_%d_Z", KEY_PATH, i), path.get(i).getZ());
+		final int pathsLength = paths.size();
+		tag.putInt(KEY_PATHS_LENGTH, pathsLength);
+		for (int i = 0; i < pathsLength; i++) {
+			final List<Pos3f> path = paths.get(i);
+			final int pathLength = path.size();
+			tag.putInt(String.format("%s_%d", KEY_PATHS_LENGTH, i), pathLength);
+			for (int j = 0; j < pathLength; j++) {
+				tag.putFloat(String.format("%s_%d_%d_X", KEY_PATH, i, j), path.get(j).getX());
+				tag.putFloat(String.format("%s_%d_%d_Y", KEY_PATH, i, j), path.get(j).getY());
+				tag.putFloat(String.format("%s_%d_%d_Z", KEY_PATH, i, j), path.get(j).getZ());
+			}
 		}
 
 		return tag;
@@ -160,10 +160,6 @@ public final class Train extends DataBase {
 		super.writePacket(packet);
 
 		packet.writeInt(trainType.ordinal());
-		packet.writeInt(stationIds.size());
-		for (final long stationId : stationIds) {
-			packet.writeLong(stationId);
-		}
 
 		final int trainLength = posX.length;
 		packet.writeInt(trainLength);
@@ -177,16 +173,30 @@ public final class Train extends DataBase {
 		packet.writeFloat(speed);
 		packet.writeInt(stationCoolDown);
 
-		packet.writeInt(path.size());
-		path.forEach(pos3f -> {
-			packet.writeFloat(pos3f.getX());
-			packet.writeFloat(pos3f.getY());
-			packet.writeFloat(pos3f.getZ());
+		packet.writeInt(paths.size());
+		paths.forEach(path -> {
+			packet.writeInt(path.size());
+			path.forEach(pos3f -> {
+				packet.writeFloat(pos3f.getX());
+				packet.writeFloat(pos3f.getY());
+				packet.writeFloat(pos3f.getZ());
+			});
 		});
 	}
 
-	public void resetPathIndex(boolean reverse) {
+	public void resetPathIndex() {
+		if (paths.isEmpty() || paths.get(0).size() < 2) {
+			return;
+		}
+
 		final int cars = pathIndex.length;
+		final Pos3f pos1 = paths.get(0).get(0);
+		final Pos3f pos2 = paths.get(0).get(1);
+		final double pathAngle = Math.atan2(pos1.getX() - pos2.getX(), pos1.getZ() - pos2.getZ());
+		final double trainAngle = Math.atan2(posX[cars - 1] - posX[0], posZ[cars - 1] - posZ[0]);
+		final double angleDifference = Math.abs(pathAngle - trainAngle);
+		final boolean reverse = angleDifference > Math.PI / 2 && angleDifference < 3 * Math.PI / 2;
+
 		for (int i = 0; i < cars; i++) {
 			pathIndex[i] = (reverse ? i : (cars - i - 1)) * trainType.spacing;
 		}
@@ -198,7 +208,7 @@ public final class Train extends DataBase {
 
 	@Override
 	public String toString() {
-		return String.format("Train %s: (%s, %s, %s) %s %f", getName(), Arrays.toString(posX), Arrays.toString(posY), Arrays.toString(posZ), stationIds, speed);
+		return String.format("Train %s: (%s, %s, %s) %f", getName(), Arrays.toString(posX), Arrays.toString(posY), Arrays.toString(posZ), speed);
 	}
 
 	public enum TrainType {

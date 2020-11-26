@@ -36,7 +36,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private int mapState;
 
 	private final OnDrawCorners onDrawCorners;
-	private final OnClickStation onClickStation;
+	private final OnClickPlatform onClickPlatform;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -45,9 +45,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 16;
 	private static final double SCALE_LOWER_LIMIT = 0.0078125;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, OnClickStation onClickStation) {
+	public WidgetMap(OnDrawCorners onDrawCorners, OnClickPlatform onClickPlatform) {
 		this.onDrawCorners = onDrawCorners;
-		this.onClickStation = onClickStation;
+		this.onClickPlatform = onClickPlatform;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
@@ -154,8 +154,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				drawStation2 = null;
 			} else if (mapState == 2) {
 				final Pair<Integer, Integer> worldPos = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				ClientData.
-						stations.stream().filter(station -> station.inStation(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(station -> onClickStation.onClickStation(station.id));
+				ClientData.platforms.stream().filter(platform -> platform.inPlatform(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(platform -> onClickPlatform.onClickPlatform(platform.id));
 			}
 			return true;
 		} else {
@@ -249,7 +248,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 	}
 
 	@FunctionalInterface
-	public interface OnClickStation {
-		void onClickStation(long stationId);
+	public interface OnClickPlatform {
+		void onClickPlatform(long stationId);
 	}
 }

@@ -50,7 +50,7 @@ public class DashboardScreen extends Screen implements IGui {
 	public DashboardScreen() {
 		super(new LiteralText(""));
 
-		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickStation);
+		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickPlatform);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -165,9 +165,8 @@ public class DashboardScreen extends Screen implements IGui {
 				if (editingRoute == null) {
 					dashboardList.setData(ClientData.routes, false, true, false, false, true);
 				} else {
-					List<Station> routeStations = editingRoute.stationIds.stream().map(stationId -> RailwayData.getStationById(ClientData.stations, stationId)).
-							filter(Objects::nonNull).collect(Collectors.toList());
-					dashboardList.setData(routeStations, false, false, true, false, true);
+					List<Platform> routePlatforms = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).collect(Collectors.toList());
+					dashboardList.setData(routePlatforms, false, false, true, false, true);
 				}
 				break;
 			case 2:
@@ -227,14 +226,14 @@ public class DashboardScreen extends Screen implements IGui {
 					ClientData.routes.remove(route);
 					sendUpdate();
 				} else {
-					editingRoute.stationIds.remove(index);
+					editingRoute.platformIds.remove(index);
 				}
 				break;
 		}
 	}
 
 	private List<Long> getList() {
-		return editingRoute == null ? new ArrayList<>() : editingRoute.stationIds;
+		return editingRoute == null ? new ArrayList<>() : editingRoute.platformIds;
 	}
 
 	private void startEditingStation(Station editingStation, boolean isNew) {
@@ -267,8 +266,8 @@ public class DashboardScreen extends Screen implements IGui {
 		toggleButtons();
 	}
 
-	private void onClickStation(long stationId) {
-		editingRoute.stationIds.add(stationId);
+	private void onClickPlatform(long platformId) {
+		editingRoute.platformIds.add(platformId);
 	}
 
 	private void onDoneEditingStation() {

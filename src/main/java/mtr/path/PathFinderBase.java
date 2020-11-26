@@ -19,13 +19,15 @@ import java.util.stream.Stream;
 public abstract class PathFinderBase {
 
 	protected final WorldAccess world;
+	protected final BlockPos destination;
 	protected final List<BlockPos> path;
 	protected final Set<BlockPos> blacklist;
 
 	protected static final int SMOOTHING_RADIUS = 2;
 
-	protected PathFinderBase(WorldAccess world, BlockPos start) {
+	protected PathFinderBase(WorldAccess world, BlockPos start, BlockPos destination) {
 		this.world = world;
+		this.destination = destination;
 		path = new ArrayList<>();
 		path.add(start);
 		blacklist = new HashSet<>();
