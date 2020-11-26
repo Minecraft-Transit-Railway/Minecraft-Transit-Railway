@@ -26,7 +26,7 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_TRAINS = "trains";
 
-	private static final int VIEW_DISTANCE = 32;
+	private static final int VIEW_DISTANCE_SQUARED = 1024;
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
@@ -131,7 +131,8 @@ public class RailwayData extends PersistentState {
 		trains.forEach(train -> {
 			final int trainLength = train.posX.length;
 			final boolean isDeadTrain = train.paths.isEmpty();
-			final int distanceRemaining = isDeadTrain ? 0 : train.paths.get(0).size() - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
+			final int pathLength = isDeadTrain ? 0 : train.paths.get(0).size();
+			final int distanceRemaining = pathLength - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
 
 			if (distanceRemaining <= 0) {
 				train.speed = 0;
@@ -155,7 +156,7 @@ public class RailwayData extends PersistentState {
 				}
 
 				for (int i = 0; i < trainLength; i++) {
-					if (train.pathIndex[i] < train.paths.get(0).size()) {
+					if (train.pathIndex[i] < pathLength) {
 						final Pos3f newPos = train.paths.get(0).get(train.pathIndex[i]);
 						final Pos3f movement = new Pos3f(newPos.getX() - train.posX[i], newPos.getY() - train.posY[i], newPos.getZ() - train.posZ[i]);
 
@@ -177,7 +178,7 @@ public class RailwayData extends PersistentState {
 				final float xAverage = (train.posX[i] + train.posX[i + 1]) / 2;
 				final float yAverage = (train.posY[i] + train.posY[i + 1]) / 2;
 				final float zAverage = (train.posZ[i] + train.posZ[i + 1]) / 2;
-				final boolean playerNearby = players.stream().anyMatch(player -> PathFinderBase.distanceBetween(new BlockPos(xAverage, yAverage, zAverage), player.getBlockPos()) < VIEW_DISTANCE);
+				final boolean playerNearby = players.stream().anyMatch(player -> PathFinderBase.distanceSquaredBetween(new BlockPos(xAverage, yAverage, zAverage), player.getBlockPos()) < VIEW_DISTANCE_SQUARED);
 
 				if (playerNearby && train.entities[i] == null) {
 					train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage);
@@ -257,9 +258,14 @@ public class RailwayData extends PersistentState {
 		return platforms.stream().filter(platform -> platform.getPos1().equals(pos)).findFirst().orElse(null);
 	}
 
+	public static Station getStationByPlatform(Set<Station> stations, Platform platform) {
+		final BlockPos pos1 = platform.getPos1();
+		return stations.stream().filter(station -> station.inStation(pos1.getX(), pos1.getZ())).findFirst().orElse(null);
+	}
+
 	// other
 
-	public static boolean isBetween(int value, int value1, int value2) {
+	public static boolean isBetween(double value, double value1, double value2) {
 		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);
 	}
 

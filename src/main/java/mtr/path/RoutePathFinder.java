@@ -29,7 +29,7 @@ public class RoutePathFinder extends PathFinderBase {
 					enteredDestination = true;
 				}
 
-				Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos).filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, distanceBetween(blockPos, destination))).min(BlockPosWeighted::compareTo);
+				Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos).filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, distanceSquaredBetween(blockPos, destination))).min(BlockPosWeighted::compareTo);
 				if (blockPosWeighted.isPresent()) {
 					blacklist.add(blockPosWeighted.get().pos);
 					path.add(blockPosWeighted.get().pos);

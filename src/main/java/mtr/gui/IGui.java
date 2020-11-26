@@ -8,6 +8,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.util.stream.IntStream;
@@ -31,6 +32,10 @@ public interface IGui {
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');
+	}
+
+	static String textOrUntitled(String text) {
+		return text.isEmpty() ? new TranslatableText("gui.mtr.untitled").getString() : text;
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, int x, int y, boolean verticalChinese) {
@@ -63,7 +68,7 @@ public interface IGui {
 		int offset = y - IntStream.of(lineHeights).sum() * verticalAlignment / 2;
 		for (int i = 0; i < textSplit.length; i++) {
 			final OrderedText orderedText = new LiteralText(textSplit[i]).fillStyle(style).asOrderedText();
-			textRenderer.drawWithShadow(matrices, orderedText, x + horizontalAlignment * textRenderer.getWidth(orderedText) / 2F, offset, ARGB_WHITE);
+			textRenderer.drawWithShadow(matrices, orderedText, x - horizontalAlignment * textRenderer.getWidth(orderedText) / 2F, offset, ARGB_WHITE);
 			offset += lineHeights[i];
 		}
 	}

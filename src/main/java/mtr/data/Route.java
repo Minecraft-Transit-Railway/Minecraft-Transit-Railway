@@ -54,15 +54,22 @@ public final class Route extends DataBase {
 		}
 	}
 
-	public List<List<Pos3f>> getPath(WorldAccess world, Set<Platform> platforms) {
-		final List<List<Pos3f>> path = new ArrayList<>();
-		for (int i = 0; i < platformIds.size() - 1; i++) {
-			final Platform platformStart = RailwayData.getDataById(platforms, platformIds.get(i));
+	public List<List<Pos3f>> getPath(WorldAccess world, Set<Platform> platforms, Platform firstPlatform) {
+		final List<List<Pos3f>> paths = new ArrayList<>();
+		for (int i = -1; i < platformIds.size() - 1; i++) {
+			final Platform platformStart = i < 0 ? firstPlatform : RailwayData.getDataById(platforms, platformIds.get(i));
 			final Platform platformEnd = RailwayData.getDataById(platforms, platformIds.get(i + 1));
-			if (platformStart != null && platformEnd != null) {
-				path.add(new RoutePathFinder(world, platformStart.getMidPos(), platformEnd.getMidPos()).findPath());
+			if (platformStart == null || platformEnd == null) {
+				return paths;
+			} else {
+				final List<Pos3f> path = new RoutePathFinder(world, platformStart.getMidPos(), platformEnd.getMidPos()).findPath();
+				if (path.isEmpty()) {
+					return paths;
+				} else {
+					paths.add(path);
+				}
 			}
 		}
-		return path;
+		return paths;
 	}
 }

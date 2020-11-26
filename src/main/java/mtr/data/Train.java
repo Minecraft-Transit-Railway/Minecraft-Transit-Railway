@@ -195,7 +195,7 @@ public final class Train extends DataBase {
 		final double pathAngle = Math.atan2(pos1.getX() - pos2.getX(), pos1.getZ() - pos2.getZ());
 		final double trainAngle = Math.atan2(posX[cars - 1] - posX[0], posZ[cars - 1] - posZ[0]);
 		final double angleDifference = Math.abs(pathAngle - trainAngle);
-		final boolean reverse = angleDifference > Math.PI / 2 && angleDifference < 3 * Math.PI / 2;
+		final boolean reverse = RailwayData.isBetween(angleDifference, Math.PI / 2, 3 * Math.PI / 2);
 
 		for (int i = 0; i < cars; i++) {
 			pathIndex[i] = (reverse ? i : (cars - i - 1)) * trainType.spacing;

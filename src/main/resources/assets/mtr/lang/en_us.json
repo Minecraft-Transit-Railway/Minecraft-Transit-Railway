@@ -34,6 +34,7 @@
 	"gui.mtr.edit_station": "Click and drag to draw station area.",
 	"gui.mtr.game_time": "Game Time",
 	"gui.mtr.name": "Name",
+	"gui.mtr.platform_number": "Platform Number",
 	"gui.mtr.routes": "Routes",
 	"gui.mtr.s": "s",
 	"gui.mtr.settings": "Settings",

@@ -120,16 +120,20 @@ public abstract class PathFinderBase {
 		path.remove(path.size() - 1);
 	}
 
-	public static double distanceBetween(BlockPos pos1, BlockPos pos2) {
-		return Math.sqrt(MathHelper.square(pos1.getX() - pos2.getX()) + MathHelper.square(pos1.getY() - pos2.getY()) + MathHelper.square(pos1.getZ() - pos2.getZ()));
+	public static float distanceSquaredBetween(BlockPos pos1, BlockPos pos2) {
+		return distanceSquaredBetween(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX(), pos2.getY(), pos2.getZ());
+	}
+
+	public static float distanceSquaredBetween(float x1, float y1, float z1, float x2, float y2, float z2) {
+		return MathHelper.square(x1 - x2) + MathHelper.square(y1 - y2) + MathHelper.square(z1 - z2);
 	}
 
 	protected static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
 
 		protected final BlockPos pos;
-		protected final double weight;
+		protected final float weight;
 
-		protected BlockPosWeighted(BlockPos pos, double weight) {
+		protected BlockPosWeighted(BlockPos pos, float weight) {
 			this.pos = pos;
 			this.weight = weight;
 		}
