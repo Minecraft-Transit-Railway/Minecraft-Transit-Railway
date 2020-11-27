@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.model.APGDoorModel;
 import mtr.model.PSDDoorModel;
+import mtr.model.PSDTopModel;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderLightRail1;
@@ -49,15 +50,18 @@ public class MTRClient implements ClientModInitializer {
 
 	private static class ModelProvider implements ModelResourceProvider {
 
-		private static final Identifier PSD_DOOR_MODEL = new Identifier("mtr:block/psd_door");
 		private static final Identifier APG_DOOR_MODEL = new Identifier("mtr:block/apg_door");
+		private static final Identifier PSD_DOOR_MODEL = new Identifier("mtr:block/psd_door");
+		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
 
 		@Override
 		public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) {
-			if (identifier.equals(PSD_DOOR_MODEL)) {
-				return new PSDDoorModel();
-			} else if (identifier.equals(APG_DOOR_MODEL)) {
+			if (identifier.equals(APG_DOOR_MODEL)) {
 				return new APGDoorModel();
+			} else if (identifier.equals(PSD_DOOR_MODEL)) {
+				return new PSDDoorModel();
+			} else if (identifier.equals(PSD_TOP_MODEL)) {
+				return new PSDTopModel();
 			} else {
 				return null;
 			}

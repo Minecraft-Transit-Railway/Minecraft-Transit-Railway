@@ -21,5 +21,5 @@ public interface Blocks {
 	Block PSD_DOOR = new BlockPSDDoor();
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();
-	Block PSD_TOP = new BlockPSDTop(FabricBlockSettings.of(Material.GLASS, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
+	Block PSD_TOP = new BlockPSDTop();
 }

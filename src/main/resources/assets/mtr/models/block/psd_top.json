@@ -1,6 +1,0 @@
-{
-	"parent": "mtr:block/psd_top_base",
-	"textures": {
-		"particle": "mtr:block/psd_top"
-	}
-}
