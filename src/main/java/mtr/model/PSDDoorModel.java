@@ -46,7 +46,6 @@ public class PSDDoorModel extends CustomBlockModelBase {
 			SPRITES[i] = textureGetter.apply(SPRITE_IDS[i]);
 		}
 
-
 		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		if (renderer != null) {
 			MeshBuilder builder = renderer.meshBuilder();

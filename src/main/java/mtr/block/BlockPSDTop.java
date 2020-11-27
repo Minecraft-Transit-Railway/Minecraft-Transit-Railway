@@ -1,6 +1,7 @@
 package mtr.block;
 
 import mtr.Items;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,8 +28,8 @@ public class BlockPSDTop extends HorizontalFacingBlock {
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
 
-	public BlockPSDTop(Settings settings) {
-		super(settings);
+	public BlockPSDTop() {
+		super(FabricBlockSettings.of(Material.GLASS, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15).nonOpaque());
 	}
 
 	@Override
@@ -127,7 +128,7 @@ public class BlockPSDTop extends HorizontalFacingBlock {
 		return mtr.Blocks.PSD_TOP.getDefaultState().with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 	}
 
-	private enum EnumDoorLight implements StringIdentifiable {
+	public enum EnumDoorLight implements StringIdentifiable {
 
 		ON("on"), OFF("off"), NONE("none");
 
