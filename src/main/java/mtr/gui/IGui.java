@@ -67,10 +67,10 @@ public interface IGui {
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y) {
-		drawStringWithFont(matrices, null, textRenderer, text, 1, 1, x, y, 0, ARGB_WHITE, -1, true);
+		drawStringWithFont(matrices, textRenderer, text, 1, 1, x, y, ARGB_WHITE, true, null);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, float x, float y, float z, int textColor, int backgroundColor, boolean shadow) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, float x, float y, int textColor, boolean shadow, DrawingCallback drawingCallback) {
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
@@ -98,14 +98,10 @@ public interface IGui {
 			offset += lineHeights[i];
 		}
 
-		if (vertexConsumers != null) {
-			final int padding = 3;
+		if (drawingCallback != null) {
 			final float x1 = x - horizontalAlignment * totalWidth / 2F;
 			final float y1 = y - verticalAlignment * totalHeight / 2F;
-			matrices.push();
-			final VertexConsumer vertexConsumerStationSquare = vertexConsumers.getBuffer(RenderLayer.getLeash());
-			drawRectangle(matrices.peek().getModel(), vertexConsumerStationSquare, x1 - padding, y1 - padding, x1 + totalWidth + padding, y1 + totalHeight + padding, z, backgroundColor, 0);
-			matrices.pop();
+			drawingCallback.drawingCallback(x1, y1, x1 + totalWidth, y1 + totalHeight);
 		}
 	}
 
@@ -133,15 +129,20 @@ public interface IGui {
 		vertexConsumer.vertex(x2, y1, 0).color(r, g, b, a).next();
 	}
 
-	static void drawRectangle(Matrix4f matrices, VertexConsumer vertexConsumer, float x1, float y1, float x2, float y2, float z, int color, int light) {
+	static void drawRectangle(Matrix4f matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float x2, float y2, float z, int color, int light) {
+		drawRectangle(matrices, vertexConsumers, x1, y1, z, x2, y2, z, color, light);
+	}
+
+	static void drawRectangle(Matrix4f matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int color, int light) {
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getLeash());
 		final int a = (color >> 24) & 0xFF;
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
-		vertexConsumer.vertex(matrices, x1, y2, z).color(r, g, b, a).light(light).normal(0, 0, 1).next();
-		vertexConsumer.vertex(matrices, x2, y2, z).color(r, g, b, a).light(light).normal(0, 0, 1).next();
-		vertexConsumer.vertex(matrices, x2, y1, z).color(r, g, b, a).light(light).normal(0, 0, 1).next();
-		vertexConsumer.vertex(matrices, x1, y1, z).color(r, g, b, a).light(light).normal(0, 0, 1).next();
+		vertexConsumer.vertex(matrices, x1, y2, z1).color(r, g, b, a).light(light).normal(0, 0, 1).next();
+		vertexConsumer.vertex(matrices, x2, y2, z2).color(r, g, b, a).light(light).normal(0, 0, 1).next();
+		vertexConsumer.vertex(matrices, x2, y1, z2).color(r, g, b, a).light(light).normal(0, 0, 1).next();
+		vertexConsumer.vertex(matrices, x1, y1, z1).color(r, g, b, a).light(light).normal(0, 0, 1).next();
 	}
 
 	static void drawTexture(Matrix4f matrices, VertexConsumer vertexConsumer, int light, float x, float y, float width, float height) {
@@ -151,5 +152,10 @@ public interface IGui {
 		vertexConsumer.vertex(matrices, x1, y1, 0).color(-1, -1, -1, -1).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
 		vertexConsumer.vertex(matrices, x1, y, 0).color(-1, -1, -1, -1).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
 		vertexConsumer.vertex(matrices, x, y, 0).color(-1, -1, -1, -1).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
+	}
+
+	@FunctionalInterface
+	interface DrawingCallback {
+		void drawingCallback(float x1, float y1, float x2, float y2);
 	}
 }
