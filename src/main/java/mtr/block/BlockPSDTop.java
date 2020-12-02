@@ -1,8 +1,10 @@
 package mtr.block;
 
 import mtr.Items;
+import mtr.MTR;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -21,7 +23,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
 
-public class BlockPSDTop extends HorizontalFacingBlock {
+public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProvider {
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.of("door_light", EnumDoorLight.class);
 	public static final EnumProperty<BlockPSDAPGGlassBase.EnumPSDAPGGlassSide> SIDE = EnumProperty.of("side", BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.class);
@@ -98,6 +100,11 @@ public class BlockPSDTop extends HorizontalFacingBlock {
 		builder.add(DOOR_LIGHT, FACING, SIDE, AIR_LEFT, AIR_RIGHT);
 	}
 
+	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityPSDTop();
+	}
+
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
 		Direction facing = Direction.NORTH;
@@ -126,6 +133,13 @@ public class BlockPSDTop extends HorizontalFacingBlock {
 		}
 
 		return mtr.Blocks.PSD_TOP.getDefaultState().with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+	}
+
+	public static class TileEntityPSDTop extends BlockEntity {
+
+		public TileEntityPSDTop() {
+			super(MTR.PSD_TOP_TILE_ENTITY);
+		}
 	}
 
 	public enum EnumDoorLight implements StringIdentifiable {
