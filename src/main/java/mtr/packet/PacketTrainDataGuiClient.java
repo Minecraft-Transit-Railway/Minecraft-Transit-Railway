@@ -1,10 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
-import mtr.data.Platform;
-import mtr.data.Route;
-import mtr.data.Station;
-import mtr.data.Train;
+import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.PlatformScreen;
@@ -12,8 +9,10 @@ import mtr.gui.ScheduleScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PacketTrainDataGuiClient implements IPacket {
 
@@ -62,5 +61,14 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.stations = IPacket.receiveData(packet, Station::new);
 		ClientData.platforms = IPacket.receiveData(packet, Platform::new);
 		ClientData.routes = IPacket.receiveData(packet, Route::new);
+		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
+		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getPos1, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> new ImmutableTriple<>(route.color, route.platformIds.indexOf(platform.id), route.platformIds.stream().map(platformId -> {
+			final Station station = RailwayData.getStationByPlatform(ClientData.stations, RailwayData.getDataById(ClientData.platforms, platformId));
+			if (station == null) {
+				return "";
+			} else {
+				return station.name;
+			}
+		}).collect(Collectors.toList()))).collect(Collectors.toList())));
 	}
 }

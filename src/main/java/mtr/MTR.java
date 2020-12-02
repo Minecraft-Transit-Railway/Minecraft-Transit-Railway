@@ -1,5 +1,6 @@
 package mtr;
 
+import mtr.block.BlockPSDTop;
 import mtr.data.RailwayData;
 import mtr.entity.EntityLightRail1;
 import mtr.entity.EntityMTrain;
@@ -8,6 +9,7 @@ import mtr.entity.EntitySP1900;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -22,6 +24,7 @@ import net.minecraft.item.BedItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -35,6 +38,8 @@ public class MTR implements ModInitializer {
 	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, 24, 4);
 	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, 24, 4);
 	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, 24, 4);
+
+	public static BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 
 	@Override
 	public void onInitialize() {
@@ -66,12 +71,20 @@ public class MTR implements ModInitializer {
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiServer::receiveStationsAndRoutesC2S);
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_PLATFORM, PacketTrainDataGuiServer::receivePlatformC2S);
 
-		ServerTickEvents.START_SERVER_TICK.register((event) -> event.getWorlds().forEach(world -> {
-			RailwayData railwayData = RailwayData.getInstance(world);
+		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
+			RailwayData railwayData = RailwayData.getInstance(serverWorld);
 			if (railwayData != null) {
-				railwayData.simulateTrains(world);
+				railwayData.simulateTrains(serverWorld);
 			}
 		}));
+		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
+			if (entity instanceof ServerPlayerEntity) {
+				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
+				if (railwayData != null) {
+					PacketTrainDataGuiServer.broadcastS2C(serverWorld, railwayData);
+				}
+			}
+		});
 	}
 
 	private static void registerItem(String path, Item item) {

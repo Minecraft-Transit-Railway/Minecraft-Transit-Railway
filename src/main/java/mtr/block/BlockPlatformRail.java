@@ -80,12 +80,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 
 			if (railwayData != null) {
-				BlockPos platformPos = pos;
-				final Direction moveDirection = state.get(SHAPE) == RailShape.NORTH_SOUTH ? Direction.NORTH : Direction.WEST;
-				while (world.getBlockState(platformPos).getBlock() instanceof BlockPlatformRail && world.getBlockState(platformPos).get(SHAPE) == state.get(SHAPE)) {
-					platformPos = platformPos.offset(moveDirection);
-				}
-				platformPos = platformPos.offset(moveDirection.getOpposite());
+				BlockPos platformPos = getPlatformPos1(world, pos);
 
 				if (player.getStackInHand(hand).getItem() == Items.BRUSH) {
 					PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
@@ -189,5 +184,14 @@ public class BlockPlatformRail extends AbstractRailBlock {
 		} while (world.getBlockState(lengthPos).equals(state));
 
 		return new Platform(startPos.offset(scanDirection.getOpposite()), axis, length);
+	}
+
+	public static BlockPos getPlatformPos1(WorldAccess world, BlockPos pos) {
+		final RailShape railShape = world.getBlockState(pos).get(SHAPE);
+		final Direction moveDirection = railShape == RailShape.NORTH_SOUTH ? Direction.NORTH : Direction.WEST;
+		while (world.getBlockState(pos).getBlock() instanceof BlockPlatformRail && world.getBlockState(pos).get(SHAPE) == railShape) {
+			pos = pos.offset(moveDirection);
+		}
+		return pos.offset(moveDirection.getOpposite());
 	}
 }

@@ -131,7 +131,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		if (scale >= 2) {
 			for (Station station : ClientData.stations) {
 				final BlockPos pos = station.getCenter();
-				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, station.name, 1, 1, x + (int) x1, y + (int) y1, false));
+				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, station.name, x + (float) x1, y + (float) y1));
 			}
 		}
 
