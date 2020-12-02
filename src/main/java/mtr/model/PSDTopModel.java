@@ -26,6 +26,8 @@ import java.util.function.Function;
 
 public class PSDTopModel extends CustomBlockModelBase {
 
+	public static final float END_FRONT_OFFSET = 1 / (MathHelper.SQUARE_ROOT_OF_TWO * 16);
+
 	private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_top")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_top_edge")),
@@ -35,7 +37,6 @@ public class PSDTopModel extends CustomBlockModelBase {
 	private static final int SPRITE_COUNT = SPRITE_IDS.length;
 	private static final float BOTTOM_DIAGONAL_OFFSET = ((float) Math.sqrt(3) - 1) / 32;
 	private static final float ROOT_TWO_SCALED = MathHelper.SQUARE_ROOT_OF_TWO / 16;
-	private static final float END_FRONT_OFFSET = 1 / (MathHelper.SQUARE_ROOT_OF_TWO * 16);
 	private static final float BOTTOM_END_DIAGONAL_OFFSET = END_FRONT_OFFSET - BOTTOM_DIAGONAL_OFFSET / MathHelper.SQUARE_ROOT_OF_TWO;
 
 	private final Sprite[] SPRITES = new Sprite[SPRITE_COUNT];
