@@ -4,7 +4,6 @@ import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDAPGGlassBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.BlockPlatformRail;
-import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import mtr.model.PSDTopModel;
 import net.minecraft.block.BlockState;
@@ -17,21 +16,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import org.apache.commons.lang3.tuple.Triple;
-
-import java.util.List;
 
 public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDTop> {
 
+	private static final boolean RIGHT_TO_LEFT = false;
+
 	private static final int BASE_SCALE = 320;
+	private static final int DESTINATION_SCALE = 108;
 
-	private static final float SIDE_PADDING = 0.25F;
+	private static final float SIDE_AND_BOTTOM_PADDING = 0.125F;
 	private static final float TOP_PADDING = 0.5F;
-	private static final float BOTTOM_PADDING = 0.125F;
+	private static final float ARROW_PADDING = 0.0625F;
 
-	private static final float BOTTOM_LINE_POSITION = 0.90625F;
-	private static final float BOTTOM_LINE_HEIGHT = 0.03125F;
-
+	private static final float COLOR_STRIP_START = 0.90625F;
+	private static final float COLOR_STRIP_END = 0.9375F;
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -45,21 +43,19 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 		}
 
 		final BlockPos pos = entity.getPos();
+
+		final BlockPos platformPos = findPlatformPos(world, pos);
+		if (platformPos == null) {
+			return;
+		}
+
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = state.get(BlockPSDTop.FACING);
 		final boolean airLeft = state.get(BlockPSDTop.AIR_LEFT);
 		final boolean airRight = state.get(BlockPSDTop.AIR_RIGHT);
 		final boolean isDoor = world.getBlockState(pos.down()).getBlock() instanceof BlockPSDAPGDoorBase;
 
-		final BlockPos platformPos = findPlatformPos(world, pos);
-		if (platformPos == null) {
-			return;
-		}
-		final List<Triple<Integer, Integer, List<String>>> routeData = ClientData.platformToRoute.get(platformPos);
-		if (routeData == null) {
-			return;
-		}
-		final int routeCount = routeData.size();
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);
@@ -67,33 +63,21 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(-0.5, 0, 0.125 - IGui.SMALL_OFFSET * 2);
 
-		matrices.push();
-		final float lineHeightSmall = BOTTOM_LINE_HEIGHT / routeCount;
-		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).getLeft();
-			IGui.drawRectangle(matrices.peek().getModel(), vertexConsumers, airLeft ? 0.625F : 0, BOTTOM_LINE_POSITION + lineHeightSmall * i, airRight ? 0.375F : 1, BOTTOM_LINE_POSITION + lineHeightSmall * (i + 1), 0, routeColor, light);
-			if (airLeft) {
-				IGui.drawRectangle(matrices.peek().getModel(), vertexConsumers, PSDTopModel.END_FRONT_OFFSET, BOTTOM_LINE_POSITION + lineHeightSmall * i, -0.625F - PSDTopModel.END_FRONT_OFFSET, 0.75F + PSDTopModel.END_FRONT_OFFSET, BOTTOM_LINE_POSITION + lineHeightSmall * (i + 1), 0.125F - PSDTopModel.END_FRONT_OFFSET, routeColor, light);
-			}
-			if (airRight) {
-				IGui.drawRectangle(matrices.peek().getModel(), vertexConsumers, 0.25F - PSDTopModel.END_FRONT_OFFSET, BOTTOM_LINE_POSITION + lineHeightSmall * i, 0.125F - PSDTopModel.END_FRONT_OFFSET, 1 - PSDTopModel.END_FRONT_OFFSET, BOTTOM_LINE_POSITION + lineHeightSmall * (i + 1), -0.625F - PSDTopModel.END_FRONT_OFFSET, routeColor, light);
-			}
+		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, light);
+		if (airLeft) {
+			routeRenderer.renderColorStrip(PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - PSDTopModel.END_FRONT_OFFSET, 0.75F + PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - PSDTopModel.END_FRONT_OFFSET, light);
 		}
-		matrices.pop();
+		if (airRight) {
+			routeRenderer.renderColorStrip(0.25F - PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - PSDTopModel.END_FRONT_OFFSET, 1 - PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - PSDTopModel.END_FRONT_OFFSET, light);
+		}
 
-		if (isDoor) {
-			// TODO
-		} else if (!airLeft && !airRight && state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT) {
-			final int glassLength = getGlassLength(world, pos, facing);
-			if (glassLength > 1) {
-				final int scaleSmaller = BASE_SCALE * routeCount;
-				final float routeHeight = (1 - TOP_PADDING - BOTTOM_PADDING) / routeCount;
-				for (int i = 0; i < routeCount; i++) {
-					final int routeColor = routeData.get(i).getLeft();
-					final int currentStationIndex = routeData.get(i).getMiddle();
-					final List<String> stationNames = routeData.get(i).getRight();
-					final RouteRenderer routeRenderer = new RouteRenderer(SIDE_PADDING, glassLength - SIDE_PADDING, TOP_PADDING + routeHeight * i, TOP_PADDING + routeHeight * (i + 1), scaleSmaller, routeColor, currentStationIndex, stationNames, false);
-					routeRenderer.render(matrices, vertexConsumers, light);
+		if (state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT) {
+			if (isDoor) {
+				routeRenderer.renderArrow(SIDE_AND_BOTTOM_PADDING, 2 - SIDE_AND_BOTTOM_PADDING, TOP_PADDING + ARROW_PADDING, 1 - SIDE_AND_BOTTOM_PADDING - ARROW_PADDING, RIGHT_TO_LEFT, DESTINATION_SCALE, light);
+			} else if (!airLeft && !airRight) {
+				final int glassLength = getGlassLength(world, pos, facing);
+				if (glassLength > 1) {
+					routeRenderer.renderLine(SIDE_AND_BOTTOM_PADDING * 2, glassLength - SIDE_AND_BOTTOM_PADDING * 2, TOP_PADDING, 1 - SIDE_AND_BOTTOM_PADDING, BASE_SCALE, light);
 				}
 			}
 		}

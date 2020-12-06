@@ -67,10 +67,10 @@ public interface IGui {
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y) {
-		drawStringWithFont(matrices, textRenderer, text, 1, 1, x, y, ARGB_WHITE, true, null);
+		drawStringWithFont(matrices, textRenderer, text, 1, 1, x, y, ARGB_WHITE, 1, null);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, float x, float y, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, float x, float y, int textColor, int drawStyle, DrawingCallback drawingCallback) {
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
@@ -90,10 +90,13 @@ public interface IGui {
 			final OrderedText orderedText = new LiteralText(textSplit[i]).fillStyle(style).asOrderedText();
 			final int textWidth = textRenderer.getWidth(orderedText);
 			totalWidth = Math.max(textWidth, totalWidth);
-			if (shadow) {
-				textRenderer.drawWithShadow(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
-			} else {
-				textRenderer.draw(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
+			switch (drawStyle) {
+				case 0:
+					textRenderer.draw(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
+					break;
+				case 1:
+					textRenderer.drawWithShadow(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
+					break;
 			}
 			offset += lineHeights[i];
 		}
@@ -145,13 +148,21 @@ public interface IGui {
 		vertexConsumer.vertex(matrices, x1, y1, z1).color(r, g, b, a).light(light).normal(0, 0, 1).next();
 	}
 
-	static void drawTexture(Matrix4f matrices, VertexConsumer vertexConsumer, int light, float x, float y, float width, float height) {
+	static void drawTexture(Matrix4f matrices, VertexConsumer vertexConsumer, float x, float y, float width, float height, int light) {
+		drawTexture(matrices, vertexConsumer, x, y, width, height, 0, 0, 1, 1, -1, light);
+	}
+
+	static void drawTexture(Matrix4f matrices, VertexConsumer vertexConsumer, float x, float y, float width, float height, float u1, float v1, float u2, float v2, int color, int light) {
+		final int a = (color >> 24) & 0xFF;
+		final int r = (color >> 16) & 0xFF;
+		final int g = (color >> 8) & 0xFF;
+		final int b = color & 0xFF;
 		final float x1 = x + width;
 		final float y1 = y + height;
-		vertexConsumer.vertex(matrices, x, y1, 0).color(-1, -1, -1, -1).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
-		vertexConsumer.vertex(matrices, x1, y1, 0).color(-1, -1, -1, -1).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
-		vertexConsumer.vertex(matrices, x1, y, 0).color(-1, -1, -1, -1).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
-		vertexConsumer.vertex(matrices, x, y, 0).color(-1, -1, -1, -1).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
+		vertexConsumer.vertex(matrices, x, y1, 0).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
+		vertexConsumer.vertex(matrices, x1, y1, 0).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
+		vertexConsumer.vertex(matrices, x1, y, 0).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
+		vertexConsumer.vertex(matrices, x, y, 0).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).next();
 	}
 
 	@FunctionalInterface
