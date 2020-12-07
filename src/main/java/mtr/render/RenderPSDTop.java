@@ -22,7 +22,6 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 	private static final boolean RIGHT_TO_LEFT = false;
 
 	private static final int BASE_SCALE = 320;
-	private static final int DESTINATION_SCALE = 108;
 
 	private static final float SIDE_AND_BOTTOM_PADDING = 0.125F;
 	private static final float TOP_PADDING = 0.5F;
@@ -73,7 +72,7 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 
 		if (state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT) {
 			if (isDoor) {
-				routeRenderer.renderArrow(SIDE_AND_BOTTOM_PADDING, 2 - SIDE_AND_BOTTOM_PADDING, TOP_PADDING + ARROW_PADDING, 1 - SIDE_AND_BOTTOM_PADDING - ARROW_PADDING, RIGHT_TO_LEFT, DESTINATION_SCALE, light);
+				routeRenderer.renderArrow(SIDE_AND_BOTTOM_PADDING, 2 - SIDE_AND_BOTTOM_PADDING, TOP_PADDING + ARROW_PADDING, 1 - SIDE_AND_BOTTOM_PADDING - ARROW_PADDING, RIGHT_TO_LEFT, light);
 			} else if (!airLeft && !airRight) {
 				final int glassLength = getGlassLength(world, pos, facing);
 				if (glassLength > 1) {
