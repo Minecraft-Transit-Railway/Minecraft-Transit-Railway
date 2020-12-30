@@ -32,12 +32,21 @@ public class EntityMinecart extends EntityTrainBase {
 	}
 
 	@Override
+	public boolean collides() {
+		return !removed;
+	}
+
+	@Override
 	public double getMountedHeightOffset() {
-		return -0.5;
+		return 0;
 	}
 
 	@Override
 	protected Train.TrainType getTrainType() {
 		return Train.TrainType.MINECART;
+	}
+
+	@Override
+	protected void mountCollidingLivingEntities() {
 	}
 }
