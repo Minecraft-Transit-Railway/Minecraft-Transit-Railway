@@ -212,24 +212,26 @@ public final class Train extends DataBase {
 	}
 
 	public enum TrainType {
-		MINECART(0x666666, 0.5F, 0.01F, 1, 1, EntityMinecart::new),
-		SP1900(0xB42249, 0.5F, 0.01F, 24, 2, EntitySP1900::new),
-		M_TRAIN(0x999999, 0.5F, 0.01F, 24, 2, EntityMTrain::new),
-		LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 24, 2, EntityLightRail1::new);
+		MINECART(0x666666, 0.5F, 0.01F, 1, 1, 1, EntityMinecart::new),
+		SP1900(0xB42249, 0.5F, 0.01F, 24, 2, 50, EntitySP1900::new),
+		M_TRAIN(0x999999, 0.5F, 0.01F, 24, 2, 50, EntityMTrain::new),
+		LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 24, 2, 50, EntityLightRail1::new);
 
 		private final int color;
 		private final float maxSpeed; // blocks per tick
 		private final float acceleration;
 		private final int length;
 		private final int width;
+		private final int capacity;
 		private final EntityTrainFactory entityFactory;
 
-		TrainType(int color, float maxSpeed, float acceleration, int length, int width, EntityTrainFactory entityTrainFactory) {
+		TrainType(int color, float maxSpeed, float acceleration, int length, int width, int capacity, EntityTrainFactory entityTrainFactory) {
 			this.color = color;
 			this.maxSpeed = maxSpeed;
 			this.acceleration = acceleration;
 			this.length = length;
 			this.width = width;
+			this.capacity = capacity;
 			entityFactory = entityTrainFactory;
 		}
 
@@ -259,6 +261,10 @@ public final class Train extends DataBase {
 
 		public int getSpacing() {
 			return length + 1;
+		}
+
+		public int getCapacity() {
+			return capacity;
 		}
 
 		public EntityTrainBase create(World world, double x, double y, double z) {

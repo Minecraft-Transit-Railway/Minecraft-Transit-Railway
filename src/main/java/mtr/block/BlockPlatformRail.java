@@ -68,7 +68,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			final RailShape railShape = state.get(SHAPE);
 			for (int x = -2; x <= 2; x++) {
 				for (int y = 0; y <= 2; y++) {
-					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.stationCoolDown);
+					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.doorValue);
 				}
 			}
 		}
@@ -133,19 +133,11 @@ public class BlockPlatformRail extends AbstractRailBlock {
 		}
 	}
 
-	private void updateStationCoolDown(World world, BlockPos pos, int coolDown) {
+	private void updateStationCoolDown(World world, BlockPos pos, int doorValue) {
 		BlockState state = world.getBlockState(pos);
 
 		if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
-			if (coolDown < RailwayData.TRAIN_STOP_TIME || coolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
-				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, 0));
-			} else if (coolDown < RailwayData.TRAIN_STOP_TIME + BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, coolDown - RailwayData.TRAIN_STOP_TIME));
-			} else if (coolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - coolDown));
-			} else {
-				world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, BlockPSDAPGDoorBase.MAX_OPEN_VALUE));
-			}
+			world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, doorValue));
 		}
 	}
 
