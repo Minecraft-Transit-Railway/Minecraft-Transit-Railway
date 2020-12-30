@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.block.BlockPSDTop;
 import mtr.data.RailwayData;
+import mtr.data.Train;
 import mtr.entity.EntityLightRail1;
 import mtr.entity.EntityMTrain;
 import mtr.entity.EntityMinecart;
@@ -34,10 +35,10 @@ public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
 
-	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, 1, 1);
-	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, 24, 4);
-	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, 24, 4);
-	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, 24, 4);
+	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, Train.TrainType.MINECART.getLength(), 1);
+	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, Train.TrainType.SP1900.getLength(), 4);
+	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, Train.TrainType.M_TRAIN.getLength(), 4);
+	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
 
 	public static BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 

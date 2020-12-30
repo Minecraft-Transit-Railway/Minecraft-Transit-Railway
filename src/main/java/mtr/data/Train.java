@@ -198,7 +198,7 @@ public final class Train extends DataBase {
 		final boolean reverse = RailwayData.isBetween(angleDifference, Math.PI / 2, 3 * Math.PI / 2);
 
 		for (int i = 0; i < cars; i++) {
-			pathIndex[i] = (reverse ? i : (cars - i - 1)) * trainType.spacing;
+			pathIndex[i] = (reverse ? i : (cars - i - 1)) * trainType.getSpacing();
 		}
 	}
 
@@ -212,22 +212,24 @@ public final class Train extends DataBase {
 	}
 
 	public enum TrainType {
-		MINECART(0x666666, 0.5F, 0.01F, 2, EntityMinecart::new),
-		SP1900(0xB42249, 0.5F, 0.01F, 25, EntitySP1900::new),
-		M_TRAIN(0x999999, 0.5F, 0.01F, 25, EntityMTrain::new),
-		LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 25, EntityLightRail1::new);
+		MINECART(0x666666, 0.5F, 0.01F, 1, 1, EntityMinecart::new),
+		SP1900(0xB42249, 0.5F, 0.01F, 24, 2, EntitySP1900::new),
+		M_TRAIN(0x999999, 0.5F, 0.01F, 24, 2, EntityMTrain::new),
+		LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 24, 2, EntityLightRail1::new);
 
 		private final int color;
 		private final float maxSpeed; // blocks per tick
 		private final float acceleration;
-		private final int spacing;
+		private final int length;
+		private final int width;
 		private final EntityTrainFactory entityFactory;
 
-		TrainType(int color, float maxSpeed, float acceleration, int spacing, EntityTrainFactory entityTrainFactory) {
+		TrainType(int color, float maxSpeed, float acceleration, int length, int width, EntityTrainFactory entityTrainFactory) {
 			this.color = color;
 			this.maxSpeed = maxSpeed;
 			this.acceleration = acceleration;
-			this.spacing = spacing;
+			this.length = length;
+			this.width = width;
 			entityFactory = entityTrainFactory;
 		}
 
@@ -247,8 +249,16 @@ public final class Train extends DataBase {
 			return acceleration;
 		}
 
+		public int getLength() {
+			return length;
+		}
+
+		public int getWidth() {
+			return width;
+		}
+
 		public int getSpacing() {
-			return spacing;
+			return length + 1;
 		}
 
 		public EntityTrainBase create(World world, double x, double y, double z) {
