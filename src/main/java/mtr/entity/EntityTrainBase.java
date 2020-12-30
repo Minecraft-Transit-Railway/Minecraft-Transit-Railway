@@ -1,6 +1,7 @@
 package mtr.entity;
 
 import mtr.data.Pos3f;
+import mtr.data.Train;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -69,6 +70,11 @@ public abstract class EntityTrainBase extends Entity {
 	}
 
 	@Override
+	public boolean collides() {
+		return !removed;
+	}
+
+	@Override
 	public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
 		super.updatePositionAndAngles(x, y, z, yaw, pitch);
 		killTimer = 0;
@@ -86,26 +92,37 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public void updatePassengerPosition(Entity passenger) {
-		// TODO mover around in train but with bounds
 		if (passenger instanceof LivingEntity) {
 			final LivingEntity mob = (LivingEntity) passenger;
 			final int entityId = passenger.getEntityId();
 
 			if (passengerOffsets.containsKey(passenger.getEntityId())) {
-				passengerOffsets.get(entityId).add(new Pos3f(mob.sidewaysSpeed / 5, 0, mob.forwardSpeed / 5).rotateY((float) Math.toRadians(-passenger.yaw)));
+				final Pos3f offset = passengerOffsets.get(entityId);
+				offset.add(new Pos3f(mob.sidewaysSpeed / 5, 0, mob.forwardSpeed / 5).rotateY((float) Math.toRadians(-yaw - passenger.yaw)));
+
+				final float length = getTrainType().getLength() / 2F;
+				final float width = getTrainType().getWidth() / 2F;
+
+				passengerOffsets.put(entityId, new Pos3f(MathHelper.clamp(offset.getX(), -width, width), 0, MathHelper.clamp(offset.getZ(), -length, length)));
 			} else {
 				passengerOffsets.put(entityId, new Pos3f(0, 0, 0));
 			}
 
-			final Pos3f offset = passengerOffsets.get(entityId);
-			passenger.updatePosition(getX() + offset.getX(), getY(), getZ() + offset.getZ());
+			final Pos3f offset = passengerOffsets.get(entityId).rotateX((float) Math.toRadians(pitch)).rotateY((float) Math.toRadians(yaw));
+			passenger.updatePosition(getX() + offset.getX(), getY() + getMountedHeightOffset() + offset.getY(), getZ() + offset.getZ());
 		} else {
-			passenger.updatePosition(getX(), getY(), getZ());
+			passenger.updatePosition(getX(), getY() + getMountedHeightOffset(), getZ());
 		}
+
 		final float yawChange = MathHelper.wrapDegrees(prevYaw - yaw);
 		passenger.yaw += yawChange;
 		passenger.setHeadYaw(passenger.getHeadYaw() + yawChange);
 		prevYaw = yaw;
+	}
+
+	@Override
+	public double getMountedHeightOffset() {
+		return 0.5;
 	}
 
 	@Override
@@ -124,4 +141,6 @@ public abstract class EntityTrainBase extends Entity {
 	@Override
 	protected void initDataTracker() {
 	}
+
+	protected abstract Train.TrainType getTrainType();
 }

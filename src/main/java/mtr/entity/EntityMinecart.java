@@ -1,6 +1,7 @@
 package mtr.entity;
 
 import mtr.MTR;
+import mtr.data.Train;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -32,11 +33,11 @@ public class EntityMinecart extends EntityTrainBase {
 
 	@Override
 	public double getMountedHeightOffset() {
-		return 0;
+		return -0.5;
 	}
 
 	@Override
-	public boolean collides() {
-		return !removed;
+	protected Train.TrainType getTrainType() {
+		return Train.TrainType.MINECART;
 	}
 }
