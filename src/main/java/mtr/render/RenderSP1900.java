@@ -1,16 +1,15 @@
 package mtr.render;
 
 import mtr.entity.EntitySP1900;
+import mtr.model.ModelSP1900;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.util.Identifier;
 
 public class RenderSP1900 extends RenderTrainBase<EntitySP1900> {
 
-	private static final Identifier texture = new Identifier("textures/block/redstone_block.png");
-	private static final EntityModel<EntitySP1900> model = new MinecartEntityModel<>();
+	private static final Identifier texture = new Identifier("mtr:textures/entity/sp1900.png");
+	private static final ModelSP1900 model = new ModelSP1900();
 
 	public RenderSP1900(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
