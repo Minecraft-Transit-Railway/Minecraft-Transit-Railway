@@ -1,15 +1,15 @@
 package mtr.render;
 
 import mtr.entity.EntityMTrain;
-import mtr.model.ModelMTrain;
-import net.minecraft.client.model.Model;
+import mtr.model.ModelSP1900;
+import mtr.model.ModelTrainBase;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.util.Identifier;
 
 public class RenderMTrain extends RenderTrainBase<EntityMTrain> {
 
 	private static final Identifier texture = new Identifier("mtr:textures/entity/m_train.png");
-	private static final ModelMTrain model = new ModelMTrain();
+	private static final ModelSP1900 model = new ModelSP1900();
 
 	public RenderMTrain(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -21,7 +21,7 @@ public class RenderMTrain extends RenderTrainBase<EntityMTrain> {
 	}
 
 	@Override
-	protected Model getModel() {
+	protected ModelTrainBase getModel() {
 		return model;
 	}
 }

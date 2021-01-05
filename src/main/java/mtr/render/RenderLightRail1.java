@@ -1,16 +1,15 @@
 package mtr.render;
 
 import mtr.entity.EntityLightRail1;
-import net.minecraft.client.model.Model;
+import mtr.model.ModelSP1900;
+import mtr.model.ModelTrainBase;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.util.Identifier;
 
 public class RenderLightRail1 extends RenderTrainBase<EntityLightRail1> {
 
 	private static final Identifier texture = new Identifier("textures/block/glowstone.png");
-	private static final EntityModel<EntityLightRail1> model = new MinecartEntityModel<>();
+	private static final ModelSP1900 model = new ModelSP1900();
 
 	public RenderLightRail1(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -22,7 +21,7 @@ public class RenderLightRail1 extends RenderTrainBase<EntityLightRail1> {
 	}
 
 	@Override
-	protected Model getModel() {
+	protected ModelTrainBase getModel() {
 		return model;
 	}
 }

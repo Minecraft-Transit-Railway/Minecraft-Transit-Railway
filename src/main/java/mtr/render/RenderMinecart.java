@@ -1,7 +1,7 @@
 package mtr.render;
 
 import mtr.entity.EntityMinecart;
-import net.minecraft.client.model.Model;
+import mtr.model.ModelTrainBase;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -40,7 +40,7 @@ public class RenderMinecart extends RenderTrainBase<EntityMinecart> {
 	}
 
 	@Override
-	protected Model getModel() {
-		return model;
+	protected ModelTrainBase getModel() {
+		return null;
 	}
 }
