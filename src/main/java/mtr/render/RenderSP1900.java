@@ -2,7 +2,7 @@ package mtr.render;
 
 import mtr.entity.EntitySP1900;
 import mtr.model.ModelSP1900;
-import net.minecraft.client.model.Model;
+import mtr.model.ModelTrainBase;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.util.Identifier;
 
@@ -21,7 +21,7 @@ public class RenderSP1900 extends RenderTrainBase<EntitySP1900> {
 	}
 
 	@Override
-	protected Model getModel() {
+	protected ModelTrainBase getModel() {
 		return model;
 	}
 }
