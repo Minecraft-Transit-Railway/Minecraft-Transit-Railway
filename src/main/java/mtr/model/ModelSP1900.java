@@ -1051,11 +1051,11 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
-				renderOnceFlipped(headlights, matrices, vertices, light, position);
+				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(head, matrices, vertices, light, position);
@@ -1073,11 +1073,11 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
-				renderOnce(tail_lights, matrices, vertices, light, position);
+				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);

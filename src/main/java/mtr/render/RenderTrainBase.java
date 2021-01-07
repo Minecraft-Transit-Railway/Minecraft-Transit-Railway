@@ -27,7 +27,7 @@ public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityR
 		matrices.translate(0, 1, 0);
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(yaw));
 		matrices.multiply(Vector3f.NEGATIVE_X.getDegreesQuaternion(180 + MathHelper.lerp(tickDelta, entity.prevPitch, entity.pitch)));
-		getModel().render(matrices, vertexConsumers, getTexture(entity), light, doorLeftValue, doorRightValue, true, false);
+		getModel().render(matrices, vertexConsumers, getTexture(entity), light, doorLeftValue, doorRightValue, entity.getIsEnd1Head(), entity.getIsEnd2Head(), entity.getHead1IsFront());
 		matrices.pop();
 	}
 

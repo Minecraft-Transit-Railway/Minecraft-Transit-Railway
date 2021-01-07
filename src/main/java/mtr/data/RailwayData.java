@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockPlatformRail;
+import mtr.entity.EntityTrainBase;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathFinderBase;
 import net.minecraft.entity.Entity;
@@ -189,14 +190,22 @@ public class RailwayData extends PersistentState {
 
 				if (playerNearby && train.entities[i] == null) {
 					train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage);
+					train.entities[i].setIsEndHead(i == trainLength - 2, i == 0);
 					world.spawnEntity(train.entities[i]);
 				}
 				if (train.entities[i] != null) {
 					if (playerNearby) {
 						final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i + 1] - train.posX[i], train.posZ[i + 1] - train.posZ[i]));
 						final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
-						train.entities[i].updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
-						train.entities[i].stationCoolDown = train.stationCoolDown;
+						final EntityTrainBase trainEntity = train.entities[i];
+						final double prevTrainX = trainEntity.getX();
+						final double prevTrainZ = trainEntity.getZ();
+
+						trainEntity.updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
+						trainEntity.stationCoolDown = train.stationCoolDown;
+
+						final float motionYaw = (float) Math.toDegrees(MathHelper.atan2(xAverage - prevTrainX, zAverage - prevTrainZ));
+						trainEntity.setHead1IsFront(MathHelper.angleBetween(yaw, motionYaw) < 90);
 					} else {
 						train.entities[i].kill();
 						train.entities[i] = null;
