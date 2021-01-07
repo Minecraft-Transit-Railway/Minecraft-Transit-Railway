@@ -1,6 +1,7 @@
 package mtr.path;
 
 import mtr.block.BlockPlatformRail;
+import mtr.data.Platform;
 import mtr.data.Pos3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
@@ -11,18 +12,28 @@ import java.util.Optional;
 
 public class RoutePathFinder extends PathFinderBase {
 
-	public RoutePathFinder(WorldAccess world, BlockPos start, BlockPos destination) {
-		super(world, start, destination);
+	private final int trimStart;
+
+	public RoutePathFinder(WorldAccess world, Platform platformStart, Platform platformDestination) {
+		super(world, platformStart.getMidPos(), platformDestination.getMidPos());
+		trimStart = platformStart.getLength() / 2 + 1;
 	}
 
 	@Override
 	public List<Pos3f> findPath() {
+		if (path.get(0).equals(destination)) {
+			return new ArrayList<>();
+		}
+
 		boolean enteredDestination = false;
 		while (!path.isEmpty()) {
 			final BlockPos lastPos = path.get(path.size() - 1);
 
 			if (enteredDestination && !(world.getBlockState(lastPos).getBlock() instanceof BlockPlatformRail)) {
 				removeLastItem();
+				if (trimStart < path.size()) {
+					path.subList(0, trimStart).clear();
+				}
 				return smoothPath();
 			} else {
 				if (lastPos.equals(destination)) {

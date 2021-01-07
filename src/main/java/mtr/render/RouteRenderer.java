@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -37,7 +38,8 @@ public class RouteRenderer {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
 		routeData = ClientData.platformToRoute.get(platformPos);
-		platformNumber = RailwayData.getPlatformByPos(ClientData.platforms, platformPos).name;
+		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
+		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 	}

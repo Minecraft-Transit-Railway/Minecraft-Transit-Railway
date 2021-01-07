@@ -62,12 +62,8 @@ public final class Route extends DataBase {
 			if (platformStart == null || platformEnd == null) {
 				return paths;
 			} else {
-				final List<Pos3f> path = new RoutePathFinder(world, platformStart.getMidPos(), platformEnd.getMidPos()).findPath();
-				if (path.isEmpty()) {
-					return paths;
-				} else {
-					paths.add(path);
-				}
+				final List<Pos3f> path = new RoutePathFinder(world, platformStart, platformEnd).findPath();
+				paths.add(path);
 			}
 		}
 		return paths;

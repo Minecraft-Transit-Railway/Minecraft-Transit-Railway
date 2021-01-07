@@ -42,23 +42,13 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	@Override
 	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
 		super.onBlockAdded(state, world, pos, oldState, notify);
-		if (!world.isClient()) {
-			RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null) {
-				railwayData.addPlatform(scanPlatform(world, pos, state));
-			}
-		}
+		updateRailwayData(world, pos);
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (state.get(SHAPE) == RailShape.NORTH_SOUTH) {
-			checkAndBreak(world, pos, state, Direction.NORTH);
-			checkAndBreak(world, pos, state, Direction.SOUTH);
-		} else {
-			checkAndBreak(world, pos, state, Direction.EAST);
-			checkAndBreak(world, pos, state, Direction.WEST);
-		}
+	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+		super.neighborUpdate(state, world, pos, block, fromPos, notify);
+		updateRailwayData(world, pos);
 	}
 
 	@Override
@@ -68,7 +58,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			final RailShape railShape = state.get(SHAPE);
 			for (int x = -2; x <= 2; x++) {
 				for (int y = 0; y <= 2; y++) {
-					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.doorValue);
+					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.getDoorValue());
 				}
 			}
 		}
@@ -133,49 +123,30 @@ public class BlockPlatformRail extends AbstractRailBlock {
 		}
 	}
 
-	private void updateStationCoolDown(World world, BlockPos pos, int doorValue) {
-		BlockState state = world.getBlockState(pos);
-
-		if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
-			world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, doorValue));
+	public static Platform createNewPlatform(WorldAccess world, BlockPos pos) {
+		final BlockState state = world.getBlockState(pos);
+		if (!(state.getBlock() instanceof BlockPlatformRail)) {
+			return null;
 		}
-	}
 
-	private void checkAndBreak(World world, BlockPos pos, BlockState state, Direction direction) {
-		BlockPos checkPos = pos.offset(direction);
-		BlockState checkState = world.getBlockState(checkPos);
-		if (checkState == state) {
-			((BlockPlatformRail) checkState.getBlock()).checkAndBreak(world, checkPos, state, direction);
-		}
-		world.breakBlock(pos, false);
-	}
-
-	private Platform scanPlatform(WorldAccess world, BlockPos pos, BlockState state) {
 		final Direction scanDirection;
 		final Direction.Axis axis;
 
 		if (state.get(SHAPE) == RailShape.NORTH_SOUTH) {
-			scanDirection = Direction.NORTH;
+			scanDirection = Direction.SOUTH;
 			axis = Direction.Axis.Z;
 		} else {
-			scanDirection = Direction.WEST;
+			scanDirection = Direction.EAST;
 			axis = Direction.Axis.X;
 		}
 
-		int length = -2;
-		BlockPos startPos = pos;
-		do {
-			startPos = startPos.offset(scanDirection);
+		int length = 1;
+		final BlockPos startPos = getPlatformPos1(world, pos);
+		while (world.getBlockState(startPos.offset(scanDirection, length)).equals(state)) {
 			length++;
-		} while (world.getBlockState(startPos).equals(state));
+		}
 
-		BlockPos lengthPos = pos;
-		do {
-			lengthPos = lengthPos.offset(scanDirection.getOpposite());
-			length++;
-		} while (world.getBlockState(lengthPos).equals(state));
-
-		return new Platform(startPos.offset(scanDirection.getOpposite()), axis, length);
+		return new Platform(startPos, axis, length - 1);
 	}
 
 	public static BlockPos getPlatformPos1(WorldAccess world, BlockPos pos) {
@@ -185,5 +156,21 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			pos = pos.offset(moveDirection);
 		}
 		return pos.offset(moveDirection.getOpposite());
+	}
+
+	private static void updateRailwayData(World world, BlockPos pos) {
+		if (!world.isClient()) {
+			RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.checkPlatformPos(world, pos);
+			}
+		}
+	}
+
+	private static void updateStationCoolDown(World world, BlockPos pos, int doorValue) {
+		BlockState state = world.getBlockState(pos);
+		if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
+			world.setBlockState(pos, state.with(BlockPSDAPGDoorBase.OPEN, doorValue));
+		}
 	}
 }

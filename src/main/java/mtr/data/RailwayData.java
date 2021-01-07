@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.block.BlockPlatformRail;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathFinderBase;
 import net.minecraft.entity.Entity;
@@ -108,10 +109,12 @@ public class RailwayData extends PersistentState {
 		return stations;
 	}
 
-	public void addPlatform(Platform newPlatform) {
-		platforms.removeIf(newPlatform::overlaps);
-		platforms.add(newPlatform);
-		markDirty();
+	public void checkPlatformPos(WorldAccess world, BlockPos pos) {
+		validatePlatforms(world);
+		final Platform newPlatform = BlockPlatformRail.createNewPlatform(world, pos);
+		if (newPlatform != null && platforms.stream().noneMatch(platform -> platform.getPos1().equals(newPlatform.getPos1()))) {
+			platforms.add(newPlatform);
+		}
 	}
 
 	public Set<Platform> getPlatforms(WorldAccess world) {
@@ -143,13 +146,17 @@ public class RailwayData extends PersistentState {
 					train.stationCoolDown++;
 				} else {
 					train.paths.remove(0);
-					train.resetPathIndex();
+					for (int i = 0; i < trainLength; i++) {
+						train.pathIndex[i] = 0;
+					}
 					train.stationCoolDown = 0;
 				}
 			} else {
 				if (MathHelper.square(train.speed) >= 2 * train.trainType.getAcceleration() * (distanceRemaining - 1)) {
 					if (train.speed >= train.trainType.getAcceleration() * 2) {
 						train.speed -= train.trainType.getAcceleration();
+					} else {
+						train.speed = train.trainType.getAcceleration();
 					}
 				} else if (train.speed < train.trainType.getMaxSpeed()) {
 					train.speed += train.trainType.getAcceleration();
@@ -237,7 +244,21 @@ public class RailwayData extends PersistentState {
 	// validation
 
 	private void validatePlatforms(WorldAccess world) {
-		platforms.removeIf(platform -> !platform.hasRail(world));
+		platforms.forEach(platform -> platform.updateDimensions(world));
+		platforms.removeIf(platform -> !(world.getBlockState(platform.getMidPos()).getBlock() instanceof BlockPlatformRail));
+
+		final Set<Platform> platformsToRemove = new HashSet<>();
+		final Set<BlockPos> uniquePositions = new HashSet<>();
+		platforms.forEach(platform -> {
+			final BlockPos checkPos = platform.getPos1();
+			if (uniquePositions.contains(checkPos)) {
+				platformsToRemove.add(platform);
+			} else {
+				uniquePositions.add(checkPos);
+			}
+		});
+		platforms.removeAll(platformsToRemove);
+
 		validateData();
 	}
 
