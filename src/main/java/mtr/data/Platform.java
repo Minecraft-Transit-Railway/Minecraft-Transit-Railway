@@ -1,8 +1,6 @@
 package mtr.data;
 
 import mtr.block.BlockPlatformRail;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.RailShape;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -25,13 +23,13 @@ public final class Platform extends DataBase {
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;
 
+	private BlockPos pos;
+	private Direction.Axis axis;
+	private int length;
+
 	private List<Triple<Integer, Long, Train.TrainType>> schedule;
 
 	private final int[] frequencies;
-
-	private final BlockPos pos;
-	private final Direction.Axis axis;
-	private final int length;
 
 	private static final String KEY_POS = "pos";
 	private static final String KEY_AXIS = "axis";
@@ -167,40 +165,13 @@ public final class Platform extends DataBase {
 		generateSchedule();
 	}
 
-	public boolean overlaps(Platform platform) {
-		final BlockPos pos3 = platform.pos;
-
-		if (platform.axis != axis || pos3.getY() != pos.getY()) {
-			return false;
-		} else {
-			final BlockPos pos2 = getPos2();
-			final BlockPos pos4 = platform.getPos2();
-
-			if (axis == Direction.Axis.X) {
-				return pos3.getZ() == pos.getZ() && (RailwayData.isBetween(pos3.getX(), pos.getX(), pos2.getX()) || RailwayData.isBetween(pos.getX(), pos3.getX(), pos4.getX()));
-			} else {
-				return pos3.getX() == pos.getX() && (RailwayData.isBetween(pos3.getZ(), pos.getZ(), pos2.getZ()) || RailwayData.isBetween(pos.getZ(), pos3.getZ(), pos4.getZ()));
-			}
+	public void updateDimensions(WorldAccess world) {
+		final Platform tempPlatform = BlockPlatformRail.createNewPlatform(world, getMidPos());
+		if (tempPlatform != null) {
+			pos = tempPlatform.pos;
+			axis = tempPlatform.axis;
+			length = tempPlatform.length;
 		}
-	}
-
-	public boolean hasRail(WorldAccess world) {
-		final Direction direction;
-		final RailShape checkShape;
-		if (axis == Direction.Axis.X) {
-			direction = Direction.EAST;
-			checkShape = RailShape.EAST_WEST;
-		} else {
-			direction = Direction.SOUTH;
-			checkShape = RailShape.NORTH_SOUTH;
-		}
-		for (int i = 0; i <= length; i++) {
-			final BlockState state = world.getBlockState(pos.offset(direction, i));
-			if (!(state.getBlock() instanceof BlockPlatformRail) || state.get(BlockPlatformRail.SHAPE) != checkShape) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public boolean inPlatform(int x, int z) {
@@ -218,11 +189,14 @@ public final class Platform extends DataBase {
 
 			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
 			newTrain.paths.addAll(route.getPath(world, platforms, this));
-			newTrain.resetPathIndex();
 			return newTrain;
 		} else {
 			return null;
 		}
+	}
+
+	public int getLength() {
+		return length;
 	}
 
 	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {

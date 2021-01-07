@@ -10,6 +10,9 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -25,7 +28,6 @@ import java.util.Map;
 public abstract class EntityTrainBase extends Entity {
 
 	public int stationCoolDown;
-	public int doorValue;
 
 	private float prevYaw;
 	private int clientInterpolationSteps;
@@ -35,9 +37,12 @@ public abstract class EntityTrainBase extends Entity {
 	private double clientYaw;
 	private double clientPitch;
 	private int killTimer;
-	private boolean doorLeft, doorRight;
 
 	private final Map<Integer, Pos3f> passengerOffsets;
+
+	private static final TrackedData<Integer> DOOR_VALUE = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.INTEGER);
+	private static final TrackedData<Boolean> DOOR_LEFT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<Boolean> DOOR_RIGHT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
@@ -74,25 +79,23 @@ public abstract class EntityTrainBase extends Entity {
 			checkBlockCollision();
 
 			if (stationCoolDown < RailwayData.TRAIN_STOP_TIME || stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
-				doorValue = 0;
+				setDoorValue(0);
 			} else if (stationCoolDown < RailwayData.TRAIN_STOP_TIME + BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				doorValue = stationCoolDown - RailwayData.TRAIN_STOP_TIME;
+				setDoorValue(stationCoolDown - RailwayData.TRAIN_STOP_TIME);
 			} else if (stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				doorValue = RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - stationCoolDown;
+				setDoorValue(RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - stationCoolDown);
 			} else {
-				doorValue = BlockPSDAPGDoorBase.MAX_OPEN_VALUE;
+				setDoorValue(BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 			}
 
-			if (doorValue > 0) {
+			if (getDoorValue() > 0) {
 				final int width = getTrainType().getWidth();
 				final Vec3d offsetVec = new Vec3d(width, 0, 0).rotateY((float) Math.toRadians(yaw));
-				final BlockPos checkPosLeft = new BlockPos(getPos().subtract(offsetVec));
-				doorLeft = isPlatformOrDoor(checkPosLeft) || isPlatformOrDoor(checkPosLeft.up()) || isPlatformOrDoor(checkPosLeft.down());
-				final BlockPos checkPosRight = new BlockPos(getPos().add(offsetVec));
-				doorRight = isPlatformOrDoor(checkPosRight) || isPlatformOrDoor(checkPosRight.up()) || isPlatformOrDoor(checkPosRight.down());
+				final BlockPos checkPosLeft = new BlockPos(getPos().add(offsetVec));
+				final BlockPos checkPosRight = new BlockPos(getPos().subtract(offsetVec));
+				setDoors(isPlatformOrDoor(checkPosLeft) || isPlatformOrDoor(checkPosLeft.up()) || isPlatformOrDoor(checkPosLeft.down()), isPlatformOrDoor(checkPosRight) || isPlatformOrDoor(checkPosRight.up()) || isPlatformOrDoor(checkPosRight.down()));
 			} else {
-				doorLeft = false;
-				doorRight = false;
+				setDoors(false, false);
 			}
 
 			killTimer++;
@@ -153,7 +156,7 @@ public abstract class EntityTrainBase extends Entity {
 	@Override
 	public Vec3d updatePassengerForDismount(LivingEntity passenger) {
 		final float offsetX = getTrainType().getWidth() / 2F + 2;
-		final Vec3d offsetVec = new Vec3d(doorLeft ? -offsetX : offsetX, 0.5, 0).rotateY((float) Math.toRadians(yaw));
+		final Vec3d offsetVec = new Vec3d(getDoorLeft() ? offsetX : -offsetX, 0.5, 0).rotateY((float) Math.toRadians(yaw));
 		return passenger.getPos().add(offsetVec);
 	}
 
@@ -183,6 +186,9 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	protected void initDataTracker() {
+		dataTracker.startTracking(DOOR_VALUE, 0);
+		dataTracker.startTracking(DOOR_LEFT, false);
+		dataTracker.startTracking(DOOR_RIGHT, false);
 	}
 
 	protected void mountCollidingLivingEntities() {
@@ -198,6 +204,27 @@ public abstract class EntityTrainBase extends Entity {
 				}
 			}
 		});
+	}
+
+	public void setDoorValue(int doorValue) {
+		dataTracker.set(DOOR_VALUE, doorValue);
+	}
+
+	public int getDoorValue() {
+		return dataTracker.get(DOOR_VALUE);
+	}
+
+	public void setDoors(boolean doorLeft, boolean doorRight) {
+		dataTracker.set(DOOR_LEFT, doorLeft);
+		dataTracker.set(DOOR_RIGHT, doorRight);
+	}
+
+	public boolean getDoorLeft() {
+		return dataTracker.get(DOOR_LEFT);
+	}
+
+	public boolean getDoorRight() {
+		return dataTracker.get(DOOR_RIGHT);
 	}
 
 	protected abstract Train.TrainType getTrainType();
