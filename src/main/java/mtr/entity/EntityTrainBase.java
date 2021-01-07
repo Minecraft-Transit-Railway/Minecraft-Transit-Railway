@@ -43,6 +43,9 @@ public abstract class EntityTrainBase extends Entity {
 	private static final TrackedData<Integer> DOOR_VALUE = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Boolean> DOOR_LEFT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> DOOR_RIGHT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<Boolean> IS_END_1_HEAD = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<Boolean> IS_END_2_HEAD = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<Boolean> HEAD_1_IS_FRONT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
@@ -189,6 +192,9 @@ public abstract class EntityTrainBase extends Entity {
 		dataTracker.startTracking(DOOR_VALUE, 0);
 		dataTracker.startTracking(DOOR_LEFT, false);
 		dataTracker.startTracking(DOOR_RIGHT, false);
+		dataTracker.startTracking(IS_END_1_HEAD, true);
+		dataTracker.startTracking(IS_END_2_HEAD, true);
+		dataTracker.startTracking(HEAD_1_IS_FRONT, true);
 	}
 
 	protected void mountCollidingLivingEntities() {
@@ -225,6 +231,27 @@ public abstract class EntityTrainBase extends Entity {
 
 	public boolean getDoorRight() {
 		return dataTracker.get(DOOR_RIGHT);
+	}
+
+	public void setIsEndHead(boolean isEnd1Head, boolean isEnd2Head) {
+		dataTracker.set(IS_END_1_HEAD, isEnd1Head);
+		dataTracker.set(IS_END_2_HEAD, isEnd2Head);
+	}
+
+	public boolean getIsEnd1Head() {
+		return dataTracker.get(IS_END_1_HEAD);
+	}
+
+	public boolean getIsEnd2Head() {
+		return dataTracker.get(IS_END_2_HEAD);
+	}
+
+	public void setHead1IsFront(boolean head1IsFront) {
+		dataTracker.set(HEAD_1_IS_FRONT, head1IsFront);
+	}
+
+	public boolean getHead1IsFront() {
+		return dataTracker.get(HEAD_1_IS_FRONT);
 	}
 
 	protected abstract Train.TrainType getTrainType();
