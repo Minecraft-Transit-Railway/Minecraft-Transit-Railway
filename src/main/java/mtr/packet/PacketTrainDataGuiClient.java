@@ -9,8 +9,8 @@ import mtr.gui.ScheduleScreen;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,13 +62,16 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.platforms = IPacket.receiveData(packet, Platform::new);
 		ClientData.routes = IPacket.receiveData(packet, Route::new);
 		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
-		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getPos1, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> new ImmutableTriple<>(route.color, route.platformIds.indexOf(platform.id), route.platformIds.stream().map(platformId -> {
-			final Station station = RailwayData.getStationByPlatform(ClientData.stations, RailwayData.getDataById(ClientData.platforms, platformId));
-			if (station == null) {
-				return "";
-			} else {
-				return station.name;
-			}
-		}).collect(Collectors.toList()))).collect(Collectors.toList())));
+		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getPos1, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
+			final List<String> stationNames = route.platformIds.stream().map(platformId -> {
+				final Station station = RailwayData.getStationByPlatform(ClientData.stations, RailwayData.getDataById(ClientData.platforms, platformId));
+				if (station == null) {
+					return "";
+				} else {
+					return station.name;
+				}
+			}).collect(Collectors.toList());
+			return new ClientData.PlatformRouteDetails(route.color, route.platformIds.indexOf(platform.id), stationNames);
+		}).collect(Collectors.toList())));
 	}
 }
