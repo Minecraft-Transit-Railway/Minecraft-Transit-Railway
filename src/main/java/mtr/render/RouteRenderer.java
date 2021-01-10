@@ -10,7 +10,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class RouteRenderer {
 	private final VertexConsumerProvider vertexConsumers;
 	private final TextRenderer textRenderer;
 
-	private final List<Triple<Integer, Integer, List<String>>> routeData;
+	private final List<ClientData.PlatformRouteDetails> routeData;
 	private final String platformNumber;
 	private final boolean vertical;
 
@@ -53,7 +52,7 @@ public class RouteRenderer {
 		matrices.push();
 		final float lineHeightSmall = (y2 - y1) / routeCount;
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).getLeft() + IGui.ARGB_BLACK;
+			final int routeColor = routeData.get(i).routeColor + IGui.ARGB_BLACK;
 			IGui.drawRectangle(matrices, vertexConsumers, x1, y1 + lineHeightSmall * i, z1, x2, y1 + lineHeightSmall * (i + 1), z2, routeColor, light);
 		}
 		matrices.pop();
@@ -71,9 +70,9 @@ public class RouteRenderer {
 		final float endScaled = end * scaleSmaller;
 
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).getLeft() + IGui.ARGB_BLACK;
-			final int currentStationIndex = routeData.get(i).getMiddle();
-			final List<String> stationNames = routeData.get(i).getRight();
+			final int routeColor = routeData.get(i).routeColor + IGui.ARGB_BLACK;
+			final int currentStationIndex = routeData.get(i).currentStationIndex;
+			final List<String> stationNames = routeData.get(i).stationNames;
 			final int routeLength = stationNames.size();
 			final float routePosition = routeHeight * (i + 0.5F) + side1 * scaleSmaller;
 
@@ -114,7 +113,7 @@ public class RouteRenderer {
 		}
 	}
 
-	public void renderArrow(float left, float right, float top, float bottom, boolean rightToLeft, int light) {
+	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, int light) {
 		final int routeCount = getRouteCount();
 		if (routeCount <= 0) {
 			return;
@@ -127,7 +126,7 @@ public class RouteRenderer {
 
 		final List<String> destinations = new ArrayList<>();
 		routeData.forEach(route -> {
-			final String[] destinationSplit = route.getRight().get(route.getRight().size() - 1).split("\\|");
+			final String[] destinationSplit = route.stationNames.get(route.stationNames.size() - 1).split("\\|");
 			for (int i = 0; i < destinationSplit.length; i++) {
 				if (i < destinations.size()) {
 					destinations.set(i, destinations.get(i) + new TranslatableText("gui.mtr.separator_" + i).getString() + destinationSplit[i]);
@@ -143,7 +142,7 @@ public class RouteRenderer {
 		final float textWidth = textWidths.get(0);
 		final float scaleX;
 		final float xOffset;
-		final float maxDestinationWidth = right - left - arrowSize * 2 - arrowPadding * 2;
+		final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasRight ? 1 : 0) + (hasLeft ? 1 : 0));
 		if (textWidth > maxDestinationWidth * scale) {
 			scaleX = textWidth / maxDestinationWidth;
 			xOffset = 0;
@@ -152,27 +151,34 @@ public class RouteRenderer {
 			xOffset = (maxDestinationWidth - textWidth / scale) / 2;
 		}
 
+		final boolean leftToRight = hasLeft || !hasRight;
+
 		matrices.push();
 		matrices.scale(1F / scaleX, 1F / scale, 1F / scale);
-		final float textX = arrowSize * 2 + arrowPadding * 2 + xOffset;
-		IGui.drawStringWithFont(matrices, textRenderer, destinationString, rightToLeft ? 0 : 2, 1, (rightToLeft ? left + textX : right - textX) * scaleX, scaleY, IGui.ARGB_BLACK, 0, null);
+		final float textX = (arrowSize + arrowPadding) * (hasLeft || hasRight ? 2 : 1) + xOffset;
+		IGui.drawStringWithFont(matrices, textRenderer, destinationString, leftToRight ? 0 : 2, 1, (leftToRight ? left + textX : right - textX) * scaleX, scaleY, IGui.ARGB_BLACK, 0, null);
 		matrices.pop();
 
 		matrices.push();
 		matrices.translate(0, 0, IGui.SMALL_OFFSET);
-		IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", rightToLeft ? left + xOffset : right - arrowSize - xOffset, top, arrowSize, arrowSize, rightToLeft ? 0 : 1, 0, rightToLeft ? 1 : 0, 1, IGui.ARGB_BLACK, light);
+		if (hasLeft) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", left + xOffset, top, arrowSize, arrowSize, 0, 0, 1, 1, IGui.ARGB_BLACK, light);
+		}
+		if (hasRight) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", right - arrowSize - xOffset, top, arrowSize, arrowSize, 1, 0, 0, 1, IGui.ARGB_BLACK, light);
+		}
 
 		final float chunkHeight = arrowSize / routeCount;
-		final float circleX = arrowSize + arrowPadding + xOffset;
+		final float circleX = (hasLeft || hasRight ? arrowSize + arrowPadding : 0) + xOffset;
 		for (int i = 0; i < routeCount; i++) {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", rightToLeft ? left + circleX : right - arrowSize - circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, IGui.ARGB_BLACK + routeData.get(i).getLeft(), light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", leftToRight ? left + circleX : right - arrowSize - circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, IGui.ARGB_BLACK + routeData.get(i).routeColor, light);
 		}
 		matrices.pop();
 
 		final float scalePlatformNumber = scale / 2.2F;
 		matrices.push();
 		matrices.scale(1F / scalePlatformNumber, 1F / scalePlatformNumber, 1F / scalePlatformNumber);
-		IGui.drawStringWithFont(matrices, textRenderer, platformNumber, 1, 1, (rightToLeft ? left + circleX + arrowSize * PLATFORM_NUMBER_OFFSET_LEFT : right - circleX - arrowSize * (1 - PLATFORM_NUMBER_OFFSET_LEFT)) * scalePlatformNumber, (top + (bottom - top) * PLATFORM_NUMBER_OFFSET_TOP) * scalePlatformNumber, IGui.ARGB_WHITE, 0, null);
+		IGui.drawStringWithFont(matrices, textRenderer, platformNumber, 1, 1, (leftToRight ? left + circleX + arrowSize * PLATFORM_NUMBER_OFFSET_LEFT : right - circleX - arrowSize * (1 - PLATFORM_NUMBER_OFFSET_LEFT)) * scalePlatformNumber, (top + (bottom - top) * PLATFORM_NUMBER_OFFSET_TOP) * scalePlatformNumber, IGui.ARGB_WHITE, 0, null);
 		matrices.pop();
 	}
 

@@ -19,8 +19,6 @@ import net.minecraft.world.WorldAccess;
 
 public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDTop> {
 
-	private static final boolean RIGHT_TO_LEFT = false;
-
 	private static final int BASE_SCALE = 320;
 
 	private static final float SIDE_AND_BOTTOM_PADDING = 0.125F;
@@ -52,6 +50,7 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 		final Direction facing = state.get(BlockPSDTop.FACING);
 		final boolean airLeft = state.get(BlockPSDTop.AIR_LEFT);
 		final boolean airRight = state.get(BlockPSDTop.AIR_RIGHT);
+		final int arrowDirection = state.get(BlockPSDTop.ARROW_DIRECTION);
 		final boolean isDoor = world.getBlockState(pos.down()).getBlock() instanceof BlockPSDAPGDoorBase;
 
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
@@ -72,7 +71,7 @@ public class RenderPSDTop extends BlockEntityRenderer<BlockPSDTop.TileEntityPSDT
 
 		if (state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT) {
 			if (isDoor) {
-				routeRenderer.renderArrow(SIDE_AND_BOTTOM_PADDING, 2 - SIDE_AND_BOTTOM_PADDING, TOP_PADDING + ARROW_PADDING, 1 - SIDE_AND_BOTTOM_PADDING - ARROW_PADDING, RIGHT_TO_LEFT, light);
+				routeRenderer.renderArrow(SIDE_AND_BOTTOM_PADDING, 2 - SIDE_AND_BOTTOM_PADDING, TOP_PADDING + ARROW_PADDING, 1 - SIDE_AND_BOTTOM_PADDING - ARROW_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, light);
 			} else if (!airLeft && !airRight) {
 				final int glassLength = getGlassLength(world, pos, facing);
 				if (glassLength > 1) {

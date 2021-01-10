@@ -5,7 +5,6 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.data.Train;
 import net.minecraft.util.math.BlockPos;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
@@ -17,5 +16,18 @@ public final class ClientData {
 	public static Set<Train> trains = new HashSet<>();
 
 	public static Map<Long, String> stationNames = new HashMap<>();
-	public static Map<BlockPos, List<Triple<Integer, Integer, List<String>>>> platformToRoute = new HashMap<>();
+	public static Map<BlockPos, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
+
+	public static class PlatformRouteDetails {
+
+		public final int routeColor;
+		public final int currentStationIndex;
+		public final List<String> stationNames;
+
+		public PlatformRouteDetails(int routeColor, int currentStationIndex, List<String> stationNames) {
+			this.routeColor = routeColor;
+			this.currentStationIndex = currentStationIndex;
+			this.stationNames = stationNames;
+		}
+	}
 }

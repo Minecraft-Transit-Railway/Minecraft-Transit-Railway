@@ -144,6 +144,9 @@ public class RailwayData extends PersistentState {
 				if (isDeadTrain) {
 					trainsToRemove.add(train);
 				} else if (train.stationCoolDown < STATION_COOL_DOWN) {
+					if (train.stationCoolDown == 0) {
+						train.spaceOut();
+					}
 					train.stationCoolDown++;
 				} else {
 					train.paths.remove(0);

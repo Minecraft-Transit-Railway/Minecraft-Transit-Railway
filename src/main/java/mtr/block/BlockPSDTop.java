@@ -12,8 +12,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -29,9 +33,22 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public static final EnumProperty<BlockPSDAPGGlassBase.EnumPSDAPGGlassSide> SIDE = EnumProperty.of("side", BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
+	public static final IntProperty ARROW_DIRECTION = IntProperty.of("arrow_direction", 0, 3);
 
 	public BlockPSDTop() {
 		super(FabricBlockSettings.of(Material.GLASS, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15).nonOpaque());
+	}
+
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (!world.isClient() && player.getStackInHand(hand).getItem() == Items.BRUSH) {
+			final BlockState newState = state.cycle(ARROW_DIRECTION);
+			world.setBlockState(pos, newState);
+			updateArrowDirection(world, pos, state.get(FACING).rotateYClockwise(), newState.get(ARROW_DIRECTION));
+			updateArrowDirection(world, pos, state.get(FACING).rotateYCounterclockwise(), newState.get(ARROW_DIRECTION));
+			return ActionResult.CONSUME;
+		}
+		return ActionResult.SUCCESS;
 	}
 
 	@Override
@@ -97,7 +114,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(DOOR_LIGHT, FACING, SIDE, AIR_LEFT, AIR_RIGHT);
+		builder.add(DOOR_LIGHT, FACING, SIDE, AIR_LEFT, AIR_RIGHT, ARROW_DIRECTION);
 	}
 
 	@Override
@@ -132,7 +149,15 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 			facing = stateBelow.get(FACING);
 		}
 
-		return mtr.Blocks.PSD_TOP.getDefaultState().with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+		return world.getBlockState(pos).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+	}
+
+	private void updateArrowDirection(World world, BlockPos pos, Direction direction, int arrowDirection) {
+		final BlockState state = world.getBlockState(pos);
+		if (state.getBlock() instanceof BlockPSDTop) {
+			world.setBlockState(pos, state.with(ARROW_DIRECTION, arrowDirection));
+			updateArrowDirection(world, pos.offset(direction), direction, arrowDirection);
+		}
 	}
 
 	public static class TileEntityPSDTop extends BlockEntity {
