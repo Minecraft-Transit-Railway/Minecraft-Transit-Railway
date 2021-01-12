@@ -72,7 +72,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			if (railwayData != null) {
 				BlockPos platformPos = getPlatformPos1(world, pos);
 
-				if (player.getStackInHand(hand).getItem() == Items.BRUSH) {
+				if (player.isHolding(Items.BRUSH)) {
 					PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
 				} else {
 					PacketTrainDataGuiServer.openScheduleScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);

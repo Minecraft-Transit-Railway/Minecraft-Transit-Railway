@@ -158,9 +158,13 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-		final float offsetX = getTrainType().getWidth() / 2F + 2;
-		final Vec3d offsetVec = new Vec3d(getDoorLeft() ? offsetX : -offsetX, 0.5, 0).rotateY((float) Math.toRadians(yaw));
-		return passenger.getPos().add(offsetVec);
+		if (getDoorValue() > 0) {
+			final float offsetX = getTrainType().getWidth() / 2F + 2;
+			final Vec3d offsetVec = new Vec3d(getDoorLeft() ? offsetX : -offsetX, 0.5, 0).rotateY((float) Math.toRadians(yaw));
+			return passenger.getPos().add(offsetVec);
+		} else {
+			return super.updatePassengerForDismount(passenger);
+		}
 	}
 
 	@Override
@@ -205,7 +209,7 @@ public abstract class EntityTrainBase extends Entity {
 			if (RailwayData.isBetween(entityPosRelative.x, -widthBigger, widthBigger) && RailwayData.isBetween(entityPosRelative.y, -widthBigger, widthBigger) && RailwayData.isBetween(entityPosRelative.z, -length, length)) {
 				final Vec3d passengerOffsetRotated = entity.getPos().subtract(getPos()).rotateY((float) Math.toRadians(-yaw)).rotateX((float) Math.toRadians(-pitch));
 				passengerOffsets.put(entity.getEntityId(), new Pos3f(0, 0, (float) passengerOffsetRotated.z));
-				if (!world.isClient) {
+				if (!world.isClient && getDoorValue() > 0) {
 					entity.startRiding(this);
 				}
 			}

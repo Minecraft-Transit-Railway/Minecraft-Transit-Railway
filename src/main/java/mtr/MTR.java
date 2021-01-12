@@ -1,5 +1,6 @@
 package mtr;
 
+import mtr.block.BlockAPGGlass;
 import mtr.block.BlockPSDTop;
 import mtr.data.RailwayData;
 import mtr.data.Train;
@@ -41,6 +42,7 @@ public class MTR implements ModInitializer {
 	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
 
 	public static BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
+	public static BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
 
 	@Override
 	public void onInitialize() {
