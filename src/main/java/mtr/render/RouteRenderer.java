@@ -80,12 +80,13 @@ public class RouteRenderer {
 			matrices.scale(1F / scaleSmaller, 1F / scaleSmaller, 1F / scaleSmaller);
 
 			matrices.push();
+			float thisStationPosition = getStationPosition(currentStationIndex, routeLength, startScaled, endScaled);
 			if (vertical) {
 				IGui.drawRectangle(matrices, vertexConsumers, routePosition - COLOR_LINE_HALF_HEIGHT, endScaled, routePosition + COLOR_LINE_HALF_HEIGHT, getStationPosition(currentStationIndex, routeLength, startScaled, endScaled), IGui.SMALL_OFFSET * scaleSmaller, PASSED_STATION_COLOR, light);
 				IGui.drawRectangle(matrices, vertexConsumers, routePosition - COLOR_LINE_HALF_HEIGHT, getStationPosition(currentStationIndex, routeLength, startScaled, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, startScaled, IGui.SMALL_OFFSET * scaleSmaller, routeColor, light);
 			} else {
-				IGui.drawRectangle(matrices, vertexConsumers, startScaled, routePosition - COLOR_LINE_HALF_HEIGHT, getStationPosition(currentStationIndex, routeLength, startScaled, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, IGui.SMALL_OFFSET * scaleSmaller, PASSED_STATION_COLOR, light);
-				IGui.drawRectangle(matrices, vertexConsumers, getStationPosition(currentStationIndex, routeLength, startScaled, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, endScaled, routePosition + COLOR_LINE_HALF_HEIGHT, IGui.SMALL_OFFSET * scaleSmaller, routeColor, light);
+				IGui.drawRectangle(matrices, vertexConsumers, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, IGui.SMALL_OFFSET * scaleSmaller, PASSED_STATION_COLOR, light);
+				IGui.drawRectangle(matrices, vertexConsumers, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, IGui.SMALL_OFFSET * scaleSmaller, routeColor, light);
 			}
 			matrices.pop();
 
