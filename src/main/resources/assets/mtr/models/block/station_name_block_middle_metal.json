@@ -1,0 +1,26 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_pole",
+		"metal": "mtr:block/metal",
+		"gap": "mtr:signs/gap_small"
+	},
+	"elements": [
+		{
+			"from": [ 1.99, 0, 5.5 ],
+			"to": [ 14.01, 16, 10.5 ],
+			"faces": {
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" }
+			}
+		},
+		{
+			"from": [ 1.98, 14, 6.5 ],
+			"to": [ 14.02, 18, 9.5 ],
+			"faces": {
+				"east":  { "uv": [ 0, 0, 12, 16 ], "texture": "#gap" },
+				"west":  { "uv": [ 0, 0, 12, 16 ], "texture": "#gap" }
+			}
+		}
+	]
+}

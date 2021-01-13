@@ -2,11 +2,9 @@ package mtr.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -17,7 +15,7 @@ import net.minecraft.world.BlockView;
 
 import java.util.List;
 
-public class BlockStationPole extends HorizontalFacingBlock {
+public class BlockStationPole extends Block {
 
 	public BlockStationPole(Settings settings) {
 		super(settings);
@@ -25,16 +23,15 @@ public class BlockStationPole extends HorizontalFacingBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return Block.createCuboidShape(6, 0, 6, 10, 16, 10);
+		return getStationPoleShape();
 	}
 
 	@Override
 	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-		tooltip.add(new TranslatableText("tooltip.mtr.station_color_name").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		tooltip.add(new TranslatableText("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 	}
 
-	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+	public static VoxelShape getStationPoleShape() {
+		return Block.createCuboidShape(6, 0, 6, 10, 16, 10);
 	}
 }

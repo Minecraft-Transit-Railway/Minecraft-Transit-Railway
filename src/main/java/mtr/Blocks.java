@@ -35,5 +35,6 @@ public interface Blocks {
 	Block STATION_COLOR_STONE_BRICKS = new BlockStationColor(FabricBlockSettings.of(Material.STONE, MaterialColor.IRON).hardness(2));
 	Block STATION_COLOR_WOOL = new BlockStationColor(FabricBlockSettings.of(Material.WOOL, MaterialColor.IRON).hardness(2));
 	Block STATION_NAME = new BlockStationName(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+	Block STATION_NAME_BLOCK = new BlockStationNameBlock(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	Block STATION_POLE = new BlockStationPole(FabricBlockSettings.of(Material.STONE, MaterialColor.STONE).requiresTool().hardness(2).nonOpaque());
 }

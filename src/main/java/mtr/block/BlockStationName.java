@@ -2,12 +2,14 @@ package mtr.block;
 
 import mtr.Items;
 import mtr.MTR;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -20,9 +22,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
-public class BlockStationName extends HorizontalFacingBlock implements BlockEntityProvider {
-
-	public static final IntProperty COLOR = IntProperty.of("color", 0, 2);
+public class BlockStationName extends BlockStationNameBase {
 
 	public BlockStationName(Settings settings) {
 		super(settings);
@@ -79,8 +79,8 @@ public class BlockStationName extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(COLOR, FACING);
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	@Override
@@ -88,10 +88,20 @@ public class BlockStationName extends HorizontalFacingBlock implements BlockEnti
 		return new TileEntityStationName();
 	}
 
-	public static class TileEntityStationName extends BlockEntity {
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(COLOR, FACING);
+	}
+
+	public static class TileEntityStationName extends TileEntityStationNameBase {
 
 		public TileEntityStationName() {
-			super(MTR.STATION_NAME_TILE_ENTITY);
+			super(MTR.STATION_NAME_TILE_ENTITY, false, true, 40, 0, 0);
+		}
+
+		@Override
+		public boolean shouldRender() {
+			return true;
 		}
 	}
 }
