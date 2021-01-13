@@ -22,4 +22,5 @@ public interface Blocks {
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();
 	Block PSD_TOP = new BlockPSDTop();
+	Block STATION_NAME = new BlockStationName(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 }
