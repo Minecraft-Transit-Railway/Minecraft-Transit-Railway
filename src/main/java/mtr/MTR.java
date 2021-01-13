@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.block.BlockAPGGlass;
 import mtr.block.BlockPSDTop;
+import mtr.block.BlockStationName;
 import mtr.data.RailwayData;
 import mtr.data.Train;
 import mtr.entity.EntityLightRail1;
@@ -22,7 +23,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.BedItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -43,6 +43,7 @@ public class MTR implements ModInitializer {
 
 	public static BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
+	public static BlockEntityType<BlockStationName.TileEntityStationName> STATION_NAME_TILE_ENTITY = registerTileEntity("station_name", BlockStationName.TileEntityStationName::new, Blocks.STATION_NAME);
 
 	@Override
 	public void onInitialize() {
@@ -59,17 +60,18 @@ public class MTR implements ModInitializer {
 		registerBlock("apg_door", Blocks.APG_DOOR);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
 		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
-		registerBlock("ceiling", Blocks.CEILING, new BlockItem(Blocks.CEILING, new Item.Settings().group(ItemGroup.DECORATIONS)));
+		registerBlock("ceiling", Blocks.CEILING, ItemGroup.DECORATIONS);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
-		registerBlock("logo", Blocks.LOGO, new BlockItem(Blocks.LOGO, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
-		registerBlock("pids_1", Blocks.PIDS_1, new BedItem(Blocks.PIDS_1, new Item.Settings().group(ItemGroup.DECORATIONS)));
-		registerBlock("platform", Blocks.PLATFORM, new BlockItem(Blocks.PLATFORM, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
-		registerBlock("platform_rail", Blocks.PLATFORM_RAIL, new BlockItem(Blocks.PLATFORM_RAIL, new Item.Settings().group(ItemGroup.TRANSPORTATION)));
+		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
+		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
+		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
+		registerBlock("platform_rail", Blocks.PLATFORM_RAIL, ItemGroup.TRANSPORTATION);
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
+		registerBlock("station_name", Blocks.STATION_NAME, ItemGroup.DECORATIONS);
 
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiServer::receiveStationsAndRoutesC2S);
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_PLATFORM, PacketTrainDataGuiServer::receivePlatformC2S);
@@ -98,9 +100,9 @@ public class MTR implements ModInitializer {
 		Registry.register(Registry.BLOCK, new Identifier(MOD_ID, path), block);
 	}
 
-	private static void registerBlock(String path, Block block, BlockItem blockItem) {
+	private static void registerBlock(String path, Block block, ItemGroup itemGroup) {
 		registerBlock(path, block);
-		Registry.register(Registry.ITEM, new Identifier(MOD_ID, path), blockItem);
+		Registry.register(Registry.ITEM, new Identifier(MOD_ID, path), new BlockItem(block, new Item.Settings().group(itemGroup)));
 	}
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {

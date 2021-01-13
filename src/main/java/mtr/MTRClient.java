@@ -41,6 +41,7 @@ public class MTRClient implements ClientModInitializer {
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TILE_ENTITY, RenderStationName::new);
 
 		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_TRAINS, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveTrainsS2C(packetByteBuf));
 		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_DASHBOARD_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openDashboardScreenS2C(packetByteBuf));
