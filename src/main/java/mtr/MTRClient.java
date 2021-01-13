@@ -35,6 +35,7 @@ public class MTRClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_COLOR_STAINED_GLASS, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_BLOCK, RenderLayer.getCutout());
 
 		ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ModelProvider());
 
@@ -46,6 +47,7 @@ public class MTRClient implements ClientModInitializer {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TILE_ENTITY, RenderStationName::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_BLOCK_TILE_ENTITY, RenderStationName::new);
 
 		registerStationColor(Blocks.STATION_COLOR_CONCRETE);
 		registerStationColor(Blocks.STATION_COLOR_CONCRETE_POWDER);
@@ -59,6 +61,7 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_COLOR_STONE);
 		registerStationColor(Blocks.STATION_COLOR_STONE_BRICKS);
 		registerStationColor(Blocks.STATION_COLOR_WOOL);
+		registerStationColor(Blocks.STATION_NAME_BLOCK);
 		registerStationColor(Blocks.STATION_POLE);
 
 		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_TRAINS, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveTrainsS2C(packetByteBuf));

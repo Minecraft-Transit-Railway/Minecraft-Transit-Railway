@@ -1,0 +1,250 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "north",
+				"metal": "true",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom_metal"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"metal": "true",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom_metal",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"metal": "true",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom_metal",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"metal": "true",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom_metal",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"metal": "true",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle_metal"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"metal": "true",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle_metal",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"metal": "true",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle_metal",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"metal": "true",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle_metal",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"metal": "true",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top_metal"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"metal": "true",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top_metal",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"metal": "true",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top_metal",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"metal": "true",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top_metal",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"segment": "bottom"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_bottom",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"segment": "middle"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_middle",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"segment": "top"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_block_top",
+				"y": 270
+			}
+		}
+	]
+}
