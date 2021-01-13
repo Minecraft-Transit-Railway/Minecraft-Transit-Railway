@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldAccess;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -139,7 +138,7 @@ public abstract class PathFinderBase {
 		}
 
 		@Override
-		public int compareTo(@NotNull RoutePathFinder.BlockPosWeighted o) {
+		public int compareTo(RoutePathFinder.BlockPosWeighted o) {
 			return Double.compare(weight, o.weight);
 		}
 	}

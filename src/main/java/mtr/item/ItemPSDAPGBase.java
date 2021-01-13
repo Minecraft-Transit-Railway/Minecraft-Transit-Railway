@@ -12,9 +12,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -71,7 +73,7 @@ public class ItemPSDAPGBase extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		tooltip.add(new TranslatableText("tooltip.mtr." + PSD_APG_ITEM.asString()));
+		tooltip.add(new TranslatableText("tooltip.mtr." + PSD_APG_ITEM.asString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 	}
 
 	private BlockState getBlockStateFromItem() {
