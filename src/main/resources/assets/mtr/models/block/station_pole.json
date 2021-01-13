@@ -1,0 +1,20 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_pole"
+	},
+	"elements": [
+		{
+			"from": [ 6, 0, 6 ],
+			"to": [ 10, 16, 10 ],
+			"faces": {
+				"down": { "texture": "#particle", "tintindex": 0, "cullface": "down" },
+				"up": { "texture": "#particle", "tintindex": 0, "cullface": "up" },
+				"east": { "texture": "#particle", "tintindex": 0 },
+				"west": { "texture": "#particle", "tintindex": 0 },
+				"north": { "texture": "#particle", "tintindex": 0 },
+				"south": { "texture": "#particle", "tintindex": 0 }
+			}
+		}
+	]
+}

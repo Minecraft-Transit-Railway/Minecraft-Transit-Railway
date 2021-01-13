@@ -71,7 +71,20 @@ public class MTR implements ModInitializer {
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
+		registerBlock("station_color_concrete", Blocks.STATION_COLOR_CONCRETE, ItemGroup.DECORATIONS);
+		registerBlock("station_color_concrete_powder", Blocks.STATION_COLOR_CONCRETE_POWDER, ItemGroup.DECORATIONS);
+		registerBlock("station_color_dark_prismarine", Blocks.STATION_COLOR_DARK_PRISMARINE, ItemGroup.DECORATIONS);
+		registerBlock("station_color_diorite", Blocks.STATION_COLOR_DIORITE, ItemGroup.DECORATIONS);
+		registerBlock("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, ItemGroup.DECORATIONS);
+		registerBlock("station_color_metal", Blocks.STATION_COLOR_METAL, ItemGroup.DECORATIONS);
+		registerBlock("station_color_planks", Blocks.STATION_COLOR_PLANKS, ItemGroup.DECORATIONS);
+		registerBlock("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, ItemGroup.DECORATIONS);
+		registerBlock("station_color_stained_glass", Blocks.STATION_COLOR_STAINED_GLASS, ItemGroup.DECORATIONS);
+		registerBlock("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroup.DECORATIONS);
+		registerBlock("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroup.DECORATIONS);
+		registerBlock("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroup.DECORATIONS);
 		registerBlock("station_name", Blocks.STATION_NAME, ItemGroup.DECORATIONS);
+		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
 
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiServer::receiveStationsAndRoutesC2S);
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_PLATFORM, PacketTrainDataGuiServer::receivePlatformC2S);
