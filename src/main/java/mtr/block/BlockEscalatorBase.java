@@ -23,7 +23,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock {
 	public static final BooleanProperty SIDE = BooleanProperty.of("side");
 
 	protected BlockEscalatorBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override
