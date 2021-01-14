@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB",
+		"BDB",
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"tag": "c:stained_glass"
+		},
+		"D": {
+			"tag": "c:dyes"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_stained_glass",
+		"count": 8
+	}
+}

@@ -11,7 +11,7 @@
 							"condition": "minecraft:block_state_property",
 							"block": "mtr:station_name_block",
 							"properties": {
-								"segment": "bottom"
+								"third": "lower"
 							}
 						}
 					],
