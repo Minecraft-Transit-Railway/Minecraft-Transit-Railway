@@ -6,7 +6,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.StringIdentifiable;
@@ -17,10 +16,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockEscalatorBase extends HorizontalFacingBlock {
+public abstract class BlockEscalatorBase extends HorizontalFacingBlock implements IBlock {
 
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
-	public static final BooleanProperty SIDE = BooleanProperty.of("side");
 
 	protected BlockEscalatorBase() {
 		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
@@ -99,13 +97,12 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock {
 
 	private Direction getSideDirection(BlockState state) {
 		final Direction facing = state.get(FACING);
-		return state.get(SIDE) ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
+		return state.get(SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 	}
 
 	protected enum EnumEscalatorOrientation implements StringIdentifiable {
 
 		LANDING_BOTTOM("landing_bottom"), LANDING_TOP("landing_top"), FLAT("flat"), SLOPE("slope"), TRANSITION_BOTTOM("transition_bottom"), TRANSITION_TOP("transition_top");
-
 		private final String name;
 
 		EnumEscalatorOrientation(String nameIn) {

@@ -4,18 +4,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
-
-	public static final EnumProperty<EnumPSDAPGGlassSide> SIDE = EnumProperty.of("side", EnumPSDAPGGlassSide.class);
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
@@ -31,7 +27,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, SIDE, TOP);
+		builder.add(FACING, HALF, SIDE_EXTENDED);
 	}
 
 	private void connectGlass(World world, BlockPos pos, BlockState state) {
@@ -42,18 +38,18 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 		final boolean leftValid = is(leftState.getBlock());
 
 		if (leftValid) {
-			final EnumPSDAPGGlassSide side = leftState.get(SIDE);
-			EnumPSDAPGGlassSide newLeftSide;
+			final EnumSide side = leftState.get(SIDE_EXTENDED);
+			EnumSide newLeftSide;
 
-			if (side == EnumPSDAPGGlassSide.RIGHT) {
-				newLeftSide = EnumPSDAPGGlassSide.MIDDLE;
-			} else if (side == EnumPSDAPGGlassSide.SINGLE) {
-				newLeftSide = EnumPSDAPGGlassSide.LEFT;
+			if (side == EnumSide.RIGHT) {
+				newLeftSide = EnumSide.MIDDLE;
+			} else if (side == EnumSide.SINGLE) {
+				newLeftSide = EnumSide.LEFT;
 			} else {
 				newLeftSide = side;
 			}
 
-			world.setBlockState(leftPos, leftState.with(SIDE, newLeftSide));
+			world.setBlockState(leftPos, leftState.with(SIDE_EXTENDED, newLeftSide));
 		}
 
 		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
@@ -61,47 +57,31 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 		final boolean rightValid = is(rightState.getBlock());
 
 		if (rightValid) {
-			final EnumPSDAPGGlassSide side = rightState.get(SIDE);
-			EnumPSDAPGGlassSide newRightSide;
+			final EnumSide side = rightState.get(SIDE_EXTENDED);
+			EnumSide newRightSide;
 
-			if (side == EnumPSDAPGGlassSide.LEFT) {
-				newRightSide = EnumPSDAPGGlassSide.MIDDLE;
-			} else if (side == EnumPSDAPGGlassSide.SINGLE) {
-				newRightSide = EnumPSDAPGGlassSide.RIGHT;
+			if (side == EnumSide.LEFT) {
+				newRightSide = EnumSide.MIDDLE;
+			} else if (side == EnumSide.SINGLE) {
+				newRightSide = EnumSide.RIGHT;
 			} else {
 				newRightSide = side;
 			}
 
-			world.setBlockState(rightPos, rightState.with(SIDE, newRightSide));
+			world.setBlockState(rightPos, rightState.with(SIDE_EXTENDED, newRightSide));
 		}
 
-		EnumPSDAPGGlassSide newSide;
+		EnumSide newSide;
 		if (leftValid && rightValid) {
-			newSide = EnumPSDAPGGlassSide.MIDDLE;
+			newSide = EnumSide.MIDDLE;
 		} else if (leftValid) {
-			newSide = EnumPSDAPGGlassSide.RIGHT;
+			newSide = EnumSide.RIGHT;
 		} else if (rightValid) {
-			newSide = EnumPSDAPGGlassSide.LEFT;
+			newSide = EnumSide.LEFT;
 		} else {
-			newSide = EnumPSDAPGGlassSide.SINGLE;
+			newSide = EnumSide.SINGLE;
 		}
 
-		world.setBlockState(pos, state.with(SIDE, newSide));
-	}
-
-	public enum EnumPSDAPGGlassSide implements StringIdentifiable {
-
-		LEFT("left"), RIGHT("right"), MIDDLE("middle"), SINGLE("single");
-
-		private final String name;
-
-		EnumPSDAPGGlassSide(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String asString() {
-			return name;
-		}
+		world.setBlockState(pos, state.with(SIDE_EXTENDED, newSide));
 	}
 }

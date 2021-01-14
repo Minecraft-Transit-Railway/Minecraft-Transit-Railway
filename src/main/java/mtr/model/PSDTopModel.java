@@ -1,8 +1,8 @@
 package mtr.model;
 
 import com.mojang.datafixers.util.Pair;
-import mtr.block.BlockPSDAPGGlassBase;
 import mtr.block.BlockPSDTop;
+import mtr.block.IBlock;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 
-public class PSDTopModel extends CustomBlockModelBase {
+public class PSDTopModel extends CustomBlockModelBase implements IBlock {
 
 	public static final float END_FRONT_OFFSET = 1 / (MathHelper.SQUARE_ROOT_OF_TWO * 16);
 
@@ -56,10 +56,10 @@ public class PSDTopModel extends CustomBlockModelBase {
 			final boolean airRight = state.get(BlockPSDTop.AIR_RIGHT);
 			final BlockPSDTop.EnumDoorLight doorLight = state.get(BlockPSDTop.DOOR_LIGHT);
 			final Direction facing = state.get(BlockPSDTop.FACING);
-			final BlockPSDAPGGlassBase.EnumPSDAPGGlassSide side = state.get(BlockPSDTop.SIDE);
+			final EnumSide side = state.get(SIDE_EXTENDED);
 
-			final boolean isMiddleOrSingle = side == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.MIDDLE || side == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.SINGLE;
-			final boolean isRight = side == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.RIGHT;
+			final boolean isMiddleOrSingle = side == EnumSide.MIDDLE || side == EnumSide.SINGLE;
+			final boolean isRight = side == EnumSide.RIGHT;
 
 			// back
 			emitter.square(facing, airRight ? 0.625F : 0, 0, airLeft ? 0.375F : 1, 1, 0);

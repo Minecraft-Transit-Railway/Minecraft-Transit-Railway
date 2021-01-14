@@ -12,10 +12,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -25,10 +23,9 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public class BlockStationNameBlock extends BlockStationNameBase {
+public class BlockStationNameBlock extends BlockStationNameBase implements IBlock {
 
 	public static final BooleanProperty METAL = BooleanProperty.of("metal");
-	public static final EnumProperty<EnumSegment> SEGMENT = EnumProperty.of("segment", EnumSegment.class);
 
 	public BlockStationNameBlock(Settings settings) {
 		super(settings);
@@ -42,8 +39,8 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 			final boolean newMetalProperty = isWhite == state.get(METAL);
 
 			updateProperties(world, pos, newMetalProperty, newColorProperty);
-			switch (state.get(SEGMENT)) {
-				case BOTTOM:
+			switch (state.get(THIRD)) {
+				case LOWER:
 					updateProperties(world, pos.up(), newMetalProperty, newColorProperty);
 					updateProperties(world, pos.up(2), newMetalProperty, newColorProperty);
 					break;
@@ -51,7 +48,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 					updateProperties(world, pos.down(), newMetalProperty, newColorProperty);
 					updateProperties(world, pos.up(), newMetalProperty, newColorProperty);
 					break;
-				case TOP:
+				case UPPER:
 					updateProperties(world, pos.down(), newMetalProperty, newColorProperty);
 					updateProperties(world, pos.down(2), newMetalProperty, newColorProperty);
 					break;
@@ -61,7 +58,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if ((direction == Direction.UP && state.get(SEGMENT) != EnumSegment.TOP || direction == Direction.DOWN && state.get(SEGMENT) != EnumSegment.BOTTOM) && !newState.isOf(this)) {
+		if ((direction == Direction.UP && state.get(THIRD) != EnumThird.UPPER || direction == Direction.DOWN && state.get(THIRD) != EnumThird.LOWER) && !newState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -70,15 +67,15 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(FACING, ctx.getPlayerFacing()).with(METAL, true).with(SEGMENT, EnumSegment.BOTTOM) : null;
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(FACING, ctx.getPlayerFacing()).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient) {
 			final Direction facing = state.get(FACING);
-			world.setBlockState(pos.up(), getDefaultState().with(FACING, facing).with(METAL, true).with(SEGMENT, EnumSegment.MIDDLE), 3);
-			world.setBlockState(pos.up(2), getDefaultState().with(FACING, facing).with(METAL, true).with(SEGMENT, EnumSegment.TOP), 3);
+			world.setBlockState(pos.up(), getDefaultState().with(FACING, facing).with(METAL, true).with(THIRD, EnumThird.MIDDLE), 3);
+			world.setBlockState(pos.up(2), getDefaultState().with(FACING, facing).with(METAL, true).with(THIRD, EnumThird.UPPER), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);
 		}
@@ -86,14 +83,14 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final EnumSegment segment = state.get(SEGMENT);
+		final EnumThird segment = state.get(THIRD);
 		final int start, end;
 		switch (segment) {
-			case BOTTOM:
+			case LOWER:
 				start = 10;
 				end = 16;
 				break;
-			case TOP:
+			case UPPER:
 				start = 0;
 				end = 8;
 				break;
@@ -112,27 +109,11 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(COLOR, FACING, METAL, SEGMENT);
+		builder.add(COLOR, FACING, METAL, THIRD);
 	}
 
 	private void updateProperties(World world, BlockPos pos, boolean metalProperty, int colorProperty) {
 		world.setBlockState(pos, world.getBlockState(pos).with(COLOR, colorProperty).with(METAL, metalProperty));
-	}
-
-	public enum EnumSegment implements StringIdentifiable {
-
-		TOP("top"), MIDDLE("middle"), BOTTOM("bottom");
-
-		private final String name;
-
-		EnumSegment(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String asString() {
-			return name;
-		}
 	}
 
 	public static class TileEntityStationNameBlock extends TileEntityStationNameBase {
@@ -147,7 +128,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 				return false;
 			}
 			final BlockState state = world.getBlockState(pos);
-			return state.getBlock() instanceof BlockStationNameBlock && state.get(SEGMENT) == EnumSegment.MIDDLE;
+			return state.getBlock() instanceof BlockStationNameBlock && state.get(THIRD) == EnumThird.MIDDLE;
 		}
 	}
 }

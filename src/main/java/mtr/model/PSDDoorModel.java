@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.datafixers.util.Pair;
 import mtr.block.BlockPSDDoor;
+import mtr.block.IBlock;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -10,6 +11,7 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
@@ -22,7 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 
-public class PSDDoorModel extends CustomBlockModelBase {
+public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
 	private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/black")),
@@ -53,9 +55,9 @@ public class PSDDoorModel extends CustomBlockModelBase {
 
 			final boolean end = state.get(BlockPSDDoor.END);
 			final Direction facing = state.get(BlockPSDDoor.FACING);
-			final boolean side = state.get(BlockPSDDoor.SIDE) == BlockPSDDoor.EnumPSDAPGDoorSide.RIGHT;
+			final boolean side = state.get(SIDE) == EnumSide.RIGHT;
 			final float open = (side ? -1F : 1F) * state.get(BlockPSDDoor.OPEN) / BlockPSDDoor.MAX_OPEN_VALUE;
-			final boolean top = state.get(BlockPSDDoor.TOP);
+			final boolean top = state.get(HALF) == DoubleBlockHalf.UPPER;
 
 			if (end) {
 				createCube(emitter, facing, side, open / 2, top, 0, 0.5F, 0.125F, 4, 1);

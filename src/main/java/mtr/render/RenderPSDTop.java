@@ -1,9 +1,9 @@
 package mtr.render;
 
 import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockPSDAPGGlassBase;
 import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
+import mtr.block.IBlock;
 import mtr.model.PSDTopModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -12,7 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
-public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> {
+public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
 
 	private static final float COLOR_STRIP_START = 0.90625F;
 	private static final float COLOR_STRIP_END = 0.9375F;
@@ -48,12 +48,12 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 
 	@Override
 	protected boolean isLeft(BlockState state) {
-		return state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT;
+		return state.get(SIDE_EXTENDED) == EnumSide.LEFT;
 	}
 
 	@Override
 	protected boolean isRight(BlockState state) {
-		return state.get(BlockPSDTop.SIDE) == BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.RIGHT;
+		return state.get(SIDE_EXTENDED) == EnumSide.RIGHT;
 	}
 
 	@Override

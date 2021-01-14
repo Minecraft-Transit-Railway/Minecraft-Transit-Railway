@@ -87,7 +87,6 @@ public class BlockPlatform extends HorizontalFacingBlock {
 	private enum EnumDoorType implements StringIdentifiable {
 
 		NONE("none"), PSD("psd"), APG("apg");
-
 		private final String name;
 
 		EnumDoorType(String nameIn) {

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.state.StateManager;
@@ -25,7 +26,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (state.get(TOP)) {
+		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
 				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
 				propagate(world, pos, state.get(FACING).rotateYClockwise());
@@ -43,7 +44,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, SIDE, TOP, PROPAGATE_PROPERTY);
+		builder.add(FACING, HALF, SIDE_EXTENDED, PROPAGATE_PROPERTY);
 	}
 
 	public static class TileEntityAPGGlass extends BlockEntity {

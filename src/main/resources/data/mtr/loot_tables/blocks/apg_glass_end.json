@@ -11,7 +11,7 @@
 							"condition": "minecraft:block_state_property",
 							"block": "mtr:apg_glass_end",
 							"properties": {
-								"top": "false"
+								"half": "lower"
 							}
 						}
 					],
