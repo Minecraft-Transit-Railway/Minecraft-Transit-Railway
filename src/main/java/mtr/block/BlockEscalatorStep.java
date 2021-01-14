@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.Items;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -75,7 +74,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (player.isHolding(Items.BRUSH)) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean direction = !state.get(DIRECTION);
 			final Direction blockFacing = state.get(FACING);
 
@@ -88,11 +87,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 				block.update(world, sidePos, blockFacing, direction);
 				block.update(world, sidePos, blockFacing.getOpposite(), direction);
 			}
-
-			return ActionResult.SUCCESS;
-		} else {
-			return ActionResult.FAIL;
-		}
+		});
 	}
 
 	@Override

@@ -20,11 +20,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (state.get(FACING).getAxis() == Direction.Axis.X) {
-			return Block.createCuboidShape(0, 0, 6, 16, 16, 10);
-		} else {
-			return Block.createCuboidShape(6, 0, 0, 10, 16, 16);
-		}
+		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 16, state.get(FACING));
 	}
 
 	@Override
@@ -39,8 +35,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getPlayerFacing();
-		final boolean isReplaceable = ctx.getWorld().getBlockState(ctx.getBlockPos().offset(direction)).canReplace(ctx);
-		return isReplaceable ? getDefaultState().with(FACING, direction) : null;
+		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(FACING, direction) : null;
 	}
 
 	@Override

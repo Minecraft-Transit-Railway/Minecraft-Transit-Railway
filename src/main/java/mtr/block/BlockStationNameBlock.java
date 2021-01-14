@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.Items;
 import mtr.MTR;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -37,7 +36,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (!world.isClient() && player.isHolding(Items.BRUSH)) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean isWhite = state.get(COLOR) == 0;
 			final int newColorProperty = isWhite ? 2 : 0;
 			final boolean newMetalProperty = isWhite == state.get(METAL);
@@ -57,10 +56,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 					updateProperties(world, pos.down(2), newMetalProperty, newColorProperty);
 					break;
 			}
-
-			return ActionResult.CONSUME;
-		}
-		return ActionResult.SUCCESS;
+		});
 	}
 
 	@Override
@@ -74,9 +70,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final boolean isReplaceable1 = ctx.getWorld().getBlockState(ctx.getBlockPos().up()).canReplace(ctx);
-		final boolean isReplaceable2 = ctx.getWorld().getBlockState(ctx.getBlockPos().up(2)).canReplace(ctx);
-		return isReplaceable1 && isReplaceable2 ? getDefaultState().with(FACING, ctx.getPlayerFacing()).with(METAL, true).with(SEGMENT, EnumSegment.BOTTOM) : null;
+		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(FACING, ctx.getPlayerFacing()).with(METAL, true).with(SEGMENT, EnumSegment.BOTTOM) : null;
 	}
 
 	@Override
@@ -108,20 +102,7 @@ public class BlockStationNameBlock extends BlockStationNameBase {
 				end = 16;
 				break;
 		}
-
-		final VoxelShape mainShape;
-		switch (state.get(FACING).getAxis()) {
-			case X:
-				mainShape = Block.createCuboidShape(5, start, 2, 11, end, 14);
-				break;
-			case Z:
-				mainShape = Block.createCuboidShape(2, start, 5, 14, end, 11);
-				break;
-			default:
-				mainShape = VoxelShapes.fullCube();
-				break;
-		}
-		return VoxelShapes.union(mainShape, BlockStationPole.getStationPoleShape());
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, start, 5, 14, end, 11, state.get(FACING)), BlockStationPole.getStationPoleShape());
 	}
 
 	@Override

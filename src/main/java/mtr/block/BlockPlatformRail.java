@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mtr.Items;
+import mtr.Blocks;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.entity.EntityTrainBase;
@@ -66,22 +66,21 @@ public class BlockPlatformRail extends AbstractRailBlock {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (!world.isClient()) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
 			final RailwayData railwayData = RailwayData.getInstance(world);
-
 			if (railwayData != null) {
 				BlockPos platformPos = getPlatformPos1(world, pos);
-
-				if (player.isHolding(Items.BRUSH)) {
-					PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
-				} else {
+				PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
+			}
+		}, () -> {
+			if (!player.isHolding(Blocks.PLATFORM_RAIL.asItem())) {
+				final RailwayData railwayData = RailwayData.getInstance(world);
+				if (railwayData != null) {
+					BlockPos platformPos = getPlatformPos1(world, pos);
 					PacketTrainDataGuiServer.openScheduleScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
 				}
-
-				return ActionResult.CONSUME;
 			}
-		}
-		return ActionResult.SUCCESS;
+		});
 	}
 
 	@Override

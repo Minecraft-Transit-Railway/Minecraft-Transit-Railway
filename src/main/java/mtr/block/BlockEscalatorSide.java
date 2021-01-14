@@ -35,19 +35,7 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 		final boolean isBottom = orientation == EnumEscalatorOrientation.LANDING_BOTTOM;
 		final boolean isTop = orientation == EnumEscalatorOrientation.LANDING_TOP;
 		final boolean side = state.get(SIDE);
-
-		switch (state.get(FACING)) {
-			case NORTH:
-				return Block.createCuboidShape(side ? 12 : 0, 0, isTop ? 8 : 0, side ? 16 : 4, 16, isBottom ? 8 : 16);
-			case EAST:
-				return Block.createCuboidShape(isBottom ? 8 : 0, 0, side ? 12 : 0, isTop ? 8 : 16, 16, side ? 16 : 4);
-			case SOUTH:
-				return Block.createCuboidShape(side ? 0 : 12, 0, isBottom ? 8 : 0, side ? 4 : 16, 16, isTop ? 8 : 16);
-			case WEST:
-				return Block.createCuboidShape(isTop ? 8 : 0, 0, side ? 0 : 12, isBottom ? 8 : 16, 16, side ? 4 : 16);
-			default:
-				return VoxelShapes.empty();
-		}
+		return IBlock.getVoxelShapeByDirection(side ? 12 : 0, 0, isTop ? 8 : 0, side ? 16 : 4, 16, isBottom ? 8 : 16, state.get(FACING));
 	}
 
 	@Override

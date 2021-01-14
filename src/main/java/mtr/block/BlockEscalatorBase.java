@@ -42,21 +42,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock {
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
 			VoxelShape box = VoxelShapes.empty();
 			for (int step = 0; step < 16; step++) {
-				switch (state.get(FACING)) {
-					case NORTH:
-						box = VoxelShapes.union(box, Block.createCuboidShape(0, 0, 0, 16, step, 15 - step));
-						break;
-					case EAST:
-						box = VoxelShapes.union(box, Block.createCuboidShape(step, 0, 0, 16, step, 16));
-						break;
-					case SOUTH:
-						box = VoxelShapes.union(box, Block.createCuboidShape(0, 0, step, 16, step, 16));
-						break;
-					case WEST:
-						box = VoxelShapes.union(box, Block.createCuboidShape(0, 0, 0, 15 - step, step, 16));
-						break;
-					default:
-				}
+				box = VoxelShapes.union(box, IBlock.getVoxelShapeByDirection(0, 0, 0, 16, step, 15 - step, state.get(FACING)));
 			}
 			return box;
 		} else {
