@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.datafixers.util.Pair;
 import mtr.block.BlockAPGDoor;
+import mtr.block.IBlock;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -10,6 +11,7 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
@@ -22,7 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 
-public class APGDoorModel extends CustomBlockModelBase {
+public class APGDoorModel extends CustomBlockModelBase implements IBlock {
 
 	private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/black")),
@@ -46,9 +48,9 @@ public class APGDoorModel extends CustomBlockModelBase {
 			QuadEmitter emitter = builder.getEmitter();
 
 			final Direction facing = state.get(BlockAPGDoor.FACING);
-			final boolean side = state.get(BlockAPGDoor.SIDE) == BlockAPGDoor.EnumPSDAPGDoorSide.RIGHT;
+			final boolean side = state.get(SIDE) == EnumSide.RIGHT;
 			final float open = (side ? -1F : 1F) * state.get(BlockAPGDoor.OPEN) / BlockAPGDoor.MAX_OPEN_VALUE;
-			final boolean top = state.get(BlockAPGDoor.TOP);
+			final boolean top = state.get(HALF) == DoubleBlockHalf.UPPER;
 
 			emitter.square(facing, 0, 0, 1, 1, 0.0625F);
 			emitter.spriteBake(0, SPRITES[top ? 3 : 2], MutableQuadView.BAKE_LOCK_UV + (side ? 0 : MutableQuadView.BAKE_FLIP_U));

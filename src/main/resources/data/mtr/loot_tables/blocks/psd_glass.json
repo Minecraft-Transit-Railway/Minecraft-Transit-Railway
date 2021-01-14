@@ -11,7 +11,7 @@
 							"condition": "minecraft:block_state_property",
 							"block": "mtr:psd_glass",
 							"properties": {
-								"top": "false"
+								"half": "lower"
 							}
 						}
 					],

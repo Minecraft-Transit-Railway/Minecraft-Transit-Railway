@@ -2,11 +2,11 @@ package mtr.item;
 
 import mtr.Blocks;
 import mtr.block.BlockPSDAPGBase;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockPSDAPGGlassBase;
 import mtr.block.BlockPSDTop;
+import mtr.block.IBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -24,21 +24,21 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ItemPSDAPGBase extends Item {
+public class ItemPSDAPGBase extends Item implements IBlock {
 
-	final EnumPSDAPGItem PSD_APG_ITEM;
-	final EnumPSDAPGType PSD_APG_TYPE;
+	private final EnumPSDAPGItem item;
+	private final EnumPSDAPGType type;
 
 	public ItemPSDAPGBase(EnumPSDAPGItem item, EnumPSDAPGType type) {
 		super(new Item.Settings().group(ItemGroup.REDSTONE));
-		PSD_APG_ITEM = item;
-		PSD_APG_TYPE = type;
+		this.item = item;
+		this.type = type;
 	}
 
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
-		final boolean isPSD = PSD_APG_TYPE == EnumPSDAPGType.PSD;
-		final boolean isDoor = PSD_APG_ITEM == EnumPSDAPGItem.PSD_APG_DOOR;
+		final boolean isPSD = type == EnumPSDAPGType.PSD;
+		final boolean isDoor = item == EnumPSDAPGItem.PSD_APG_DOOR;
 
 		if (blocksNotReplaceable(context, isDoor ? 2 : 1, isPSD ? 3 : 2, getBlockStateFromItem().getBlock())) {
 			return ActionResult.FAIL;
@@ -52,13 +52,13 @@ public class ItemPSDAPGBase extends Item {
 			final BlockPos newPos = pos.offset(playerFacing.rotateYClockwise(), x);
 
 			for (int y = 0; y < 2; y++) {
-				final BlockState state = getBlockStateFromItem().with(BlockPSDAPGBase.FACING, playerFacing).with(BlockPSDAPGBase.TOP, y == 1);
+				final BlockState state = getBlockStateFromItem().with(BlockPSDAPGBase.FACING, playerFacing).with(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
 				if (isDoor) {
-					final BlockPSDAPGDoorBase.EnumPSDAPGDoorSide side = x == 0 ? BlockPSDAPGDoorBase.EnumPSDAPGDoorSide.LEFT : BlockPSDAPGDoorBase.EnumPSDAPGDoorSide.RIGHT;
-					world.setBlockState(newPos.up(y), state.with(BlockPSDAPGDoorBase.SIDE, side));
+					final EnumSide side = x == 0 ? EnumSide.LEFT : EnumSide.RIGHT;
+					world.setBlockState(newPos.up(y), state.with(SIDE, side));
 				} else {
-					final BlockPSDAPGGlassBase.EnumPSDAPGGlassSide side = BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.SINGLE;
-					world.setBlockState(newPos.up(y), state.with(BlockPSDAPGGlassBase.SIDE, side));
+					final EnumSide side = EnumSide.SINGLE;
+					world.setBlockState(newPos.up(y), state.with(SIDE_EXTENDED, side));
 				}
 			}
 
@@ -73,12 +73,12 @@ public class ItemPSDAPGBase extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		tooltip.add(new TranslatableText("tooltip.mtr." + PSD_APG_ITEM.asString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		tooltip.add(new TranslatableText("tooltip.mtr." + item.asString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 	}
 
 	private BlockState getBlockStateFromItem() {
-		boolean isPSD = PSD_APG_TYPE == EnumPSDAPGType.PSD;
-		switch (PSD_APG_ITEM) {
+		boolean isPSD = type == EnumPSDAPGType.PSD;
+		switch (item) {
 			case PSD_APG_DOOR:
 				return isPSD ? Blocks.PSD_DOOR.getDefaultState() : Blocks.APG_DOOR.getDefaultState();
 			case PSD_APG_GLASS:
@@ -115,7 +115,6 @@ public class ItemPSDAPGBase extends Item {
 	public enum EnumPSDAPGType implements StringIdentifiable {
 
 		PSD("psd"), APG("apg");
-
 		private final String name;
 
 		EnumPSDAPGType(String name) {
@@ -131,7 +130,6 @@ public class ItemPSDAPGBase extends Item {
 	public enum EnumPSDAPGItem implements StringIdentifiable {
 
 		PSD_APG_DOOR("psd_apg_door"), PSD_APG_GLASS("psd_apg_glass"), PSD_APG_GLASS_END("psd_apg_glass_end");
-
 		private final String name;
 
 		EnumPSDAPGItem(String name) {

@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.StringIdentifiable;
@@ -38,7 +39,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 		final boolean leftAir = state.get(TOUCHING_LEFT) == EnumPSDAPGGlassEndSide.AIR;
 		final boolean rightAir = state.get(TOUCHING_RIGHT) == EnumPSDAPGGlassEndSide.AIR;
 		final Direction facing = state.get(FACING);
-		final double height = isAPG() && state.get(TOP) ? 9 : 16;
+		final double height = isAPG() && state.get(HALF) == DoubleBlockHalf.UPPER ? 9 : 16;
 
 		if (facing == Direction.NORTH && leftAir || facing == Direction.SOUTH && rightAir) {
 			superShape = VoxelShapes.union(superShape, Block.createCuboidShape(0, 0, 0, 4, height, 16));
@@ -58,7 +59,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, SIDE, TOP, TOUCHING_LEFT, TOUCHING_RIGHT);
+		builder.add(FACING, HALF, SIDE_EXTENDED, TOUCHING_LEFT, TOUCHING_RIGHT);
 	}
 
 	private EnumPSDAPGGlassEndSide getSideEnd(BlockView world, BlockPos pos, Direction offset) {
@@ -75,7 +76,6 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 	public enum EnumPSDAPGGlassEndSide implements StringIdentifiable {
 
 		AIR("air"), DOOR("door"), NONE("none");
-
 		private final String name;
 
 		EnumPSDAPGGlassEndSide(String nameIn) {

@@ -11,7 +11,7 @@
 							"condition": "minecraft:block_state_property",
 							"block": "mtr:escalator_step",
 							"properties": {
-								"side": "false"
+								"side": "left"
 							}
 						}
 					],

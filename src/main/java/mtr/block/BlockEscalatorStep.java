@@ -34,6 +34,14 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (state.get(SIDE) == EnumSide.RIGHT) {
+			IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
+		}
+		super.onBreak(world, pos, state, player);
+	}
+
+	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		EnumEscalatorOrientation orientation = state.get(ORIENTATION);
 		if (orientation == EnumEscalatorOrientation.FLAT || orientation == EnumEscalatorOrientation.TRANSITION_BOTTOM) {
@@ -81,7 +89,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 			update(world, pos, blockFacing, direction);
 			update(world, pos, blockFacing.getOpposite(), direction);
 
-			final BlockPos sidePos = pos.offset(state.get(SIDE) ? blockFacing.rotateYCounterclockwise() : blockFacing.rotateYClockwise());
+			final BlockPos sidePos = pos.offset(IBlock.getSideDirection(state));
 			if (isStep(world, sidePos)) {
 				final BlockEscalatorStep block = (BlockEscalatorStep) world.getBlockState(sidePos).getBlock();
 				block.update(world, sidePos, blockFacing, direction);

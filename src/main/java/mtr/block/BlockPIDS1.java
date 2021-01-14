@@ -2,6 +2,7 @@ package mtr.block;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
@@ -36,6 +37,15 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getPlayerFacing();
 		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(FACING, direction) : null;
+	}
+
+	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		final Direction facing = state.get(FACING);
+		if (facing == Direction.SOUTH || facing == Direction.WEST) {
+			IBlock.onBreakCreative(world, player, pos.offset(facing));
+		}
+		super.onBreak(world, pos, state, player);
 	}
 
 	@Override

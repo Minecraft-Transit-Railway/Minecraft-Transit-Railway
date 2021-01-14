@@ -4,7 +4,7 @@
 			"when": {
 				"facing": "north",
 				"metal": "true",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom_metal"
@@ -14,7 +14,7 @@
 			"when": {
 				"facing": "east",
 				"metal": "true",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom_metal",
@@ -25,7 +25,7 @@
 			"when": {
 				"facing": "south",
 				"metal": "true",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom_metal",
@@ -36,7 +36,7 @@
 			"when": {
 				"facing": "west",
 				"metal": "true",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom_metal",
@@ -47,7 +47,7 @@
 			"when": {
 				"facing": "north",
 				"metal": "true",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle_metal"
@@ -57,7 +57,7 @@
 			"when": {
 				"facing": "east",
 				"metal": "true",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle_metal",
@@ -68,7 +68,7 @@
 			"when": {
 				"facing": "south",
 				"metal": "true",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle_metal",
@@ -79,7 +79,7 @@
 			"when": {
 				"facing": "west",
 				"metal": "true",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle_metal",
@@ -90,7 +90,7 @@
 			"when": {
 				"facing": "north",
 				"metal": "true",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top_metal"
@@ -100,7 +100,7 @@
 			"when": {
 				"facing": "east",
 				"metal": "true",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top_metal",
@@ -111,7 +111,7 @@
 			"when": {
 				"facing": "south",
 				"metal": "true",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top_metal",
@@ -122,7 +122,7 @@
 			"when": {
 				"facing": "west",
 				"metal": "true",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top_metal",
@@ -132,7 +132,7 @@
 		{
 			"when": {
 				"facing": "north",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom"
@@ -141,7 +141,7 @@
 		{
 			"when": {
 				"facing": "east",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom",
@@ -151,7 +151,7 @@
 		{
 			"when": {
 				"facing": "south",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom",
@@ -161,7 +161,7 @@
 		{
 			"when": {
 				"facing": "west",
-				"segment": "bottom"
+				"third": "lower"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_bottom",
@@ -171,7 +171,7 @@
 		{
 			"when": {
 				"facing": "north",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle"
@@ -180,7 +180,7 @@
 		{
 			"when": {
 				"facing": "east",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle",
@@ -190,7 +190,7 @@
 		{
 			"when": {
 				"facing": "south",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle",
@@ -200,7 +200,7 @@
 		{
 			"when": {
 				"facing": "west",
-				"segment": "middle"
+				"third": "middle"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_middle",
@@ -210,7 +210,7 @@
 		{
 			"when": {
 				"facing": "north",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top"
@@ -219,7 +219,7 @@
 		{
 			"when": {
 				"facing": "east",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top",
@@ -229,7 +229,7 @@
 		{
 			"when": {
 				"facing": "south",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top",
@@ -239,7 +239,7 @@
 		{
 			"when": {
 				"facing": "west",
-				"segment": "top"
+				"third": "upper"
 			},
 			"apply": {
 				"model": "mtr:block/station_name_block_top",

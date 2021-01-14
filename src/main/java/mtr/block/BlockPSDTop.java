@@ -26,10 +26,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
 
-public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProvider, IPropagateBlock {
+public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProvider, IBlock, IPropagateBlock {
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.of("door_light", EnumDoorLight.class);
-	public static final EnumProperty<BlockPSDAPGGlassBase.EnumPSDAPGGlassSide> SIDE = EnumProperty.of("side", BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
 
@@ -63,9 +62,12 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (world.getBlockState(pos.down()).getBlock() instanceof BlockPSDAPGBase) {
+		final Block blockDown = world.getBlockState(pos.down()).getBlock();
+		if (blockDown instanceof BlockPSDAPGBase) {
+			blockDown.onBreak(world, pos.down(), world.getBlockState(pos.down()), player);
 			world.setBlockState(pos.down(), Blocks.AIR.getDefaultState());
 		}
+		super.onBreak(world, pos, state, player);
 	}
 
 	@Override
@@ -98,7 +100,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(DOOR_LIGHT, FACING, SIDE, AIR_LEFT, AIR_RIGHT, PROPAGATE_PROPERTY);
+		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, PROPAGATE_PROPERTY);
 	}
 
 	@Override
@@ -109,16 +111,16 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
 		Direction facing = Direction.NORTH;
-		BlockPSDAPGGlassBase.EnumPSDAPGGlassSide side = BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.SINGLE;
+		EnumSide side = EnumSide.SINGLE;
 		boolean airLeft = false, airRight = false;
 
 		final BlockState stateBelow = world.getBlockState(pos.down());
 		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
 			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
 				doorLight = stateBelow.get(BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
-				side = stateBelow.get(BlockPSDAPGDoorBase.SIDE) == BlockPSDAPGDoorBase.EnumPSDAPGDoorSide.LEFT ? BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.LEFT : BlockPSDAPGGlassBase.EnumPSDAPGGlassSide.RIGHT;
-			} else {
 				side = stateBelow.get(SIDE);
+			} else {
+				side = stateBelow.get(SIDE_EXTENDED);
 			}
 
 			if (stateBelow.getBlock() instanceof BlockPSDAPGGlassEndBase) {
@@ -134,7 +136,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.getDefaultState()).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.getDefaultState()).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE_EXTENDED, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 	}
 
 	public static class TileEntityPSDTop extends BlockEntity {
@@ -147,7 +149,6 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public enum EnumDoorLight implements StringIdentifiable {
 
 		ON("on"), OFF("off"), NONE("none");
-
 		private final String name;
 
 		EnumDoorLight(String nameIn) {

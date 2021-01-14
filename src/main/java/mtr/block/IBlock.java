@@ -2,15 +2,28 @@ package mtr.block;
 
 import mtr.Items;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 
 public interface IBlock {
+
+	EnumProperty<DoubleBlockHalf> HALF = Properties.DOUBLE_BLOCK_HALF;
+	EnumProperty<EnumThird> THIRD = EnumProperty.of("third", EnumThird.class);
+	EnumProperty<EnumSide> SIDE_EXTENDED = EnumProperty.of("side", EnumSide.class);
+	EnumProperty<EnumSide> SIDE = EnumProperty.of("side", EnumSide.class, side -> side != EnumSide.MIDDLE && side != EnumSide.SINGLE);
 
 	static ActionResult checkHoldingBrush(World world, PlayerEntity player, Runnable callbackBrush, Runnable callbackNoBrush) {
 		if (player.isHolding(Items.BRUSH)) {
@@ -58,5 +71,48 @@ public interface IBlock {
 			}
 		}
 		return true;
+	}
+
+	static void onBreakCreative(World world, PlayerEntity player, BlockPos pos) {
+		if (!world.isClient && player.isCreative()) {
+			world.setBlockState(pos, Blocks.AIR.getDefaultState(), 35);
+			final BlockState state = world.getBlockState(pos);
+			world.syncWorldEvent(player, 2001, pos, Block.getRawIdFromState(state));
+		}
+	}
+
+	static Direction getSideDirection(BlockState state) {
+		final Direction facing = state.get(HorizontalFacingBlock.FACING);
+		return state.get(SIDE) == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+	}
+
+	enum EnumThird implements StringIdentifiable {
+
+		LOWER("lower"), MIDDLE("middle"), UPPER("upper");
+		private final String name;
+
+		EnumThird(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String asString() {
+			return name;
+		}
+	}
+
+	enum EnumSide implements StringIdentifiable {
+
+		LEFT("left"), RIGHT("right"), MIDDLE("middle"), SINGLE("single");
+		private final String name;
+
+		EnumSide(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String asString() {
+			return name;
+		}
 	}
 }
