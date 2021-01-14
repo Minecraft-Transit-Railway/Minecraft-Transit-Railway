@@ -12,7 +12,6 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
@@ -48,19 +47,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 			final EnumPSDAPGDoorSide side = state.get(SIDE);
 			final double open1 = open / 2D;
 			final double open2 = 16 - open / 2D;
-
-			switch (state.get(FACING)) {
-				case NORTH:
-					return Block.createCuboidShape(side == EnumPSDAPGDoorSide.LEFT ? 0 : open1, 0, 0, side == EnumPSDAPGDoorSide.RIGHT ? 16 : open2, height, 4);
-				case EAST:
-					return Block.createCuboidShape(12, 0, side == EnumPSDAPGDoorSide.LEFT ? 0 : open1, 16, height, side == EnumPSDAPGDoorSide.RIGHT ? 16 : open2);
-				case SOUTH:
-					return Block.createCuboidShape(side == EnumPSDAPGDoorSide.RIGHT ? 0 : open1, 0, 12, side == EnumPSDAPGDoorSide.LEFT ? 16 : open2, height, 16);
-				case WEST:
-					return Block.createCuboidShape(0, 0, side == EnumPSDAPGDoorSide.RIGHT ? 0 : open1, 4, height, side == EnumPSDAPGDoorSide.LEFT ? 16 : open2);
-				default:
-					return VoxelShapes.fullCube();
-			}
+			return IBlock.getVoxelShapeByDirection(side == EnumPSDAPGDoorSide.LEFT ? 0 : open1, 0, 0, side == EnumPSDAPGDoorSide.RIGHT ? 16 : open2, height, 4, state.get(FACING));
 		} else {
 			return super.getOutlineShape(state, world, pos, context);
 		}

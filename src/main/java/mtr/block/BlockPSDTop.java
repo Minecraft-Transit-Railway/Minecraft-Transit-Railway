@@ -39,13 +39,11 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (!world.isClient() && player.isHolding(Items.BRUSH)) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
 			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
 			propagate(world, pos, state.get(FACING).rotateYClockwise());
 			propagate(world, pos, state.get(FACING).rotateYCounterclockwise());
-			return ActionResult.CONSUME;
-		}
-		return ActionResult.SUCCESS;
+		});
 	}
 
 	@Override
@@ -89,18 +87,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		if (state.get(AIR_LEFT) || state.get(AIR_RIGHT)) {
 			return VoxelShapes.fullCube();
 		} else {
-			switch (state.get(FACING)) {
-				case NORTH:
-					return Block.createCuboidShape(0, 0, 0, 16, 16, 6);
-				case EAST:
-					return Block.createCuboidShape(10, 0, 0, 16, 16, 16);
-				case SOUTH:
-					return Block.createCuboidShape(0, 0, 10, 16, 16, 16);
-				case WEST:
-					return Block.createCuboidShape(0, 0, 0, 6, 16, 16);
-				default:
-					return VoxelShapes.fullCube();
-			}
+			return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, state.get(FACING));
 		}
 	}
 

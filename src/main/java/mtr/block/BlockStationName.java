@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.Items;
 import mtr.MTR;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -30,11 +29,7 @@ public class BlockStationName extends BlockStationNameBase {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (!world.isClient() && player.isHolding(Items.BRUSH)) {
-			world.setBlockState(pos, state.cycle(COLOR));
-			return ActionResult.CONSUME;
-		}
-		return ActionResult.SUCCESS;
+		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.cycle(COLOR)));
 	}
 
 	@Override
@@ -64,18 +59,7 @@ public class BlockStationName extends BlockStationNameBase {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		switch (state.get(FACING)) {
-			case NORTH:
-				return Block.createCuboidShape(0, 0, 0, 16, 16, 1);
-			case EAST:
-				return Block.createCuboidShape(15, 0, 0, 16, 16, 16);
-			case SOUTH:
-				return Block.createCuboidShape(0, 0, 15, 16, 16, 16);
-			case WEST:
-				return Block.createCuboidShape(0, 0, 0, 1, 16, 16);
-			default:
-				return VoxelShapes.fullCube();
-		}
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, state.get(FACING));
 	}
 
 	@Override

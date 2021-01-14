@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.Items;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,17 +19,14 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (player.isHolding(Items.BRUSH)) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
 			for (int y = -1; y <= 1; y++) {
 				BlockState scanState = world.getBlockState(pos.up(y));
 				if (is(scanState.getBlock())) {
 					connectGlass(world, pos.up(y), scanState);
 				}
 			}
-			return ActionResult.SUCCESS;
-		} else {
-			return ActionResult.FAIL;
-		}
+		});
 	}
 
 	@Override

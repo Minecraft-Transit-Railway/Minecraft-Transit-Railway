@@ -10,7 +10,6 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
@@ -50,19 +49,7 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final int height = isAPG() && state.get(TOP) ? 9 : 16;
-
-		switch (state.get(FACING)) {
-			case NORTH:
-				return Block.createCuboidShape(0, 0, 0, 16, height, 4);
-			case EAST:
-				return Block.createCuboidShape(12, 0, 0, 16, height, 16);
-			case SOUTH:
-				return Block.createCuboidShape(0, 0, 12, 16, height, 16);
-			case WEST:
-				return Block.createCuboidShape(0, 0, 0, 4, height, 16);
-			default:
-				return VoxelShapes.fullCube();
-		}
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, height, 4, state.get(FACING));
 	}
 
 	@Override
