@@ -71,6 +71,19 @@ public class BlockStationNameBlock extends BlockStationNameBase implements IBloc
 	}
 
 	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		switch (state.get(THIRD)) {
+			case MIDDLE:
+				IBlock.onBreakCreative(world, player, pos.down());
+				break;
+			case UPPER:
+				IBlock.onBreakCreative(world, player, pos.down(2));
+				break;
+		}
+		super.onBreak(world, pos, state, player);
+	}
+
+	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient) {
 			final Direction facing = state.get(FACING);

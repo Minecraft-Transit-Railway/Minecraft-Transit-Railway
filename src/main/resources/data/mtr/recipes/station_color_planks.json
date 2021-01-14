@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB",
+		"BDB",
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"tag": "minecraft:planks"
+		},
+		"D": {
+			"tag": "c:dyes"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_planks",
+		"count": 8
+	}
+}

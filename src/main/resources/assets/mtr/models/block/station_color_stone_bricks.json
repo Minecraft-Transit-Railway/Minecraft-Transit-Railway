@@ -1,6 +1,6 @@
 {
 	"parent": "block/leaves",
 	"textures": {
-		"all": "mtr:block/station_color_stone_bricks"
+		"all": "block/stone_bricks"
 	}
 }
