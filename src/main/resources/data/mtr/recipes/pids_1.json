@@ -1,18 +1,18 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"iii",
-		"gcg",
-		"iii"
+		"III",
+		"GCG",
+		"III"
 	],
 	"key": {
-		"i": {
+		"I": {
 			"tag": "c:iron_ingots"
 		},
-		"g": {
+		"G": {
 			"tag": "c:glowstone_dusts"
 		},
-		"c": {
+		"C": {
 			"item": "minecraft:clock"
 		}
 	},

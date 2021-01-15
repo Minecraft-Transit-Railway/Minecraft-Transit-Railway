@@ -1,0 +1,31 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_pole",
+		"main": "mtr:block/station_name_tall"
+	},
+	"elements": [
+		{
+			"from": [ 6, 8, 6 ],
+			"to": [ 10, 16, 10 ],
+			"faces": {
+				"up": { "texture": "#particle", "tintindex": 0, "cullface": "up" },
+				"east": { "texture": "#particle", "tintindex": 0 },
+				"west": { "texture": "#particle", "tintindex": 0 },
+				"north": { "texture": "#particle", "tintindex": 0 },
+				"south": { "texture": "#particle", "tintindex": 0 }
+			}
+		},
+		{
+			"from": [ 2, 0, 5 ],
+			"to": [ 14, 8, 11 ],
+			"faces": {
+				"up": { "texture": "#main", "tintindex": 0 },
+				"east": { "texture": "#main", "tintindex": 0 },
+				"west": { "texture": "#main", "tintindex": 0 },
+				"north": { "texture": "#main", "tintindex": 0 },
+				"south": { "texture": "#main", "tintindex": 0 }
+			}
+		}
+	]
+}

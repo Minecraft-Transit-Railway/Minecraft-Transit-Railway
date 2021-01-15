@@ -1,0 +1,19 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_name_tall"
+	},
+	"elements": [
+		{
+			"from": [ 2, 0, 0 ],
+			"to": [ 14, 8, 0.5 ],
+			"faces": {
+				"up": { "texture": "#particle", "tintindex": 0 },
+				"east": { "texture": "#particle", "tintindex": 0 },
+				"west": { "texture": "#particle", "tintindex": 0 },
+				"north": { "texture": "#particle", "tintindex": 0 },
+				"south": { "texture": "#particle", "tintindex": 0 }
+			}
+		}
+	]
+}
