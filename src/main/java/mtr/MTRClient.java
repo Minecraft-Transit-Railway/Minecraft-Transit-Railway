@@ -35,7 +35,8 @@ public class MTRClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_COLOR_STAINED_GLASS, RenderLayer.getTranslucent());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_BLOCK, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_BLOCK, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_WALL, RenderLayer.getCutout());
 
 		ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ModelProvider());
 
@@ -46,22 +47,35 @@ public class MTRClient implements ClientModInitializer {
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TILE_ENTITY, RenderStationName::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_BLOCK_TILE_ENTITY, RenderStationName::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, RenderStationName::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationName::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_WALL_TILE_ENTITY, RenderStationName::new);
 
+		registerStationColor(Blocks.STATION_COLOR_ANDESITE);
+		registerStationColor(Blocks.STATION_COLOR_BEDROCK);
+		registerStationColor(Blocks.STATION_COLOR_BIRCH_WOOD);
+		registerStationColor(Blocks.STATION_COLOR_CHISELED_STONE_BRICKS);
+		registerStationColor(Blocks.STATION_COLOR_CLAY);
+		registerStationColor(Blocks.STATION_COLOR_COAL_ORE);
+		registerStationColor(Blocks.STATION_COLOR_COBBLESTONE);
 		registerStationColor(Blocks.STATION_COLOR_CONCRETE);
 		registerStationColor(Blocks.STATION_COLOR_CONCRETE_POWDER);
+		registerStationColor(Blocks.STATION_COLOR_CRACKED_STONE_BRICKS);
 		registerStationColor(Blocks.STATION_COLOR_DARK_PRISMARINE);
 		registerStationColor(Blocks.STATION_COLOR_DIORITE);
+		registerStationColor(Blocks.STATION_COLOR_GRAVEL);
 		registerStationColor(Blocks.STATION_COLOR_IRON_BLOCK);
 		registerStationColor(Blocks.STATION_COLOR_METAL);
 		registerStationColor(Blocks.STATION_COLOR_PLANKS);
+		registerStationColor(Blocks.STATION_COLOR_POLISHED_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_POLISHED_DIORITE);
+		registerStationColor(Blocks.STATION_COLOR_SMOOTH_STONE);
 		registerStationColor(Blocks.STATION_COLOR_STAINED_GLASS);
 		registerStationColor(Blocks.STATION_COLOR_STONE);
 		registerStationColor(Blocks.STATION_COLOR_STONE_BRICKS);
 		registerStationColor(Blocks.STATION_COLOR_WOOL);
-		registerStationColor(Blocks.STATION_NAME_BLOCK);
+		registerStationColor(Blocks.STATION_NAME_TALL_BLOCK);
+		registerStationColor(Blocks.STATION_NAME_TALL_WALL);
 		registerStationColor(Blocks.STATION_POLE);
 
 		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_TRAINS, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveTrainsS2C(packetByteBuf));

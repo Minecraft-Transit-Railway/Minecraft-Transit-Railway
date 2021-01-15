@@ -1,6 +1,0 @@
-{
-	"parent": "block/air",
-	"textures": {
-		"particle": "mtr:item/station_name"
-	}
-}
