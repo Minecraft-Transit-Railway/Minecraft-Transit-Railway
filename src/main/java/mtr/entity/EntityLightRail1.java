@@ -17,6 +17,6 @@ public class EntityLightRail1 extends EntityTrainBase {
 
 	@Override
 	protected Train.TrainType getTrainType() {
-		return Train.TrainType.LIGHT_RAIL_1;
+		return null; // Train.TrainType.LIGHT_RAIL_1;
 	}
 }

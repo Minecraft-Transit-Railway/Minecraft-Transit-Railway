@@ -177,7 +177,7 @@ public class DashboardScreen extends Screen implements IGui {
 				}
 				break;
 			case 2:
-				dashboardList.setData(ClientData.trains, true, false, false, false, true);
+				dashboardList.setData(ClientData.trains, true, false, false, false, false);
 				break;
 		}
 	}
