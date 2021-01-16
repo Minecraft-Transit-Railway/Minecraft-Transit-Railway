@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.MTR;
+import mtr.model.ModelTrainBase;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
@@ -152,7 +153,7 @@ public interface IGui {
 	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, int color, int light) {
 		final Matrix4f matrix4f = matrices.peek().getModel();
 		final Matrix3f matrix3f = matrices.peek().getNormal();
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(texture)));
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(light == ModelTrainBase.MAX_LIGHT ? MoreRenderLayers.getInterior(new Identifier(texture)) : MoreRenderLayers.getExterior(new Identifier(texture)));
 		final int a = (color >> 24) & 0xFF;
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;

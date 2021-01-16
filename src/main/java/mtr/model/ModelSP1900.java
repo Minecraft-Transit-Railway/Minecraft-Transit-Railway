@@ -1,8 +1,11 @@
 package mtr.model;
 
+import mtr.gui.IGui;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector3f;
 
 public class ModelSP1900 extends ModelTrainBase {
 
@@ -992,6 +995,8 @@ public class ModelSP1900 extends ModelTrainBase {
 		bb_main.setTextureOffset(4, 0).addCuboid(0.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
 	}
 
+	private static final int DOOR_MAX = 14;
+
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
 		switch (renderStage) {
@@ -1016,9 +1021,8 @@ public class ModelSP1900 extends ModelTrainBase {
 
 	@Override
 	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
-		final int doorMax = 14;
-		final float doorLeft = doorLeftValue * doorMax;
-		final float doorRight = doorRightValue * doorMax;
+		final float doorLeft = doorLeftValue * DOOR_MAX;
+		final float doorRight = doorRightValue * DOOR_MAX;
 
 		switch (renderStage) {
 			case LIGHTS:
@@ -1037,6 +1041,7 @@ public class ModelSP1900 extends ModelTrainBase {
 				} else {
 					renderOnce(tv_pole, matrices, vertices, light, position);
 				}
+
 				break;
 			case EXTERIOR:
 				door_left_exterior.setPivot(0, 0, doorRight);
@@ -1133,6 +1138,68 @@ public class ModelSP1900 extends ModelTrainBase {
 				renderOnceFlipped(end_exterior, matrices, vertices, light, position);
 				renderOnceFlipped(roof_end_exterior, matrices, vertices, light, position);
 				break;
+		}
+	}
+
+	@Override
+	protected void renderDoorLabels(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RenderStage renderStage, int light, float positionScaled, float doorLeftValue, float doorRightValue) {
+		final int colorAdjustment = 0xFFB0B0B0;
+		final int colorAdjustmentDark = 0xFF707070;
+		final float doorLeft = doorLeftValue * DOOR_MAX / 16;
+		final float doorRight = doorRightValue * DOOR_MAX / 16;
+
+		matrices.push();
+		matrices.translate(1.25, -0.875, 0);
+		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(6.34F));
+		if (renderStage == RenderStage.EXTERIOR) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_left.png", 0.0625F, -1.215F, positionScaled - 0.7F, 0.0625F, -1.125F, positionScaled - 0.2375F, 0, 0, 1, 1, -1, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_right.png", 0.0625F, -1.215F, positionScaled + 0.2375F, 0.0625F, -1.125F, positionScaled + 0.7F, 0, 0, 1, 1, -1, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_left.png", 0.0625F, -0.91F, positionScaled - 0.3485F - doorLeft, 0.0625F, -0.765F, positionScaled - 0.2375F - doorLeft, 0, 0, 1, 1, colorAdjustmentDark, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_right.png", 0.0625F, -0.91F, positionScaled + 0.2375F + doorLeft, 0.0625F, -0.765F, positionScaled + 0.3485F + doorLeft, 0, 0, 1, 1, colorAdjustmentDark, light);
+		} else {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_left.png", -0.013F, -1.12F, positionScaled + 0.7F + doorLeft, -0.013F, -1.03F, positionScaled + 0.2375F + doorLeft, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_right.png", -0.013F, -1.12F, positionScaled - 0.2375F - doorLeft, -0.013F, -1.03F, positionScaled - 0.7F - doorLeft, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_left.png", -0.013F, -0.91F, positionScaled + 0.3485F + doorLeft, -0.013F, -0.765F, positionScaled + 0.2375F + doorLeft, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_right.png", -0.013F, -0.91F, positionScaled - 0.2375F - doorLeft, -0.013F, -0.765F, positionScaled - 0.3485F - doorLeft, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -0.013F, -1.125F, positionScaled + 0.875F + doorLeft, -0.013F, 0, positionScaled + 0.8125F + doorLeft, 1, 0, 0, 24, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -0.013F, -1.125F, positionScaled - 0.8125F - doorLeft, -0.013F, 0, positionScaled - 0.875F - doorLeft, 0, 0, 1, 24, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -0.109375F, -0.0375F, positionScaled + 0.874F, -0.046875F, 0, positionScaled + 0.874F, 0, 0.4F, 1, 1.3F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -0.046875F, -0.0375F, positionScaled - 0.874F, -0.109375F, 0, positionScaled - 0.874F, 1, 0.4F, 0, 1.3F, colorAdjustment, light);
+		}
+		matrices.pop();
+
+		if (renderStage == RenderStage.INTERIOR) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 1.237F, -0.88F, positionScaled + 0.875F + doorLeft, 1.237F, -0.13F, positionScaled + 0.8125F + doorLeft, 1, 0.9F, 0, 16.9F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 1.237F, -0.88F, positionScaled - 0.8125F - doorLeft, 1.237F, -0.13F, positionScaled - 0.875F - doorLeft, 0, 0.9F, 1, 16.9F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 1.140625F, -0.88F, positionScaled + 0.8745F, 1.203125F, -0.13F, positionScaled + 0.8745F, 0, 0, 1, 16, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 1.203125F, -0.88F, positionScaled - 0.8745F, 1.140625F, -0.13F, positionScaled - 0.8745F, 1, 0, 0, 16, colorAdjustment, light);
+		}
+
+		matrices.push();
+		matrices.translate(-1.25, -0.875, 0);
+		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(6.34F));
+		if (renderStage == RenderStage.EXTERIOR) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_left.png", -0.0625F, -1.215F, positionScaled + 0.7F, -0.0625F, -1.125F, positionScaled + 0.2375F, 0, 0, 1, 1, -1, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_right.png", -0.0625F, -1.215F, positionScaled - 0.2375F, -0.0625F, -1.125F, positionScaled - 0.7F, 0, 0, 1, 1, -1, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_left.png", -0.0625F, -0.91F, positionScaled + 0.3485F + doorRight, -0.0625F, -0.765F, positionScaled + 0.2375F + doorRight, 0, 0, 1, 1, colorAdjustmentDark, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_right.png", -0.0625F, -0.91F, positionScaled - 0.2375F - doorRight, -0.0625F, -0.765F, positionScaled - 0.3485F - doorRight, 0, 0, 1, 1, colorAdjustmentDark, light);
+		} else {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_left.png", 0.013F, -1.12F, positionScaled - 0.7F - doorRight, 0.013F, -1.03F, positionScaled - 0.2375F - doorRight, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/gap_right.png", 0.013F, -1.12F, positionScaled + 0.2375F + doorRight, 0.013F, -1.03F, positionScaled + 0.7F + doorRight, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_left.png", 0.013F, -0.91F, positionScaled - 0.3485F - doorRight, 0.013F, -0.765F, positionScaled - 0.2375F - doorRight, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/door_right.png", 0.013F, -0.91F, positionScaled + 0.2375F + doorRight, 0.013F, -0.765F, positionScaled + 0.3485F + doorRight, 0, 0, 1, 1, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 0.013F, -1.125F, positionScaled - 0.875F - doorRight, 0.013F, 0, positionScaled - 0.8125F - doorRight, 1, 0, 0, 24, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 0.013F, -1.125F, positionScaled + 0.8125F + doorRight, 0.013F, 0, positionScaled + 0.875F + doorRight, 0, 0, 1, 24, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 0.109375F, -0.0375F, positionScaled - 0.874F, 0.046875F, 0, positionScaled - 0.874F, 0, 0.4F, 1, 1.3F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", 0.046875F, -0.0375F, positionScaled + 0.874F, 0.109375F, 0, positionScaled + 0.874F, 1, 0.4F, 0, 1.3F, colorAdjustment, light);
+		}
+		matrices.pop();
+
+		if (renderStage == RenderStage.INTERIOR) {
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -1.237F, -0.88F, positionScaled - 0.875F - doorRight, -1.237F, -0.13F, positionScaled - 0.8125F - doorRight, 1, 0.9F, 0, 16.9F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -1.237F, -0.88F, positionScaled + 0.8125F + doorRight, -1.237F, -0.13F, positionScaled + 0.875F + doorRight, 0, 0.9F, 1, 16.9F, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -1.140625F, -0.88F, positionScaled - 0.8745F, -1.203125F, -0.13F, positionScaled - 0.8745F, 0, 0, 1, 16, colorAdjustment, light);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/stripe.png", -1.203125F, -0.88F, positionScaled + 0.8745F, -1.140625F, -0.13F, positionScaled + 0.8745F, 1, 0, 0, 16, colorAdjustment, light);
 		}
 	}
 
