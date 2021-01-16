@@ -30,7 +30,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	private final EnumPSDAPGType type;
 
 	public ItemPSDAPGBase(EnumPSDAPGItem item, EnumPSDAPGType type) {
-		super(new Item.Settings().group(ItemGroup.REDSTONE));
+		super(new Item.Settings().group(ItemGroup.DECORATIONS));
 		this.item = item;
 		this.type = type;
 	}
