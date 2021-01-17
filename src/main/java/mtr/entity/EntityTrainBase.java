@@ -40,6 +40,8 @@ public abstract class EntityTrainBase extends Entity {
 
 	private final Map<Integer, Pos3f> passengerOffsets;
 
+	private static final TrackedData<Float> YAW = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> PITCH = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Integer> DOOR_VALUE = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Boolean> DOOR_LEFT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> DOOR_RIGHT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -66,15 +68,21 @@ public abstract class EntityTrainBase extends Entity {
 	@Override
 	public void tick() {
 		if (world.isClient) {
+			final float dataTrackerYaw = dataTracker.get(YAW);
+			final float dataTrackerPitch = dataTracker.get(PITCH);
+
 			if (clientInterpolationSteps > 0) {
 				final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
 				final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
 				final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
-				yaw = (float) (yaw + MathHelper.wrapDegrees(clientYaw - yaw) / clientInterpolationSteps);
-				pitch = (float) (pitch + (clientPitch - pitch) / clientInterpolationSteps);
+
+				yaw = (float) (dataTrackerYaw + MathHelper.wrapDegrees(clientYaw - dataTrackerYaw) / clientInterpolationSteps);
+				pitch = (float) (dataTrackerPitch + (clientPitch - dataTrackerPitch) / clientInterpolationSteps);
 				--clientInterpolationSteps;
 				updatePosition(x, y, z);
 			} else {
+				yaw = dataTrackerYaw;
+				pitch = dataTrackerPitch;
 				refreshPosition();
 			}
 			setRotation(yaw, pitch);
@@ -113,6 +121,8 @@ public abstract class EntityTrainBase extends Entity {
 	@Override
 	public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
 		super.updatePositionAndAngles(x, y, z, yaw, pitch);
+		dataTracker.set(YAW, yaw);
+		dataTracker.set(PITCH, pitch);
 		killTimer = 0;
 	}
 
@@ -193,6 +203,8 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	protected void initDataTracker() {
+		dataTracker.startTracking(YAW, 0F);
+		dataTracker.startTracking(PITCH, 0F);
 		dataTracker.startTracking(DOOR_VALUE, 0);
 		dataTracker.startTracking(DOOR_LEFT, false);
 		dataTracker.startTracking(DOOR_RIGHT, false);
