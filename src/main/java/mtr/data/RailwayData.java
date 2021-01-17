@@ -191,10 +191,13 @@ public class RailwayData extends PersistentState {
 				final float zAverage = (train.posZ[i] + train.posZ[i + 1]) / 2;
 				final boolean playerNearby = players.stream().anyMatch(player -> PathFinderBase.distanceSquaredBetween(new BlockPos(xAverage, yAverage, zAverage), player.getBlockPos()) < VIEW_DISTANCE_SQUARED);
 
+				final boolean spawnTrain;
 				if (playerNearby && train.entities[i] == null) {
 					train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage);
 					train.entities[i].setIsEndHead(i == trainLength - 2, i == 0);
-					world.spawnEntity(train.entities[i]);
+					spawnTrain = true;
+				} else {
+					spawnTrain = false;
 				}
 				if (train.entities[i] != null) {
 					if (playerNearby) {
@@ -213,6 +216,9 @@ public class RailwayData extends PersistentState {
 						train.entities[i].kill();
 						train.entities[i] = null;
 					}
+				}
+				if (spawnTrain) {
+					world.spawnEntity(train.entities[i]);
 				}
 			}
 		});
