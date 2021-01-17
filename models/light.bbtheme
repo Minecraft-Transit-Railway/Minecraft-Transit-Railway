@@ -1,0 +1,23 @@
+{
+	"main_font": "",
+	"headline_font": "",
+	"code_font": "",
+	"css": "",
+	"colors": {
+		"ui": "#d7d3cb",
+		"back": "#dedad4",
+		"dark": "#e8e6e2",
+		"border": "#e7e5e0",
+		"selected": "#c3bba9",
+		"button": "#c5c0b4",
+		"bright_ui": "#fffff4",
+		"accent": "#c16f00",
+		"frame": "#e7e5e0",
+		"text": "#35352b",
+		"light": "#0b0c00",
+		"accent_text": "#060600",
+		"grid": "#b6af9e",
+		"wireframe": "#a8907d",
+		"checkerboard": "#d0ccc6"
+	}
+}

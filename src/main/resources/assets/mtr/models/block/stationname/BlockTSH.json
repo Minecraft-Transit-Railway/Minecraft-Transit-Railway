@@ -1,8 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/TSH",
-	"textures": {
-		"particle": "mtr:blocks/pole/TSH",
-		"main": "mtr:StationName1",
-		"pole": "mtr:blocks/pole/TSH"
-	}
-}

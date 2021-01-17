@@ -1,0 +1,8 @@
+{
+	"parent": "block/slab_top",
+	"textures": {
+		"bottom": "mtr:block/metal",
+		"top": "block/iron_block",
+		"side": "mtr:block/metal"
+	}
+}

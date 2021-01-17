@@ -1,8 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/CKT",
-	"textures": {
-		"particle": "mtr:blocks/pole/CKT",
-		"main": "mtr:StationName1",
-		"pole": "mtr:blocks/pole/CKT"
-	}
-}

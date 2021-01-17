@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/MOSSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/MOS",
-		"main": "mtr:StationName1"
-	}
-}

@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/CKTSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/CKT",
-		"main": "mtr:StationName1"
-	}
-}

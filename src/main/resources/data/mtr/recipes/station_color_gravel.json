@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB",
+		"BDB",
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"item": "minecraft:gravel"
+		},
+		"D": {
+			"tag": "c:dyes"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_gravel",
+		"count": 8
+	}
+}

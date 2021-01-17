@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB",
+		"BDB",
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"item": "minecraft:cobblestone"
+		},
+		"D": {
+			"tag": "minecraft:beds"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_bedrock",
+		"count": 8
+	}
+}

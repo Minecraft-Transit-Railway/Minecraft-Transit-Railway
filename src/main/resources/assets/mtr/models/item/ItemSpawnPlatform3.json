@@ -1,7 +1,0 @@
-﻿{
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "blocks/planks_acacia",
-		"layer1": "mtr:blocks/BlockRailNormal"
-    }
-}

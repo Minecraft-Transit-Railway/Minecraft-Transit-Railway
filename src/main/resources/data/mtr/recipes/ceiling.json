@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"III",
+		"GGG",
+		"III"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"G": {
+			"tag": "c:glowstone_dusts"
+		}
+	},
+	"result": {
+		"item": "mtr:ceiling",
+		"count": 32
+	}
+}

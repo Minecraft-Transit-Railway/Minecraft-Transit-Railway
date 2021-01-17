@@ -1,9 +1,0 @@
-{
-	"parent": "mtr:block/AdSide",
-	"textures": {
-		"particle":"mtr:blocks/Metal",
-		"side": "mtr:blocks/Metal",
-		"front": "mtr:ads/Ad4",
-		"back": "mtr:blocks/Transparent"
-	}
-}

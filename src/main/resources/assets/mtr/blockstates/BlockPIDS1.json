@@ -1,8 +1,0 @@
-{
-	"variants": {
-		"facing=north": { "model": "mtr:BlockPIDS1" },
-		"facing=east": { "model": "mtr:BlockPIDS1", "y": 90 },
-		"facing=south": { "model": "mtr:BlockPIDS1", "y": 180 },
-		"facing=west": { "model": "mtr:BlockPIDS1", "y": 270 }
-	}
-}

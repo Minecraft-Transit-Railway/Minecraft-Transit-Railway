@@ -1,0 +1,17 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:item/psd_glass"
+	},
+	"elements": [
+		{
+			"from": [ 8, 0, 6 ],
+			"to": [ 8, 16, 16 ],
+			"rotation": { "origin": [ 8, 8, 8 ], "axis": "y", "angle": 45, "rescale": true },
+			"faces": {
+				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#front" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#back" }
+			}
+		}
+	]
+}

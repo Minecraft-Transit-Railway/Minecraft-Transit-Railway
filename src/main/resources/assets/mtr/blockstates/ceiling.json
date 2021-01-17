@@ -1,0 +1,40 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "false"
+			},
+			"apply": {
+				"model": "mtr:block/ceiling"
+			}
+		},
+		{
+			"when": {
+				"facing": "true"
+			},
+			"apply": {
+				"model": "mtr:block/ceiling",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"light": "true",
+				"facing": "false"
+			},
+			"apply": {
+				"model": "mtr:block/ceiling_light"
+			}
+		},
+		{
+			"when": {
+				"light": "true",
+				"facing": "true"
+			},
+			"apply": {
+				"model": "mtr:block/ceiling_light",
+				"y": 90
+			}
+		}
+	]
+}
