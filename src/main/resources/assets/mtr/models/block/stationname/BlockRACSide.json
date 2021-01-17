@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/RACSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/RAC",
-		"main": "mtr:StationName1"
-	}
-}

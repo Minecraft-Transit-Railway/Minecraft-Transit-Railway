@@ -1,7 +1,0 @@
-{
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "mtr:blocks/BlockRailDetector",
-		"layer1": "mtr:blocks/BlockRailNormal"
-	}
-}

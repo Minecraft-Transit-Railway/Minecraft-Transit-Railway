@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "mtr:apg_glass_end",
+							"properties": {
+								"half": "lower"
+							}
+						}
+					],
+					"name": "mtr:apg_glass_end"
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

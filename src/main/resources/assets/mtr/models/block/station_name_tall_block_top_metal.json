@@ -1,0 +1,18 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_pole",
+		"metal": "mtr:block/metal"
+	},
+	"elements": [
+		{
+			"from": [ 1.99, 0, 5.5 ],
+			"to": [ 14.01, 8.01, 10.5 ],
+			"faces": {
+				"up": { "texture": "#metal" },
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" }
+			}
+		}
+	]
+}

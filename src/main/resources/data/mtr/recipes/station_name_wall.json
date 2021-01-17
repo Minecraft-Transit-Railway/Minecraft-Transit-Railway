@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"tag": "minecraft:signs"
+		},
+		{
+			"tag": "minecraft:signs"
+		},
+		{
+			"tag": "c:iron_ingots"
+		}
+	],
+	"result": {
+		"item": "mtr:station_name_wall"
+	}
+}

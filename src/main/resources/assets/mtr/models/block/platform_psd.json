@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/platform_base",
+	"textures": {
+		"main": "mtr:block/rock_1",
+		"top": "mtr:block/transparent"
+	}
+}

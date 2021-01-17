@@ -1,0 +1,11 @@
+{
+	"variants": {
+		"shape=east_west": {
+			"model": "mtr:block/platform_rail",
+			"y": 90
+		},
+		"shape=north_south": {
+			"model": "mtr:block/platform_rail"
+		}
+	}
+}

@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "mtr",
+	"version": "${version}",
+	"name": "Minecraft Transit Railway",
+	"description": "A Minecraft Forge mod that adds Hong Kong trains into the game.",
+	"authors": [
+		"Jonathan Ho"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/minecraft-transit-railway",
+		"sources": "https://github.com/jonafanho/Minecraft-Transit-Railway"
+	},
+	"license": "GNU GPL",
+	"icon": "assets/mtr/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"mtr.MTR"
+		],
+		"client": [
+			"mtr.MTRClient"
+		]
+	},
+	"mixins": [
+		"mtr.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.7.4",
+		"fabric": "*",
+		"minecraft": "1.16.x"
+	}
+}

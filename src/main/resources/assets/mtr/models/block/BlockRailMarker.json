@@ -1,9 +1,0 @@
-{
-	"parent": "mtr:block/RailMarker",
-	"textures": {
-		"arrow": "mtr:blocks/Arrow",
-		"arrow45": "mtr:blocks/Transparent",
-		"rail": "mtr:blocks/BlockRailNormal",
-		"rail45": "mtr:blocks/Transparent"
-	}
-}

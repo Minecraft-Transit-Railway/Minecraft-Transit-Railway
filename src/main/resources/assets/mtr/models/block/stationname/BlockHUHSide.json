@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/HUHSide",
-	"textures": {
-		"particle": "mtr:blocks/pole/HUH",
-		"main": "mtr:StationName1"
-	}
-}

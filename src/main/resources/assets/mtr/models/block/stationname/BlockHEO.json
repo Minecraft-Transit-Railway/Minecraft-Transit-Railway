@@ -1,8 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/HEO",
-	"textures": {
-		"particle": "mtr:blocks/pole/HEO",
-		"main": "mtr:StationName1",
-		"pole": "mtr:blocks/pole/HEO"
-	}
-}

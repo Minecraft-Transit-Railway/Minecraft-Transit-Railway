@@ -1,7 +1,0 @@
-﻿{
-	"parent": "mtr:block/Pole",
-	"textures": {
-		"particle": "mtr:blocks/pole/FAN",
-		"main": "mtr:blocks/pole/FAN"
-	}
-}

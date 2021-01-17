@@ -1,9 +1,0 @@
-﻿{
-	"parent": "mtr:block/Ceiling",
-	"textures": {
-		"particle": "mtr:blocks/BlockPSDSideLight",
-		"light": "mtr:blocks/Light",
-		"post": "mtr:blocks/pole/STW",
-		"side": "mtr:blocks/BlockPSDSideLight"
-	}
-}

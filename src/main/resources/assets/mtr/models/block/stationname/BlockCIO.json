@@ -1,8 +1,0 @@
-﻿{
-	"parent": "mtr:block/stationname/CIO",
-	"textures": {
-		"particle": "mtr:blocks/pole/CIO",
-		"main": "mtr:StationName1",
-		"pole": "mtr:blocks/pole/CIO"
-	}
-}
