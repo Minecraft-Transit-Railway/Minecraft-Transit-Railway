@@ -785,7 +785,7 @@ public class ModelMTrain extends ModelTrainBase {
 	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
 		final float doorLeft = doorLeftValue * DOOR_MAX;
 		final float doorRight = doorRightValue * DOOR_MAX;
-		final boolean notLastDoor = position != getDoorPositions()[0] && position != getDoorPositions()[4];
+		final boolean notLastDoor = getDoorPositions().length > 4 && position != getDoorPositions()[0] && position != getDoorPositions()[4];
 
 		switch (renderStage) {
 			case LIGHTS:

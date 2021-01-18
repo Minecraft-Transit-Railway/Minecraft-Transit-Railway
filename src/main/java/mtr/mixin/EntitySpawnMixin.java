@@ -1,10 +1,7 @@
 package mtr.mixin;
 
 import mtr.MTR;
-import mtr.entity.EntityLightRail1;
-import mtr.entity.EntityMTrain;
-import mtr.entity.EntityMinecart;
-import mtr.entity.EntitySP1900;
+import mtr.entity.*;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -34,8 +31,12 @@ public class EntitySpawnMixin {
 			entity = new EntityMinecart(world, x, y, z);
 		} else if (entityType == MTR.SP1900) {
 			entity = new EntitySP1900(world, x, y, z);
+		} else if (entityType == MTR.SP1900_MINI) {
+			entity = new EntitySP1900Mini(world, x, y, z);
 		} else if (entityType == MTR.M_TRAIN) {
 			entity = new EntityMTrain(world, x, y, z);
+		} else if (entityType == MTR.M_TRAIN_MINI) {
+			entity = new EntityMTrainMini(world, x, y, z);
 		} else if (entityType == MTR.LIGHT_RAIL_1) {
 			entity = new EntityLightRail1(world, x, y, z);
 		} else {

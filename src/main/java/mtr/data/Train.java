@@ -1,9 +1,6 @@
 package mtr.data;
 
-import mtr.entity.EntityMTrain;
-import mtr.entity.EntityMinecart;
-import mtr.entity.EntitySP1900;
-import mtr.entity.EntityTrainBase;
+import mtr.entity.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
@@ -230,7 +227,9 @@ public final class Train extends DataBase {
 	public enum TrainType {
 		MINECART(0x666666, 0.5F, 0.01F, 1, 1, 1, EntityMinecart::new),
 		SP1900(0xB42249, 0.5F, 0.01F, 24, 2, 50, EntitySP1900::new),
-		M_TRAIN(0x999999, 0.5F, 0.01F, 24, 2, 50, EntityMTrain::new);
+		SP1900_MINI(0xB42249, 0.5F, 0.01F, 12, 2, 20, EntitySP1900Mini::new),
+		M_TRAIN(0x999999, 0.5F, 0.01F, 24, 2, 50, EntityMTrain::new),
+		M_TRAIN_MINI(0x999999, 0.5F, 0.01F, 9, 2, 20, EntityMTrainMini::new);
 		// TODO add light rail
 		// LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 24, 2, 50, EntityLightRail1::new);
 
