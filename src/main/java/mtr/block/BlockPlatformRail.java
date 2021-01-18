@@ -24,6 +24,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -55,10 +56,12 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
 		if (!world.isClient && entity instanceof EntityTrainBase) {
 			final EntityTrainBase entityTrainBase = (EntityTrainBase) entity;
-			final RailShape railShape = state.get(SHAPE);
-			for (int x = -2; x <= 2; x++) {
-				for (int y = 0; y <= 2; y++) {
-					updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.getDoorValue());
+			if (entityTrainBase.inTrain(Vec3d.of(pos))) {
+				final RailShape railShape = state.get(SHAPE);
+				for (int x = -2; x <= 2; x++) {
+					for (int y = 0; y <= 2; y++) {
+						updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.getDoorValue());
+					}
 				}
 			}
 		}

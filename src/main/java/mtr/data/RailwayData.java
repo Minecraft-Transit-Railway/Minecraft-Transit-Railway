@@ -28,7 +28,7 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_TRAINS = "trains";
 
-	private static final int VIEW_DISTANCE_SQUARED = 1024;
+	private static final int VIEW_DISTANCE_SQUARED = 128 * 128;
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;

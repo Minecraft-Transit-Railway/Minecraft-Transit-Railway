@@ -87,7 +87,10 @@ public abstract class EntityTrainBase extends Entity {
 			}
 			setRotation(yaw, pitch);
 		} else {
-			checkBlockCollision();
+			if (stationCoolDown > 0) {
+				checkBlockCollision();
+				mountCollidingLivingEntities();
+			}
 
 			if (stationCoolDown < RailwayData.TRAIN_STOP_TIME || stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
 				setDoorValue(0);
@@ -114,8 +117,6 @@ public abstract class EntityTrainBase extends Entity {
 				kill();
 			}
 		}
-
-		mountCollidingLivingEntities();
 	}
 
 	@Override
@@ -213,19 +214,24 @@ public abstract class EntityTrainBase extends Entity {
 		dataTracker.startTracking(HEAD_1_IS_FRONT, true);
 	}
 
-	protected void mountCollidingLivingEntities() {
+	public boolean inTrain(Vec3d pos) {
 		final float length = getTrainType().getLength() / 2F;
 		final float widthBigger = getTrainType().getWidth() / 2F + 0.5F;
-		world.getNonSpectatingEntities(LivingEntity.class, new Box(getPos().subtract(length, length, length), getPos().add(length, length, length))).stream().filter(entity -> !entity.hasVehicle()).forEach(entity -> {
-			final Vec3d entityPosRelative = entity.getPos().subtract(getPos()).rotateX((float) Math.toRadians(-pitch)).rotateY((float) Math.toRadians(-yaw));
-			if (RailwayData.isBetween(entityPosRelative.x, -widthBigger, widthBigger) && RailwayData.isBetween(entityPosRelative.y, -widthBigger, widthBigger) && RailwayData.isBetween(entityPosRelative.z, -length, length)) {
-				final Vec3d passengerOffsetRotated = entity.getPos().subtract(getPos()).rotateY((float) Math.toRadians(-yaw)).rotateX((float) Math.toRadians(-pitch));
-				passengerOffsets.put(entity.getEntityId(), new Pos3f(0, 0, (float) passengerOffsetRotated.z));
-				if (!world.isClient && getDoorValue() > 0) {
+		final Vec3d posRelative = pos.subtract(getPos()).rotateX((float) Math.toRadians(-pitch)).rotateY((float) Math.toRadians(-yaw));
+		return RailwayData.isBetween(posRelative.x, -widthBigger, widthBigger) && RailwayData.isBetween(posRelative.y, -widthBigger, widthBigger) && RailwayData.isBetween(posRelative.z, -length, length);
+	}
+
+	protected void mountCollidingLivingEntities() {
+		if (!world.isClient && getDoorValue() > 0) {
+			final float length = getTrainType().getLength() / 2F;
+			world.getNonSpectatingEntities(LivingEntity.class, new Box(getPos().subtract(length, length, length), getPos().add(length, length, length))).stream().filter(entity -> !entity.hasVehicle()).forEach(entity -> {
+				if (inTrain(entity.getPos())) {
+					final Vec3d passengerOffsetRotated = entity.getPos().subtract(getPos()).rotateY((float) Math.toRadians(-yaw)).rotateX((float) Math.toRadians(-pitch));
+					passengerOffsets.put(entity.getEntityId(), new Pos3f(0, 0, (float) passengerOffsetRotated.z));
 					entity.startRiding(this);
 				}
-			}
-		});
+			});
+		}
 	}
 
 	public void setDoorValue(int doorValue) {
