@@ -1036,7 +1036,7 @@ public class ModelSP1900 extends ModelTrainBase {
 				door_right.setPivot(0, 0, -doorLeft);
 				renderOnceFlipped(door, matrices, vertices, light, position);
 				renderMirror(roof, matrices, vertices, light, position);
-				if (position == getDoorPositions()[1] || position == getDoorPositions()[3]) {
+				if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
 					renderOnce(bb_main, matrices, vertices, light, position);
 				} else {
 					renderOnce(tv_pole, matrices, vertices, light, position);

@@ -42,7 +42,9 @@ public class MTRClient implements ClientModInitializer {
 
 		EntityRendererRegistry.INSTANCE.register(MTR.MINECART, (dispatcher, context) -> new RenderMinecart(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.SP1900, (dispatcher, context) -> new RenderSP1900(dispatcher));
+		EntityRendererRegistry.INSTANCE.register(MTR.SP1900_MINI, (dispatcher, context) -> new RenderSP1900Mini(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN, (dispatcher, context) -> new RenderMTrain(dispatcher));
+		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN_MINI, (dispatcher, context) -> new RenderMTrainMini(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.LIGHT_RAIL_1, (dispatcher, context) -> new RenderLightRail1(dispatcher));
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
