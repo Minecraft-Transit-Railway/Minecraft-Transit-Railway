@@ -1,6 +1,7 @@
 package mtr.block;
 
 import net.minecraft.block.*;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
@@ -22,6 +23,20 @@ public class BlockPlatform extends HorizontalFacingBlock {
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		return getActualState(world, pos, state);
+	}
+
+	@Override
+	public BlockState getPlacementState(ItemPlacementContext ctx) {
+		return getActualState(ctx.getWorld(), ctx.getBlockPos(), getDefaultState());
+	}
+
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, DOOR_TYPE, SIDE);
+	}
+
+	private BlockState getActualState(WorldAccess world, BlockPos pos, BlockState state) {
 		Direction facing = searchBlock(world, pos, AbstractRailBlock.class, 3);
 		if (facing == null) {
 			facing = searchBlock(world, pos, AirBlock.class, 1);
@@ -36,20 +51,27 @@ public class BlockPlatform extends HorizontalFacingBlock {
 			facing = Direction.NORTH;
 		}
 
-		final Block blockAbove = world.getBlockState(pos.up()).getBlock();
+		final BlockState stateAbove = world.getBlockState(pos.up());
+		final Block blockAbove = stateAbove.getBlock();
 
 		EnumDoorType doorType;
 		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd) {
 			doorType = EnumDoorType.PSD;
+			facing = stateAbove.get(FACING);
 		} else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass || blockAbove instanceof BlockAPGGlassEnd) {
 			doorType = EnumDoorType.APG;
+			facing = stateAbove.get(FACING);
 		} else {
 			doorType = EnumDoorType.NONE;
 		}
 
 		final boolean aboveIsDoor = blockAbove instanceof BlockPSDAPGDoorBase;
-		final boolean leftAboveIsDoor = world.getBlockState(pos.up().offset(facing.rotateYCounterclockwise())).getBlock() instanceof BlockPSDAPGDoorBase;
-		final boolean rightAboveIsDoor = world.getBlockState(pos.up().offset(facing.rotateYClockwise())).getBlock() instanceof BlockPSDAPGDoorBase;
+
+		final BlockState stateLeftAbove = world.getBlockState(pos.up().offset(facing.rotateYCounterclockwise()));
+		final boolean leftAboveIsDoor = stateLeftAbove.getBlock() instanceof BlockPSDAPGDoorBase;
+
+		final BlockState stateRightAbove = world.getBlockState(pos.up().offset(facing.rotateYClockwise()));
+		final boolean rightAboveIsDoor = stateRightAbove.getBlock() instanceof BlockPSDAPGDoorBase;
 
 		int side;
 		if (aboveIsDoor && rightAboveIsDoor) {
@@ -58,18 +80,15 @@ public class BlockPlatform extends HorizontalFacingBlock {
 			side = 3;
 		} else if (rightAboveIsDoor) {
 			side = 1;
+			facing = stateRightAbove.get(FACING);
 		} else if (leftAboveIsDoor) {
 			side = 4;
+			facing = stateLeftAbove.get(FACING);
 		} else {
 			side = 0;
 		}
 
 		return state.with(FACING, facing).with(DOOR_TYPE, doorType).with(SIDE, side);
-	}
-
-	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, DOOR_TYPE, SIDE);
 	}
 
 	private Direction searchBlock(BlockView world, BlockPos pos, Class<? extends Block> blockClass, int maxRadius) {
