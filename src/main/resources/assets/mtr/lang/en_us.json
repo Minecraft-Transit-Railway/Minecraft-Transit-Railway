@@ -9,6 +9,8 @@
 	"block.mtr.apg_glass": "Automatic Platform Gates",
 	"block.mtr.apg_glass_end": "Automatic Platform Gates",
 	"block.mtr.ceiling": "Ceiling",
+	"block.mtr.escalator_side": "Escalator",
+	"block.mtr.escalator_step": "Escalator",
 	"block.mtr.logo": "MTR Logo",
 	"block.mtr.pids_1": "Passenger Information Display System",
 	"block.mtr.platform": "Platform",
