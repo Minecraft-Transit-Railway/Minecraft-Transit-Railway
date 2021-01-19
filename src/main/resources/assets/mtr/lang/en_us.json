@@ -60,6 +60,7 @@
 	"gui.mtr.to_1": "to ",
 	"gui.mtr.to_2": "to ",
 	"gui.mtr.to_3": "to ",
+	"gui.mtr.train_speed": "Train Speed:",
 	"gui.mtr.tph": "/hr",
 	"gui.mtr.train_schedule": "Train Schedule for This Platform",
 	"gui.mtr.trains": "Trains",

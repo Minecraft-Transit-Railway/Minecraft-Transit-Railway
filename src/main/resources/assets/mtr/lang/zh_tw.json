@@ -60,6 +60,7 @@
 	"gui.mtr.to_1": "to ",
 	"gui.mtr.to_2": "to ",
 	"gui.mtr.to_3": "to ",
+	"gui.mtr.train_speed": "列車車速：",
 	"gui.mtr.tph": "/小時",
 	"gui.mtr.train_schedule": "本月台的列車時間表",
 	"gui.mtr.trains": "列車",
