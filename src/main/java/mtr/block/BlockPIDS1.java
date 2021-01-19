@@ -35,7 +35,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final Direction direction = ctx.getPlayerFacing();
+		final Direction direction = ctx.getPlayerFacing().getOpposite();
 		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(FACING, direction) : null;
 	}
 
