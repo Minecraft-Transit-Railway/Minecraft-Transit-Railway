@@ -16,15 +16,13 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("EntityConstructor")
 public abstract class EntityTrainBase extends Entity {
 
 	public int stationCoolDown;
@@ -169,13 +167,31 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-		if (getDoorValue() > 0) {
-			final float offsetX = getTrainType().getWidth() / 2F + 2;
-			final Vec3d offsetVec = new Vec3d(getDoorLeft() ? offsetX : -offsetX, 0.5, 0).rotateY((float) Math.toRadians(yaw));
-			return passenger.getPos().add(offsetVec);
-		} else {
-			return super.updatePassengerForDismount(passenger);
+		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY((float) Math.toRadians(yaw));
+		final int[] checkHeights = {0, -1, 1};
+
+		if (getDoorValue() > 0 && (getDoorLeft() || getDoorRight())) {
+			for (final int height : checkHeights) {
+				for (int offset = 1; offset <= 3; offset++) {
+					final Vec3d checkPos = passenger.getPos().add(offsetVec.multiply(offset * (getDoorLeft() ? 1 : -1)).subtract(0, height, 0));
+					if (canDismountHere(checkPos)) {
+						return checkPos;
+					}
+				}
+			}
 		}
+
+		final int[] checkOffsets = {1, -1, 2, -2, 3, -3};
+		for (final int height : checkHeights) {
+			for (final int offset : checkOffsets) {
+				final Vec3d checkPos = passenger.getPos().add(offsetVec.multiply(offset).subtract(0, height, 0));
+				if (canDismountHere(checkPos)) {
+					return checkPos;
+				}
+			}
+		}
+
+		return super.updatePassengerForDismount(passenger);
 	}
 
 	@Override
@@ -281,5 +297,13 @@ public abstract class EntityTrainBase extends Entity {
 	private boolean isPlatformOrDoor(BlockPos pos) {
 		final Block block = world.getBlockState(pos).getBlock();
 		return block instanceof BlockPlatform || block instanceof BlockPSDAPGBase;
+	}
+
+	private boolean canDismountHere(Vec3d vec3d) {
+		final BlockPos pos = new BlockPos(vec3d);
+		final boolean flatTop = world.getBlockState(pos.down()).isSideSolidFullSquare(world, pos.down(), Direction.UP);
+		final boolean middleNotSolid = !world.getBlockState(pos).isSolidBlock(world, pos);
+		final boolean topNotSolid = !world.getBlockState(pos.up()).isSolidBlock(world, pos.up());
+		return flatTop && middleNotSolid && topNotSolid;
 	}
 }
