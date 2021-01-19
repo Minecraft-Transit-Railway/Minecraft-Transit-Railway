@@ -16,7 +16,7 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Pair<Integer, Integer> bounds = getBounds(state);
-		return IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 0, 14, bounds.getRight(), 0.5, state.get(FACING));
+		return IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 0, 14, bounds.getRight(), 0.5, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 				return false;
 			}
 			final BlockState state = world.getBlockState(pos);
-			return state.getBlock() instanceof BlockStationNameTallWall && state.get(THIRD) == EnumThird.MIDDLE;
+			return state.getBlock() instanceof BlockStationNameTallWall && IBlock.getStatePropertySafe(state, THIRD) == EnumThird.MIDDLE;
 		}
 	}
 }

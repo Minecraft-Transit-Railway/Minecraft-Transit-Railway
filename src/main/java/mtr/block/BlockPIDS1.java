@@ -21,12 +21,12 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 16, state.get(FACING));
+		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 16, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if (state.get(FACING) == direction && !newState.isOf(this)) {
+		if (IBlock.getStatePropertySafe(state, FACING) == direction && !newState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -41,7 +41,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		final Direction facing = state.get(FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
@@ -51,7 +51,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient) {
-			final Direction direction = state.get(FACING);
+			final Direction direction = IBlock.getStatePropertySafe(state, FACING);
 			world.setBlockState(pos.offset(direction), getDefaultState().with(FACING, direction.getOpposite()), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);

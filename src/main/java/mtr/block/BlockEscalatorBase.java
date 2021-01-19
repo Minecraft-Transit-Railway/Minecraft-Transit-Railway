@@ -40,7 +40,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
 			VoxelShape box = VoxelShapes.empty();
 			for (int step = 0; step < 16; step++) {
-				box = VoxelShapes.union(box, IBlock.getVoxelShapeByDirection(0, 0, 0, 16, step, 15 - step, state.get(FACING)));
+				box = VoxelShapes.union(box, IBlock.getVoxelShapeByDirection(0, 0, 0, 16, step, 15 - step, IBlock.getStatePropertySafe(state, FACING)));
 			}
 			return box;
 		} else {
@@ -69,7 +69,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 	}
 
 	protected final EnumEscalatorOrientation getOrientation(BlockView world, BlockPos pos, BlockState state) {
-		final Direction facing = state.get(FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
@@ -96,8 +96,8 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 	}
 
 	private Direction getSideDirection(BlockState state) {
-		final Direction facing = state.get(FACING);
-		return state.get(SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT ? facing.rotateYCounterclockwise() : facing.rotateYClockwise();
 	}
 
 	protected enum EnumEscalatorOrientation implements StringIdentifiable {

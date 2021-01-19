@@ -31,14 +31,14 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 	}
 
 	private void connectGlass(World world, BlockPos pos, BlockState state) {
-		final Direction facing = state.get(FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
 		final boolean leftValid = is(leftState.getBlock());
 
 		if (leftValid) {
-			final EnumSide side = leftState.get(SIDE_EXTENDED);
+			final EnumSide side = IBlock.getStatePropertySafe(leftState, SIDE_EXTENDED);
 			EnumSide newLeftSide;
 
 			if (side == EnumSide.RIGHT) {
@@ -57,7 +57,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 		final boolean rightValid = is(rightState.getBlock());
 
 		if (rightValid) {
-			final EnumSide side = rightState.get(SIDE_EXTENDED);
+			final EnumSide side = IBlock.getStatePropertySafe(rightState, SIDE_EXTENDED);
 			EnumSide newRightSide;
 
 			if (side == EnumSide.LEFT) {

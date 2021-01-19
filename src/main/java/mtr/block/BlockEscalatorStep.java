@@ -35,7 +35,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (state.get(SIDE) == EnumSide.RIGHT) {
+		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
 			IBlock.onBreakCreative(world, player, pos.offset(IBlock.getSideDirection(state)));
 		}
 		super.onBreak(world, pos, state, player);
@@ -43,7 +43,7 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		EnumEscalatorOrientation orientation = state.get(ORIENTATION);
+		EnumEscalatorOrientation orientation = IBlock.getStatePropertySafe(state, ORIENTATION);
 		if (orientation == EnumEscalatorOrientation.FLAT || orientation == EnumEscalatorOrientation.TRANSITION_BOTTOM) {
 			return Block.createCuboidShape(0, 0, 0, 16, 15, 16);
 		} else {
@@ -53,8 +53,8 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	@Override
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		final Direction facing = state.get(FACING);
-		final boolean direction = state.get(DIRECTION);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
 		final float speed = 0.1F;
 
 		switch (facing) {
@@ -83,8 +83,8 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final boolean direction = !state.get(DIRECTION);
-			final Direction blockFacing = state.get(FACING);
+			final boolean direction = !IBlock.getStatePropertySafe(state, DIRECTION);
+			final Direction blockFacing = IBlock.getStatePropertySafe(state, FACING);
 
 			update(world, pos, blockFacing, direction);
 			update(world, pos, blockFacing.getOpposite(), direction);

@@ -57,7 +57,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 		if (!world.isClient && entity instanceof EntityTrainBase) {
 			final EntityTrainBase entityTrainBase = (EntityTrainBase) entity;
 			if (entityTrainBase.inTrain(Vec3d.of(pos))) {
-				final RailShape railShape = state.get(SHAPE);
+				final RailShape railShape = IBlock.getStatePropertySafe(state, SHAPE);
 				for (int x = -2; x <= 2; x++) {
 					for (int y = 0; y <= 2; y++) {
 						updateStationCoolDown(world, (railShape == RailShape.NORTH_SOUTH ? pos.east(x) : pos.north(x)).up(y), entityTrainBase.getDoorValue());
@@ -134,7 +134,7 @@ public class BlockPlatformRail extends AbstractRailBlock {
 		final Direction scanDirection;
 		final Direction.Axis axis;
 
-		if (state.get(SHAPE) == RailShape.NORTH_SOUTH) {
+		if (IBlock.getStatePropertySafe(state, SHAPE) == RailShape.NORTH_SOUTH) {
 			scanDirection = Direction.SOUTH;
 			axis = Direction.Axis.Z;
 		} else {
@@ -152,9 +152,9 @@ public class BlockPlatformRail extends AbstractRailBlock {
 	}
 
 	public static BlockPos getPlatformPos1(WorldAccess world, BlockPos pos) {
-		final RailShape railShape = world.getBlockState(pos).get(SHAPE);
+		final RailShape railShape = IBlock.getStatePropertySafe(world, pos, SHAPE);
 		final Direction moveDirection = railShape == RailShape.NORTH_SOUTH ? Direction.NORTH : Direction.WEST;
-		while (world.getBlockState(pos).getBlock() instanceof BlockPlatformRail && world.getBlockState(pos).get(SHAPE) == railShape) {
+		while (world.getBlockState(pos).getBlock() instanceof BlockPlatformRail && IBlock.getStatePropertySafe(world, pos, SHAPE) == railShape) {
 			pos = pos.offset(moveDirection);
 		}
 		return pos.offset(moveDirection.getOpposite());

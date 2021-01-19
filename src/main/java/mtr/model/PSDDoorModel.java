@@ -53,11 +53,11 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 			MeshBuilder builder = renderer.meshBuilder();
 			QuadEmitter emitter = builder.getEmitter();
 
-			final boolean end = state.get(BlockPSDDoor.END);
-			final Direction facing = state.get(BlockPSDDoor.FACING);
-			final boolean side = state.get(SIDE) == EnumSide.RIGHT;
-			final float open = (side ? -1F : 1F) * state.get(BlockPSDDoor.OPEN) / BlockPSDDoor.MAX_OPEN_VALUE;
-			final boolean top = state.get(HALF) == DoubleBlockHalf.UPPER;
+			final boolean end = IBlock.getStatePropertySafe(state, BlockPSDDoor.END);
+			final Direction facing = IBlock.getStatePropertySafe(state, BlockPSDDoor.FACING);
+			final boolean side = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT;
+			final float open = (side ? -1F : 1F) * IBlock.getStatePropertySafe(state, BlockPSDDoor.OPEN) / BlockPSDDoor.MAX_OPEN_VALUE;
+			final boolean top = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 
 			if (end) {
 				createCube(emitter, facing, side, open / 2, top, 0, 0.5F, 0.125F, 4, 1);
