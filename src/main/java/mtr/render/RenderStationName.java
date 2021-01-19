@@ -1,6 +1,7 @@
 package mtr.render;
 
 import mtr.block.BlockStationNameBase;
+import mtr.block.IBlock;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -36,9 +37,9 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		final String stationName = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString());
 
 		final BlockState state = world.getBlockState(pos);
-		final Direction facing = state.get(BlockStationNameBase.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color;
-		switch (state.get(BlockStationNameBase.COLOR)) {
+		switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
 			case 0:
 				color = ARGB_WHITE;
 				break;

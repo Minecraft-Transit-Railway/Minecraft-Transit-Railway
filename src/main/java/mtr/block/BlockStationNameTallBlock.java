@@ -17,7 +17,7 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Pair<Integer, Integer> bounds = getBounds(state);
-		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 5, 14, bounds.getRight(), 11, state.get(FACING)), BlockStationPole.getStationPoleShape());
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 5, 14, bounds.getRight(), 11, IBlock.getStatePropertySafe(state, FACING)), BlockStationPole.getStationPoleShape());
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 				return false;
 			}
 			final BlockState state = world.getBlockState(pos);
-			return state.getBlock() instanceof BlockStationNameTallBlock && state.get(THIRD) == EnumThird.MIDDLE;
+			return state.getBlock() instanceof BlockStationNameTallBlock && IBlock.getStatePropertySafe(state, THIRD) == EnumThird.MIDDLE;
 		}
 	}
 }

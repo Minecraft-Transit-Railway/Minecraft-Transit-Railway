@@ -26,11 +26,11 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
 				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, state.get(FACING).rotateYClockwise());
-				propagate(world, pos, state.get(FACING).rotateYCounterclockwise());
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise());
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise());
 			});
 		} else {
 			return super.onUse(state, world, pos, player, hand, hit);

@@ -47,17 +47,17 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 
 	@Override
 	protected boolean isLeft(BlockState state) {
-		return state.get(SIDE_EXTENDED) == EnumSide.LEFT;
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.LEFT;
 	}
 
 	@Override
 	protected boolean isRight(BlockState state) {
-		return state.get(SIDE_EXTENDED) == EnumSide.RIGHT;
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.RIGHT;
 	}
 
 	@Override
 	protected RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state) {
-		if (state.get(HALF) == DoubleBlockHalf.LOWER) {
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER) {
 			return RenderType.NONE;
 		} else if ((Math.floorMod(pos.getX(), 8) < 4) == (Math.floorMod(pos.getZ(), 8) < 4)) {
 			return RenderType.ARROW;
@@ -68,7 +68,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 
 	@Override
 	protected void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, int light) {
-		if (state.get(HALF) == DoubleBlockHalf.UPPER && state.get(SIDE_EXTENDED) != EnumSide.SINGLE) {
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
 			final boolean isLeft = isLeft(state);
 			final boolean isRight = isRight(state);
 			routeRenderer.renderColorStrip(isLeft ? getSidePadding() : 0, COLOR_STRIP_START, 0, isRight ? getSidePadding() : 1, COLOR_STRIP_END, 0, light);

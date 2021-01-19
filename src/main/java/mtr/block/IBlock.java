@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 public interface IBlock {
 
@@ -82,8 +84,17 @@ public interface IBlock {
 	}
 
 	static Direction getSideDirection(BlockState state) {
-		final Direction facing = state.get(HorizontalFacingBlock.FACING);
-		return state.get(SIDE) == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
+		return IBlock.getStatePropertySafe(state, SIDE) == EnumSide.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+	}
+
+	static <T extends Comparable<T>> T getStatePropertySafe(WorldAccess world, BlockPos pos, Property<T> property) {
+		return getStatePropertySafe(world.getBlockState(pos), property);
+	}
+
+	@SuppressWarnings("unchecked")
+	static <T extends Comparable<T>> T getStatePropertySafe(BlockState state, Property<T> property) {
+		return state.contains(property) ? state.get(property) : (T) property.getValues().toArray()[0];
 	}
 
 	enum EnumThird implements StringIdentifiable {

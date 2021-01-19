@@ -40,8 +40,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, state.get(FACING).rotateYClockwise());
-			propagate(world, pos, state.get(FACING).rotateYCounterclockwise());
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise());
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise());
 		});
 	}
 
@@ -86,10 +86,10 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (state.get(AIR_LEFT) || state.get(AIR_RIGHT)) {
+		if (IBlock.getStatePropertySafe(state, AIR_LEFT) || IBlock.getStatePropertySafe(state, AIR_RIGHT)) {
 			return VoxelShapes.fullCube();
 		} else {
-			return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, state.get(FACING));
+			return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
 		}
 	}
 
@@ -117,22 +117,22 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		final BlockState stateBelow = world.getBlockState(pos.down());
 		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
 			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
-				doorLight = stateBelow.get(BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
-				side = stateBelow.get(SIDE);
+				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
+				side = IBlock.getStatePropertySafe(stateBelow, SIDE);
 			} else {
-				side = stateBelow.get(SIDE_EXTENDED);
+				side = IBlock.getStatePropertySafe(stateBelow, SIDE_EXTENDED);
 			}
 
 			if (stateBelow.getBlock() instanceof BlockPSDAPGGlassEndBase) {
-				if (stateBelow.get(BlockPSDAPGGlassEndBase.TOUCHING_LEFT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_LEFT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
 					airLeft = true;
 				}
-				if (stateBelow.get(BlockPSDAPGGlassEndBase.TOUCHING_RIGHT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_RIGHT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
 					airRight = true;
 				}
 			}
 
-			facing = stateBelow.get(FACING);
+			facing = IBlock.getStatePropertySafe(stateBelow, FACING);
 		}
 
 		final BlockState oldState = world.getBlockState(pos);

@@ -23,7 +23,7 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock implements I
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		boolean isTop = state.get(HALF) == DoubleBlockHalf.UPPER;
+		boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !newState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
@@ -33,7 +33,7 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock implements I
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (state.get(HALF) == DoubleBlockHalf.UPPER) {
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			IBlock.onBreakCreative(world, player, pos.down());
 		}
 		super.onBreak(world, pos, state, player);
@@ -56,8 +56,8 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock implements I
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final int height = isAPG() && state.get(HALF) == DoubleBlockHalf.UPPER ? 9 : 16;
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, height, 4, state.get(FACING));
+		final int height = isAPG() && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 9 : 16;
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, height, 4, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override

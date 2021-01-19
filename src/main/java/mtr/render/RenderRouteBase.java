@@ -1,6 +1,7 @@
 package mtr.render;
 
 import mtr.block.BlockPlatformRail;
+import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -39,8 +40,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		}
 
 		final BlockState state = world.getBlockState(pos);
-		final Direction facing = state.get(HorizontalFacingBlock.FACING);
-		final int arrowDirection = state.get(IPropagateBlock.PROPAGATE_PROPERTY);
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
+		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
 
@@ -89,7 +90,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, int light);
 
 	private BlockPos findPlatformPos(WorldAccess world, BlockPos pos) {
-		final Direction facing = world.getBlockState(pos).get(HorizontalFacingBlock.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
 		for (int y = 1; y <= 3; y++) {
 			for (int x = 1; x <= 2; x++) {
 				final BlockPos checkPos = pos.down(y).offset(facing, x);

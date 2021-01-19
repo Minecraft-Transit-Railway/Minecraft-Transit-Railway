@@ -48,12 +48,12 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 
 	@Override
 	protected boolean isLeft(BlockState state) {
-		return state.get(SIDE_EXTENDED) == EnumSide.LEFT;
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.LEFT;
 	}
 
 	@Override
 	protected boolean isRight(BlockState state) {
-		return state.get(SIDE_EXTENDED) == EnumSide.RIGHT;
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.RIGHT;
 	}
 
 	@Override
@@ -69,8 +69,8 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 
 	@Override
 	protected void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, int light) {
-		final boolean airLeft = state.get(BlockPSDTop.AIR_LEFT);
-		final boolean airRight = state.get(BlockPSDTop.AIR_RIGHT);
+		final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
+		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
 		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, light);
 		if (airLeft) {
 			routeRenderer.renderColorStrip(PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - PSDTopModel.END_FRONT_OFFSET, 0.75F + PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - PSDTopModel.END_FRONT_OFFSET, light);

@@ -52,11 +52,11 @@ public class PSDTopModel extends CustomBlockModelBase implements IBlock {
 			MeshBuilder builder = renderer.meshBuilder();
 			QuadEmitter emitter = builder.getEmitter();
 
-			final boolean airLeft = state.get(BlockPSDTop.AIR_LEFT);
-			final boolean airRight = state.get(BlockPSDTop.AIR_RIGHT);
-			final BlockPSDTop.EnumDoorLight doorLight = state.get(BlockPSDTop.DOOR_LIGHT);
-			final Direction facing = state.get(BlockPSDTop.FACING);
-			final EnumSide side = state.get(SIDE_EXTENDED);
+			final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
+			final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
+			final BlockPSDTop.EnumDoorLight doorLight = IBlock.getStatePropertySafe(state, BlockPSDTop.DOOR_LIGHT);
+			final Direction facing = IBlock.getStatePropertySafe(state, BlockPSDTop.FACING);
+			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE_EXTENDED);
 
 			final boolean isMiddleOrSingle = side == EnumSide.MIDDLE || side == EnumSide.SINGLE;
 			final boolean isRight = side == EnumSide.RIGHT;

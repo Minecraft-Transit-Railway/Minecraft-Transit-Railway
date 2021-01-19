@@ -27,12 +27,12 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			final boolean isWhite = state.get(COLOR) == 0;
+			final boolean isWhite = IBlock.getStatePropertySafe(state, COLOR) == 0;
 			final int newColorProperty = isWhite ? 2 : 0;
-			final boolean newMetalProperty = isWhite == state.get(METAL);
+			final boolean newMetalProperty = isWhite == IBlock.getStatePropertySafe(state, METAL);
 
 			updateProperties(world, pos, newMetalProperty, newColorProperty);
-			switch (state.get(THIRD)) {
+			switch (IBlock.getStatePropertySafe(state, THIRD)) {
 				case LOWER:
 					updateProperties(world, pos.up(), newMetalProperty, newColorProperty);
 					updateProperties(world, pos.up(2), newMetalProperty, newColorProperty);
@@ -51,7 +51,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if ((direction == Direction.UP && state.get(THIRD) != EnumThird.UPPER || direction == Direction.DOWN && state.get(THIRD) != EnumThird.LOWER) && !newState.isOf(this)) {
+		if ((direction == Direction.UP && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.UPPER || direction == Direction.DOWN && IBlock.getStatePropertySafe(state, THIRD) != EnumThird.LOWER) && !newState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -60,7 +60,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		switch (state.get(THIRD)) {
+		switch (IBlock.getStatePropertySafe(state, THIRD)) {
 			case MIDDLE:
 				IBlock.onBreakCreative(world, player, pos.down());
 				break;
@@ -74,7 +74,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient) {
-			final Direction facing = state.get(FACING);
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			world.setBlockState(pos.up(), getDefaultState().with(FACING, facing).with(METAL, true).with(THIRD, EnumThird.MIDDLE), 3);
 			world.setBlockState(pos.up(2), getDefaultState().with(FACING, facing).with(METAL, true).with(THIRD, EnumThird.UPPER), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
@@ -88,7 +88,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	}
 
 	protected static Pair<Integer, Integer> getBounds(BlockState state) {
-		final EnumThird third = state.get(THIRD);
+		final EnumThird third = IBlock.getStatePropertySafe(state, THIRD);
 		final int start, end;
 		switch (third) {
 			case LOWER:

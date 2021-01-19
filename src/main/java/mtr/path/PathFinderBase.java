@@ -1,5 +1,6 @@
 package mtr.path;
 
+import mtr.block.IBlock;
 import mtr.data.Pos3f;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.BlockState;
@@ -61,7 +62,7 @@ public abstract class PathFinderBase {
 		final BlockState state = world.getBlockState(pos);
 
 		if (state.getBlock() instanceof AbstractRailBlock) {
-			final RailShape railShape = state.get(((AbstractRailBlock) state.getBlock()).getShapeProperty());
+			final RailShape railShape = IBlock.getStatePropertySafe(state, ((AbstractRailBlock) state.getBlock()).getShapeProperty());
 			final Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
 
 			for (final Direction direction : directions) {
@@ -81,7 +82,7 @@ public abstract class PathFinderBase {
 	private boolean canConnectFromDirection(BlockPos newPos, Direction fromDirection, boolean isDescending) {
 		final BlockState state = world.getBlockState(newPos);
 		if (state.getBlock() instanceof AbstractRailBlock) {
-			final RailShape railShape = state.get(((AbstractRailBlock) state.getBlock()).getShapeProperty());
+			final RailShape railShape = IBlock.getStatePropertySafe(state, ((AbstractRailBlock) state.getBlock()).getShapeProperty());
 			return isDescending ? shapeCheckAscending(railShape, fromDirection.getOpposite()) : shapeCheck(railShape, fromDirection.getOpposite());
 		}
 		return false;
