@@ -9,6 +9,8 @@
 	"block.mtr.apg_glass": "月台自动闸门",
 	"block.mtr.apg_glass_end": "月台自动闸门",
 	"block.mtr.ceiling": "天花板",
+	"block.mtr.escalator_side": "电梯",
+	"block.mtr.escalator_step": "电梯",
 	"block.mtr.logo": "MTR 标志",
 	"block.mtr.pids_1": "乘客资讯显示屏",
 	"block.mtr.platform": "月台",
