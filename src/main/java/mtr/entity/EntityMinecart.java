@@ -8,6 +8,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
+@SuppressWarnings("EntityConstructor")
 public class EntityMinecart extends EntityTrainBase {
 
 	public EntityMinecart(World world, double x, double y, double z) {
