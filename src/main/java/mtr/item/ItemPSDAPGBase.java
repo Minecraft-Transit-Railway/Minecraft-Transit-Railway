@@ -96,10 +96,13 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 
 		for (int x = 0; x < width; x++) {
 			final BlockPos offsetPos = startingPos.offset(facing.rotateYClockwise(), x);
-			final boolean isPSDAPGBelow = world.getBlockState(offsetPos.down()).isOf(blacklistBlock);
-			final boolean isPSDAPGAbove = world.getBlockState(offsetPos.up(2)).isOf(blacklistBlock);
-			if (isPSDAPGBelow || isPSDAPGAbove) {
-				return true;
+
+			if (blacklistBlock != null) {
+				final boolean isBlacklistedBelow = world.getBlockState(offsetPos.down()).isOf(blacklistBlock);
+				final boolean isBlacklistedAbove = world.getBlockState(offsetPos.up(height)).isOf(blacklistBlock);
+				if (isBlacklistedBelow || isBlacklistedAbove) {
+					return true;
+				}
 			}
 
 			for (int y = 0; y < height; y++) {
