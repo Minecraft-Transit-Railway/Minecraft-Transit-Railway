@@ -1,0 +1,11 @@
+{
+	"variants": {
+		"facing=false": {
+			"model": "mtr:block/clock"
+		},
+		"facing=true": {
+			"model": "mtr:block/clock",
+			"y": 90
+		}
+	}
+}

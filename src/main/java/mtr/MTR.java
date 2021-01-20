@@ -38,6 +38,7 @@ public class MTR implements ModInitializer {
 	public static final EntityType<EntityMTrainMini> M_TRAIN_MINI = registerEntity("m_train_mini", EntityMTrainMini::new, Train.TrainType.M_TRAIN_MINI.getLength(), 4);
 	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = null; // = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
 
+	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
 	public static final BlockEntityType<BlockStationNameWall.TileEntityStationName> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationName::new, Blocks.STATION_NAME_WALL);
@@ -60,6 +61,7 @@ public class MTR implements ModInitializer {
 		registerBlock("apg_glass", Blocks.APG_GLASS);
 		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
 		registerBlock("ceiling", Blocks.CEILING, ItemGroup.DECORATIONS);
+		registerBlock("clock", Blocks.CLOCK, ItemGroup.DECORATIONS);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
 		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
