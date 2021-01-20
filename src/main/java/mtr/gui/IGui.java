@@ -164,6 +164,19 @@ public interface IGui {
 		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, 1, 0, 1).next();
 	}
 
+	static void drawRectangleBright(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int color) {
+		final Matrix4f matrix4f = matrices.peek().getModel();
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getRectangleBright());
+		final int a = (color >> 24) & 0xFF;
+		final int r = (color >> 16) & 0xFF;
+		final int g = (color >> 8) & 0xFF;
+		final int b = color & 0xFF;
+		vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, a).next();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).next();
+		vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, a).next();
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).next();
+	}
+
 	@FunctionalInterface
 	interface DrawingCallback {
 		void drawingCallback(float x1, float y1, float x2, float y2);
