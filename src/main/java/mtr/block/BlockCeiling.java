@@ -34,7 +34,7 @@ public class BlockCeiling extends Block {
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		return state.with(LIGHT, hasLight(state.get(FACING), pos));
+		return state.with(LIGHT, hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
 	}
 
 	@Override

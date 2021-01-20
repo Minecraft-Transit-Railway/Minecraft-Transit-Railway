@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModelTrainBase extends EntityModel<EntityTrainBase> {
 
-	public static int MAX_LIGHT = 0xF00000;
+	public static final int MAX_LIGHT = 0xF00000;
 
 	@Override
 	public void setAngles(EntityTrainBase entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {

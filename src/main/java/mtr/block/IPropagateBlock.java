@@ -16,7 +16,7 @@ public interface IPropagateBlock {
 			final BlockPos offsetPos = pos.offset(direction, i);
 			final BlockState offsetState = world.getBlockState(offsetPos);
 			if (((Block) this).is(offsetState.getBlock())) {
-				world.setBlockState(offsetPos, offsetState.with(PROPAGATE_PROPERTY, world.getBlockState(pos).get(PROPAGATE_PROPERTY)));
+				world.setBlockState(offsetPos, offsetState.with(PROPAGATE_PROPERTY, IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY)));
 				propagate(world, offsetPos, direction);
 				return;
 			}

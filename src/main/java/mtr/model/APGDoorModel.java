@@ -47,10 +47,10 @@ public class APGDoorModel extends CustomBlockModelBase implements IBlock {
 			MeshBuilder builder = renderer.meshBuilder();
 			QuadEmitter emitter = builder.getEmitter();
 
-			final Direction facing = state.get(BlockAPGDoor.FACING);
-			final boolean side = state.get(SIDE) == EnumSide.RIGHT;
-			final float open = (side ? -1F : 1F) * state.get(BlockAPGDoor.OPEN) / BlockAPGDoor.MAX_OPEN_VALUE;
-			final boolean top = state.get(HALF) == DoubleBlockHalf.UPPER;
+			final Direction facing = IBlock.getStatePropertySafe(state, BlockAPGDoor.FACING);
+			final boolean side = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT;
+			final float open = (side ? -1F : 1F) * IBlock.getStatePropertySafe(state, BlockAPGDoor.OPEN) / BlockAPGDoor.MAX_OPEN_VALUE;
+			final boolean top = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 
 			emitter.square(facing, 0, 0, 1, 1, 0.0625F);
 			emitter.spriteBake(0, SPRITES[top ? 3 : 2], MutableQuadView.BAKE_LOCK_UV + (side ? 0 : MutableQuadView.BAKE_FLIP_U));

@@ -34,7 +34,7 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		BlockPos offsetPos = pos.down();
-		if (state.get(SIDE) == EnumSide.RIGHT) {
+		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
 			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
@@ -46,8 +46,8 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 		final boolean isBottom = orientation == EnumEscalatorOrientation.LANDING_BOTTOM;
 		final boolean isTop = orientation == EnumEscalatorOrientation.LANDING_TOP;
-		final boolean isRight = state.get(SIDE) == EnumSide.RIGHT;
-		return IBlock.getVoxelShapeByDirection(isRight ? 12 : 0, 0, isTop ? 8 : 0, isRight ? 16 : 4, 16, isBottom ? 8 : 16, state.get(FACING));
+		final boolean isRight = IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT;
+		return IBlock.getVoxelShapeByDirection(isRight ? 12 : 0, 0, isTop ? 8 : 0, isRight ? 16 : 4, 16, isBottom ? 8 : 16, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override

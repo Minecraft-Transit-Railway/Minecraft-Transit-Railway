@@ -9,6 +9,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -21,12 +22,14 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 16, state.get(FACING));
+		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 11, 16, IBlock.getStatePropertySafe(state, FACING));
+		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 11, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
+		return VoxelShapes.union(shape1, shape2);
 	}
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if (state.get(FACING) == direction && !newState.isOf(this)) {
+		if (IBlock.getStatePropertySafe(state, FACING) == direction && !newState.isOf(this)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -35,13 +38,13 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final Direction direction = ctx.getPlayerFacing();
+		final Direction direction = ctx.getPlayerFacing().getOpposite();
 		return IBlock.isReplaceable(ctx, direction, 2) ? getDefaultState().with(FACING, direction) : null;
 	}
 
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		final Direction facing = state.get(FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		if (facing == Direction.SOUTH || facing == Direction.WEST) {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
@@ -51,7 +54,7 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
 		if (!world.isClient) {
-			final Direction direction = state.get(FACING);
+			final Direction direction = IBlock.getStatePropertySafe(state, FACING);
 			world.setBlockState(pos.offset(direction), getDefaultState().with(FACING, direction.getOpposite()), 3);
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);

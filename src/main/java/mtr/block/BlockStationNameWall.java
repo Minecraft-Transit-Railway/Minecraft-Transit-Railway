@@ -34,7 +34,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		final Direction facing = state.get(FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		return world.getBlockState(pos.offset(facing)).isSideSolidFullSquare(world, pos.offset(facing), facing.getOpposite());
 	}
 
@@ -50,7 +50,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if (direction.getOpposite() == state.get(FACING).getOpposite() && !state.canPlaceAt(world, pos)) {
+		if (direction.getOpposite() == IBlock.getStatePropertySafe(state, FACING).getOpposite() && !state.canPlaceAt(world, pos)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
 			return state;
@@ -59,7 +59,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, state.get(FACING));
+		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override

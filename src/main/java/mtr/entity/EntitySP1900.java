@@ -5,6 +5,7 @@ import mtr.data.Train;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
 
+@SuppressWarnings("EntityConstructor")
 public class EntitySP1900 extends EntityTrainBase {
 
 	public EntitySP1900(World world, double x, double y, double z) {

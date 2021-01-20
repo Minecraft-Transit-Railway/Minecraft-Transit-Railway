@@ -13,6 +13,7 @@ public interface Blocks {
 	Block APG_GLASS = new BlockAPGGlass();
 	Block APG_GLASS_END = new BlockAPGGlassEnd();
 	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
+	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(5));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
 	Block ESCALATOR_STEP = new BlockEscalatorStep();
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));

@@ -32,7 +32,7 @@ public class ItemEscalator extends Item implements IBlock {
 
 		final BlockState frontState = world.getBlockState(pos1.offset(playerFacing));
 		if (frontState.getBlock() instanceof BlockEscalatorBase) {
-			if (frontState.get(BlockEscalatorBase.FACING) == playerFacing.getOpposite()) {
+			if (IBlock.getStatePropertySafe(frontState, BlockEscalatorBase.FACING) == playerFacing.getOpposite()) {
 				playerFacing = playerFacing.getOpposite();
 				final BlockPos pos3 = pos1;
 				pos1 = pos2;
