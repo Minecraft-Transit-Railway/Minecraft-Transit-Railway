@@ -18,6 +18,9 @@ Steps to reproduce the behaviour:
 
 1.
 
+**Crash Report**
+Attach a crash report to the issue.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
