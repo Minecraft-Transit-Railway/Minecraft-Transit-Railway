@@ -1,0 +1,87 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/metal",
+		"face": "mtr:block/clock_face",
+		"logo": "mtr:block/clock_logo"
+	},
+	"elements": [
+		{   "__comment": "Main bottom",
+			"from": [ 3, 0, 6 ],
+			"to": [ 13, 0.5, 10 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Main top",
+			"from": [ 3, 9.5, 6 ],
+			"to": [ 13, 12, 10 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Logo",
+			"from": [ 3, 9.5, 5.99 ],
+			"to": [ 13, 12, 10.01 ],
+			"shade": false,
+			"faces": {
+				"north": { "uv": [ 0, 0, 16, 4 ], "texture": "#logo" },
+				"south": { "uv": [ 0, 0, 16, 4 ], "texture": "#logo" }
+			}
+		},
+		{   "__comment": "Main left",
+			"from": [ 3, 0, 6 ],
+			"to": [ 3.5, 12, 10 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Main right",
+			"from": [ 12.5, 0, 6 ],
+			"to": [ 13, 12, 10 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Clock face",
+			"from": [ 3.5, 0.5, 6.5 ],
+			"to": [ 12.5, 9.5, 9.5 ],
+			"shade": false,
+			"faces": {
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#face" },
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#face" }
+			}
+		},
+		{   "__comment": "pole",
+			"from": [ 7.5, 12, 7.5 ],
+			"to": [ 8.5, 16, 8.5 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		}
+	]
+}
