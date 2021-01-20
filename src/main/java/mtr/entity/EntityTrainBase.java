@@ -6,21 +6,16 @@ import mtr.block.BlockPlatform;
 import mtr.data.Pos3f;
 import mtr.data.RailwayData;
 import mtr.data.Train;
-import mtr.path.PathFinderBase;
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
@@ -88,20 +83,8 @@ public abstract class EntityTrainBase extends Entity {
 				pitch = dataTrackerPitch;
 				refreshPosition();
 			}
-			setRotation(yaw, pitch);
 
-			final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-			final PlayerEntity player = minecraftClient.player;
-			if (player != null && hasPassenger(player)) {
-				final Text text;
-				if (getDoorValue() > 0) {
-					text = new TranslatableText("mount.onboard", minecraftClient.options.keySneak.getBoundKeyLocalizedText());
-				} else {
-					final double speed = Math.sqrt(PathFinderBase.distanceSquaredBetween((float) prevX, (float) prevY, (float) prevZ, (float) getX(), (float) getY(), (float) getZ())) * 20;
-					text = new TranslatableText("gui.mtr.train_speed").append(String.format(" %s m/s (%s km/h)", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F));
-				}
-				player.sendMessage(text, true);
-			}
+			setRotation(yaw, pitch);
 		} else {
 			if (stationCoolDown > 0) {
 				checkBlockCollision();
