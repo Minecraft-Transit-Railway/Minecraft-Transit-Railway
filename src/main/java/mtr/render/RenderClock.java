@@ -51,7 +51,7 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.TileEntityClock>
 	private static void drawHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float rotation, int light, boolean isHourHand) {
 		matrices.push();
 		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(rotation));
-		IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/block/white.png", -0.01F, isHourHand ? 0.15F : 0.25F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, 0, 0, 1, 1, -1, light);
+		IGui.drawRectangleBright(matrices, vertexConsumers, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, ARGB_LIGHT_GRAY);
 		matrices.pop();
 	}
 }
