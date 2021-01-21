@@ -2,22 +2,14 @@
 	"providers": [
 		{
 			"type": "ttf",
-			"file": "mtr:mtr-zh.otf",
-			"shift": [
-				-0.5,
-				1
-			],
-			"size": 18.0,
+			"file": "mtr:noto-sans-semibold.ttf",
+			"size": 12.0,
 			"oversample": 4.0
 		},
 		{
 			"type": "ttf",
-			"file": "mtr:mtr-en.otf",
-			"shift": [
-				-0.5,
-				1
-			],
-			"size": 11.0,
+			"file": "mtr:noto-serif-cjk-tc-semibold.otf",
+			"size": 24.0,
 			"oversample": 4.0
 		},
 		{

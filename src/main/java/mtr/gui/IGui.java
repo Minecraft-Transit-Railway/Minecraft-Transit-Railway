@@ -50,7 +50,7 @@ public interface IGui {
 		final StringBuilder textBuilder = new StringBuilder();
 
 		for (int i = 0; i < text.length(); i++) {
-			final boolean isChinese = Character.UnicodeScript.of(text.codePointAt(i)) == Character.UnicodeScript.HAN;
+			final boolean isChinese = Character.isIdeographic(text.codePointAt(i));
 			if (isChinese) {
 				textBuilder.append('|');
 			}
@@ -80,7 +80,7 @@ public interface IGui {
 
 		final int[] lineHeights = new int[textSplit.length];
 		for (int i = 0; i < textSplit.length; i++) {
-			final boolean hasChinese = textSplit[i].codePoints().anyMatch(codePoint -> Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN);
+			final boolean hasChinese = textSplit[i].codePoints().anyMatch(Character::isIdeographic);
 			lineHeights[i] = LINE_HEIGHT * (hasChinese ? 2 : 1);
 		}
 

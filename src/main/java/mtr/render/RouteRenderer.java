@@ -31,7 +31,6 @@ public class RouteRenderer {
 	private static final int STATION_NAME_BACKGROUND_PADDING = 3;
 	private static final float COLOR_LINE_HALF_HEIGHT = 4.5F;
 	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.62F;
-	private static final float PLATFORM_NUMBER_OFFSET_LEFT = 0.54F;
 
 	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos platformPos, boolean vertical) {
 		this.matrices = matrices;
@@ -179,7 +178,7 @@ public class RouteRenderer {
 		final float scalePlatformNumber = scale / 2.2F;
 		matrices.push();
 		matrices.scale(1F / scalePlatformNumber, 1F / scalePlatformNumber, 1F / scalePlatformNumber);
-		IGui.drawStringWithFont(matrices, textRenderer, platformNumber, 1, 1, (leftToRight ? left + circleX + arrowSize * PLATFORM_NUMBER_OFFSET_LEFT : right - circleX - arrowSize * (1 - PLATFORM_NUMBER_OFFSET_LEFT)) * scalePlatformNumber, (top + (bottom - top) * PLATFORM_NUMBER_OFFSET_TOP) * scalePlatformNumber, IGui.ARGB_WHITE, 0, null);
+		IGui.drawStringWithFont(matrices, textRenderer, platformNumber, 1, 1, (leftToRight ? left + circleX + arrowSize / 2 : right - circleX - arrowSize / 2) * scalePlatformNumber, (top + (bottom - top) * PLATFORM_NUMBER_OFFSET_TOP) * scalePlatformNumber, IGui.ARGB_WHITE, 0, null);
 		matrices.pop();
 	}
 
