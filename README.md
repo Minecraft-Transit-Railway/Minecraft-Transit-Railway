@@ -20,7 +20,7 @@ Take a look.
 
 ## License
 
-This project is licensed with the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
+This project is licensed with the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed with the [Open Font License](http://scripts.sil.org/OFL).
 
 ## Questions? Comments? Complaints?
 
