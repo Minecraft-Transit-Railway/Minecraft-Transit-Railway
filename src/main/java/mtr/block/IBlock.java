@@ -75,6 +75,15 @@ public interface IBlock {
 		return true;
 	}
 
+	static BlockState breakCheckTwoBlock(BlockState state, Direction direction, BlockState newState, Block thisInstance) {
+		boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
+		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !newState.isOf(thisInstance)) {
+			return Blocks.AIR.getDefaultState();
+		} else {
+			return state;
+		}
+	}
+
 	static void onBreakCreative(World world, PlayerEntity player, BlockPos pos) {
 		if (!world.isClient && player.isCreative()) {
 			world.setBlockState(pos, Blocks.AIR.getDefaultState(), 35);

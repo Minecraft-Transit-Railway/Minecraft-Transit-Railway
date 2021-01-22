@@ -1,0 +1,40 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"metal": "mtr:block/metal"
+	},
+	"elements": [
+		{   "__comment": "Glass section",
+			"from": [ 0.5, 0, 1 ],
+			"to": [ 15.5, 16, 1 ],
+			"faces": {
+				"north": { "uv": [ 13, 2, 0, 16 ], "texture": "#particle" },
+				"south": { "uv": [ 0, 2, 13, 16 ], "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Left side",
+			"from": [ 0, 0, 0 ],
+			"to": [ 0.5, 16, 3 ],
+			"faces": {
+				"down": { "texture": "#metal" },
+				"up": { "texture": "#metal" },
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" },
+				"north": { "texture": "#metal" },
+				"south": { "texture": "#metal" }
+			}
+		},
+		{   "__comment": "Right side",
+			"from": [ 15.5, 0, 0 ],
+			"to": [ 16, 16, 3 ],
+			"faces": {
+				"down": { "texture": "#metal" },
+				"up": { "texture": "#metal" },
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" },
+				"north": { "texture": "#metal" },
+				"south": { "texture": "#metal" }
+			}
+		}
+	]
+}

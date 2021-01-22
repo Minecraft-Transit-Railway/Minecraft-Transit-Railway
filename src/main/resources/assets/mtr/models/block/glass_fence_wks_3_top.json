@@ -1,0 +1,6 @@
+{
+	"parent": "mtr:block/glass_fence_top_base",
+	"textures": {
+		"particle": "mtr:block/flowers/wks_3"
+	}
+}

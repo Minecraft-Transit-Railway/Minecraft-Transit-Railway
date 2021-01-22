@@ -1,0 +1,6 @@
+{
+	"parent": "mtr:block/glass_fence_bottom_base",
+	"textures": {
+		"particle": "mtr:block/flowers/tsh_6"
+	}
+}

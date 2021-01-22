@@ -16,6 +16,16 @@ public interface Blocks {
 	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(5));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
 	Block ESCALATOR_STEP = new BlockEscalatorStep();
+	Block GLASS_FENCE_CIO = new BlockGlassFence();
+	Block GLASS_FENCE_CKT = new BlockGlassFence();
+	Block GLASS_FENCE_HEO = new BlockGlassFence();
+	Block GLASS_FENCE_MOS = new BlockGlassFence();
+	Block GLASS_FENCE_PLAIN = new BlockGlassFence();
+	Block GLASS_FENCE_SHM = new BlockGlassFence();
+	Block GLASS_FENCE_STAINED = new BlockGlassFence();
+	Block GLASS_FENCE_STW = new BlockGlassFence();
+	Block GLASS_FENCE_TSH = new BlockGlassFence();
+	Block GLASS_FENCE_WKS = new BlockGlassFence();
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
 	Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));

@@ -23,12 +23,7 @@ public abstract class BlockPSDAPGBase extends HorizontalFacingBlock implements I
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
-		if ((isTop && direction == Direction.DOWN || !isTop && direction == Direction.UP) && !newState.isOf(this)) {
-			return Blocks.AIR.getDefaultState();
-		} else {
-			return state;
-		}
+		return IBlock.breakCheckTwoBlock(state, direction, newState, this);
 	}
 
 	@Override

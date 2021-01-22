@@ -1,6 +1,7 @@
 package mtr.block;
 
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -59,6 +60,11 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 			world.updateNeighbors(pos, Blocks.AIR);
 			state.updateNeighbors(world, pos, 3);
 		}
+	}
+
+	@Override
+	public PistonBehavior getPistonBehavior(BlockState state) {
+		return PistonBehavior.BLOCK;
 	}
 
 	@Override

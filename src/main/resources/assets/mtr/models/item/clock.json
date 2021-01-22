@@ -1,3 +1,6 @@
 {
-	"parent": "mtr:block/clock"
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/clock"
+	}
 }

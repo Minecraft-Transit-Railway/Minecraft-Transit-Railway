@@ -64,6 +64,16 @@ public class MTR implements ModInitializer {
 		registerBlock("clock", Blocks.CLOCK, ItemGroup.DECORATIONS);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
+		registerBlock("glass_fence_cio", Blocks.GLASS_FENCE_CIO, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_ckt", Blocks.GLASS_FENCE_CKT, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_heo", Blocks.GLASS_FENCE_HEO, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_mos", Blocks.GLASS_FENCE_MOS, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_plain", Blocks.GLASS_FENCE_PLAIN, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_shm", Blocks.GLASS_FENCE_SHM, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_stained", Blocks.GLASS_FENCE_STAINED, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_stw", Blocks.GLASS_FENCE_STW, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroup.DECORATIONS);
+		registerBlock("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroup.DECORATIONS);
 		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);

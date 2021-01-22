@@ -1,0 +1,48 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"metal": "mtr:block/metal"
+	},
+	"elements": [
+		{   "__comment": "Glass section 1",
+			"from": [ 0.5, 15, 1 ],
+			"to": [ 15.5, 16, 1 ],
+			"faces": {
+				"north": { "uv": [ 0, 2, 16, 1 ], "texture": "#particle" },
+				"south": { "uv": [ 0, 2, 16, 1 ], "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Glass section 2",
+			"from": [ 0.5, 1, 1 ],
+			"to": [ 15.5, 15, 1 ],
+			"faces": {
+				"north": { "uv": [ 0, 1, 16, 16 ], "texture": "#particle" },
+				"south": { "uv": [ 0, 1, 16, 16 ], "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Left side",
+			"from": [ 0, 0, 0 ],
+			"to": [ 0.5, 16, 3 ],
+			"faces": {
+				"down": { "texture": "#metal" },
+				"up": { "texture": "#metal" },
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" },
+				"north": { "texture": "#metal" },
+				"south": { "texture": "#metal" }
+			}
+		},
+		{   "__comment": "Right side",
+			"from": [ 15.5, 0, 0 ],
+			"to": [ 16, 16, 3 ],
+			"faces": {
+				"down": { "texture": "#metal" },
+				"up": { "texture": "#metal" },
+				"east": { "texture": "#metal" },
+				"west": { "texture": "#metal" },
+				"north": { "texture": "#metal" },
+				"south": { "texture": "#metal" }
+			}
+		}
+	]
+}

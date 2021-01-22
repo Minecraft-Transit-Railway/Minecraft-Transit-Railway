@@ -29,6 +29,16 @@ public class MTRClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_GLASS_END, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CLOCK, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_CIO, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_CKT, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_HEO, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_MOS, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_PLAIN, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_SHM, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_STAINED, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_STW, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_TSH, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_WKS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_RAIL, RenderLayer.getCutout());
