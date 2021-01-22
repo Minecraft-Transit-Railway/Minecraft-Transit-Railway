@@ -6,6 +6,7 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
@@ -52,6 +53,14 @@ public class BlockGlassFence extends HorizontalFacingBlock implements IBlock {
 		final Direction facing = ctx.getPlayerFacing();
 		final int number = getNumber(ctx.getBlockPos(), facing);
 		return IBlock.isReplaceable(ctx, Direction.UP, 2) ? getDefaultState().with(FACING, facing).with(HALF, DoubleBlockHalf.LOWER).with(NUMBER, number) : null;
+	}
+
+	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
+			IBlock.onBreakCreative(world, player, pos.down());
+		}
+		super.onBreak(world, pos, state, player);
 	}
 
 	@Override

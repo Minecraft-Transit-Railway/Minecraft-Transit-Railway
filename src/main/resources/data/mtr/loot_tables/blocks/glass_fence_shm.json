@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "mtr:glass_fence_shm",
+							"properties": {
+								"half": "lower"
+							}
+						}
+					],
+					"name": "mtr:glass_fence_shm"
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

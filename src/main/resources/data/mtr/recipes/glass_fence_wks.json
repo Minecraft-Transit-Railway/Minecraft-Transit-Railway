@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:brown_stained_glass_pane"
+		},
+		{
+			"item": "minecraft:brown_stained_glass_pane"
+		},
+		{
+			"item": "minecraft:brown_stained_glass_pane"
+		},
+		{
+			"item": "minecraft:brown_stained_glass_pane"
+		},
+		{
+			"item": "minecraft:brown_stained_glass_pane"
+		},
+		{
+			"item": "minecraft:iron_bars"
+		}
+	],
+	"result": {
+		"item": "mtr:glass_fence_wks",
+		"count": 4
+	}
+}
