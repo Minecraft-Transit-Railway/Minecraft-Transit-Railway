@@ -109,6 +109,7 @@ public class MTR implements ModInitializer {
 		registerBlock("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroup.DECORATIONS);
 		registerBlock("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroup.DECORATIONS);
 		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
+		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_STATIONS_AND_ROUTES, PacketTrainDataGuiServer::receiveStationsAndRoutesC2S);
 		ServerSidePacketRegistry.INSTANCE.register(IPacket.ID_PLATFORM, PacketTrainDataGuiServer::receivePlatformC2S);

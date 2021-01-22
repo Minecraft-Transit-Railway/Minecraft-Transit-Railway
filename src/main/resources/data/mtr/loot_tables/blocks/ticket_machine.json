@@ -9,13 +9,13 @@
 					"conditions": [
 						{
 							"condition": "minecraft:block_state_property",
-							"block": "mtr:glass_fence_heo",
+							"block": "mtr:ticket_machine",
 							"properties": {
 								"half": "lower"
 							}
 						}
 					],
-					"name": "mtr:glass_fence_heo"
+					"name": "mtr:ticket_machine"
 				}
 			],
 			"conditions": [

@@ -1,0 +1,94 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/metal",
+		"front": "mtr:block/ticket_machine",
+		"white": "mtr:block/white"
+	},
+	"elements": [
+		{	"__comment": "Top",
+			"from": [ 0, 11, 2 ],
+			"to": [ 16, 14, 8 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"north": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Top front",
+			"from": [ 0, 11, 1.99 ],
+			"to": [ 16, 14, 1.99 ],
+			"faces": {
+				"north": { "texture": "#front" }
+			}
+		},
+		{	"__comment": "Top slanted",
+			"from": [ -0.01, 11, 8 ],
+			"to": [ 16.01, 14, 14.5 ],
+			"rotation": { "origin": [ 8, 14, 8 ], "axis": "x", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Middle back",
+			"from": [ 0, 0, 8 ],
+			"to": [ 16, 11.5, 14 ],
+			"faces": {
+				"east": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left",
+			"from": [ 15.5, 0, 2 ],
+			"to": [ 16, 14, 8 ],
+			"faces": {
+				"north": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right",
+			"from": [ 0, 0, 2 ],
+			"to": [ 0.5, 14, 8 ],
+			"faces": {
+				"north": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Light",
+			"from": [ 0.5, 11, 2 ],
+			"to": [ 15.5, 11, 5.25 ],
+			"rotation": { "origin": [ 8, 11, 2 ], "axis": "x", "angle": 22.5 },
+			"faces": {
+				"down": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Light white",
+			"from": [ 1, 10.99, 2.5 ],
+			"to": [ 15, 10.99, 4.25 ],
+			"rotation": { "origin": [ 8, 11, 2 ], "axis": "x", "angle": 22.5 },
+			"shade": false,
+			"faces": {
+				"down": { "texture": "#white" }
+			}
+		},
+		{	"__comment": "Front",
+			"from": [ 0.5, 0, 2 ],
+			"to": [ 15.5, 8, 2 ],
+			"rotation": { "origin": [ 8, 0, 2 ], "axis": "x", "angle": 22.5 },
+			"faces": {
+				"north": { "texture": "#front" }
+			}
+		},
+		{	"__comment": "Back front",
+			"from": [ 0.5, 6, 4.5 ],
+			"to": [ 15.5, 10, 4.5 ],
+			"faces": {
+				"north": { "texture": "#front" }
+			}
+		}
+	]
+}
