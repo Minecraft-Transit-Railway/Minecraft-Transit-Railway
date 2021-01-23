@@ -33,7 +33,7 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	public static class TileEntityStationNameTallBlock extends TileEntityStationNameBase {
 
 		public TileEntityStationNameTallBlock() {
-			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, true, false, 80, 0.25F, 0.6875F);
+			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, true, false, 80, HorizontalAlignment.CENTER, 0.25F, 0.6875F);
 		}
 
 		@Override

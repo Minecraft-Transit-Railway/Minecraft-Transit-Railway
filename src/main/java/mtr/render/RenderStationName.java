@@ -34,20 +34,20 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		}
 
 		final BlockPos pos = entity.getPos();
-		final String stationName = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString());
+		final String stationName = formatStationName(ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString()));
 
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color;
 		switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
-			case 0:
-				color = ARGB_WHITE;
-				break;
 			case 1:
 				color = ARGB_LIGHT_GRAY;
 				break;
-			default:
+			case 2:
 				color = ARGB_BLACK;
+				break;
+			default:
+				color = ARGB_WHITE;
 				break;
 		}
 
@@ -56,9 +56,11 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
 		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-		matrices.scale(1F / entity.scale, 1F / entity.scale, 1F / entity.scale);
-		final int drawStyle = entity.hasShadow && color != ARGB_BLACK ? 1 : 0;
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, entity.verticalChinese ? IGui.formatVerticalChinese(stationName) : stationName, 1, 1, 0, 0, color, drawStyle, null);
+		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, entity.verticalChinese ? IGui.formatVerticalChinese(stationName) : stationName, entity.horizontalAlignment, VerticalAlignment.CENTER, 0, 0, entity.scale, color, entity.hasShadow && color != ARGB_BLACK, null);
 		matrices.pop();
+	}
+
+	protected String formatStationName(String name) {
+		return name;
 	}
 }

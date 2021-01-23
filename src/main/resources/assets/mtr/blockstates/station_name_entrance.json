@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "mtr:block/station_name_entrance"
+		},
+		"facing=east": {
+			"model": "mtr:block/station_name_entrance",
+			"y": 90
+		},
+		"facing=south": {
+			"model": "mtr:block/station_name_entrance",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mtr:block/station_name_entrance",
+			"y": 270
+		}
+	}
+}

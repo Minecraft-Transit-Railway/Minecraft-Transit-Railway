@@ -6,30 +6,20 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
-public class BlockStationNameWall extends BlockStationNameBase {
+public class BlockStationNameEntrance extends BlockStationNameBase {
 
-	public BlockStationNameWall(Settings settings) {
+	public BlockStationNameEntrance(Settings settings) {
 		super(settings);
-	}
-
-	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.cycle(COLOR)));
 	}
 
 	@Override
@@ -59,7 +49,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, FACING));
+		return IBlock.getVoxelShapeByDirection(0, 4, 0, 16, 12, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
@@ -69,23 +59,23 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameWall();
+		return new TileEntityStationNameEntrance();
 	}
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(COLOR, FACING);
+		builder.add(FACING);
 	}
 
-	public static class TileEntityStationNameWall extends TileEntityStationNameBase {
+	public static class TileEntityStationNameEntrance extends TileEntityStationNameBase {
 
-		public TileEntityStationNameWall() {
-			super(MTR.STATION_NAME_WALL_TILE_ENTITY, false, true, 40, HorizontalAlignment.CENTER, 0, 0);
+		public TileEntityStationNameEntrance() {
+			super(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, false, false, 80, HorizontalAlignment.LEFT, 0, 0.000625F);
 		}
 
 		@Override
 		public boolean shouldRender() {
-			return true;
+			return world != null && !(world.getBlockState(pos.offset(IBlock.getStatePropertySafe(world, pos, FACING).rotateYCounterclockwise())).getBlock() instanceof BlockStationNameEntrance);
 		}
 	}
 }

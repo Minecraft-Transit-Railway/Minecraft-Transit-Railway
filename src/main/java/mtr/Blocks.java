@@ -57,6 +57,7 @@ public interface Blocks {
 	Block STATION_COLOR_STONE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_STONE_BRICKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE_BRICKS));
 	Block STATION_COLOR_WOOL = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.WHITE_WOOL));
+	Block STATION_NAME_ENTRANCE = new BlockStationNameEntrance(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	Block STATION_NAME_TALL_BLOCK = new BlockStationNameTallBlock();
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();
 	Block STATION_NAME_WALL = new BlockStationNameWall(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());

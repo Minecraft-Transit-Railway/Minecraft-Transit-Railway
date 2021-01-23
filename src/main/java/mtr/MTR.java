@@ -41,7 +41,8 @@ public class MTR implements ModInitializer {
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
-	public static final BlockEntityType<BlockStationNameWall.TileEntityStationName> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationName::new, Blocks.STATION_NAME_WALL);
+	public static final BlockEntityType<BlockStationNameEntrance.TileEntityStationNameEntrance> STATION_NAME_ENTRANCE_TILE_ENTITY = registerTileEntity("station_name_entrance", BlockStationNameEntrance.TileEntityStationNameEntrance::new, Blocks.STATION_NAME_ENTRANCE);
+	public static final BlockEntityType<BlockStationNameWall.TileEntityStationNameWall> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationNameWall::new, Blocks.STATION_NAME_WALL);
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 
@@ -105,6 +106,7 @@ public class MTR implements ModInitializer {
 		registerBlock("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroup.DECORATIONS);
 		registerBlock("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroup.DECORATIONS);
 		registerBlock("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroup.DECORATIONS);
+		registerBlock("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroup.DECORATIONS);
 		registerBlock("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroup.DECORATIONS);
 		registerBlock("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroup.DECORATIONS);
 		registerBlock("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroup.DECORATIONS);
