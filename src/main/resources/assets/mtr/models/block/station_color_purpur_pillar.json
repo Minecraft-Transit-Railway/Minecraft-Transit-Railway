@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/leaves_column",
+	"textures": {
+		"end": "mtr:block/station_color_purpur_pillar_top",
+		"side": "mtr:block/station_color_purpur_pillar"
+	}
+}

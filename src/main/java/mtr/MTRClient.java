@@ -87,6 +87,8 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_COLOR_PLANKS);
 		registerStationColor(Blocks.STATION_COLOR_POLISHED_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_POLISHED_DIORITE);
+		registerStationColor(Blocks.STATION_COLOR_PURPUR_BLOCK);
+		registerStationColor(Blocks.STATION_COLOR_PURPUR_PILLAR);
 		registerStationColor(Blocks.STATION_COLOR_QUARTZ_BLOCK);
 		registerStationColor(Blocks.STATION_COLOR_QUARTZ_BRICKS);
 		registerStationColor(Blocks.STATION_COLOR_QUARTZ_PILLAR);

@@ -54,6 +54,8 @@ public interface Blocks {
 	Block STATION_COLOR_PLANKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.OAK_PLANKS));
 	Block STATION_COLOR_POLISHED_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_ANDESITE));
 	Block STATION_COLOR_POLISHED_DIORITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_DIORITE));
+	Block STATION_COLOR_PURPUR_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.PURPUR_BLOCK));
+	Block STATION_COLOR_PURPUR_PILLAR = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.PURPUR_PILLAR));
 	Block STATION_COLOR_QUARTZ_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_BLOCK));
 	Block STATION_COLOR_QUARTZ_BRICKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_BRICKS));
 	Block STATION_COLOR_QUARTZ_PILLAR = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_PILLAR));
