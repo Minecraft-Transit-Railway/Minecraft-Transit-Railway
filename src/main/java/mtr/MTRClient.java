@@ -70,6 +70,8 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_COLOR_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_BEDROCK);
 		registerStationColor(Blocks.STATION_COLOR_BIRCH_WOOD);
+		registerStationColor(Blocks.STATION_COLOR_BONE_BLOCK);
+		registerStationColor(Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK);
 		registerStationColor(Blocks.STATION_COLOR_CHISELED_STONE_BRICKS);
 		registerStationColor(Blocks.STATION_COLOR_CLAY);
 		registerStationColor(Blocks.STATION_COLOR_COAL_ORE);
@@ -85,7 +87,12 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_COLOR_PLANKS);
 		registerStationColor(Blocks.STATION_COLOR_POLISHED_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_POLISHED_DIORITE);
+		registerStationColor(Blocks.STATION_COLOR_QUARTZ_BLOCK);
+		registerStationColor(Blocks.STATION_COLOR_QUARTZ_BRICKS);
+		registerStationColor(Blocks.STATION_COLOR_QUARTZ_PILLAR);
+		registerStationColor(Blocks.STATION_COLOR_SMOOTH_QUARTZ);
 		registerStationColor(Blocks.STATION_COLOR_SMOOTH_STONE);
+		registerStationColor(Blocks.STATION_COLOR_SNOW_BLOCK);
 		registerStationColor(Blocks.STATION_COLOR_STAINED_GLASS);
 		registerStationColor(Blocks.STATION_COLOR_STONE);
 		registerStationColor(Blocks.STATION_COLOR_STONE_BRICKS);

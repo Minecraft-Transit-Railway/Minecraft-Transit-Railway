@@ -1,1 +1,3 @@
-{ "parent": "block/diorite" }
+{
+	"parent": "mtr:block/station_color_diorite"
+}

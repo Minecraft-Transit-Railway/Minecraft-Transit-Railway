@@ -37,6 +37,8 @@ public interface Blocks {
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BIRCH_WOOD));
+	Block STATION_COLOR_BONE_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BONE_BLOCK));
+	Block STATION_COLOR_CHISELED_QUARTZ_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.CHISELED_QUARTZ_BLOCK));
 	Block STATION_COLOR_CHISELED_STONE_BRICKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.CHISELED_STONE_BRICKS));
 	Block STATION_COLOR_CLAY = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.CLAY));
 	Block STATION_COLOR_COAL_ORE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.COAL_ORE));
@@ -52,7 +54,12 @@ public interface Blocks {
 	Block STATION_COLOR_PLANKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.OAK_PLANKS));
 	Block STATION_COLOR_POLISHED_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_ANDESITE));
 	Block STATION_COLOR_POLISHED_DIORITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_DIORITE));
+	Block STATION_COLOR_QUARTZ_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_BLOCK));
+	Block STATION_COLOR_QUARTZ_BRICKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_BRICKS));
+	Block STATION_COLOR_QUARTZ_PILLAR = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.QUARTZ_PILLAR));
+	Block STATION_COLOR_SMOOTH_QUARTZ = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_QUARTZ));
 	Block STATION_COLOR_SMOOTH_STONE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
+	Block STATION_COLOR_SNOW_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.WHITE_WOOL));
 	Block STATION_COLOR_STAINED_GLASS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.WHITE_STAINED_GLASS));
 	Block STATION_COLOR_STONE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_STONE_BRICKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE_BRICKS));
