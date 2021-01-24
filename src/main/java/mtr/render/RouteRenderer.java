@@ -30,7 +30,7 @@ public class RouteRenderer implements IGui {
 	private static final int STATION_TEXT_PADDING = 14;
 	private static final int STATION_NAME_BACKGROUND_PADDING = 3;
 	private static final float COLOR_LINE_HALF_HEIGHT = 4.5F;
-	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.036F;
+	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.63F;
 
 	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos platformPos, boolean vertical) {
 		this.matrices = matrices;
@@ -137,7 +137,7 @@ public class RouteRenderer implements IGui {
 		final HorizontalAlignment horizontalAlignment = leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
 		final float textX = 1 + (arrowSize + arrowPadding) * ((hasLeft ? 0.5F : 0) + (hasRight ? -0.5F : 0) + (leftToRight ? 0.5F : -0.5F));
 		final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
-		IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, textX, (top + bottom) / 2, maxDestinationWidth, HEIGHT_TO_SCALE / arrowSize, IGui.ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
+		IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, IGui.ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
 			if (hasLeft) {
 				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, IGui.ARGB_BLACK, light);
 			}
@@ -153,7 +153,7 @@ public class RouteRenderer implements IGui {
 
 			matrices.push();
 			matrices.translate(0, 0, -IGui.SMALL_OFFSET);
-			IGui.drawStringWithFont(matrices, textRenderer, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), (top + bottom) / 2 + PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, IGui.ARGB_WHITE, false, null);
+			IGui.drawStringWithFont(matrices, textRenderer, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, IGui.ARGB_WHITE, false, null);
 			matrices.pop();
 		}));
 		matrices.pop();

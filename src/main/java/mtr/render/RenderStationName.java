@@ -5,7 +5,6 @@ import mtr.block.IBlock;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -34,8 +33,6 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		}
 
 		final BlockPos pos = entity.getPos();
-		final String stationName = formatStationName(ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString()));
-
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color;
@@ -56,11 +53,13 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
 		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, entity.verticalChinese ? IGui.formatVerticalChinese(stationName) : stationName, entity.horizontalAlignment, VerticalAlignment.CENTER, 0, 0, entity.scale, color, entity.hasShadow && color != ARGB_BLACK, null);
+		final String stationName = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString());
+		entity.drawStationName.drawStationName(matrices, vertexConsumers, stationName, color);
 		matrices.pop();
 	}
 
-	protected String formatStationName(String name) {
-		return name;
+	public interface DrawStationName {
+
+		void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color);
 	}
 }

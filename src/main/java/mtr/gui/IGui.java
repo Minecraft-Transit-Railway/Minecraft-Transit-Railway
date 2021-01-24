@@ -86,8 +86,8 @@ public interface IGui {
 	}
 
 	static String mergeStations(List<String> stations) {
-		final List<String> combinedCJK = new ArrayList<>();
-		final List<String> combined = new ArrayList<>();
+		final List<List<String>> combinedCJK = new ArrayList<>();
+		final List<List<String>> combined = new ArrayList<>();
 
 		for (final String station : stations) {
 			final String[] stationSplit = station.split("\\|");
@@ -96,46 +96,57 @@ public interface IGui {
 
 			for (final String stationSplitPart : stationSplit) {
 				if (stationSplitPart.codePoints().anyMatch(Character::isIdeographic)) {
-					if (!currentStationCJK.contains(stationSplitPart)) {
-						currentStationCJK.add(stationSplitPart);
-					}
+					currentStationCJK.add(stationSplitPart);
 				} else {
-					if (!currentStation.contains(stationSplitPart)) {
-						currentStation.add(stationSplitPart);
-					}
+					currentStation.add(stationSplitPart);
 				}
 			}
 
 			for (int i = 0; i < currentStationCJK.size(); i++) {
 				if (i < combinedCJK.size()) {
-					combinedCJK.set(i, combinedCJK.get(i) + new TranslatableText("gui.mtr.separator_cjk").getString() + currentStationCJK.get(i));
+					if (!combinedCJK.get(i).contains(currentStationCJK.get(i))) {
+						combinedCJK.get(i).add(currentStationCJK.get(i));
+					}
 				} else {
-					combinedCJK.add(currentStationCJK.get(i));
+					final int index = i;
+					combinedCJK.add(new ArrayList<String>() {{
+						add(currentStationCJK.get(index));
+					}});
 				}
 			}
 
 			for (int i = 0; i < currentStation.size(); i++) {
 				if (i < combined.size()) {
-					combined.set(i, combined.get(i) + new TranslatableText("gui.mtr.separator").getString() + currentStation.get(i));
+					if (!combined.get(i).contains(currentStation.get(i))) {
+						combined.get(i).add(currentStation.get(i));
+					}
 				} else {
-					combined.add(currentStation.get(i));
+					final int index = i;
+					combined.add(new ArrayList<String>() {{
+						add(currentStation.get(index));
+					}});
 				}
 			}
 		}
 
-		combinedCJK.addAll(combined);
-		return combinedCJK.stream().reduce((a, b) -> a + "|" + b).orElse("");
+		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator_cjk").getString() + b).orElse("")).collect(Collectors.toList());
+		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator").getString() + b).orElse("")).collect(Collectors.toList()));
+		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y) {
-		drawStringWithFont(matrices, textRenderer, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, x, y, ARGB_WHITE, 1, true, null);
+		drawStringWithFont(matrices, textRenderer, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, x, y, 1, ARGB_WHITE, true, null);
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, float x, float y, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
-		drawStringWithFont(matrices, textRenderer, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, -1, scale, textColor, shadow, drawingCallback);
+		drawStringWithFont(matrices, textRenderer, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, -1, -1, scale, textColor, shadow, drawingCallback);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+		drawStringWithFont(matrices, textRenderer, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, maxWidth, maxHeight, scale, textColor, shadow, drawingCallback);
+	}
+
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
 		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
 
 		while (text.contains("||")) {
@@ -148,11 +159,15 @@ public interface IGui {
 		final int totalHeight = lineHeights.stream().reduce(0, Integer::sum);
 		final int totalWidth = orderedTexts.stream().map(textRenderer::getWidth).reduce(Integer::max).orElse(0);
 
+		if (maxHeight >= 0 && totalHeight / scale > maxHeight) {
+			scale = totalHeight / maxHeight;
+		}
+
 		matrices.push();
 
 		final float totalWidthScaled;
 		final float scaleX;
-		if (maxWidth > 0 && totalWidth > maxWidth * scale) {
+		if (maxWidth >= 0 && totalWidth > maxWidth * scale) {
 			totalWidthScaled = maxWidth * scale;
 			scaleX = totalWidth / maxWidth;
 		} else {

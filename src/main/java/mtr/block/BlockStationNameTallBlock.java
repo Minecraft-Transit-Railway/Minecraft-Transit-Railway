@@ -30,19 +30,10 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 		return new TileEntityStationNameTallBlock();
 	}
 
-	public static class TileEntityStationNameTallBlock extends TileEntityStationNameBase {
+	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
 
 		public TileEntityStationNameTallBlock() {
-			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, true, false, 80, HorizontalAlignment.CENTER, 0.25F, 0.6875F);
-		}
-
-		@Override
-		public boolean shouldRender() {
-			if (world == null) {
-				return false;
-			}
-			final BlockState state = world.getBlockState(pos);
-			return state.getBlock() instanceof BlockStationNameTallBlock && IBlock.getStatePropertySafe(state, THIRD) == EnumThird.MIDDLE;
+			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, 0.6875F);
 		}
 	}
 }

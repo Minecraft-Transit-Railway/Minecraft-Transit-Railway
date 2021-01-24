@@ -1,11 +1,14 @@
 package mtr.block;
 
 import mtr.gui.IGui;
+import mtr.render.RenderStationName;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.text.Style;
@@ -31,22 +34,18 @@ public abstract class BlockStationNameBase extends HorizontalFacingBlock impleme
 
 	public abstract static class TileEntityStationNameBase extends BlockEntity implements IGui {
 
-		public final boolean verticalChinese;
-		public final boolean hasShadow;
-		public final int scale;
-		public final HorizontalAlignment horizontalAlignment;
 		public final float yOffset;
 		public final float zOffset;
+		public final RenderStationName.DrawStationName drawStationName;
 
-		public TileEntityStationNameBase(BlockEntityType<?> type, boolean verticalChinese, boolean hasShadow, int scale, HorizontalAlignment horizontalAlignment, float yOffset, float zOffset) {
+		public TileEntityStationNameBase(BlockEntityType<?> type, float yOffset, float zOffset) {
 			super(type);
-			this.verticalChinese = verticalChinese;
-			this.hasShadow = hasShadow;
-			this.scale = scale;
-			this.horizontalAlignment = horizontalAlignment;
 			this.yOffset = yOffset;
 			this.zOffset = zOffset;
+			drawStationName = this::drawStationName;
 		}
+
+		protected abstract void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color);
 
 		public abstract boolean shouldRender();
 	}

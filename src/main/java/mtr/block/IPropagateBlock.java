@@ -11,13 +11,13 @@ public interface IPropagateBlock {
 
 	IntProperty PROPAGATE_PROPERTY = IntProperty.of("propagate_property", 0, 3);
 
-	default void propagate(World world, BlockPos pos, Direction direction) {
-		for (int i = 1; i <= 3; i++) {
+	default void propagate(World world, BlockPos pos, Direction direction, int maxBlocksAway) {
+		for (int i = 1; i <= maxBlocksAway; i++) {
 			final BlockPos offsetPos = pos.offset(direction, i);
 			final BlockState offsetState = world.getBlockState(offsetPos);
 			if (((Block) this).is(offsetState.getBlock())) {
 				world.setBlockState(offsetPos, offsetState.with(PROPAGATE_PROPERTY, IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY)));
-				propagate(world, offsetPos, direction);
+				propagate(world, offsetPos, direction, maxBlocksAway);
 				return;
 			}
 		}

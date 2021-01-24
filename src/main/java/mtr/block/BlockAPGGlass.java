@@ -29,8 +29,8 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
 				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise());
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise());
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 3);
 			});
 		} else {
 			return super.onUse(state, world, pos, player, hand, hit);
