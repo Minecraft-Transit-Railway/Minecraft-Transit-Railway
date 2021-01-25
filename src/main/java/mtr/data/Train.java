@@ -104,22 +104,9 @@ public final class Train extends DataBase {
 			posX[i] = packet.readFloat();
 			posY[i] = packet.readFloat();
 			posZ[i] = packet.readFloat();
-			pathIndex[i] = packet.readInt();
 		}
-
-		speed = packet.readFloat();
-		stationCoolDown = packet.readInt();
 
 		paths = new ArrayList<>();
-		final int pathsLength = packet.readInt();
-		for (int i = 0; i < pathsLength; i++) {
-			final List<Pos3f> path = new ArrayList<>();
-			final int pathLength = packet.readInt();
-			for (int j = 0; j < pathLength; j++) {
-				path.add(new Pos3f(packet.readFloat(), packet.readFloat(), packet.readFloat()));
-			}
-			paths.add(path);
-		}
 	}
 
 	@Override
@@ -167,21 +154,7 @@ public final class Train extends DataBase {
 			packet.writeFloat(posX[i]);
 			packet.writeFloat(posY[i]);
 			packet.writeFloat(posZ[i]);
-			packet.writeInt(pathIndex[i]);
 		}
-
-		packet.writeFloat(speed);
-		packet.writeInt(stationCoolDown);
-
-		packet.writeInt(paths.size());
-		paths.forEach(path -> {
-			packet.writeInt(path.size());
-			path.forEach(pos3f -> {
-				packet.writeFloat(pos3f.getX());
-				packet.writeFloat(pos3f.getY());
-				packet.writeFloat(pos3f.getZ());
-			});
-		});
 	}
 
 	public void spaceOut() {
@@ -225,11 +198,11 @@ public final class Train extends DataBase {
 	}
 
 	public enum TrainType {
-		MINECART(0x666666, 0.5F, 0.01F, 1, 1, 1, EntityMinecart::new),
-		SP1900(0xB42249, 0.9F, 0.01F, 24, 2, 50, EntitySP1900::new),
-		SP1900_MINI(0xB42249, 0.9F, 0.01F, 12, 2, 20, EntitySP1900Mini::new),
-		M_TRAIN(0x999999, 0.9F, 0.01F, 24, 2, 50, EntityMTrain::new),
-		M_TRAIN_MINI(0x999999, 0.9F, 0.01F, 9, 2, 20, EntityMTrainMini::new);
+		MINECART(0x666666, 1, 0.01F, 1, 1, 1, EntityMinecart::new),
+		SP1900(0xB42249, 2, 0.01F, 24, 2, 50, EntitySP1900::new),
+		SP1900_MINI(0xB42249, 2, 0.01F, 12, 2, 20, EntitySP1900Mini::new),
+		M_TRAIN(0x999999, 2, 0.01F, 24, 2, 50, EntityMTrain::new),
+		M_TRAIN_MINI(0x999999, 2, 0.01F, 9, 2, 20, EntityMTrainMini::new);
 		// TODO add light rail
 		// LIGHT_RAIL_1(0xFA831F, 0.5F, 0.01F, 24, 2, 50, EntityLightRail1::new);
 
