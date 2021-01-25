@@ -124,7 +124,7 @@ public class RouteRenderer implements IGui {
 		final float arrowSize = bottom - top;
 		final float arrowPadding = arrowSize / 4;
 
-		String destinationString = IGui.mergeStations(routeData.stream().map(route -> route.stationNames.get(route.stationNames.size() - 1)).collect(Collectors.toList()));
+		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationNames.size() - 1).map(route -> route.stationNames.get(route.stationNames.size() - 1)).collect(Collectors.toList()));
 
 		if (!destinationString.isEmpty()) {
 			destinationString = IGui.addToStationName(destinationString, new TranslatableText("gui.mtr.to_cjk").getString(), new TranslatableText("gui.mtr.to").getString(), "", "");
@@ -134,28 +134,41 @@ public class RouteRenderer implements IGui {
 
 		matrices.push();
 
-		final HorizontalAlignment horizontalAlignment = leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
-		final float textX = 1 + (arrowSize + arrowPadding) * ((hasLeft ? 0.5F : 0) + (hasRight ? -0.5F : 0) + (leftToRight ? 0.5F : -0.5F));
-		final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
-		IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, IGui.ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
-			if (hasLeft) {
-				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, IGui.ARGB_BLACK, light);
-			}
-			if (hasRight) {
-				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, IGui.ARGB_BLACK, light);
-			}
-
+		if (destinationString.isEmpty()) {
 			final float chunkHeight = arrowSize / routeCount;
-			final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
 			for (int i = 0; i < routeCount; i++) {
-				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, IGui.ARGB_BLACK + routeData.get(i).routeColor, light);
+				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", 1 - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, IGui.ARGB_BLACK + routeData.get(i).routeColor, light);
 			}
-
+			
 			matrices.push();
 			matrices.translate(0, 0, -IGui.SMALL_OFFSET);
-			IGui.drawStringWithFont(matrices, textRenderer, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, IGui.ARGB_WHITE, false, null);
+			IGui.drawStringWithFont(matrices, textRenderer, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 1, top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, IGui.ARGB_WHITE, false, null);
 			matrices.pop();
-		}));
+		} else {
+			final HorizontalAlignment horizontalAlignment = leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
+			final float textX = 1 + (arrowSize + arrowPadding) * ((hasLeft ? 0.5F : 0) + (hasRight ? -0.5F : 0) + (leftToRight ? 0.5F : -0.5F));
+			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
+			IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, IGui.ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
+				if (hasLeft) {
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, IGui.ARGB_BLACK, light);
+				}
+				if (hasRight) {
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, IGui.ARGB_BLACK, light);
+				}
+
+				final float chunkHeight = arrowSize / routeCount;
+				final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
+				for (int i = 0; i < routeCount; i++) {
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, IGui.ARGB_BLACK + routeData.get(i).routeColor, light);
+				}
+
+				matrices.push();
+				matrices.translate(0, 0, -IGui.SMALL_OFFSET);
+				IGui.drawStringWithFont(matrices, textRenderer, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, IGui.ARGB_WHITE, false, null);
+				matrices.pop();
+			}));
+		}
+
 		matrices.pop();
 	}
 
