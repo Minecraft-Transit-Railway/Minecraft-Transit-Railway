@@ -2,6 +2,8 @@ package mtr.block;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -13,6 +15,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
@@ -109,5 +112,25 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 
 	private static void updateProperties(World world, BlockPos pos, boolean metalProperty, int colorProperty) {
 		world.setBlockState(pos, world.getBlockState(pos).with(COLOR, colorProperty).with(METAL, metalProperty));
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new BlockStationNameTallWall.TileEntityStationNameTallWall();
+	}
+
+	public static class TileEntityStationNameTallBase extends TileEntityStationNameBase {
+
+		public TileEntityStationNameTallBase(BlockEntityType<?> type, float zOffset) {
+			super(type, 0.25F, zOffset);
+		}
+
+		@Override
+		public boolean shouldRender() {
+			if (world == null) {
+				return false;
+			}
+			return IBlock.getStatePropertySafe(world, pos, THIRD) == EnumThird.MIDDLE;
+		}
 	}
 }

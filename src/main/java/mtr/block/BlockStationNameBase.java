@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.gui.IGui;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -28,19 +29,13 @@ public abstract class BlockStationNameBase extends HorizontalFacingBlock impleme
 		tooltip.add(new TranslatableText("tooltip.mtr.station_color_name").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 	}
 
-	public abstract static class TileEntityStationNameBase extends BlockEntity {
+	public abstract static class TileEntityStationNameBase extends BlockEntity implements IGui {
 
-		public final boolean verticalChinese;
-		public final boolean hasShadow;
-		public final int scale;
 		public final float yOffset;
 		public final float zOffset;
 
-		public TileEntityStationNameBase(BlockEntityType<?> type, boolean verticalChinese, boolean hasShadow, int scale, float yOffset, float zOffset) {
+		public TileEntityStationNameBase(BlockEntityType<?> type, float yOffset, float zOffset) {
 			super(type);
-			this.verticalChinese = verticalChinese;
-			this.hasShadow = hasShadow;
-			this.scale = scale;
 			this.yOffset = yOffset;
 			this.zOffset = zOffset;
 		}

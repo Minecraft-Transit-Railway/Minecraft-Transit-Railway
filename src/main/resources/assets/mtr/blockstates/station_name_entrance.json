@@ -1,0 +1,87 @@
+{
+	"multipart": [
+		{
+			"apply": {
+				"model": "mtr:block/station_name_wall"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"propagate_property": "0"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_short"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"propagate_property": "0"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_short",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"propagate_property": "0"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_short",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"propagate_property": "0"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_short",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"propagate_property": "1"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_tall"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"propagate_property": "1"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_tall",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"propagate_property": "1"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_tall",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"propagate_property": "1"
+			},
+			"apply": {
+				"model": "mtr:block/station_name_entrance_tall",
+				"y": 270
+			}
+		}
+	]
+}

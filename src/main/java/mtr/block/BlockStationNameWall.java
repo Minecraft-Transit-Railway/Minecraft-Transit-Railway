@@ -69,7 +69,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationName();
+		return new TileEntityStationNameWall();
 	}
 
 	@Override
@@ -77,10 +77,10 @@ public class BlockStationNameWall extends BlockStationNameBase {
 		builder.add(COLOR, FACING);
 	}
 
-	public static class TileEntityStationName extends TileEntityStationNameBase {
+	public static class TileEntityStationNameWall extends TileEntityStationNameBase {
 
-		public TileEntityStationName() {
-			super(MTR.STATION_NAME_WALL_TILE_ENTITY, false, true, 40, 0, 0);
+		public TileEntityStationNameWall() {
+			super(MTR.STATION_NAME_WALL_TILE_ENTITY, 0, 0);
 		}
 
 		@Override

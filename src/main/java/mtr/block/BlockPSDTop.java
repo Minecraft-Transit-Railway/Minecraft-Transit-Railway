@@ -40,8 +40,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise());
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise());
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
 		});
 	}
 

@@ -38,11 +38,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
 
 		if (orientation == EnumEscalatorOrientation.SLOPE || orientation == EnumEscalatorOrientation.TRANSITION_TOP) {
-			VoxelShape box = VoxelShapes.empty();
-			for (int step = 0; step < 16; step++) {
-				box = VoxelShapes.union(box, IBlock.getVoxelShapeByDirection(0, 0, 0, 16, step, 15 - step, IBlock.getStatePropertySafe(state, FACING)));
-			}
-			return box;
+			return VoxelShapes.union(Block.createCuboidShape(0, 0, 0, 16, 8, 16), IBlock.getVoxelShapeByDirection(0, 8, 0, 16, 15, 8, IBlock.getStatePropertySafe(state, FACING)));
 		} else {
 			return VoxelShapes.fullCube();
 		}

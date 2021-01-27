@@ -1,0 +1,14 @@
+{
+	"textures": {
+		"particle": "mtr:block/dark_blue"
+	},
+	"elements": [
+		{   "__comment": "Light",
+			"from": [ 0, 0, 0.01 ],
+			"to": [ 16, 16, 0.01 ],
+			"faces": {
+				"south": { "texture": "#particle" }
+			}
+		}
+	]
+}

@@ -27,7 +27,6 @@ public abstract class EntityTrainBase extends Entity {
 
 	public int stationCoolDown;
 
-	private float prevYaw;
 	private int clientInterpolationSteps;
 	private double clientX;
 	private double clientY;
@@ -38,14 +37,20 @@ public abstract class EntityTrainBase extends Entity {
 
 	private final Map<Integer, Pos3f> passengerOffsets;
 
+	private static final TrackedData<Float> POS_X = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> POS_Y = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> POS_Z = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Float> YAW = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Float> PITCH = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> SPEED = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Integer> DOOR_VALUE = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Boolean> DOOR_LEFT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> DOOR_RIGHT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> IS_END_1_HEAD = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> IS_END_2_HEAD = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> HEAD_1_IS_FRONT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
+
+	private static final boolean DEBUG_MODE = false; // set to true to summon trains without autokill
 
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
@@ -65,40 +70,43 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public void tick() {
+		super.tick();
+
 		if (world.isClient) {
+			final float dataTrackerPosX = DEBUG_MODE ? (float) getX() : dataTracker.get(POS_X);
+			final float dataTrackerPosY = DEBUG_MODE ? (float) getY() : dataTracker.get(POS_Y);
+			final float dataTrackerPosZ = DEBUG_MODE ? (float) getZ() : dataTracker.get(POS_Z);
 			final float dataTrackerYaw = dataTracker.get(YAW);
 			final float dataTrackerPitch = dataTracker.get(PITCH);
 
 			if (clientInterpolationSteps > 0) {
-				final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
-				final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
-				final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
+				final double x = dataTrackerPosX + (clientX - dataTrackerPosX) / clientInterpolationSteps;
+				final double y = dataTrackerPosY + (clientY - dataTrackerPosY) / clientInterpolationSteps;
+				final double z = dataTrackerPosZ + (clientZ - dataTrackerPosZ) / clientInterpolationSteps;
 
 				yaw = (float) (dataTrackerYaw + MathHelper.wrapDegrees(clientYaw - dataTrackerYaw) / clientInterpolationSteps);
 				pitch = (float) (dataTrackerPitch + (clientPitch - dataTrackerPitch) / clientInterpolationSteps);
 				--clientInterpolationSteps;
-				updatePosition(x, y, z);
-			} else {
-				yaw = dataTrackerYaw;
-				pitch = dataTrackerPitch;
-				refreshPosition();
-			}
 
-			setRotation(yaw, pitch);
+				updatePosition(x, y, z);
+				setRotation(yaw, pitch);
+			} else {
+				updatePosition(dataTrackerPosX, dataTrackerPosY, dataTrackerPosZ);
+			}
 		} else {
 			if (stationCoolDown > 0) {
 				checkBlockCollision();
 				mountCollidingLivingEntities();
-			}
 
-			if (stationCoolDown < RailwayData.TRAIN_STOP_TIME || stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
-				setDoorValue(0);
-			} else if (stationCoolDown < RailwayData.TRAIN_STOP_TIME + BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				setDoorValue(stationCoolDown - RailwayData.TRAIN_STOP_TIME);
-			} else if (stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
-				setDoorValue(RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - stationCoolDown);
-			} else {
-				setDoorValue(BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
+				if (stationCoolDown < RailwayData.TRAIN_STOP_TIME || stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME) {
+					setDoorValue(0);
+				} else if (stationCoolDown < RailwayData.TRAIN_STOP_TIME + BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
+					setDoorValue(stationCoolDown - RailwayData.TRAIN_STOP_TIME);
+				} else if (stationCoolDown >= RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - BlockPSDAPGDoorBase.MAX_OPEN_VALUE) {
+					setDoorValue(RailwayData.STATION_COOL_DOWN - RailwayData.TRAIN_STOP_TIME - stationCoolDown);
+				} else {
+					setDoorValue(BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
+				}
 			}
 
 			if (getDoorValue() > 0) {
@@ -112,7 +120,7 @@ public abstract class EntityTrainBase extends Entity {
 			}
 
 			killTimer++;
-			if (killTimer > 2) {
+			if (killTimer > 2 && !DEBUG_MODE) {
 				kill();
 			}
 		}
@@ -121,6 +129,9 @@ public abstract class EntityTrainBase extends Entity {
 	@Override
 	public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
 		super.updatePositionAndAngles(x, y, z, yaw, pitch);
+		dataTracker.set(POS_X, (float) x);
+		dataTracker.set(POS_Y, (float) y);
+		dataTracker.set(POS_Z, (float) z);
 		dataTracker.set(YAW, yaw);
 		dataTracker.set(PITCH, pitch);
 		killTimer = 0;
@@ -128,11 +139,11 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = x;
-		clientY = y;
-		clientZ = z;
-		clientYaw = yaw;
-		clientPitch = pitch;
+		clientX = DEBUG_MODE ? x : dataTracker.get(POS_X);
+		clientY = DEBUG_MODE ? y : dataTracker.get(POS_Y);
+		clientZ = DEBUG_MODE ? z : dataTracker.get(POS_Z);
+		clientYaw = dataTracker.get(YAW);
+		clientPitch = dataTracker.get(PITCH);
 		clientInterpolationSteps = interpolationSteps + 2;
 	}
 
@@ -163,7 +174,6 @@ public abstract class EntityTrainBase extends Entity {
 		final float yawChange = MathHelper.wrapDegrees(prevYaw - yaw);
 		passenger.yaw += yawChange;
 		passenger.setHeadYaw(passenger.getHeadYaw() + yawChange);
-		prevYaw = yaw;
 	}
 
 	@Override
@@ -221,8 +231,12 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	protected void initDataTracker() {
+		dataTracker.startTracking(POS_X, 0F);
+		dataTracker.startTracking(POS_Y, 0F);
+		dataTracker.startTracking(POS_Z, 0F);
 		dataTracker.startTracking(YAW, 0F);
 		dataTracker.startTracking(PITCH, 0F);
+		dataTracker.startTracking(SPEED, 0F);
 		dataTracker.startTracking(DOOR_VALUE, 0);
 		dataTracker.startTracking(DOOR_LEFT, false);
 		dataTracker.startTracking(DOOR_RIGHT, false);
@@ -249,6 +263,14 @@ public abstract class EntityTrainBase extends Entity {
 				}
 			});
 		}
+	}
+
+	public void setSpeed(float speed) {
+		dataTracker.set(SPEED, speed);
+	}
+
+	public float getSpeed() {
+		return dataTracker.get(SPEED);
 	}
 
 	public void setDoorValue(int doorValue) {

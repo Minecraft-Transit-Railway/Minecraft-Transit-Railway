@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/leaves_column",
+	"textures": {
+		"end": "block/chiseled_quartz_block_top",
+		"side": "block/chiseled_quartz_block"
+	}
+}

@@ -9,13 +9,13 @@
 					"conditions": [
 						{
 							"condition": "minecraft:block_state_property",
-							"block": "mtr:glass_fence_cio",
+							"block": "mtr:glass_fence_heo",
 							"properties": {
 								"half": "lower"
 							}
 						}
 					],
-					"name": "mtr:glass_fence_cio"
+					"name": "mtr:glass_fence_heo"
 				}
 			],
 			"conditions": [

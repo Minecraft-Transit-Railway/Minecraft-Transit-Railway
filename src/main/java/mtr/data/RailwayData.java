@@ -159,12 +159,11 @@ public class RailwayData extends PersistentState {
 				if (MathHelper.square(train.speed) >= 2 * train.trainType.getAcceleration() * (distanceRemaining - 1)) {
 					if (train.speed >= train.trainType.getAcceleration() * 2) {
 						train.speed -= train.trainType.getAcceleration();
-					} else {
-						train.speed = train.trainType.getAcceleration();
 					}
 				} else if (train.speed < train.trainType.getMaxSpeed()) {
 					train.speed += train.trainType.getAcceleration();
 				}
+				train.speed = MathHelper.clamp(train.speed, train.trainType.getAcceleration(), train.trainType.getMaxSpeed());
 
 				for (int i = 0; i < trainLength; i++) {
 					if (train.pathIndex[i] < pathLength) {
@@ -172,7 +171,7 @@ public class RailwayData extends PersistentState {
 						final Pos3f movement = new Pos3f(newPos.getX() - train.posX[i], newPos.getY() - train.posY[i], newPos.getZ() - train.posZ[i]);
 
 						if (movement.lengthSquared() < MathHelper.square(2 * train.speed)) {
-							train.pathIndex[i]++;
+							train.pathIndex[i] += Math.ceil(train.speed);
 						}
 
 						movement.normalize();
@@ -208,6 +207,7 @@ public class RailwayData extends PersistentState {
 						final double prevTrainZ = trainEntity.getZ();
 
 						trainEntity.updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
+						trainEntity.setSpeed(train.speed);
 						trainEntity.stationCoolDown = train.stationCoolDown;
 
 						final float motionYaw = (float) Math.toDegrees(MathHelper.atan2(xAverage - prevTrainX, zAverage - prevTrainZ));

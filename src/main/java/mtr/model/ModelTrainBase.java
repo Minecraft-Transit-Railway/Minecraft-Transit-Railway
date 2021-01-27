@@ -93,6 +93,12 @@ public abstract class ModelTrainBase extends EntityModel<EntityTrainBase> {
 		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
 	}
 
+	protected static void renderOnce(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.setPivot(positionX, 0, positionZ);
+		setRotationAngle(bone, 0, 0, 0);
+		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	}
+
 	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
 		bone.setPivot(0, 0, position);
 		setRotationAngle(bone, 0, (float) Math.PI, 0);

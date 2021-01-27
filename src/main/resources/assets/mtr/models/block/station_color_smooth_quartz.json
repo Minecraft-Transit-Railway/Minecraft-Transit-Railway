@@ -1,0 +1,6 @@
+{
+	"parent": "block/leaves",
+	"textures": {
+		"all": "block/quartz_block_bottom"
+	}
+}

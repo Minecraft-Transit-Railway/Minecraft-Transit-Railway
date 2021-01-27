@@ -17,7 +17,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public interface IGui {
 
@@ -68,45 +71,128 @@ public interface IGui {
 		return newText;
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y) {
-		drawStringWithFont(matrices, textRenderer, text, 1, 1, x, y, ARGB_WHITE, 1, null);
+	static String addToStationName(String name, String prefixCJK, String prefix, String suffixCJK, String suffix) {
+		final String[] nameSplit = name.split("\\|");
+		final StringBuilder newName = new StringBuilder();
+		for (final String namePart : nameSplit) {
+			if (namePart.codePoints().anyMatch(Character::isIdeographic)) {
+				newName.append(prefixCJK).append(namePart).append(suffixCJK);
+			} else {
+				newName.append(prefix).append(namePart).append(suffix);
+			}
+			newName.append("|");
+		}
+		return newName.deleteCharAt(newName.length() - 1).toString();
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, int horizontalAlignment, int verticalAlignment, float x, float y, int textColor, int drawStyle, DrawingCallback drawingCallback) {
+	static String mergeStations(List<String> stations) {
+		final List<List<String>> combinedCJK = new ArrayList<>();
+		final List<List<String>> combined = new ArrayList<>();
+
+		for (final String station : stations) {
+			final String[] stationSplit = station.split("\\|");
+			final List<String> currentStationCJK = new ArrayList<>();
+			final List<String> currentStation = new ArrayList<>();
+
+			for (final String stationSplitPart : stationSplit) {
+				if (stationSplitPart.codePoints().anyMatch(Character::isIdeographic)) {
+					currentStationCJK.add(stationSplitPart);
+				} else {
+					currentStation.add(stationSplitPart);
+				}
+			}
+
+			for (int i = 0; i < currentStationCJK.size(); i++) {
+				if (i < combinedCJK.size()) {
+					if (!combinedCJK.get(i).contains(currentStationCJK.get(i))) {
+						combinedCJK.get(i).add(currentStationCJK.get(i));
+					}
+				} else {
+					final int index = i;
+					combinedCJK.add(new ArrayList<String>() {{
+						add(currentStationCJK.get(index));
+					}});
+				}
+			}
+
+			for (int i = 0; i < currentStation.size(); i++) {
+				if (i < combined.size()) {
+					if (!combined.get(i).contains(currentStation.get(i))) {
+						combined.get(i).add(currentStation.get(i));
+					}
+				} else {
+					final int index = i;
+					combined.add(new ArrayList<String>() {{
+						add(currentStation.get(index));
+					}});
+				}
+			}
+		}
+
+		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator_cjk").getString() + b).orElse("")).collect(Collectors.toList());
+		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator").getString() + b).orElse("")).collect(Collectors.toList()));
+		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
+	}
+
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y) {
+		drawStringWithFont(matrices, textRenderer, text, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, x, y, 1, ARGB_WHITE, true, null);
+	}
+
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, float x, float y, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+		drawStringWithFont(matrices, textRenderer, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, -1, -1, scale, textColor, shadow, drawingCallback);
+	}
+
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+		drawStringWithFont(matrices, textRenderer, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, maxWidth, maxHeight, scale, textColor, shadow, drawingCallback);
+	}
+
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
+		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
+
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
-		final String[] textSplit = text.split("\\|");
+		final String[] stringSplit = text.split("\\|");
 
-		final int[] lineHeights = new int[textSplit.length];
-		for (int i = 0; i < textSplit.length; i++) {
-			final boolean hasChinese = textSplit[i].codePoints().anyMatch(Character::isIdeographic);
-			lineHeights[i] = LINE_HEIGHT * (hasChinese ? 2 : 1);
+		final List<Integer> lineHeights = Arrays.stream(stringSplit).map(stringSplitPart -> LINE_HEIGHT * (stringSplitPart.codePoints().anyMatch(Character::isIdeographic) ? 2 : 1)).collect(Collectors.toList());
+		final List<OrderedText> orderedTexts = Arrays.stream(stringSplit).map(textSplit -> new LiteralText(textSplit).fillStyle(style).asOrderedText()).collect(Collectors.toList());
+		final int totalHeight = lineHeights.stream().reduce(0, Integer::sum);
+		final int totalWidth = orderedTexts.stream().map(textRenderer::getWidth).reduce(Integer::max).orElse(0);
+
+		if (maxHeight >= 0 && totalHeight / scale > maxHeight) {
+			scale = totalHeight / maxHeight;
 		}
 
-		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
-		final int totalHeight = IntStream.of(lineHeights).sum();
-		int totalWidth = 0;
-		float offset = y - verticalAlignment * totalHeight / 2F;
-		for (int i = 0; i < textSplit.length; i++) {
-			final OrderedText orderedText = new LiteralText(textSplit[i]).fillStyle(style).asOrderedText();
-			final int textWidth = textRenderer.getWidth(orderedText);
-			totalWidth = Math.max(textWidth, totalWidth);
-			switch (drawStyle) {
-				case 0:
-					textRenderer.draw(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
-					break;
-				case 1:
-					textRenderer.drawWithShadow(matrices, orderedText, x - horizontalAlignment * textWidth / 2F, offset, textColor);
-					break;
+		matrices.push();
+
+		final float totalWidthScaled;
+		final float scaleX;
+		if (maxWidth >= 0 && totalWidth > maxWidth * scale) {
+			totalWidthScaled = maxWidth * scale;
+			scaleX = totalWidth / maxWidth;
+		} else {
+			totalWidthScaled = totalWidth;
+			scaleX = scale;
+		}
+		matrices.scale(1 / scaleX, 1 / scale, 1 / scale);
+
+		float offset = verticalAlignment.getOffset(y * scale, totalHeight);
+		for (int i = 0; i < orderedTexts.size(); i++) {
+			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), textRenderer.getWidth(orderedTexts.get(i)) - totalWidth);
+			if (shadow) {
+				textRenderer.drawWithShadow(matrices, orderedTexts.get(i), xOffset, offset, textColor);
+			} else {
+				textRenderer.draw(matrices, orderedTexts.get(i), xOffset, offset, textColor);
 			}
-			offset += lineHeights[i];
+			offset += lineHeights.get(i);
 		}
+
+		matrices.pop();
 
 		if (drawingCallback != null) {
-			final float x1 = x - horizontalAlignment * totalWidth / 2F;
-			final float y1 = y - verticalAlignment * totalHeight / 2F;
-			drawingCallback.drawingCallback(x1, y1, x1 + totalWidth, y1 + totalHeight);
+			final float x1 = xAlignment.getOffset(x, totalWidthScaled / scale);
+			final float y1 = verticalAlignment.getOffset(y, totalHeight / scale);
+			drawingCallback.drawingCallback(x1, y1, x1 + totalWidthScaled / scale, y1 + totalHeight / scale);
 		}
 	}
 
@@ -180,5 +266,35 @@ public interface IGui {
 	@FunctionalInterface
 	interface DrawingCallback {
 		void drawingCallback(float x1, float y1, float x2, float y2);
+	}
+
+	enum HorizontalAlignment {
+		LEFT, CENTER, RIGHT;
+
+		float getOffset(float x, float width) {
+			switch (this) {
+				case CENTER:
+					return x - width / 2;
+				case RIGHT:
+					return x - width;
+				default:
+					return x;
+			}
+		}
+	}
+
+	enum VerticalAlignment {
+		TOP, CENTER, BOTTOM;
+
+		float getOffset(float y, float height) {
+			switch (this) {
+				case CENTER:
+					return y - height / 2;
+				case BOTTOM:
+					return y - height;
+				default:
+					return y;
+			}
+		}
 	}
 }

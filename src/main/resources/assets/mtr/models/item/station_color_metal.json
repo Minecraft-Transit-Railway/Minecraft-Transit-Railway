@@ -1,1 +1,3 @@
-{ "parent": "mtr:block/station_color_metal" }
+{
+	"parent": "mtr:block/station_color_metal"
+}
