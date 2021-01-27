@@ -203,7 +203,7 @@ public final class Train extends DataBase {
 		SP1900_MINI(0xB42249, 2, 0.01F, 12, 2, 20, EntitySP1900Mini::new),
 		M_TRAIN(0x999999, 2, 0.01F, 24, 2, 50, EntityMTrain::new),
 		M_TRAIN_MINI(0x999999, 2, 0.01F, 9, 2, 20, EntityMTrainMini::new),
-		LIGHT_RAIL_1(0xFA831F, 1.2F, 0.01F, 24, 2, 40, EntityLightRail1::new);
+		LIGHT_RAIL_1(0xFA831F, 1.2F, 0.01F, 22, 2, 40, EntityLightRail1::new);
 
 		private final int color;
 		private final float maxSpeed; // blocks per tick

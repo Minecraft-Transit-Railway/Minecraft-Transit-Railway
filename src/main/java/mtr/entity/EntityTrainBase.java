@@ -50,6 +50,8 @@ public abstract class EntityTrainBase extends Entity {
 	private static final TrackedData<Boolean> IS_END_2_HEAD = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Boolean> HEAD_1_IS_FRONT = DataTracker.registerData(EntityTrainBase.class, TrackedDataHandlerRegistry.BOOLEAN);
 
+	private static final boolean DEBUG_MODE = false; // set to true to summon trains without autokill
+
 	protected EntityTrainBase(EntityType<?> type, World world) {
 		super(type, world);
 		setNoGravity(true);
@@ -71,9 +73,9 @@ public abstract class EntityTrainBase extends Entity {
 		super.tick();
 
 		if (world.isClient) {
-			final float dataTrackerPosX = dataTracker.get(POS_X);
-			final float dataTrackerPosY = dataTracker.get(POS_Y);
-			final float dataTrackerPosZ = dataTracker.get(POS_Z);
+			final float dataTrackerPosX = DEBUG_MODE ? (float) getX() : dataTracker.get(POS_X);
+			final float dataTrackerPosY = DEBUG_MODE ? (float) getY() : dataTracker.get(POS_Y);
+			final float dataTrackerPosZ = DEBUG_MODE ? (float) getZ() : dataTracker.get(POS_Z);
 			final float dataTrackerYaw = dataTracker.get(YAW);
 			final float dataTrackerPitch = dataTracker.get(PITCH);
 
@@ -118,7 +120,7 @@ public abstract class EntityTrainBase extends Entity {
 			}
 
 			killTimer++;
-			if (killTimer > 2) {
+			if (killTimer > 2 && !DEBUG_MODE) {
 				kill();
 			}
 		}
@@ -137,9 +139,9 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = dataTracker.get(POS_X);
-		clientY = dataTracker.get(POS_Y);
-		clientZ = dataTracker.get(POS_Z);
+		clientX = DEBUG_MODE ? x : dataTracker.get(POS_X);
+		clientY = DEBUG_MODE ? y : dataTracker.get(POS_Y);
+		clientZ = DEBUG_MODE ? z : dataTracker.get(POS_Z);
 		clientYaw = dataTracker.get(YAW);
 		clientPitch = dataTracker.get(PITCH);
 		clientInterpolationSteps = interpolationSteps + 2;
