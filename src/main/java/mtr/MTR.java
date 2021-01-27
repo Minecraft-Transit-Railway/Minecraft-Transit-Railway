@@ -36,7 +36,7 @@ public class MTR implements ModInitializer {
 	public static final EntityType<EntitySP1900Mini> SP1900_MINI = registerEntity("sp1900_mini", EntitySP1900Mini::new, Train.TrainType.SP1900_MINI.getLength(), 4);
 	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, Train.TrainType.M_TRAIN.getLength(), 4);
 	public static final EntityType<EntityMTrainMini> M_TRAIN_MINI = registerEntity("m_train_mini", EntityMTrainMini::new, Train.TrainType.M_TRAIN_MINI.getLength(), 4);
-	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = null; // = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
+	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
 
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
