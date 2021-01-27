@@ -1,16 +1,11 @@
 package mtr.block;
 
 import mtr.MTR;
-import mtr.gui.IGui;
-import mtr.model.ModelTrainBase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -96,39 +91,6 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 		@Override
 		public boolean shouldRender() {
 			return world != null && !(world.getBlockState(pos.offset(IBlock.getStatePropertySafe(world, pos, FACING).rotateYCounterclockwise())).getBlock() instanceof BlockStationNameEntrance);
-		}
-
-		@Override
-		protected void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color) {
-			if (world == null) {
-				return;
-			}
-
-			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY);
-			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-			final int length = getLength();
-			IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
-				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/block/logo.png", x1 - logoSize, -logoSize / 2, logoSize, logoSize, ModelTrainBase.MAX_LIGHT);
-			}));
-		}
-
-		private int getLength() {
-			if (world == null) {
-				return 1;
-			}
-			final Direction facing = IBlock.getStatePropertySafe(world, pos, FACING);
-
-			int length = 1;
-			while (true) {
-				final BlockState state = world.getBlockState(pos.offset(facing.rotateYClockwise(), length));
-				if (state.getBlock() instanceof BlockStationNameEntrance) {
-					length++;
-				} else {
-					break;
-				}
-			}
-
-			return length;
 		}
 	}
 }

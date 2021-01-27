@@ -15,9 +15,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public class RenderStationName<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRenderer<T> implements IGui {
+public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRenderer<T> implements IGui {
 
-	public RenderStationName(BlockEntityRenderDispatcher dispatcher) {
+	public RenderStationNameBase(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
@@ -54,12 +54,9 @@ public class RenderStationName<T extends BlockStationNameBase.TileEntityStationN
 		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
 		final String stationName = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString());
-		entity.drawStationName.drawStationName(matrices, vertexConsumers, stationName, color);
+		drawStationName(entity, matrices, vertexConsumers, stationName, color);
 		matrices.pop();
 	}
 
-	public interface DrawStationName {
-
-		void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color);
-	}
+	protected abstract void drawStationName(BlockStationNameBase.TileEntityStationNameBase entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color);
 }

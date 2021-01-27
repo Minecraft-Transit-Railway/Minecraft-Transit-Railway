@@ -1,13 +1,9 @@
 package mtr.block;
 
-import mtr.gui.IGui;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -135,11 +131,6 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 				return false;
 			}
 			return IBlock.getStatePropertySafe(world, pos, THIRD) == EnumThird.MIDDLE;
-		}
-
-		@Override
-		protected void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color) {
-			IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, IGui.formatVerticalChinese(stationName), HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 0.75F, 1.5F, 80, color, false, null);
 		}
 	}
 }

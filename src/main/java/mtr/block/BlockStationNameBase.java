@@ -1,14 +1,11 @@
 package mtr.block;
 
 import mtr.gui.IGui;
-import mtr.render.RenderStationName;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.text.Style;
@@ -36,16 +33,12 @@ public abstract class BlockStationNameBase extends HorizontalFacingBlock impleme
 
 		public final float yOffset;
 		public final float zOffset;
-		public final RenderStationName.DrawStationName drawStationName;
 
 		public TileEntityStationNameBase(BlockEntityType<?> type, float yOffset, float zOffset) {
 			super(type);
 			this.yOffset = yOffset;
 			this.zOffset = zOffset;
-			drawStationName = this::drawStationName;
 		}
-
-		protected abstract void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color);
 
 		public abstract boolean shouldRender();
 	}

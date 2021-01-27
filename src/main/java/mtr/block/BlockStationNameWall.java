@@ -1,15 +1,11 @@
 package mtr.block;
 
 import mtr.MTR;
-import mtr.gui.IGui;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -90,11 +86,6 @@ public class BlockStationNameWall extends BlockStationNameBase {
 		@Override
 		public boolean shouldRender() {
 			return true;
-		}
-
-		@Override
-		protected void drawStationName(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color) {
-			IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 60, color, color != ARGB_BLACK, null);
 		}
 	}
 }
