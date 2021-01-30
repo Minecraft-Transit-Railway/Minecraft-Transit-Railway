@@ -24,21 +24,23 @@ public class EntitySpawnMixin {
 		final double x = packet.getX();
 		final double y = packet.getY();
 		final double z = packet.getZ();
+		final float yaw = packet.getYaw() / 256F * 360;
+		final float pitch = packet.getPitch() / 256F * 360;
 		final EntityType<?> entityType = packet.getEntityTypeId();
 
 		final Entity entity;
 		if (entityType == MTR.MINECART) {
-			entity = new EntityMinecart(world, x, y, z);
+			entity = new EntityMinecart(world, x, y, z, yaw, pitch);
 		} else if (entityType == MTR.SP1900) {
-			entity = new EntitySP1900(world, x, y, z);
+			entity = new EntitySP1900(world, x, y, z, yaw, pitch);
 		} else if (entityType == MTR.SP1900_MINI) {
-			entity = new EntitySP1900Mini(world, x, y, z);
+			entity = new EntitySP1900Mini(world, x, y, z, yaw, pitch);
 		} else if (entityType == MTR.M_TRAIN) {
-			entity = new EntityMTrain(world, x, y, z);
+			entity = new EntityMTrain(world, x, y, z, yaw, pitch);
 		} else if (entityType == MTR.M_TRAIN_MINI) {
-			entity = new EntityMTrainMini(world, x, y, z);
+			entity = new EntityMTrainMini(world, x, y, z, yaw, pitch);
 		} else if (entityType == MTR.LIGHT_RAIL_1) {
-			entity = new EntityLightRail1(world, x, y, z);
+			entity = new EntityLightRail1(world, x, y, z, yaw, pitch);
 		} else {
 			entity = null;
 		}

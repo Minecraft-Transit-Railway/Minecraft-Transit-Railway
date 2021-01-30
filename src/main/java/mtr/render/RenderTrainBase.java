@@ -11,12 +11,15 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityRenderer<T> {
+
+	private static final int VIEW_DISTANCE = 32;
 
 	public RenderTrainBase(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -36,11 +39,14 @@ public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityR
 			yawDifference -= 360;
 		}
 
+		final Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
+		final boolean renderDetails = cameraEntity == null || Math.abs(cameraEntity.getX() - entity.getX()) < VIEW_DISTANCE && Math.abs(cameraEntity.getY() - entity.getY()) < VIEW_DISTANCE && Math.abs(cameraEntity.getZ() - entity.getZ()) < VIEW_DISTANCE;
+
 		matrices.push();
 		matrices.translate(0, 1, 0);
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(entity.prevYaw + tickDelta * yawDifference));
 		matrices.multiply(Vector3f.NEGATIVE_X.getDegreesQuaternion(180 + MathHelper.lerp(tickDelta, entity.prevPitch, entity.pitch)));
-		getModel().render(matrices, vertexConsumers, getTexture(entity), light, doorLeftValue, doorRightValue, entity.getIsEnd1Head(), entity.getIsEnd2Head(), entity.getHead1IsFront());
+		getModel().render(matrices, vertexConsumers, getTexture(entity), light, doorLeftValue, doorRightValue, entity.getIsEnd1Head(), entity.getIsEnd2Head(), entity.getHead1IsFront(), renderDetails);
 		matrices.pop();
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();

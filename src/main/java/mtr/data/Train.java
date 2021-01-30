@@ -255,12 +255,12 @@ public final class Train extends DataBase {
 			return capacity;
 		}
 
-		public EntityTrainBase create(World world, double x, double y, double z) {
-			return entityFactory.create(world, x, y, z);
+		public EntityTrainBase create(World world, double x, double y, double z, float yaw, float pitch) {
+			return entityFactory.create(world, x, y, z, yaw, pitch);
 		}
 
 		private interface EntityTrainFactory {
-			EntityTrainBase create(World world, double x, double y, double z);
+			EntityTrainBase create(World world, double x, double y, double z, float yaw, float pitch);
 		}
 	}
 }

@@ -8,14 +8,13 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
-@SuppressWarnings("EntityConstructor")
 public class EntityMinecart extends EntityTrainBase {
 
-	public EntityMinecart(World world, double x, double y, double z) {
-		super(MTR.MINECART, world, x, y, z);
+	public EntityMinecart(World world, double x, double y, double z, float yaw, float pitch) {
+		super(MTR.MINECART, world, x, y, z, yaw, pitch);
 	}
 
-	public EntityMinecart(EntityType<?> type, World world) {
+	public EntityMinecart(EntityType<? extends EntityTrainBase> type, World world) {
 		super(type, world);
 	}
 

@@ -5,14 +5,13 @@ import mtr.data.Train;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
 
-@SuppressWarnings("EntityConstructor")
 public class EntityMTrain extends EntityTrainBase {
 
-	public EntityMTrain(World world, double x, double y, double z) {
-		super(MTR.M_TRAIN, world, x, y, z);
+	public EntityMTrain(World world, double x, double y, double z, float yaw, float pitch) {
+		super(MTR.M_TRAIN, world, x, y, z, yaw, pitch);
 	}
 
-	public EntityMTrain(EntityType<?> type, World world) {
+	public EntityMTrain(EntityType<? extends EntityTrainBase> type, World world) {
 		super(type, world);
 	}
 

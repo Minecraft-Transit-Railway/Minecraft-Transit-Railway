@@ -22,7 +22,6 @@ import net.minecraft.world.World;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("EntityConstructor")
 public abstract class EntityTrainBase extends Entity {
 
 	public int stationCoolDown;
@@ -52,30 +51,32 @@ public abstract class EntityTrainBase extends Entity {
 
 	private static final boolean DEBUG_MODE = false; // set to true to summon trains without autokill
 
-	protected EntityTrainBase(EntityType<?> type, World world) {
+	protected EntityTrainBase(EntityType<? extends EntityTrainBase> type, World world) {
 		super(type, world);
 		setNoGravity(true);
 		noClip = true;
+		ignoreCameraFrustum = true;
 		passengerOffsets = new HashMap<>();
 	}
 
-	protected EntityTrainBase(EntityType<?> type, World world, double x, double y, double z) {
+	protected EntityTrainBase(EntityType<? extends EntityTrainBase> type, World world, double x, double y, double z, float yaw, float pitch) {
 		this(type, world);
 		updatePosition(x, y, z);
+		setRotation(yaw, pitch);
 		setVelocity(Vec3d.ZERO);
 		prevX = x;
 		prevY = y;
 		prevZ = z;
+		prevYaw = yaw;
+		prevPitch = pitch;
 	}
 
 	@Override
 	public void tick() {
-		super.tick();
-
 		if (world.isClient) {
-			final float dataTrackerPosX = DEBUG_MODE ? (float) getX() : dataTracker.get(POS_X);
-			final float dataTrackerPosY = DEBUG_MODE ? (float) getY() : dataTracker.get(POS_Y);
-			final float dataTrackerPosZ = DEBUG_MODE ? (float) getZ() : dataTracker.get(POS_Z);
+			final float dataTrackerPosX = dataTracker.get(POS_X);
+			final float dataTrackerPosY = dataTracker.get(POS_Y);
+			final float dataTrackerPosZ = dataTracker.get(POS_Z);
 			final float dataTrackerYaw = dataTracker.get(YAW);
 			final float dataTrackerPitch = dataTracker.get(PITCH);
 
@@ -92,6 +93,7 @@ public abstract class EntityTrainBase extends Entity {
 				setRotation(yaw, pitch);
 			} else {
 				updatePosition(dataTrackerPosX, dataTrackerPosY, dataTrackerPosZ);
+				setRotation(dataTrackerYaw, dataTrackerPitch);
 			}
 		} else {
 			if (stationCoolDown > 0) {
@@ -139,9 +141,9 @@ public abstract class EntityTrainBase extends Entity {
 
 	@Override
 	public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = DEBUG_MODE ? x : dataTracker.get(POS_X);
-		clientY = DEBUG_MODE ? y : dataTracker.get(POS_Y);
-		clientZ = DEBUG_MODE ? z : dataTracker.get(POS_Z);
+		clientX = dataTracker.get(POS_X);
+		clientY = dataTracker.get(POS_Y);
+		clientZ = dataTracker.get(POS_Z);
 		clientYaw = dataTracker.get(YAW);
 		clientPitch = dataTracker.get(PITCH);
 		clientInterpolationSteps = interpolationSteps + 2;
@@ -215,6 +217,15 @@ public abstract class EntityTrainBase extends Entity {
 		return new EntitySpawnS2CPacket(this);
 	}
 
+	@Override
+	public boolean shouldRender(double distance) {
+		return true;
+	}
+
+	@Override
+	public boolean shouldRender(double cameraX, double cameraY, double cameraZ) {
+		return true;
+	}
 
 	@Override
 	protected boolean canAddPassenger(Entity passenger) {

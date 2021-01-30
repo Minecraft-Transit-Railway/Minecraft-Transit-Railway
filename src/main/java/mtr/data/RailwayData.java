@@ -3,7 +3,6 @@ package mtr.data;
 import mtr.block.BlockPlatformRail;
 import mtr.entity.EntityTrainBase;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.path.PathFinderBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -27,8 +26,6 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_TRAINS = "trains";
-
-	private static final int VIEW_DISTANCE_SQUARED = 128 * 128;
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
@@ -188,20 +185,12 @@ public class RailwayData extends PersistentState {
 				final float xAverage = (train.posX[i] + train.posX[i + 1]) / 2;
 				final float yAverage = (train.posY[i] + train.posY[i + 1]) / 2;
 				final float zAverage = (train.posZ[i] + train.posZ[i + 1]) / 2;
-				final boolean playerNearby = players.stream().anyMatch(player -> PathFinderBase.distanceSquaredBetween(new BlockPos(xAverage, yAverage, zAverage), player.getBlockPos()) < VIEW_DISTANCE_SQUARED);
 
-				final boolean spawnTrain;
-				if (playerNearby && train.entities[i] == null) {
-					train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage);
-					train.entities[i].setIsEndHead(i == trainLength - 2, i == 0);
-					spawnTrain = true;
-				} else {
-					spawnTrain = false;
-				}
-				if (train.entities[i] != null) {
-					if (playerNearby) {
-						final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i + 1] - train.posX[i], train.posZ[i + 1] - train.posZ[i]));
-						final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
+				if (world.isChunkLoaded((int) Math.floor(xAverage / 16), (int) Math.floor(zAverage / 16))) {
+					final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i + 1] - train.posX[i], train.posZ[i + 1] - train.posZ[i]));
+					final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
+
+					if (train.entities[i] != null) {
 						final EntityTrainBase trainEntity = train.entities[i];
 						final double prevTrainX = trainEntity.getX();
 						final double prevTrainZ = trainEntity.getZ();
@@ -213,12 +202,15 @@ public class RailwayData extends PersistentState {
 						final float motionYaw = (float) Math.toDegrees(MathHelper.atan2(xAverage - prevTrainX, zAverage - prevTrainZ));
 						trainEntity.setHead1IsFront(MathHelper.angleBetween(yaw, motionYaw) < 90);
 					} else {
+						train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage, yaw, pitch);
+						train.entities[i].setIsEndHead(i == trainLength - 2, i == 0);
+						world.spawnEntity(train.entities[i]);
+					}
+				} else {
+					if (train.entities[i] != null) {
 						train.entities[i].kill();
 						train.entities[i] = null;
 					}
-				}
-				if (spawnTrain) {
-					world.spawnEntity(train.entities[i]);
 				}
 			}
 		});
