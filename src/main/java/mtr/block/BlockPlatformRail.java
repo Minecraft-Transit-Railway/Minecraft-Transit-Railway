@@ -13,6 +13,7 @@ import net.minecraft.block.enums.RailShape;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
@@ -73,14 +74,14 @@ public class BlockPlatformRail extends AbstractRailBlock {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
 				BlockPos platformPos = getPlatformPos1(world, pos);
-				PacketTrainDataGuiServer.openPlatformScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
+				PacketTrainDataGuiServer.openPlatformScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
 			}
 		}, () -> {
 			if (!player.isHolding(Blocks.PLATFORM_RAIL.asItem())) {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				if (railwayData != null) {
 					BlockPos platformPos = getPlatformPos1(world, pos);
-					PacketTrainDataGuiServer.openScheduleScreenS2C(player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
+					PacketTrainDataGuiServer.openScheduleScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), platformPos);
 				}
 			}
 		});

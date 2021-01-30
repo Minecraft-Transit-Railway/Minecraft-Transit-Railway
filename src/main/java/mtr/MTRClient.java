@@ -12,10 +12,10 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
@@ -103,11 +103,11 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_NAME_TALL_WALL);
 		registerStationColor(Blocks.STATION_POLE);
 
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_TRAINS, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveTrainsS2C(packetByteBuf));
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_DASHBOARD_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openDashboardScreenS2C(packetByteBuf));
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_PLATFORM_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openPlatformScreenS2C(packetByteBuf));
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_OPEN_SCHEDULE_SCREEN, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.openScheduleScreenS2C(packetByteBuf));
-		ClientSidePacketRegistry.INSTANCE.register(IPacket.ID_ALL, (packetContext, packetByteBuf) -> PacketTrainDataGuiClient.receiveAll(packetByteBuf));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_TRAINS, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveTrainsS2C(packet));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_PLATFORM_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openPlatformScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_SCHEDULE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openScheduleScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_ALL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveAll(packet));
 	}
 
 	private static void registerStationColor(Block block) {

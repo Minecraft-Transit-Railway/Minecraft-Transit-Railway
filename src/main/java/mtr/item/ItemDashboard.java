@@ -5,6 +5,7 @@ import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
@@ -20,7 +21,7 @@ public class ItemDashboard extends Item {
 		if (!world.isClient()) {
 			RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				PacketTrainDataGuiServer.openDashboardScreenS2C(user, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
+				PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayerEntity) user, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
 			}
 		}
 		return super.use(world, user, hand);

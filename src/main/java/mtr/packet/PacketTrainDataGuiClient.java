@@ -1,12 +1,12 @@
 package mtr.packet;
 
-import io.netty.buffer.Unpooled;
 import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.PlatformScreen;
 import mtr.gui.ScheduleScreen;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 
@@ -16,27 +16,24 @@ import java.util.stream.Collectors;
 
 public class PacketTrainDataGuiClient implements IPacket {
 
-	public static void openDashboardScreenS2C(PacketByteBuf packet) {
+	public static void openDashboardScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		if (!(minecraftClient.currentScreen instanceof DashboardScreen)) {
-			MinecraftClient.getInstance().openScreen(new DashboardScreen());
+			minecraftClient.openScreen(new DashboardScreen());
 		}
 	}
 
-	public static void openPlatformScreenS2C(PacketByteBuf packet) {
+	public static void openPlatformScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		if (!(minecraftClient.currentScreen instanceof PlatformScreen)) {
-			MinecraftClient.getInstance().openScreen(new PlatformScreen(packet.readBlockPos()));
+			minecraftClient.openScreen(new PlatformScreen(packet.readBlockPos()));
 		}
 	}
 
-	public static void openScheduleScreenS2C(PacketByteBuf packet) {
+	public static void openScheduleScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		if (!(minecraftClient.currentScreen instanceof ScheduleScreen)) {
-			MinecraftClient.getInstance().openScreen(new ScheduleScreen(packet.readBlockPos()));
+			minecraftClient.openScreen(new ScheduleScreen(packet.readBlockPos()));
 		}
 	}
 
@@ -45,16 +42,16 @@ public class PacketTrainDataGuiClient implements IPacket {
 	}
 
 	public static void sendStationsAndRoutesC2S(Set<Station> stations, Set<Route> routes) {
-		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
+		final PacketByteBuf packet = PacketByteBufs.create();
 		IPacket.sendData(packet, stations);
 		IPacket.sendData(packet, routes);
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID_STATIONS_AND_ROUTES, packet);
+		ClientPlayNetworking.send(ID_STATIONS_AND_ROUTES, packet);
 	}
 
 	public static void sendPlatformC2S(Platform platform) {
-		final PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
+		final PacketByteBuf packet = PacketByteBufs.create();
 		platform.writePacket(packet);
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID_PLATFORM, packet);
+		ClientPlayNetworking.send(ID_PLATFORM, packet);
 	}
 
 	public static void receiveAll(PacketByteBuf packet) {
