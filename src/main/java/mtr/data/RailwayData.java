@@ -138,14 +138,9 @@ public class RailwayData extends PersistentState {
 			final int distanceRemaining = pathLength - Math.max(train.pathIndex[0], train.pathIndex[trainLength - 1]);
 
 			if (distanceRemaining <= 0) {
-				train.speed = 0;
-
 				if (isDeadTrain) {
 					trainsToRemove.add(train);
 				} else if (train.stationCoolDown < STATION_COOL_DOWN) {
-					if (train.stationCoolDown == 0) {
-						train.spaceOut();
-					}
 					train.stationCoolDown++;
 				} else {
 					train.paths.remove(0);
@@ -163,9 +158,12 @@ public class RailwayData extends PersistentState {
 					train.speed += train.trainType.getAcceleration();
 				}
 				train.speed = MathHelper.clamp(train.speed, train.trainType.getAcceleration(), train.trainType.getMaxSpeed());
+			}
 
+			if (!train.paths.isEmpty()) {
+				final boolean isForwards = train.pathIndex[0] > train.pathIndex[trainLength - 1];
 				for (int i = 0; i < trainLength; i++) {
-					if (train.pathIndex[i] < pathLength) {
+					if (train.pathIndex[i] < pathLength - train.trainType.getSpacing() * (isForwards ? i : trainLength - i - 1)) {
 						final Pos3f newPos = train.paths.get(0).get(train.pathIndex[i]);
 						final Pos3f movement = new Pos3f(newPos.getX() - train.posX[i], newPos.getY() - train.posY[i], newPos.getZ() - train.posZ[i]);
 
@@ -203,7 +201,8 @@ public class RailwayData extends PersistentState {
 						final float motionYaw = (float) Math.toDegrees(MathHelper.atan2(xAverage - prevTrainX, zAverage - prevTrainZ));
 						trainEntity.setHead1IsFront(MathHelper.angleBetween(yaw, motionYaw) < 90);
 					} else {
-						train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage, yaw, pitch);
+						train.entities[i] = train.trainType.create((World) world, xAverage, yAverage, zAverage);
+						train.entities[i].updatePositionAndAngles(xAverage, yAverage, zAverage, yaw, pitch);
 						train.entities[i].setIsEndHead(i == trainLength - 2, i == 0);
 						world.spawnEntity(train.entities[i]);
 					}
@@ -219,14 +218,16 @@ public class RailwayData extends PersistentState {
 		trainsToRemove.forEach(this::removeTrain);
 		PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
 
-		if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
-			new HashSet<>(platforms).forEach(platform -> {
-				final Train newTrain = platform.createTrainOnPlatform(world, platforms, routes, worldTime);
-				if (newTrain != null) {
-					trains.add(newTrain);
-				}
-			});
-		}
+		new Thread(() -> {
+			if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
+				new HashSet<>(platforms).forEach(platform -> {
+					final Train newTrain = platform.createTrainOnPlatform(world, platforms, routes, worldTime);
+					if (newTrain != null) {
+						trains.add(newTrain);
+					}
+				});
+			}
+		}).start();
 
 		markDirty();
 	}

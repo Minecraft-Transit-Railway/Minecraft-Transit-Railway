@@ -180,13 +180,13 @@ public final class Platform extends DataBase {
 	}
 
 	public Train createTrainOnPlatform(WorldAccess world, Set<Platform> platforms, Set<Route> routes, int worldTime) {
-		final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
 		final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
 		if (optionalScheduleEntry.isPresent()) {
 			final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
 			final Route route = RailwayData.getDataById(routes, shuffleRoutes ? getRandomElementFromList(routeIds) : scheduleEntry.getMiddle());
 			final Train.TrainType trainType = shuffleTrains ? getRandomElementFromList(trainTypes) : scheduleEntry.getRight();
 
+			final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
 			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
 			newTrain.paths.addAll(route.getPath(world, platforms, this));
 			return newTrain;

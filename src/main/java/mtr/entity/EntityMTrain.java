@@ -7,8 +7,8 @@ import net.minecraft.world.World;
 
 public class EntityMTrain extends EntityTrainBase {
 
-	public EntityMTrain(World world, double x, double y, double z, float yaw, float pitch) {
-		super(MTR.M_TRAIN, world, x, y, z, yaw, pitch);
+	public EntityMTrain(World world, double x, double y, double z) {
+		super(MTR.M_TRAIN, world, x, y, z);
 	}
 
 	public EntityMTrain(EntityType<? extends EntityTrainBase> type, World world) {

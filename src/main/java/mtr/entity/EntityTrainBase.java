@@ -59,16 +59,13 @@ public abstract class EntityTrainBase extends Entity {
 		passengerOffsets = new HashMap<>();
 	}
 
-	protected EntityTrainBase(EntityType<? extends EntityTrainBase> type, World world, double x, double y, double z, float yaw, float pitch) {
+	protected EntityTrainBase(EntityType<? extends EntityTrainBase> type, World world, double x, double y, double z) {
 		this(type, world);
 		updatePosition(x, y, z);
-		setRotation(yaw, pitch);
 		setVelocity(Vec3d.ZERO);
 		prevX = x;
 		prevY = y;
 		prevZ = z;
-		prevYaw = yaw;
-		prevPitch = pitch;
 	}
 
 	@Override

@@ -57,7 +57,7 @@ public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityR
 				text = new TranslatableText("mount.onboard", minecraftClient.options.keySneak.getBoundKeyLocalizedText());
 			} else {
 				final float speed = entity.getSpeed() * 20;
-				if (speed == 0) {
+				if (speed <= 5) {
 					final String stationName = ClientData.stations.stream().filter(station -> station.inStation((int) player.getX(), (int) player.getZ())).map(station -> station.name).findFirst().orElse("");
 					text = Text.of(IGui.formatStationName(IGui.addToStationName(stationName, "", "", "站", " Station")));
 				} else {

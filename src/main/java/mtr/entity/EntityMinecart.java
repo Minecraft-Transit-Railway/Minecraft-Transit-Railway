@@ -10,8 +10,8 @@ import net.minecraft.world.World;
 
 public class EntityMinecart extends EntityTrainBase {
 
-	public EntityMinecart(World world, double x, double y, double z, float yaw, float pitch) {
-		super(MTR.MINECART, world, x, y, z, yaw, pitch);
+	public EntityMinecart(World world, double x, double y, double z) {
+		super(MTR.MINECART, world, x, y, z);
 	}
 
 	public EntityMinecart(EntityType<? extends EntityTrainBase> type, World world) {
