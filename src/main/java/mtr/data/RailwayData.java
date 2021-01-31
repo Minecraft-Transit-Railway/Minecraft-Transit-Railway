@@ -4,7 +4,6 @@ import mtr.block.BlockPlatformRail;
 import mtr.entity.EntityTrainBase;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -14,7 +13,10 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class RailwayData extends PersistentState {
 
@@ -180,13 +182,12 @@ public class RailwayData extends PersistentState {
 				}
 			}
 
-			final List<? extends PlayerEntity> players = world.getPlayers();
 			for (int i = 0; i < trainLength - 1; i++) {
 				final float xAverage = (train.posX[i] + train.posX[i + 1]) / 2;
 				final float yAverage = (train.posY[i] + train.posY[i + 1]) / 2;
 				final float zAverage = (train.posZ[i] + train.posZ[i + 1]) / 2;
 
-				if (world.isChunkLoaded((int) Math.floor(xAverage / 16), (int) Math.floor(zAverage / 16))) {
+				if (world.getChunkManager().shouldTickBlock(new BlockPos(xAverage, yAverage, zAverage))) {
 					final float yaw = (float) Math.toDegrees(MathHelper.atan2(train.posX[i + 1] - train.posX[i], train.posZ[i + 1] - train.posZ[i]));
 					final float pitch = (float) Math.toDegrees(Math.asin((train.posY[i + 1] - train.posY[i]) / train.trainType.getSpacing()));
 
@@ -219,7 +220,7 @@ public class RailwayData extends PersistentState {
 		PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
 
 		if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
-			platforms.forEach(platform -> {
+			new HashSet<>(platforms).forEach(platform -> {
 				final Train newTrain = platform.createTrainOnPlatform(world, platforms, routes, worldTime);
 				if (newTrain != null) {
 					trains.add(newTrain);

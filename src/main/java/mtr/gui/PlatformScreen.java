@@ -56,23 +56,20 @@ public class PlatformScreen extends Screen implements IGui {
 
 		for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
 			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> {
-				getPlatform().setFrequencies(value, index);
-				sendUpdate();
-			}, PlatformScreen::getSliderString);
+			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> getPlatform().setFrequencies(value, index), PlatformScreen::getSliderString);
 		}
 
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> onAddingRoute());
 		buttonAddTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_train"), button -> onAddingTrain());
 		buttonCancel = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.cancel"), button -> setAdding(false, false));
-		buttonShuffleRoutes = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_routes"), this::onShuffleRoutesCheckedChanged);
-		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), this::onShuffleTrainsCheckedChanged);
+		buttonShuffleRoutes = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_routes"), checked -> getPlatform().shuffleRoutes = checked);
+		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> getPlatform().shuffleTrains = checked);
 
 		textFieldName = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		addNewList = new DashboardList(this::addButton, null, null, this::onAdded, null, null, this::sendUpdate);
-		routeList = new DashboardList(this::addButton, null, null, null, this::onDeleteRoute, this::getRouteList, this::sendUpdate);
-		trainList = new DashboardList(this::addButton, null, null, null, this::onDeleteTrain, this::getTrainList, this::sendUpdate);
+		addNewList = new DashboardList(this::addButton, null, null, this::onAdded, null, null);
+		routeList = new DashboardList(this::addButton, null, null, null, (data, index) -> getPlatform().routeIds.remove(index), this::getRouteList);
+		trainList = new DashboardList(this::addButton, null, null, null, (data, index) -> getPlatform().trainTypes.remove(index), this::getTrainList);
 	}
 
 	@Override
@@ -101,7 +98,6 @@ public class PlatformScreen extends Screen implements IGui {
 		textFieldName.setChangedListener(text -> {
 			textFieldName.setSuggestion(text.isEmpty() ? "1" : "");
 			getPlatform().name = IGui.textOrUntitled(textFieldName.getText());
-			sendUpdate();
 		});
 
 		addNewList.init();
@@ -141,6 +137,10 @@ public class PlatformScreen extends Screen implements IGui {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+		if (matrices == null) {
+			return;
+		}
+
 		if (addingRoute || addingTrain) {
 			renderBackground(matrices);
 			addNewList.render(matrices, textRenderer);
@@ -187,6 +187,12 @@ public class PlatformScreen extends Screen implements IGui {
 	}
 
 	@Override
+	public void onClose() {
+		PacketTrainDataGuiClient.sendPlatformC2S(getPlatform());
+		super.onClose();
+	}
+
+	@Override
 	public boolean isPauseScreen() {
 		return false;
 	}
@@ -204,22 +210,10 @@ public class PlatformScreen extends Screen implements IGui {
 	private void onAdded(DataBase data, int index) {
 		if (addingRoute) {
 			getPlatform().routeIds.add(data.id);
-			sendUpdate();
 		} else if (addingTrain) {
 			getPlatform().trainTypes.add(Train.TrainType.values()[index]);
-			sendUpdate();
 		}
 		setAdding(false, false);
-	}
-
-	private void onDeleteRoute(DataBase data, int index) {
-		getPlatform().routeIds.remove(index);
-		sendUpdate();
-	}
-
-	private void onDeleteTrain(DataBase data, int index) {
-		getPlatform().trainTypes.remove(index);
-		sendUpdate();
 	}
 
 	private List<Long> getRouteList() {
@@ -250,26 +244,12 @@ public class PlatformScreen extends Screen implements IGui {
 		trainList.x = adding ? width : rightPanelsX + getRightPanelWidth();
 	}
 
-	private void onShuffleRoutesCheckedChanged(boolean checked) {
-		getPlatform().shuffleRoutes = checked;
-		sendUpdate();
-	}
-
-	private void onShuffleTrainsCheckedChanged(boolean checked) {
-		getPlatform().shuffleTrains = checked;
-		sendUpdate();
-	}
-
 	private int getRightPanelWidth() {
 		return (width - rightPanelsX) / 2;
 	}
 
 	private Platform getPlatform() {
 		return RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
-	}
-
-	private void sendUpdate() {
-		PacketTrainDataGuiClient.sendPlatformC2S(getPlatform());
 	}
 
 	private static String getSliderString(int value) {
