@@ -23,11 +23,13 @@ public final class ClientData {
 
 	public static class PlatformRouteDetails {
 
+		public final String routeName;
 		public final int routeColor;
 		public final int currentStationIndex;
 		public final List<StationDetails> stationDetails;
 
-		public PlatformRouteDetails(int routeColor, int currentStationIndex, List<StationDetails> stationDetails) {
+		public PlatformRouteDetails(String routeName, int routeColor, int currentStationIndex, List<StationDetails> stationDetails) {
+			this.routeName = routeName;
 			this.routeColor = routeColor;
 			this.currentStationIndex = currentStationIndex;
 			this.stationDetails = stationDetails;

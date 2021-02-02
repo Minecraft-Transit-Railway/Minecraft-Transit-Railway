@@ -85,6 +85,7 @@ public class RouteRenderer implements IGui {
 			if (vertical) {
 				IGui.drawRectangle(matrices, vertexConsumers, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), smallOffset, PASSED_STATION_COLOR, light);
 				IGui.drawRectangle(matrices, vertexConsumers, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), smallOffset, routeColor, light);
+				IGui.drawStringWithFont(matrices, textRenderer, routeData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, null);
 			} else {
 				IGui.drawRectangle(matrices, vertexConsumers, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, PASSED_STATION_COLOR, light);
 				IGui.drawRectangle(matrices, vertexConsumers, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, routeColor, light);

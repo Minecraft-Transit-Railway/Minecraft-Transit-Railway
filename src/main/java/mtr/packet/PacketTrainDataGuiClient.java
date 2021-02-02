@@ -84,7 +84,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 					ClientData.routesInStation.put(station.id, new ArrayList<>());
 				}
 				if (ClientData.routesInStation.get(station.id).stream().noneMatch(colorNamePair -> route.color == colorNamePair.color)) {
-					ClientData.routesInStation.get(station.id).add(new ClientData.ColorNamePair(route.color, route.name));
+					ClientData.routesInStation.get(station.id).add(new ClientData.ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
 				}
 			}
 		}));
@@ -99,7 +99,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 					return new ClientData.PlatformRouteDetails.StationDetails(station.name, ClientData.routesInStation.get(station.id).stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
 				}
 			}).collect(Collectors.toList());
-			return new ClientData.PlatformRouteDetails(route.color, route.platformIds.indexOf(platform.id), stationDetails);
+			return new ClientData.PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
 		}).collect(Collectors.toList())));
 	}
 }

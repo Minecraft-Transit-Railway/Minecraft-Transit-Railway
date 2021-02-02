@@ -1,7 +1,7 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "mtr:block/metal",
+		"back": "mtr:block/metal",
 		"top": "mtr:block/black",
 		"bottom": "mtr:block/white"
 	},
@@ -13,7 +13,7 @@
 				"up": { "texture": "#particle" },
 				"east": { "texture": "#particle" },
 				"west": { "texture": "#particle" },
-				"north": { "texture": "#particle", "cullface": "north" },
+				"north": { "texture": "#back", "cullface": "north" },
 				"south": { "texture": "#particle" }
 			}
 		},

@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:route_sign_standing_light"
+		}
+	],
+	"result": {
+		"item": "mtr:route_sign_standing_metal"
+	}
+}

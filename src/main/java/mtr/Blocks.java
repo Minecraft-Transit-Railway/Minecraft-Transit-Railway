@@ -34,7 +34,10 @@ public interface Blocks {
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();
 	Block PSD_TOP = new BlockPSDTop();
-	Block ROUTE_SIGN = new BlockRouteSign();
+	Block ROUTE_SIGN_STANDING_LIGHT = new BlockRouteSignStandingLight();
+	Block ROUTE_SIGN_STANDING_METAL = new BlockRouteSignStandingMetal();
+	Block ROUTE_SIGN_WALL_LIGHT = new BlockRouteSignWallLight();
+	Block ROUTE_SIGN_WALL_METAL = new BlockRouteSignWallMetal();
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BIRCH_WOOD));

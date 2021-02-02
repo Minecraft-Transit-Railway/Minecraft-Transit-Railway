@@ -1,0 +1,156 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "north",
+				"half": "lower"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_bottom"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"half": "lower"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_bottom",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"half": "lower"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_bottom",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"half": "lower"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_bottom",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_top"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_top",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_top",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_top",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_light"
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_light",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_light",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"half": "upper"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_light",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_poles"
+			}
+		},
+		{
+			"when": {
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_poles",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_poles",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/route_sign_poles",
+				"y": 270
+			}
+		}
+	]
+}

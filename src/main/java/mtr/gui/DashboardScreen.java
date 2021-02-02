@@ -132,16 +132,17 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		if (matrices == null)
-			return;
-		
-		renderBackground(matrices);
-		widgetMap.render(matrices, mouseX, mouseY, delta);
-		DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-		dashboardList.render(matrices, textRenderer);
-		super.render(matrices, mouseX, mouseY, delta);
-		textFieldName.render(matrices, mouseX, mouseY, delta);
-		textFieldColor.render(matrices, mouseX, mouseY, delta);
+		try {
+			renderBackground(matrices);
+			widgetMap.render(matrices, mouseX, mouseY, delta);
+			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+			dashboardList.render(matrices, textRenderer);
+			super.render(matrices, mouseX, mouseY, delta);
+			textFieldName.render(matrices, mouseX, mouseY, delta);
+			textFieldColor.render(matrices, mouseX, mouseY, delta);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

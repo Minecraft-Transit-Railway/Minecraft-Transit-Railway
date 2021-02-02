@@ -34,44 +34,48 @@ public class ScheduleScreen extends Screen implements IGui {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		renderBackground(matrices);
-		final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR)) : 0;
-		final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
-		drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
-		drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
+		try {
+			renderBackground(matrices);
+			final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR)) : 0;
+			final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
+			drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
 
-		final int rows = (height - SQUARE_SIZE - TEXT_PADDING) / LINE_HEIGHT;
-		final int columns = (int) Math.ceil((float) schedule.size() / rows);
+			final int rows = (height - SQUARE_SIZE - TEXT_PADDING) / LINE_HEIGHT;
+			final int columns = (int) Math.ceil((float) schedule.size() / rows);
 
-		if (columns > 0) {
-			final int columnWidth = (width - TEXT_PADDING) / columns;
-			final int remainingWidth = columnWidth - timeWidth;
-			int routeWidth = maxRouteWidth + TEXT_PADDING;
-			int trainTypeWidth = maxTrainTypeWidth + TEXT_PADDING;
-			if (routeWidth + trainTypeWidth > remainingWidth) {
-				if (routeWidth <= remainingWidth / 2) {
-					trainTypeWidth = remainingWidth - routeWidth;
-				} else if (trainTypeWidth <= remainingWidth / 2) {
-					routeWidth = remainingWidth - trainTypeWidth;
-				} else {
-					routeWidth = remainingWidth / 2;
-					trainTypeWidth = remainingWidth / 2;
+			if (columns > 0) {
+				final int columnWidth = (width - TEXT_PADDING) / columns;
+				final int remainingWidth = columnWidth - timeWidth;
+				int routeWidth = maxRouteWidth + TEXT_PADDING;
+				int trainTypeWidth = maxTrainTypeWidth + TEXT_PADDING;
+				if (routeWidth + trainTypeWidth > remainingWidth) {
+					if (routeWidth <= remainingWidth / 2) {
+						trainTypeWidth = remainingWidth - routeWidth;
+					} else if (trainTypeWidth <= remainingWidth / 2) {
+						routeWidth = remainingWidth - trainTypeWidth;
+					} else {
+						routeWidth = remainingWidth / 2;
+						trainTypeWidth = remainingWidth / 2;
+					}
 				}
-			}
 
-			for (int column = 0; column < columns; column++) {
-				for (int row = 0; row < rows; row++) {
-					final int index = row + rows * column;
-					if (index < schedule.size()) {
-						final Triple<Integer, Long, Train.TrainType> scheduleEntry = schedule.get(index);
-						final int timeDifference = time - scheduleEntry.getLeft();
-						final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
-						drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
-						drawStringWithShadow(matrices, textRenderer, cutToWidth(getRouteString(scheduleEntry.getMiddle()), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
-						drawStringWithShadow(matrices, textRenderer, cutToWidth(getTrainTypeString(scheduleEntry.getRight()), trainTypeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth + routeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
+				for (int column = 0; column < columns; column++) {
+					for (int row = 0; row < rows; row++) {
+						final int index = row + rows * column;
+						if (index < schedule.size()) {
+							final Triple<Integer, Long, Train.TrainType> scheduleEntry = schedule.get(index);
+							final int timeDifference = time - scheduleEntry.getLeft();
+							final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
+							drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
+							drawStringWithShadow(matrices, textRenderer, cutToWidth(getRouteString(scheduleEntry.getMiddle()), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
+							drawStringWithShadow(matrices, textRenderer, cutToWidth(getTrainTypeString(scheduleEntry.getRight()), trainTypeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth + routeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
+						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
