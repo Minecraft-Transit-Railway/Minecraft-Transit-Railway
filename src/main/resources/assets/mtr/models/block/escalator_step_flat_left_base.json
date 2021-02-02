@@ -16,7 +16,7 @@
 		},
 		{   "__comment": "Main left",
 			"from": [ 0, 0, 12 ],
-			"to": [ 16, 16, 16.02 ],
+			"to": [ 16, 16, 16.1 ],
 			"faces": {
 				"up": { "uv": [ 0, 12, 16, 16 ], "texture": "#particle", "cullface": "up" },
 				"north": { "texture": "#particle" },

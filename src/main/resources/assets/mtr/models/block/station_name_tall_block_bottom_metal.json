@@ -6,8 +6,8 @@
 	},
 	"elements": [
 		{
-			"from": [ 1.99, 9.99, 5.5 ],
-			"to": [ 14.01, 16, 10.5 ],
+			"from": [ 1.95, 9.95, 5.5 ],
+			"to": [ 14.05, 16, 10.5 ],
 			"faces": {
 				"down": { "texture": "#metal" },
 				"east": { "texture": "#metal" },

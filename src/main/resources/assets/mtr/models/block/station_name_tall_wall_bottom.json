@@ -17,8 +17,8 @@
 			}
 		},
 		{
-			"from": [ 1.99, 10, 0 ],
-			"to": [ 14.01, 16, 0.51 ],
+			"from": [ 1.95, 10, 0 ],
+			"to": [ 14.05, 16, 0.51 ],
 			"faces": {
 				"east": { "texture": "#overlay" },
 				"west": { "texture": "#overlay" },

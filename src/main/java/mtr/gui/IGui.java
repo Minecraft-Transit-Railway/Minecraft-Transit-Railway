@@ -31,7 +31,8 @@ public interface IGui {
 	int TEXT_FIELD_PADDING = 4;
 	int LINE_HEIGHT = 10;
 
-	float SMALL_OFFSET = 0.0001F;
+	float SMALL_OFFSET_16 = 0.05F;
+	float SMALL_OFFSET = SMALL_OFFSET_16 / 16;
 
 	int RGB_WHITE = 0xFFFFFF;
 	int ARGB_WHITE = 0xFFFFFFFF;

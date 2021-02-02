@@ -15,15 +15,15 @@
 			}
 		},
 		{	"__comment": "Top front",
-			"from": [ 0, 11, 1.99 ],
-			"to": [ 16, 14, 1.99 ],
+			"from": [ 0, 11, 1.95 ],
+			"to": [ 16, 14, 1.95 ],
 			"faces": {
 				"north": { "texture": "#front" }
 			}
 		},
 		{	"__comment": "Top slanted",
-			"from": [ -0.01, 11, 8 ],
-			"to": [ 16.01, 14, 14.5 ],
+			"from": [ -0.05, 11, 8 ],
+			"to": [ 16.05, 14, 14.5 ],
 			"rotation": { "origin": [ 8, 14, 8 ], "axis": "x", "angle": 22.5 },
 			"faces": {
 				"up": { "texture": "#particle" },
@@ -67,8 +67,8 @@
 			}
 		},
 		{	"__comment": "Light white",
-			"from": [ 1, 10.99, 2.5 ],
-			"to": [ 15, 10.99, 4.25 ],
+			"from": [ 1, 10.95, 2.5 ],
+			"to": [ 15, 10.95, 4.25 ],
 			"rotation": { "origin": [ 8, 11, 2 ], "axis": "x", "angle": 22.5 },
 			"shade": false,
 			"faces": {
