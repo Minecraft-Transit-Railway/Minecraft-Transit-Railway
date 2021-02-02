@@ -12,6 +12,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,6 +63,18 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.routes = IPacket.receiveData(packet, Route::new);
 
 		ClientData.platformIdToStation = ClientData.platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(ClientData.stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+
+		ClientData.platformPositionsInStation.clear();
+		ClientData.platforms.forEach(platform -> {
+			final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+			if (station != null) {
+				if (!ClientData.platformPositionsInStation.containsKey(station.id)) {
+					ClientData.platformPositionsInStation.put(station.id, new ArrayList<>());
+				}
+				ClientData.platformPositionsInStation.get(station.id).add(platform.getPos1());
+			}
+		});
+		ClientData.platformPositionsInStation.forEach((stationId, posList) -> Collections.sort(posList));
 
 		ClientData.routesInStation.clear();
 		ClientData.routes.forEach(route -> route.platformIds.forEach(platformId -> {

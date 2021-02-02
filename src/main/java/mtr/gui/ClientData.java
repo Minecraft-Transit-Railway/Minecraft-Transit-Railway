@@ -16,6 +16,7 @@ public final class ClientData {
 	public static Set<Train> trains = new HashSet<>();
 
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
+	public static Map<Long, List<BlockPos>> platformPositionsInStation = new HashMap<>();
 	public static Map<Long, List<ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<BlockPos, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
