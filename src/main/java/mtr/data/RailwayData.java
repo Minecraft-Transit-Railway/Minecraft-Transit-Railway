@@ -131,7 +131,7 @@ public class RailwayData extends PersistentState {
 		final int worldTime = (int) (world.getLunarTime() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR);
 		final Set<Train> trainsToRemove = new HashSet<>();
 
-		trains.forEach(train -> {
+		new HashSet<>(trains).forEach(train -> {
 			final int trainLength = train.posX.length;
 			final boolean isDeadTrain = train.paths.isEmpty();
 			final int pathLength = isDeadTrain ? 0 : train.paths.get(0).size();
@@ -256,12 +256,12 @@ public class RailwayData extends PersistentState {
 	// validation
 
 	private void validatePlatforms(WorldAccess world) {
-		platforms.forEach(platform -> platform.updateDimensions(world));
+		new HashSet<>(platforms).forEach(platform -> platform.updateDimensions(world));
 		platforms.removeIf(platform -> !(world.getBlockState(platform.getMidPos()).getBlock() instanceof BlockPlatformRail));
 
 		final Set<Platform> platformsToRemove = new HashSet<>();
 		final Set<BlockPos> uniquePositions = new HashSet<>();
-		platforms.forEach(platform -> {
+		new HashSet<>(platforms).forEach(platform -> {
 			final BlockPos checkPos = platform.getPos1();
 			if (uniquePositions.contains(checkPos)) {
 				platformsToRemove.add(platform);
@@ -275,9 +275,8 @@ public class RailwayData extends PersistentState {
 	}
 
 	private void validateData() {
-		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
-		trains.removeIf(train -> train.paths.isEmpty());
-		platforms.forEach(platform -> platform.routeIds.removeIf(routeId -> getDataById(routes, routeId) == null));
+		new HashSet<>(routes).forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
+		new HashSet<>(platforms).forEach(platform -> platform.routeIds.removeIf(routeId -> getDataById(routes, routeId) == null));
 		markDirty();
 	}
 
