@@ -80,6 +80,9 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 		public void cyclePlatformIndex() {
 			platformIndex++;
+			if (platformIndex < 0) {
+				platformIndex = 0;
+			}
 			markDirty();
 			sync();
 		}

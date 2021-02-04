@@ -148,6 +148,10 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, int light) {
+		renderArrow(left, right, top, bottom, hasRight, hasLeft, light, true);
+	}
+
+	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, int light, boolean visibleArrow) {
 		final int routeCount = getRouteCount();
 		if (routeCount <= 0) {
 			return;
@@ -192,10 +196,10 @@ public class RouteRenderer implements IGui {
 			final int textColor = vertical ? ARGB_WHITE : ARGB_BLACK;
 			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
 			IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, ((x1, y1, x2, y2) -> {
-				if (hasLeft) {
+				if (hasLeft && visibleArrow) {
 					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, textColor, light);
 				}
-				if (hasRight) {
+				if (hasRight && visibleArrow) {
 					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/arrow.png", x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, textColor, light);
 				}
 

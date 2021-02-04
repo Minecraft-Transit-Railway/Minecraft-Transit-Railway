@@ -10,10 +10,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PacketTrainDataGuiClient implements IPacket {
@@ -63,9 +60,10 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientPlayNetworking.send(ID_PLATFORM, packet);
 	}
 
-	public static void sendSignTypesC2S(BlockPos signPos, BlockRailwaySign.SignType[] signTypes) {
+	public static void sendSignTypesC2S(BlockPos signPos, int platformIndex, BlockRailwaySign.SignType[] signTypes) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
+		packet.writeInt(platformIndex);
 		packet.writeIntArray(BlockRailwaySign.serializeSignTypes(signTypes));
 		ClientPlayNetworking.send(ID_SIGN_TYPES, packet);
 	}
@@ -101,6 +99,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 				}
 			}
 		}));
+		ClientData.routesInStation.forEach((stationId, routeList) -> routeList.sort(Comparator.comparingInt(a -> a.color)));
 
 		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getPos1, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {

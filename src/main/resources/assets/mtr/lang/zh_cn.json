@@ -73,6 +73,7 @@
 	"gui.mtr.game_time": "游戏时间",
 	"gui.mtr.name": "名称",
 	"gui.mtr.platform_number": "月台号码",
+	"gui.mtr.reset_sign": "重设铁路牌",
 	"gui.mtr.routes": "路线",
 	"gui.mtr.s": "秒",
 	"gui.mtr.separator": ", ",

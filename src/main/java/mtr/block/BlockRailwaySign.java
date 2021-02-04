@@ -158,7 +158,9 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 	public static class TileEntityRailwaySign extends BlockEntity implements BlockEntityClientSerializable {
 
+		private int platformIndex;
 		private final SignType[] signTypes;
+		private static final String KEY_PLATFORM_INDEX = "platform_index";
 		private static final String KEY_SIGN_TYPES = "sign_types";
 
 		public TileEntityRailwaySign(int length, boolean isOdd) {
@@ -181,19 +183,26 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 		@Override
 		public void fromClientTag(CompoundTag tag) {
+			platformIndex = tag.getInt(KEY_PLATFORM_INDEX);
 			deserializeSignTypes(tag.getIntArray(KEY_SIGN_TYPES), signTypes);
 		}
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
+			tag.putInt(KEY_PLATFORM_INDEX, platformIndex);
 			tag.putIntArray(KEY_SIGN_TYPES, serializeSignTypes(signTypes));
 			return tag;
 		}
 
-		public void setSign(int[] ordinals) {
+		public void setData(int platformIndex, int[] ordinals) {
+			this.platformIndex = Math.max(platformIndex, 0);
 			deserializeSignTypes(ordinals, signTypes);
 			markDirty();
 			sync();
+		}
+
+		public int getPlatformIndex() {
+			return platformIndex;
 		}
 
 		public SignType[] getSign() {
@@ -219,8 +228,11 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		ESCALATOR("escalator", true, false),
 		ESCALATOR_FLIPPED("escalator", true, true),
 		LIFT("lift", true, false),
+		CROSS("cross", true, false),
 		ARROW_LEFT("arrow", true, false),
 		ARROW_RIGHT("arrow", true, true),
+		ARROW_UP("arrow_up", true, false),
+		ARROW_DOWN("arrow_down", true, false),
 		TRAIN("train", true, false),
 		TRAINS("train", true, false, true),
 		TRAINS_FLIPPED("train", true, true, true),

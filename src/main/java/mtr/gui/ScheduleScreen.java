@@ -68,7 +68,7 @@ public class ScheduleScreen extends Screen implements IGui {
 							final int timeDifference = time - scheduleEntry.getLeft();
 							final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
 							drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
-							drawStringWithShadow(matrices, textRenderer, cutToWidth(getRouteString(scheduleEntry.getMiddle()), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
+							drawStringWithShadow(matrices, textRenderer, cutToWidth(IGui.formatStationName(getRouteString(scheduleEntry.getMiddle())), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
 							drawStringWithShadow(matrices, textRenderer, cutToWidth(getTrainTypeString(scheduleEntry.getRight()), trainTypeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth + routeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
 						}
 					}
