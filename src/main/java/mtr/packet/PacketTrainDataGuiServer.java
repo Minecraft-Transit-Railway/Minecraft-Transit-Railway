@@ -1,9 +1,12 @@
 package mtr.packet;
 
+import mtr.block.BlockRailwaySign;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,6 +24,12 @@ public class PacketTrainDataGuiServer implements IPacket {
 		final PacketByteBuf packet = sendAll(stations, platforms, routes);
 		packet.writeBlockPos(platformPos);
 		ServerPlayNetworking.send(player, ID_OPEN_PLATFORM_SCREEN, packet);
+	}
+
+	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos signPos) {
+		final PacketByteBuf packet = sendAll(stations, platforms, routes);
+		packet.writeBlockPos(signPos);
+		ServerPlayNetworking.send(player, ID_OPEN_RAILWAY_SIGN_SCREEN, packet);
 	}
 
 	public static void openScheduleScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos platformPos) {
@@ -54,6 +63,18 @@ public class PacketTrainDataGuiServer implements IPacket {
 			railwayData.setData(world, platform);
 			broadcastS2C(world, railwayData);
 		}
+	}
+
+	public static void receiveSignTypesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos signPos = packet.readBlockPos();
+		final int[] ordinals = packet.readIntArray();
+
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(signPos);
+			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
+				((BlockRailwaySign.TileEntityRailwaySign) entity).setSign(ordinals);
+			}
+		});
 	}
 
 	public static void broadcastS2C(WorldAccess world, RailwayData railwayData) {

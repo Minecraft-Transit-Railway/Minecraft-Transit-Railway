@@ -1,15 +1,14 @@
 package mtr.packet;
 
+import mtr.block.BlockRailwaySign;
 import mtr.data.*;
-import mtr.gui.ClientData;
-import mtr.gui.DashboardScreen;
-import mtr.gui.PlatformScreen;
-import mtr.gui.ScheduleScreen;
+import mtr.gui.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +29,13 @@ public class PacketTrainDataGuiClient implements IPacket {
 		receiveAll(packet);
 		if (!(minecraftClient.currentScreen instanceof PlatformScreen)) {
 			minecraftClient.openScreen(new PlatformScreen(packet.readBlockPos()));
+		}
+	}
+
+	public static void openRailwaySignScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		receiveAll(packet);
+		if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
+			minecraftClient.openScreen(new RailwaySignScreen(packet.readBlockPos()));
 		}
 	}
 
@@ -55,6 +61,13 @@ public class PacketTrainDataGuiClient implements IPacket {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		platform.writePacket(packet);
 		ClientPlayNetworking.send(ID_PLATFORM, packet);
+	}
+
+	public static void sendSignTypesC2S(BlockPos signPos, BlockRailwaySign.SignType[] signTypes) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(signPos);
+		packet.writeIntArray(BlockRailwaySign.serializeSignTypes(signTypes));
+		ClientPlayNetworking.send(ID_SIGN_TYPES, packet);
 	}
 
 	public static void receiveAll(PacketByteBuf packet) {

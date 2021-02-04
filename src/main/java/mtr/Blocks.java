@@ -34,6 +34,11 @@ public interface Blocks {
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();
 	Block PSD_TOP = new BlockPSDTop();
+	Block RAILWAY_SIGN_2_EVEN = new BlockRailwaySign(2, false);
+	Block RAILWAY_SIGN_2_ODD = new BlockRailwaySign(2, true);
+	Block RAILWAY_SIGN_3_EVEN = new BlockRailwaySign(3, false);
+	Block RAILWAY_SIGN_3_ODD = new BlockRailwaySign(3, true);
+	Block RAILWAY_SIGN_MIDDLE = new BlockRailwaySign(0, false);
 	Block ROUTE_SIGN_STANDING_LIGHT = new BlockRouteSignStandingLight();
 	Block ROUTE_SIGN_STANDING_METAL = new BlockRouteSignStandingMetal();
 	Block ROUTE_SIGN_WALL_LIGHT = new BlockRouteSignWallLight();

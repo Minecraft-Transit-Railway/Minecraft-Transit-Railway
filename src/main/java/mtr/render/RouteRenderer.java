@@ -170,7 +170,7 @@ public class RouteRenderer implements IGui {
 		if (destinationString.isEmpty()) {
 			final float chunkHeight = arrowSize / routeCount;
 			for (int i = 0; i < routeCount; i++) {
-				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, ARGB_BLACK + routeData.get(i).routeColor, light);
+				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/circle.png", centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, ARGB_BLACK + routeData.get(i).routeColor, light);
 			}
 
 			matrices.push();
@@ -193,16 +193,16 @@ public class RouteRenderer implements IGui {
 			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
 			IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, ((x1, y1, x2, y2) -> {
 				if (hasLeft) {
-					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, textColor, light);
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, textColor, light);
 				}
 				if (hasRight) {
-					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/arrow.png", x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, textColor, light);
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/arrow.png", x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, textColor, light);
 				}
 
 				final float chunkHeight = arrowSize / routeCount;
 				final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
 				for (int i = 0; i < routeCount; i++) {
-					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/signs/circle.png", circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, ARGB_BLACK + routeData.get(i).routeColor, light);
+					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/circle.png", circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, ARGB_BLACK + routeData.get(i).routeColor, light);
 				}
 
 				matrices.push();

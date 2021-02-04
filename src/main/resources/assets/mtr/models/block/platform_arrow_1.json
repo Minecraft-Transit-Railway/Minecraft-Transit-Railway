@@ -1,6 +1,6 @@
 {
 	"textures": {
-		"arrow": "mtr:signs/platform_arrow"
+		"arrow": "mtr:sign/platform_arrow"
 	},
 	"elements": [
 		{

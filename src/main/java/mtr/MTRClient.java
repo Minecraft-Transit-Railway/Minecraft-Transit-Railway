@@ -62,6 +62,10 @@ public class MTRClient implements ClientModInitializer {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.CLOCK_TILE_ENTITY, RenderClock::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_EVEN_TILE_ENTITY, RenderRailwaySign::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_ODD_TILE_ENTITY, RenderRailwaySign::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_EVEN_TILE_ENTITY, RenderRailwaySign::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_ODD_TILE_ENTITY, RenderRailwaySign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, RenderRouteSign::new);
@@ -110,6 +114,7 @@ public class MTRClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_TRAINS, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveTrainsS2C(packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_PLATFORM_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openPlatformScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_SCHEDULE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openScheduleScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_ALL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveAll(packet));
 	}
