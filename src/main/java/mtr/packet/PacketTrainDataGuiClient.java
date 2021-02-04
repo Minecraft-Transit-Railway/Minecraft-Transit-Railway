@@ -60,11 +60,14 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientPlayNetworking.send(ID_PLATFORM, packet);
 	}
 
-	public static void sendSignTypesC2S(BlockPos signPos, int platformIndex, BlockRailwaySign.SignType[] signTypes) {
+	public static void sendSignTypesC2S(BlockPos signPos, int platformRouteIndex, BlockRailwaySign.SignType[] signTypes) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
-		packet.writeInt(platformIndex);
-		packet.writeIntArray(BlockRailwaySign.serializeSignTypes(signTypes));
+		packet.writeInt(platformRouteIndex);
+		packet.writeInt(signTypes.length);
+		for (final BlockRailwaySign.SignType signType : signTypes) {
+			packet.writeString(signType == null ? "" : signType.toString());
+		}
 		ClientPlayNetworking.send(ID_SIGN_TYPES, packet);
 	}
 

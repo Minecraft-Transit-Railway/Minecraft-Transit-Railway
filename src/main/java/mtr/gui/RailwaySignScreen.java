@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class RailwaySignScreen extends Screen implements IGui {
 
-	private int platformIndex;
+	private int platformRouteIndex;
 	private int editingIndex;
 
 	private final BlockPos signPos;
@@ -27,7 +27,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final ButtonWidget[] buttonsSelection;
 
 	private static final int SIGN_SIZE = 60;
-	private static final int COLUMNS = 12;
+	private static final int COLUMNS = 18;
 	final BlockRailwaySign.SignType[] ALL_SIGN_TYPES = BlockRailwaySign.SignType.values();
 
 	public RailwaySignScreen(BlockPos signPos) {
@@ -40,7 +40,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			final BlockEntity entity = world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				signTypes = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSign();
-				platformIndex = ((BlockRailwaySign.TileEntityRailwaySign) entity).getPlatformIndex();
+				platformRouteIndex = ((BlockRailwaySign.TileEntityRailwaySign) entity).getPlatformRouteIndex();
 			} else {
 				signTypes = new BlockRailwaySign.SignType[0];
 			}
@@ -77,11 +77,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 		}
 
 		int column = 0;
-		int row = 0;
+		int row = 2;
 		for (int i = 0; i < buttonsSelection.length; i++) {
 			final int columns = ALL_SIGN_TYPES[i].hasCustomText ? 3 : 1;
 
-			IGui.setPositionAndWidth(buttonsSelection[i], (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE * 2, SQUARE_SIZE * columns);
+			IGui.setPositionAndWidth(buttonsSelection[i], (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE, SQUARE_SIZE * columns);
 			buttonsSelection[i].visible = false;
 			addButton(buttonsSelection[i]);
 
@@ -92,7 +92,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			}
 		}
 
-		IGui.setPositionAndWidth(buttonClear, (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE * 2, SQUARE_SIZE * (COLUMNS - column));
+		IGui.setPositionAndWidth(buttonClear, (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE, SQUARE_SIZE * (COLUMNS - column));
 		buttonClear.visible = false;
 		addButton(buttonClear);
 	}
@@ -109,19 +109,19 @@ public class RailwaySignScreen extends Screen implements IGui {
 			for (int i = 0; i < signTypes.length; i++) {
 				if (signTypes[i] != null) {
 					client.getTextureManager().bindTexture(signTypes[i].id);
-					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signTypes[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signTypes.length - i - 1, platformIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signTypes[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signTypes.length - i - 1, platformRouteIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 				}
 			}
 
 			if (editingIndex >= 0) {
 				int column = 0;
-				int row = 0;
+				int row = 2;
 				for (final BlockRailwaySign.SignType signType : ALL_SIGN_TYPES) {
 					final int columns = signType.hasCustomText ? 3 : 1;
 					final boolean moveRight = signType.hasCustomText && signType.flipped;
 
 					client.getTextureManager().bindTexture(signType.id);
-					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - SQUARE_SIZE * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE * 2, SQUARE_SIZE, 2, 2, platformIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - SQUARE_SIZE * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * SQUARE_SIZE, row * SQUARE_SIZE + SIGN_SIZE, SQUARE_SIZE, 2, 2, platformRouteIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 
 					column += columns;
 					if (column >= COLUMNS) {
@@ -137,7 +137,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendSignTypesC2S(signPos, platformIndex, signTypes);
+		PacketTrainDataGuiClient.sendSignTypesC2S(signPos, platformRouteIndex, signTypes);
 		super.onClose();
 	}
 
@@ -160,9 +160,28 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private void setNewSignType(BlockRailwaySign.SignType newSignType) {
 		if (editingIndex >= 0 && editingIndex < signTypes.length) {
-			if (newSignType == signTypes[editingIndex] && (newSignType == BlockRailwaySign.SignType.PLATFORM || newSignType == BlockRailwaySign.SignType.PLATFORM_FLIPPED)) {
-				platformIndex++;
+			if (newSignType == signTypes[editingIndex] && (newSignType == BlockRailwaySign.SignType.PLATFORM || newSignType == BlockRailwaySign.SignType.PLATFORM_FLIPPED || newSignType == BlockRailwaySign.SignType.LINE || newSignType == BlockRailwaySign.SignType.LINE_FLIPPED)) {
+				platformRouteIndex++;
 			}
+
+			if (newSignType != null && newSignType.hasCustomText) {
+				if (newSignType.flipped) {
+					for (int i = editingIndex - 1; i >= 0; i--) {
+						signTypes[i] = null;
+					}
+				} else {
+					for (int i = editingIndex + 1; i < signTypes.length; i++) {
+						signTypes[i] = null;
+					}
+				}
+			}
+
+			for (int i = 0; i < signTypes.length; i++) {
+				if (signTypes[i] != null && signTypes[i].hasCustomText && (i < editingIndex && !signTypes[i].flipped || i > editingIndex && signTypes[i].flipped)) {
+					signTypes[i] = null;
+				}
+			}
+
 			signTypes[editingIndex] = newSignType;
 		}
 	}

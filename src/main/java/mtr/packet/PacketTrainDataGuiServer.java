@@ -67,13 +67,21 @@ public class PacketTrainDataGuiServer implements IPacket {
 
 	public static void receiveSignTypesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
-		final int platformIndex = packet.readInt();
-		final int[] ordinals = packet.readIntArray();
+		final int platformRouteIndex = packet.readInt();
+		final int signLength = packet.readInt();
+		final BlockRailwaySign.SignType[] signTypes = new BlockRailwaySign.SignType[signLength];
+		for (int i = 0; i < signLength; i++) {
+			try {
+				signTypes[i] = BlockRailwaySign.SignType.valueOf(packet.readString(32767));
+			} catch (Exception e) {
+				signTypes[i] = null;
+			}
+		}
 
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(platformIndex, ordinals);
+				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(platformRouteIndex, signTypes);
 			}
 		});
 	}

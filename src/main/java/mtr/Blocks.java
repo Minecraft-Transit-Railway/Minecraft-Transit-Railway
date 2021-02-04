@@ -38,6 +38,14 @@ public interface Blocks {
 	Block RAILWAY_SIGN_2_ODD = new BlockRailwaySign(2, true);
 	Block RAILWAY_SIGN_3_EVEN = new BlockRailwaySign(3, false);
 	Block RAILWAY_SIGN_3_ODD = new BlockRailwaySign(3, true);
+	Block RAILWAY_SIGN_4_EVEN = new BlockRailwaySign(4, false);
+	Block RAILWAY_SIGN_4_ODD = new BlockRailwaySign(4, true);
+	Block RAILWAY_SIGN_5_EVEN = new BlockRailwaySign(5, false);
+	Block RAILWAY_SIGN_5_ODD = new BlockRailwaySign(5, true);
+	Block RAILWAY_SIGN_6_EVEN = new BlockRailwaySign(6, false);
+	Block RAILWAY_SIGN_6_ODD = new BlockRailwaySign(6, true);
+	Block RAILWAY_SIGN_7_EVEN = new BlockRailwaySign(7, false);
+	Block RAILWAY_SIGN_7_ODD = new BlockRailwaySign(7, true);
 	Block RAILWAY_SIGN_MIDDLE = new BlockRailwaySign(0, false);
 	Block ROUTE_SIGN_STANDING_LIGHT = new BlockRouteSignStandingLight();
 	Block ROUTE_SIGN_STANDING_METAL = new BlockRouteSignStandingMetal();

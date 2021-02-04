@@ -162,7 +162,7 @@ public class RouteRenderer implements IGui {
 
 		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList()));
 
-		if (!destinationString.isEmpty()) {
+		if (!destinationString.isEmpty() && visibleArrow) {
 			destinationString = IGui.addToStationName(destinationString, new TranslatableText("gui.mtr.to_cjk").getString(), new TranslatableText("gui.mtr.to").getString(), "", "");
 		}
 

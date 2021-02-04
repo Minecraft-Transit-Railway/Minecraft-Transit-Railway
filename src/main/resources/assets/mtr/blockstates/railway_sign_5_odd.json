@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "mtr:block/railway_sign_end_one_and_a_half"
+		},
+		"facing=east": {
+			"model": "mtr:block/railway_sign_end_one_and_a_half",
+			"y": 90
+		},
+		"facing=south": {
+			"model": "mtr:block/railway_sign_end_one_and_a_half",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mtr:block/railway_sign_end_one_and_a_half",
+			"y": 270
+		}
+	}
+}

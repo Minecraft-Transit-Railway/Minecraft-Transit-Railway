@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -15,8 +16,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -27,6 +31,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+
+import java.util.List;
 
 public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEntityProvider, IBlock {
 
@@ -47,21 +53,12 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			final Direction hitSide = hit.getSide();
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
-				int i = 0;
-				while (true) {
-					final BlockPos checkPos = pos.offset(hitSide.rotateYClockwise(), i);
-					final BlockState checkState = world.getBlockState(checkPos);
-					if (checkState.getBlock() instanceof BlockRailwaySign) {
-						if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && IBlock.getStatePropertySafe(checkState, FACING) == hitSide.getOpposite()) {
-							final RailwayData railwayData = RailwayData.getInstance(world);
-							if (railwayData != null) {
-								PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), checkPos);
-							}
-						}
-					} else {
-						return;
+				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), hitSide.getOpposite());
+				if (checkPos != null) {
+					final RailwayData railwayData = RailwayData.getInstance(world);
+					if (railwayData != null) {
+						PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), checkPos);
 					}
-					i++;
 				}
 			}
 		});
@@ -82,6 +79,24 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction facing = ctx.getPlayerFacing();
 		return IBlock.isReplaceable(ctx, facing.rotateYClockwise(), getMiddleLength() + 2) ? getDefaultState().with(FACING, facing) : null;
+	}
+
+	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		final boolean isNorthOrSouth = facing == Direction.NORTH || facing == Direction.SOUTH;
+
+		final BlockPos checkPos = findEndWithDirection(world, pos, facing, isNorthOrSouth ? Direction.NORTH : Direction.EAST);
+		if (checkPos != null) {
+			IBlock.onBreakCreative(world, player, checkPos);
+		} else {
+			final BlockPos checkPos2 = findEndWithDirection(world, pos, facing.getOpposite(), isNorthOrSouth ? Direction.NORTH : Direction.EAST);
+			if (checkPos2 != null) {
+				IBlock.onBreakCreative(world, player, checkPos2);
+			}
+		}
+
+		super.onBreak(world, pos, state, player);
 	}
 
 	@Override
@@ -111,6 +126,17 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	@Override
+	public String getTranslationKey() {
+		return "block.mtr.railway_sign";
+	}
+
+	@Override
+	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
+		tooltip.add(new TranslatableText("tooltip.mtr.railway_sign_length", length).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		tooltip.add(new TranslatableText(isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+	}
+
+	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
 		if (is(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
 			return null;
@@ -125,43 +151,44 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	public int getXStart() {
-		if (length % 2 == 1 && !isOdd) {
-			return 4;
-		} else if (length % 2 == 0 && !isOdd) {
-			return 8;
-		} else if (length % 2 == 1 && isOdd) {
-			return 12;
-		} else {
-			return 16;
+		switch (length % 4) {
+			default:
+				return isOdd ? 8 : 16;
+			case 1:
+				return isOdd ? 4 : 12;
+			case 2:
+				return isOdd ? 16 : 8;
+			case 3:
+				return isOdd ? 12 : 4;
 		}
 	}
 
 	private int getMiddleLength() {
-		return isOdd ? (length + 2) / 4 * 2 - 1 : length / 4 * 2;
+		return (length - (4 - getXStart() / 4)) / 2;
 	}
 
-	public static int[] serializeSignTypes(SignType[] signTypes) {
-		final int[] ordinals = new int[signTypes.length];
-		for (int i = 0; i < ordinals.length; i++) {
-			ordinals[i] = signTypes[i] == null ? -1 : signTypes[i].ordinal();
-		}
-		return ordinals;
-	}
-
-	public static void deserializeSignTypes(int[] ordinals, SignType[] signTypes) {
-		if (signTypes.length == ordinals.length) {
-			for (int i = 0; i < ordinals.length; i++) {
-				signTypes[i] = ordinals[i] < 0 ? null : SignType.values()[ordinals[i]];
+	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction startDirection, Direction endDirection) {
+		int i = 0;
+		while (true) {
+			final BlockPos checkPos = startPos.offset(startDirection.rotateYCounterclockwise(), i);
+			final BlockState checkState = world.getBlockState(checkPos);
+			if (checkState.getBlock() instanceof BlockRailwaySign) {
+				if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && IBlock.getStatePropertySafe(checkState, FACING) == endDirection) {
+					return checkPos;
+				}
+			} else {
+				return null;
 			}
+			i++;
 		}
 	}
 
 	public static class TileEntityRailwaySign extends BlockEntity implements BlockEntityClientSerializable {
 
-		private int platformIndex;
+		private int platformRouteIndex;
 		private final SignType[] signTypes;
-		private static final String KEY_PLATFORM_INDEX = "platform_index";
-		private static final String KEY_SIGN_TYPES = "sign_types";
+		private static final String KEY_PLATFORM_ROUTE_INDEX = "platform_index";
+		private static final String KEY_SIGN_LENGTH = "sign_length";
 
 		public TileEntityRailwaySign(int length, boolean isOdd) {
 			super(getType(length, isOdd));
@@ -183,26 +210,36 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 		@Override
 		public void fromClientTag(CompoundTag tag) {
-			platformIndex = tag.getInt(KEY_PLATFORM_INDEX);
-			deserializeSignTypes(tag.getIntArray(KEY_SIGN_TYPES), signTypes);
+			platformRouteIndex = tag.getInt(KEY_PLATFORM_ROUTE_INDEX);
+			for (int i = 0; i < signTypes.length; i++) {
+				try {
+					signTypes[i] = SignType.valueOf(tag.getString(KEY_SIGN_LENGTH + i));
+				} catch (Exception e) {
+					signTypes[i] = null;
+				}
+			}
 		}
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putInt(KEY_PLATFORM_INDEX, platformIndex);
-			tag.putIntArray(KEY_SIGN_TYPES, serializeSignTypes(signTypes));
+			tag.putInt(KEY_PLATFORM_ROUTE_INDEX, platformRouteIndex);
+			for (int i = 0; i < signTypes.length; i++) {
+				tag.putString(KEY_SIGN_LENGTH + i, signTypes[i] == null ? "" : signTypes[i].toString());
+			}
 			return tag;
 		}
 
-		public void setData(int platformIndex, int[] ordinals) {
-			this.platformIndex = Math.max(platformIndex, 0);
-			deserializeSignTypes(ordinals, signTypes);
+		public void setData(int platformRouteIndex, SignType[] signTypes) {
+			this.platformRouteIndex = Math.max(platformRouteIndex, 0);
+			if (this.signTypes.length == signTypes.length) {
+				System.arraycopy(signTypes, 0, this.signTypes, 0, signTypes.length);
+			}
 			markDirty();
 			sync();
 		}
 
-		public int getPlatformIndex() {
-			return platformIndex;
+		public int getPlatformRouteIndex() {
+			return platformRouteIndex;
 		}
 
 		public SignType[] getSign() {
@@ -215,6 +252,14 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 					return isOdd ? MTR.RAILWAY_SIGN_2_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_2_EVEN_TILE_ENTITY;
 				case 3:
 					return isOdd ? MTR.RAILWAY_SIGN_3_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_3_EVEN_TILE_ENTITY;
+				case 4:
+					return isOdd ? MTR.RAILWAY_SIGN_4_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_4_EVEN_TILE_ENTITY;
+				case 5:
+					return isOdd ? MTR.RAILWAY_SIGN_5_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_5_EVEN_TILE_ENTITY;
+				case 6:
+					return isOdd ? MTR.RAILWAY_SIGN_6_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_6_EVEN_TILE_ENTITY;
+				case 7:
+					return isOdd ? MTR.RAILWAY_SIGN_7_ODD_TILE_ENTITY : MTR.RAILWAY_SIGN_7_EVEN_TILE_ENTITY;
 				default:
 					return null;
 			}
@@ -227,23 +272,45 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		STAIRS_FLIPPED("stairs", true, true),
 		ESCALATOR("escalator", true, false),
 		ESCALATOR_FLIPPED("escalator", true, true),
+		LIFT_OLD("lift_old", true, false),
 		LIFT("lift", true, false),
 		CROSS("cross", true, false),
+		TOILET("toilets", false, false),
+		FEMALE("female", true, false),
+		MALE("male", true, false),
+		WHEELCHAIR("wheelchair", true, false),
 		ARROW_LEFT("arrow", true, false),
 		ARROW_RIGHT("arrow", true, true),
 		ARROW_UP("arrow_up", true, false),
 		ARROW_DOWN("arrow_down", true, false),
 		TRAIN("train", true, false),
+		LIGHT_RAIL("light_rail", true, false),
 		TRAINS("train", true, false, true),
 		TRAINS_FLIPPED("train", true, true, true),
 		LINE("line", true, false, true),
 		LINE_FLIPPED("line", true, true, true),
+		NO_ENTRY("cross", true, false, true),
+		NO_ENTRY_FLIPPED("cross", true, true, true),
+		LIFT_TEXT_OLD("lift_old", true, false, true),
+		LIFT_TEXT_OLD_FLIPPED("lift_old", true, true, true),
 		LIFT_TEXT("lift", true, false, true),
 		LIFT_TEXT_FLIPPED("lift", true, true, true),
 		PLATFORM("circle", true, false, true),
 		PLATFORM_FLIPPED("circle", true, true, true),
+		LIGHT_RAIL_PLATFORM("light_rail", true, false, true),
+		LIGHT_RAIL_PLATFORM_FLIPPED("light_rail", true, true, true),
+		TOILETS("toilets", false, false, true),
+		TOILETS_FLIPPED("toilets", false, true, true),
+		FEMALE_TOILETS("female", true, false, true),
+		FEMALE_TOILETS_FLIPPED("female", true, true, true),
+		MALE_TOILETS("male", true, false, true),
+		MALE_TOILETS_FLIPPED("male", true, true, true),
+		WHEELCHAIR_TOILETS("wheelchair", true, false, true),
+		WHEELCHAIR_TOILETS_FLIPPED("wheelchair", true, true, true),
 		CUSTOMER_SERVICE_CENTRE("customer_service_centre", true, false, true),
-		CUSTOMER_SERVICE_CENTRE_FLIPPED("customer_service_centre", true, true, true);
+		CUSTOMER_SERVICE_CENTRE_FLIPPED("customer_service_centre", true, true, true),
+		TICKETS("tickets", true, false, true),
+		TICKETS_FLIPPED("tickets", true, true, true);
 
 		public final Identifier id;
 		public final String text;

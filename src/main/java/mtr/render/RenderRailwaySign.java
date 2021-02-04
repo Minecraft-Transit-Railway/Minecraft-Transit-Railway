@@ -55,7 +55,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signTypes.length), 0.5F, SMALL_OFFSET * 2, ARGB_BLACK, light);
 
 				final int index = i;
-				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getPlatformIndex(), (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, -1, ModelTrainBase.MAX_LIGHT));
+				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getPlatformRouteIndex(), (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, -1, ModelTrainBase.MAX_LIGHT));
 			}
 		}
 
@@ -99,8 +99,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);
 
 			if (hasCustomText) {
-				final float maxWidth = Math.max(0, (flipped ? maxWidthLeft : maxWidthRight) * size - margin);
-				IGui.drawStringWithFont(matrices, textRenderer, signType.text, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x : x + size, y + margin, maxWidth, signSize, 0.01F, ARGB_WHITE, false, null);
+				final float fixedMargin = size * (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2;
+				final float maxWidth = Math.max(0, (flipped ? maxWidthLeft : maxWidthRight) * size - fixedMargin);
+				IGui.drawStringWithFont(matrices, textRenderer, signType.text, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x : x + size, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, null);
 			}
 		}
 	}
