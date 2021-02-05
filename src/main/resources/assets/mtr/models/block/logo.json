@@ -3,7 +3,7 @@
 	"textures": {
 		"particle": "mtr:block/metal",
 		"main": "mtr:block/metal",
-		"side": "mtr:block/logo"
+		"side": "mtr:sign/logo"
 	},
 	"elements": [
 		{

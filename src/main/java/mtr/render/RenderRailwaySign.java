@@ -100,8 +100,10 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 			if (hasCustomText) {
 				final float fixedMargin = size * (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2;
-				final float maxWidth = Math.max(0, (flipped ? maxWidthLeft : maxWidthRight) * size - fixedMargin);
-				IGui.drawStringWithFont(matrices, textRenderer, signType.text, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x : x + size, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, null);
+				final boolean isSmall = signType.small;
+				final float maxWidth = Math.max(0, (flipped ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
+				final float start = flipped ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
+				IGui.drawStringWithFont(matrices, textRenderer, signType.text, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, null);
 			}
 		}
 	}
