@@ -16,8 +16,25 @@
 			}
 		},
 		{
+			"from": [ 7.5, 9, 7 ],
+			"to": [ 16, 9.25, 9 ],
+			"faces": {
+				"north": { "texture": "#black" },
+				"south": { "texture": "#black" }
+			}
+		},
+		{
+			"from": [ 7.5, 9.25, 7 ],
+			"to": [ 16, 12, 9 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{
 			"from": [ 7.25, 0, 7 ],
-			"to": [ 7.5, 9, 9 ],
+			"to": [ 7.5, 12, 9 ],
 			"faces": {
 				"down": { "texture": "#black", "cullface": "down" },
 				"up": { "texture": "#black" },

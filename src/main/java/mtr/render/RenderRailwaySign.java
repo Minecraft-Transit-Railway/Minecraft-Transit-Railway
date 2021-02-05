@@ -79,7 +79,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 		if (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED) {
 			final List<ClientData.ColorNamePair> routes = ClientData.routesInStation.get(stationId);
-			if (routes != null) {
+			if (routes != null && routes.size() > 0) {
 				final ClientData.ColorNamePair colorNamePair = routes.get(platformIndex % routes.size());
 
 				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 3);
@@ -91,7 +91,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			}
 
 			final List<BlockPos> platformPositions = ClientData.platformPositionsInStation.get(stationId);
-			if (platformPositions != null) {
+			if (platformPositions != null && platformPositions.size() > 0) {
 				final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.get(platformIndex % platformPositions.size()), true);
 				routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x - size) + margin, (flipped ? x + size * 2 : x + (maxWidthRight + 1) * size) - margin, y + margin, y + size - margin, flipped, !flipped, ModelTrainBase.MAX_LIGHT, false);
 			}

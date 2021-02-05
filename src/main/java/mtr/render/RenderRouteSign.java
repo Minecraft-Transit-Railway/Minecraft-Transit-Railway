@@ -44,7 +44,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 
 		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
 		final List<BlockPos> platformPositions = ClientData.platformPositionsInStation.get(stationId);
-		if (platformPositions == null) {
+		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}
 

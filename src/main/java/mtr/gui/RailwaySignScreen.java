@@ -147,6 +147,18 @@ public class RailwaySignScreen extends Screen implements IGui {
 		return false;
 	}
 
+	@Override
+	public void resize(MinecraftClient client, int width, int height) {
+		super.resize(client, width, height);
+		for (ButtonWidget button : buttonsEdit) {
+			button.active = true;
+		}
+		for (ButtonWidget button : buttonsSelection) {
+			button.visible = false;
+		}
+		editingIndex = -1;
+	}
+
 	private void edit(int editingIndex) {
 		this.editingIndex = editingIndex;
 		for (ButtonWidget button : buttonsEdit) {
