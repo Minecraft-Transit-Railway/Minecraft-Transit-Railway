@@ -31,7 +31,8 @@ public interface IGui {
 	int TEXT_FIELD_PADDING = 4;
 	int LINE_HEIGHT = 10;
 
-	float SMALL_OFFSET = 0.0001F;
+	float SMALL_OFFSET_16 = 0.05F;
+	float SMALL_OFFSET = SMALL_OFFSET_16 / 16;
 
 	int RGB_WHITE = 0xFFFFFF;
 	int ARGB_WHITE = 0xFFFFFFFF;
@@ -237,6 +238,9 @@ public interface IGui {
 	}
 
 	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, int color, int light) {
+		if (vertexConsumers == null) {
+			return;
+		}
 		final Matrix4f matrix4f = matrices.peek().getModel();
 		final Matrix3f matrix3f = matrices.peek().getNormal();
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(light == ModelTrainBase.MAX_LIGHT ? MoreRenderLayers.getInterior(new Identifier(texture)) : MoreRenderLayers.getExterior(new Identifier(texture)));

@@ -85,7 +85,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 	public static class TileEntityStationNameEntrance extends TileEntityStationNameBase {
 
 		public TileEntityStationNameEntrance() {
-			super(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, 0, 0.000625F);
+			super(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, 0, 0.00625F);
 		}
 
 		@Override

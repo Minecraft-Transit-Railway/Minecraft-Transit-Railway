@@ -15,7 +15,7 @@
 			}
 		},
 		{   "__comment": "Main right",
-			"from": [ 0, 0, -0.02 ],
+			"from": [ 0, 0, -0.1 ],
 			"to": [ 16, 16, 4 ],
 			"faces": {
 				"up": { "uv": [ 0, 0, 16, 4 ], "texture": "#particle", "cullface": "up" },
@@ -42,7 +42,7 @@
 			}
 		},
 		{   "__comment": "Main right",
-			"from": [ 0, 0, -0.01 ],
+			"from": [ 0, 0, -0.05 ],
 			"to": [ 8, 8, 4 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {

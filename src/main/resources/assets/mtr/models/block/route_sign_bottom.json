@@ -1,0 +1,6 @@
+{
+	"parent": "mtr:block/route_sign_bottom_base",
+	"textures": {
+		"particle": "mtr:block/black"
+	}
+}

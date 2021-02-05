@@ -3,7 +3,7 @@
 	"textures": {
 		"particle": "mtr:block/metal",
 		"main": "mtr:block/metal",
-		"side": "mtr:block/logo"
+		"side": "mtr:sign/logo"
 	},
 	"elements": [
 		{
@@ -19,8 +19,8 @@
 			}
 		},
 		{
-			"from": [ -0.01, 0, -0.01 ],
-			"to": [ 16.01, 16, 16.01 ],
+			"from": [ -0.05, 0, -0.05 ],
+			"to": [ 16.05, 16, 16.05 ],
 			"shade": false,
 			"faces": {
 				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#side", "cullface": "east" },

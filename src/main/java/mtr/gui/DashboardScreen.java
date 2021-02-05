@@ -66,7 +66,7 @@ public class DashboardScreen extends Screen implements IGui {
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, null, this::onDelete, this::getList, DashboardScreen::sendUpdate);
+		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, null, this::onDelete, this::getList);
 
 		onSelectTab(0);
 	}
@@ -132,13 +132,17 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		renderBackground(matrices);
-		widgetMap.render(matrices, mouseX, mouseY, delta);
-		DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-		dashboardList.render(matrices, textRenderer);
-		super.render(matrices, mouseX, mouseY, delta);
-		textFieldName.render(matrices, mouseX, mouseY, delta);
-		textFieldColor.render(matrices, mouseX, mouseY, delta);
+		try {
+			renderBackground(matrices);
+			widgetMap.render(matrices, mouseX, mouseY, delta);
+			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+			dashboardList.render(matrices, textRenderer);
+			super.render(matrices, mouseX, mouseY, delta);
+			textFieldName.render(matrices, mouseX, mouseY, delta);
+			textFieldColor.render(matrices, mouseX, mouseY, delta);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -180,6 +184,12 @@ public class DashboardScreen extends Screen implements IGui {
 				dashboardList.setData(ClientData.trains, true, false, false, false, false);
 				break;
 		}
+	}
+
+	@Override
+	public void onClose() {
+		PacketTrainDataGuiClient.sendStationsAndRoutesC2S(ClientData.stations, ClientData.routes);
+		super.onClose();
 	}
 
 	@Override
@@ -225,13 +235,11 @@ public class DashboardScreen extends Screen implements IGui {
 			case 0:
 				final Station station = (Station) data;
 				ClientData.stations.remove(station);
-				sendUpdate();
 				break;
 			case 1:
 				if (editingRoute == null) {
 					final Route route = (Route) data;
 					ClientData.routes.remove(route);
-					sendUpdate();
 				} else {
 					editingRoute.platformIds.remove(index);
 				}
@@ -300,7 +308,6 @@ public class DashboardScreen extends Screen implements IGui {
 		editingRoute = null;
 		widgetMap.stopEditing();
 		toggleButtons();
-		sendUpdate();
 	}
 
 	private void toggleButtons() {
@@ -314,10 +321,6 @@ public class DashboardScreen extends Screen implements IGui {
 		textFieldName.visible = showTextFields;
 		textFieldColor.visible = showTextFields;
 		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
-	}
-
-	private static void sendUpdate() {
-		PacketTrainDataGuiClient.sendStationsAndRoutesC2S(ClientData.stations, ClientData.routes);
 	}
 
 	private static int colorStringToInt(String string) {

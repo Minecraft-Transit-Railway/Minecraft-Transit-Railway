@@ -16,7 +16,7 @@
 			}
 		},
 		{   "__comment": "Main right",
-			"from": [ 0, 0, -0.01 ],
+			"from": [ 0, 0, -0.05 ],
 			"to": [ 16, 8, 4 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {

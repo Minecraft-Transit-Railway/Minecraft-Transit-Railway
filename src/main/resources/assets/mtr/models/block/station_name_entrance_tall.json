@@ -4,8 +4,8 @@
 	},
 	"elements": [
 		{   "__comment": "Light",
-			"from": [ 0, 0, 0.01 ],
-			"to": [ 16, 16, 0.01 ],
+			"from": [ 0, 0, 0.05 ],
+			"to": [ 16, 16, 0.05 ],
 			"faces": {
 				"south": { "texture": "#particle" }
 			}

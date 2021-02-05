@@ -34,7 +34,7 @@ public class RenderStationNameEntrance extends RenderStationNameBase<BlockStatio
 		final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
 		final int length = getLength(world, pos);
 		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/block/logo.png", x1 - logoSize, -logoSize / 2, logoSize, logoSize, ModelTrainBase.MAX_LIGHT);
+			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/logo.png", x1 - logoSize, -logoSize / 2, logoSize, logoSize, ModelTrainBase.MAX_LIGHT);
 		}));
 	}
 

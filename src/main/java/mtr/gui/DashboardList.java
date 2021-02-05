@@ -42,12 +42,12 @@ public class DashboardList implements IGui {
 	private boolean hasAdd;
 	private boolean hasDelete;
 
-	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList, Runnable onUpDownCallback) {
+	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.registerButton = registerButton;
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
-		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> onUp(getList, onUpDownCallback));
-		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> onDown(getList, onUpDownCallback));
+		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> onUp(getList));
+		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> onDown(getList));
 		buttonAdd = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
 		buttonDelete = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}
@@ -157,24 +157,22 @@ public class DashboardList implements IGui {
 		}
 	}
 
-	private <T> void onUp(GetList<T> getList, Runnable callback) {
+	private <T> void onUp(GetList<T> getList) {
 		final int index = hoverIndex + scrollOffset;
 		final List<T> list = getList.getList();
 		final T aboveItem = list.get(index - 1);
 		final T thisItem = list.get(index);
 		list.set(index - 1, thisItem);
 		list.set(index, aboveItem);
-		callback.run();
 	}
 
-	private <T> void onDown(GetList<T> getList, Runnable callback) {
+	private <T> void onDown(GetList<T> getList) {
 		final int index = hoverIndex + scrollOffset;
 		final List<T> list = getList.getList();
 		final T thisItem = list.get(index);
 		final T belowItem = list.get(index + 1);
 		list.set(index, belowItem);
 		list.set(index + 1, thisItem);
-		callback.run();
 	}
 
 	private int itemsToShow() {

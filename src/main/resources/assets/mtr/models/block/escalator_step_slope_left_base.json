@@ -17,7 +17,7 @@
 		},
 		{   "__comment": "Main left",
 			"from": [ 0, 0, 12 ],
-			"to": [ 16, 8, 16.01 ],
+			"to": [ 16, 8, 16.05 ],
 			"rotation": { "origin": [ 8, 8, 8 ], "axis": "z", "angle": -45, "rescale": true },
 			"faces": {
 				"up": { "uv": [ 0, 12, 16, 16 ], "texture": "#particle" },

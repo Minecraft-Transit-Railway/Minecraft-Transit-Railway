@@ -157,37 +157,6 @@ public final class Train extends DataBase {
 		}
 	}
 
-	public void spaceOut() {
-		final int trainLength = posX.length;
-		final int startIndex = trainLength / 2;
-		for (int i = startIndex; i > 0; i--) {
-			spaceCar(i, false);
-		}
-		for (int i = startIndex; i < trainLength - 1; i++) {
-			spaceCar(i, true);
-		}
-	}
-
-	private void spaceCar(int index, boolean forwards) {
-		final int indexNext = index + (forwards ? 1 : -1);
-		final Pos3f posMove = new Pos3f(posX[indexNext] - posX[index], posY[indexNext] - posY[index], posZ[indexNext] - posZ[index]);
-
-		posMove.normalize();
-		posMove.scale(trainType.getSpacing());
-
-		final float changeX = posMove.getX() + posX[index] - posX[indexNext];
-		final float changeY = posMove.getY() + posY[index] - posY[indexNext];
-		final float changeZ = posMove.getZ() + posZ[index] - posZ[indexNext];
-
-		int i = indexNext;
-		while (i >= 0 && i < posX.length) {
-			posX[i] += changeX;
-			posY[i] += changeY;
-			posZ[i] += changeZ;
-			i = i + (forwards ? 1 : -1);
-		}
-	}
-
 	private String getName() {
 		return trainType.getName() + " " + id;
 	}

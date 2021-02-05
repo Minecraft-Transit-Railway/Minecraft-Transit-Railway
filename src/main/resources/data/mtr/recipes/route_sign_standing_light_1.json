@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"GGG",
+		"III",
+		"I I"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"G": {
+			"tag": "c:glowstone_dusts"
+		}
+	},
+	"result": {
+		"item": "mtr:route_sign_standing_light",
+		"count": 8
+	}
+}
