@@ -2,6 +2,7 @@ package mtr.gui;
 
 import mtr.data.Platform;
 import mtr.data.RailwayData;
+import mtr.data.Route;
 import mtr.data.Train;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -12,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,10 +28,21 @@ public class ScheduleScreen extends Screen implements IGui {
 	public ScheduleScreen(BlockPos platformPos) {
 		super(new LiteralText(""));
 		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
-		schedule = platform.getSchedule();
-		textRenderer = MinecraftClient.getInstance().textRenderer;
-		maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(RailwayData.getDataById(ClientData.routes, scheduleEntry.getMiddle()).name)).max(Comparator.comparingInt(a -> a)).orElse(0);
-		maxTrainTypeWidth = platform.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
+
+		if (platform == null) {
+			schedule = new ArrayList<>();
+			maxRouteWidth = 0;
+			maxTrainTypeWidth = 0;
+		} else {
+			schedule = platform.getSchedule();
+			textRenderer = MinecraftClient.getInstance().textRenderer;
+
+			maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> {
+				final Route route = RailwayData.getDataById(ClientData.routes, scheduleEntry.getMiddle());
+				return textRenderer.getWidth(route == null ? "" : route.name);
+			}).max(Comparator.comparingInt(a -> a)).orElse(0);
+			maxTrainTypeWidth = platform.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
+		}
 	}
 
 	@Override
@@ -91,7 +104,12 @@ public class ScheduleScreen extends Screen implements IGui {
 	}
 
 	private String getRouteString(long routeId) {
-		return routeId < 0 ? "" : RailwayData.getDataById(ClientData.routes, routeId).name;
+		if (routeId < 0) {
+			return "";
+		} else {
+			final Route route = RailwayData.getDataById(ClientData.routes, routeId);
+			return route == null ? "" : route.name;
+		}
 	}
 
 	private String getTrainTypeString(Train.TrainType trainType) {

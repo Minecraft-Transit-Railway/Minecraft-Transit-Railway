@@ -188,7 +188,10 @@ public final class Platform extends DataBase {
 
 			final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
 			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
-			newTrain.paths.addAll(route.getPath(world, platforms, this));
+
+			if (route != null) {
+				newTrain.paths.addAll(route.getPath(world, platforms, this));
+			}
 			return newTrain;
 		} else {
 			return null;

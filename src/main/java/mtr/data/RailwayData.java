@@ -320,16 +320,31 @@ public class RailwayData extends PersistentState {
 	// static finders
 
 	public static <T extends DataBase> T getDataById(Set<T> data, long id) {
-		return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
+		try {
+			return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static Platform getPlatformByPos(Set<Platform> platforms, BlockPos pos) {
-		return platforms.stream().filter(platform -> platform.getPos1().equals(pos)).findFirst().orElse(null);
+		try {
+			return platforms.stream().filter(platform -> platform.getPos1().equals(pos)).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static Station getStationByPlatform(Set<Station> stations, Platform platform) {
-		final BlockPos pos1 = platform.getPos1();
-		return stations.stream().filter(station -> station.inStation(pos1.getX(), pos1.getZ())).findFirst().orElse(null);
+		try {
+			final BlockPos pos1 = platform.getPos1();
+			return stations.stream().filter(station -> station.inStation(pos1.getX(), pos1.getZ())).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	// other
