@@ -14,8 +14,10 @@ import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3i;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,26 +223,32 @@ public interface IGui {
 		vertexConsumer.vertex(x2, y1, 0).color(r, g, b, a).next();
 	}
 
-	static void drawRectangle(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float x2, float y2, float z, int color, int light) {
-		drawRectangle(matrices, vertexConsumers, x1, y1, z, x2, y2, z, color, light);
+	static void drawRectangle(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float x2, float y2, float z, Direction facing, int color, int light) {
+		drawRectangle(matrices, vertexConsumers, x1, y1, z, x2, y2, z, facing, color, light);
 	}
 
-	static void drawRectangle(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int color, int light) {
-		drawTexture(matrices, vertexConsumers, "mtr:textures/block/white.png", x1, y1, z1, x2, y2, z2, 0, 0, 1, 1, color, light);
+	static void drawRectangle(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int color, int light) {
+		drawTexture(matrices, vertexConsumers, "mtr:textures/block/white.png", x1, y1, z1, x2, y2, z2, 0, 0, 1, 1, facing, color, light);
 	}
 
-	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x, float y, float width, float height, int light) {
-		drawTexture(matrices, vertexConsumers, texture, x, y, 0, x + width, y + height, 0, 0, 0, 1, 1, -1, light);
+	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x, float y, float width, float height, Direction facing, int light) {
+		drawTexture(matrices, vertexConsumers, texture, x, y, 0, x + width, y + height, 0, 0, 0, 1, 1, facing, -1, light);
 	}
 
-	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x, float y, float width, float height, float u1, float v1, float u2, float v2, int color, int light) {
-		drawTexture(matrices, vertexConsumers, texture, x, y, 0, x + width, y + height, 0, u1, v1, u2, v2, color, light);
+	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x, float y, float width, float height, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+		drawTexture(matrices, vertexConsumers, texture, x, y, 0, x + width, y + height, 0, u1, v1, u2, v2, facing, color, light);
 	}
 
-	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, int color, int light) {
+	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
+
+		drawTexture(matrices, vertexConsumers, texture, x1, y2, z1, x2, y2, z2, x2, y1, z2, x1, y1, z1, u1, v1, u2, v2, facing, color, light);
+	}
+
+	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		if (vertexConsumers == null) {
 			return;
 		}
+		final Vec3i vec3i = facing.getVector();
 		final Matrix4f matrix4f = matrices.peek().getModel();
 		final Matrix3f matrix3f = matrices.peek().getNormal();
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(light == ModelTrainBase.MAX_LIGHT ? MoreRenderLayers.getInterior(new Identifier(texture)) : MoreRenderLayers.getExterior(new Identifier(texture)));
@@ -248,10 +256,10 @@ public interface IGui {
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
-		vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, 1, 0, 1).next();
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, 1, 0, 1).next();
-		vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, 1, 0, 1).next();
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, 1, 0, 1).next();
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
 	static void drawRectangleBright(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int color) {

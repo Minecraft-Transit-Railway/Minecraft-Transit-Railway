@@ -52,10 +52,10 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 		for (int i = 0; i < signTypes.length; i++) {
 			if (signTypes[i] != null) {
-				IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signTypes.length), 0.5F, SMALL_OFFSET * 2, ARGB_BLACK, light);
+				IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signTypes.length), 0.5F, SMALL_OFFSET * 2, facing, ARGB_BLACK, light);
 
 				final int index = i;
-				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getPlatformRouteIndex(), (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, -1, ModelTrainBase.MAX_LIGHT));
+				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getPlatformRouteIndex(), facing, (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, ModelTrainBase.MAX_LIGHT));
 			}
 		}
 
@@ -67,7 +67,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		return true;
 	}
 
-	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, int platformIndex, DrawTexture drawTexture) {
+	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, int platformIndex, Direction facing, DrawTexture drawTexture) {
 		final float signSize = (signType.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
 		final float margin = (size - signSize) / 2;
 
@@ -83,7 +83,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				final ClientData.ColorNamePair colorNamePair = routes.get(platformIndex % routes.size());
 
 				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 3);
-				IGui.drawStringWithFont(matrices, textRenderer, colorNamePair.name, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x + size - margin * 1.5F : x + margin * 1.5F, y + margin * 1.5F, maxWidth, size - margin * 3, 0.01F, ARGB_WHITE, false, (x1, y1, x2, y2) -> IGui.drawRectangle(matrices, vertexConsumers, x1 - margin / 2, y1 - margin / 2, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, colorNamePair.color + ARGB_BLACK, ModelTrainBase.MAX_LIGHT));
+				IGui.drawStringWithFont(matrices, textRenderer, colorNamePair.name, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x + size - margin * 1.5F : x + margin * 1.5F, y + margin * 1.5F, maxWidth, size - margin * 3, 0.01F, ARGB_WHITE, false, (x1, y1, x2, y2) -> IGui.drawRectangle(matrices, vertexConsumers, x1 - margin / 2, y1 - margin / 2, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, facing, colorNamePair.color + ARGB_BLACK, ModelTrainBase.MAX_LIGHT));
 			}
 		} else if (signType == BlockRailwaySign.SignType.PLATFORM || signType == BlockRailwaySign.SignType.PLATFORM_FLIPPED) {
 			if (vertexConsumers == null) {
@@ -93,7 +93,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			final List<BlockPos> platformPositions = ClientData.platformPositionsInStation.get(stationId);
 			if (platformPositions != null && platformPositions.size() > 0) {
 				final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.get(platformIndex % platformPositions.size()), true);
-				routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x - size) + margin, (flipped ? x + size * 2 : x + (maxWidthRight + 1) * size) - margin, y + margin, y + size - margin, flipped, !flipped, ModelTrainBase.MAX_LIGHT, false);
+				routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x - size) + margin, (flipped ? x + size * 2 : x + (maxWidthRight + 1) * size) - margin, y + margin, y + size - margin, flipped, !flipped, facing, ModelTrainBase.MAX_LIGHT, false);
 			}
 		} else {
 			drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);

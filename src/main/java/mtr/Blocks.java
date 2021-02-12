@@ -34,6 +34,7 @@ public interface Blocks {
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();
 	Block PSD_TOP = new BlockPSDTop();
+	Block RAIL = new BlockRail(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).nonOpaque());
 	Block RAILWAY_SIGN_2_EVEN = new BlockRailwaySign(2, false);
 	Block RAILWAY_SIGN_2_ODD = new BlockRailwaySign(2, true);
 	Block RAILWAY_SIGN_3_EVEN = new BlockRailwaySign(3, false);

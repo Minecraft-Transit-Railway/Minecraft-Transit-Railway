@@ -12,6 +12,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 public class RailwaySignScreen extends Screen implements IGui {
 
@@ -110,7 +111,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			for (int i = 0; i < signTypes.length; i++) {
 				if (signTypes[i] != null) {
 					client.getTextureManager().bindTexture(signTypes[i].id);
-					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signTypes[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signTypes.length - i - 1, platformRouteIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signTypes[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signTypes.length - i - 1, platformRouteIndex, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 				}
 			}
 
@@ -122,7 +123,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 					final boolean moveRight = signType.hasCustomText && signType.flipped;
 
 					client.getTextureManager().bindTexture(signType.id);
-					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - SQUARE_SIZE * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * SQUARE_SIZE, row * SQUARE_SIZE + ROW_START, SQUARE_SIZE, 2, 2, platformRouteIndex, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - SQUARE_SIZE * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * SQUARE_SIZE, row * SQUARE_SIZE + ROW_START, SQUARE_SIZE, 2, 2, platformRouteIndex, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 
 					column += columns;
 					if (column >= COLUMNS) {
