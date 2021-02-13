@@ -259,10 +259,10 @@ public class Rail {
 		for (double i = 0; i < count - 0.1; i += increment) {
 			final double t1 = (reverseT ? -1 : 1) * i + tStart;
 			final double t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Vec3d corner1 = getPosition(h, k, r, t1, -0.5, isStraight);
-			final Vec3d corner2 = getPosition(h, k, r, t1, 0.5, isStraight);
-			final Vec3d corner3 = getPosition(h, k, r, t2, 0.5, isStraight);
-			final Vec3d corner4 = getPosition(h, k, r, t2, -0.5, isStraight);
+			final Vec3d corner1 = getPosition(h, k, r, t1, -1, isStraight);
+			final Vec3d corner2 = getPosition(h, k, r, t1, 1, isStraight);
+			final Vec3d corner3 = getPosition(h, k, r, t2, 1, isStraight);
+			final Vec3d corner4 = getPosition(h, k, r, t2, -1, isStraight);
 
 			callback.renderRail((float) corner1.x, (float) corner1.z, (float) corner2.x, (float) corner2.z, (float) corner3.x, (float) corner3.z, (float) corner4.x, (float) corner4.z);
 		}

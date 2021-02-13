@@ -1,5 +1,6 @@
 package mtr.model;
 
+import mtr.gui.IGui;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
@@ -10,9 +11,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 
-public abstract class ModelTrainBase extends EntityModel<Entity> {
+public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
-	public static final int MAX_LIGHT = 0xF00000;
+	private static final int MAX_LIGHT_TRAIN = 0xF00000;
 
 	@Override
 	public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
@@ -23,15 +24,15 @@ public abstract class ModelTrainBase extends EntityModel<Entity> {
 	}
 
 	public final void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.LIGHTS, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(texture)), RenderStage.INTERIOR, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.LIGHTS, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(texture)), RenderStage.INTERIOR, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
 
 		if (renderDetails) {
 			for (int position : getDoorPositions()) {
 				renderDoorLabels(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position / 16F, doorLeftValue, doorRightValue);
 				renderDoorLabels(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position / 16F, doorLeftValue, doorRightValue);
 			}
-			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
 		}
 
 		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);

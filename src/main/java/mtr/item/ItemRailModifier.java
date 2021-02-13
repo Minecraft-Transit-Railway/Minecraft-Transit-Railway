@@ -4,23 +4,28 @@ import mtr.block.BlockRail;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ItemRailConnector extends Item {
+public class ItemRailModifier extends Item {
 
+	private final boolean isConnector;
 	private static final String TAG_POS = "pos";
 
-	public ItemRailConnector(Settings settings) {
-		super(settings);
+	public ItemRailModifier(boolean isConnector) {
+		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
+		this.isConnector = isConnector;
 	}
 
 	@Override
@@ -35,7 +40,18 @@ public class ItemRailConnector extends Item {
 
 				if (tag.contains(TAG_POS)) {
 					final BlockPos pos2 = BlockPos.fromLong(tag.getLong(TAG_POS));
-					((BlockRail.TileEntityRail) entity).addRail(pos2);
+					final BlockEntity entity2 = world.getBlockEntity(pos2);
+
+					if (entity2 instanceof BlockRail.TileEntityRail) {
+						if (isConnector) {
+							((BlockRail.TileEntityRail) entity).addRail(pos2);
+							((BlockRail.TileEntityRail) entity2).addRail(pos);
+						} else {
+							((BlockRail.TileEntityRail) entity).removeRail(pos2);
+							((BlockRail.TileEntityRail) entity2).removeRail(pos);
+						}
+					}
+
 					tag.remove(TAG_POS);
 				} else {
 					tag.putLong(TAG_POS, pos.asLong());
@@ -55,7 +71,7 @@ public class ItemRailConnector extends Item {
 		final CompoundTag tag = stack.getOrCreateTag();
 		final long posLong = tag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(new TranslatableText("tooltip.mtr.connecting_to").append(BlockPos.fromLong(posLong).toShortString()));
+			tooltip.add(new TranslatableText("tooltip.mtr.selected_block").append(BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 	}
 }

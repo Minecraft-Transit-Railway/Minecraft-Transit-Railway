@@ -3,22 +3,25 @@ package mtr.block;
 import mtr.MTR;
 import mtr.data.Rail;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
 
@@ -30,7 +33,32 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return getDefaultState().with(FACING, ctx.getPlayerFacing());
+		return getDefaultState().with(FACING, ctx.getPlayerFacing()).with(IS_CONNECTED, false);
+	}
+
+	@Override
+	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (!world.isClient) {
+			final BlockEntity entity = world.getBlockEntity(pos);
+			if (entity instanceof TileEntityRail) {
+				for (final BlockPos newPos : ((TileEntityRail) entity).railMap.keySet()) {
+					final BlockEntity newEntity = world.getBlockEntity(newPos);
+					if (newEntity instanceof TileEntityRail) {
+						((TileEntityRail) newEntity).removeRail(pos);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return Block.createCuboidShape(0, 0, 0, 16, 1, 16);
+	}
+
+	@Override
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	@Override
@@ -50,8 +78,9 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	public static class TileEntityRail extends BlockEntity implements BlockEntityClientSerializable {
 
-		public final List<Rail> railList = new ArrayList<>();
+		public final Map<BlockPos, Rail> railMap = new HashMap<>();
 		private static final String KEY_LIST_LENGTH = "list_length";
+		private static final String KEY_BLOCK_POS = "block_pos";
 
 		public TileEntityRail() {
 			super(MTR.RAIL_TILE_ENTITY);
@@ -72,18 +101,21 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 		@Override
 		public void fromClientTag(CompoundTag tag) {
-			railList.clear();
+			railMap.clear();
 			final int listLength = tag.getInt(KEY_LIST_LENGTH);
 			for (int i = 0; i < listLength; i++) {
-				railList.add(new Rail(tag.getCompound(KEY_LIST_LENGTH + i)));
+				final BlockPos newPos = BlockPos.fromLong(tag.getLong(KEY_BLOCK_POS + i));
+				railMap.put(newPos, new Rail(tag.getCompound(KEY_LIST_LENGTH + i)));
 			}
 		}
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putInt(KEY_LIST_LENGTH, railList.size());
-			for (int i = 0; i < railList.size(); i++) {
-				tag.put(KEY_LIST_LENGTH + i, railList.get(i).toTag());
+			tag.putInt(KEY_LIST_LENGTH, railMap.size());
+			final List<BlockPos> keys = new ArrayList<>(railMap.keySet());
+			for (int i = 0; i < railMap.size(); i++) {
+				tag.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
+				tag.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toTag());
 			}
 			return tag;
 		}
@@ -92,9 +124,28 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
 				final Direction facing1 = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
 				final Direction facing2 = IBlock.getStatePropertySafe(world, newPos, HorizontalFacingBlock.FACING);
-				railList.add(new Rail(pos, facing1, newPos, facing2));
+				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2));
+
 				markDirty();
 				sync();
+
+				final BlockState state = world.getBlockState(pos);
+				if (state.getBlock() instanceof BlockRail) {
+					world.setBlockState(pos, state.with(IS_CONNECTED, true));
+				}
+			}
+		}
+
+		public void removeRail(BlockPos newPos) {
+			railMap.remove(newPos);
+			markDirty();
+			sync();
+
+			if (world != null) {
+				final BlockState state = world.getBlockState(pos);
+				if (state.getBlock() instanceof BlockRail) {
+					world.setBlockState(pos, state.with(IS_CONNECTED, !railMap.isEmpty()));
+				}
 			}
 		}
 	}

@@ -75,6 +75,7 @@ public class MTR implements ModInitializer {
 		registerItem("psd_glass", Items.PSD_GLASS);
 		registerItem("psd_glass_end", Items.PSD_GLASS_END);
 		registerItem("rail_connector", Items.RAIL_CONNECTOR);
+		registerItem("rail_remover", Items.RAIL_REMOVER);
 
 		registerBlock("apg_door", Blocks.APG_DOOR);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
