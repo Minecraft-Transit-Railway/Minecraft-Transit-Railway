@@ -49,6 +49,7 @@
 	"gui.mtr.edit_route": "Click on a platform to add it to the route.",
 	"gui.mtr.edit_station": "Click and drag to draw station area.",
 	"gui.mtr.game_time": "Game Time",
+	"gui.mtr.invalid_orientation": "Could not connect rail; invalid orientation",
 	"gui.mtr.name": "Name",
 	"gui.mtr.platform_number": "Platform Number",
 	"gui.mtr.reset_sign": "Reset Sign",

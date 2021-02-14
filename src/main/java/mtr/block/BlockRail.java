@@ -25,6 +25,7 @@ import java.util.Map;
 
 public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
 
+	public static final BooleanProperty FACING = BooleanProperty.of("facing");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
 
 	public BlockRail(Settings settings) {
@@ -33,7 +34,8 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return getDefaultState().with(FACING, ctx.getPlayerFacing()).with(IS_CONNECTED, false);
+		final boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
+		return getDefaultState().with(FACING, facing).with(IS_CONNECTED, false);
 	}
 
 	@Override
@@ -120,10 +122,8 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			return tag;
 		}
 
-		public void addRail(BlockPos newPos) {
+		public void addRail(Direction facing1, BlockPos newPos, Direction facing2) {
 			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
-				final Direction facing1 = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
-				final Direction facing2 = IBlock.getStatePropertySafe(world, newPos, HorizontalFacingBlock.FACING);
 				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2));
 
 				markDirty();

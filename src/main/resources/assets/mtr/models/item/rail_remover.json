@@ -2,5 +2,13 @@
 	"parent": "item/generated",
 	"textures": {
 		"layer0": "mtr:item/rail_remover"
-	}
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"mtr:selected": 1
+			},
+			"model": "mtr:item/rail_remover_selected"
+		}
+	]
 }

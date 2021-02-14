@@ -1,6 +1,9 @@
 package mtr;
 
+import com.google.common.collect.Maps;
 import mtr.gui.ClientData;
+import mtr.item.ItemRailModifier;
+import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.model.APGDoorModel;
 import mtr.model.PSDDoorModel;
 import mtr.model.PSDTopModel;
@@ -17,11 +20,17 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegi
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 
+import java.util.Map;
+
 public class MTRClient implements ClientModInitializer {
+
+	private static final Map<Item, Map<Identifier, ModelPredicateProvider>> ITEM_SPECIFIC = Maps.newHashMap();
 
 	@Override
 	public void onInitializeClient() {
@@ -52,6 +61,9 @@ public class MTRClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_MACHINE, RenderLayer.getCutout());
 
 		ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ModelProvider());
+
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_REMOVER, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 
 		EntityRendererRegistry.INSTANCE.register(MTR.MINECART, (dispatcher, context) -> new RenderMinecart(dispatcher));
 		EntityRendererRegistry.INSTANCE.register(MTR.SP1900, (dispatcher, context) -> new RenderSP1900(dispatcher));

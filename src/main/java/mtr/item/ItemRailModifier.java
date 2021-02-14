@@ -1,8 +1,10 @@
 package mtr.item;
 
 import mtr.block.BlockRail;
+import mtr.block.IBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -14,6 +16,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -21,7 +24,8 @@ import java.util.List;
 public class ItemRailModifier extends Item {
 
 	private final boolean isConnector;
-	private static final String TAG_POS = "pos";
+
+	public static final String TAG_POS = "pos";
 
 	public ItemRailModifier(boolean isConnector) {
 		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
@@ -32,29 +36,41 @@ public class ItemRailModifier extends Item {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final World world = context.getWorld();
 		if (!world.isClient) {
-			final BlockPos pos = context.getBlockPos();
-			final BlockEntity entity = world.getBlockEntity(pos);
+			final BlockPos posStart = context.getBlockPos();
+			final BlockEntity entity = world.getBlockEntity(posStart);
 
 			if (entity instanceof BlockRail.TileEntityRail) {
 				final CompoundTag tag = context.getStack().getOrCreateTag();
 
 				if (tag.contains(TAG_POS)) {
-					final BlockPos pos2 = BlockPos.fromLong(tag.getLong(TAG_POS));
-					final BlockEntity entity2 = world.getBlockEntity(pos2);
+					final BlockPos posEnd = BlockPos.fromLong(tag.getLong(TAG_POS));
+					final BlockEntity entity2 = world.getBlockEntity(posEnd);
 
 					if (entity2 instanceof BlockRail.TileEntityRail) {
 						if (isConnector) {
-							((BlockRail.TileEntityRail) entity).addRail(pos2);
-							((BlockRail.TileEntityRail) entity2).addRail(pos);
+							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
+							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
+							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
+							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
+
+							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
+								((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd);
+								((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart);
+							} else {
+								final PlayerEntity player = context.getPlayer();
+								if (player != null) {
+									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
+								}
+							}
 						} else {
-							((BlockRail.TileEntityRail) entity).removeRail(pos2);
-							((BlockRail.TileEntityRail) entity2).removeRail(pos);
+							((BlockRail.TileEntityRail) entity).removeRail(posEnd);
+							((BlockRail.TileEntityRail) entity2).removeRail(posStart);
 						}
 					}
 
 					tag.remove(TAG_POS);
 				} else {
-					tag.putLong(TAG_POS, pos.asLong());
+					tag.putLong(TAG_POS, posStart.asLong());
 				}
 
 				return ActionResult.SUCCESS;
@@ -73,5 +89,20 @@ public class ItemRailModifier extends Item {
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block").append(BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
+	}
+
+	private static Direction getDirectionFromPos(BlockPos startPos, boolean isEastWest, BlockPos endPos) {
+		if (isEastWest) {
+			return endPos.getX() > startPos.getX() ? Direction.EAST : Direction.WEST;
+		} else {
+			return endPos.getZ() > startPos.getZ() ? Direction.SOUTH : Direction.NORTH;
+		}
+	}
+
+	private static boolean isValidStart(BlockPos startPos, Direction startFacing, BlockPos endPos) {
+		final BlockPos posDifference = endPos.subtract(startPos);
+		final boolean sameX = startFacing.getOffsetX() == Math.signum(posDifference.getX());
+		final boolean sameZ = startFacing.getOffsetZ() == Math.signum(posDifference.getZ());
+		return startFacing.getAxis() == Direction.Axis.X ? sameX : sameZ;
 	}
 }

@@ -25,7 +25,7 @@ public class BlockClock extends Block implements BlockEntityProvider {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
+		final boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
 		return getDefaultState().with(FACING, facing);
 	}
 

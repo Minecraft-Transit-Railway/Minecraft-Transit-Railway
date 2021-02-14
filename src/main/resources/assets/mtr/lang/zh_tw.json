@@ -49,6 +49,7 @@
 	"gui.mtr.edit_route": "點擊月台以將其添加到路線。",
 	"gui.mtr.edit_station": "點擊並拖動以繪製車站區域。",
 	"gui.mtr.game_time": "游戲時間",
+	"gui.mtr.invalid_orientation": "無法連接鐵軌，方向無效",
 	"gui.mtr.name": "名稱",
 	"gui.mtr.platform_number": "月台號碼",
 	"gui.mtr.reset_sign": "重設鐵路牌",
