@@ -1,5 +1,7 @@
 package mtr.data;
 
+import mtr.gui.IGui;
+import net.minecraft.block.MaterialColor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -8,7 +10,8 @@ import net.minecraft.util.math.Vec3d;
 
 public class Rail {
 
-	public final Direction facing;
+	public final RailType railType;
+	private final Direction facing;
 	private final double h1, k1, r1, tStart1, tEnd1;
 	private final double h2, k2, r2, tStart2, tEnd2;
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
@@ -29,6 +32,7 @@ public class Rail {
 	private static final String KEY_IS_STRAIGHT_1 = "is_straight_1";
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
+	private static final String KEY_RAIL_TYPE = "rail_type";
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -37,8 +41,10 @@ public class Rail {
 	// x = h*T + k*r
 	// z = k*T + h*r
 
-	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd) {
+	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType) {
 		facing = facingStart;
+		this.railType = railType;
+
 		final int xStart = posStart.getX();
 		final int zStart = posStart.getZ();
 		final int xEnd = posEnd.getX();
@@ -204,6 +210,7 @@ public class Rail {
 		isStraight1 = tag.getBoolean(KEY_IS_STRAIGHT_1);
 		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = tag.getBoolean(KEY_IS_STRAIGHT_2);
+		railType = RailType.valueOf(tag.getString(KEY_RAIL_TYPE));
 	}
 
 	public Vec3d getPosition(double value) {
@@ -241,6 +248,7 @@ public class Rail {
 		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
 		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		tag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
+		tag.putString(KEY_RAIL_TYPE, railType.toString());
 		return tag;
 	}
 
@@ -280,6 +288,26 @@ public class Rail {
 			return t - TWO_PI * r;
 		} else {
 			return t;
+		}
+	}
+
+	public enum RailType implements IGui {
+		WOODEN(20, MaterialColor.WOOD),
+		STONE(40, MaterialColor.STONE),
+		IRON(60, MaterialColor.WHITE),
+		OBSIDIAN(100, MaterialColor.PURPLE),
+		BLAZE(160, MaterialColor.ORANGE),
+		DIAMOND(300, MaterialColor.DIAMOND),
+		PLATFORM(100, MaterialColor.RED);
+
+		public final int speedLimit;
+		public final float maxBlocksPerTick;
+		public final int color;
+
+		RailType(int speedLimit, MaterialColor materialColor) {
+			this.speedLimit = speedLimit;
+			maxBlocksPerTick = speedLimit / 3.6F / 20;
+			color = materialColor.color + ARGB_BLACK_TRANSLUCENT;
 		}
 	}
 

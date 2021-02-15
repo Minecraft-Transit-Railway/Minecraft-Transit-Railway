@@ -3,6 +3,9 @@ package mtr.render;
 import mtr.block.BlockRail;
 import mtr.data.Rail;
 import mtr.gui.IGui;
+import mtr.item.ItemRailModifier;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -30,6 +33,8 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 
 		final Collection<Rail> railList = entity.railMap.values();
 		final BlockPos pos = entity.getPos();
+		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		final boolean renderColors = player != null && player.isHolding(item -> item instanceof ItemRailModifier);
 
 		matrices.push();
 		matrices.translate(-pos.getX(), 0.0625 + SMALL_OFFSET, -pos.getZ());
@@ -40,7 +45,7 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 				final BlockPos pos2 = new BlockPos(x1, pos.getY(), z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 
-				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, 0, z4, x3, 0, z3, x2, 0, z2, x1, 0, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, -1, light2);
+				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, 0, z4, x3, 0, z3, x2, 0, z2, x1, 0, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, renderColors || rail.railType == Rail.RailType.PLATFORM ? rail.railType.color : -1, light2);
 			});
 		}
 

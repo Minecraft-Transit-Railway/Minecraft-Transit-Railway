@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
+import mtr.data.Rail;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,12 +25,14 @@ import java.util.List;
 public class ItemRailModifier extends Item {
 
 	private final boolean isConnector;
+	private final Rail.RailType railType;
 
 	public static final String TAG_POS = "pos";
 
-	public ItemRailModifier(boolean isConnector) {
+	public ItemRailModifier(boolean isConnector, Rail.RailType railType) {
 		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
 		this.isConnector = isConnector;
+		this.railType = railType;
 	}
 
 	@Override
@@ -54,8 +57,8 @@ public class ItemRailModifier extends Item {
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd);
-								((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart);
+								((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
+								((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
 							} else {
 								final PlayerEntity player = context.getPlayer();
 								if (player != null) {
@@ -84,10 +87,14 @@ public class ItemRailModifier extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+		if (isConnector && railType != null) {
+			tooltip.add(new TranslatableText("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		}
+
 		final CompoundTag tag = stack.getOrCreateTag();
 		final long posLong = tag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(new TranslatableText("tooltip.mtr.selected_block").append(BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 		}
 	}
 

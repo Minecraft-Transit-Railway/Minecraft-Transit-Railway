@@ -1,14 +1,14 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "mtr:item/rail_connector"
+		"layer0": "mtr:item/rail_5_blaze"
 	},
 	"overrides": [
 		{
 			"predicate": {
 				"mtr:selected": 1
 			},
-			"model": "mtr:item/rail_connector_selected"
+			"model": "mtr:item/rail_connector_5_blaze_selected"
 		}
 	]
 }

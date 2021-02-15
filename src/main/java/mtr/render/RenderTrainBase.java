@@ -61,7 +61,7 @@ public abstract class RenderTrainBase<T extends EntityTrainBase> extends EntityR
 					final String stationName = ClientData.stations.stream().filter(station -> station.inStation((int) player.getX(), (int) player.getZ())).map(station -> station.name).findFirst().orElse("");
 					text = Text.of(IGui.formatStationName(IGui.addToStationName(stationName, "", "", "站", " Station")));
 				} else {
-					text = new TranslatableText("gui.mtr.train_speed").append(String.format(" %s m/s (%s km/h)", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F));
+					text = new TranslatableText("gui.mtr.train_speed", String.format("%s m/s (%s km/h)", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F));
 				}
 			}
 			player.sendMessage(text, true);
