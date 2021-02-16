@@ -148,5 +148,9 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 				}
 			}
 		}
+
+		public boolean hasPlatform() {
+			return railMap.values().stream().anyMatch(rail -> rail.railType == Rail.RailType.PLATFORM);
+		}
 	}
 }

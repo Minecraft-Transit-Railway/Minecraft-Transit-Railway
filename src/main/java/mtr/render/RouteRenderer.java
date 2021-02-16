@@ -35,11 +35,11 @@ public class RouteRenderer implements IGui {
 	private static final int INTERCHANGE_LINE_SIZE = 10;
 	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.63F;
 
-	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos platformPos, boolean vertical) {
+	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, boolean vertical) {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
-		routeData = ClientData.platformToRoute.get(platformPos);
-		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
+		routeData = ClientData.platformToRoute.get(pos); // TODO get correct position
+		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, pos);
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		textRenderer = MinecraftClient.getInstance().textRenderer;

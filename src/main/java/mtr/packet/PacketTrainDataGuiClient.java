@@ -85,7 +85,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 				if (!ClientData.platformPositionsInStation.containsKey(station.id)) {
 					ClientData.platformPositionsInStation.put(station.id, new ArrayList<>());
 				}
-				ClientData.platformPositionsInStation.get(station.id).add(platform.getPos1());
+				ClientData.platformPositionsInStation.get(station.id).add(platform.getMidPos());
 			}
 		});
 		ClientData.platformPositionsInStation.forEach((stationId, posList) -> Collections.sort(posList));
@@ -105,7 +105,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.routesInStation.forEach((stationId, routeList) -> routeList.sort(Comparator.comparingInt(a -> a.color)));
 
 		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
-		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getPos1, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
+		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getMidPos, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
 			final List<ClientData.PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
 				final Station station = ClientData.platformIdToStation.get(platformId);
 				if (station == null) {

@@ -44,24 +44,28 @@ public class PacketTrainDataGuiServer implements IPacket {
 		world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, ID_TRAINS, packet));
 	}
 
-	public static void receiveStationsAndRoutesC2S(ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveStationsAndRoutesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final Set<Station> stations = IPacket.receiveData(packet, Station::new);
 			final Set<Route> routes = IPacket.receiveData(packet, Route::new);
-			railwayData.setData(stations, routes);
-			broadcastS2C(world, railwayData);
+			minecraftServer.execute(() -> {
+				railwayData.setData(stations, routes);
+				broadcastS2C(world, railwayData);
+			});
 		}
 	}
 
-	public static void receivePlatformC2S(ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receivePlatformC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final Platform platform = new Platform(packet);
-			railwayData.setData(world, platform);
-			broadcastS2C(world, railwayData);
+			minecraftServer.execute(() -> {
+				railwayData.setData(world, platform);
+				broadcastS2C(world, railwayData);
+			});
 		}
 	}
 

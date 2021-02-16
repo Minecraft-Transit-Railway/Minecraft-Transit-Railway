@@ -103,7 +103,6 @@ public class MTR implements ModInitializer {
 		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
-		registerBlock("platform_rail", Blocks.PLATFORM_RAIL, ItemGroup.TRANSPORTATION);
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
@@ -165,8 +164,8 @@ public class MTR implements ModInitializer {
 		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
 		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 
-		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_STATIONS_AND_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveStationsAndRoutesC2S(player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_STATIONS_AND_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveStationsAndRoutesC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {

@@ -2,7 +2,9 @@ package mtr.item;
 
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
+import mtr.data.Platform;
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -55,12 +57,28 @@ public class ItemRailModifier extends Item {
 							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
 							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
+							final PlayerEntity player = context.getPlayer();
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
-								((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
+								final boolean isPlatform = railType == Rail.RailType.PLATFORM;
+
+								if (isPlatform && (((BlockRail.TileEntityRail) entity).hasPlatform() || ((BlockRail.TileEntityRail) entity2).hasPlatform())) {
+									if (player != null) {
+										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
+									}
+								} else {
+									((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
+									((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
+									
+									if (isPlatform) {
+										final RailwayData railwayData = RailwayData.getInstance(world);
+										if (railwayData != null) {
+											railwayData.setData(world, new Platform(posStart, posEnd));
+										}
+									}
+								}
+
 							} else {
-								final PlayerEntity player = context.getPlayer();
 								if (player != null) {
 									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
 								}

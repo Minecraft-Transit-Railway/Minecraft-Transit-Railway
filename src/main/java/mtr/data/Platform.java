@@ -1,10 +1,10 @@
 package mtr.data;
 
-import mtr.block.BlockPlatformRail;
+import mtr.block.BlockRail;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -23,29 +23,25 @@ public final class Platform extends DataBase {
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;
 
-	private BlockPos pos;
-	private Direction.Axis axis;
-	private int length;
-
+	private final Set<BlockPos> positions;
 	private List<Triple<Integer, Long, Train.TrainType>> schedule;
 
 	private final int[] frequencies;
 
-	private static final String KEY_POS = "pos";
-	private static final String KEY_AXIS = "axis";
-	private static final String KEY_LENGTH = "length";
+	private static final String KEY_POS_1 = "pos_1";
+	private static final String KEY_POS_2 = "pos_2";
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_TRAIN_TYPES = "train_types";
 	private static final String KEY_FREQUENCIES = "frequencies";
 	private static final String KEY_SHUFFLE_ROUTES = "shuffle_routes";
 	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
 
-	public Platform(BlockPos pos, Direction.Axis axis, int length) {
+	public Platform(BlockPos pos1, BlockPos pos2) {
 		super();
 		name = "1";
-		this.pos = pos;
-		this.axis = axis;
-		this.length = length;
+		positions = new HashSet<>();
+		positions.add(pos1);
+		positions.add(pos2);
 		routeIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
 		frequencies = new int[HOURS_IN_DAY];
@@ -56,9 +52,9 @@ public final class Platform extends DataBase {
 
 	public Platform(CompoundTag tag) {
 		super(tag);
-		pos = BlockPos.fromLong(tag.getLong(KEY_POS));
-		axis = tag.getBoolean(KEY_AXIS) ? Direction.Axis.X : Direction.Axis.Z;
-		length = tag.getInt(KEY_LENGTH);
+		positions = new HashSet<>();
+		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_1)));
+		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_2)));
 
 		routeIds = new ArrayList<>();
 		final long[] routeIdsArray = tag.getLongArray(KEY_ROUTE_IDS);
@@ -81,9 +77,9 @@ public final class Platform extends DataBase {
 
 	public Platform(PacketByteBuf packet) {
 		super(packet);
-		pos = packet.readBlockPos();
-		axis = packet.readBoolean() ? Direction.Axis.X : Direction.Axis.Z;
-		length = packet.readInt();
+		positions = new HashSet<>();
+		positions.add(packet.readBlockPos());
+		positions.add(packet.readBlockPos());
 
 		routeIds = new ArrayList<>();
 		final int routeCount = packet.readInt();
@@ -107,9 +103,8 @@ public final class Platform extends DataBase {
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
-		tag.putLong(KEY_POS, pos.asLong());
-		tag.putBoolean(KEY_AXIS, axis == Direction.Axis.X);
-		tag.putInt(KEY_LENGTH, length);
+		tag.putLong(KEY_POS_1, getPosition(0).asLong());
+		tag.putLong(KEY_POS_2, getPosition(1).asLong());
 		tag.putLongArray(KEY_ROUTE_IDS, routeIds);
 		tag.putIntArray(KEY_TRAIN_TYPES, trainTypes.stream().map(Enum::ordinal).collect(Collectors.toList()));
 		tag.putIntArray(KEY_FREQUENCIES, frequencies);
@@ -121,9 +116,8 @@ public final class Platform extends DataBase {
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
-		packet.writeBlockPos(pos);
-		packet.writeBoolean(axis == Direction.Axis.X);
-		packet.writeInt(length);
+		packet.writeBlockPos(getPosition(0));
+		packet.writeBlockPos(getPosition(1));
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
 		packet.writeInt(trainTypes.size());
@@ -133,21 +127,9 @@ public final class Platform extends DataBase {
 		packet.writeBoolean(shuffleTrains);
 	}
 
-	public BlockPos getPos1() {
-		return pos;
-	}
-
-	public BlockPos getPos2() {
-		if (axis == Direction.Axis.X) {
-			return pos.offset(Direction.EAST, length);
-		} else {
-			return pos.offset(Direction.SOUTH, length);
-		}
-	}
-
 	public BlockPos getMidPos() {
-		final BlockPos pos2 = getPos2();
-		return new BlockPos((pos.getX() + pos2.getX()) / 2, pos.getY(), (pos.getZ() + pos2.getZ()) / 2);
+		final BlockPos pos = getPosition(0).add(getPosition(1));
+		return new BlockPos(pos.getX() / 2, pos.getY() / 2, pos.getZ() / 2);
 	}
 
 	public int getFrequency(int index) {
@@ -165,41 +147,24 @@ public final class Platform extends DataBase {
 		generateSchedule();
 	}
 
-	public void updateDimensions(WorldAccess world) {
-		final Platform tempPlatform = BlockPlatformRail.createNewPlatform(world, getMidPos());
-		if (tempPlatform != null) {
-			pos = tempPlatform.pos;
-			axis = tempPlatform.axis;
-			length = tempPlatform.length;
-		}
-	}
-
 	public boolean inPlatform(int x, int z) {
-		final BlockPos pos2 = getPos2();
-		return RailwayData.isBetween(x, pos.getX(), pos2.getX()) && RailwayData.isBetween(z, pos.getZ(), pos2.getZ());
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return RailwayData.isBetween(x, pos1.getX(), pos2.getX()) && RailwayData.isBetween(z, pos1.getZ(), pos2.getZ());
 	}
 
-	public Train createTrainOnPlatform(WorldAccess world, Set<Platform> platforms, Set<Route> routes, int worldTime) {
-		final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
-		if (optionalScheduleEntry.isPresent()) {
-			final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
-			final Route route = RailwayData.getDataById(routes, shuffleRoutes ? getRandomElementFromList(routeIds) : scheduleEntry.getMiddle());
-			final Train.TrainType trainType = shuffleTrains ? getRandomElementFromList(trainTypes) : scheduleEntry.getRight();
-
-			final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
-
-			if (route != null) {
-				newTrain.paths.addAll(route.getPath(world, platforms, this));
-			}
-			return newTrain;
-		} else {
-			return null;
-		}
+	public boolean isValidPlatform(WorldAccess world) {
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return isValidPlatform(world, pos1, pos2) && isValidPlatform(world, pos2, pos1);
 	}
 
-	public int getLength() {
-		return length;
+	public boolean containsPos(BlockPos pos) {
+		return positions.contains(pos);
+	}
+
+	public boolean isOverlapping(Platform newPlatform) {
+		return containsPos(newPlatform.getPosition(0)) || containsPos(newPlatform.getPosition(1));
 	}
 
 	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
@@ -208,6 +173,10 @@ public final class Platform extends DataBase {
 
 	public float getHeadway(int hour) {
 		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
+	}
+
+	private BlockPos getPosition(int index) {
+		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
 
 	private void generateSchedule() {
@@ -253,12 +222,17 @@ public final class Platform extends DataBase {
 		schedule = tempSchedule;
 	}
 
-	private static <T> T getRandomElementFromList(List<T> list) {
-		return list.get(new Random().nextInt(list.size()));
+	private static boolean isValidPlatform(WorldAccess world, BlockPos posStart, BlockPos posEnd) {
+		final BlockEntity entity = world.getBlockEntity(posStart);
+		if (entity instanceof BlockRail.TileEntityRail) {
+			final BlockRail.TileEntityRail entityRail = (BlockRail.TileEntityRail) entity;
+			return entityRail.railMap.containsKey(posEnd) && entityRail.railMap.get(posEnd).railType == Rail.RailType.PLATFORM;
+		} else {
+			return false;
+		}
 	}
 
-	@Override
-	public String toString() {
-		return String.format("Platform: %s, +%d%s", pos, length, axis);
+	private static <T> T getRandomElementFromList(List<T> list) {
+		return list.get(new Random().nextInt(list.size()));
 	}
 }

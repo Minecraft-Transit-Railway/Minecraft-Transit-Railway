@@ -1,6 +1,5 @@
 package mtr.path;
 
-import mtr.block.BlockPlatformRail;
 import mtr.data.Platform;
 import mtr.data.Pos3f;
 import net.minecraft.util.math.BlockPos;
@@ -16,7 +15,7 @@ public class RoutePathFinder extends PathFinderBase {
 
 	public RoutePathFinder(WorldAccess world, Platform platformStart, Platform platformDestination) {
 		super(world, platformStart.getMidPos(), platformDestination.getMidPos());
-		trimStart = platformStart.getLength() / 2 + 1;
+		trimStart = 1;
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class RoutePathFinder extends PathFinderBase {
 		while (!path.isEmpty()) {
 			final BlockPos lastPos = path.get(path.size() - 1);
 
-			if (enteredDestination && !(world.getBlockState(lastPos).getBlock() instanceof BlockPlatformRail)) {
+			if (enteredDestination) {
 				removeLastItem();
 				if (trimStart < path.size()) {
 					path.subList(0, trimStart).clear();

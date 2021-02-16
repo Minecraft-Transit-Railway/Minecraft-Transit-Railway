@@ -1,6 +1,5 @@
 package mtr.render;
 
-import mtr.block.BlockPlatformRail;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.gui.IGui;
@@ -34,16 +33,11 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 		final BlockPos pos = entity.getPos();
 
-		final BlockPos platformPos = findPlatformPos(world, pos);
-		if (platformPos == null) {
-			return;
-		}
-
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, pos, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);
@@ -88,19 +82,6 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 	protected abstract RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state);
 
 	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
-
-	private BlockPos findPlatformPos(WorldAccess world, BlockPos pos) {
-		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
-		for (int y = 1; y <= 3; y++) {
-			for (int x = 1; x <= 2; x++) {
-				final BlockPos checkPos = pos.down(y).offset(facing, x);
-				if (world.getBlockState(checkPos).getBlock() instanceof BlockPlatformRail) {
-					return BlockPlatformRail.getPlatformPos1(world, checkPos);
-				}
-			}
-		}
-		return null;
-	}
 
 	private int getGlassLength(WorldAccess world, BlockPos pos, Direction facing) {
 		int glassLength = 1;

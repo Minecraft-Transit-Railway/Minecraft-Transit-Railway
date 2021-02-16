@@ -85,9 +85,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 
 		for (Platform platform : ClientData.platforms) {
-			final BlockPos posStart = platform.getPos1();
-			final BlockPos posEnd = platform.getPos2().add(1, 0, 1);
-			drawRectangleFromWorldCoords(buffer, posStart.getX(), posStart.getZ(), posEnd.getX(), posEnd.getZ(), ARGB_WHITE);
+			final BlockPos platformPos = platform.getMidPos();
+			drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE);
 		}
 		for (Station station : ClientData.stations) {
 			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);

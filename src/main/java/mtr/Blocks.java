@@ -29,7 +29,6 @@ public interface Blocks {
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
 	Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
-	Block PLATFORM_RAIL = new BlockPlatformRail(FabricBlockSettings.of(Material.METAL, MaterialColor.BROWN).hardness(2).nonOpaque());
 	Block PSD_DOOR = new BlockPSDDoor();
 	Block PSD_GLASS = new BlockPSDGlass();
 	Block PSD_GLASS_END = new BlockPSDGlassEnd();

@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.block.BlockPlatformRail;
 import mtr.entity.EntityTrainBase;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.Entity;
@@ -8,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -115,18 +113,6 @@ public class RailwayData extends PersistentState {
 
 	public Set<Station> getStations() {
 		return stations;
-	}
-
-	public void checkPlatformPos(WorldAccess world, BlockPos pos) {
-		try {
-			validatePlatforms(world);
-			final Platform newPlatform = BlockPlatformRail.createNewPlatform(world, pos);
-			if (newPlatform != null && platforms.stream().noneMatch(platform -> platform.getPos1().equals(newPlatform.getPos1()))) {
-				platforms.add(newPlatform);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	public Set<Platform> getPlatforms(WorldAccess world) {
@@ -238,21 +224,6 @@ public class RailwayData extends PersistentState {
 
 			trainsToRemove.forEach(this::removeTrain);
 			PacketTrainDataGuiServer.sendTrainsS2C(world, trains);
-
-			new Thread(() -> {
-				if (world.getLevelProperties().getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()) {
-					try {
-						platforms.forEach(platform -> {
-							final Train newTrain = platform.createTrainOnPlatform(world, platforms, routes, worldTime);
-							if (newTrain != null) {
-								trains.add(newTrain);
-							}
-						});
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -276,7 +247,7 @@ public class RailwayData extends PersistentState {
 
 	public void setData(WorldAccess world, Platform newPlatform) {
 		try {
-			platforms.removeIf(platform -> platform.getPos1().equals(newPlatform.getPos1()));
+			platforms.removeIf(platform -> platform.isOverlapping(newPlatform));
 			platforms.add(newPlatform);
 			validatePlatforms(world);
 		} catch (Exception e) {
@@ -292,22 +263,7 @@ public class RailwayData extends PersistentState {
 	// validation
 
 	private void validatePlatforms(WorldAccess world) {
-		platforms.forEach(platform -> platform.updateDimensions(world));
-		platforms.removeIf(platform -> !(world.getBlockState(platform.getMidPos()).getBlock() instanceof BlockPlatformRail));
-
-		final Set<Platform> platformsToRemove = new HashSet<>();
-		final Set<BlockPos> uniquePositions = new HashSet<>();
-
-		platforms.forEach(platform -> {
-			final BlockPos checkPos = platform.getPos1();
-			if (uniquePositions.contains(checkPos)) {
-				platformsToRemove.add(platform);
-			} else {
-				uniquePositions.add(checkPos);
-			}
-		});
-		platforms.removeAll(platformsToRemove);
-
+		platforms.removeIf(platform -> !platform.isValidPlatform(world));
 		validateData();
 	}
 
@@ -330,7 +286,7 @@ public class RailwayData extends PersistentState {
 
 	public static Platform getPlatformByPos(Set<Platform> platforms, BlockPos pos) {
 		try {
-			return platforms.stream().filter(platform -> platform.getPos1().equals(pos)).findFirst().orElse(null);
+			return platforms.stream().filter(platform -> platform.containsPos(pos)).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -339,8 +295,8 @@ public class RailwayData extends PersistentState {
 
 	public static Station getStationByPlatform(Set<Station> stations, Platform platform) {
 		try {
-			final BlockPos pos1 = platform.getPos1();
-			return stations.stream().filter(station -> station.inStation(pos1.getX(), pos1.getZ())).findFirst().orElse(null);
+			final BlockPos pos = platform.getMidPos();
+			return stations.stream().filter(station -> station.inStation(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
