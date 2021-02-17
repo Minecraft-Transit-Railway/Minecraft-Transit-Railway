@@ -11,7 +11,6 @@ import java.util.Set;
 public interface IPacket {
 
 	Identifier ID_OPEN_DASHBOARD_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_dashboard_screen");
-	Identifier ID_OPEN_PLATFORM_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_platform_screen");
 	Identifier ID_OPEN_RAILWAY_SIGN_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_railway_sign_screen");
 	Identifier ID_OPEN_SCHEDULE_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_schedule_screen");
 	Identifier ID_TRAINS = new Identifier(MTR.MOD_ID, "packet_trains");

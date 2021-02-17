@@ -11,7 +11,7 @@ import net.minecraft.util.math.Vec3d;
 public class Rail {
 
 	public final RailType railType;
-	private final Direction facing;
+	public final Direction facing;
 	private final double h1, k1, r1, tStart1, tEnd1;
 	private final double h2, k2, r2, tStart2, tEnd2;
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
@@ -224,6 +224,10 @@ public class Rail {
 		} else {
 			return null;
 		}
+	}
+
+	public double getLength() {
+		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
 	public void render(RenderRail callback) {

@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -19,29 +18,26 @@ import java.util.List;
 
 public class ScheduleScreen extends Screen implements IGui {
 
+	private final Route route;
 	private final List<Triple<Integer, Long, Train.TrainType>> schedule;
 	private final int maxRouteWidth, maxTrainTypeWidth;
 
 	private static final int ARGB_GOLD = 0xFFFFAA00;
 	private static final int ARGB_GREEN = 0xFF55FF55;
 
-	public ScheduleScreen(BlockPos platformPos) {
+	public ScheduleScreen(Route route) {
 		super(new LiteralText(""));
-		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, platformPos);
+		this.route = route;
 
-		if (platform == null) {
+		if (route == null) {
 			schedule = new ArrayList<>();
 			maxRouteWidth = 0;
 			maxTrainTypeWidth = 0;
 		} else {
-			schedule = platform.getSchedule();
+			schedule = new ArrayList<>();
 			textRenderer = MinecraftClient.getInstance().textRenderer;
-
-			maxRouteWidth = platform.shuffleRoutes ? 0 : schedule.stream().map(scheduleEntry -> {
-				final Route route = RailwayData.getDataById(ClientData.routes, scheduleEntry.getMiddle());
-				return textRenderer.getWidth(route == null ? "" : route.name);
-			}).max(Comparator.comparingInt(a -> a)).orElse(0);
-			maxTrainTypeWidth = platform.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
+			maxRouteWidth = 0;
+			maxTrainTypeWidth = route.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
 		}
 	}
 

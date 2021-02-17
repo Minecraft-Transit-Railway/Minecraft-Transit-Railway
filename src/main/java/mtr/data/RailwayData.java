@@ -2,6 +2,7 @@ package mtr.data;
 
 import mtr.entity.EntityTrainBase;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.path.PathFinder;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -11,10 +12,8 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RailwayData extends PersistentState {
 
@@ -233,13 +232,18 @@ public class RailwayData extends PersistentState {
 
 	// writing data
 
-	public void setData(Set<Station> stations, Set<Route> routes) {
+	public void setData(WorldAccess world, Set<Station> stations, Set<Route> routes) {
 		try {
 			this.stations.clear();
 			this.stations.addAll(stations);
 			this.routes.clear();
 			this.routes.addAll(routes);
 			validateData();
+			this.routes.forEach(route -> {
+				final PathFinder routePathFinder = new PathFinder(world, route.platformIds.stream().map(platformId -> getDataById(platforms, platformId)).collect(Collectors.toList()));
+				final List<PathFinder.PathData> path = routePathFinder.findPath();
+				// TODO
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -269,7 +273,6 @@ public class RailwayData extends PersistentState {
 
 	private void validateData() {
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
-		platforms.forEach(platform -> platform.routeIds.removeIf(routeId -> getDataById(routes, routeId) == null));
 		markDirty();
 	}
 

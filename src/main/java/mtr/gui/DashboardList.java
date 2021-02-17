@@ -25,6 +25,7 @@ public class DashboardList implements IGui {
 	public int height;
 
 	private final TexturedButtonWidget buttonFind;
+	private final TexturedButtonWidget buttonSchedule;
 	private final TexturedButtonWidget buttonEdit;
 	private final TexturedButtonWidget buttonUp;
 	private final TexturedButtonWidget buttonDown;
@@ -37,14 +38,16 @@ public class DashboardList implements IGui {
 	private int hoverIndex, scrollOffset;
 
 	private boolean hasFind;
+	private boolean hasSchedule;
 	private boolean hasEdit;
 	private boolean hasSort;
 	private boolean hasAdd;
 	private boolean hasDelete;
 
-	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
+	public <T> DashboardList(RegisterButton registerButton, OnClick onFind, OnClick onSchedule, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.registerButton = registerButton;
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
+		buttonSchedule = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_schedule.png"), 20, 40, button -> onClick(onSchedule));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
 		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> onUp(getList));
 		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> onDown(getList));
@@ -54,6 +57,7 @@ public class DashboardList implements IGui {
 
 	public void init() {
 		buttonFind.visible = false;
+		buttonSchedule.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -61,6 +65,7 @@ public class DashboardList implements IGui {
 		buttonDelete.visible = false;
 
 		registerButton.registerButton(buttonFind);
+		registerButton.registerButton(buttonSchedule);
 		registerButton.registerButton(buttonEdit);
 		registerButton.registerButton(buttonUp);
 		registerButton.registerButton(buttonDown);
@@ -68,15 +73,16 @@ public class DashboardList implements IGui {
 		registerButton.registerButton(buttonDelete);
 	}
 
-	public void setData(Set<? extends DataBase> dataSet, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(Set<? extends DataBase> dataSet, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		List<? extends DataBase> dataList = new ArrayList<>(dataSet);
 		Collections.sort(dataList);
-		setData(dataList, hasFind, hasEdit, hasSort, hasAdd, hasDelete);
+		setData(dataList, hasFind, hasSchedule, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends DataBase> dataList, boolean hasFind, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(List<? extends DataBase> dataList, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
+		this.hasSchedule = hasSchedule;
 		this.hasEdit = hasEdit;
 		this.hasSort = hasSort;
 		this.hasAdd = hasAdd;
@@ -112,6 +118,7 @@ public class DashboardList implements IGui {
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		buttonFind.visible = false;
+		buttonSchedule.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -123,6 +130,7 @@ public class DashboardList implements IGui {
 			final int dataSize = dataSorted.size();
 			if (hoverIndex < dataSize) {
 				buttonFind.visible = hasFind;
+				buttonSchedule.visible = hasSchedule;
 				buttonEdit.visible = hasEdit;
 				buttonUp.visible = hasSort;
 				buttonDown.visible = hasSort;
@@ -132,7 +140,8 @@ public class DashboardList implements IGui {
 				buttonUp.active = hoverIndex + scrollOffset > 0;
 				buttonDown.active = hoverIndex + scrollOffset < dataSize - 1;
 
-				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0) + (hasSchedule ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonSchedule, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * (2 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), y + hoverIndex * SQUARE_SIZE, SQUARE_SIZE);

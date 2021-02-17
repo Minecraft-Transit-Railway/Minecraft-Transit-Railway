@@ -20,12 +20,6 @@ public class PacketTrainDataGuiServer implements IPacket {
 		ServerPlayNetworking.send(player, ID_OPEN_DASHBOARD_SCREEN, sendAll(stations, platforms, routes));
 	}
 
-	public static void openPlatformScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos platformPos) {
-		final PacketByteBuf packet = sendAll(stations, platforms, routes);
-		packet.writeBlockPos(platformPos);
-		ServerPlayNetworking.send(player, ID_OPEN_PLATFORM_SCREEN, packet);
-	}
-
 	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos signPos) {
 		final PacketByteBuf packet = sendAll(stations, platforms, routes);
 		packet.writeBlockPos(signPos);
@@ -51,7 +45,7 @@ public class PacketTrainDataGuiServer implements IPacket {
 			final Set<Station> stations = IPacket.receiveData(packet, Station::new);
 			final Set<Route> routes = IPacket.receiveData(packet, Route::new);
 			minecraftServer.execute(() -> {
-				railwayData.setData(stations, routes);
+				railwayData.setData(world, stations, routes);
 				broadcastS2C(world, railwayData);
 			});
 		}

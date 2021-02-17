@@ -2,6 +2,8 @@ package mtr.block;
 
 import mtr.MTR;
 import mtr.data.Rail;
+import mtr.data.RailwayData;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -9,8 +11,12 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -18,10 +24,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
 
@@ -30,6 +33,21 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	public BlockRail(Settings settings) {
 		super(settings);
+	}
+
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		final BlockEntity entity = world.getBlockEntity(pos);
+		if (entity instanceof TileEntityRail && ((TileEntityRail) entity).hasPlatform()) {
+			return IBlock.checkHoldingBrush(world, player, () -> {
+				final RailwayData railwayData = RailwayData.getInstance(world);
+				if (railwayData != null) {
+					PacketTrainDataGuiServer.openScheduleScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), pos);
+				}
+			});
+		} else {
+			return super.onUse(state, world, pos, player, hand, hit);
+		}
 	}
 
 	@Override
@@ -151,6 +169,20 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 		public boolean hasPlatform() {
 			return railMap.values().stream().anyMatch(rail -> rail.railType == Rail.RailType.PLATFORM);
+		}
+
+		public Set<BlockPos> getConnectedPositions(BlockPos posFrom) {
+			final Set<BlockPos> positions = new HashSet<>();
+			final Rail railFrom = railMap.get(posFrom);
+			if (railFrom != null) {
+				final Direction findDirection = railFrom.facing.getOpposite();
+				railMap.forEach((pos, rail) -> {
+					if (rail.facing == findDirection) {
+						positions.add(pos);
+					}
+				});
+			}
+			return positions;
 		}
 	}
 }

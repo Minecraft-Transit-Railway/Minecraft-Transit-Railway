@@ -2,7 +2,10 @@ package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
 import mtr.data.*;
-import mtr.gui.*;
+import mtr.gui.ClientData;
+import mtr.gui.DashboardScreen;
+import mtr.gui.RailwaySignScreen;
+import mtr.gui.ScheduleScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -17,30 +20,31 @@ public class PacketTrainDataGuiClient implements IPacket {
 
 	public static void openDashboardScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		if (!(minecraftClient.currentScreen instanceof DashboardScreen)) {
-			minecraftClient.openScreen(new DashboardScreen());
-		}
-	}
-
-	public static void openPlatformScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		receiveAll(packet);
-		if (!(minecraftClient.currentScreen instanceof PlatformScreen)) {
-			minecraftClient.openScreen(new PlatformScreen(packet.readBlockPos()));
-		}
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof DashboardScreen)) {
+				minecraftClient.openScreen(new DashboardScreen());
+			}
+		});
 	}
 
 	public static void openRailwaySignScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
-			minecraftClient.openScreen(new RailwaySignScreen(packet.readBlockPos()));
-		}
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
+				minecraftClient.openScreen(new RailwaySignScreen(pos));
+			}
+		});
 	}
 
 	public static void openScheduleScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		receiveAll(packet);
-		if (!(minecraftClient.currentScreen instanceof ScheduleScreen)) {
-			minecraftClient.openScreen(new ScheduleScreen(packet.readBlockPos()));
-		}
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof ScheduleScreen)) {
+//				minecraftClient.openScreen(new ScheduleScreen(pos));
+			}
+		});
 	}
 
 	public static void receiveTrainsS2C(PacketByteBuf packet) {
@@ -52,12 +56,6 @@ public class PacketTrainDataGuiClient implements IPacket {
 		IPacket.sendData(packet, stations);
 		IPacket.sendData(packet, routes);
 		ClientPlayNetworking.send(ID_STATIONS_AND_ROUTES, packet);
-	}
-
-	public static void sendPlatformC2S(Platform platform) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		platform.writePacket(packet);
-		ClientPlayNetworking.send(ID_PLATFORM, packet);
 	}
 
 	public static void sendSignTypesC2S(BlockPos signPos, int platformRouteIndex, BlockRailwaySign.SignType[] signTypes) {

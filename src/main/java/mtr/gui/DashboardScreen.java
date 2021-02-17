@@ -48,6 +48,10 @@ public class DashboardScreen extends Screen implements IGui {
 	private static final int MAX_COLOR_LENGTH = 6;
 
 	public DashboardScreen() {
+		this(0);
+	}
+
+	public DashboardScreen(int initialTab) {
 		super(new LiteralText(""));
 
 		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickPlatform);
@@ -66,9 +70,9 @@ public class DashboardScreen extends Screen implements IGui {
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
 
-		onSelectTab(0);
+		onSelectTab(initialTab);
 	}
 
 	@Override
@@ -163,11 +167,11 @@ public class DashboardScreen extends Screen implements IGui {
 
 		switch (selectedTab) {
 			default:
-				dashboardList.setData(ClientData.stations, true, true, false, false, true);
+				dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
 				break;
 			case 1:
 				if (editingRoute == null) {
-					dashboardList.setData(ClientData.routes, false, true, false, false, true);
+					dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
 				} else {
 					final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
 						final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
@@ -177,11 +181,11 @@ public class DashboardScreen extends Screen implements IGui {
 							return new DataConverter(String.format("(%s)", platform.name), 0);
 						}
 					}).collect(Collectors.toList());
-					dashboardList.setData(routeData, false, false, true, false, true);
+					dashboardList.setData(routeData, false, false, false, true, false, true);
 				}
 				break;
 			case 2:
-				dashboardList.setData(ClientData.trains, true, false, false, false, false);
+				dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
 				break;
 		}
 	}
@@ -216,6 +220,13 @@ public class DashboardScreen extends Screen implements IGui {
 				final Train train = (Train) data;
 				widgetMap.find(train.posX[0], train.posZ[0], train.posX[train.posX.length - 1], train.posZ[train.posZ.length - 1]);
 				break;
+		}
+	}
+
+	private void onSchedule(DataBase data, int index) {
+		if (selectedTab == 1 && client != null) {
+			final Route route = (Route) data;
+			client.openScreen(new PlatformScreen(route));
 		}
 	}
 
