@@ -20,7 +20,6 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -153,14 +152,21 @@ public interface IGui {
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
 		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
+		final Style styleCJK = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr_cjk"));
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
 		final String[] stringSplit = text.split("\\|");
 
-		final List<Integer> lineHeights = Arrays.stream(stringSplit).map(stringSplitPart -> LINE_HEIGHT * (stringSplitPart.codePoints().anyMatch(Character::isIdeographic) ? 2 : 1)).collect(Collectors.toList());
-		final List<OrderedText> orderedTexts = Arrays.stream(stringSplit).map(textSplit -> new LiteralText(textSplit).fillStyle(style).asOrderedText()).collect(Collectors.toList());
+		final List<Integer> lineHeights = new ArrayList<>();
+		final List<OrderedText> orderedTexts = new ArrayList<>();
+		for (final String stringSplitPart : stringSplit) {
+			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
+			lineHeights.add(LINE_HEIGHT * (isCJK ? 2 : 1));
+			orderedTexts.add(new LiteralText(stringSplitPart).fillStyle(isCJK ? styleCJK : style).asOrderedText());
+		}
+
 		final int totalHeight = lineHeights.stream().reduce(0, Integer::sum);
 		final int totalWidth = orderedTexts.stream().map(textRenderer::getWidth).reduce(Integer::max).orElse(0);
 
