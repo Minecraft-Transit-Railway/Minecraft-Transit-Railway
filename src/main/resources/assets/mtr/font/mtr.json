@@ -8,7 +8,7 @@
 		},
 		{
 			"type": "ttf",
-			"file": "mtr:noto-serif-cjk-tc-semibold.otf",
+			"file": "mtr:noto-serif-cjk-tc-semibold.ttf",
 			"size": 24.0,
 			"oversample": 4.0
 		},
