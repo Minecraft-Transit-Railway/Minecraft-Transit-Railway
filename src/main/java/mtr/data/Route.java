@@ -1,19 +1,27 @@
 package mtr.data;
 
+import mtr.entity.EntityMinecart;
+import mtr.path.PathData;
+import mtr.path.PathFinder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class Route extends DataBase {
 
 	public String customDestination;
 	public boolean shuffleTrains;
+	public EntityMinecart entityMinecart;
 
 	public final List<Long> platformIds;
 	public final List<Train.TrainType> trainTypes;
+	public final List<PathData> path;
 
 	private final int[] frequencies;
 
@@ -30,6 +38,7 @@ public final class Route extends DataBase {
 		super();
 		platformIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
+		path = new ArrayList<>();
 		frequencies = new int[HOURS_IN_DAY];
 		customDestination = "";
 		shuffleTrains = true;
@@ -53,6 +62,7 @@ public final class Route extends DataBase {
 		frequencies = tag.getIntArray(KEY_FREQUENCIES);
 		customDestination = tag.getString(KEY_CUSTOM_DESTINATION);
 		shuffleTrains = tag.getBoolean(KEY_SHUFFLE_TRAINS);
+		path = new ArrayList<>();
 	}
 
 	public Route(PacketByteBuf packet) {
@@ -73,6 +83,7 @@ public final class Route extends DataBase {
 		frequencies = packet.readIntArray();
 		customDestination = packet.readString(32767);
 		shuffleTrains = packet.readBoolean();
+		path = new ArrayList<>();
 	}
 
 	@Override
@@ -96,6 +107,25 @@ public final class Route extends DataBase {
 		packet.writeIntArray(frequencies);
 		packet.writeString(customDestination);
 		packet.writeBoolean(shuffleTrains);
+	}
+
+	public void generateGraph(WorldAccess world, Set<Platform> platforms) {
+		final Train.TrainType trainType = Train.TrainType.M_TRAIN_MINI; // TODO
+
+		final PathFinder routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
+		path.clear();
+		path.addAll(routePathFinder.findPath());
+	}
+
+	public Vec3d getPosition(double value) {
+		for (int i = 0; i < path.size(); i++) {
+			final double thisTPrevious = path.get(i).tOffset;
+			final double nextTPrevious = i + 1 < path.size() ? path.get(i + 1).tOffset : value + 1;
+			if (value >= thisTPrevious && value < nextTPrevious) {
+				return path.get(i).getPosition(value);
+			}
+		}
+		return new Vec3d(0, 0, 0);
 	}
 
 	public int getFrequency(int index) {

@@ -44,8 +44,10 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final BlockPos pos2 = new BlockPos(x1, pos.getY(), z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+				final int color = renderColors || rail.railType == Rail.RailType.PLATFORM ? rail.railType.color : -1;
 
-				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, 0, z4, x3, 0, z3, x2, 0, z2, x1, 0, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, renderColors || rail.railType == Rail.RailType.PLATFORM ? rail.railType.color : -1, light2);
+				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, 0, z1, x2, SMALL_OFFSET, z2, x3, 0, z3, x4, SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, SMALL_OFFSET, z4, x3, 0, z3, x2, SMALL_OFFSET, z2, x1, 0, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 			});
 		}
 

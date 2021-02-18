@@ -2,7 +2,6 @@ package mtr.path;
 
 import mtr.block.BlockRail;
 import mtr.data.Platform;
-import mtr.data.Rail;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
@@ -25,6 +24,7 @@ public class PathFinder {
 		}
 
 		final List<PathData> path = new ArrayList<>();
+		double tOffset = 0;
 
 		for (int i = 1; i < platforms.size(); i++) {
 			final Platform platform1 = platforms.get(i - 1);
@@ -38,11 +38,15 @@ public class PathFinder {
 				}
 			}
 
+			double speed = 0;
 			for (int j = 1; j < tempPath.size(); j++) {
 				final BlockPos tempPos = tempPath.get(j - 1);
 				final BlockEntity entity = world.getBlockEntity(tempPos);
 				if (entity instanceof BlockRail.TileEntityRail) {
-					path.add(new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), tempPos));
+					final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1, tOffset);
+					path.add(pathData);
+					tOffset += pathData.getTime();
+					speed = pathData.finalSpeed;
 				}
 			}
 		}
@@ -82,19 +86,6 @@ public class PathFinder {
 			return ((BlockRail.TileEntityRail) entity).getConnectedPositions(lastPos);
 		} else {
 			return new HashSet<>();
-		}
-	}
-
-	public static class PathData {
-
-		public final Rail rail;
-		public final BlockPos pos;
-		public final double length;
-
-		public PathData(Rail rail, BlockPos pos) {
-			this.rail = rail;
-			this.pos = pos;
-			length = rail.getLength();
 		}
 	}
 

@@ -69,7 +69,7 @@ public class ItemRailModifier extends Item {
 								} else {
 									((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
 									((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
-									
+
 									if (isPlatform) {
 										final RailwayData railwayData = RailwayData.getInstance(world);
 										if (railwayData != null) {

@@ -217,7 +217,7 @@ public class Rail {
 		final double count1 = Math.abs(tEnd1 - tStart1);
 		final double count2 = Math.abs(tEnd2 - tStart2);
 
-		if (value <= count1) {
+		if (value >= 0 && value <= count1) {
 			return getPosition(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1);
 		} else if (value <= count1 + count2) {
 			return getPosition(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2);
