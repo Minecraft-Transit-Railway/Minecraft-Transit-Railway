@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.entity.EntityMinecart;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +16,6 @@ public final class Route extends DataBase {
 
 	public String customDestination;
 	public boolean shuffleTrains;
-	public EntityMinecart entityMinecart;
 
 	public final List<Long> platformIds;
 	public final List<Train.TrainType> trainTypes;
@@ -110,22 +108,48 @@ public final class Route extends DataBase {
 	}
 
 	public void generateGraph(WorldAccess world, Set<Platform> platforms) {
-		final Train.TrainType trainType = Train.TrainType.M_TRAIN_MINI; // TODO
-
 		final PathFinder routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
 		path.clear();
 		path.addAll(routePathFinder.findPath());
 	}
 
-	public Vec3d getPosition(double value) {
-		for (int i = 0; i < path.size(); i++) {
-			final double thisTPrevious = path.get(i).tOffset;
-			final double nextTPrevious = i + 1 < path.size() ? path.get(i + 1).tOffset : value + 1;
-			if (value >= thisTPrevious && value < nextTPrevious) {
-				return path.get(i).getPosition(value);
+	public List<Vec3d> getPositions(double value) {
+		final Train.TrainType trainType = Train.TrainType.M_TRAIN_MINI; // TODO
+		final int trainCars = 5; // TODO
+
+		final List<Vec3d> positions = new ArrayList<>();
+
+		int pathDataIndex = getPathDataIndex(value);
+		if (pathDataIndex < 0) {
+			return new ArrayList<>();
+		}
+
+		double positionIndex = path.get(pathDataIndex).getPositionIndex(value);
+		if (positionIndex < 0) {
+			return new ArrayList<>();
+		}
+
+		int segmentsCreated = 0;
+		double length = path.get(pathDataIndex).length;
+
+		while (true) {
+			final PathData pathData = path.get(pathDataIndex);
+			length -= pathData.length;
+
+			while (positionIndex >= length) {
+				positions.add(pathData.getPosition(positionIndex - length));
+				positionIndex -= trainType.getSpacing();
+				segmentsCreated++;
+				if (segmentsCreated > trainCars) {
+					return positions;
+				}
+			}
+
+			pathDataIndex--;
+			if (pathDataIndex < 0) {
+				return new ArrayList<>();
 			}
 		}
-		return new Vec3d(0, 0, 0);
 	}
 
 	public int getFrequency(int index) {
@@ -140,5 +164,16 @@ public final class Route extends DataBase {
 		if (index >= 0 && index < frequencies.length) {
 			frequencies[index] = frequency;
 		}
+	}
+
+	private int getPathDataIndex(double value) {
+		for (int i = 0; i < path.size(); i++) {
+			final double thisTPrevious = path.get(i).tOffset;
+			final double nextTPrevious = i + 1 < path.size() ? path.get(i + 1).tOffset : value + 1;
+			if (value >= thisTPrevious && value < nextTPrevious) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }

@@ -62,15 +62,19 @@ public class PathData {
 	}
 
 	public Vec3d getPosition(double value) {
+		return rail.getPosition(value);
+	}
+
+	public double getPositionIndex(double value) {
 		final double offsetValue = value - tOffset;
 		if (offsetValue < tSwitch) {
-			return rail.getPosition(getDistance(a1, b1, offsetValue));
+			return getDistance(a1, b1, offsetValue);
 		} else if (offsetValue < tEnd) {
-			return rail.getPosition(getDistance(a2, b2, offsetValue - tSwitch) + getDistance(a1, b1, tSwitch));
+			return getDistance(a2, b2, offsetValue - tSwitch) + getDistance(a1, b1, tSwitch);
 		} else if (offsetValue < tEnd + delay) {
-			return rail.getPosition(getDistance(a2, b2, tEnd - tSwitch) + getDistance(a1, b1, tSwitch));
+			return getDistance(a2, b2, tEnd - tSwitch) + getDistance(a1, b1, tSwitch);
 		} else {
-			return null;
+			return -1;
 		}
 	}
 
