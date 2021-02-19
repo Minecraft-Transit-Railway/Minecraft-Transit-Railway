@@ -9,7 +9,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 
-public final class Platform extends DataBase {
+public final class Platform extends NameColorDataBase {
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;

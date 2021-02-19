@@ -1,7 +1,7 @@
 package mtr.packet;
 
 import mtr.MTR;
-import mtr.data.DataBase;
+import mtr.data.NameColorDataBase;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
@@ -19,12 +19,12 @@ public interface IPacket {
 	Identifier ID_SIGN_TYPES = new Identifier(MTR.MOD_ID, "packet_sign_types");
 	Identifier ID_ALL = new Identifier(MTR.MOD_ID, "packet_all");
 
-	static <T extends DataBase> void sendData(PacketByteBuf packet, Set<T> objects) {
+	static <T extends NameColorDataBase> void sendData(PacketByteBuf packet, Set<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));
 	}
 
-	static <T extends DataBase> Set<T> receiveData(PacketByteBuf packet, CreateInstance<T> supplier) {
+	static <T extends NameColorDataBase> Set<T> receiveData(PacketByteBuf packet, CreateInstance<T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int stationCount = packet.readInt();
 		for (int i = 0; i < stationCount; i++) {
@@ -34,7 +34,7 @@ public interface IPacket {
 	}
 
 	@FunctionalInterface
-	interface CreateInstance<T extends DataBase> {
+	interface CreateInstance<T extends NameColorDataBase> {
 		T create(PacketByteBuf packet);
 	}
 }

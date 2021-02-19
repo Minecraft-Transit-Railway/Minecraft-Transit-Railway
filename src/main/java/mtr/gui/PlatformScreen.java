@@ -175,7 +175,7 @@ public class PlatformScreen extends Screen implements IGui {
 		setAdding(true);
 	}
 
-	private void onAdded(DataBase data, int index) {
+	private void onAdded(NameColorDataBase data, int index) {
 		if (addingTrain) {
 			route.trainTypes.add(Train.TrainType.values()[index]);
 		}

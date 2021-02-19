@@ -3,20 +3,20 @@ package mtr.data;
 import mtr.gui.IGui;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
-public class Rail {
+public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
 	public final Direction facing;
-	private final double h1, k1, r1, tStart1, tEnd1;
-	private final double h2, k2, r2, tStart2, tEnd2;
+	private final float h1, k1, r1, tStart1, tEnd1;
+	private final float h2, k2, r2, tStart2, tEnd2;
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
 
-	private static final double TWO_PI = 2 * Math.PI;
+	private static final float TWO_PI = (float) (2 * Math.PI);
 	private static final String KEY_FACING = "facing";
 	private static final String KEY_H_1 = "h_1";
 	private static final String KEY_K_1 = "k_1";
@@ -144,11 +144,11 @@ public class Rail {
 					break;
 			}
 		} else if (xStart != xEnd && zStart != zEnd) {
-			final double halfXLength = xLength / 2D;
-			final double halfZLength = zLength / 2D;
+			final float halfXLength = xLength / 2F;
+			final float halfZLength = zLength / 2F;
 			switch (facingStart.getAxis()) {
 				case X:
-					final double signedRadius1 = (halfZLength * halfZLength + halfXLength * halfXLength) / (2 * halfZLength);
+					final float signedRadius1 = (halfZLength * halfZLength + halfXLength * halfXLength) / (2 * halfZLength);
 					r1 = r2 = Math.abs(signedRadius1);
 					h1 = xStart;
 					h2 = xEnd;
@@ -156,7 +156,7 @@ public class Rail {
 					k2 = zEnd - signedRadius1;
 					break;
 				case Z:
-					final double signedRadius2 = (halfXLength * halfXLength + halfZLength * halfZLength) / (2 * halfXLength);
+					final float signedRadius2 = (halfXLength * halfXLength + halfZLength * halfZLength) / (2 * halfXLength);
 					r1 = r2 = Math.abs(signedRadius2);
 					h1 = xStart + signedRadius2;
 					h2 = xEnd - signedRadius2;
@@ -196,16 +196,16 @@ public class Rail {
 
 	public Rail(CompoundTag tag) {
 		facing = Direction.fromHorizontal(tag.getInt(KEY_FACING));
-		h1 = tag.getDouble(KEY_H_1);
-		k1 = tag.getDouble(KEY_K_1);
-		h2 = tag.getDouble(KEY_H_2);
-		k2 = tag.getDouble(KEY_K_2);
-		r1 = tag.getDouble(KEY_R_1);
-		r2 = tag.getDouble(KEY_R_2);
-		tStart1 = tag.getDouble(KEY_T_START_1);
-		tEnd1 = tag.getDouble(KEY_T_END_1);
-		tStart2 = tag.getDouble(KEY_T_START_2);
-		tEnd2 = tag.getDouble(KEY_T_END_2);
+		h1 = tag.getFloat(KEY_H_1);
+		k1 = tag.getFloat(KEY_K_1);
+		h2 = tag.getFloat(KEY_H_2);
+		k2 = tag.getFloat(KEY_K_2);
+		r1 = tag.getFloat(KEY_R_1);
+		r2 = tag.getFloat(KEY_R_2);
+		tStart1 = tag.getFloat(KEY_T_START_1);
+		tEnd1 = tag.getFloat(KEY_T_END_1);
+		tStart2 = tag.getFloat(KEY_T_START_2);
+		tEnd2 = tag.getFloat(KEY_T_END_2);
 		reverseT1 = tag.getBoolean(KEY_REVERSE_T_1);
 		isStraight1 = tag.getBoolean(KEY_IS_STRAIGHT_1);
 		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
@@ -213,9 +213,70 @@ public class Rail {
 		railType = RailType.valueOf(tag.getString(KEY_RAIL_TYPE));
 	}
 
-	public Vec3d getPosition(double value) {
-		final double count1 = Math.abs(tEnd1 - tStart1);
-		final double count2 = Math.abs(tEnd2 - tStart2);
+	public Rail(PacketByteBuf packet) {
+		facing = Direction.fromHorizontal(packet.readInt());
+		h1 = packet.readFloat();
+		k1 = packet.readFloat();
+		h2 = packet.readFloat();
+		k2 = packet.readFloat();
+		r1 = packet.readFloat();
+		r2 = packet.readFloat();
+		tStart1 = packet.readFloat();
+		tEnd1 = packet.readFloat();
+		tStart2 = packet.readFloat();
+		tEnd2 = packet.readFloat();
+		reverseT1 = packet.readBoolean();
+		isStraight1 = packet.readBoolean();
+		reverseT2 = packet.readBoolean();
+		isStraight2 = packet.readBoolean();
+		railType = RailType.valueOf(packet.readString(PACKET_STRING_READ_LENGTH));
+	}
+
+	@Override
+	public CompoundTag toCompoundTag() {
+		final CompoundTag tag = new CompoundTag();
+		tag.putInt(KEY_FACING, facing.getHorizontal());
+		tag.putFloat(KEY_H_1, h1);
+		tag.putFloat(KEY_K_1, k1);
+		tag.putFloat(KEY_H_2, h2);
+		tag.putFloat(KEY_K_2, k2);
+		tag.putFloat(KEY_R_1, r1);
+		tag.putFloat(KEY_R_2, r2);
+		tag.putFloat(KEY_T_START_1, tStart1);
+		tag.putFloat(KEY_T_END_1, tEnd1);
+		tag.putFloat(KEY_T_START_2, tStart2);
+		tag.putFloat(KEY_T_END_2, tEnd2);
+		tag.putBoolean(KEY_REVERSE_T_1, reverseT1);
+		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
+		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
+		tag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
+		tag.putString(KEY_RAIL_TYPE, railType.toString());
+		return tag;
+	}
+
+	@Override
+	public void writePacket(PacketByteBuf packet) {
+		packet.writeInt(facing.getHorizontal());
+		packet.writeFloat(h1);
+		packet.writeFloat(k1);
+		packet.writeFloat(h2);
+		packet.writeFloat(k2);
+		packet.writeFloat(r1);
+		packet.writeFloat(r2);
+		packet.writeFloat(tStart1);
+		packet.writeFloat(tEnd1);
+		packet.writeFloat(tStart2);
+		packet.writeFloat(tEnd2);
+		packet.writeBoolean(reverseT1);
+		packet.writeBoolean(isStraight1);
+		packet.writeBoolean(reverseT2);
+		packet.writeBoolean(isStraight2);
+		packet.writeString(railType.toString());
+	}
+
+	public Pos3f getPosition(float value) {
+		final float count1 = Math.abs(tEnd1 - tStart1);
+		final float count2 = Math.abs(tEnd2 - tStart2);
 
 		if (value >= 0 && value <= count1) {
 			return getPosition(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1);
@@ -226,7 +287,7 @@ public class Rail {
 		}
 	}
 
-	public double getLength() {
+	public float getLength() {
 		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
@@ -235,57 +296,36 @@ public class Rail {
 		renderSegment(h2, k2, r2, tStart2, tEnd2, reverseT2, isStraight2, callback);
 	}
 
-	public CompoundTag toTag() {
-		final CompoundTag tag = new CompoundTag();
-		tag.putInt(KEY_FACING, facing.getHorizontal());
-		tag.putDouble(KEY_H_1, h1);
-		tag.putDouble(KEY_K_1, k1);
-		tag.putDouble(KEY_H_2, h2);
-		tag.putDouble(KEY_K_2, k2);
-		tag.putDouble(KEY_R_1, r1);
-		tag.putDouble(KEY_R_2, r2);
-		tag.putDouble(KEY_T_START_1, tStart1);
-		tag.putDouble(KEY_T_END_1, tEnd1);
-		tag.putDouble(KEY_T_START_2, tStart2);
-		tag.putDouble(KEY_T_END_2, tEnd2);
-		tag.putBoolean(KEY_REVERSE_T_1, reverseT1);
-		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
-		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
-		tag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
-		tag.putString(KEY_RAIL_TYPE, railType.toString());
-		return tag;
-	}
-
-	private static Vec3d getPosition(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
+	private static Pos3f getPosition(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {
 		if (isStraight) {
-			return new Vec3d(h * t + k * (r + radiusOffset) + 0.5, 0, k * t + h * (r + radiusOffset) + 0.5);
+			return new Pos3f(h * t + k * (r + radiusOffset) + 0.5F, 0, k * t + h * (r + radiusOffset) + 0.5F);
 		} else {
-			return new Vec3d(h + (r + radiusOffset) * Math.cos(t / r) + 0.5, 0, k + (r + radiusOffset) * Math.sin(t / r) + 0.5);
+			return new Pos3f(h + (r + radiusOffset) * (float) Math.cos(t / r) + 0.5F, 0, k + (r + radiusOffset) * (float) Math.sin(t / r) + 0.5F);
 		}
 	}
 
-	private static void renderSegment(double h, double k, double r, double tStart, double tEnd, boolean reverseT, boolean isStraight, RenderRail callback) {
-		final double count = Math.abs(tEnd - tStart);
-		final double increment = count / Math.round(count);
+	private static void renderSegment(float h, float k, float r, float tStart, float tEnd, boolean reverseT, boolean isStraight, RenderRail callback) {
+		final float count = Math.abs(tEnd - tStart);
+		final float increment = count / Math.round(count);
 
-		for (double i = 0; i < count - 0.1; i += increment) {
-			final double t1 = (reverseT ? -1 : 1) * i + tStart;
-			final double t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Vec3d corner1 = getPosition(h, k, r, t1, -1, isStraight);
-			final Vec3d corner2 = getPosition(h, k, r, t1, 1, isStraight);
-			final Vec3d corner3 = getPosition(h, k, r, t2, 1, isStraight);
-			final Vec3d corner4 = getPosition(h, k, r, t2, -1, isStraight);
+		for (float i = 0; i < count - 0.1; i += increment) {
+			final float t1 = (reverseT ? -1 : 1) * i + tStart;
+			final float t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
+			final Pos3f corner1 = getPosition(h, k, r, t1, -1, isStraight);
+			final Pos3f corner2 = getPosition(h, k, r, t1, 1, isStraight);
+			final Pos3f corner3 = getPosition(h, k, r, t2, 1, isStraight);
+			final Pos3f corner4 = getPosition(h, k, r, t2, -1, isStraight);
 
-			callback.renderRail((float) corner1.x, (float) corner1.z, (float) corner2.x, (float) corner2.z, (float) corner3.x, (float) corner3.z, (float) corner4.x, (float) corner4.z);
+			callback.renderRail(corner1.getX(), corner1.getZ(), corner2.getX(), corner2.getZ(), corner3.getX(), corner3.getZ(), corner4.getX(), corner4.getZ());
 		}
 	}
 
-	private static double getTBounds(double x, double h, double z, double k, double r) {
-		return MathHelper.atan2(z - k, x - h) * r;
+	private static float getTBounds(float x, float h, float z, float k, float r) {
+		return (float) (MathHelper.atan2(z - k, x - h) * r);
 	}
 
-	private static double getTBounds(double x, double h, double z, double k, double r, double tStart, boolean reverse) {
-		final double t = getTBounds(x, h, z, k, r);
+	private static float getTBounds(float x, float h, float z, float k, float r, float tStart, boolean reverse) {
+		final float t = getTBounds(x, h, z, k, r);
 		if (t < tStart && !reverse) {
 			return t + TWO_PI * r;
 		} else if (t > tStart && reverse) {

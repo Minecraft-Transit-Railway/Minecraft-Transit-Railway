@@ -6,7 +6,8 @@
 	"mixins": [],
 	"client": [
 		"EntitySpawnMixin",
-		"ModelPredicateRegisterInvoker"
+		"ModelPredicateRegisterInvoker",
+		"RenderTrainMixin"
 	],
 	"server": [],
 	"injectors": {

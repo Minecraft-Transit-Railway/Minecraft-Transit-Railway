@@ -24,7 +24,7 @@ public class PathFinder {
 		}
 
 		final List<PathData> path = new ArrayList<>();
-		double tOffset = 0;
+		float tOffset = 0;
 
 		for (int i = 1; i < platforms.size(); i++) {
 			final Platform platform1 = platforms.get(i - 1);
@@ -38,7 +38,7 @@ public class PathFinder {
 				}
 			}
 
-			double speed = 0;
+			float speed = 0;
 			for (int j = 1; j < tempPath.size(); j++) {
 				final BlockPos tempPos = tempPath.get(j - 1);
 				final BlockEntity entity = world.getBlockEntity(tempPos);

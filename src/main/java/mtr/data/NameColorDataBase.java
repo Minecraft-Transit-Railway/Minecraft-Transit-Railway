@@ -5,7 +5,7 @@ import net.minecraft.network.PacketByteBuf;
 
 import java.util.Random;
 
-public abstract class DataBase implements Comparable<DataBase> {
+public abstract class NameColorDataBase extends SerializedDataBase implements Comparable<NameColorDataBase> {
 
 	public final long id;
 	public String name;
@@ -15,25 +15,24 @@ public abstract class DataBase implements Comparable<DataBase> {
 	private static final String KEY_NAME = "name";
 	private static final String KEY_COLOR = "color";
 
-	private static final int PACKET_STRING_READ_LENGTH = 32767;
-
-	public DataBase() {
+	public NameColorDataBase() {
 		id = new Random().nextInt(Integer.MAX_VALUE);
 		name = "";
 	}
 
-	public DataBase(CompoundTag tag) {
+	public NameColorDataBase(CompoundTag tag) {
 		id = tag.getLong(KEY_ID);
 		name = tag.getString(KEY_NAME);
 		color = tag.getInt(KEY_COLOR);
 	}
 
-	public DataBase(PacketByteBuf packet) {
+	public NameColorDataBase(PacketByteBuf packet) {
 		id = packet.readLong();
 		name = packet.readString(PACKET_STRING_READ_LENGTH);
 		color = packet.readInt();
 	}
 
+	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
 		tag.putLong(KEY_ID, id);
@@ -42,6 +41,7 @@ public abstract class DataBase implements Comparable<DataBase> {
 		return tag;
 	}
 
+	@Override
 	public void writePacket(PacketByteBuf packet) {
 		packet.writeLong(id);
 		packet.writeString(name);
@@ -49,7 +49,7 @@ public abstract class DataBase implements Comparable<DataBase> {
 	}
 
 	@Override
-	public int compareTo(DataBase compare) {
+	public int compareTo(NameColorDataBase compare) {
 		return (name.toLowerCase() + color).compareTo((compare.name + compare.color).toLowerCase());
 	}
 }

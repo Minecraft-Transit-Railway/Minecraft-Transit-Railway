@@ -210,7 +210,7 @@ public class DashboardScreen extends Screen implements IGui {
 		stopEditing();
 	}
 
-	private void onFind(DataBase data, int index) {
+	private void onFind(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
 				final Station station = (Station) data;
@@ -223,14 +223,14 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 	}
 
-	private void onSchedule(DataBase data, int index) {
+	private void onSchedule(NameColorDataBase data, int index) {
 		if (selectedTab == 1 && client != null) {
 			final Route route = (Route) data;
 			client.openScreen(new PlatformScreen(route));
 		}
 	}
 
-	private void onEdit(DataBase data, int index) {
+	private void onEdit(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
 				startEditingStation((Station) data, false);
@@ -241,7 +241,7 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 	}
 
-	private void onDelete(DataBase data, int index) {
+	private void onDelete(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
 				final Station station = (Station) data;

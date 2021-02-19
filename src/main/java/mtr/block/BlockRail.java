@@ -135,7 +135,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			final List<BlockPos> keys = new ArrayList<>(railMap.keySet());
 			for (int i = 0; i < railMap.size(); i++) {
 				tag.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
-				tag.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toTag());
+				tag.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
 			}
 			return tag;
 		}

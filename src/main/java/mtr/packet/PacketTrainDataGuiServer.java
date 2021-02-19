@@ -70,7 +70,7 @@ public class PacketTrainDataGuiServer implements IPacket {
 		final BlockRailwaySign.SignType[] signTypes = new BlockRailwaySign.SignType[signLength];
 		for (int i = 0; i < signLength; i++) {
 			try {
-				signTypes[i] = BlockRailwaySign.SignType.valueOf(packet.readString(32767));
+				signTypes[i] = BlockRailwaySign.SignType.valueOf(packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH));
 			} catch (Exception e) {
 				signTypes[i] = null;
 			}

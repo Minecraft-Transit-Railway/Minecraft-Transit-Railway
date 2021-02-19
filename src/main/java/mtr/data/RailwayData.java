@@ -275,7 +275,7 @@ public class RailwayData extends PersistentState {
 
 	// static finders
 
-	public static <T extends DataBase> T getDataById(Set<T> data, long id) {
+	public static <T extends NameColorDataBase> T getDataById(Set<T> data, long id) {
 		try {
 			return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
 		} catch (Exception e) {

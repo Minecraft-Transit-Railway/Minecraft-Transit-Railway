@@ -1,6 +1,5 @@
 package mtr;
 
-import com.google.common.collect.Maps;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
@@ -20,17 +19,11 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegi
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 
-import java.util.Map;
-
 public class MTRClient implements ClientModInitializer {
-
-	private static final Map<Item, Map<Identifier, ModelPredicateProvider>> ITEM_SPECIFIC = Maps.newHashMap();
 
 	@Override
 	public void onInitializeClient() {
