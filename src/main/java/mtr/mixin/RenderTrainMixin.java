@@ -4,7 +4,6 @@ import mtr.data.Pos3f;
 import mtr.data.Route;
 import mtr.data.Train;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
 import mtr.model.*;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -14,9 +13,11 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -66,17 +67,19 @@ public class RenderTrainMixin {
 
 				if (pos1 != null && pos2 != null) {
 					final float xAverage = (pos1.getX() + pos2.getX()) / 2;
-					final float yAverage = (pos1.getY() + pos2.getY()) / 2;
+					final float yAverage = (pos1.getY() + pos2.getY()) / 2 + 1;
 					final float zAverage = (pos1.getZ() + pos2.getZ()) / 2;
 
 					final float yaw = (float) Math.toDegrees(MathHelper.atan2(pos2.getX() - pos1.getX(), pos2.getZ() - pos1.getZ()));
-					final float pitch = (float) Math.toDegrees(Math.asin((pos2.getY() - pos1.getY()) / trainType.getSpacing()));
+					final float pitch = (float) Math.toDegrees(MathHelper.atan2(pos2.getY() - pos1.getY(), Math.sqrt(MathHelper.square(pos2.getX() - pos1.getX()) + MathHelper.square(pos2.getZ() - pos1.getZ()))));
+					final BlockPos posAverage = new BlockPos(xAverage, yAverage, zAverage);
+					final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
 					matrices.push();
-					matrices.translate(xAverage, yAverage + 5, zAverage);
+					matrices.translate(xAverage, yAverage, zAverage);
 					matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
-					matrices.multiply(Vector3f.NEGATIVE_X.getDegreesQuaternion(180 + pitch));
-					getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), IGui.MAX_LIGHT, 0, 0, i == 0, i == positions.size() - 2, i == 0, true);
+					matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
+					getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), light, 0, 0, i == 0, i == positions.size() - 2, i == 0, true);
 					matrices.pop();
 				}
 			}

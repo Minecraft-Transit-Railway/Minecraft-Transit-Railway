@@ -14,6 +14,7 @@ public class Rail extends SerializedDataBase {
 	public final Direction facing;
 	private final float h1, k1, r1, tStart1, tEnd1;
 	private final float h2, k2, r2, tStart2, tEnd2;
+	private final int yStart, yEnd;
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
 
 	private static final float TWO_PI = (float) (2 * Math.PI);
@@ -28,6 +29,8 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_T_END_1 = "t_end_1";
 	private static final String KEY_T_START_2 = "t_start_2";
 	private static final String KEY_T_END_2 = "t_end_2";
+	private static final String KEY_Y_START = "y_start";
+	private static final String KEY_Y_END = "y_end";
 	private static final String KEY_REVERSE_T_1 = "reverse_t_1";
 	private static final String KEY_IS_STRAIGHT_1 = "is_straight_1";
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
@@ -44,6 +47,8 @@ public class Rail extends SerializedDataBase {
 	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType) {
 		facing = facingStart;
 		this.railType = railType;
+		yStart = posStart.getY();
+		yEnd = posEnd.getY();
 
 		final int xStart = posStart.getX();
 		final int zStart = posStart.getZ();
@@ -206,6 +211,8 @@ public class Rail extends SerializedDataBase {
 		tEnd1 = tag.getFloat(KEY_T_END_1);
 		tStart2 = tag.getFloat(KEY_T_START_2);
 		tEnd2 = tag.getFloat(KEY_T_END_2);
+		yStart = tag.getInt(KEY_Y_START);
+		yEnd = tag.getInt(KEY_Y_END);
 		reverseT1 = tag.getBoolean(KEY_REVERSE_T_1);
 		isStraight1 = tag.getBoolean(KEY_IS_STRAIGHT_1);
 		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
@@ -225,6 +232,8 @@ public class Rail extends SerializedDataBase {
 		tEnd1 = packet.readFloat();
 		tStart2 = packet.readFloat();
 		tEnd2 = packet.readFloat();
+		yStart = packet.readInt();
+		yEnd = packet.readInt();
 		reverseT1 = packet.readBoolean();
 		isStraight1 = packet.readBoolean();
 		reverseT2 = packet.readBoolean();
@@ -246,6 +255,8 @@ public class Rail extends SerializedDataBase {
 		tag.putFloat(KEY_T_END_1, tEnd1);
 		tag.putFloat(KEY_T_START_2, tStart2);
 		tag.putFloat(KEY_T_END_2, tEnd2);
+		tag.putInt(KEY_Y_START, yStart);
+		tag.putInt(KEY_Y_END, yEnd);
 		tag.putBoolean(KEY_REVERSE_T_1, reverseT1);
 		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
 		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
@@ -267,6 +278,8 @@ public class Rail extends SerializedDataBase {
 		packet.writeFloat(tEnd1);
 		packet.writeFloat(tStart2);
 		packet.writeFloat(tEnd2);
+		packet.writeInt(yStart);
+		packet.writeInt(yEnd);
 		packet.writeBoolean(reverseT1);
 		packet.writeBoolean(isStraight1);
 		packet.writeBoolean(reverseT2);
@@ -277,11 +290,16 @@ public class Rail extends SerializedDataBase {
 	public Pos3f getPosition(float value) {
 		final float count1 = Math.abs(tEnd1 - tStart1);
 		final float count2 = Math.abs(tEnd2 - tStart2);
+		final float y = getPositionY(value);
 
 		if (value >= 0 && value <= count1) {
-			return getPosition(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1);
+			final Pos3f pos = getPositionXZ(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1);
+			pos.add(0, y, 0);
+			return pos;
 		} else if (value <= count1 + count2) {
-			return getPosition(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2);
+			final Pos3f pos = getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2);
+			pos.add(0, y, 0);
+			return pos;
 		} else {
 			return null;
 		}
@@ -292,11 +310,28 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public void render(RenderRail callback) {
-		renderSegment(h1, k1, r1, tStart1, tEnd1, reverseT1, isStraight1, callback);
-		renderSegment(h2, k2, r2, tStart2, tEnd2, reverseT2, isStraight2, callback);
+		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, reverseT1, isStraight1, callback);
+		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, callback);
 	}
 
-	private static Pos3f getPosition(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {
+	private float getPositionY(float value) {
+		final float intercept = getLength() / 2;
+		final float yChange;
+		final float yInitial;
+		final float offsetValue;
+		if (value < intercept) {
+			yChange = (yEnd - yStart) / 2F;
+			yInitial = yStart;
+			offsetValue = value;
+		} else {
+			yChange = (yStart - yEnd) / 2F;
+			yInitial = yEnd;
+			offsetValue = getLength() - value;
+		}
+		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
+	}
+
+	private static Pos3f getPositionXZ(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {
 		if (isStraight) {
 			return new Pos3f(h * t + k * (r + radiusOffset) + 0.5F, 0, k * t + h * (r + radiusOffset) + 0.5F);
 		} else {
@@ -304,19 +339,22 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	private static void renderSegment(float h, float k, float r, float tStart, float tEnd, boolean reverseT, boolean isStraight, RenderRail callback) {
+	private void renderSegment(float h, float k, float r, float tStart, float tEnd, float rawValueOffset, boolean reverseT, boolean isStraight, RenderRail callback) {
 		final float count = Math.abs(tEnd - tStart);
 		final float increment = count / Math.round(count);
 
 		for (float i = 0; i < count - 0.1; i += increment) {
 			final float t1 = (reverseT ? -1 : 1) * i + tStart;
 			final float t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Pos3f corner1 = getPosition(h, k, r, t1, -1, isStraight);
-			final Pos3f corner2 = getPosition(h, k, r, t1, 1, isStraight);
-			final Pos3f corner3 = getPosition(h, k, r, t2, 1, isStraight);
-			final Pos3f corner4 = getPosition(h, k, r, t2, -1, isStraight);
+			final Pos3f corner1 = getPositionXZ(h, k, r, t1, -1, isStraight);
+			final Pos3f corner2 = getPositionXZ(h, k, r, t1, 1, isStraight);
+			final Pos3f corner3 = getPositionXZ(h, k, r, t2, 1, isStraight);
+			final Pos3f corner4 = getPositionXZ(h, k, r, t2, -1, isStraight);
 
-			callback.renderRail(corner1.getX(), corner1.getZ(), corner2.getX(), corner2.getZ(), corner3.getX(), corner3.getZ(), corner4.getX(), corner4.getZ());
+			final float y1 = getPositionY(i + rawValueOffset);
+			final float y2 = getPositionY(i + increment + rawValueOffset);
+
+			callback.renderRail(corner1.getX(), corner1.getZ(), corner2.getX(), corner2.getZ(), corner3.getX(), corner3.getZ(), corner4.getX(), corner4.getZ(), y1, y2);
 		}
 	}
 
@@ -358,6 +396,6 @@ public class Rail extends SerializedDataBase {
 	@FunctionalInterface
 	public interface RenderRail {
 
-		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4);
+		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float y1, float y2);
 	}
 }
