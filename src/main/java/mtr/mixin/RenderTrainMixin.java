@@ -1,6 +1,7 @@
 package mtr.mixin;
 
 import mtr.data.Pos3f;
+import mtr.data.Route;
 import mtr.data.Train;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -54,10 +55,10 @@ public class RenderTrainMixin {
 		matrices.push();
 		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-		final Train.TrainType trainType = Train.TrainType.SP1900_MINI; // TODO
+		final float worldTime = world.getLunarTime() + tickDelta + 30000;
 
-		ClientData.routes.forEach(route -> {
-			final List<Pos3f> positions = route.getPositions(world.getLunarTime() + tickDelta);
+		ClientData.routes.forEach(route -> route.schedule.forEach((scheduleTime, trainType) -> {
+			final List<Pos3f> positions = route.getPositions((worldTime - scheduleTime) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
 
 			for (int i = 0; i < positions.size() - 1; i++) {
 				final Pos3f pos1 = positions.get(i);
@@ -79,7 +80,12 @@ public class RenderTrainMixin {
 					matrices.pop();
 				}
 			}
-		});
+		}));
+
+		// rendering something invisible to flush the buffers, or else the last rendered train will render incorrectly
+		matrices.push();
+		new MinecartEntityModel<>().render(matrices, vertexConsumers.getBuffer(RenderLayer.LINES), 0, 0, 0, 0, 0, 0);
+		matrices.pop();
 
 		matrices.pop();
 	}

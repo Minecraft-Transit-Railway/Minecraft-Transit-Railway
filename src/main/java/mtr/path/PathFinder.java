@@ -12,10 +12,12 @@ public class PathFinder {
 
 	private final WorldAccess world;
 	private final List<Platform> platforms;
+	private final List<PathData> path;
 
 	public PathFinder(WorldAccess world, List<Platform> platforms) {
 		this.world = world;
 		this.platforms = platforms;
+		path = new ArrayList<>();
 	}
 
 	public List<PathData> findPath() {
@@ -23,7 +25,7 @@ public class PathFinder {
 			return new ArrayList<>();
 		}
 
-		final List<PathData> path = new ArrayList<>();
+		path.clear();
 		float tOffset = 0;
 
 		for (int i = 1; i < platforms.size(); i++) {
@@ -38,20 +40,30 @@ public class PathFinder {
 				}
 			}
 
-			float speed = 0;
-			for (int j = 1; j < tempPath.size(); j++) {
-				final BlockPos tempPos = tempPath.get(j - 1);
-				final BlockEntity entity = world.getBlockEntity(tempPos);
-				if (entity instanceof BlockRail.TileEntityRail) {
-					final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1, tOffset);
-					path.add(pathData);
-					tOffset += pathData.getTime();
-					speed = pathData.finalSpeed;
-				}
+			if (i == 1) {
+				tOffset = generatePathData(tempPath.subList(0, 2), tOffset, 1);
 			}
+			tempPath.remove(0);
+
+			tOffset = generatePathData(tempPath, tOffset, 0);
 		}
 
 		return path;
+	}
+
+	private float generatePathData(List<BlockPos> tempPath, float tOffset, float initialSpeed) {
+		float speed = initialSpeed;
+		for (int j = 1; j < tempPath.size(); j++) {
+			final BlockPos tempPos = tempPath.get(j - 1);
+			final BlockEntity entity = world.getBlockEntity(tempPos);
+			if (entity instanceof BlockRail.TileEntityRail) {
+				final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1, tOffset);
+				path.add(pathData);
+				tOffset += pathData.getTime();
+				speed = pathData.finalSpeed;
+			}
+		}
+		return tOffset;
 	}
 
 	private List<BlockPos> getTempPath(Platform platform1, Platform platform2, boolean reverse) {
