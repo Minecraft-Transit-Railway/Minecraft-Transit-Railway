@@ -32,12 +32,6 @@ public class PacketTrainDataGuiServer implements IPacket {
 		ServerPlayNetworking.send(player, ID_OPEN_SCHEDULE_SCREEN, packet);
 	}
 
-	public static void sendTrainsS2C(WorldAccess world, Set<Train> trains) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		IPacket.sendData(packet, trains);
-		world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, ID_TRAINS, packet));
-	}
-
 	public static void receiveStationsAndRoutesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);

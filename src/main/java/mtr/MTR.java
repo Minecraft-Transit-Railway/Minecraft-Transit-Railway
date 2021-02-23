@@ -2,22 +2,15 @@ package mtr;
 
 import mtr.block.*;
 import mtr.data.RailwayData;
-import mtr.data.Train;
-import mtr.entity.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -30,13 +23,6 @@ import java.util.function.Supplier;
 public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
-
-	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, Train.TrainType.MINECART.getLength(), 1);
-	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, Train.TrainType.SP1900.getLength(), 4);
-	public static final EntityType<EntitySP1900Mini> SP1900_MINI = registerEntity("sp1900_mini", EntitySP1900Mini::new, Train.TrainType.SP1900_MINI.getLength(), 4);
-	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, Train.TrainType.M_TRAIN.getLength(), 4);
-	public static final EntityType<EntityMTrainMini> M_TRAIN_MINI = registerEntity("m_train_mini", EntityMTrainMini::new, Train.TrainType.M_TRAIN_MINI.getLength(), 4);
-	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
 
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
@@ -199,9 +185,5 @@ public class MTR implements ModInitializer {
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
-	}
-
-	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory, float width, float height) {
-		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(width, height)).build());
 	}
 }

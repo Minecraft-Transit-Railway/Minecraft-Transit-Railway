@@ -3,7 +3,7 @@ package mtr.gui;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
-import mtr.data.Train;
+import mtr.data.TrainType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ScheduleScreen extends Screen implements IGui {
 
 	private final Route route;
-	private final List<Triple<Integer, Long, Train.TrainType>> schedule;
+	private final List<Triple<Integer, Long, TrainType>> schedule;
 	private final int maxRouteWidth, maxTrainTypeWidth;
 
 	private static final int ARGB_GOLD = 0xFFFFAA00;
@@ -73,7 +73,7 @@ public class ScheduleScreen extends Screen implements IGui {
 					for (int row = 0; row < rows; row++) {
 						final int index = row + rows * column;
 						if (index < schedule.size()) {
-							final Triple<Integer, Long, Train.TrainType> scheduleEntry = schedule.get(index);
+							final Triple<Integer, Long, TrainType> scheduleEntry = schedule.get(index);
 							final int timeDifference = time - scheduleEntry.getLeft();
 							final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
 							drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
@@ -108,7 +108,7 @@ public class ScheduleScreen extends Screen implements IGui {
 		}
 	}
 
-	private String getTrainTypeString(Train.TrainType trainType) {
+	private String getTrainTypeString(TrainType trainType) {
 		return trainType == null ? "" : trainType.getName();
 	}
 

@@ -185,7 +185,7 @@ public class DashboardScreen extends Screen implements IGui {
 				}
 				break;
 			case 2:
-				dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
+//				dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
 				break;
 		}
 	}
@@ -217,8 +217,8 @@ public class DashboardScreen extends Screen implements IGui {
 				widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
 				break;
 			case 2:
-				final Train train = (Train) data;
-				widgetMap.find(train.posX[0], train.posZ[0], train.posX[train.posX.length - 1], train.posZ[train.posZ.length - 1]);
+//				final Train train = (Train) data;
+//				widgetMap.find(train.posX[0], train.posZ[0], train.posX[train.posX.length - 1], train.posZ[train.posZ.length - 1]);
 				break;
 		}
 	}

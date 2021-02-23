@@ -16,7 +16,6 @@ import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.RenderLayer;
@@ -62,13 +61,6 @@ public class MTRClient implements ClientModInitializer {
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_6_DIAMOND, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_PLATFORM, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_REMOVER, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
-
-		EntityRendererRegistry.INSTANCE.register(MTR.MINECART, (dispatcher, context) -> new RenderMinecart(dispatcher));
-		EntityRendererRegistry.INSTANCE.register(MTR.SP1900, (dispatcher, context) -> new RenderSP1900(dispatcher));
-		EntityRendererRegistry.INSTANCE.register(MTR.SP1900_MINI, (dispatcher, context) -> new RenderSP1900Mini(dispatcher));
-		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN, (dispatcher, context) -> new RenderMTrain(dispatcher));
-		EntityRendererRegistry.INSTANCE.register(MTR.M_TRAIN_MINI, (dispatcher, context) -> new RenderMTrainMini(dispatcher));
-		EntityRendererRegistry.INSTANCE.register(MTR.LIGHT_RAIL_1, (dispatcher, context) -> new RenderLightRail1(dispatcher));
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.CLOCK_TILE_ENTITY, RenderClock::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
@@ -131,7 +123,6 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_NAME_TALL_WALL);
 		registerStationColor(Blocks.STATION_POLE);
 
-		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_TRAINS, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveTrainsS2C(packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_SCHEDULE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openScheduleScreenS2C(minecraftClient, packet));

@@ -20,9 +20,9 @@ public final class Route extends NameColorDataBase {
 	public boolean shuffleTrains;
 
 	public final List<Long> platformIds;
-	public final List<Train.TrainType> trainTypes;
+	public final List<TrainType> trainTypes;
 	public final List<PathData> path;
-	public final Map<Integer, Train.TrainType> schedule;
+	public final Map<Integer, TrainType> schedule;
 
 	private final int[] frequencies;
 
@@ -59,7 +59,7 @@ public final class Route extends NameColorDataBase {
 		trainTypes = new ArrayList<>();
 		final int[] trainTypesIndices = tag.getIntArray(KEY_TRAIN_TYPES);
 		for (final int trainTypeIndex : trainTypesIndices) {
-			trainTypes.add(Train.TrainType.values()[trainTypeIndex]);
+			trainTypes.add(TrainType.values()[trainTypeIndex]);
 		}
 
 		frequencies = new int[HOURS_IN_DAY];
@@ -92,7 +92,7 @@ public final class Route extends NameColorDataBase {
 		trainTypes = new ArrayList<>();
 		final int trainTypeCount = packet.readInt();
 		for (int i = 0; i < trainTypeCount; i++) {
-			trainTypes.add(Train.TrainType.values()[packet.readInt()]);
+			trainTypes.add(TrainType.values()[packet.readInt()]);
 		}
 
 		frequencies = new int[HOURS_IN_DAY];
@@ -233,6 +233,7 @@ public final class Route extends NameColorDataBase {
 							entity.setVelocity(velocity);
 							final float yawChange = (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
 							entity.yaw += yawChange;
+							entity.fallDistance = 0;
 						}
 					});
 
@@ -308,7 +309,7 @@ public final class Route extends NameColorDataBase {
 				final float headway = getHeadway(i / TICKS_PER_HOUR);
 
 				if (headway > 0 && i >= headway + lastTime) {
-					final Train.TrainType trainType;
+					final TrainType trainType;
 					if (shuffleTrains) {
 						trainType = trainTypes.get(new Random().nextInt(trainTypes.size()));
 					} else {
@@ -332,6 +333,6 @@ public final class Route extends NameColorDataBase {
 
 	@FunctionalInterface
 	public interface PositionYawCallback {
-		void positionYawCallback(float x, float y, float z, float yaw, float pitch, Train.TrainType trainType, boolean isEnd1Head, boolean isEnd2Head);
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head);
 	}
 }

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.Platform;
 import mtr.data.Station;
-import mtr.data.Train;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -90,13 +89,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 		for (Station station : ClientData.stations) {
 			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
-		}
-		for (Train train : ClientData.trains) {
-			for (int i = 0; i < train.posX.length - 1; i++) {
-				final double carX = (train.posX[i] + train.posX[i + 1]) / 2;
-				final double carZ = (train.posZ[i] + train.posZ[i + 1]) / 2;
-				drawRectangleFromWorldCoords(buffer, carX - 0.5, carZ - 0.5, carX + 0.5, carZ + 0.5, ARGB_BLACK + train.color);
-			}
 		}
 
 		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {

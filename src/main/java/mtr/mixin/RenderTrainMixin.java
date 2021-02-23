@@ -1,6 +1,6 @@
 package mtr.mixin;
 
-import mtr.data.Train;
+import mtr.data.TrainType;
 import mtr.gui.ClientData;
 import mtr.model.*;
 import net.minecraft.client.MinecraftClient;
@@ -78,7 +78,7 @@ public class RenderTrainMixin {
 		matrices.pop();
 	}
 
-	private static ModelTrainBase getModel(Train.TrainType trainType) {
+	private static ModelTrainBase getModel(TrainType trainType) {
 		switch (trainType) {
 			case SP1900:
 				return MODEL_SP1900;
@@ -95,7 +95,7 @@ public class RenderTrainMixin {
 		}
 	}
 
-	private static Identifier getTexture(Train.TrainType trainType) {
+	private static Identifier getTexture(TrainType trainType) {
 		switch (trainType) {
 			case SP1900:
 			case SP1900_MINI:

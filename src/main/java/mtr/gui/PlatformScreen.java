@@ -171,18 +171,18 @@ public class PlatformScreen extends Screen implements IGui {
 	}
 
 	private void onAddingTrain() {
-		addNewList.setData(Arrays.stream(Train.TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, false, true, false);
+		addNewList.setData(Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, false, true, false);
 		setAdding(true);
 	}
 
 	private void onAdded(NameColorDataBase data, int index) {
 		if (addingTrain) {
-			route.trainTypes.add(Train.TrainType.values()[index]);
+			route.trainTypes.add(TrainType.values()[index]);
 		}
 		setAdding(false);
 	}
 
-	private List<Train.TrainType> getTrainList() {
+	private List<TrainType> getTrainList() {
 		return route.trainTypes;
 	}
 

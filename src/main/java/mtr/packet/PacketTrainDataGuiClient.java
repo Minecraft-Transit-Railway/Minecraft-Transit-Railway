@@ -1,7 +1,10 @@
 package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
-import mtr.data.*;
+import mtr.data.Platform;
+import mtr.data.RailwayData;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
@@ -45,10 +48,6 @@ public class PacketTrainDataGuiClient implements IPacket {
 //				minecraftClient.openScreen(new ScheduleScreen(pos));
 			}
 		});
-	}
-
-	public static void receiveTrainsS2C(PacketByteBuf packet) {
-		ClientData.trains = IPacket.receiveData(packet, Train::new);
 	}
 
 	public static void sendStationsAndRoutesC2S(Set<Station> stations, Set<Route> routes) {
