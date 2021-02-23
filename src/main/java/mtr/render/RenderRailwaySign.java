@@ -109,7 +109,6 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 	@FunctionalInterface
 	public interface DrawTexture {
-
 		void drawTexture(float x, float y, float size, boolean flipTexture);
 	}
 }

@@ -137,6 +137,8 @@ public class RailwayData extends PersistentState {
 		final int worldTime = (int) (world.getLunarTime() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR);
 		final Set<Train> trainsToRemove = new HashSet<>();
 
+		routes.forEach(route -> route.getPositionYaw(world, world.getLunarTime() + 30000));
+
 		try {
 			trains.forEach(train -> {
 				final int trainLength = train.posX.length;

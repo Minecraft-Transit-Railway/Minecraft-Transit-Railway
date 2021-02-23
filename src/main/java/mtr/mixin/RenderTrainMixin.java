@@ -1,10 +1,9 @@
 package mtr.mixin;
 
-import mtr.data.Pos3f;
-import mtr.data.Route;
 import mtr.data.Train;
 import mtr.gui.ClientData;
 import mtr.model.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
@@ -14,7 +13,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
@@ -24,8 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.List;
 
 @Mixin(WorldRenderer.class)
 public class RenderTrainMixin {
@@ -48,6 +44,10 @@ public class RenderTrainMixin {
 	@Final
 	private BufferBuilderStorage bufferBuilders;
 
+	@Shadow
+	@Final
+	private MinecraftClient client;
+
 	@Inject(method = "render", at = @At("RETURN"))
 	private void injectMethod(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		VertexConsumerProvider.Immediate vertexConsumers = bufferBuilders.getEntityVertexConsumers();
@@ -58,32 +58,17 @@ public class RenderTrainMixin {
 
 		final float worldTime = world.getLunarTime() + tickDelta + 30000;
 
-		ClientData.routes.forEach(route -> route.schedule.forEach((scheduleTime, trainType) -> {
-			final List<Pos3f> positions = route.getPositions((worldTime - scheduleTime) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head) -> {
+			final BlockPos posAverage = new BlockPos(x, y, z);
+			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
-			for (int i = 0; i < positions.size() - 1; i++) {
-				final Pos3f pos1 = positions.get(i);
-				final Pos3f pos2 = positions.get(i + 1);
-
-				if (pos1 != null && pos2 != null) {
-					final float xAverage = (pos1.getX() + pos2.getX()) / 2;
-					final float yAverage = (pos1.getY() + pos2.getY()) / 2 + 1;
-					final float zAverage = (pos1.getZ() + pos2.getZ()) / 2;
-
-					final float yaw = (float) Math.toDegrees(MathHelper.atan2(pos2.getX() - pos1.getX(), pos2.getZ() - pos1.getZ()));
-					final float pitch = (float) Math.toDegrees(MathHelper.atan2(pos2.getY() - pos1.getY(), Math.sqrt(MathHelper.square(pos2.getX() - pos1.getX()) + MathHelper.square(pos2.getZ() - pos1.getZ()))));
-					final BlockPos posAverage = new BlockPos(xAverage, yAverage, zAverage);
-					final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-
-					matrices.push();
-					matrices.translate(xAverage, yAverage, zAverage);
-					matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
-					matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
-					getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), light, 0, 0, i == 0, i == positions.size() - 2, i == 0, true);
-					matrices.pop();
-				}
-			}
-		}));
+			matrices.push();
+			matrices.translate(x, y, z);
+			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
+			matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
+			getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), light, 0, 0, isEnd1Head, isEnd2Head, true, true);
+			matrices.pop();
+		})));
 
 		// rendering something invisible to flush the buffers, or else the last rendered train will render incorrectly
 		matrices.push();

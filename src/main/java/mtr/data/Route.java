@@ -2,8 +2,13 @@ package mtr.data;
 
 import mtr.path.PathData;
 import mtr.path.PathFinder;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
@@ -156,7 +161,90 @@ public final class Route extends NameColorDataBase {
 		path.addAll(routePathFinder.findPath());
 	}
 
-	public List<Pos3f> getPositions(float value, int trainSpacing) {
+	public int getFrequency(int index) {
+		if (index >= 0 && index < frequencies.length) {
+			return frequencies[index];
+		} else {
+			return 0;
+		}
+	}
+
+	public void setFrequencies(int frequency, int index) {
+		if (index >= 0 && index < frequencies.length) {
+			frequencies[index] = frequency;
+		}
+	}
+
+	public void getPositionYaw(WorldAccess world, float worldTime) {
+		getPositionYaw(world, worldTime, 1, null);
+	}
+
+	public void getPositionYaw(WorldAccess world, float worldTime, float lastFrameDuration, PositionYawCallback positionYawCallback) {
+		schedule.forEach((scheduleTime, trainType) -> {
+			final List<Pos3f> positions = getPositions((worldTime - scheduleTime) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
+			final List<Pos3f> futurePositions = getPositions((worldTime - scheduleTime + 1) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
+
+			for (int i = 0; i < positions.size() - 1; i++) {
+				final Pos3f pos1 = positions.get(i);
+				final Pos3f pos2 = positions.get(i + 1);
+
+				final Pos3f futurePos1;
+				final Pos3f futurePos2;
+				if (i + 1 >= futurePositions.size() || futurePositions.get(i) == null || futurePositions.get(i + 1) == null) {
+					futurePos1 = pos1;
+					futurePos2 = pos2;
+				} else {
+					futurePos1 = futurePositions.get(i);
+					futurePos2 = futurePositions.get(i + 1);
+				}
+
+				if (pos1 != null && pos2 != null) {
+					final float realSpacing = pos2.getDistanceTo(pos1);
+
+					final float x = getAverage(pos1.getX(), pos2.getX());
+					final float y = getAverage(pos1.getY(), pos2.getY()) + 1;
+					final float z = getAverage(pos1.getZ(), pos2.getZ());
+					final float yaw = (float) MathHelper.atan2(pos2.getX() - pos1.getX(), pos2.getZ() - pos1.getZ());
+					final float pitch = (float) Math.asin((pos2.getY() - pos1.getY()) / realSpacing);
+
+					final float futureX = getAverage(futurePos1.getX(), futurePos2.getX());
+					final float futureY = getAverage(futurePos1.getY(), futurePos2.getY()) + 1;
+					final float futureZ = getAverage(futurePos1.getZ(), futurePos2.getZ());
+					final float futureYaw = (float) MathHelper.atan2(futurePos2.getX() - futurePos1.getX(), futurePos2.getZ() - futurePos1.getZ());
+					final float futurePitch = (float) Math.asin((futurePos2.getY() - futurePos1.getY()) / futurePos2.getDistanceTo(futurePos1));
+
+					final float halfSpacing = realSpacing / 2;
+					final float halfWidth = trainType.getWidth() / 2F;
+					final boolean isEnd1Head = i == 0;
+					final boolean isEnd2Head = i == positions.size() - 2;
+
+					final List<LivingEntity> entities = world.getEntitiesByClass(world.isClient() ? PlayerEntity.class : LivingEntity.class, new Box(x + halfSpacing + 1, y + halfSpacing + 1, z + halfSpacing + 1, x - halfSpacing - 1, y - halfSpacing - 1, z - halfSpacing - 1), entity -> true);
+
+					entities.forEach(entity -> {
+						final boolean isValidEntity = !entity.removed && !entity.isSpectator();
+						final Vec3d positionRotated = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
+
+						if (isValidEntity && Math.abs(positionRotated.x) <= halfWidth + 1 && Math.abs(positionRotated.y) <= 2 && Math.abs(positionRotated.z) <= halfSpacing + 1) {
+							Vec3d velocity = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
+							velocity = new Vec3d(MathHelper.clamp(velocity.x, -halfWidth, halfWidth), 0, MathHelper.clamp(velocity.z, isEnd1Head ? -halfSpacing : velocity.z, isEnd2Head ? halfSpacing : velocity.z));
+							velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(entity.getPos());
+							velocity = velocity.add(new Vec3d(entity.sidewaysSpeed / 3, 0, entity.forwardSpeed / 3).rotateY((float) -Math.toRadians(entity.yaw)));
+
+							entity.setVelocity(velocity);
+							final float yawChange = (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
+							entity.yaw += yawChange;
+						}
+					});
+
+					if (positionYawCallback != null) {
+						positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head);
+					}
+				}
+			}
+		});
+	}
+
+	private List<Pos3f> getPositions(float value, int trainSpacing) {
 		final List<Pos3f> positions = new ArrayList<>();
 
 		int pathDataIndex = getPathDataIndex(value);
@@ -194,20 +282,6 @@ public final class Route extends NameColorDataBase {
 		}
 	}
 
-	public int getFrequency(int index) {
-		if (index >= 0 && index < frequencies.length) {
-			return frequencies[index];
-		} else {
-			return 0;
-		}
-	}
-
-	public void setFrequencies(int frequency, int index) {
-		if (index >= 0 && index < frequencies.length) {
-			frequencies[index] = frequency;
-		}
-	}
-
 	private int getPathDataIndex(float value) {
 		for (int i = 0; i < path.size(); i++) {
 			final float thisTPrevious = path.get(i).tOffset;
@@ -232,7 +306,7 @@ public final class Route extends NameColorDataBase {
 
 			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
 				final float headway = getHeadway(i / TICKS_PER_HOUR);
-				
+
 				if (headway > 0 && i >= headway + lastTime) {
 					final Train.TrainType trainType;
 					if (shuffleTrains) {
@@ -250,5 +324,14 @@ public final class Route extends NameColorDataBase {
 				}
 			}
 		}
+	}
+
+	private static float getAverage(float a, float b) {
+		return (a + b) / 2;
+	}
+
+	@FunctionalInterface
+	public interface PositionYawCallback {
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, Train.TrainType trainType, boolean isEnd1Head, boolean isEnd2Head);
 	}
 }

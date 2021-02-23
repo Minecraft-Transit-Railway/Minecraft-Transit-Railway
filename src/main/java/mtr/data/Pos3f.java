@@ -1,6 +1,5 @@
 package mtr.data;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 public class Pos3f {
@@ -13,12 +12,6 @@ public class Pos3f {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-	}
-
-	public Pos3f(BlockPos pos) {
-		x = pos.getX() + 0.5F;
-		y = pos.getY();
-		z = pos.getZ() + 0.5F;
 	}
 
 	public float getX() {
@@ -73,6 +66,10 @@ public class Pos3f {
 		float cos = MathHelper.cos(angle);
 		float sin = MathHelper.sin(angle);
 		return new Pos3f(x * cos + z * sin, y, z * cos - x * sin);
+	}
+
+	public float getDistanceTo(Pos3f pos3f) {
+		return (float) Math.sqrt(MathHelper.square(x - pos3f.x) + MathHelper.square(y - pos3f.y) + MathHelper.square(z - pos3f.z));
 	}
 
 	@Override

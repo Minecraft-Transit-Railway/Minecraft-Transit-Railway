@@ -395,7 +395,6 @@ public class Rail extends SerializedDataBase {
 
 	@FunctionalInterface
 	public interface RenderRail {
-
 		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float y1, float y2);
 	}
 }
