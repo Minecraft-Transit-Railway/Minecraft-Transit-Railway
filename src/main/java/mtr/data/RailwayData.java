@@ -112,7 +112,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(WorldAccess world) {
-		routes.forEach(route -> route.getPositionYaw(world, world.getLunarTime() + 30000));
+		routes.forEach(route -> route.getPositionYaw(world, world.getLunarTime()));
 	}
 
 	// writing data

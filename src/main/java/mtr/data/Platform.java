@@ -11,9 +11,6 @@ import java.util.*;
 
 public final class Platform extends NameColorDataBase {
 
-	public static final int HOURS_IN_DAY = 24;
-	public static final int TICKS_PER_HOUR = 1000;
-
 	private final Set<BlockPos> positions;
 
 	private static final String KEY_POS_1 = "pos_1";

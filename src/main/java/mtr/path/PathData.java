@@ -19,6 +19,9 @@ public class PathData extends SerializedDataBase {
 	private final float tEnd;
 	private final int delay;
 
+	public static final int DOOR_DELAY = 20;
+	public static final int DOOR_MOVE_TIME = 32;
+
 	private static final String KEY_RAIL = "rail";
 	private static final String KEY_LENGTH = "length";
 	private static final String KEY_T_OFFSET = "t_offset";
@@ -42,7 +45,7 @@ public class PathData extends SerializedDataBase {
 		final float maxBlocksPerTick = rail.railType.maxBlocksPerTick;
 
 		if (shouldStop) {
-			delay = 40; // TODO editable platform dwell time
+			delay = 120; // TODO editable platform dwell time
 
 			a1 = 0;
 			a2 = -Math.max(startSpeed * startSpeed / (4 * length), HALF_ACCELERATION);
@@ -148,6 +151,25 @@ public class PathData extends SerializedDataBase {
 			return getDistance(a2, b2, tEnd - tSwitch) + getDistance(a1, b1, tSwitch);
 		} else {
 			return -1;
+		}
+	}
+
+	public float getDoorValue(float value) {
+		final float offsetValue = value - tOffset - tEnd;
+		final float stage1 = DOOR_DELAY;
+		final float stage2 = DOOR_DELAY + DOOR_MOVE_TIME;
+		final float stage3 = delay - DOOR_DELAY - DOOR_MOVE_TIME;
+		final float stage4 = delay - DOOR_DELAY;
+		if (offsetValue < stage1 || offsetValue >= stage4) {
+			return 0;
+		} else if (offsetValue >= stage2 && offsetValue < stage3) {
+			return 1;
+		} else if (offsetValue >= stage1 && offsetValue < stage2) {
+			return (offsetValue - stage1) / DOOR_MOVE_TIME;
+		} else if (offsetValue >= stage3 && offsetValue < stage4) {
+			return (stage4 - offsetValue) / DOOR_MOVE_TIME;
+		} else {
+			return 0;
 		}
 	}
 

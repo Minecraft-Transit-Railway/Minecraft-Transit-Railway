@@ -1,6 +1,9 @@
 package mtr.gui;
 
-import mtr.data.*;
+import mtr.data.DataConverter;
+import mtr.data.NameColorDataBase;
+import mtr.data.Route;
+import mtr.data.TrainType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -30,7 +33,7 @@ public class PlatformScreen extends Screen implements IGui {
 	private static final int CUSTOM_DESTINATION_X_OFFSET = 108;
 	private static final int MAX_CUSTOM_DESTINATION_LENGTH = 128;
 
-	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Platform.HOURS_IN_DAY];
+	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Route.HOURS_IN_DAY];
 	private final ButtonWidget buttonAddTrains;
 	private final ButtonWidget buttonCancel;
 	private final WidgetBetterCheckbox buttonShuffleTrains;
@@ -48,7 +51,7 @@ public class PlatformScreen extends Screen implements IGui {
 		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + client.textRenderer.getWidth(getSliderString(0));
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + client.textRenderer.getWidth(getSliderString(1));
 
-		for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
+		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
 			final int index = i;
 			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index), PlatformScreen::getSliderString);
 		}
@@ -97,7 +100,7 @@ public class PlatformScreen extends Screen implements IGui {
 
 		setAdding(false);
 
-		for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
+		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
 			sliders[i].setValue(route.getFrequency(i));
 		}
 
@@ -132,8 +135,8 @@ public class PlatformScreen extends Screen implements IGui {
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), (rightPanelsX + width) / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 
-				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Platform.HOURS_IN_DAY);
-				for (int i = 0; i < Platform.HOURS_IN_DAY; i++) {
+				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Route.HOURS_IN_DAY);
+				for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
 					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
 					sliders[i].y = SQUARE_SIZE + lineHeight * i;
 					sliders[i].setHeight(lineHeight);

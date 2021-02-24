@@ -1,6 +1,5 @@
 package mtr.gui;
 
-import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.TrainType;
@@ -45,7 +44,7 @@ public class ScheduleScreen extends Screen implements IGui {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % (Platform.HOURS_IN_DAY * Platform.TICKS_PER_HOUR)) : 0;
+			final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % Route.TICKS_PER_DAY) : 0;
 			final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
 			drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
 			drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
@@ -94,8 +93,8 @@ public class ScheduleScreen extends Screen implements IGui {
 	}
 
 	private String getTimeString(int time) {
-		final String hourString = StringUtils.leftPad(String.valueOf(time / Platform.TICKS_PER_HOUR), 2, "0");
-		final String minuteString = StringUtils.leftPad(String.valueOf((int) (0.06 * (time % Platform.TICKS_PER_HOUR))), 2, "0");
+		final String hourString = StringUtils.leftPad(String.valueOf(time / Route.TICKS_PER_HOUR), 2, "0");
+		final String minuteString = StringUtils.leftPad(String.valueOf((int) (0.06 * (time % Route.TICKS_PER_HOUR))), 2, "0");
 		return hourString + ":" + minuteString;
 	}
 

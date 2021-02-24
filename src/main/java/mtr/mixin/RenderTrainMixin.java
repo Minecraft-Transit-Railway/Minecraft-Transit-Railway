@@ -56,9 +56,9 @@ public class RenderTrainMixin {
 		matrices.push();
 		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-		final float worldTime = world.getLunarTime() + tickDelta + 30000;
+		final float worldTime = world.getLunarTime() + tickDelta;
 
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head) -> {
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
 			final BlockPos posAverage = new BlockPos(x, y, z);
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
@@ -66,7 +66,7 @@ public class RenderTrainMixin {
 			matrices.translate(x, y, z);
 			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
 			matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
-			getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), light, 0, 0, isEnd1Head, isEnd2Head, true, true);
+			getModel(trainType).render(matrices, vertexConsumers, getTexture(trainType), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, true);
 			matrices.pop();
 		})));
 

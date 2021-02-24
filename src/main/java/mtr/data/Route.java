@@ -1,11 +1,16 @@
 package mtr.data;
 
+import mtr.block.BlockPSDAPGBase;
+import mtr.block.BlockPlatform;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
+import net.minecraft.block.Block;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -28,6 +33,11 @@ public final class Route extends NameColorDataBase {
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;
+	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
+
+	private static final float INNER_PADDING = 0.5F;
+	private static final int OUTER_PADDING = 1;
+	private static final int BOX_PADDING = 3;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
 	private static final String KEY_TRAIN_TYPES = "train_types";
@@ -181,8 +191,10 @@ public final class Route extends NameColorDataBase {
 
 	public void getPositionYaw(WorldAccess world, float worldTime, float lastFrameDuration, PositionYawCallback positionYawCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
-			final List<Pos3f> positions = getPositions((worldTime - scheduleTime) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
-			final List<Pos3f> futurePositions = getPositions((worldTime - scheduleTime + 1) % (Route.HOURS_IN_DAY * Route.TICKS_PER_HOUR), trainType.getSpacing());
+			final float worldTimeOffset = worldTime + 6000 + TICKS_PER_DAY;
+			final List<Pos3f> positions = getPositions((worldTimeOffset - scheduleTime) % TICKS_PER_DAY, trainType.getSpacing());
+			final List<Pos3f> futurePositions = getPositions((worldTimeOffset - scheduleTime + 1) % TICKS_PER_DAY, trainType.getSpacing());
+			final float doorValue = getDoorValue((worldTimeOffset - scheduleTime) % TICKS_PER_DAY);
 
 			for (int i = 0; i < positions.size() - 1; i++) {
 				final Pos3f pos1 = positions.get(i);
@@ -218,27 +230,43 @@ public final class Route extends NameColorDataBase {
 					final boolean isEnd1Head = i == 0;
 					final boolean isEnd2Head = i == positions.size() - 2;
 
-					final List<LivingEntity> entities = world.getEntitiesByClass(world.isClient() ? PlayerEntity.class : LivingEntity.class, new Box(x + halfSpacing + 1, y + halfSpacing + 1, z + halfSpacing + 1, x - halfSpacing - 1, y - halfSpacing - 1, z - halfSpacing - 1), entity -> true);
+					final boolean doorLeftOpen = doorValue > 0 && hasPlatform(world, x, y, z, -yaw);
+					final boolean doorRightOpen = doorValue > 0 && hasPlatform(world, x, y, z, yaw);
+
+					final List<LivingEntity> entities = world.getEntitiesByClass(world.isClient() ? PlayerEntity.class : LivingEntity.class, new Box(x + halfSpacing + BOX_PADDING, y + halfSpacing + BOX_PADDING, z + halfSpacing + BOX_PADDING, x - halfSpacing - BOX_PADDING, y - halfSpacing - BOX_PADDING, z - halfSpacing - BOX_PADDING), entity -> true);
 
 					entities.forEach(entity -> {
 						final boolean isValidEntity = !entity.removed && !entity.isSpectator();
-						final Vec3d positionRotated = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
 
-						if (isValidEntity && Math.abs(positionRotated.x) <= halfWidth + 1 && Math.abs(positionRotated.y) <= 2 && Math.abs(positionRotated.z) <= halfSpacing + 1) {
-							Vec3d velocity = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
-							velocity = new Vec3d(MathHelper.clamp(velocity.x, -halfWidth, halfWidth), 0, MathHelper.clamp(velocity.z, isEnd1Head ? -halfSpacing : velocity.z, isEnd2Head ? halfSpacing : velocity.z));
-							velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(entity.getPos());
-							velocity = velocity.add(new Vec3d(entity.sidewaysSpeed / 3, 0, entity.forwardSpeed / 3).rotateY((float) -Math.toRadians(entity.yaw)));
+						if (isValidEntity) {
+							final Vec3d positionRotated = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
 
-							entity.setVelocity(velocity);
-							final float yawChange = (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
-							entity.yaw += yawChange;
-							entity.fallDistance = 0;
+							if (Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
+								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5) {
+									final double xClamp = MathHelper.clamp(positionRotated.x, doorLeftOpen ? positionRotated.x : -halfWidth, doorRightOpen ? positionRotated.x : halfWidth);
+									final double zClamp = MathHelper.clamp(positionRotated.z, isEnd1Head ? -halfSpacing : positionRotated.z, isEnd2Head ? halfSpacing : positionRotated.z);
+
+									Vec3d velocity = new Vec3d(xClamp, 0, zClamp);
+									velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(entity.getPos());
+									velocity = velocity.add(new Vec3d(entity.sidewaysSpeed / 3, 0, entity.forwardSpeed / 3).rotateY((float) -Math.toRadians(entity.yaw)));
+
+									entity.setVelocity(velocity);
+									final float yawChange = (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
+									entity.yaw += yawChange;
+									entity.fallDistance = 0;
+								} else if (Math.abs(positionRotated.x) <= halfWidth + OUTER_PADDING && Math.abs(positionRotated.y) <= 2) {
+									if (positionRotated.x < 0 && !doorLeftOpen || positionRotated.x > 0 && !doorRightOpen) {
+										final Vec3d pushBackVec = new Vec3d(Math.signum(positionRotated.x) / 3, 0, 0).rotateY(yaw);
+										entity.setVelocity(pushBackVec);
+										entity.damage(DamageSource.GENERIC, 1);
+									}
+								}
+							}
 						}
 					});
 
 					if (positionYawCallback != null) {
-						positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head);
+						positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0);
 					}
 				}
 			}
@@ -283,6 +311,11 @@ public final class Route extends NameColorDataBase {
 		}
 	}
 
+	private float getDoorValue(float value) {
+		final int pathDataIndex = getPathDataIndex(value);
+		return pathDataIndex < 0 ? 0 : path.get(pathDataIndex).getDoorValue(value);
+	}
+
 	private int getPathDataIndex(float value) {
 		for (int i = 0; i < path.size(); i++) {
 			final float thisTPrevious = path.get(i).tOffset;
@@ -302,10 +335,10 @@ public final class Route extends NameColorDataBase {
 		schedule.clear();
 
 		if (trainTypes.size() > 0) {
-			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
+			int lastTime = -TICKS_PER_DAY;
 			int lastTrainTypeIndex = -1;
 
-			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
+			for (int i = 0; i < TICKS_PER_DAY; i++) {
 				final float headway = getHeadway(i / TICKS_PER_HOUR);
 
 				if (headway > 0 && i >= headway + lastTime) {
@@ -327,12 +360,25 @@ public final class Route extends NameColorDataBase {
 		}
 	}
 
+	private static boolean hasPlatform(WorldAccess world, float trainX, float trainY, float trainZ, float checkYaw) {
+		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw);
+		for (int checkX = 1; checkX <= 3; checkX++) {
+			for (int checkY = -1; checkY <= 1; checkY++) {
+				final Block block = world.getBlockState(new BlockPos(trainX + offsetVec.x * checkX, trainY + checkY, trainZ + offsetVec.z * checkX)).getBlock();
+				if (block instanceof BlockPlatform || block instanceof BlockPSDAPGBase) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private static float getAverage(float a, float b) {
 		return (a + b) / 2;
 	}
 
 	@FunctionalInterface
 	public interface PositionYawCallback {
-		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head);
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue);
 	}
 }
