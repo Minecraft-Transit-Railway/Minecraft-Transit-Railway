@@ -24,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collections;
+
 @Mixin(WorldRenderer.class)
 public class RenderTrainMixin implements IGui {
 
@@ -51,7 +53,7 @@ public class RenderTrainMixin implements IGui {
 	private void injectMethod(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		final VertexConsumerProvider.Immediate vertexConsumers = bufferBuilders.getEntityVertexConsumers();
 		final Vec3d cameraPos = camera.getPos();
-		final float renderDistanceSquared = MathHelper.square(MinecraftClient.getInstance().options.viewDistance * 16);
+		final int renderDistanceSquared = (int) MathHelper.square(MinecraftClient.getInstance().options.viewDistance * 16);
 
 		final ClientPlayerEntity player = client.player;
 		if (player == null) {
@@ -63,12 +65,7 @@ public class RenderTrainMixin implements IGui {
 
 		final float worldTime = world.getLunarTime() + tickDelta;
 
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
-			final double squaredDistance = player.getPos().squaredDistanceTo(x, y, z);
-			if (squaredDistance > renderDistanceSquared) {
-				return;
-			}
-
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), Collections.singletonList(player), renderDistanceSquared, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
 			final BlockPos posAverage = new BlockPos(x, y, z);
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 			final boolean isMinecart = trainType == TrainType.MINECART;
@@ -85,16 +82,11 @@ public class RenderTrainMixin implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				getModel(trainType).render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, squaredDistance <= DETAIL_RADIUS_SQUARED);
+				getModel(trainType).render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(x, y, z) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
 		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType) -> {
-			final double squaredDistance = player.getPos().squaredDistanceTo(x, y, z);
-			if (squaredDistance > renderDistanceSquared) {
-				return;
-			}
-
 			final BlockPos posAverage = new BlockPos(x, y, z);
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
