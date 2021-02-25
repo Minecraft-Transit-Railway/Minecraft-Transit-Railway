@@ -4,9 +4,9 @@ import net.minecraft.util.math.MathHelper;
 
 public class Pos3f {
 
-	private float x;
-	private float y;
-	private float z;
+	public final float x;
+	public final float y;
+	public final float z;
 
 	public Pos3f(float x, float y, float z) {
 		this.x = x;
@@ -14,46 +14,16 @@ public class Pos3f {
 		this.z = z;
 	}
 
-	public float getX() {
-		return x;
+	public Pos3f scale(float scale) {
+		return new Pos3f(x * scale, y * scale, z * scale);
 	}
 
-	public float getY() {
-		return y;
+	public Pos3f add(float x, float y, float z) {
+		return new Pos3f(this.x + x, this.y + y, this.z + z);
 	}
 
-	public float getZ() {
-		return z;
-	}
-
-	public void scale(float scale) {
-		x *= scale;
-		y *= scale;
-		z *= scale;
-	}
-
-	public float lengthSquared() {
-		return x * x + y * y + z * z;
-	}
-
-	public void add(float x, float y, float z) {
-		this.x += x;
-		this.y += y;
-		this.z += z;
-	}
-
-	public void add(Pos3f pos3f) {
-		add(pos3f.x, pos3f.y, pos3f.z);
-	}
-
-	public void normalize() {
-		final double lengthSquared = lengthSquared();
-		if (lengthSquared >= 1.0E-5) {
-			final double length = MathHelper.fastInverseSqrt(lengthSquared);
-			x *= length;
-			y *= length;
-			z *= length;
-		}
+	public Pos3f add(Pos3f pos3f) {
+		return add(pos3f.x, pos3f.y, pos3f.z);
 	}
 
 	public Pos3f rotateX(float angle) {

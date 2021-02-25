@@ -110,7 +110,7 @@ public class PlatformScreen extends Screen implements IGui {
 	@Override
 	public void tick() {
 		textFieldCustomDestination.tick();
-		trainList.setData(route.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, true, false, true);
+		trainList.setData(route.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, true, false, true);
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class PlatformScreen extends Screen implements IGui {
 	}
 
 	private void onAddingTrain() {
-		addNewList.setData(Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.getColor())).collect(Collectors.toList()), false, false, false, false, true, false);
+		addNewList.setData(Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, false, true, false);
 		setAdding(true);
 	}
 

@@ -293,13 +293,9 @@ public class Rail extends SerializedDataBase {
 		final float y = getPositionY(value);
 
 		if (value >= 0 && value <= count1) {
-			final Pos3f pos = getPositionXZ(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1);
-			pos.add(0, y, 0);
-			return pos;
+			return getPositionXZ(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1).add(0, y, 0);
 		} else if (value <= count1 + count2) {
-			final Pos3f pos = getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2);
-			pos.add(0, y, 0);
-			return pos;
+			return getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2).add(0, y, 0);
 		} else {
 			return null;
 		}
@@ -354,7 +350,7 @@ public class Rail extends SerializedDataBase {
 			final float y1 = getPositionY(i + rawValueOffset);
 			final float y2 = getPositionY(i + increment + rawValueOffset);
 
-			callback.renderRail(corner1.getX(), corner1.getZ(), corner2.getX(), corner2.getZ(), corner3.getX(), corner3.getZ(), corner4.getX(), corner4.getZ(), y1, y2);
+			callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
 		}
 	}
 
