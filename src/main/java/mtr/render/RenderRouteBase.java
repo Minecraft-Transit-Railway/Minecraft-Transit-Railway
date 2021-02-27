@@ -2,6 +2,8 @@ package mtr.render;
 
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.Platform;
+import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -37,7 +39,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, pos, false);
+		final BlockPos platformPos = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).map(Platform::getMidPos).findFirst().orElse(pos);
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);

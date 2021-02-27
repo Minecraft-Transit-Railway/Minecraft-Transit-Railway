@@ -38,7 +38,7 @@ public class RouteRenderer implements IGui {
 	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, boolean vertical) {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
-		routeData = ClientData.platformToRoute.get(pos); // TODO get correct position
+		routeData = ClientData.platformToRoute.get(pos);
 		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, pos);
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;

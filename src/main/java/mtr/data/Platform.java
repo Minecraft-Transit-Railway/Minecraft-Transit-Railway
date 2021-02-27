@@ -5,6 +5,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
@@ -91,6 +92,10 @@ public final class Platform extends NameColorDataBase {
 
 	public boolean isOverlapping(Platform newPlatform) {
 		return containsPos(newPlatform.getPosition(0)) || containsPos(newPlatform.getPosition(1));
+	}
+
+	public boolean isCloseToPlatform(BlockPos pos) {
+		return new Box(getPosition(0), getPosition(1)).stretch(-3, 0, -3).stretch(4, 4, 4).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
