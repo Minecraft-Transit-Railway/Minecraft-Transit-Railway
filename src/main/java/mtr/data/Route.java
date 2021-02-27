@@ -3,18 +3,16 @@ package mtr.data;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
+import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,8 +28,9 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public final List<Long> platformIds;
 	public final List<TrainType> trainTypes;
-	public final List<PathData> path;
-	public final Map<Integer, TrainType> schedule;
+
+	private final List<PathData> path;
+	private final Map<Integer, TrainType> schedule;
 
 	private final int[] frequencies;
 
@@ -39,11 +38,8 @@ public final class Route extends NameColorDataBase implements IGui {
 	public static final int TICKS_PER_HOUR = 1000;
 	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 
-	private static final int SIMULATE_RADIUS_SQUARED = 128 * 128;
-
+	private static final int SIMULATE_RADIUS = 128;
 	private static final float INNER_PADDING = 0.5F;
-	private static final int OUTER_PADDING = 1;
-	private static final int BOX_PADDING = 3;
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
@@ -196,10 +192,10 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public void getPositionYaw(WorldAccess world, float worldTime) {
-		getPositionYaw(world, worldTime, 1, world.getPlayers(), SIMULATE_RADIUS_SQUARED, null, null);
+		getPositionYaw(world, worldTime, 1, SIMULATE_RADIUS, null, null, null);
 	}
 
-	public void getPositionYaw(WorldAccess world, float worldTime, float lastFrameDuration, List<? extends PlayerEntity> players, int simulateRadiusSquared, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback) {
+	public void getPositionYaw(WorldAccess world, float worldTime, float lastFrameDuration, int simulateRadius, EntitySeat entitySeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
 			final float worldTimeOffset = worldTime + 6000 + TICKS_PER_DAY;
 			final List<Pos3f> positions = getPositions((worldTimeOffset - scheduleTime) % TICKS_PER_DAY, trainType.getSpacing());
@@ -207,7 +203,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			final float doorValue = getDoorValue((worldTimeOffset - scheduleTime) % TICKS_PER_DAY);
 
 			float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
-			boolean previousRendered = false;
+			int previousRendered = 0;
 
 			for (int i = 0; i < positions.size() - 1; i++) {
 				final Pos3f pos1 = positions.get(i);
@@ -228,91 +224,83 @@ public final class Route extends NameColorDataBase implements IGui {
 					final float y = getAverage(pos1.y, pos2.y) + 1;
 					final float z = getAverage(pos1.z, pos2.z);
 
-					final int closestDistance = players.stream().map(player -> (int) player.getPos().squaredDistanceTo(x, y, z)).min(Comparator.comparingInt(player -> player)).orElse(-1);
-					if (closestDistance >= 0 && closestDistance < simulateRadiusSquared) {
+					final PlayerEntity player = world.isClient() && entitySeat != null ? entitySeat.getPlayer() : world.getClosestPlayer(x, y, z, simulateRadius, entity -> true);
+					if (player != null) {
 						final float realSpacing = pos2.getDistanceTo(pos1);
-						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
-						final float pitch = (float) Math.asin((pos2.y - pos1.y) / realSpacing);
-
-						final float futureX = getAverage(futurePos1.x, futurePos2.x);
-						final float futureY = getAverage(futurePos1.y, futurePos2.y) + 1;
-						final float futureZ = getAverage(futurePos1.z, futurePos2.z);
-						final float futureYaw = (float) MathHelper.atan2(futurePos2.x - futurePos1.x, futurePos2.z - futurePos1.z);
-						final float futurePitch = (float) Math.asin((futurePos2.y - futurePos1.y) / futurePos2.getDistanceTo(futurePos1));
-
 						final float halfSpacing = realSpacing / 2;
-						final float halfWidth = trainType.width / 2F;
-						final boolean isEnd1Head = i == 0;
-						final boolean isEnd2Head = i == positions.size() - 2;
+						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
+						final double playerDistance = player.getPos().distanceTo(new Vec3d(x, y, z));
 
-						final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, halfSpacing, closestDistance < simulateRadiusSquared / 2 ? doorValue : 0) && doorValue > 0;
-						final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, closestDistance < simulateRadiusSquared / 2 ? doorValue : 0) && doorValue > 0;
+						final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, halfSpacing, playerDistance < simulateRadius / 2F ? doorValue : 0) && doorValue > 0;
+						final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, playerDistance < simulateRadius / 2F ? doorValue : 0) && doorValue > 0;
 
-						final List<? extends LivingEntity> entities = world.isClient() ? players : world.getEntitiesByClass(LivingEntity.class, new Box(x + halfSpacing + BOX_PADDING, y + halfSpacing + BOX_PADDING, z + halfSpacing + BOX_PADDING, x - halfSpacing - BOX_PADDING, y - halfSpacing - BOX_PADDING, z - halfSpacing - BOX_PADDING), entity -> true);
+						if (world.isClient() && playerDistance < simulateRadius) {
+							final float pitch = (float) Math.asin((pos2.y - pos1.y) / realSpacing);
+							final float halfWidth = trainType.width / 2F;
+							final boolean isEnd1Head = i == 0;
+							final boolean isEnd2Head = i == positions.size() - 2;
 
-						entities.forEach(entity -> {
-							final boolean isValidEntity = !entity.removed && !entity.isSpectator();
+							if (!player.isSpectator() && entitySeat != null) {
+								final Vec3d positionRotated = new Vec3d(player.getX() - x, player.getY() - y, player.getZ() - z).rotateY(-yaw).rotateX(-pitch);
+								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5 && Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
+									if (doorLeftOpen || doorRightOpen) {
+										entitySeat.resetSeatCoolDown();
+									}
 
-							if (isValidEntity) {
-								final Vec3d positionRotated = new Vec3d(entity.getX() - x, entity.getY() - y, entity.getZ() - z).rotateY(-yaw).rotateX(-pitch);
+									if (entitySeat.getIsRiding()) {
+										final float futureX = getAverage(futurePos1.x, futurePos2.x);
+										final float futureY = getAverage(futurePos1.y, futurePos2.y) + 1;
+										final float futureZ = getAverage(futurePos1.z, futurePos2.z);
+										final float futureYaw = (float) MathHelper.atan2(futurePos2.x - futurePos1.x, futurePos2.z - futurePos1.z);
+										final float futurePitch = (float) Math.asin((futurePos2.y - futurePos1.y) / futurePos2.getDistanceTo(futurePos1));
 
-								if (Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
-									if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5) {
-										Vec3d velocity = positionRotated.add(new Vec3d(entity.sidewaysSpeed / 3, 0, entity.forwardSpeed / 3).rotateY((float) -Math.toRadians(entity.yaw) - yaw));
+										Vec3d velocity = positionRotated.add(new Vec3d(player.sidewaysSpeed / 3, 0, player.forwardSpeed / 3).rotateY((float) -Math.toRadians(player.yaw) - yaw));
 
 										final double xClamp = MathHelper.clamp(velocity.x, doorLeftOpen ? velocity.x : -halfWidth, doorRightOpen ? velocity.x : halfWidth);
 										final double zClamp = MathHelper.clamp(velocity.z, isEnd1Head ? -halfSpacing : velocity.z, isEnd2Head ? halfSpacing : velocity.z);
 
 										velocity = new Vec3d(xClamp, 0, zClamp);
-										velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(entity.getPos());
+										velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(player.getPos());
 
-										entity.setVelocity(velocity);
-										final float yawChange = (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
-										entity.yaw += yawChange;
-										entity.fallDistance = 0;
-									} else if (Math.abs(positionRotated.x) <= halfWidth + OUTER_PADDING && Math.abs(positionRotated.y) <= 2) {
-										if (positionRotated.x < 0 && !doorLeftOpen || positionRotated.x > 0 && !doorRightOpen) {
-											final Vec3d pushBackVec = new Vec3d(entity.sidewaysSpeed, 0, entity.forwardSpeed).rotateY((float) Math.toRadians(180 + entity.yaw));
-											entity.setVelocity(pushBackVec);
-											entity.damage(DamageSource.GENERIC, 1);
-										}
+										player.setVelocity(velocity);
+										player.yaw += (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
+										player.fallDistance = 0;
+
+										entitySeat.resetSeatCoolDown();
 									}
 								}
 							}
-						});
 
-						if (positionYawCallback != null) {
-							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0);
+							if (positionYawCallback != null) {
+								positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0);
+							}
+
+							previousRendered--;
+							if (renderConnectionCallback != null && i > 0 && trainType.shouldRenderConnection && previousRendered > 0) {
+								final float xStart = halfWidth - CONNECTION_X_OFFSET;
+								final float zStart = trainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
+
+								final Pos3f prevPos1 = new Pos3f(xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+								final Pos3f prevPos2 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+								final Pos3f prevPos3 = new Pos3f(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+								final Pos3f prevPos4 = new Pos3f(-xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+
+								final Pos3f thisPos1 = new Pos3f(-xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
+								final Pos3f thisPos2 = new Pos3f(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
+								final Pos3f thisPos3 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
+								final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
+
+								renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, pos1.x, pos1.y, pos1.z, trainType);
+							}
+
+							prevCarX = x;
+							prevCarY = y;
+							prevCarZ = z;
+							prevCarYaw = yaw;
+							prevCarPitch = pitch;
+							previousRendered = 2;
 						}
-
-						if (i > 0 && renderConnectionCallback != null && trainType.shouldRenderConnection && previousRendered) {
-							final float xStart = halfWidth - CONNECTION_X_OFFSET;
-							final float zStart = trainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
-
-							final Pos3f prevPos1 = new Pos3f(xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-							final Pos3f prevPos2 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-							final Pos3f prevPos3 = new Pos3f(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-							final Pos3f prevPos4 = new Pos3f(-xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-
-							final Pos3f thisPos1 = new Pos3f(-xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
-							final Pos3f thisPos2 = new Pos3f(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
-							final Pos3f thisPos3 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
-							final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
-
-							renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, pos1.x, pos1.y, pos1.z, trainType);
-						}
-
-						prevCarX = x;
-						prevCarY = y;
-						prevCarZ = z;
-						prevCarYaw = yaw;
-						prevCarPitch = pitch;
-						previousRendered = true;
-					} else {
-						previousRendered = false;
 					}
-				} else {
-					previousRendered = false;
 				}
 			}
 		});

@@ -2,15 +2,21 @@ package mtr;
 
 import mtr.block.*;
 import mtr.data.RailwayData;
+import mtr.entity.EntitySeat;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -23,6 +29,8 @@ import java.util.function.Supplier;
 public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
+
+	public static final EntityType<EntitySeat> SEAT = registerEntity("seat", EntitySeat::new);
 
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
@@ -166,6 +174,9 @@ public class MTR implements ModInitializer {
 				if (railwayData != null) {
 					PacketTrainDataGuiServer.broadcastS2C(serverWorld, railwayData);
 				}
+				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
+				seat.setPlayerId(entity.getUuid());
+				serverWorld.spawnEntity(seat);
 			}
 		});
 	}
@@ -185,5 +196,9 @@ public class MTR implements ModInitializer {
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
+	}
+
+	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory) {
+		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(0.125F, 0.125F)).build());
 	}
 }

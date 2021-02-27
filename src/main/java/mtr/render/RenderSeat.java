@@ -1,35 +1,34 @@
-package mtr.mixin;
+package mtr.render;
 
 import mtr.data.Pos3f;
 import mtr.data.TrainType;
+import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import mtr.model.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.LightType;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.World;
 
-import java.util.Collections;
+public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
-@Mixin(WorldRenderer.class)
-public class RenderTrainMixin implements IGui {
-
-	private static final int DETAIL_RADIUS_SQUARED = 32 * 32;
+	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DISTANCE_TO_PLAYER * EntitySeat.DISTANCE_TO_PLAYER;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
 	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900();
@@ -38,51 +37,50 @@ public class RenderTrainMixin implements IGui {
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelLightRail1 MODEL_LIGHT_RAIL_1 = new ModelLightRail1();
 
-	@Shadow
-	private ClientWorld world;
+	public RenderSeat(EntityRenderDispatcher dispatcher) {
+		super(dispatcher);
+	}
 
-	@Shadow
-	@Final
-	private BufferBuilderStorage bufferBuilders;
-
-	@Shadow
-	@Final
-	private MinecraftClient client;
-
-	@Inject(method = "render", at = @At("RETURN"))
-	private void injectMethod(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		final VertexConsumerProvider.Immediate vertexConsumers = bufferBuilders.getEntityVertexConsumers();
-		final Vec3d cameraPos = camera.getPos();
-		final int renderDistanceSquared = (int) MathHelper.square(MinecraftClient.getInstance().options.viewDistance * 16);
-
+	@Override
+	public void render(EntitySeat entity, float entityYaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int entityLight) {
+		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
-		if (player == null) {
+		if (player == null || player != entity.getPlayer()) {
 			return;
 		}
+		final World world = entity.world;
+		if (world == null) {
+			return;
+		}
+		final int renderDistance = client.options.viewDistance * 16;
+		entity.clientRenderTick();
 
 		matrices.push();
-		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+		final double entityX = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX());
+		final double entityY = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY());
+		final double entityZ = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
+		matrices.translate(-entityX, -entityY, -entityZ);
 
 		final float worldTime = world.getLunarTime() + tickDelta;
 
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), Collections.singletonList(player), renderDistanceSquared, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), renderDistance, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
 			final BlockPos posAverage = new BlockPos(x, y, z);
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-			final boolean isMinecart = trainType == TrainType.MINECART;
+			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
 			matrices.translate(x, y, z);
 			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
 			matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
 
-			if (isMinecart) {
+			if (model == null) {
 				matrices.translate(0, 0.5, 0);
 				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				getModel(trainType).render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(x, y, z) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(x, y, z) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
@@ -106,12 +104,12 @@ public class RenderTrainMixin implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
 		}));
 
-		// rendering something invisible to flush the buffers, or else the last rendered train will render incorrectly
-		matrices.push();
-		new MinecartEntityModel<>().render(matrices, vertexConsumers.getBuffer(RenderLayer.LINES), 0, 0, 0, 0, 0, 0);
 		matrices.pop();
+	}
 
-		matrices.pop();
+	@Override
+	public Identifier getTexture(EntitySeat entity) {
+		return null;
 	}
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
@@ -139,7 +137,7 @@ public class RenderTrainMixin implements IGui {
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			default:
-				return MODEL_M_TRAIN;
+				return null;
 		}
 	}
 }

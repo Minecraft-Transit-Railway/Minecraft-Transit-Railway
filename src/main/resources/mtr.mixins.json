@@ -5,8 +5,8 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [],
 	"client": [
-		"ModelPredicateRegisterInvoker",
-		"RenderTrainMixin"
+		"EntitySpawnMixin",
+		"ModelPredicateRegisterInvoker"
 	],
 	"server": [],
 	"injectors": {
