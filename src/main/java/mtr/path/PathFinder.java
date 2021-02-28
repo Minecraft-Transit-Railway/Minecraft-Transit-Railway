@@ -41,23 +41,23 @@ public class PathFinder {
 			}
 
 			if (i == 1) {
-				tOffset = generatePathData(tempPath.subList(0, 2), tOffset, 1);
+				tOffset = generatePathData(tempPath.subList(0, 2), platform1.getDwellTime(), tOffset, 1);
 			}
 			tempPath.remove(0);
 
-			tOffset = generatePathData(tempPath, tOffset, 0);
+			tOffset = generatePathData(tempPath, platform2.getDwellTime(), tOffset, 0);
 		}
 
 		return path;
 	}
 
-	private float generatePathData(List<BlockPos> tempPath, float tOffset, float initialSpeed) {
+	private float generatePathData(List<BlockPos> tempPath, int dwellTime, float tOffset, float initialSpeed) {
 		float speed = initialSpeed;
 		for (int j = 1; j < tempPath.size(); j++) {
 			final BlockPos tempPos = tempPath.get(j - 1);
 			final BlockEntity entity = world.getBlockEntity(tempPos);
 			if (entity instanceof BlockRail.TileEntityRail) {
-				final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1, tOffset);
+				final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1 ? dwellTime : 0, tOffset);
 				path.add(pathData);
 				tOffset += pathData.getTime();
 				speed = pathData.finalSpeed;

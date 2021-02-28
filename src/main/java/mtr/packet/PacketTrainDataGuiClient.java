@@ -8,7 +8,6 @@ import mtr.data.Station;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
-import mtr.gui.ScheduleScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -16,7 +15,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class PacketTrainDataGuiClient implements IPacket {
@@ -40,21 +42,9 @@ public class PacketTrainDataGuiClient implements IPacket {
 		});
 	}
 
-	public static void openScheduleScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		receiveAll(packet);
-		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> {
-			if (!(minecraftClient.currentScreen instanceof ScheduleScreen)) {
-//				minecraftClient.openScreen(new ScheduleScreen(pos));
-			}
-		});
-	}
-
-	public static void sendStationsAndRoutesC2S(Set<Station> stations, Set<Route> routes) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		IPacket.sendData(packet, stations);
-		IPacket.sendData(packet, routes);
-		ClientPlayNetworking.send(ID_STATIONS_AND_ROUTES, packet);
+	public static void sendAllC2S() {
+		final PacketByteBuf packet = IPacket.sendAll(ClientData.stations, ClientData.platforms, ClientData.routes);
+		ClientPlayNetworking.send(ID_ALL, packet);
 	}
 
 	public static void sendSignTypesC2S(BlockPos signPos, int platformRouteIndex, BlockRailwaySign.SignType[] signTypes) {
@@ -75,17 +65,17 @@ public class PacketTrainDataGuiClient implements IPacket {
 
 		ClientData.platformIdToStation = ClientData.platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(ClientData.stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-		ClientData.platformPositionsInStation.clear();
+		ClientData.platformsInStation.clear();
 		ClientData.platforms.forEach(platform -> {
 			final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
 			if (station != null) {
-				if (!ClientData.platformPositionsInStation.containsKey(station.id)) {
-					ClientData.platformPositionsInStation.put(station.id, new ArrayList<>());
+				if (!ClientData.platformsInStation.containsKey(station.id)) {
+					ClientData.platformsInStation.put(station.id, new ArrayList<>());
 				}
-				ClientData.platformPositionsInStation.get(station.id).add(platform.getMidPos());
+				ClientData.platformsInStation.get(station.id).add(platform);
 			}
 		});
-		ClientData.platformPositionsInStation.forEach((stationId, posList) -> Collections.sort(posList));
+		ClientData.platformsInStation.forEach((stationId, posList) -> Collections.sort(posList));
 
 		ClientData.routesInStation.clear();
 		ClientData.routes.forEach(route -> route.platformIds.forEach(platformId -> {
@@ -102,7 +92,7 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.routesInStation.forEach((stationId, routeList) -> routeList.sort(Comparator.comparingInt(a -> a.color)));
 
 		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
-		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(Platform::getMidPos, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
+		ClientData.platformToRoute = ClientData.platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> ClientData.routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
 			final List<ClientData.PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
 				final Station station = ClientData.platformIdToStation.get(platformId);
 				if (station == null) {

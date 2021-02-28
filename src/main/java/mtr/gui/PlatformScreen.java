@@ -68,6 +68,8 @@ public class PlatformScreen extends Screen implements IGui {
 
 	@Override
 	protected void init() {
+		super.init();
+
 		IGui.setPositionAndWidth(buttonAddTrains, rightPanelsX, height - SQUARE_SIZE, width - rightPanelsX);
 		IGui.setPositionAndWidth(buttonCancel, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - rightPanelsX);

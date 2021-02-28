@@ -128,7 +128,6 @@ public class MTRClient implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
-		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_OPEN_SCHEDULE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openScheduleScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(IPacket.ID_ALL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveAll(packet));
 	}
 

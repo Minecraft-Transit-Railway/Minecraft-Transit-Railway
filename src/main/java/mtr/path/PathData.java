@@ -38,14 +38,14 @@ public class PathData extends SerializedDataBase {
 
 	private static final float HALF_ACCELERATION = 0.005F;
 
-	public PathData(Rail rail, float startSpeed, boolean shouldStop, float tOffset) {
+	public PathData(Rail rail, float startSpeed, int dwellTime, float tOffset) {
 		length = rail.getLength();
 		this.rail = rail;
 		this.tOffset = tOffset;
 		final float maxBlocksPerTick = rail.railType.maxBlocksPerTick;
 
-		if (shouldStop) {
-			delay = 120; // TODO editable platform dwell time
+		if (dwellTime > 0) {
+			delay = dwellTime * 10;
 
 			a1 = 0;
 			a2 = -Math.max(startSpeed * startSpeed / (4 * length), HALF_ACCELERATION);

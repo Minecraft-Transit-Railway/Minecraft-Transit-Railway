@@ -3,7 +3,6 @@ package mtr.gui;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
@@ -14,10 +13,10 @@ public final class ClientData {
 	public static Set<Route> routes = new HashSet<>();
 
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
-	public static Map<Long, List<BlockPos>> platformPositionsInStation = new HashMap<>();
+	public static Map<Long, List<Platform>> platformsInStation = new HashMap<>();
 	public static Map<Long, List<ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
-	public static Map<BlockPos, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
+	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 
 	public static class PlatformRouteDetails {
 

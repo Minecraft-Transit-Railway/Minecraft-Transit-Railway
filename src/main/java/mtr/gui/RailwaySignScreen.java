@@ -73,6 +73,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	@Override
 	protected void init() {
+		super.init();
+
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IGui.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
 			addButton(buttonsEdit[i]);

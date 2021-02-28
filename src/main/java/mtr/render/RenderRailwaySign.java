@@ -3,6 +3,7 @@ package mtr.render;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.data.Platform;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -89,7 +90,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);
 			}
 
-			final List<BlockPos> platformPositions = ClientData.platformPositionsInStation.get(stationId);
+			final List<Platform> platformPositions = ClientData.platformsInStation.get(stationId);
 			if (platformPositions != null && platformPositions.size() > 0) {
 				final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.get(platformIndex % platformPositions.size()), true);
 				routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x - size) + margin, (flipped ? x + size * 2 : x + (maxWidthRight + 1) * size) - margin, y + margin, y + size - margin, flipped, !flipped, facing, -1, false);

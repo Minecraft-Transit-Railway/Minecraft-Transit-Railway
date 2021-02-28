@@ -39,8 +39,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final BlockPos platformPos = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).map(Platform::getMidPos).findFirst().orElse(pos);
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
+		final Platform platform = ClientData.platforms.stream().filter(platform2 -> platform2.isCloseToPlatform(pos)).findFirst().orElse(null);
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);

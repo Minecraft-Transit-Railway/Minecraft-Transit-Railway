@@ -12,14 +12,20 @@ import java.util.*;
 
 public final class Platform extends NameColorDataBase {
 
+	private int dwellTime;
 	private final Set<BlockPos> positions;
 
+	public static final int MAX_DWELL_TIME = 120;
+	private static final int DEFAULT_DWELL_TIME = 12;
+
+	private static final String KEY_DWELL_TIME = "dwell_time";
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
 	public Platform(BlockPos pos1, BlockPos pos2) {
 		super();
 		name = "1";
+		dwellTime = DEFAULT_DWELL_TIME;
 		positions = new HashSet<>();
 		positions.add(pos1);
 		positions.add(pos2);
@@ -27,6 +33,7 @@ public final class Platform extends NameColorDataBase {
 
 	public Platform(CompoundTag tag) {
 		super(tag);
+		dwellTime = tag.getInt(KEY_DWELL_TIME);
 		positions = new HashSet<>();
 		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_1)));
 		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_2)));
@@ -34,6 +41,7 @@ public final class Platform extends NameColorDataBase {
 
 	public Platform(PacketByteBuf packet) {
 		super(packet);
+		dwellTime = packet.readInt();
 		positions = new HashSet<>();
 		positions.add(packet.readBlockPos());
 		positions.add(packet.readBlockPos());
@@ -42,6 +50,7 @@ public final class Platform extends NameColorDataBase {
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
+		tag.putInt(KEY_DWELL_TIME, dwellTime);
 		tag.putLong(KEY_POS_1, getPosition(0).asLong());
 		tag.putLong(KEY_POS_2, getPosition(1).asLong());
 		return tag;
@@ -50,8 +59,24 @@ public final class Platform extends NameColorDataBase {
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
+		packet.writeInt(dwellTime);
 		packet.writeBlockPos(getPosition(0));
 		packet.writeBlockPos(getPosition(1));
+	}
+
+	public int getDwellTime() {
+		if (dwellTime <= 0 || dwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
+		}
+		return dwellTime;
+	}
+
+	public void setDwellTime(int newDwellTime) {
+		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
+		} else {
+			dwellTime = newDwellTime;
+		}
 	}
 
 	public BlockPos getMidPos() {

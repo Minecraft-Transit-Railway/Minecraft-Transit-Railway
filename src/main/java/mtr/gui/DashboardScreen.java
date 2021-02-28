@@ -77,6 +77,8 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	protected void init() {
+		super.init();
+
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
 
@@ -167,7 +169,12 @@ public class DashboardScreen extends Screen implements IGui {
 
 		switch (selectedTab) {
 			default:
-				dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
+				if (editingStation == null) {
+					dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
+				} else {
+					final List<Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
+					dashboardList.setData(platformData == null ? new ArrayList<>() : platformData, false, false, true, false, false, false);
+				}
 				break;
 			case 1:
 				if (editingRoute == null) {
@@ -192,7 +199,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendStationsAndRoutesC2S(ClientData.stations, ClientData.routes);
+		PacketTrainDataGuiClient.sendAllC2S();
 		super.onClose();
 	}
 
@@ -233,7 +240,12 @@ public class DashboardScreen extends Screen implements IGui {
 	private void onEdit(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
-				startEditingStation((Station) data, false);
+				if (editingStation == null) {
+					startEditingStation((Station) data, false);
+				} else if (client != null) {
+					final Platform platform = (Platform) data;
+					client.openScreen(new ScheduleScreen(platform));
+				}
 				break;
 			case 1:
 				startEditingRoute((Route) data, false);

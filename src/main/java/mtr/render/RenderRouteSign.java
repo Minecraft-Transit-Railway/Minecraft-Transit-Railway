@@ -4,6 +4,7 @@ import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.Platform;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -43,7 +44,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
 		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
-		final List<BlockPos> platformPositions = ClientData.platformPositionsInStation.get(stationId);
+		final List<Platform> platformPositions = ClientData.platformsInStation.get(stationId);
 		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}

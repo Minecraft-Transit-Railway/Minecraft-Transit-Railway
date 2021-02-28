@@ -2,7 +2,6 @@ package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
 import mtr.data.*;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -17,29 +16,24 @@ import java.util.Set;
 public class PacketTrainDataGuiServer implements IPacket {
 
 	public static void openDashboardScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		ServerPlayNetworking.send(player, ID_OPEN_DASHBOARD_SCREEN, sendAll(stations, platforms, routes));
+		ServerPlayNetworking.send(player, ID_OPEN_DASHBOARD_SCREEN, IPacket.sendAll(stations, platforms, routes));
 	}
 
 	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos signPos) {
-		final PacketByteBuf packet = sendAll(stations, platforms, routes);
+		final PacketByteBuf packet = IPacket.sendAll(stations, platforms, routes);
 		packet.writeBlockPos(signPos);
 		ServerPlayNetworking.send(player, ID_OPEN_RAILWAY_SIGN_SCREEN, packet);
 	}
 
-	public static void openScheduleScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos platformPos) {
-		final PacketByteBuf packet = sendAll(stations, platforms, routes);
-		packet.writeBlockPos(platformPos);
-		ServerPlayNetworking.send(player, ID_OPEN_SCHEDULE_SCREEN, packet);
-	}
-
-	public static void receiveStationsAndRoutesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveAllC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final Set<Station> stations = IPacket.receiveData(packet, Station::new);
+			final Set<Platform> platforms = IPacket.receiveData(packet, Platform::new);
 			final Set<Route> routes = IPacket.receiveData(packet, Route::new);
 			minecraftServer.execute(() -> {
-				railwayData.setData(world, stations, routes);
+				railwayData.setData(world, stations, platforms, routes);
 				broadcastS2C(world, railwayData);
 			});
 		}
@@ -79,15 +73,7 @@ public class PacketTrainDataGuiServer implements IPacket {
 	}
 
 	public static void broadcastS2C(WorldAccess world, RailwayData railwayData) {
-		final PacketByteBuf packet = sendAll(railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
+		final PacketByteBuf packet = IPacket.sendAll(railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
 		world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, ID_ALL, packet));
-	}
-
-	private static PacketByteBuf sendAll(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		IPacket.sendData(packet, stations);
-		IPacket.sendData(packet, platforms);
-		IPacket.sendData(packet, routes);
-		return packet;
 	}
 }

@@ -1,121 +1,89 @@
 package mtr.gui;
 
-import mtr.data.RailwayData;
-import mtr.data.Route;
-import mtr.data.TrainType;
+import mtr.data.Platform;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 public class ScheduleScreen extends Screen implements IGui {
 
-	private final Route route;
-	private final List<Triple<Integer, Long, TrainType>> schedule;
-	private final int maxRouteWidth, maxTrainTypeWidth;
+	private final Platform platform;
+	private final TextFieldWidget textFieldPlatformNumber;
+	private final WidgetShorterSlider sliderDwellTime;
 
-	private static final int ARGB_GOLD = 0xFFFFAA00;
-	private static final int ARGB_GREEN = 0xFF55FF55;
+	private final Text platformNumberText = new TranslatableText("gui.mtr.platform_number");
+	private final Text dwellTimeText = new TranslatableText("gui.mtr.dwell_time");
 
-	public ScheduleScreen(Route route) {
+	private final int textWidth, startX;
+
+	private static final int MAX_PLATFORM_NAME_LENGTH = 10;
+	private static final int SLIDER_WIDTH = 160;
+
+	public ScheduleScreen(Platform platform) {
 		super(new LiteralText(""));
-		this.route = route;
+		this.platform = platform;
 
-		if (route == null) {
-			schedule = new ArrayList<>();
-			maxRouteWidth = 0;
-			maxTrainTypeWidth = 0;
-		} else {
-			schedule = new ArrayList<>();
-			textRenderer = MinecraftClient.getInstance().textRenderer;
-			maxRouteWidth = 0;
-			maxTrainTypeWidth = route.shuffleTrains ? 0 : schedule.stream().map(scheduleEntry -> textRenderer.getWidth(scheduleEntry.getRight().getName())).max(Comparator.comparingInt(a -> a)).orElse(0);
-		}
+		textRenderer = MinecraftClient.getInstance().textRenderer;
+		textFieldPlatformNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+
+		textWidth = Math.max(textRenderer.getWidth(platformNumberText), textRenderer.getWidth(dwellTimeText)) + TEXT_PADDING;
+		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
+
+		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> platform.setDwellTime(value + 1), value -> String.format("%ss", (value + 1) / 2F));
+	}
+
+	@Override
+	protected void init() {
+		super.init();
+
+		IGui.setPositionAndWidth(textFieldPlatformNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
+		textFieldPlatformNumber.setText(platform.name);
+		textFieldPlatformNumber.setMaxLength(MAX_PLATFORM_NAME_LENGTH);
+		textFieldPlatformNumber.setChangedListener(text -> {
+			textFieldPlatformNumber.setSuggestion(text.isEmpty() ? "1" : "");
+			platform.name = textFieldPlatformNumber.getText();
+		});
+
+		addChild(textFieldPlatformNumber);
+		addButton(sliderDwellTime);
+
+		sliderDwellTime.y = height / 2 + TEXT_FIELD_PADDING / 2;
+		sliderDwellTime.setHeight(SQUARE_SIZE);
+		sliderDwellTime.setValue(platform.getDwellTime() - 1);
+	}
+
+	@Override
+	public void tick() {
+		textFieldPlatformNumber.tick();
 	}
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			final int time = client != null && client.world != null ? (int) ((client.world.getTimeOfDay() + 6000) % Route.TICKS_PER_DAY) : 0;
-			final int timeWidth = textRenderer.getWidth("00:00") + TEXT_PADDING;
-			drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.train_schedule"), TEXT_PADDING, TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawStringWithShadow(matrices, textRenderer, getTimeString(time), width - timeWidth, TEXT_PADDING, ARGB_LIGHT_GRAY);
-
-			final int rows = (height - SQUARE_SIZE - TEXT_PADDING) / LINE_HEIGHT;
-			final int columns = (int) Math.ceil((float) schedule.size() / rows);
-
-			if (columns > 0) {
-				final int columnWidth = (width - TEXT_PADDING) / columns;
-				final int remainingWidth = columnWidth - timeWidth;
-				int routeWidth = maxRouteWidth + TEXT_PADDING;
-				int trainTypeWidth = maxTrainTypeWidth + TEXT_PADDING;
-				if (routeWidth + trainTypeWidth > remainingWidth) {
-					if (routeWidth <= remainingWidth / 2) {
-						trainTypeWidth = remainingWidth - routeWidth;
-					} else if (trainTypeWidth <= remainingWidth / 2) {
-						routeWidth = remainingWidth - trainTypeWidth;
-					} else {
-						routeWidth = remainingWidth / 2;
-						trainTypeWidth = remainingWidth / 2;
-					}
-				}
-
-				for (int column = 0; column < columns; column++) {
-					for (int row = 0; row < rows; row++) {
-						final int index = row + rows * column;
-						if (index < schedule.size()) {
-							final Triple<Integer, Long, TrainType> scheduleEntry = schedule.get(index);
-							final int timeDifference = time - scheduleEntry.getLeft();
-							final int textColor = timeDifference >= -50 && timeDifference < 0 ? ARGB_GOLD : timeDifference >= 0 && timeDifference < 50 ? ARGB_GREEN : ARGB_WHITE;
-							drawStringWithShadow(matrices, textRenderer, getTimeString(scheduleEntry.getLeft()), TEXT_PADDING + column * columnWidth, SQUARE_SIZE + row * LINE_HEIGHT, textColor);
-							drawStringWithShadow(matrices, textRenderer, cutToWidth(IGui.formatStationName(getRouteString(scheduleEntry.getMiddle())), routeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
-							drawStringWithShadow(matrices, textRenderer, cutToWidth(getTrainTypeString(scheduleEntry.getRight()), trainTypeWidth - TEXT_PADDING), TEXT_PADDING + column * columnWidth + timeWidth + routeWidth, SQUARE_SIZE + row * LINE_HEIGHT, ARGB_LIGHT_GRAY);
-						}
-					}
-				}
-			}
+			textFieldPlatformNumber.render(matrices, mouseX, mouseY, delta);
+			textRenderer.draw(matrices, platformNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+			textRenderer.draw(matrices, dwellTimeText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
+	public void onClose() {
+		super.onClose();
+		if (client != null) {
+			client.openScreen(new DashboardScreen(0));
+		}
+	}
+
+	@Override
 	public boolean isPauseScreen() {
 		return false;
-	}
-
-	private String getTimeString(int time) {
-		final String hourString = StringUtils.leftPad(String.valueOf(time / Route.TICKS_PER_HOUR), 2, "0");
-		final String minuteString = StringUtils.leftPad(String.valueOf((int) (0.06 * (time % Route.TICKS_PER_HOUR))), 2, "0");
-		return hourString + ":" + minuteString;
-	}
-
-	private String getRouteString(long routeId) {
-		if (routeId < 0) {
-			return "";
-		} else {
-			final Route route = RailwayData.getDataById(ClientData.routes, routeId);
-			return route == null ? "" : route.name;
-		}
-	}
-
-	private String getTrainTypeString(TrainType trainType) {
-		return trainType == null ? "" : trainType.getName();
-	}
-
-	private String cutToWidth(String string, int maxWidth) {
-		String cutString = string;
-		while (textRenderer.getWidth(cutString) > maxWidth) {
-			cutString = cutString.substring(0, cutString.length() - 1);
-		}
-		return cutString;
 	}
 }

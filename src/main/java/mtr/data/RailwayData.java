@@ -12,9 +12,6 @@ import java.util.Set;
 
 public class RailwayData extends PersistentState {
 
-	public static final int STATION_COOL_DOWN = 120;
-	public static final int TRAIN_STOP_TIME = 20;
-
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
@@ -117,10 +114,12 @@ public class RailwayData extends PersistentState {
 
 	// writing data
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Route> routes) {
+	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
 		try {
 			this.stations.clear();
 			this.stations.addAll(stations);
+			this.platforms.clear();
+			this.platforms.addAll(platforms);
 			this.routes.clear();
 			this.routes.addAll(routes);
 			validateData();

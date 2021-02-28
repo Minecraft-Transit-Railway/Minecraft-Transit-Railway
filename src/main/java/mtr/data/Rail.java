@@ -372,8 +372,8 @@ public class Rail extends SerializedDataBase {
 	public enum RailType implements IGui {
 		WOODEN(20, MaterialColor.WOOD),
 		STONE(40, MaterialColor.STONE),
-		IRON(60, MaterialColor.WHITE),
-		OBSIDIAN(100, MaterialColor.PURPLE),
+		IRON(80, MaterialColor.WHITE),
+		OBSIDIAN(120, MaterialColor.PURPLE),
 		BLAZE(160, MaterialColor.ORANGE),
 		DIAMOND(300, MaterialColor.DIAMOND),
 		PLATFORM(100, MaterialColor.RED);

@@ -1,7 +1,6 @@
 package mtr.render;
 
 import mtr.data.Platform;
-import mtr.data.RailwayData;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.client.MinecraftClient;
@@ -9,9 +8,9 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,11 +34,10 @@ public class RouteRenderer implements IGui {
 	private static final int INTERCHANGE_LINE_SIZE = 10;
 	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.63F;
 
-	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, boolean vertical) {
+	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Platform platform, boolean vertical) {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
-		routeData = ClientData.platformToRoute.get(pos);
-		final Platform platform = RailwayData.getPlatformByPos(ClientData.platforms, pos);
+		routeData = platform == null ? new ArrayList<>() : ClientData.platformToRoute.get(platform);
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		textRenderer = MinecraftClient.getInstance().textRenderer;
