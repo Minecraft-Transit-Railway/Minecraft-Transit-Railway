@@ -4,7 +4,14 @@
 			"type": "ttf",
 			"file": "mtr:noto-sans-semibold.ttf",
 			"size": 12.0,
-			"oversample": 4.0
+			"oversample": 8.0
+		},
+		{
+			"type": "ttf",
+			"file": "mtr:noto-serif-cjk-tc-semibold.ttf",
+			"shift": [ 0, 0.5 ],
+			"size": 12.0,
+			"oversample": 16.0
 		},
 		{
 			"type": "legacy_unicode",

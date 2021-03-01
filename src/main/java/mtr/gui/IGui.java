@@ -152,23 +152,29 @@ public interface IGui {
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
 		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
-		final Style styleCJK = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr_cjk"));
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
 		}
 		final String[] stringSplit = text.split("\\|");
 
-		final List<Integer> lineHeights = new ArrayList<>();
+		final List<Boolean> isCJKList = new ArrayList<>();
 		final List<OrderedText> orderedTexts = new ArrayList<>();
+		int totalHeight = 0, totalWidth = 0;
 		for (final String stringSplitPart : stringSplit) {
 			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
-			lineHeights.add(LINE_HEIGHT * (isCJK ? 2 : 1));
-			orderedTexts.add(new LiteralText(stringSplitPart).fillStyle(isCJK ? styleCJK : style).asOrderedText());
-		}
+			isCJKList.add(isCJK);
 
-		final int totalHeight = lineHeights.stream().reduce(0, Integer::sum);
-		final int totalWidth = orderedTexts.stream().map(textRenderer::getWidth).reduce(Integer::max).orElse(0);
+			// TODO config to turn on or off custom fonts
+			final OrderedText orderedText = new LiteralText(stringSplitPart).fillStyle(style).asOrderedText();
+			orderedTexts.add(orderedText);
+
+			totalHeight += LINE_HEIGHT * (isCJK ? 2 : 1);
+			final int width = textRenderer.getWidth(orderedText) * (isCJK ? 2 : 1);
+			if (width > totalWidth) {
+				totalWidth = width;
+			}
+		}
 
 		if (maxHeight >= 0 && totalHeight / scale > maxHeight) {
 			scale = totalHeight / maxHeight;
@@ -189,13 +195,25 @@ public interface IGui {
 
 		float offset = verticalAlignment.getOffset(y * scale, totalHeight);
 		for (int i = 0; i < orderedTexts.size(); i++) {
-			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), textRenderer.getWidth(orderedTexts.get(i)) - totalWidth);
-			if (shadow) {
-				textRenderer.drawWithShadow(matrices, orderedTexts.get(i), xOffset, offset, textColor);
-			} else {
-				textRenderer.draw(matrices, orderedTexts.get(i), xOffset, offset, textColor);
+			final boolean isCJK = isCJKList.get(i);
+			final int extraScale = isCJK ? 2 : 1;
+			if (isCJK) {
+				matrices.push();
+				matrices.scale(extraScale, extraScale, 1);
 			}
-			offset += lineHeights.get(i);
+
+			final float xOffset = horizontalAlignment.getOffset(xAlignment.getOffset(x * scaleX, totalWidth), textRenderer.getWidth(orderedTexts.get(i)) * extraScale - totalWidth);
+			if (shadow) {
+				textRenderer.drawWithShadow(matrices, orderedTexts.get(i), xOffset / extraScale, offset / extraScale, textColor);
+			} else {
+				textRenderer.draw(matrices, orderedTexts.get(i), xOffset / extraScale, offset / extraScale, textColor);
+			}
+
+			if (isCJK) {
+				matrices.pop();
+			}
+
+			offset += LINE_HEIGHT * extraScale;
 		}
 
 		matrices.pop();
