@@ -19,10 +19,13 @@ import java.util.UUID;
 @SuppressWarnings("EntityConstructor")
 public class EntitySeat extends Entity {
 
+	public int carRiding;
+	public double xRidingOffset, zRidingOffset;
+
 	private PlayerEntity player;
 	private int seatCoolDown;
 
-	public static final int DISTANCE_TO_PLAYER = 32;
+	public static final int DETAIL_RADIUS = 32;
 	public static final int MAX_SEAT_COOL_DOWN = 10;
 
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
@@ -47,7 +50,7 @@ public class EntitySeat extends Entity {
 		getPlayer();
 		if (world.isClient) {
 			if (player != null) {
-				final Vec3d newPos = new Vec3d(0, 0, 10).rotateY((float) Math.toRadians(-player.yaw)).add(player.getPos());
+				final Vec3d newPos = new Vec3d(0, 0, 10).rotateX((float) Math.toRadians(-player.pitch)).rotateY((float) Math.toRadians(-player.yaw)).add(player.getX(), player.getEyeY(), player.getZ());
 				updatePosition(newPos.x, newPos.y, newPos.z);
 			}
 		} else {

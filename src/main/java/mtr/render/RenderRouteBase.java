@@ -3,16 +3,19 @@ package mtr.render;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.Platform;
+import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -30,6 +33,10 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 	public final void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 		final World world = entity.getWorld();
 		if (world == null) {
+			return;
+		}
+		final PlayerEntity player = MinecraftClient.getInstance().player;
+		if (player == null || player.getBlockPos().getManhattanDistance(entity.getPos()) > EntitySeat.DETAIL_RADIUS / 2) {
 			return;
 		}
 

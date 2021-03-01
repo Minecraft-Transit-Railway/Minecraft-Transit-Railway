@@ -198,8 +198,8 @@ public final class Route extends NameColorDataBase implements IGui {
 	public void getPositionYaw(WorldAccess world, float worldTime, float lastFrameDuration, int simulateRadius, EntitySeat entitySeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
 			final float worldTimeOffset = worldTime + 6000 + TICKS_PER_DAY;
-			final List<Pos3f> positions = getPositions((worldTimeOffset - scheduleTime) % TICKS_PER_DAY, trainType.getSpacing());
-			final List<Pos3f> futurePositions = getPositions((worldTimeOffset - scheduleTime + 1) % TICKS_PER_DAY, trainType.getSpacing());
+			final List<Pos3f> positions = getPositions((worldTimeOffset - scheduleTime - lastFrameDuration) % TICKS_PER_DAY, trainType.getSpacing());
+			final List<Pos3f> futurePositions = getPositions((worldTimeOffset - scheduleTime) % TICKS_PER_DAY, trainType.getSpacing());
 			final float doorValue = getDoorValue((worldTimeOffset - scheduleTime) % TICKS_PER_DAY);
 
 			float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
@@ -240,37 +240,6 @@ public final class Route extends NameColorDataBase implements IGui {
 							final boolean isEnd1Head = i == 0;
 							final boolean isEnd2Head = i == positions.size() - 2;
 
-							if (!player.isSpectator() && entitySeat != null) {
-								final Vec3d positionRotated = new Vec3d(player.getX() - x, player.getY() - y, player.getZ() - z).rotateY(-yaw).rotateX(-pitch);
-								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5 && Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
-									if (doorLeftOpen || doorRightOpen) {
-										entitySeat.resetSeatCoolDown();
-									}
-
-									if (entitySeat.getIsRiding()) {
-										final float futureX = getAverage(futurePos1.x, futurePos2.x);
-										final float futureY = getAverage(futurePos1.y, futurePos2.y) + 1;
-										final float futureZ = getAverage(futurePos1.z, futurePos2.z);
-										final float futureYaw = (float) MathHelper.atan2(futurePos2.x - futurePos1.x, futurePos2.z - futurePos1.z);
-										final float futurePitch = (float) Math.asin((futurePos2.y - futurePos1.y) / futurePos2.getDistanceTo(futurePos1));
-
-										Vec3d velocity = positionRotated.add(new Vec3d(player.sidewaysSpeed / 3, 0, player.forwardSpeed / 3).rotateY((float) -Math.toRadians(player.yaw) - yaw));
-
-										final double xClamp = MathHelper.clamp(velocity.x, doorLeftOpen ? velocity.x : -halfWidth, doorRightOpen ? velocity.x : halfWidth);
-										final double zClamp = MathHelper.clamp(velocity.z, isEnd1Head ? -halfSpacing : velocity.z, isEnd2Head ? halfSpacing : velocity.z);
-
-										velocity = new Vec3d(xClamp, 0, zClamp);
-										velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ).subtract(player.getPos());
-
-										player.setVelocity(velocity);
-										player.yaw += (float) MathHelper.wrapDegrees(Math.toDegrees(yaw - futureYaw)) * lastFrameDuration;
-										player.fallDistance = 0;
-
-										entitySeat.resetSeatCoolDown();
-									}
-								}
-							}
-
 							if (positionYawCallback != null) {
 								positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0);
 							}
@@ -291,6 +260,49 @@ public final class Route extends NameColorDataBase implements IGui {
 								final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
 
 								renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, pos1.x, pos1.y, pos1.z, trainType);
+							}
+
+							if (!player.isSpectator() && entitySeat != null) {
+								final Vec3d positionRotated = new Vec3d(player.getX() - x, player.getY() - y, player.getZ() - z).rotateY(-yaw).rotateX(-pitch);
+								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5 && Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
+									if (doorLeftOpen || doorRightOpen) {
+										entitySeat.resetSeatCoolDown();
+										entitySeat.carRiding = i;
+										entitySeat.xRidingOffset = positionRotated.x;
+										entitySeat.zRidingOffset = positionRotated.z;
+									}
+
+									if (entitySeat.getIsRiding()) {
+										final float futureX = getAverage(futurePos1.x, futurePos2.x);
+										final float futureY = getAverage(futurePos1.y, futurePos2.y) + 1;
+										final float futureZ = getAverage(futurePos1.z, futurePos2.z);
+										final float futureYaw = (float) MathHelper.atan2(futurePos2.x - futurePos1.x, futurePos2.z - futurePos1.z);
+										final float futurePitch = (float) Math.asin((futurePos2.y - futurePos1.y) / futurePos2.getDistanceTo(futurePos1));
+
+										if (i != entitySeat.carRiding) {
+											entitySeat.carRiding = i;
+											entitySeat.xRidingOffset = positionRotated.x;
+											entitySeat.zRidingOffset = positionRotated.z;
+										}
+
+										final Vec3d movement = new Vec3d(player.sidewaysSpeed * lastFrameDuration / 3, 0, player.forwardSpeed * lastFrameDuration / 3).rotateY((float) -Math.toRadians(player.yaw) - yaw);
+										entitySeat.xRidingOffset += movement.x;
+										entitySeat.zRidingOffset += movement.z;
+										Vec3d velocity = new Vec3d(entitySeat.xRidingOffset, 0, entitySeat.zRidingOffset);
+
+										final double xClamp = MathHelper.clamp(velocity.x, doorLeftOpen ? velocity.x : -halfWidth, doorRightOpen ? velocity.x : halfWidth);
+										final double zClamp = MathHelper.clamp(velocity.z, isEnd1Head ? -halfSpacing : velocity.z, isEnd2Head ? halfSpacing : velocity.z);
+
+										velocity = new Vec3d(xClamp, 0, zClamp);
+										velocity = velocity.rotateX(futurePitch).rotateY(futureYaw).add(futureX, futureY, futureZ);
+
+										player.setVelocity(Vec3d.ZERO);
+										player.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, player.yaw, player.pitch);
+										player.fallDistance = 0;
+
+										entitySeat.resetSeatCoolDown();
+									}
+								}
 							}
 
 							prevCarX = x;

@@ -28,7 +28,7 @@ import net.minecraft.world.World;
 
 public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
-	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DISTANCE_TO_PLAYER * EntitySeat.DISTANCE_TO_PLAYER;
+	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DETAIL_RADIUS * EntitySeat.DETAIL_RADIUS;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
 	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900();
