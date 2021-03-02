@@ -36,7 +36,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			return;
 		}
 		final PlayerEntity player = MinecraftClient.getInstance().player;
-		if (player == null || player.getBlockPos().getManhattanDistance(entity.getPos()) > EntitySeat.DETAIL_RADIUS / 2) {
+		if (player == null || player.getBlockPos().getManhattanDistance(entity.getPos()) > EntitySeat.DETAIL_RADIUS) {
 			return;
 		}
 

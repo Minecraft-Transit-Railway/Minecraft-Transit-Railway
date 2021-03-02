@@ -52,8 +52,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		if (world == null) {
 			return;
 		}
-		final int renderDistance = client.options.viewDistance * 16;
-		entity.clientRenderTick();
+		final int halfRenderDistance = client.options.viewDistance * 8;
 
 		matrices.push();
 		final double entityX = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX());
@@ -61,10 +60,12 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		final double entityZ = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		final float worldTime = world.getLunarTime() + tickDelta;
-
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, client.getLastFrameDuration(), renderDistance, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
+		final float worldTime = (int) world.getLunarTime() + tickDelta;
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
 			final BlockPos posAverage = new BlockPos(x, y, z);
+			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
+				return;
+			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 			final ModelTrainBase model = getModel(trainType);
 
@@ -86,6 +87,9 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			matrices.pop();
 		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType) -> {
 			final BlockPos posAverage = new BlockPos(x, y, z);
+			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
+				return;
+			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
 			final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");

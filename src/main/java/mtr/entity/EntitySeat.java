@@ -19,14 +19,22 @@ import java.util.UUID;
 @SuppressWarnings("EntityConstructor")
 public class EntitySeat extends Entity {
 
-	public int carRiding;
+	public int ridingCar;
 	public double xRidingOffset, zRidingOffset;
 
 	private PlayerEntity player;
 	private int seatCoolDown;
 
+	private int clientInterpolationSteps;
+	private double clientX;
+	private double clientY;
+	private double clientZ;
+	private double clientXVelocity;
+	private double clientYVelocity;
+	private double clientZVelocity;
+
 	public static final int DETAIL_RADIUS = 32;
-	public static final int MAX_SEAT_COOL_DOWN = 10;
+	public static final int MAX_SEAT_COOL_DOWN = 2;
 
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final String KEY_PLAYER_ID = "player_id";
@@ -48,14 +56,33 @@ public class EntitySeat extends Entity {
 	@Override
 	public void tick() {
 		getPlayer();
+
 		if (world.isClient) {
 			if (player != null) {
-				final Vec3d newPos = new Vec3d(0, 0, 10).rotateX((float) Math.toRadians(-player.pitch)).rotateY((float) Math.toRadians(-player.yaw)).add(player.getX(), player.getEyeY(), player.getZ());
-				updatePosition(newPos.x, newPos.y, newPos.z);
+				if (hasPassenger(player)) {
+					if (clientInterpolationSteps > 0) {
+						double d = getX() + (clientX - getX()) / (double) clientInterpolationSteps;
+						double e = getY() + (clientY - getY()) / (double) clientInterpolationSteps;
+						double f = getZ() + (clientZ - getZ()) / (double) clientInterpolationSteps;
+						--clientInterpolationSteps;
+						updatePosition(d, e, f);
+					} else {
+						refreshPosition();
+					}
+				} else {
+					final Vec3d newPos = player.getPos().add(player.getVelocity());
+					updatePosition(newPos.x, newPos.y, newPos.z);
+				}
 			}
 		} else {
 			if (player != null) {
-				updatePosition(player.getX(), player.getY(), player.getZ());
+				if (!hasPassenger(player)) {
+					updatePosition(player.getX(), player.getY(), player.getZ());
+				} else if (seatCoolDown > 0) {
+					seatCoolDown--;
+				} else {
+					removeAllPassengers();
+				}
 			} else {
 				kill();
 			}
@@ -64,6 +91,19 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
+		clientX = x;
+		clientY = y;
+		clientZ = z;
+		clientInterpolationSteps = interpolationSteps + 2;
+		setVelocity(clientXVelocity, clientYVelocity, clientZVelocity);
+	}
+
+	@Override
+	public void setVelocityClient(double x, double y, double z) {
+		clientXVelocity = x;
+		clientYVelocity = y;
+		clientZVelocity = z;
+		setVelocity(clientXVelocity, clientYVelocity, clientZVelocity);
 	}
 
 	@Override
@@ -96,12 +136,6 @@ public class EntitySeat extends Entity {
 		tag.putUuid(KEY_PLAYER_ID, getPlayerId());
 	}
 
-	public void clientRenderTick() {
-		if (seatCoolDown > 0) {
-			seatCoolDown--;
-		}
-	}
-
 	public PlayerEntity getPlayer() {
 		if (player == null) {
 			player = world.getPlayerByUuid(getPlayerId());
@@ -110,7 +144,9 @@ public class EntitySeat extends Entity {
 	}
 
 	public void setPlayerId(UUID playerId) {
-		dataTracker.set(PLAYER_ID, Optional.of(playerId));
+		if (dataTracker != null && playerId != null) {
+			dataTracker.set(PLAYER_ID, Optional.of(playerId));
+		}
 	}
 
 	public boolean getIsRiding() {
@@ -122,6 +158,10 @@ public class EntitySeat extends Entity {
 	}
 
 	private UUID getPlayerId() {
-		return dataTracker.get(PLAYER_ID).orElse(new UUID(0, 0));
+		if (dataTracker == null) {
+			return new UUID(0, 0);
+		} else {
+			return dataTracker.get(PLAYER_ID).orElse(new UUID(0, 0));
+		}
 	}
 }
