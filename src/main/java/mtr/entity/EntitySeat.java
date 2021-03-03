@@ -1,7 +1,6 @@
 package mtr.entity;
 
 import mtr.MTR;
-import mtr.data.Route;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
@@ -11,7 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -22,10 +20,7 @@ import java.util.UUID;
 public class EntitySeat extends Entity {
 
 	public int ridingCar;
-	public float ridingXOffset, ridingZOffset;
-
-	private float ridingXOffsetOld, ridingZOffsetOld;
-	private int worldTimeUpdated;
+	public float ridingPercentageX, ridingPercentageZ;
 
 	private PlayerEntity player;
 	private int seatCoolDown;
@@ -40,14 +35,11 @@ public class EntitySeat extends Entity {
 
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final TrackedData<Integer> RIDING_CAR = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
-	private static final TrackedData<Float> RIDING_X_OFFSET = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> RIDING_Z_OFFSET = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> RIDING_X_OFFSET_OLD = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> RIDING_Z_OFFSET_OLD = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> RIDING_PERCENTAGE_X = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final TrackedData<Float> RIDING_PERCENTAGE_Z = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Integer> WORLD_TIME_UPDATED = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Integer> SCHEDULE_TIME = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Integer> ROUTE_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
-	private static final String KEY_PLAYER_ID = "player_id";
 
 	public EntitySeat(EntityType<?> type, World world) {
 		super(type, world);
@@ -128,10 +120,8 @@ public class EntitySeat extends Entity {
 	protected void initDataTracker() {
 		dataTracker.startTracking(PLAYER_ID, null);
 		dataTracker.startTracking(RIDING_CAR, 0);
-		dataTracker.startTracking(RIDING_X_OFFSET, 0F);
-		dataTracker.startTracking(RIDING_Z_OFFSET, 0F);
-		dataTracker.startTracking(RIDING_X_OFFSET_OLD, 0F);
-		dataTracker.startTracking(RIDING_Z_OFFSET_OLD, 0F);
+		dataTracker.startTracking(RIDING_PERCENTAGE_X, 0F);
+		dataTracker.startTracking(RIDING_PERCENTAGE_Z, 0F);
 		dataTracker.startTracking(WORLD_TIME_UPDATED, 0);
 		dataTracker.startTracking(SCHEDULE_TIME, 0);
 		dataTracker.startTracking(ROUTE_ID, 0);
@@ -139,12 +129,10 @@ public class EntitySeat extends Entity {
 
 	@Override
 	protected void readCustomDataFromTag(CompoundTag tag) {
-		setPlayerId(tag.getUuid(KEY_PLAYER_ID));
 	}
 
 	@Override
 	protected void writeCustomDataToTag(CompoundTag tag) {
-		tag.putUuid(KEY_PLAYER_ID, getPlayerId());
 	}
 
 	public PlayerEntity getPlayer() {
@@ -160,23 +148,17 @@ public class EntitySeat extends Entity {
 		}
 	}
 
-	public void setRidingCar(int ridingCar) {
+	public void updateRidingCar() {
 		if (dataTracker != null) {
 			dataTracker.set(RIDING_CAR, ridingCar);
 		}
-		this.ridingCar = ridingCar;
 	}
 
-	public void updateRidingOffset(int worldTime) {
+	public void updateRidingPercentage() {
 		if (dataTracker != null) {
-			dataTracker.set(RIDING_X_OFFSET, ridingXOffset);
-			dataTracker.set(RIDING_Z_OFFSET, ridingZOffset);
-			dataTracker.set(RIDING_X_OFFSET_OLD, ridingXOffsetOld);
-			dataTracker.set(RIDING_Z_OFFSET_OLD, ridingZOffsetOld);
-			dataTracker.set(WORLD_TIME_UPDATED, worldTime);
+			dataTracker.set(RIDING_PERCENTAGE_X, ridingPercentageX);
+			dataTracker.set(RIDING_PERCENTAGE_Z, ridingPercentageZ);
 		}
-		ridingXOffsetOld = ridingXOffset;
-		ridingZOffsetOld = ridingZOffset;
 	}
 
 	public void setScheduleTime(int scheduleTime) {
@@ -195,18 +177,12 @@ public class EntitySeat extends Entity {
 		return dataTracker == null ? 0 : dataTracker.get(RIDING_CAR);
 	}
 
-	public Vec3d getRidingOffset(float worldTime) {
-		if (dataTracker == null) {
-			return Vec3d.ZERO;
-		} else {
-			ridingXOffset = dataTracker.get(RIDING_X_OFFSET);
-			ridingXOffsetOld = dataTracker.get(RIDING_X_OFFSET_OLD);
-			ridingZOffset = dataTracker.get(RIDING_Z_OFFSET);
-			ridingZOffsetOld = dataTracker.get(RIDING_Z_OFFSET_OLD);
-			worldTimeUpdated = dataTracker.get(WORLD_TIME_UPDATED);
-			final float tickDelta = (worldTime - worldTimeUpdated) % Route.TICKS_PER_DAY;
-			return new Vec3d(MathHelper.lerp(tickDelta, ridingXOffsetOld, ridingXOffset), 0, MathHelper.lerp(tickDelta, ridingZOffsetOld, ridingZOffset));
-		}
+	public float getRidingPercentageX() {
+		return dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_X);
+	}
+
+	public float getRidingPercentageZ() {
+		return dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_Z);
 	}
 
 	public int getScheduleTime() {
@@ -226,10 +202,11 @@ public class EntitySeat extends Entity {
 	}
 
 	private UUID getPlayerId() {
-		if (dataTracker == null) {
-			return new UUID(0, 0);
-		} else {
+		try {
 			return dataTracker.get(PLAYER_ID).orElse(new UUID(0, 0));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new UUID(0, 0);
 		}
 	}
 }
