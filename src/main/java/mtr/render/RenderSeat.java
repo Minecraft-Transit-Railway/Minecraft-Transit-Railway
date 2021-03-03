@@ -19,6 +19,8 @@ import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -60,9 +62,11 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		final double entityZ = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		final float worldTime = (int) world.getLunarTime() + tickDelta;
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue) -> {
-			final BlockPos posAverage = new BlockPos(x, y, z);
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, (int) world.getLunarTime() + tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
+			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
+			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
+			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
+			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
 			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
 				return;
 			}
@@ -70,7 +74,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
-			matrices.translate(x, y, z);
+			matrices.translate(offsetX, offsetY, offsetZ);
 			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
 			matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
 
@@ -81,12 +85,15 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(x, y, z) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType) -> {
-			final BlockPos posAverage = new BlockPos(x, y, z);
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender) -> {
+			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
+			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
+			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
+			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
 			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
 				return;
 			}
@@ -97,6 +104,11 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
 			final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
 
+			matrices.push();
+			if (shouldOffsetRender) {
+				matrices.translate(entityX, entityY, entityZ);
+			}
+
 			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
@@ -106,6 +118,16 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, MAX_LIGHT);
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
+			matrices.pop();
+		}, (speed, x, z) -> {
+			final Text text;
+			if (speed <= 5) {
+				final String stationName = ClientData.stations.stream().filter(station -> station.inStation(x, z)).map(station -> station.name).findFirst().orElse("");
+				text = Text.of(IGui.formatStationName(IGui.addToStationName(stationName, "", "", new TranslatableText("gui.mtr.station_cjk").getString(), new TranslatableText("gui.mtr.station").getString())));
+			} else {
+				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
+			}
+			player.sendMessage(text, true);
 		}));
 
 		matrices.pop();

@@ -70,7 +70,7 @@
 	"gui.mtr.to_cjk": "往",
 	"gui.mtr.tph": "/小时",
 	"gui.mtr.train_schedule": "本月台的列车时间表",
-	"gui.mtr.train_speed": "车速：%s",
+	"gui.mtr.train_speed": "车速：%s m/s (%s km/h)",
 	"gui.mtr.trains": "列车",
 	"gui.mtr.trains_per_hour": "每小时列车",
 	"gui.mtr.untitled": "未命名",

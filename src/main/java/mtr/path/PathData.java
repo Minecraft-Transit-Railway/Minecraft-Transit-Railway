@@ -154,6 +154,17 @@ public class PathData extends SerializedDataBase {
 		}
 	}
 
+	public float getSpeed(float value) {
+		final float offsetValue = value - tOffset;
+		if (offsetValue < tSwitch) {
+			return 2 * a1 * offsetValue + b1;
+		} else if (offsetValue < tEnd) {
+			return 2 * a2 * (offsetValue - tSwitch) + b2;
+		} else {
+			return 0;
+		}
+	}
+
 	public float getDoorValue(float value) {
 		final float offsetValue = value - tOffset - tEnd;
 		final float stage1 = DOOR_DELAY;

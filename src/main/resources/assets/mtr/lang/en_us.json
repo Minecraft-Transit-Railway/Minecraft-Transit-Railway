@@ -70,7 +70,7 @@
 	"gui.mtr.to_cjk": "往",
 	"gui.mtr.tph": "/hr",
 	"gui.mtr.train_schedule": "Train Schedule for This Platform",
-	"gui.mtr.train_speed": "Train Speed: %s",
+	"gui.mtr.train_speed": "Train Speed: %s m/s (%s km/h)",
 	"gui.mtr.trains": "Trains",
 	"gui.mtr.trains_per_hour": "Trains Per Hour",
 	"gui.mtr.untitled": "Untitled",

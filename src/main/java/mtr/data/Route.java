@@ -193,14 +193,40 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public void getPositionYaw(WorldAccess world, int worldTime) {
-		getPositionYaw(world, worldTime + 1, null, null, null);
+		getPositionYaw(world, worldTime + 1, null, null, null, null);
 	}
 
-	public void getPositionYaw(WorldAccess world, float worldTime, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback) {
+	public void getPositionYaw(WorldAccess world, float worldTime, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
-			final float worldTimeOffset = worldTime + 6000 + TICKS_PER_DAY;
-			final List<Pos3f> positions = getPositions((worldTimeOffset - scheduleTime) % TICKS_PER_DAY, trainType.getSpacing());
-			final float doorValue = getDoorValue((worldTimeOffset - scheduleTime) % TICKS_PER_DAY);
+			final float ticks = (worldTime + 6000 + TICKS_PER_DAY - scheduleTime) % TICKS_PER_DAY;
+			final List<Pos3f> positions = getPositions(ticks, trainType.getSpacing());
+			final float doorValue = getDoorValue(ticks);
+
+			float renderOffsetX = 0, renderOffsetY = 0, renderOffsetZ = 0;
+			boolean shouldOffsetRender = false;
+			if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.getScheduleTime() == scheduleTime && clientSeat.getRouteId() == id) {
+				final int ridingCar = clientSeat.getRidingCar();
+				if (ridingCar < positions.size() - 1) {
+					final Pos3f pos1 = positions.get(ridingCar);
+					final Pos3f pos2 = positions.get(ridingCar + 1);
+					if (pos1 != null && pos2 != null) {
+						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
+						final float pitch = (float) Math.asin((pos2.y - pos1.y) / pos2.getDistanceTo(pos1));
+						final Vec3d ridingOffset = clientSeat.getRidingOffset(worldTime).rotateX(pitch).rotateY(yaw);
+						final float absoluteX = getAverage(pos1.x, pos2.x);
+						final float absoluteY = getAverage(pos1.y, pos2.y);
+						final float absoluteZ = getAverage(pos1.z, pos2.z);
+						renderOffsetX = absoluteX + (float) ridingOffset.x;
+						renderOffsetY = absoluteY + (float) ridingOffset.y + 1;
+						renderOffsetZ = absoluteZ + (float) ridingOffset.z;
+						shouldOffsetRender = true;
+
+						if (speedCallback != null) {
+							speedCallback.speedCallback(getSpeed(ticks) * 20, (int) absoluteX, (int) absoluteZ);
+						}
+					}
+				}
+			}
 
 			float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
 			int previousRendered = 0;
@@ -210,9 +236,12 @@ public final class Route extends NameColorDataBase implements IGui {
 				final Pos3f pos2 = positions.get(i + 1);
 
 				if (pos1 != null && pos2 != null) {
-					final float x = getAverage(pos1.x, pos2.x);
-					final float y = getAverage(pos1.y, pos2.y) + 1;
-					final float z = getAverage(pos1.z, pos2.z);
+					final float absoluteX = getAverage(pos1.x, pos2.x);
+					final float absoluteY = getAverage(pos1.y, pos2.y);
+					final float absoluteZ = getAverage(pos1.z, pos2.z);
+					final float x = absoluteX - renderOffsetX;
+					final float y = absoluteY - renderOffsetY + 1;
+					final float z = absoluteZ - renderOffsetZ;
 
 					final float realSpacing = pos2.getDistanceTo(pos1);
 					final float halfSpacing = realSpacing / 2;
@@ -224,11 +253,11 @@ public final class Route extends NameColorDataBase implements IGui {
 					final boolean isEnd2Head = i == positions.size() - 2;
 
 					if (world.isClient()) {
-						final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
-						final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
+						final boolean doorLeftOpen = openDoors(world, absoluteX, absoluteY, absoluteZ, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
+						final boolean doorRightOpen = openDoors(world, absoluteX, absoluteY, absoluteZ, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 						if (positionYawCallback != null) {
-							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0);
+							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, shouldOffsetRender);
 						}
 
 						previousRendered--;
@@ -246,7 +275,7 @@ public final class Route extends NameColorDataBase implements IGui {
 							final Pos3f thisPos3 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
 							final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
 
-							renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, pos1.x, pos1.y, pos1.z, trainType);
+							renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender);
 						}
 
 						prevCarX = x;
@@ -270,35 +299,38 @@ public final class Route extends NameColorDataBase implements IGui {
 								final Vec3d positionRotated = new Vec3d(entitySeat.getX() - x, entitySeat.getY() - y, entitySeat.getZ() - z).rotateY(-yaw).rotateX(-pitch);
 
 								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5 && Math.abs(positionRotated.z) <= halfSpacing + INNER_PADDING) {
-									if (doorLeftOpen || doorRightOpen) {
+									if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding()) {
 										entitySeat.resetSeatCoolDown();
 										serverPlayer.startRiding(entitySeat);
-										entitySeat.ridingCar = ridingCar;
-										entitySeat.xRidingOffset = positionRotated.x;
-										entitySeat.zRidingOffset = positionRotated.z;
+										entitySeat.setScheduleTime(scheduleTime);
+										entitySeat.setRouteId((int) id);
+										entitySeat.ridingXOffset = (float) positionRotated.x;
+										entitySeat.ridingZOffset = (float) positionRotated.z;
 									}
 
 									if (entitySeat.getIsRiding()) {
 										final Vec3d movement = new Vec3d(serverPlayer.sidewaysSpeed / 3, 0, serverPlayer.forwardSpeed / 3).rotateY((float) -Math.toRadians(serverPlayer.yaw) - yaw);
 
 										if (ridingCar != entitySeat.ridingCar && (serverPlayer.sidewaysSpeed != 0 || serverPlayer.forwardSpeed != 0)) {
-											entitySeat.ridingCar = ridingCar;
-											entitySeat.xRidingOffset = positionRotated.x;
-											entitySeat.zRidingOffset = positionRotated.z;
+											entitySeat.setRidingCar(ridingCar);
+											entitySeat.ridingXOffset += positionRotated.x;
+											entitySeat.ridingZOffset += positionRotated.z;
 										}
 
 										if (ridingCar == entitySeat.ridingCar) {
-											entitySeat.xRidingOffset += movement.x;
-											entitySeat.zRidingOffset += movement.z;
-											entitySeat.xRidingOffset = MathHelper.clamp(entitySeat.xRidingOffset, doorLeftOpen ? entitySeat.xRidingOffset : -halfWidth, doorRightOpen ? entitySeat.xRidingOffset : halfWidth);
-											entitySeat.zRidingOffset = MathHelper.clamp(entitySeat.zRidingOffset, isEnd1Head ? -halfSpacing : entitySeat.zRidingOffset, isEnd2Head ? halfSpacing : entitySeat.zRidingOffset);
+											entitySeat.ridingXOffset += movement.x;
+											entitySeat.ridingZOffset += movement.z;
+											entitySeat.ridingXOffset = MathHelper.clamp(entitySeat.ridingXOffset, doorLeftOpen ? entitySeat.ridingXOffset : -halfWidth, doorRightOpen ? entitySeat.ridingXOffset : halfWidth);
+											entitySeat.ridingZOffset = MathHelper.clamp(entitySeat.ridingZOffset, isEnd1Head ? -halfSpacing : entitySeat.ridingZOffset, isEnd2Head ? halfSpacing : entitySeat.ridingZOffset);
 
-											final Vec3d velocity = new Vec3d(entitySeat.xRidingOffset, 0, entitySeat.zRidingOffset).rotateX(pitch).rotateY(yaw).add(x, y, z);
+											final Vec3d velocity = new Vec3d(entitySeat.ridingXOffset, 0, entitySeat.ridingZOffset).rotateX(pitch).rotateY(yaw).add(x, y, z);
 
 											entitySeat.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, 0, 0);
 											entitySeat.fallDistance = 0;
 											entitySeat.resetSeatCoolDown();
 										}
+
+										entitySeat.updateRidingOffset((int) worldTime);
 									}
 								}
 							});
@@ -361,6 +393,11 @@ public final class Route extends NameColorDataBase implements IGui {
 			}
 		}
 		return -1;
+	}
+
+	private float getSpeed(float value) {
+		final int pathDataIndex = getPathDataIndex(value);
+		return pathDataIndex < 0 ? 0 : path.get(pathDataIndex).getSpeed(value);
 	}
 
 	private float getHeadway(int hour) {
@@ -434,11 +471,16 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	@FunctionalInterface
 	public interface PositionYawCallback {
-		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue);
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean shouldOffsetRender);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, TrainType trainType);
+		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, TrainType trainType, boolean shouldOffsetRender);
+	}
+
+	@FunctionalInterface
+	public interface SpeedCallback {
+		void speedCallback(float speed, int x, int z);
 	}
 }
