@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -19,25 +20,29 @@ import java.util.UUID;
 @SuppressWarnings("EntityConstructor")
 public class EntitySeat extends Entity {
 
-	public int ridingCar;
-	public float ridingPercentageX, ridingPercentageZ;
+	public float ridingPercentageX;
+	public float ridingPercentageZ;
 
 	private PlayerEntity player;
 	private int seatCoolDown;
+	public float prevRidingPercentageX;
+	public float prevRidingPercentageZ;
+	private float scheduleTime;
+	private float routeId;
 
 	private int clientInterpolationSteps;
 	private double clientX;
 	private double clientY;
 	private double clientZ;
+	private float clientRidingPercentageX;
+	private float clientRidingPercentageZ;
 
 	public static final int DETAIL_RADIUS = 32;
 	public static final int MAX_SEAT_COOL_DOWN = 2;
 
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
-	private static final TrackedData<Integer> RIDING_CAR = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Float> RIDING_PERCENTAGE_X = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Float> RIDING_PERCENTAGE_Z = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Integer> WORLD_TIME_UPDATED = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Integer> SCHEDULE_TIME = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Integer> ROUTE_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 
@@ -63,13 +68,21 @@ public class EntitySeat extends Entity {
 			if (player != null) {
 				if (hasPassenger(player)) {
 					if (clientInterpolationSteps > 0) {
-						double d = getX() + (clientX - getX()) / (double) clientInterpolationSteps;
-						double e = getY() + (clientY - getY()) / (double) clientInterpolationSteps;
-						double f = getZ() + (clientZ - getZ()) / (double) clientInterpolationSteps;
+						double x = getX() + (clientX - getX()) / clientInterpolationSteps;
+						double y = getY() + (clientY - getY()) / clientInterpolationSteps;
+						double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
+
+						prevRidingPercentageX = ridingPercentageX;
+						prevRidingPercentageZ = ridingPercentageZ;
+						ridingPercentageX = ridingPercentageX + (clientRidingPercentageX - ridingPercentageX) / clientInterpolationSteps;
+						ridingPercentageZ = ridingPercentageZ + (clientRidingPercentageZ - ridingPercentageZ) / clientInterpolationSteps;
+
 						--clientInterpolationSteps;
-						updatePosition(d, e, f);
+						updatePosition(x, y, z);
 					} else {
 						refreshPosition();
+						ridingPercentageX = clientRidingPercentageX;
+						ridingPercentageZ = clientRidingPercentageZ;
 					}
 				} else {
 					final Vec3d newPos = player.getPos().add(player.getVelocity());
@@ -98,6 +111,8 @@ public class EntitySeat extends Entity {
 		clientX = x;
 		clientY = y;
 		clientZ = z;
+		clientRidingPercentageX = dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_X);
+		clientRidingPercentageZ = dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_Z);
 		clientInterpolationSteps = interpolationSteps + 2;
 	}
 
@@ -119,10 +134,8 @@ public class EntitySeat extends Entity {
 	@Override
 	protected void initDataTracker() {
 		dataTracker.startTracking(PLAYER_ID, null);
-		dataTracker.startTracking(RIDING_CAR, 0);
 		dataTracker.startTracking(RIDING_PERCENTAGE_X, 0F);
 		dataTracker.startTracking(RIDING_PERCENTAGE_Z, 0F);
-		dataTracker.startTracking(WORLD_TIME_UPDATED, 0);
 		dataTracker.startTracking(SCHEDULE_TIME, 0);
 		dataTracker.startTracking(ROUTE_ID, 0);
 	}
@@ -148,12 +161,6 @@ public class EntitySeat extends Entity {
 		}
 	}
 
-	public void updateRidingCar() {
-		if (dataTracker != null) {
-			dataTracker.set(RIDING_CAR, ridingCar);
-		}
-	}
-
 	public void updateRidingPercentage() {
 		if (dataTracker != null) {
 			dataTracker.set(RIDING_PERCENTAGE_X, ridingPercentageX);
@@ -161,36 +168,29 @@ public class EntitySeat extends Entity {
 		}
 	}
 
-	public void setScheduleTime(int scheduleTime) {
+	public float getRidingPercentageX(float tickDelta) {
+		return MathHelper.lerp(tickDelta, prevRidingPercentageX, ridingPercentageX);
+	}
+
+	public float getRidingPercentageZ(float tickDelta) {
+		return MathHelper.lerp(tickDelta, prevRidingPercentageZ, ridingPercentageZ);
+	}
+
+	public void setScheduleTimeAndRouteId(int scheduleTime, long routeId) {
 		if (dataTracker != null) {
 			dataTracker.set(SCHEDULE_TIME, scheduleTime);
+			dataTracker.set(ROUTE_ID, (int) routeId);
 		}
+		this.scheduleTime = scheduleTime;
+		this.routeId = routeId;
 	}
 
-	public void setRouteId(int routeId) {
-		if (dataTracker != null) {
-			dataTracker.set(ROUTE_ID, routeId);
+	public boolean isScheduleTimeAndRouteId(int scheduleTime, long routeId) {
+		if (world.isClient) {
+			return dataTracker != null && dataTracker.get(SCHEDULE_TIME) == scheduleTime && dataTracker.get(ROUTE_ID) == routeId;
+		} else {
+			return this.scheduleTime == scheduleTime && this.routeId == routeId;
 		}
-	}
-
-	public int getRidingCar() {
-		return dataTracker == null ? 0 : dataTracker.get(RIDING_CAR);
-	}
-
-	public float getRidingPercentageX() {
-		return dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_X);
-	}
-
-	public float getRidingPercentageZ() {
-		return dataTracker == null ? 0 : dataTracker.get(RIDING_PERCENTAGE_Z);
-	}
-
-	public int getScheduleTime() {
-		return dataTracker == null ? 0 : dataTracker.get(SCHEDULE_TIME);
-	}
-
-	public int getRouteId() {
-		return dataTracker == null ? 0 : dataTracker.get(ROUTE_ID);
 	}
 
 	public boolean getIsRiding() {
@@ -203,7 +203,7 @@ public class EntitySeat extends Entity {
 
 	private UUID getPlayerId() {
 		try {
-			return dataTracker.get(PLAYER_ID).orElse(new UUID(0, 0));
+			return dataTracker == null ? new UUID(0, 0) : dataTracker.get(PLAYER_ID).orElse(new UUID(0, 0));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new UUID(0, 0);

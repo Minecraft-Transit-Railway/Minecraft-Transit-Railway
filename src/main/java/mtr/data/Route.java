@@ -193,10 +193,10 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public void getPositionYaw(WorldAccess world, int worldTime) {
-		getPositionYaw(world, worldTime + 1, null, null, null, null);
+		getPositionYaw(world, worldTime + 1, 0, null, null, null, null);
 	}
 
-	public void getPositionYaw(WorldAccess world, float worldTime, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
+	public void getPositionYaw(WorldAccess world, float worldTime, float tickDelta, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
 			final float ticks = (worldTime + 6000 + TICKS_PER_DAY - scheduleTime) % TICKS_PER_DAY;
 			final List<Pos3f> positions = getPositions(ticks, trainType.getSpacing());
@@ -205,15 +205,16 @@ public final class Route extends NameColorDataBase implements IGui {
 
 			float renderOffsetX = 0, renderOffsetY = 0, renderOffsetZ = 0;
 			boolean shouldOffsetRender = false;
-			if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.getScheduleTime() == scheduleTime && clientSeat.getRouteId() == id) {
-				final int ridingCar = clientSeat.getRidingCar();
+			if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
+				final float ridingPercentageZ = clientSeat.getRidingPercentageZ(tickDelta);
+				final int ridingCar = (int) Math.floor(ridingPercentageZ);
 				if (ridingCar < positions.size() - 1) {
 					final Pos3f pos1 = positions.get(ridingCar);
 					final Pos3f pos2 = positions.get(ridingCar + 1);
 					if (pos1 != null && pos2 != null) {
 						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
 						final float pitch = (float) Math.asin((pos2.y - pos1.y) / pos2.getDistanceTo(pos1));
-						final Vec3d ridingOffset = new Vec3d(getValueFromPercentage(clientSeat.getRidingPercentageX(), trainType.width), 0, getValueFromPercentage(clientSeat.getRidingPercentageZ(), pos2.getDistanceTo(pos1))).rotateX(pitch).rotateY(yaw);
+						final Vec3d ridingOffset = new Vec3d(getValueFromPercentage(clientSeat.getRidingPercentageX(tickDelta), trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(ridingPercentageZ), pos2.getDistanceTo(pos1))).rotateX(pitch).rotateY(yaw);
 						final float absoluteX = getAverage(pos1.x, pos2.x);
 						final float absoluteY = getAverage(pos1.y, pos2.y);
 						final float absoluteZ = getAverage(pos1.z, pos2.z);
@@ -307,18 +308,13 @@ public final class Route extends NameColorDataBase implements IGui {
 									if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding()) {
 										entitySeat.resetSeatCoolDown();
 										serverPlayer.startRiding(entitySeat);
-										entitySeat.setScheduleTime(scheduleTime);
-										entitySeat.setRouteId((int) id);
-										entitySeat.ridingCar = ridingCar;
+										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
 										entitySeat.ridingPercentageX = (float) (positionRotated.x / trainType.width + 0.5);
-										entitySeat.ridingPercentageZ = (float) (positionRotated.z / realSpacing + 0.5);
-										entitySeat.updateRidingCar();
-										entitySeat.updateRidingPercentage();
+										entitySeat.ridingPercentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
 									}
 
-									if (entitySeat.getIsRiding() && ridingCar == entitySeat.ridingCar) {
-										final Vec3d velocity = new Vec3d(getValueFromPercentage(entitySeat.ridingPercentageX, trainType.width), 0, getValueFromPercentage(entitySeat.ridingPercentageZ, realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
-
+									if (entitySeat.getIsRiding() && ridingCar == Math.floor(entitySeat.ridingPercentageZ) && entitySeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
+										final Vec3d velocity = new Vec3d(getValueFromPercentage(entitySeat.ridingPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(entitySeat.ridingPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
 										entitySeat.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, 0, 0);
 										entitySeat.fallDistance = 0;
 										entitySeat.resetSeatCoolDown();
@@ -327,25 +323,7 @@ public final class Route extends NameColorDataBase implements IGui {
 										entitySeat.ridingPercentageX += movement.x / trainType.width;
 										entitySeat.ridingPercentageZ += movement.z / realSpacing;
 										entitySeat.ridingPercentageX = MathHelper.clamp(entitySeat.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
-
-										if (entitySeat.ridingPercentageZ < 0) {
-											if (entitySeat.ridingCar > 0) {
-												entitySeat.ridingPercentageZ = 1;
-												entitySeat.ridingCar--;
-												entitySeat.updateRidingCar();
-											} else {
-												entitySeat.ridingPercentageZ = 0;
-											}
-										} else if (entitySeat.ridingPercentageZ > 1) {
-											if (entitySeat.ridingCar < positions.size() - 2) {
-												entitySeat.ridingPercentageZ = 0;
-												entitySeat.ridingCar++;
-												entitySeat.updateRidingCar();
-											} else {
-												entitySeat.ridingPercentageZ = 1;
-											}
-										}
-
+										entitySeat.ridingPercentageZ = MathHelper.clamp(entitySeat.ridingPercentageZ, 0, positions.size() - 1.01F);
 										entitySeat.updateRidingPercentage();
 									}
 								}

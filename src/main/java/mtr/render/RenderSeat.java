@@ -62,7 +62,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		final double entityZ = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, (int) world.getLunarTime() + tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
+		ClientData.routes.forEach(route -> route.getPositionYaw(world, (int) world.getLunarTime() + tickDelta, tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
