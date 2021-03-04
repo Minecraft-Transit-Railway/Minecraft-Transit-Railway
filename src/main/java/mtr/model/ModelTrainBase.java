@@ -40,10 +40,10 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront) {
 		for (int position : getWindowPositions()) {
-			renderWindowPositions(matrices, vertices, renderStage, light, position);
+			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd2Head);
 		}
 		for (int position : getDoorPositions()) {
-			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue);
+			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd2Head);
 		}
 
 		if (isEnd1Head) {
@@ -59,9 +59,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position);
+	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head);
 
-	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue);
+	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head);
 
 	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights);
 

@@ -153,8 +153,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private static ModelTrainBase getModel(TrainType trainType) {
 		switch (trainType) {
 			case SP1900:
+			case C1141A:
 				return MODEL_SP1900;
 			case SP1900_MINI:
+			case C1141A_MINI:
 				return MODEL_SP1900_MINI;
 			case M_TRAIN:
 				return MODEL_M_TRAIN;

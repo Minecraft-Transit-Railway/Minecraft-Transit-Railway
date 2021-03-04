@@ -151,6 +151,8 @@
 	"tooltip.mtr.selected_block": "Selected Block: %s",
 	"tooltip.mtr.station_color": "Colour depends on the station",
 	"tooltip.mtr.station_color_name": "Colour and text depend on the station",
+	"train.mtr.C1141A": "C1141A / TML C Train",
+	"train.mtr.C1141A_MINI": "C1141A / TML C Train (Mini)",
 	"train.mtr.LIGHT_RAIL_1": "Light Rail (Phase 1)",
 	"train.mtr.MINECART": "Minecart",
 	"train.mtr.M_TRAIN": "M Train",
