@@ -2,6 +2,7 @@ package mtr.render;
 
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -33,6 +34,10 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		}
 
 		final BlockPos pos = entity.getPos();
+		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+			return;
+		}
+
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color;

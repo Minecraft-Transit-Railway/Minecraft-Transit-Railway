@@ -9,13 +9,11 @@ import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -35,12 +33,11 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		if (world == null) {
 			return;
 		}
-		final PlayerEntity player = MinecraftClient.getInstance().player;
-		if (player == null || player.getBlockPos().getManhattanDistance(entity.getPos()) > EntitySeat.DETAIL_RADIUS) {
-			return;
-		}
 
 		final BlockPos pos = entity.getPos();
+		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+			return;
+		}
 
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);

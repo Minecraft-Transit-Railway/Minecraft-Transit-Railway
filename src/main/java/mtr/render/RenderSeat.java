@@ -1,7 +1,6 @@
 package mtr.render;
 
-import mtr.data.Pos3f;
-import mtr.data.TrainType;
+import mtr.data.*;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -18,6 +17,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -67,7 +67,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
 			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
+			if (shouldNotRender(player, posAverage, halfRenderDistance)) {
 				return;
 			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
@@ -94,7 +94,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
 			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-			if (posAverage.getManhattanDistance(player.getBlockPos()) > halfRenderDistance) {
+			if (shouldNotRender(player, posAverage, halfRenderDistance)) {
 				return;
 			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
@@ -119,11 +119,21 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
 			matrices.pop();
-		}, (speed, x, z) -> {
+		}, (speed, x, y, z) -> {
 			final Text text;
 			if (speed <= 5) {
-				final String stationName = ClientData.stations.stream().filter(station -> station.inStation(x, z)).map(station -> station.name).findFirst().orElse("");
-				text = Text.of(IGui.formatStationName(IGui.addToStationName(stationName, "", "", new TranslatableText("gui.mtr.station_cjk").getString(), new TranslatableText("gui.mtr.station").getString())));
+				switch (((int) (System.currentTimeMillis() / 1000)) % 3) {
+					default:
+						text = getThisStationText(x, z);
+						break;
+					case 1:
+						final Text nextStationText = getNextStationText(route, new BlockPos(x, y, z));
+						text = nextStationText == null ? getThisStationText(x, z) : nextStationText;
+						break;
+					case 2:
+						text = getLastStationText(route);
+						break;
+				}
 			} else {
 				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
 			}
@@ -136,6 +146,37 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	@Override
 	public Identifier getTexture(EntitySeat entity) {
 		return null;
+	}
+
+	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance) {
+		return player == null || player.getBlockPos().getManhattanDistance(pos) > maxDistance;
+	}
+
+	public static boolean shouldNotRender(BlockPos pos, int maxDistance) {
+		final PlayerEntity player = MinecraftClient.getInstance().player;
+		return shouldNotRender(player, pos, maxDistance);
+	}
+
+	private static Text getThisStationText(int x, int z) {
+		final String stationName = ClientData.stations.stream().filter(station -> station.inStation(x, z)).map(station -> station.name).findFirst().orElse("");
+		return Text.of(IGui.formatStationName(IGui.addToStationName(stationName, new TranslatableText("gui.mtr.this_station_cjk").getString(), new TranslatableText("gui.mtr.this_station").getString(), "", "")));
+	}
+
+	private static Text getNextStationText(Route route, BlockPos pos) {
+		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).findFirst().orElse(null);
+		if (currentPlatform != null) {
+			final int nextPlatformIndex = route.platformIds.indexOf(currentPlatform.id) + 1;
+			if (nextPlatformIndex < route.platformIds.size()) {
+				final Station station = ClientData.platformIdToStation.get(route.platformIds.get(nextPlatformIndex));
+				return Text.of(IGui.formatStationName(IGui.addToStationName(station.name, new TranslatableText("gui.mtr.next_station_cjk").getString(), new TranslatableText("gui.mtr.next_station").getString(), "", "")));
+			}
+		}
+		return null;
+	}
+
+	private static Text getLastStationText(Route route) {
+		final Station station = ClientData.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
+		return Text.of(IGui.formatStationName(IGui.addToStationName(station.name, new TranslatableText("gui.mtr.last_station_cjk").getString(), new TranslatableText("gui.mtr.last_station").getString(), "", "")));
 	}
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {

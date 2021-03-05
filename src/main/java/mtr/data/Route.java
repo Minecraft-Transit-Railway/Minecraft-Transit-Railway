@@ -227,7 +227,7 @@ public final class Route extends NameColorDataBase implements IGui {
 						}
 
 						if (speedCallback != null) {
-							speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteZ);
+							speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ);
 						}
 					}
 				}
@@ -479,6 +479,6 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	@FunctionalInterface
 	public interface SpeedCallback {
-		void speedCallback(float speed, int x, int z);
+		void speedCallback(float speed, int x, int y, int z);
 	}
 }

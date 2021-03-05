@@ -133,7 +133,7 @@ public class EntitySeat extends Entity {
 
 	@Override
 	protected void initDataTracker() {
-		dataTracker.startTracking(PLAYER_ID, null);
+		dataTracker.startTracking(PLAYER_ID, Optional.of(new UUID(0, 0)));
 		dataTracker.startTracking(RIDING_PERCENTAGE_X, 0F);
 		dataTracker.startTracking(RIDING_PERCENTAGE_Z, 0F);
 		dataTracker.startTracking(SCHEDULE_TIME, 0);

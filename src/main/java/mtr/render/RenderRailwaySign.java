@@ -4,6 +4,7 @@ import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.data.Platform;
+import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -68,6 +69,10 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 	}
 
 	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, int platformIndex, Direction facing, DrawTexture drawTexture) {
+		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+			return;
+		}
+
 		final float signSize = (signType.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
 		final float margin = (size - signSize) / 2;
 
