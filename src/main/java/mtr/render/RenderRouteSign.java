@@ -5,6 +5,7 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.Platform;
+import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -36,6 +37,10 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 
 		final BlockPos pos = entity.getPos();
+		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+			return;
+		}
+
 		final BlockState state = world.getBlockState(pos);
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return;

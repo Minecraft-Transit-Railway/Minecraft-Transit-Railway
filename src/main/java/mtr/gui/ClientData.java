@@ -17,6 +17,7 @@ public final class ClientData {
 	public static Map<Long, List<ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
+	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 
 	public static class PlatformRouteDetails {
 

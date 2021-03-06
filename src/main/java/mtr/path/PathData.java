@@ -10,13 +10,13 @@ public class PathData extends SerializedDataBase {
 
 	public final float length;
 	public final float tOffset;
+	public final float tEnd;
 	public final float finalSpeed;
 
 	private final Rail rail;
 	private final float a1, b1;
 	private final float a2, b2;
 	private final float tSwitch;
-	private final float tEnd;
 	private final int delay;
 
 	public static final int DOOR_DELAY = 20;
@@ -186,6 +186,10 @@ public class PathData extends SerializedDataBase {
 
 	public float getTime() {
 		return tEnd + delay;
+	}
+
+	public boolean isPlatform() {
+		return rail.railType == Rail.RailType.PLATFORM;
 	}
 
 	private static float solveQuadratic(float a, float b, float c) {

@@ -15,10 +15,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PacketTrainDataGuiClient implements IPacket {
@@ -78,17 +75,26 @@ public class PacketTrainDataGuiClient implements IPacket {
 		ClientData.platformsInStation.forEach((stationId, posList) -> Collections.sort(posList));
 
 		ClientData.routesInStation.clear();
-		ClientData.routes.forEach(route -> route.platformIds.forEach(platformId -> {
-			final Station station = ClientData.platformIdToStation.get(platformId);
-			if (station != null) {
-				if (!ClientData.routesInStation.containsKey(station.id)) {
-					ClientData.routesInStation.put(station.id, new ArrayList<>());
+		ClientData.schedulesForPlatform.clear();
+		ClientData.routes.forEach(route -> {
+			route.platformIds.forEach(platformId -> {
+				final Station station = ClientData.platformIdToStation.get(platformId);
+				if (station != null) {
+					if (!ClientData.routesInStation.containsKey(station.id)) {
+						ClientData.routesInStation.put(station.id, new ArrayList<>());
+					}
+					if (ClientData.routesInStation.get(station.id).stream().noneMatch(colorNamePair -> route.color == colorNamePair.color)) {
+						ClientData.routesInStation.get(station.id).add(new ClientData.ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+					}
 				}
-				if (ClientData.routesInStation.get(station.id).stream().noneMatch(colorNamePair -> route.color == colorNamePair.color)) {
-					ClientData.routesInStation.get(station.id).add(new ClientData.ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+			});
+			route.getTimeOffsets().forEach((platformId, scheduleEntry) -> {
+				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
+					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
 				}
-			}
-		}));
+				ClientData.schedulesForPlatform.get(platformId).addAll(scheduleEntry);
+			});
+		});
 		ClientData.routesInStation.forEach((stationId, routeList) -> routeList.sort(Comparator.comparingInt(a -> a.color)));
 
 		ClientData.stationNames = ClientData.stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));

@@ -1,6 +1,8 @@
 package mtr.block;
 
+import mtr.MTR;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,7 +17,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public class BlockPIDS1 extends HorizontalFacingBlock {
+public class BlockPIDS1 extends HorizontalFacingBlock implements BlockEntityProvider {
 
 	public BlockPIDS1(Settings settings) {
 		super(settings);
@@ -63,6 +65,11 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	}
 
 	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityBlockPIDS1();
+	}
+
+	@Override
 	public PistonBehavior getPistonBehavior(BlockState state) {
 		return PistonBehavior.BLOCK;
 	}
@@ -70,5 +77,12 @@ public class BlockPIDS1 extends HorizontalFacingBlock {
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
+	}
+
+	public static class TileEntityBlockPIDS1 extends BlockEntity {
+
+		public TileEntityBlockPIDS1() {
+			super(MTR.PIDS_1_TILE_ENTITY);
+		}
 	}
 }

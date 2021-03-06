@@ -74,9 +74,12 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 
 		trainTypes = new ArrayList<>();
-		final int[] trainTypesIndices = tag.getIntArray(KEY_TRAIN_TYPES);
-		for (final int trainTypeIndex : trainTypesIndices) {
-			trainTypes.add(TrainType.values()[trainTypeIndex]);
+		final int trainTypesLength = tag.getInt(KEY_TRAIN_TYPES);
+		for (int i = 0; i < trainTypesLength; i++) {
+			try {
+				trainTypes.add(TrainType.valueOf(tag.getString(KEY_TRAIN_TYPES + i)));
+			} catch (Exception ignored) {
+			}
 		}
 
 		frequencies = new int[HOURS_IN_DAY];
@@ -134,7 +137,11 @@ public final class Route extends NameColorDataBase implements IGui {
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
 		tag.putLongArray(KEY_PLATFORM_IDS, platformIds);
-		tag.putIntArray(KEY_TRAIN_TYPES, trainTypes.stream().map(Enum::ordinal).collect(Collectors.toList()));
+
+		tag.putInt(KEY_TRAIN_TYPES, trainTypes.size());
+		for (int i = 0; i < trainTypes.size(); i++) {
+			tag.putString(KEY_TRAIN_TYPES + i, trainTypes.get(i).toString());
+		}
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
 			tag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
@@ -192,13 +199,13 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 	}
 
-	public void getPositionYaw(WorldAccess world, int worldTime) {
+	public void getPositionYaw(WorldAccess world, long worldTime) {
 		getPositionYaw(world, worldTime + 1, 0, null, null, null, null);
 	}
 
 	public void getPositionYaw(WorldAccess world, float worldTime, float tickDelta, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
 		schedule.forEach((scheduleTime, trainType) -> {
-			final float ticks = (worldTime + 6000 + TICKS_PER_DAY - scheduleTime) % TICKS_PER_DAY;
+			final float ticks = wrapTime(worldTime, scheduleTime);
 			final List<Pos3f> positions = getPositions(ticks, trainType.getSpacing());
 			final float doorValue = getDoorValue(ticks);
 			final float speed = getSpeed(ticks);
@@ -335,6 +342,33 @@ public final class Route extends NameColorDataBase implements IGui {
 		});
 	}
 
+	public Map<Long, Set<ScheduleEntry>> getTimeOffsets() {
+		final Map<Long, Set<ScheduleEntry>> timeOffsets = new HashMap<>();
+
+		int platformIdIndex = 0, pathIndex = 0;
+		while (platformIdIndex < platformIds.size() && pathIndex < path.size()) {
+			final PathData pathData = path.get(pathIndex);
+
+			if (pathData.isPlatform()) {
+				final long platformId = platformIds.get(platformIdIndex);
+				final float arrivalTime = pathData.tOffset + pathData.tEnd;
+				final float departureTime = pathData.tOffset + pathData.getTime();
+				timeOffsets.put(platformId, new HashSet<>());
+
+				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1))));
+				platformIdIndex++;
+			}
+
+			pathIndex++;
+		}
+
+		return timeOffsets;
+	}
+
+	public static float wrapTime(float time1, float time2) {
+		return (time1 - time2 + Route.TICKS_PER_DAY) % Route.TICKS_PER_DAY;
+	}
+
 	private List<Pos3f> getPositions(float value, int trainSpacing) {
 		final List<Pos3f> positions = new ArrayList<>();
 
@@ -420,7 +454,7 @@ public final class Route extends NameColorDataBase implements IGui {
 						trainType = trainTypes.get(lastTrainTypeIndex);
 					}
 
-					schedule.put(i, trainType);
+					schedule.put((int) wrapTime(i, 6000), trainType);
 					lastTime = i;
 				}
 			}
@@ -465,6 +499,21 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	private static float getValueFromPercentage(float percentage, float total) {
 		return (percentage - 0.5F) * total;
+	}
+
+	public static class ScheduleEntry {
+
+		public final float arrivalTime;
+		public final float departureTime;
+		public final TrainType trainType;
+		public final long lastStationId;
+
+		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastStationId) {
+			this.arrivalTime = arrivalTime % TICKS_PER_DAY;
+			this.departureTime = departureTime % TICKS_PER_DAY;
+			this.trainType = trainType;
+			this.lastStationId = lastStationId;
+		}
 	}
 
 	@FunctionalInterface

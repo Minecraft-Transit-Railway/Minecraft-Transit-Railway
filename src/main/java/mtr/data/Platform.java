@@ -8,7 +8,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.WorldAccess;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class Platform extends NameColorDataBase {
 
@@ -84,21 +87,6 @@ public final class Platform extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, pos.getY() / 2, pos.getZ() / 2);
 	}
 
-//	public int getFrequency(int index) {
-//		if (index >= 0 && index < HOURS_IN_DAY) {
-//			return frequencies[index];
-//		} else {
-//			return 0;
-//		}
-//	}
-//
-//	public void setFrequencies(int frequency, int index) {
-//		if (index >= 0 && index < HOURS_IN_DAY) {
-//			frequencies[index] = frequency;
-//		}
-//		generateSchedule();
-//	}
-
 	public boolean inPlatform(int x, int z) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
@@ -120,7 +108,7 @@ public final class Platform extends NameColorDataBase {
 	}
 
 	public boolean isCloseToPlatform(BlockPos pos) {
-		return new Box(getPosition(0), getPosition(1)).stretch(-3, 0, -3).stretch(4, 4, 4).contains(pos.getX(), pos.getY(), pos.getZ());
+		return new Box(getPosition(0), getPosition(1)).stretch(-4, 0, -4).stretch(5, 5, 5).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
@@ -145,60 +133,9 @@ public final class Platform extends NameColorDataBase {
 		return pos.equals(pos1) ? pos2 : pos1;
 	}
 
-	//	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
-//		return schedule;
-//	}
-//
-//	public float getHeadway(int hour) {
-//		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
-//	}
-//
 	private BlockPos getPosition(int index) {
 		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
-//
-//	private void generateSchedule() {
-//		final List<Triple<Integer, Long, Train.TrainType>> tempSchedule = new ArrayList<>();
-//
-//		if (routeIds.size() > 0 && trainTypes.size() > 0) {
-//			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
-//			int lastRouteIndex = -1;
-//			int lastTrainTypeIndex = -1;
-//
-//			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
-//				final float headway = getHeadway(i / TICKS_PER_HOUR);
-//				if (headway > 0 && i >= headway + lastTime) {
-//
-//					final long route;
-//					if (shuffleRoutes) {
-//						route = -1;
-//					} else {
-//						lastRouteIndex++;
-//						if (lastRouteIndex >= routeIds.size()) {
-//							lastRouteIndex = 0;
-//						}
-//						route = routeIds.get(lastRouteIndex);
-//					}
-//
-//					final Train.TrainType trainType;
-//					if (shuffleTrains) {
-//						trainType = null;
-//					} else {
-//						lastTrainTypeIndex++;
-//						if (lastTrainTypeIndex >= trainTypes.size()) {
-//							lastTrainTypeIndex = 0;
-//						}
-//						trainType = trainTypes.get(lastTrainTypeIndex);
-//					}
-//
-//					tempSchedule.add(new ImmutableTriple<>(i, route, trainType));
-//					lastTime = i;
-//				}
-//			}
-//		}
-//
-//		schedule = tempSchedule;
-//	}
 
 	private static boolean isValidPlatform(WorldAccess world, BlockPos posStart, BlockPos posEnd) {
 		final BlockEntity entity = world.getBlockEntity(posStart);
@@ -208,9 +145,5 @@ public final class Platform extends NameColorDataBase {
 		} else {
 			return false;
 		}
-	}
-
-	private static <T> T getRandomElementFromList(List<T> list) {
-		return list.get(new Random().nextInt(list.size()));
 	}
 }

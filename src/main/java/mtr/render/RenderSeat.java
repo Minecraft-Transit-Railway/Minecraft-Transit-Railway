@@ -72,7 +72,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		final double entityZ = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		final int worldTime = (int) world.getLunarTime();
+		final long worldTime = world.getLunarTime();
 		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + tickDelta, tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
@@ -134,7 +134,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final Text text;
 
 			if (speed <= 5) {
-				switch (((int) (System.currentTimeMillis() / 1000)) % 3) {
+				switch ((int) ((worldTime / 20) % 3)) {
 					default:
 						text = getThisStationText(x, z);
 						break;
@@ -153,7 +153,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 						break;
 				}
 
-				announceTime = (worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY;
+				announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
 				thisRouteName = route.name.split("\\|\\|")[0];
 			} else {
 				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
