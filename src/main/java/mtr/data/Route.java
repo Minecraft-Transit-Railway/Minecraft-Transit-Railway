@@ -231,7 +231,10 @@ public final class Route extends NameColorDataBase implements IGui {
 							renderOffsetY = absoluteY + (float) ridingOffset.y + 1;
 							renderOffsetZ = absoluteZ + (float) ridingOffset.z;
 							shouldOffsetRender = true;
+							clientSeat.getPlayer().yaw -= Math.toDegrees(yaw - clientSeat.prevTrainYaw);
 						}
+
+						clientSeat.prevTrainYaw = yaw;
 
 						if (speedCallback != null) {
 							speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ);

@@ -22,11 +22,12 @@ public class EntitySeat extends Entity {
 
 	public float ridingPercentageX;
 	public float ridingPercentageZ;
+	public float prevTrainYaw;
 
 	private PlayerEntity player;
 	private int seatCoolDown;
-	public float prevRidingPercentageX;
-	public float prevRidingPercentageZ;
+	private float prevRidingPercentageX;
+	private float prevRidingPercentageZ;
 	private float scheduleTime;
 	private float routeId;
 
