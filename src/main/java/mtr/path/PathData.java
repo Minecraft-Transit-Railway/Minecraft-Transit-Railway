@@ -1,10 +1,11 @@
 package mtr.path;
 
-import mtr.data.Pos3f;
-import mtr.data.Rail;
-import mtr.data.SerializedDataBase;
+import mtr.data.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.Set;
 
 public class PathData extends SerializedDataBase {
 
@@ -188,8 +189,14 @@ public class PathData extends SerializedDataBase {
 		return tEnd + delay;
 	}
 
-	public boolean isPlatform() {
-		return rail.railType == Rail.RailType.PLATFORM;
+	public boolean isPlatform(long platformId, Set<Platform> platforms) {
+		if (rail.railType != Rail.RailType.PLATFORM) {
+			return false;
+		}
+
+		final Pos3f pos3f = rail.getPosition(0);
+		final Platform platform = RailwayData.getPlatformByPos(platforms, new BlockPos(pos3f.x, pos3f.y, pos3f.z));
+		return platform != null && platform.id == platformId;
 	}
 
 	private static float solveQuadratic(float a, float b, float c) {

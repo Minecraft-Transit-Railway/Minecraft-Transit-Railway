@@ -57,7 +57,7 @@ public final class ClientData {
 					}
 				}
 			});
-			route.getTimeOffsets().forEach((platformId, scheduleEntry) -> {
+			route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
 				if (!schedulesForPlatform.containsKey(platformId)) {
 					schedulesForPlatform.put(platformId, new HashSet<>());
 				}

@@ -345,15 +345,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		});
 	}
 
-	public Map<Long, Set<ScheduleEntry>> getTimeOffsets() {
+	public Map<Long, Set<ScheduleEntry>> getTimeOffsets(Set<Platform> platforms) {
 		final Map<Long, Set<ScheduleEntry>> timeOffsets = new HashMap<>();
 
 		int platformIdIndex = 0, pathIndex = 0;
 		while (platformIdIndex < platformIds.size() && pathIndex < path.size()) {
 			final PathData pathData = path.get(pathIndex);
+			final long platformId = platformIds.get(platformIdIndex);
 
-			if (pathData.isPlatform()) {
-				final long platformId = platformIds.get(platformIdIndex);
+			if (pathData.isPlatform(platformId, platforms)) {
 				final float arrivalTime = pathData.tOffset + pathData.tEnd;
 				final float departureTime = pathData.tOffset + pathData.getTime();
 				timeOffsets.put(platformId, new HashSet<>());

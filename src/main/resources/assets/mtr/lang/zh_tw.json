@@ -45,7 +45,7 @@
 	"gui.mtr.add_station": "新增車站",
 	"gui.mtr.add_train": "新增列車",
 	"gui.mtr.arrival_min": "%s min",
-	"gui.mtr.arrival_min_cjk": "%s 分",
+	"gui.mtr.arrival_min_cjk": "%s 分鍾",
 	"gui.mtr.arrival_sec": "%s sec",
 	"gui.mtr.arrival_sec_cjk": "%s 秒",
 	"gui.mtr.color": "顔色",
