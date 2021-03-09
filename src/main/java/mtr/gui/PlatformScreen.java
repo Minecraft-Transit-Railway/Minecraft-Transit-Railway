@@ -62,8 +62,8 @@ public class PlatformScreen extends Screen implements IGui {
 
 		textFieldCustomDestination = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		addNewList = new DashboardList(this::addButton, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, null, null, null, null, (data, index) -> this.route.trainTypes.remove(index), this::getTrainList);
+		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onAdded, null, null);
+		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, null, (data, index) -> this.route.trainTypes.remove(index), this::getTrainList);
 	}
 
 	@Override
@@ -112,6 +112,8 @@ public class PlatformScreen extends Screen implements IGui {
 	@Override
 	public void tick() {
 		textFieldCustomDestination.tick();
+		trainList.tick();
+		addNewList.tick();
 		trainList.setData(route.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, true, false, true);
 	}
 
@@ -120,7 +122,7 @@ public class PlatformScreen extends Screen implements IGui {
 		try {
 			if (addingTrain) {
 				renderBackground(matrices);
-				addNewList.render(matrices, textRenderer);
+				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.add_train"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
@@ -128,7 +130,7 @@ public class PlatformScreen extends Screen implements IGui {
 				drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
 				renderBackground(matrices);
 				textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
-				trainList.render(matrices, textRenderer);
+				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
 
 				drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
@@ -157,8 +159,8 @@ public class PlatformScreen extends Screen implements IGui {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		addNewList.mouseScrolled(amount);
-		trainList.mouseScrolled(amount);
+		addNewList.mouseScrolled(mouseX, mouseY, amount);
+		trainList.mouseScrolled(mouseX, mouseY, amount);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 

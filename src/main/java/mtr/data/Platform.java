@@ -83,8 +83,12 @@ public final class Platform extends NameColorDataBase {
 	}
 
 	public BlockPos getMidPos() {
+		return getMidPos(false);
+	}
+
+	public BlockPos getMidPos(boolean zeroY) {
 		final BlockPos pos = getPosition(0).add(getPosition(1));
-		return new BlockPos(pos.getX() / 2, pos.getY() / 2, pos.getZ() / 2);
+		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
 	public boolean inPlatform(int x, int z) {

@@ -70,7 +70,7 @@ public class DashboardScreen extends Screen implements IGui {
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
 
 		onSelectTab(initialTab);
 	}
@@ -142,7 +142,7 @@ public class DashboardScreen extends Screen implements IGui {
 			renderBackground(matrices);
 			widgetMap.render(matrices, mouseX, mouseY, delta);
 			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			dashboardList.render(matrices, textRenderer);
+			dashboardList.render(matrices, textRenderer, mouseX, mouseY, delta);
 			super.render(matrices, mouseX, mouseY, delta);
 			textFieldName.render(matrices, mouseX, mouseY, delta);
 			textFieldColor.render(matrices, mouseX, mouseY, delta);
@@ -158,7 +158,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		dashboardList.mouseScrolled(amount);
+		dashboardList.mouseScrolled(mouseX, mouseY, amount);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
@@ -166,6 +166,7 @@ public class DashboardScreen extends Screen implements IGui {
 	public void tick() {
 		textFieldName.tick();
 		textFieldColor.tick();
+		dashboardList.tick();
 
 		switch (selectedTab) {
 			default:
@@ -173,7 +174,7 @@ public class DashboardScreen extends Screen implements IGui {
 					dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
 				} else {
 					final List<Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
-					dashboardList.setData(platformData == null ? new ArrayList<>() : platformData, false, false, true, false, false, false);
+					dashboardList.setData(platformData == null ? new ArrayList<>() : platformData, true, false, true, false, false, false);
 				}
 				break;
 			case 1:
@@ -220,8 +221,13 @@ public class DashboardScreen extends Screen implements IGui {
 	private void onFind(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
-				final Station station = (Station) data;
-				widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+				if (editingStation == null) {
+					final Station station = (Station) data;
+					widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+				} else {
+					final Platform platform = (Platform) data;
+					widgetMap.find(platform.getMidPos());
+				}
 				break;
 			case 2:
 //				final Train train = (Train) data;

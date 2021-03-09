@@ -7,6 +7,7 @@ import mtr.data.Station;
 import mtr.packet.PacketTrainDataBase;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public final class ClientData {
 
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
 	public static Map<Long, List<Platform>> platformsInStation = new HashMap<>();
+	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
 	public static Map<Long, List<ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
@@ -32,6 +34,7 @@ public final class ClientData {
 		platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
 		platformsInStation.clear();
+		platformsWithOffset.clear();
 		platforms.forEach(platform -> {
 			final Station station = RailwayData.getStationByPlatform(stations, platform);
 			if (station != null) {
@@ -39,6 +42,11 @@ public final class ClientData {
 					platformsInStation.put(station.id, new ArrayList<>());
 				}
 				platformsInStation.get(station.id).add(platform);
+			}
+
+			final BlockPos platformPos = platform.getMidPos(true);
+			if (!platformsWithOffset.containsKey(platformPos)) {
+				platformsWithOffset.put(platformPos, platforms.stream().filter(platform1 -> platform1.getMidPos().getX() == platformPos.getX() && platform1.getMidPos().getZ() == platformPos.getZ()).sorted(Comparator.comparingInt(platform1 -> platform1.getMidPos().getY())).collect(Collectors.toList()));
 			}
 		});
 		platformsInStation.forEach((stationId, posList) -> Collections.sort(posList));
