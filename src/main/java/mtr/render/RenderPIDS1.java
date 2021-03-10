@@ -56,61 +56,65 @@ public class RenderPIDS1 extends BlockEntityRenderer<BlockPIDS1.TileEntityBlockP
 			return;
 		}
 
-		final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
-		Route.ScheduleEntry currentSchedule = null;
-		float timeDifference = Route.TICKS_PER_DAY;
-		for (Route.ScheduleEntry schedule : schedules) {
-			final float newTimeDifference = Route.wrapTime(schedule.departureTime, worldTime);
-			if (newTimeDifference <= timeDifference) {
-				currentSchedule = schedule;
-				timeDifference = newTimeDifference;
+		try {
+			final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
+			Route.ScheduleEntry currentSchedule = null;
+			float timeDifference = Route.TICKS_PER_DAY;
+			for (Route.ScheduleEntry schedule : schedules) {
+				final float newTimeDifference = Route.wrapTime(schedule.departureTime, worldTime);
+				if (newTimeDifference <= timeDifference) {
+					currentSchedule = schedule;
+					timeDifference = newTimeDifference;
+				}
 			}
-		}
 
-		if (currentSchedule == null) {
-			return;
-		}
+			if (currentSchedule == null) {
+				return;
+			}
 
-		final Station destinationStation = ClientData.platformIdToStation.get(currentSchedule.lastStationId);
-		if (destinationStation == null) {
-			return;
-		}
+			final Station destinationStation = ClientData.platformIdToStation.get(currentSchedule.lastStationId);
+			if (destinationStation == null) {
+				return;
+			}
 
-		final float departureTime = Route.wrapTime(currentSchedule.departureTime, worldTime);
-		if (departureTime > Route.TICKS_PER_DAY / 2F) {
-			return;
-		}
+			final float departureTime = Route.wrapTime(currentSchedule.departureTime, worldTime);
+			if (departureTime > Route.TICKS_PER_DAY / 2F) {
+				return;
+			}
 
-		final String[] destinationSplit = destinationStation.name.split("\\|");
-		final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
+			final String[] destinationSplit = destinationStation.name.split("\\|");
+			final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
-		final float arrivalTime = Route.wrapTime(currentSchedule.arrivalTime, worldTime);
-		final Text arrivalText;
-		if (arrivalTime < Route.TICKS_PER_DAY / 2F) {
-			final int seconds = (int) Math.ceil(arrivalTime / 20);
-			final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
-			if (seconds >= 60) {
-				arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
+			final float arrivalTime = Route.wrapTime(currentSchedule.arrivalTime, worldTime);
+			final Text arrivalText;
+			if (arrivalTime < Route.TICKS_PER_DAY / 2F) {
+				final int seconds = (int) Math.ceil(arrivalTime / 20);
+				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
+				if (seconds >= 60) {
+					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
+				} else {
+					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
+				}
 			} else {
-				arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
+				arrivalText = null;
 			}
-		} else {
-			arrivalText = null;
+
+			matrices.push();
+			matrices.translate(0.5, 0, 0.5);
+			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90 - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
+			matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+			matrices.translate(-0.4375, -0.203125, -0.125 - SMALL_OFFSET * 2);
+			matrices.scale(1F / SCALE, 1F / SCALE, 1F / SCALE);
+
+			final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+			textRenderer.draw(matrices, destinationString, 0, 0, TEXT_COLOR);
+			if (arrivalText != null) {
+				textRenderer.draw(matrices, arrivalText, TOTAL_SCALED_WIDTH - textRenderer.getWidth(arrivalText), 0, TEXT_COLOR);
+			}
+
+			matrices.pop();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		matrices.push();
-		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90 - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
-		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
-		matrices.translate(-0.4375, -0.203125, -0.125 - SMALL_OFFSET * 2);
-		matrices.scale(1F / SCALE, 1F / SCALE, 1F / SCALE);
-
-		final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-		textRenderer.draw(matrices, destinationString, 0, 0, TEXT_COLOR);
-		if (arrivalText != null) {
-			textRenderer.draw(matrices, arrivalText, TOTAL_SCALED_WIDTH - textRenderer.getWidth(arrivalText), 0, TEXT_COLOR);
-		}
-
-		matrices.pop();
 	}
 }

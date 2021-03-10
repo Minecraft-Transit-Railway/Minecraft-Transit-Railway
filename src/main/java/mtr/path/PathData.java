@@ -37,7 +37,8 @@ public class PathData extends SerializedDataBase {
 
 	// distance = aT^2 + bT
 
-	private static final float HALF_ACCELERATION = 0.005F;
+	public static final float ACCELERATION = 0.01F;
+	private static final float HALF_ACCELERATION = ACCELERATION / 2;
 
 	public PathData(Rail rail, float startSpeed, int dwellTime, float tOffset) {
 		length = rail.getLength();

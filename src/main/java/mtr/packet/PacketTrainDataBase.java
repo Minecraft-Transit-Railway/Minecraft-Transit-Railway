@@ -21,7 +21,7 @@ public abstract class PacketTrainDataBase {
 	public static final Identifier PACKET_CHUNK_S2C = new Identifier(MTR.MOD_ID, "packet_chunk_s2c");
 	public static final Identifier PACKET_CHUNK_C2S = new Identifier(MTR.MOD_ID, "packet_chunk_c2s");
 
-	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 19);
+	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
 	private static final Map<Long, PacketByteBuf> tempPacketsSender = new HashMap<>();
 	private static final Map<Long, PacketByteBuf> tempPacketsReceiver = new HashMap<>();
 
