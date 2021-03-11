@@ -1,6 +1,8 @@
 package mtr.entity;
 
 import mtr.MTR;
+import mtr.data.RailwayData;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
@@ -37,6 +39,7 @@ public class EntitySeat extends Entity {
 	private double clientZ;
 	private float clientRidingPercentageX;
 	private float clientRidingPercentageZ;
+	private int clientRefreshCoolDown;
 
 	public static final int DETAIL_RADIUS = 32;
 	public static final int MAX_SEAT_COOL_DOWN = 2;
@@ -99,6 +102,16 @@ public class EntitySeat extends Entity {
 					seatCoolDown--;
 				} else {
 					removeAllPassengers();
+				}
+
+				if (clientRefreshCoolDown == 20) {
+					final RailwayData railwayData = RailwayData.getInstance(world);
+					if (railwayData != null) {
+						PacketTrainDataGuiServer.broadcastS2C(world, railwayData);
+					}
+				}
+				if (clientRefreshCoolDown <= 20) {
+					clientRefreshCoolDown++;
 				}
 			}
 			if (player == null || player.isDead()) {

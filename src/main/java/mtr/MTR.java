@@ -21,10 +21,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class MTR implements ModInitializer {
 
@@ -57,6 +59,12 @@ public class MTR implements ModInitializer {
 	public static final BlockEntityType<BlockStationNameWall.TileEntityStationNameWall> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationNameWall::new, Blocks.STATION_NAME_WALL);
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
+
+	public static final int SP1900_SPEED_COUNT = 120;
+	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
+	public static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
+	public static final SoundEvent SP1900_DOOR_OPEN = registerSoundEvent("sp1900_door_open");
+	public static final SoundEvent SP1900_DOOR_CLOSE = registerSoundEvent("sp1900_door_close");
 
 	@Override
 	public void onInitialize() {
@@ -172,10 +180,6 @@ public class MTR implements ModInitializer {
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
-				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-				if (railwayData != null) {
-					PacketTrainDataGuiServer.broadcastS2C(serverWorld, railwayData);
-				}
 				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
 				seat.setPlayerId(entity.getUuid());
 				serverWorld.spawnEntity(seat);
@@ -202,5 +206,31 @@ public class MTR implements ModInitializer {
 
 	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory) {
 		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(0.125F, 0.125F)).build());
+	}
+
+	private static SoundEvent registerSoundEvent(String path) {
+		final Identifier id = new Identifier(MOD_ID, path);
+		return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
+	}
+
+	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
+		return IntStream.range(0, size).mapToObj(i -> {
+			String group;
+			switch (i % groupSize) {
+				case 0:
+					group = "a";
+					break;
+				case 1:
+					group = "b";
+					break;
+				case 2:
+					group = "c";
+					break;
+				default:
+					group = "";
+					break;
+			}
+			return registerSoundEvent(path + (i / 3) + group);
+		}).toArray(SoundEvent[]::new);
 	}
 }

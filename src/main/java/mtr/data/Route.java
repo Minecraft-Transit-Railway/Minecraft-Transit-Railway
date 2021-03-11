@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.MTR;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
@@ -12,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -335,9 +337,27 @@ public final class Route extends NameColorDataBase implements IGui {
 										entitySeat.ridingPercentageX = MathHelper.clamp(entitySeat.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
 										entitySeat.ridingPercentageZ = MathHelper.clamp(entitySeat.ridingPercentageZ, 0, positions.size() - 1.01F);
 										entitySeat.updateRidingPercentage();
+										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
 									}
 								}
 							});
+
+							final BlockPos soundPos = new BlockPos(x, y, z);
+
+							final float newSpeed = getSpeed(ticks + 1);
+							final int floorSpeed = (int) Math.ceil(newSpeed / PathData.ACCELERATION / 4);
+							if (floorSpeed > 0 && worldTime % 4 == 0) {
+								final int index = Math.min(floorSpeed, MTR.SP1900_SPEED_COUNT) - 1;
+								final boolean isAccelerating = newSpeed == speed ? new Random().nextBoolean() : newSpeed > speed;
+								world.playSound(null, soundPos, isAccelerating ? MTR.SP1900_ACCELERATION[index] : MTR.SP1900_DECELERATION[index], SoundCategory.BLOCKS, 1, 1);
+							}
+
+							final float newDoorValue = getDoorValue(ticks + 1);
+							if (doorValue == 0 && newDoorValue > 0) {
+								world.playSound(null, soundPos, MTR.SP1900_DOOR_OPEN, SoundCategory.BLOCKS, 1, 1);
+							} else if (doorValue == 1 && newDoorValue < 1) {
+								world.playSound(null, soundPos, MTR.SP1900_DOOR_CLOSE, SoundCategory.BLOCKS, 1, 1);
+							}
 						}
 					}
 				}
