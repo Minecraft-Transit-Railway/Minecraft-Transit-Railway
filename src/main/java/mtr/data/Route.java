@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.MTR;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
@@ -343,20 +342,13 @@ public final class Route extends NameColorDataBase implements IGui {
 							});
 
 							final BlockPos soundPos = new BlockPos(x, y, z);
-
-							final float newSpeed = getSpeed(ticks + 1);
-							final int floorSpeed = (int) Math.ceil(newSpeed / PathData.ACCELERATION / 4);
-							if (floorSpeed > 0 && worldTime % 4 == 0) {
-								final int index = Math.min(floorSpeed, MTR.SP1900_SPEED_COUNT) - 1;
-								final boolean isAccelerating = newSpeed == speed ? new Random().nextBoolean() : newSpeed > speed;
-								world.playSound(null, soundPos, isAccelerating ? MTR.SP1900_ACCELERATION[index] : MTR.SP1900_DECELERATION[index], SoundCategory.BLOCKS, 1, 1);
-							}
+							trainType.playSpeedSoundEffect(world, worldTime, soundPos, speed, getSpeed(ticks + 1));
 
 							final float newDoorValue = getDoorValue(ticks + 1);
-							if (doorValue == 0 && newDoorValue > 0) {
-								world.playSound(null, soundPos, MTR.SP1900_DOOR_OPEN, SoundCategory.BLOCKS, 1, 1);
-							} else if (doorValue == 1 && newDoorValue < 1) {
-								world.playSound(null, soundPos, MTR.SP1900_DOOR_CLOSE, SoundCategory.BLOCKS, 1, 1);
+							if (doorValue == 0 && newDoorValue > 0 && trainType.doorOpenSoundEvent != null) {
+								world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
+							} else if (doorValue == 1 && newDoorValue < 1 && trainType.doorCloseSoundEvent != null) {
+								world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
 							}
 						}
 					}
