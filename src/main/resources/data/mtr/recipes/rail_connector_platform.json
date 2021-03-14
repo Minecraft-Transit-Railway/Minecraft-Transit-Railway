@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BRB",
+		"BIB",
+		"BRB"
+	],
+	"key": {
+		"R": {
+			"tag": "minecraft:rails"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"B": {
+			"tag": "c:redstone_blocks"
+		}
+	},
+	"result": {
+		"item": "mtr:rail_connector_platform"
+	}
+}
