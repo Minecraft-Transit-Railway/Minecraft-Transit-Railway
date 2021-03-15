@@ -1,6 +1,7 @@
 package mtr.render;
 
 import com.mojang.text2speech.Narrator;
+import mtr.config.Config;
 import mtr.data.*;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
@@ -163,7 +164,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		matrices.pop();
 
-		if (worldTime % Route.TICKS_PER_DAY == announceTime && entity.hasPassengers()) {
+		if (Config.useTTSAnnouncements() && worldTime % Route.TICKS_PER_DAY == announceTime && entity.hasPassengers()) {
 			final List<String> messages = new ArrayList<>();
 			final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
 			final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";

@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.MTR;
+import mtr.config.Config;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
@@ -151,7 +152,7 @@ public interface IGui {
 	}
 
 	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, String text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, DrawingCallback drawingCallback) {
-		final Style style = Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr"));
+		final Style style = Config.useMTRFont() ? Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr")) : Style.EMPTY;
 
 		while (text.contains("||")) {
 			text = text.replace("||", "|");
@@ -165,7 +166,6 @@ public interface IGui {
 			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
 			isCJKList.add(isCJK);
 
-			// TODO config to turn on or off custom fonts
 			final OrderedText orderedText = new LiteralText(stringSplitPart).fillStyle(style).asOrderedText();
 			orderedTexts.add(orderedText);
 

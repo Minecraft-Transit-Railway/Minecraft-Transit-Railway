@@ -1,5 +1,6 @@
 package mtr;
 
+import mtr.config.Config;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
@@ -11,6 +12,7 @@ import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
@@ -19,6 +21,7 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegi
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.util.Identifier;
@@ -131,6 +134,14 @@ public class MTRClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.handleResponseFromReceiver(packet, packet2 -> ClientPlayNetworking.send(PacketTrainDataBase.PACKET_CHUNK_C2S, packet2)));
 		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient));
 		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
+
+		Config.refreshProperties();
+
+		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
+			if (entity == MinecraftClient.getInstance().player) {
+				Config.refreshProperties();
+			}
+		});
 	}
 
 	private static void registerStationColor(Block block) {

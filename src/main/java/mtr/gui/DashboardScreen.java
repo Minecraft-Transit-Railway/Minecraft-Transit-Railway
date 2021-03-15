@@ -62,7 +62,14 @@ public class DashboardScreen extends Screen implements IGui {
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(0));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(1));
-		buttonTabTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.trains"), button -> onSelectTab(2));
+
+		// TODO temporarily using the trains tab button for options
+		buttonTabTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("menu.options"), button -> {
+			if (client != null) {
+				client.openScreen(new ConfigScreen());
+			}
+		});
+
 		buttonAddStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_station"), button -> startEditingStation(new Station(), true));
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
 		buttonDoneEditingStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingStation());
@@ -230,8 +237,7 @@ public class DashboardScreen extends Screen implements IGui {
 				}
 				break;
 			case 2:
-//				final Train train = (Train) data;
-//				widgetMap.find(train.posX[0], train.posZ[0], train.posX[train.posX.length - 1], train.posZ[train.posZ.length - 1]);
+				// TODO restore train tab functionality
 				break;
 		}
 	}
