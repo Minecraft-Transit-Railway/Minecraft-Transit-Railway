@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -185,6 +186,14 @@ public class MTR implements ModInitializer {
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
+				serverWorld.getEntitiesByType(SEAT, checkEntity -> {
+					if (checkEntity instanceof EntitySeat) {
+						final PlayerEntity checkPlayer = ((EntitySeat) checkEntity).getPlayer();
+						return checkPlayer == null || entity.getUuid().equals(checkPlayer.getUuid());
+					} else {
+						return false;
+					}
+				}).forEach(Entity::kill);
 				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
 				seat.setPlayerId(entity.getUuid());
 				serverWorld.spawnEntity(seat);
