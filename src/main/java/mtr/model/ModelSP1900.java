@@ -30,6 +30,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart door_left_top_r1;
 	private final ModelPart door_right;
 	private final ModelPart door_right_top_r1;
+	private final ModelPart door_light_c1141a;
 	private final ModelPart door_exterior_1;
 	private final ModelPart door_right_exterior_1;
 	private final ModelPart door_left_top_r2;
@@ -52,33 +53,41 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart outer_roof_2_r1;
 	private final ModelPart outer_roof_1_r1;
 	private final ModelPart floor_1_r1;
-	private final ModelPart roof;
+	private final ModelPart roof_sp1900;
 	private final ModelPart inner_roof_6_r1;
 	private final ModelPart inner_roof_5_r1;
 	private final ModelPart inner_roof_4_r1;
 	private final ModelPart inner_roof_3_r1;
 	private final ModelPart inner_roof_2_r1;
+	private final ModelPart roof_c1141a;
+	private final ModelPart inner_roof_3_r2;
 	private final ModelPart roof_exterior;
 	private final ModelPart outer_roof_4_r1;
 	private final ModelPart outer_roof_3_r1;
 	private final ModelPart outer_roof_2_r2;
 	private final ModelPart outer_roof_1_r2;
-	private final ModelPart roof_light;
+	private final ModelPart roof_light_sp1900;
 	private final ModelPart light_3_r1;
 	private final ModelPart light_1_r1;
-	private final ModelPart roof_end;
+	private final ModelPart roof_light_c1141a;
+	private final ModelPart roof_end_sp1900;
 	private final ModelPart inner_roof_1;
 	private final ModelPart inner_roof_6_r2;
 	private final ModelPart inner_roof_5_r2;
 	private final ModelPart inner_roof_4_r2;
-	private final ModelPart inner_roof_3_r2;
+	private final ModelPart inner_roof_3_r3;
 	private final ModelPart inner_roof_2_r2;
 	private final ModelPart inner_roof_2;
 	private final ModelPart inner_roof_6_r3;
 	private final ModelPart inner_roof_5_r3;
 	private final ModelPart inner_roof_4_r3;
-	private final ModelPart inner_roof_3_r3;
+	private final ModelPart inner_roof_3_r4;
 	private final ModelPart inner_roof_2_r3;
+	private final ModelPart roof_end_c1141a;
+	private final ModelPart inner_roof_3;
+	private final ModelPart inner_roof_3_r5;
+	private final ModelPart inner_roof_4;
+	private final ModelPart inner_roof_3_r6;
 	private final ModelPart roof_end_exterior;
 	private final ModelPart vent_2_r1;
 	private final ModelPart vent_1_r1;
@@ -88,19 +97,35 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart outer_roof_2;
 	private final ModelPart outer_roof_3_r3;
 	private final ModelPart outer_roof_2_r4;
-	private final ModelPart roof_end_light;
+	private final ModelPart roof_end_light_sp1900;
 	private final ModelPart light_6_r1;
 	private final ModelPart light_4_r1;
 	private final ModelPart light_3_r2;
 	private final ModelPart light_1_r2;
-	private final ModelPart top_handrail;
+	private final ModelPart roof_end_light_c1141a;
+	private final ModelPart top_handrail_sp1900;
 	private final ModelPart top_handrail_bottom_right_r1;
 	private final ModelPart top_handrail_bottom_left_r1;
 	private final ModelPart top_handrail_right_3_r1;
 	private final ModelPart top_handrail_right_2_r1;
 	private final ModelPart top_handrail_left_3_r1;
 	private final ModelPart top_handrail_left_2_r1;
-	private final ModelPart handrail_strap;
+	private final ModelPart handrail_strap_1;
+	private final ModelPart top_handrail_c1141a;
+	private final ModelPart pole_bottom_diagonal_2_r1;
+	private final ModelPart pole_bottom_diagonal_1_r1;
+	private final ModelPart pole_top_diagonal_2_r1;
+	private final ModelPart pole_top_diagonal_1_r1;
+	private final ModelPart top_handrail_connector_bottom_4_r1;
+	private final ModelPart top_handrail_connector_bottom_3_r1;
+	private final ModelPart top_handrail_bottom_right_r2;
+	private final ModelPart top_handrail_bottom_left_r2;
+	private final ModelPart top_handrail_right_4_r1;
+	private final ModelPart top_handrail_right_3_r2;
+	private final ModelPart top_handrail_left_4_r1;
+	private final ModelPart top_handrail_left_3_r2;
+	private final ModelPart handrail_strap_2;
+	private final ModelPart handrail_strap_8_r1;
 	private final ModelPart tv_pole;
 	private final ModelPart tv_right_r1;
 	private final ModelPart tv_left_r1;
@@ -141,14 +166,32 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart roof_corner_2_r1_r1;
 	private final ModelPart bottom_corner_1_r1_r1;
 	private final ModelPart bottom_corner_2_r1_r1;
-	private final ModelPart top_handrail_head;
-	private final ModelPart top_handrail_bottom_left_r2;
-	private final ModelPart top_handrail_bottom_right_r2;
-	private final ModelPart top_handrail_right_3_r2;
+	private final ModelPart top_handrail_head_sp1900;
+	private final ModelPart top_handrail_bottom_left_r3;
+	private final ModelPart top_handrail_bottom_right_r3;
+	private final ModelPart top_handrail_right_3_r3;
 	private final ModelPart top_handrail_right_2_r2;
-	private final ModelPart top_handrail_left_3_r2;
+	private final ModelPart top_handrail_left_3_r3;
 	private final ModelPart top_handrail_left_2_r2;
 	private final ModelPart handrail_strap_head;
+	private final ModelPart top_handrail_head_c1141a;
+	private final ModelPart pole_bottom_diagonal_3_r1;
+	private final ModelPart pole_bottom_diagonal_2_r2;
+	private final ModelPart pole_top_diagonal_3_r1;
+	private final ModelPart pole_top_diagonal_2_r2;
+	private final ModelPart top_handrail_connector_bottom_5_r1;
+	private final ModelPart top_handrail_connector_bottom_right_4_r1;
+	private final ModelPart top_handrail_connector_bottom_left_4_r1;
+	private final ModelPart top_handrail_connector_bottom_right_3_r1;
+	private final ModelPart top_handrail_connector_bottom_left_3_r1;
+	private final ModelPart top_handrail_bottom_right_r4;
+	private final ModelPart top_handrail_right_5_r1;
+	private final ModelPart top_handrail_right_4_r2;
+	private final ModelPart top_handrail_left_5_r1;
+	private final ModelPart top_handrail_left_4_r2;
+	private final ModelPart handrail_strap_3;
+	private final ModelPart handrail_strap_right_8_r1;
+	private final ModelPart handrail_strap_left_8_r1;
 	private final ModelPart headlights;
 	private final ModelPart headlight_4_r1_r1;
 	private final ModelPart headlight_3_r1_r1;
@@ -159,7 +202,11 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart tail_light_1_r1_r1;
 	private final ModelPart bb_main;
 
-	public ModelSP1900() {
+	private final boolean isC1141A;
+
+	public ModelSP1900(boolean isC1141A) {
+		this.isC1141A = isC1141A;
+
 		textureWidth = 416;
 		textureHeight = 416;
 		window = new ModelPart(this);
@@ -264,6 +311,7 @@ public class ModelSP1900 extends ModelTrainBase {
 		door = new ModelPart(this);
 		door.setPivot(0.0F, 24.0F, 0.0F);
 		door.setTextureOffset(128, 49).addCuboid(-20.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
+		door.setTextureOffset(128, 66).addCuboid(-5.0F, -36.0F, -5.0F, 5.0F, 1.0F, 10.0F, 0.0F, false);
 
 		door_left = new ModelPart(this);
 		door_left.setPivot(0.0F, 0.0F, 0.0F);
@@ -286,6 +334,12 @@ public class ModelSP1900 extends ModelTrainBase {
 		door_right.addChild(door_right_top_r1);
 		setRotationAngle(door_right_top_r1, 0.0F, 0.0F, 0.1107F);
 		door_right_top_r1.setTextureOffset(116, 251).addCuboid(0.0F, -19.0F, -16.0F, 1.0F, 19.0F, 16.0F, 0.0F, false);
+
+		door_light_c1141a = new ModelPart(this);
+		door_light_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		door_light_c1141a.setTextureOffset(96, 40).addCuboid(-4.0F, -36.0F, -3.5F, 4.0F, 1.0F, 0.0F, 0.0F, false);
+		door_light_c1141a.setTextureOffset(96, 32).addCuboid(-3.5F, -36.0F, -4.0F, 0.0F, 1.0F, 8.0F, 0.0F, false);
+		door_light_c1141a.setTextureOffset(96, 40).addCuboid(-4.0F, -36.0F, 3.5F, 4.0F, 1.0F, 0.0F, 0.0F, false);
 
 		door_exterior_1 = new ModelPart(this);
 		door_exterior_1.setPivot(0.0F, 24.0F, 0.0F);
@@ -419,40 +473,51 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(floor_1_r1, 0.0F, 3.1416F, 0.0F);
 		floor_1_r1.setTextureOffset(0, 271).addCuboid(-21.0F, 0.0F, -16.0F, 1.0F, 7.0F, 48.0F, 0.0F, false);
 
-		roof = new ModelPart(this);
-		roof.setPivot(0.0F, 24.0F, 0.0F);
-		roof.setTextureOffset(70, 0).addCuboid(-18.0F, -32.0F, -16.0F, 3.0F, 0.0F, 32.0F, 0.0F, false);
-		roof.setTextureOffset(8, 0).addCuboid(-4.0F, -36.0F, -16.0F, 4.0F, 0.0F, 32.0F, 0.0F, false);
+		roof_sp1900 = new ModelPart(this);
+		roof_sp1900.setPivot(0.0F, 24.0F, 0.0F);
+		roof_sp1900.setTextureOffset(70, 0).addCuboid(-18.0F, -32.0F, -16.0F, 3.0F, 0.0F, 32.0F, 0.0F, false);
+		roof_sp1900.setTextureOffset(8, 0).addCuboid(-4.0F, -36.0F, -16.0F, 4.0F, 0.0F, 32.0F, 0.0F, false);
 
 		inner_roof_6_r1 = new ModelPart(this);
 		inner_roof_6_r1.setPivot(-5.1552F, -35.6379F, 0.0F);
-		roof.addChild(inner_roof_6_r1);
+		roof_sp1900.addChild(inner_roof_6_r1);
 		setRotationAngle(inner_roof_6_r1, 0.0F, 0.0F, -0.2618F);
 		inner_roof_6_r1.setTextureOffset(64, 0).addCuboid(-1.5F, 0.0F, -16.0F, 3.0F, 0.0F, 32.0F, 0.0F, false);
 
 		inner_roof_5_r1 = new ModelPart(this);
 		inner_roof_5_r1.setPivot(-11.3018F, -34.9909F, 0.0F);
-		roof.addChild(inner_roof_5_r1);
+		roof_sp1900.addChild(inner_roof_5_r1);
 		setRotationAngle(inner_roof_5_r1, 0.0F, 0.0F, -0.2618F);
 		inner_roof_5_r1.setTextureOffset(8, 66).addCuboid(-1.0F, 0.0F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
 
 		inner_roof_4_r1 = new ModelPart(this);
 		inner_roof_4_r1.setPivot(-12.7005F, -34.4822F, 0.0F);
-		roof.addChild(inner_roof_4_r1);
+		roof_sp1900.addChild(inner_roof_4_r1);
 		setRotationAngle(inner_roof_4_r1, 0.0F, 0.0F, -0.5236F);
 		inner_roof_4_r1.setTextureOffset(78, 0).addCuboid(-0.5F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
 
 		inner_roof_3_r1 = new ModelPart(this);
 		inner_roof_3_r1.setPivot(-13.6331F, -33.3665F, 0.0F);
-		roof.addChild(inner_roof_3_r1);
+		roof_sp1900.addChild(inner_roof_3_r1);
 		setRotationAngle(inner_roof_3_r1, 0.0F, 0.0F, -1.0472F);
 		inner_roof_3_r1.setTextureOffset(12, 66).addCuboid(-1.0F, 0.0F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
 
 		inner_roof_2_r1 = new ModelPart(this);
 		inner_roof_2_r1.setPivot(-14.5665F, -32.2501F, 0.0F);
-		roof.addChild(inner_roof_2_r1);
+		roof_sp1900.addChild(inner_roof_2_r1);
 		setRotationAngle(inner_roof_2_r1, 0.0F, 0.0F, -0.5236F);
 		inner_roof_2_r1.setTextureOffset(80, 0).addCuboid(-0.5F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
+
+		roof_c1141a = new ModelPart(this);
+		roof_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		roof_c1141a.setTextureOffset(70, 0).addCuboid(-18.0F, -32.0F, -16.0F, 3.0F, 0.0F, 32.0F, 0.0F, false);
+		roof_c1141a.setTextureOffset(8, 376).addCuboid(-13.0F, -36.0F, -16.0F, 13.0F, 0.0F, 32.0F, 0.0F, false);
+
+		inner_roof_3_r2 = new ModelPart(this);
+		inner_roof_3_r2.setPivot(-15.0F, -32.0F, 16.0F);
+		roof_c1141a.addChild(inner_roof_3_r2);
+		setRotationAngle(inner_roof_3_r2, 0.0F, 0.0F, -1.0472F);
+		inner_roof_3_r2.setTextureOffset(206, 49).addCuboid(0.0F, 0.0F, -32.0F, 5.0F, 0.0F, 32.0F, 0.0F, false);
 
 		roof_exterior = new ModelPart(this);
 		roof_exterior.setPivot(0.0F, 24.0F, 0.0F);
@@ -482,29 +547,33 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(outer_roof_1_r2, 0.0F, 0.0F, 0.1107F);
 		outer_roof_1_r2.setTextureOffset(344, 228).addCuboid(-1.0F, -26.0F, -16.0F, 1.0F, 8.0F, 32.0F, 0.0F, false);
 
-		roof_light = new ModelPart(this);
-		roof_light.setPivot(0.0F, 24.0F, 0.0F);
-		roof_light.setTextureOffset(16, 8).addCuboid(-9.4701F, -34.7497F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
+		roof_light_sp1900 = new ModelPart(this);
+		roof_light_sp1900.setPivot(0.0F, 24.0F, 0.0F);
+		roof_light_sp1900.setTextureOffset(16, 8).addCuboid(-9.4701F, -34.7497F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
 
 		light_3_r1 = new ModelPart(this);
 		light_3_r1.setPivot(-7.0366F, -34.9988F, 0.0F);
-		roof_light.addChild(light_3_r1);
+		roof_light_sp1900.addChild(light_3_r1);
 		setRotationAngle(light_3_r1, 0.0F, 0.0F, -0.5236F);
 		light_3_r1.setTextureOffset(30, 22).addCuboid(-0.5F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
 
 		light_1_r1 = new ModelPart(this);
 		light_1_r1.setPivot(-9.9036F, -34.9998F, 0.0F);
-		roof_light.addChild(light_1_r1);
+		roof_light_sp1900.addChild(light_1_r1);
 		setRotationAngle(light_1_r1, 0.0F, 0.0F, 0.5236F);
 		light_1_r1.setTextureOffset(76, 0).addCuboid(-0.5F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
 
-		roof_end = new ModelPart(this);
-		roof_end.setPivot(0.0F, 24.0F, 0.0F);
+		roof_light_c1141a = new ModelPart(this);
+		roof_light_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		roof_light_c1141a.setTextureOffset(274, 69).addCuboid(-10.0F, -36.1F, -16.0F, 4.0F, 0.0F, 32.0F, 0.0F, false);
+
+		roof_end_sp1900 = new ModelPart(this);
+		roof_end_sp1900.setPivot(0.0F, 24.0F, 0.0F);
 
 
 		inner_roof_1 = new ModelPart(this);
 		inner_roof_1.setPivot(0.0F, 0.0F, 0.0F);
-		roof_end.addChild(inner_roof_1);
+		roof_end_sp1900.addChild(inner_roof_1);
 		inner_roof_1.setTextureOffset(62, 0).addCuboid(-18.0F, -32.0F, -24.0F, 3.0F, 0.0F, 40.0F, 0.0F, false);
 		inner_roof_1.setTextureOffset(0, 0).addCuboid(-4.0F, -36.0F, -24.0F, 4.0F, 0.0F, 40.0F, 0.0F, false);
 
@@ -526,11 +595,11 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(inner_roof_4_r2, 0.0F, 0.0F, -0.5236F);
 		inner_roof_4_r2.setTextureOffset(70, 0).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, false);
 
-		inner_roof_3_r2 = new ModelPart(this);
-		inner_roof_3_r2.setPivot(-13.6331F, -33.3665F, -4.0F);
-		inner_roof_1.addChild(inner_roof_3_r2);
-		setRotationAngle(inner_roof_3_r2, 0.0F, 0.0F, -1.0472F);
-		inner_roof_3_r2.setTextureOffset(4, 66).addCuboid(-1.0F, 0.0F, -20.0F, 2.0F, 0.0F, 40.0F, 0.0F, false);
+		inner_roof_3_r3 = new ModelPart(this);
+		inner_roof_3_r3.setPivot(-13.6331F, -33.3665F, -4.0F);
+		inner_roof_1.addChild(inner_roof_3_r3);
+		setRotationAngle(inner_roof_3_r3, 0.0F, 0.0F, -1.0472F);
+		inner_roof_3_r3.setTextureOffset(4, 66).addCuboid(-1.0F, 0.0F, -20.0F, 2.0F, 0.0F, 40.0F, 0.0F, false);
 
 		inner_roof_2_r2 = new ModelPart(this);
 		inner_roof_2_r2.setPivot(-14.5665F, -32.2501F, -4.0F);
@@ -540,7 +609,7 @@ public class ModelSP1900 extends ModelTrainBase {
 
 		inner_roof_2 = new ModelPart(this);
 		inner_roof_2.setPivot(0.0F, 0.0F, 0.0F);
-		roof_end.addChild(inner_roof_2);
+		roof_end_sp1900.addChild(inner_roof_2);
 		inner_roof_2.setTextureOffset(62, 0).addCuboid(15.0F, -32.0F, -24.0F, 3.0F, 0.0F, 40.0F, 0.0F, true);
 		inner_roof_2.setTextureOffset(0, 0).addCuboid(0.0F, -36.0F, -24.0F, 4.0F, 0.0F, 40.0F, 0.0F, true);
 
@@ -562,17 +631,45 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(inner_roof_4_r3, 0.0F, 0.0F, 0.5236F);
 		inner_roof_4_r3.setTextureOffset(72, 0).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, true);
 
-		inner_roof_3_r3 = new ModelPart(this);
-		inner_roof_3_r3.setPivot(13.6336F, -33.3664F, -4.0F);
-		inner_roof_2.addChild(inner_roof_3_r3);
-		setRotationAngle(inner_roof_3_r3, 0.0F, 0.0F, 1.0472F);
-		inner_roof_3_r3.setTextureOffset(4, 66).addCuboid(-1.0F, 0.0F, -20.0F, 2.0F, 0.0F, 40.0F, 0.0F, true);
+		inner_roof_3_r4 = new ModelPart(this);
+		inner_roof_3_r4.setPivot(13.6336F, -33.3664F, -4.0F);
+		inner_roof_2.addChild(inner_roof_3_r4);
+		setRotationAngle(inner_roof_3_r4, 0.0F, 0.0F, 1.0472F);
+		inner_roof_3_r4.setTextureOffset(4, 66).addCuboid(-1.0F, 0.0F, -20.0F, 2.0F, 0.0F, 40.0F, 0.0F, true);
 
 		inner_roof_2_r3 = new ModelPart(this);
 		inner_roof_2_r3.setPivot(14.5665F, -32.2491F, -4.0F);
 		inner_roof_2.addChild(inner_roof_2_r3);
 		setRotationAngle(inner_roof_2_r3, 0.0F, 0.0F, 0.5236F);
 		inner_roof_2_r3.setTextureOffset(72, 0).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, true);
+
+		roof_end_c1141a = new ModelPart(this);
+		roof_end_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		inner_roof_3 = new ModelPart(this);
+		inner_roof_3.setPivot(0.0F, 0.0F, 0.0F);
+		roof_end_c1141a.addChild(inner_roof_3);
+		inner_roof_3.setTextureOffset(62, 0).addCuboid(-18.0F, -32.0F, -24.0F, 3.0F, 0.0F, 40.0F, 0.0F, false);
+		inner_roof_3.setTextureOffset(0, 376).addCuboid(-13.0F, -36.0F, -24.0F, 13.0F, 0.0F, 40.0F, 0.0F, false);
+
+		inner_roof_3_r5 = new ModelPart(this);
+		inner_roof_3_r5.setPivot(-15.0F, -32.0F, 0.0F);
+		inner_roof_3.addChild(inner_roof_3_r5);
+		setRotationAngle(inner_roof_3_r5, 0.0F, 0.0F, -1.0472F);
+		inner_roof_3_r5.setTextureOffset(198, 49).addCuboid(0.0F, 0.0F, -24.0F, 5.0F, 0.0F, 40.0F, 0.0F, false);
+
+		inner_roof_4 = new ModelPart(this);
+		inner_roof_4.setPivot(0.0F, 0.0F, 0.0F);
+		roof_end_c1141a.addChild(inner_roof_4);
+		inner_roof_4.setTextureOffset(62, 0).addCuboid(15.0F, -32.0F, -24.0F, 3.0F, 0.0F, 40.0F, 0.0F, true);
+		inner_roof_4.setTextureOffset(0, 376).addCuboid(0.0F, -36.0F, -24.0F, 13.0F, 0.0F, 40.0F, 0.0F, true);
+
+		inner_roof_3_r6 = new ModelPart(this);
+		inner_roof_3_r6.setPivot(15.0F, -32.0F, 0.0F);
+		inner_roof_4.addChild(inner_roof_3_r6);
+		setRotationAngle(inner_roof_3_r6, 0.0F, 0.0F, 1.0472F);
+		inner_roof_3_r6.setTextureOffset(198, 49).addCuboid(-5.0F, 0.0F, -24.0F, 5.0F, 0.0F, 40.0F, 0.0F, true);
 
 		roof_end_exterior = new ModelPart(this);
 		roof_end_exterior.setPivot(0.0F, 24.0F, 0.0F);
@@ -624,84 +721,193 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(outer_roof_2_r4, 0.0F, 0.0F, 1.0472F);
 		outer_roof_2_r4.setTextureOffset(6, 6).addCuboid(-1.0F, 0.0F, -26.0F, 2.0F, 0.0F, 52.0F, 0.0F, true);
 
-		roof_end_light = new ModelPart(this);
-		roof_end_light.setPivot(0.0F, 24.0F, 0.0F);
-		roof_end_light.setTextureOffset(8, 8).addCuboid(-9.4703F, -34.7496F, -24.0F, 2.0F, 0.0F, 40.0F, 0.0F, false);
-		roof_end_light.setTextureOffset(8, 8).addCuboid(7.4706F, -34.7506F, -24.0F, 2.0F, 0.0F, 40.0F, 0.0F, true);
+		roof_end_light_sp1900 = new ModelPart(this);
+		roof_end_light_sp1900.setPivot(0.0F, 24.0F, 0.0F);
+		roof_end_light_sp1900.setTextureOffset(8, 8).addCuboid(-9.4703F, -34.7496F, -24.0F, 2.0F, 0.0F, 40.0F, 0.0F, false);
+		roof_end_light_sp1900.setTextureOffset(8, 8).addCuboid(7.4706F, -34.7506F, -24.0F, 2.0F, 0.0F, 40.0F, 0.0F, true);
 
 		light_6_r1 = new ModelPart(this);
 		light_6_r1.setPivot(7.0371F, -35.0007F, -4.0F);
-		roof_end_light.addChild(light_6_r1);
+		roof_end_light_sp1900.addChild(light_6_r1);
 		setRotationAngle(light_6_r1, 0.0F, 0.0F, 0.5236F);
 		light_6_r1.setTextureOffset(22, 22).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, true);
 
 		light_4_r1 = new ModelPart(this);
 		light_4_r1.setPivot(9.9041F, -34.9997F, -4.0F);
-		roof_end_light.addChild(light_4_r1);
+		roof_end_light_sp1900.addChild(light_4_r1);
 		setRotationAngle(light_4_r1, 0.0F, 0.0F, -0.5236F);
 		light_4_r1.setTextureOffset(68, 0).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, true);
 
 		light_3_r2 = new ModelPart(this);
 		light_3_r2.setPivot(-7.0368F, -34.9987F, -4.0F);
-		roof_end_light.addChild(light_3_r2);
+		roof_end_light_sp1900.addChild(light_3_r2);
 		setRotationAngle(light_3_r2, 0.0F, 0.0F, -0.5236F);
 		light_3_r2.setTextureOffset(22, 22).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, false);
 
 		light_1_r2 = new ModelPart(this);
 		light_1_r2.setPivot(-9.9038F, -34.9997F, -4.0F);
-		roof_end_light.addChild(light_1_r2);
+		roof_end_light_sp1900.addChild(light_1_r2);
 		setRotationAngle(light_1_r2, 0.0F, 0.0F, 0.5236F);
 		light_1_r2.setTextureOffset(68, 0).addCuboid(-0.5F, 0.0F, -20.0F, 1.0F, 0.0F, 40.0F, 0.0F, false);
 
-		top_handrail = new ModelPart(this);
-		top_handrail.setPivot(0.0F, 24.0F, 0.0F);
-		top_handrail.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, 15.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
-		top_handrail.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, -15.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		roof_end_light_c1141a = new ModelPart(this);
+		roof_end_light_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		roof_end_light_c1141a.setTextureOffset(266, 69).addCuboid(-10.0F, -36.1F, -24.0F, 4.0F, 0.0F, 40.0F, 0.0F, false);
+		roof_end_light_c1141a.setTextureOffset(266, 69).addCuboid(6.0F, -36.1F, -24.0F, 4.0F, 0.0F, 40.0F, 0.0F, false);
+
+		top_handrail_sp1900 = new ModelPart(this);
+		top_handrail_sp1900.setPivot(0.0F, 24.0F, 0.0F);
+		top_handrail_sp1900.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, 15.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_sp1900.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, -15.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
 
 		top_handrail_bottom_right_r1 = new ModelPart(this);
 		top_handrail_bottom_right_r1.setPivot(-5.0F, -31.0876F, -6.8876F);
-		top_handrail.addChild(top_handrail_bottom_right_r1);
+		top_handrail_sp1900.addChild(top_handrail_bottom_right_r1);
 		setRotationAngle(top_handrail_bottom_right_r1, -1.5708F, 0.0F, 0.0F);
 		top_handrail_bottom_right_r1.setTextureOffset(0, 0).addCuboid(0.0F, -7.0F, 0.0F, 0.0F, 14.0F, 0.0F, 0.2F, false);
 
 		top_handrail_bottom_left_r1 = new ModelPart(this);
 		top_handrail_bottom_left_r1.setPivot(-5.0F, -31.0876F, 6.8876F);
-		top_handrail.addChild(top_handrail_bottom_left_r1);
+		top_handrail_sp1900.addChild(top_handrail_bottom_left_r1);
 		setRotationAngle(top_handrail_bottom_left_r1, -1.5708F, 0.0F, 0.0F);
 		top_handrail_bottom_left_r1.setTextureOffset(0, 0).addCuboid(0.0F, -7.0F, 0.0F, 0.0F, 14.0F, 0.0F, 0.2F, false);
 
 		top_handrail_right_3_r1 = new ModelPart(this);
 		top_handrail_right_3_r1.setPivot(-5.0F, -31.4108F, -14.5938F);
-		top_handrail.addChild(top_handrail_right_3_r1);
+		top_handrail_sp1900.addChild(top_handrail_right_3_r1);
 		setRotationAngle(top_handrail_right_3_r1, 1.0472F, 0.0F, 0.0F);
 		top_handrail_right_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_right_2_r1 = new ModelPart(this);
 		top_handrail_right_2_r1.setPivot(-5.0F, -32.2938F, -15.4768F);
-		top_handrail.addChild(top_handrail_right_2_r1);
+		top_handrail_sp1900.addChild(top_handrail_right_2_r1);
 		setRotationAngle(top_handrail_right_2_r1, 0.5236F, 0.0F, 0.0F);
 		top_handrail_right_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_left_3_r1 = new ModelPart(this);
 		top_handrail_left_3_r1.setPivot(-5.0F, -31.4108F, 14.5938F);
-		top_handrail.addChild(top_handrail_left_3_r1);
+		top_handrail_sp1900.addChild(top_handrail_left_3_r1);
 		setRotationAngle(top_handrail_left_3_r1, -1.0472F, 0.0F, 0.0F);
 		top_handrail_left_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_left_2_r1 = new ModelPart(this);
 		top_handrail_left_2_r1.setPivot(-5.0F, -32.2938F, 15.4768F);
-		top_handrail.addChild(top_handrail_left_2_r1);
+		top_handrail_sp1900.addChild(top_handrail_left_2_r1);
 		setRotationAngle(top_handrail_left_2_r1, -0.5236F, 0.0F, 0.0F);
 		top_handrail_left_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
-		handrail_strap = new ModelPart(this);
-		handrail_strap.setPivot(0.0F, 0.0F, 0.0F);
-		top_handrail.addChild(handrail_strap);
-		handrail_strap.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, -12.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		handrail_strap.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, -6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		handrail_strap.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 0.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		handrail_strap.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		handrail_strap.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 12.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_1 = new ModelPart(this);
+		handrail_strap_1.setPivot(0.0F, 0.0F, 0.0F);
+		top_handrail_sp1900.addChild(handrail_strap_1);
+		handrail_strap_1.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, -12.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_1.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, -6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_1.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 0.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_1.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_1.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 12.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		top_handrail_c1141a = new ModelPart(this);
+		top_handrail_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		top_handrail_c1141a.setTextureOffset(0, 50).addCuboid(-5.0F, -31.0F, 15.8F, 5.0F, 0.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 50).addCuboid(-5.0F, -31.0F, -15.8F, 5.0F, 0.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(-4.727F, -36.6045F, -11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(-4.727F, -36.6045F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(-4.727F, -36.6045F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -36.6046F, 13.6145F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -36.0F, 11.0F, 0.0F, 7.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(8, 7).addCuboid(0.0F, -23.2645F, 10.437F, 0.0F, 6.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(8, 7).addCuboid(0.0F, -23.2645F, 11.563F, 0.0F, 6.0F, 0.0F, 0.2F, false);
+		top_handrail_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -12.0F, 11.0F, 0.0F, 12.0F, 0.0F, 0.2F, false);
+
+		pole_bottom_diagonal_2_r1 = new ModelPart(this);
+		pole_bottom_diagonal_2_r1.setPivot(0.0F, -14.4002F, 11.2819F);
+		top_handrail_c1141a.addChild(pole_bottom_diagonal_2_r1);
+		setRotationAngle(pole_bottom_diagonal_2_r1, -0.1047F, 0.0F, 0.0F);
+		pole_bottom_diagonal_2_r1.setTextureOffset(11, 28).addCuboid(0.0F, -2.5F, 0.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_bottom_diagonal_1_r1 = new ModelPart(this);
+		pole_bottom_diagonal_1_r1.setPivot(0.0F, -14.4002F, 10.7181F);
+		top_handrail_c1141a.addChild(pole_bottom_diagonal_1_r1);
+		setRotationAngle(pole_bottom_diagonal_1_r1, 0.1047F, 0.0F, 0.0F);
+		pole_bottom_diagonal_1_r1.setTextureOffset(11, 28).addCuboid(0.0F, -2.5F, 0.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_top_diagonal_2_r1 = new ModelPart(this);
+		pole_top_diagonal_2_r1.setPivot(0.2F, -28.8F, 10.8F);
+		top_handrail_c1141a.addChild(pole_top_diagonal_2_r1);
+		setRotationAngle(pole_top_diagonal_2_r1, 0.1047F, 0.0F, 0.0F);
+		pole_top_diagonal_2_r1.setTextureOffset(11, 11).addCuboid(-0.2F, 0.2069F, 0.2F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_top_diagonal_1_r1 = new ModelPart(this);
+		pole_top_diagonal_1_r1.setPivot(0.2F, -28.8F, 11.2F);
+		top_handrail_c1141a.addChild(pole_top_diagonal_1_r1);
+		setRotationAngle(pole_top_diagonal_1_r1, -0.1047F, 0.0F, 0.0F);
+		pole_top_diagonal_1_r1.setTextureOffset(11, 11).addCuboid(-0.2F, 0.2069F, -0.2F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_4_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_4_r1.setPivot(0.0F, -32.2308F, 14.6605F);
+		top_handrail_c1141a.addChild(top_handrail_connector_bottom_4_r1);
+		setRotationAngle(top_handrail_connector_bottom_4_r1, 0.6981F, 0.0F, 0.0F);
+		top_handrail_connector_bottom_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_3_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_3_r1.setPivot(-5.7729F, -32.2308F, 0.0F);
+		top_handrail_c1141a.addChild(top_handrail_connector_bottom_3_r1);
+		setRotationAngle(top_handrail_connector_bottom_3_r1, 0.0F, 0.0F, 0.6981F);
+		top_handrail_connector_bottom_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_connector_bottom_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_connector_bottom_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, -11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_bottom_right_r2 = new ModelPart(this);
+		top_handrail_bottom_right_r2.setPivot(-6.9124F, -31.0F, -6.8876F);
+		top_handrail_c1141a.addChild(top_handrail_bottom_right_r2);
+		setRotationAngle(top_handrail_bottom_right_r2, 1.5708F, 0.0F, 0.0F);
+		top_handrail_bottom_right_r2.setTextureOffset(0, 0).addCuboid(0.0F, -7.0F, 0.0F, 0.0F, 14.0F, 0.0F, 0.2F, false);
+
+		top_handrail_bottom_left_r2 = new ModelPart(this);
+		top_handrail_bottom_left_r2.setPivot(-6.9124F, -31.0F, 6.8876F);
+		top_handrail_c1141a.addChild(top_handrail_bottom_left_r2);
+		setRotationAngle(top_handrail_bottom_left_r2, -1.5708F, 0.0F, 0.0F);
+		top_handrail_bottom_left_r2.setTextureOffset(0, 0).addCuboid(0.0F, -7.0F, 0.0F, 0.0F, 14.0F, 0.0F, 0.2F, false);
+
+		top_handrail_right_4_r1 = new ModelPart(this);
+		top_handrail_right_4_r1.setPivot(-6.5892F, -31.0F, -14.5938F);
+		top_handrail_c1141a.addChild(top_handrail_right_4_r1);
+		setRotationAngle(top_handrail_right_4_r1, 1.5708F, -0.5236F, 0.0F);
+		top_handrail_right_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		top_handrail_right_3_r2 = new ModelPart(this);
+		top_handrail_right_3_r2.setPivot(-5.7062F, -31.0F, -15.4768F);
+		top_handrail_c1141a.addChild(top_handrail_right_3_r2);
+		setRotationAngle(top_handrail_right_3_r2, 1.5708F, -1.0472F, 0.0F);
+		top_handrail_right_3_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		top_handrail_left_4_r1 = new ModelPart(this);
+		top_handrail_left_4_r1.setPivot(-6.5892F, -31.0F, 14.5938F);
+		top_handrail_c1141a.addChild(top_handrail_left_4_r1);
+		setRotationAngle(top_handrail_left_4_r1, -1.5708F, 0.5236F, 0.0F);
+		top_handrail_left_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		top_handrail_left_3_r2 = new ModelPart(this);
+		top_handrail_left_3_r2.setPivot(-5.7062F, -31.0F, 15.4768F);
+		top_handrail_c1141a.addChild(top_handrail_left_3_r2);
+		setRotationAngle(top_handrail_left_3_r2, -1.5708F, 1.0472F, 0.0F);
+		top_handrail_left_3_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		handrail_strap_2 = new ModelPart(this);
+		handrail_strap_2.setPivot(0.0F, 0.0F, 0.0F);
+		top_handrail_c1141a.addChild(handrail_strap_2);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, -14.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, -9.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, -4.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 4.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 9.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_2.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 14.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		handrail_strap_8_r1 = new ModelPart(this);
+		handrail_strap_8_r1.setPivot(0.0F, 0.0F, 0.0F);
+		handrail_strap_2.addChild(handrail_strap_8_r1);
+		setRotationAngle(handrail_strap_8_r1, 0.0F, -1.5708F, 0.0F);
+		handrail_strap_8_r1.setTextureOffset(12, 12).addCuboid(-16.8F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_8_r1.setTextureOffset(12, 12).addCuboid(14.8F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 
 		tv_pole = new ModelPart(this);
 		tv_pole.setPivot(0.0F, 24.0F, 0.0F);
@@ -950,53 +1156,176 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(bottom_corner_2_r1_r1, -0.1745F, 0.5236F, 0.0873F);
 		bottom_corner_2_r1_r1.setTextureOffset(114, 32).addCuboid(8.951F, -0.4819F, 50.7099F, 9.0F, 5.0F, 0.0F, 0.0F, false);
 
-		top_handrail_head = new ModelPart(this);
-		top_handrail_head.setPivot(0.0F, 24.0F, 0.0F);
-		top_handrail_head.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, 9.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
-		top_handrail_head.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, -9.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_head_sp1900 = new ModelPart(this);
+		top_handrail_head_sp1900.setPivot(0.0F, 24.0F, 0.0F);
+		top_handrail_head_sp1900.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, 9.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_head_sp1900.setTextureOffset(0, 0).addCuboid(-5.0F, -36.0F, -9.8F, 0.0F, 3.0F, 0.0F, 0.2F, false);
 
-		top_handrail_bottom_left_r2 = new ModelPart(this);
-		top_handrail_bottom_left_r2.setPivot(-5.0F, -31.0876F, 3.8875F);
-		top_handrail_head.addChild(top_handrail_bottom_left_r2);
-		setRotationAngle(top_handrail_bottom_left_r2, -1.5708F, 0.0F, 0.0F);
-		top_handrail_bottom_left_r2.setTextureOffset(0, 0).addCuboid(0.0F, -4.0F, 0.0F, 0.0F, 8.0F, 0.0F, 0.2F, false);
+		top_handrail_bottom_left_r3 = new ModelPart(this);
+		top_handrail_bottom_left_r3.setPivot(-5.0F, -31.0876F, 3.8875F);
+		top_handrail_head_sp1900.addChild(top_handrail_bottom_left_r3);
+		setRotationAngle(top_handrail_bottom_left_r3, -1.5708F, 0.0F, 0.0F);
+		top_handrail_bottom_left_r3.setTextureOffset(0, 0).addCuboid(0.0F, -4.0F, 0.0F, 0.0F, 8.0F, 0.0F, 0.2F, false);
 
-		top_handrail_bottom_right_r2 = new ModelPart(this);
-		top_handrail_bottom_right_r2.setPivot(-5.0F, -31.0876F, -3.8876F);
-		top_handrail_head.addChild(top_handrail_bottom_right_r2);
-		setRotationAngle(top_handrail_bottom_right_r2, -1.5708F, 0.0F, 0.0F);
-		top_handrail_bottom_right_r2.setTextureOffset(0, 0).addCuboid(0.0F, -4.0F, 0.0F, 0.0F, 8.0F, 0.0F, 0.2F, false);
+		top_handrail_bottom_right_r3 = new ModelPart(this);
+		top_handrail_bottom_right_r3.setPivot(-5.0F, -31.0876F, -3.8876F);
+		top_handrail_head_sp1900.addChild(top_handrail_bottom_right_r3);
+		setRotationAngle(top_handrail_bottom_right_r3, -1.5708F, 0.0F, 0.0F);
+		top_handrail_bottom_right_r3.setTextureOffset(0, 0).addCuboid(0.0F, -4.0F, 0.0F, 0.0F, 8.0F, 0.0F, 0.2F, false);
 
-		top_handrail_right_3_r2 = new ModelPart(this);
-		top_handrail_right_3_r2.setPivot(-5.0F, -31.4108F, -8.5938F);
-		top_handrail_head.addChild(top_handrail_right_3_r2);
-		setRotationAngle(top_handrail_right_3_r2, 1.0472F, 0.0F, 0.0F);
-		top_handrail_right_3_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+		top_handrail_right_3_r3 = new ModelPart(this);
+		top_handrail_right_3_r3.setPivot(-5.0F, -31.4108F, -8.5938F);
+		top_handrail_head_sp1900.addChild(top_handrail_right_3_r3);
+		setRotationAngle(top_handrail_right_3_r3, 1.0472F, 0.0F, 0.0F);
+		top_handrail_right_3_r3.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_right_2_r2 = new ModelPart(this);
 		top_handrail_right_2_r2.setPivot(-4.8F, -32.8F, -10.0F);
-		top_handrail_head.addChild(top_handrail_right_2_r2);
+		top_handrail_head_sp1900.addChild(top_handrail_right_2_r2);
 		setRotationAngle(top_handrail_right_2_r2, 0.5236F, 0.0F, 0.0F);
 		top_handrail_right_2_r2.setTextureOffset(0, 0).addCuboid(-0.2F, 0.2F, 0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
-		top_handrail_left_3_r2 = new ModelPart(this);
-		top_handrail_left_3_r2.setPivot(-5.0F, -31.4108F, 8.5938F);
-		top_handrail_head.addChild(top_handrail_left_3_r2);
-		setRotationAngle(top_handrail_left_3_r2, -1.0472F, 0.0F, 0.0F);
-		top_handrail_left_3_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+		top_handrail_left_3_r3 = new ModelPart(this);
+		top_handrail_left_3_r3.setPivot(-5.0F, -31.4108F, 8.5938F);
+		top_handrail_head_sp1900.addChild(top_handrail_left_3_r3);
+		setRotationAngle(top_handrail_left_3_r3, -1.0472F, 0.0F, 0.0F);
+		top_handrail_left_3_r3.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_left_2_r2 = new ModelPart(this);
 		top_handrail_left_2_r2.setPivot(-4.8F, -32.8F, 10.0F);
-		top_handrail_head.addChild(top_handrail_left_2_r2);
+		top_handrail_head_sp1900.addChild(top_handrail_left_2_r2);
 		setRotationAngle(top_handrail_left_2_r2, -0.5236F, 0.0F, 0.0F);
 		top_handrail_left_2_r2.setTextureOffset(0, 0).addCuboid(-0.2F, 0.2F, -0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		handrail_strap_head = new ModelPart(this);
 		handrail_strap_head.setPivot(0.0F, 0.0F, 0.0F);
-		top_handrail_head.addChild(handrail_strap_head);
+		top_handrail_head_sp1900.addChild(handrail_strap_head);
 		handrail_strap_head.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, -6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 		handrail_strap_head.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 0.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 		handrail_strap_head.setTextureOffset(12, 12).addCuboid(-6.0F, -32.0F, 6.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		top_handrail_head_c1141a = new ModelPart(this);
+		top_handrail_head_c1141a.setPivot(0.0F, 24.0F, 0.0F);
+		top_handrail_head_c1141a.setTextureOffset(0, 50).addCuboid(-5.0F, -31.0F, 15.8F, 5.0F, 0.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(0, 50).addCuboid(0.0F, -31.0F, 15.8F, 5.0F, 0.0F, 0.0F, 0.2F, true);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(-4.727F, -36.6045F, -3.1124F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(4.727F, -36.6045F, -3.1124F, 0.0F, 3.0F, 0.0F, 0.2F, true);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(-4.727F, -36.6045F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(4.727F, -36.6045F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, true);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -36.6046F, 13.6145F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -36.0F, 11.0F, 0.0F, 7.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(8, 7).addCuboid(0.0F, -23.2645F, 10.437F, 0.0F, 6.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(8, 7).addCuboid(0.0F, -23.2645F, 11.563F, 0.0F, 6.0F, 0.0F, 0.2F, false);
+		top_handrail_head_c1141a.setTextureOffset(0, 0).addCuboid(0.0F, -12.0F, 11.0F, 0.0F, 12.0F, 0.0F, 0.2F, false);
+
+		pole_bottom_diagonal_3_r1 = new ModelPart(this);
+		pole_bottom_diagonal_3_r1.setPivot(0.0F, -14.4002F, 11.2819F);
+		top_handrail_head_c1141a.addChild(pole_bottom_diagonal_3_r1);
+		setRotationAngle(pole_bottom_diagonal_3_r1, -0.1047F, 0.0F, 0.0F);
+		pole_bottom_diagonal_3_r1.setTextureOffset(11, 28).addCuboid(0.0F, -2.5F, 0.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_bottom_diagonal_2_r2 = new ModelPart(this);
+		pole_bottom_diagonal_2_r2.setPivot(0.0F, -14.4002F, 10.7181F);
+		top_handrail_head_c1141a.addChild(pole_bottom_diagonal_2_r2);
+		setRotationAngle(pole_bottom_diagonal_2_r2, 0.1047F, 0.0F, 0.0F);
+		pole_bottom_diagonal_2_r2.setTextureOffset(11, 28).addCuboid(0.0F, -2.5F, 0.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_top_diagonal_3_r1 = new ModelPart(this);
+		pole_top_diagonal_3_r1.setPivot(0.2F, -28.8F, 10.8F);
+		top_handrail_head_c1141a.addChild(pole_top_diagonal_3_r1);
+		setRotationAngle(pole_top_diagonal_3_r1, 0.1047F, 0.0F, 0.0F);
+		pole_top_diagonal_3_r1.setTextureOffset(11, 11).addCuboid(-0.2F, 0.2069F, 0.2F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		pole_top_diagonal_2_r2 = new ModelPart(this);
+		pole_top_diagonal_2_r2.setPivot(0.2F, -28.8F, 11.2F);
+		top_handrail_head_c1141a.addChild(pole_top_diagonal_2_r2);
+		setRotationAngle(pole_top_diagonal_2_r2, -0.1047F, 0.0F, 0.0F);
+		pole_top_diagonal_2_r2.setTextureOffset(11, 11).addCuboid(-0.2F, 0.2069F, -0.2F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_5_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_5_r1.setPivot(0.0F, -32.2308F, 14.6605F);
+		top_handrail_head_c1141a.addChild(top_handrail_connector_bottom_5_r1);
+		setRotationAngle(top_handrail_connector_bottom_5_r1, 0.6981F, 0.0F, 0.0F);
+		top_handrail_connector_bottom_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_right_4_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_right_4_r1.setPivot(5.7729F, -32.2308F, 0.0F);
+		top_handrail_head_c1141a.addChild(top_handrail_connector_bottom_right_4_r1);
+		setRotationAngle(top_handrail_connector_bottom_right_4_r1, 0.0F, 0.0F, -0.6981F);
+		top_handrail_connector_bottom_right_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_left_4_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_left_4_r1.setPivot(-5.7729F, -32.2308F, 0.0F);
+		top_handrail_head_c1141a.addChild(top_handrail_connector_bottom_left_4_r1);
+		setRotationAngle(top_handrail_connector_bottom_left_4_r1, 0.0F, 0.0F, 0.6981F);
+		top_handrail_connector_bottom_left_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, 11.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_right_3_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_right_3_r1.setPivot(5.7729F, -32.2308F, 0.0F);
+		top_handrail_head_c1141a.addChild(top_handrail_connector_bottom_right_3_r1);
+		setRotationAngle(top_handrail_connector_bottom_right_3_r1, 0.0F, 0.0F, -0.6981F);
+		top_handrail_connector_bottom_right_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, -3.1124F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_connector_bottom_left_3_r1 = new ModelPart(this);
+		top_handrail_connector_bottom_left_3_r1.setPivot(-5.7729F, -32.2308F, 0.0F);
+		top_handrail_head_c1141a.addChild(top_handrail_connector_bottom_left_3_r1);
+		setRotationAngle(top_handrail_connector_bottom_left_3_r1, 0.0F, 0.0F, 0.6981F);
+		top_handrail_connector_bottom_left_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -1.5F, -3.1124F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+
+		top_handrail_bottom_right_r4 = new ModelPart(this);
+		top_handrail_bottom_right_r4.setPivot(6.9124F, -31.0F, 6.8876F);
+		top_handrail_head_c1141a.addChild(top_handrail_bottom_right_r4);
+		setRotationAngle(top_handrail_bottom_right_r4, -1.5708F, 0.0F, 0.0F);
+		top_handrail_bottom_right_r4.setTextureOffset(0, 0).addCuboid(0.0F, -7.0F, 0.0F, 0.0F, 17.0F, 0.0F, 0.2F, true);
+		top_handrail_bottom_right_r4.setTextureOffset(0, 0).addCuboid(-13.8249F, -7.0F, 0.0F, 0.0F, 17.0F, 0.0F, 0.2F, false);
+
+		top_handrail_right_5_r1 = new ModelPart(this);
+		top_handrail_right_5_r1.setPivot(6.5892F, -31.0F, 14.5938F);
+		top_handrail_head_c1141a.addChild(top_handrail_right_5_r1);
+		setRotationAngle(top_handrail_right_5_r1, -1.5708F, -0.5236F, 0.0F);
+		top_handrail_right_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, true);
+
+		top_handrail_right_4_r2 = new ModelPart(this);
+		top_handrail_right_4_r2.setPivot(5.7062F, -31.0F, 15.4768F);
+		top_handrail_head_c1141a.addChild(top_handrail_right_4_r2);
+		setRotationAngle(top_handrail_right_4_r2, -1.5708F, -1.0472F, 0.0F);
+		top_handrail_right_4_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, true);
+
+		top_handrail_left_5_r1 = new ModelPart(this);
+		top_handrail_left_5_r1.setPivot(-6.5892F, -31.0F, 14.5938F);
+		top_handrail_head_c1141a.addChild(top_handrail_left_5_r1);
+		setRotationAngle(top_handrail_left_5_r1, -1.5708F, 0.5236F, 0.0F);
+		top_handrail_left_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		top_handrail_left_4_r2 = new ModelPart(this);
+		top_handrail_left_4_r2.setPivot(-5.7062F, -31.0F, 15.4768F);
+		top_handrail_head_c1141a.addChild(top_handrail_left_4_r2);
+		setRotationAngle(top_handrail_left_4_r2, -1.5708F, 1.0472F, 0.0F);
+		top_handrail_left_4_r2.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+
+		handrail_strap_3 = new ModelPart(this);
+		handrail_strap_3.setPivot(0.0F, 0.0F, 0.0F);
+		top_handrail_head_c1141a.addChild(handrail_strap_3);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, -1.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(6.0F, -32.0F, -1.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 4.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(6.0F, -32.0F, 4.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 9.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(6.0F, -32.0F, 9.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(-8.0F, -32.0F, 14.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		handrail_strap_3.setTextureOffset(12, 12).addCuboid(6.0F, -32.0F, 14.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		handrail_strap_right_8_r1 = new ModelPart(this);
+		handrail_strap_right_8_r1.setPivot(0.0F, 0.0F, 0.0F);
+		handrail_strap_3.addChild(handrail_strap_right_8_r1);
+		setRotationAngle(handrail_strap_right_8_r1, 0.0F, 1.5708F, 0.0F);
+		handrail_strap_right_8_r1.setTextureOffset(12, 12).addCuboid(-16.8F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		handrail_strap_left_8_r1 = new ModelPart(this);
+		handrail_strap_left_8_r1.setPivot(0.0F, 0.0F, 0.0F);
+		handrail_strap_3.addChild(handrail_strap_left_8_r1);
+		setRotationAngle(handrail_strap_left_8_r1, 0.0F, -1.5708F, 0.0F);
+		handrail_strap_left_8_r1.setTextureOffset(12, 12).addCuboid(14.8F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 
 		headlights = new ModelPart(this);
 		headlights.setPivot(0.0F, 24.0F, 0.0F);
@@ -1056,12 +1385,12 @@ public class ModelSP1900 extends ModelTrainBase {
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderMirror(roof_light, matrices, vertices, light, position);
+				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
-				renderMirror(roof, matrices, vertices, light, position);
-				renderMirror(top_handrail, matrices, vertices, light, position);
+				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+				renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR_TRANSLUCENT:
 				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
@@ -1089,7 +1418,10 @@ public class ModelSP1900 extends ModelTrainBase {
 
 		switch (renderStage) {
 			case LIGHTS:
-				renderMirror(roof_light, matrices, vertices, light, position);
+				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
+				if (isC1141A) {
+					renderMirror(door_light_c1141a, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR:
 				door_left.setPivot(0, 0, doorRight);
@@ -1098,11 +1430,13 @@ public class ModelSP1900 extends ModelTrainBase {
 				door_left.setPivot(0, 0, doorLeft);
 				door_right.setPivot(0, 0, -doorLeft);
 				renderOnceFlipped(door, matrices, vertices, light, position);
-				renderMirror(roof, matrices, vertices, light, position);
-				if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
-					renderOnce(bb_main, matrices, vertices, light, position);
-				} else {
-					renderOnce(tv_pole, matrices, vertices, light, position);
+				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+				if (!isC1141A) {
+					if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
+						renderOnce(bb_main, matrices, vertices, light, position);
+					} else {
+						renderOnce(tv_pole, matrices, vertices, light, position);
+					}
 				}
 
 				break;
@@ -1131,17 +1465,22 @@ public class ModelSP1900 extends ModelTrainBase {
 	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnce(roof_end_light, matrices, vertices, light, position);
+				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(head, matrices, vertices, light, position);
-				renderOnce(roof_end, matrices, vertices, light, position);
-				renderMirror(top_handrail_head, matrices, vertices, light, position + 6);
+				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+				if (!isC1141A) {
+					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+				if (isC1141A) {
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+				} else {
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+				}
 				break;
 			case EXTERIOR:
 				renderOnceFlipped(head_exterior, matrices, vertices, light, position);
@@ -1154,13 +1493,15 @@ public class ModelSP1900 extends ModelTrainBase {
 	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnce(roof_end_light, matrices, vertices, light, position);
+				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
-				renderOnceFlipped(roof_end, matrices, vertices, light, position);
-				renderMirror(top_handrail_head, matrices, vertices, light, position - 6);
+				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+				if (!isC1141A) {
+					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
@@ -1177,12 +1518,16 @@ public class ModelSP1900 extends ModelTrainBase {
 	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnce(roof_end_light, matrices, vertices, light, position);
+				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
-				renderOnce(roof_end, matrices, vertices, light, position);
-				renderMirror(top_handrail, matrices, vertices, light, position);
+				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+				if (isC1141A) {
+					renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
+				} else {
+					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
@@ -1199,12 +1544,16 @@ public class ModelSP1900 extends ModelTrainBase {
 	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
+				renderOnceFlipped(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(end, matrices, vertices, light, position);
-				renderOnceFlipped(roof_end, matrices, vertices, light, position);
-				renderMirror(top_handrail, matrices, vertices, light, position);
+				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+				if (isC1141A) {
+					renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
+				} else {
+					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);

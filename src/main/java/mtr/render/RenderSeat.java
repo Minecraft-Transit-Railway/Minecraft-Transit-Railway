@@ -44,8 +44,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private static final int ANNOUNCE_DELAY = 100;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
-	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900();
-	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini();
+	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900(false);
+	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini(false);
+	private static final ModelSP1900 MODEL_C1141A = new ModelSP1900(true);
+	private static final ModelSP1900Mini MODEL_C1141A_MINI = new ModelSP1900Mini(true);
 	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelLightRail1 MODEL_LIGHT_RAIL_1 = new ModelLightRail1();
@@ -244,11 +246,13 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private static ModelTrainBase getModel(TrainType trainType) {
 		switch (trainType) {
 			case SP1900:
-			case C1141A:
 				return MODEL_SP1900;
+			case C1141A:
+				return MODEL_C1141A;
 			case SP1900_MINI:
-			case C1141A_MINI:
 				return MODEL_SP1900_MINI;
+			case C1141A_MINI:
+				return MODEL_C1141A_MINI;
 			case M_TRAIN:
 				return MODEL_M_TRAIN;
 			case M_TRAIN_MINI:
