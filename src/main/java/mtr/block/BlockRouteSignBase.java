@@ -1,6 +1,8 @@
 package mtr.block;
 
+import mtr.data.RailwayData;
 import mtr.gui.IGui;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
@@ -9,6 +11,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -34,7 +37,10 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
 				if (entity instanceof TileEntityRouteSignBase) {
-					((TileEntityRouteSignBase) entity).cyclePlatformIndex();
+					final RailwayData railwayData = RailwayData.getInstance(world);
+					if (railwayData != null) {
+						PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), entity.getPos());
+					}
 				}
 			}
 		});
@@ -47,8 +53,8 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 	public static abstract class TileEntityRouteSignBase extends BlockEntity implements BlockEntityClientSerializable, IGui {
 
-		private int platformIndex;
-		private static final String KEY_PLATFORM_INDEX = "platform_index";
+		private long platformId;
+		private static final String KEY_PLATFORM_ID = "platform_id";
 
 		public TileEntityRouteSignBase(BlockEntityType<?> type) {
 			super(type);
@@ -69,26 +75,23 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 		@Override
 		public void fromClientTag(CompoundTag tag) {
-			platformIndex = tag.getInt(KEY_PLATFORM_INDEX);
+			platformId = tag.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putInt(KEY_PLATFORM_INDEX, platformIndex);
+			tag.putLong(KEY_PLATFORM_ID, platformId);
 			return tag;
 		}
 
-		public void cyclePlatformIndex() {
-			platformIndex++;
-			if (platformIndex < 0) {
-				platformIndex = 0;
-			}
+		public void setPlatformId(long platformId) {
+			this.platformId = platformId;
 			markDirty();
 			sync();
 		}
 
-		public int getPlatformIndex() {
-			return platformIndex;
+		public long getPlatformId() {
+			return platformId;
 		}
 	}
 }

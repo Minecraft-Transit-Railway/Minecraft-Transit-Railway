@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.block.BlockRailwaySign;
+import mtr.block.BlockRouteSignBase;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
@@ -22,14 +23,15 @@ import java.util.stream.Collectors;
 
 public class RailwaySignScreen extends Screen implements IGui {
 
-	private Set<Long> selectedIds;
 	private int editingIndex;
 	private boolean isSelectingPlatform;
 	private boolean isSelectingRoute;
 
 	private final BlockPos signPos;
+	private final boolean isRailwaySign;
 	private final int length;
 	private final BlockRailwaySign.SignType[] signTypes;
+	private final Set<Long> selectedIds;
 	private final List<Long> platformIds;
 	private final List<Long> routeIds;
 	private final List<NameColorDataBase> platformsForList;
@@ -102,8 +104,14 @@ public class RailwaySignScreen extends Screen implements IGui {
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				signTypes = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSign();
 				selectedIds = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSelectedIds();
+				isRailwaySign = true;
 			} else {
 				signTypes = new BlockRailwaySign.SignType[0];
+				selectedIds = new HashSet<>();
+				isRailwaySign = false;
+				if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
+					selectedIds.add(((BlockRouteSignBase.TileEntityRouteSignBase) entity).getPlatformId());
+				}
 			}
 			if (world.getBlockState(signPos).getBlock() instanceof BlockRailwaySign) {
 				length = ((BlockRailwaySign) world.getBlockState(signPos).getBlock()).length;
@@ -113,6 +121,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		} else {
 			length = 0;
 			signTypes = new BlockRailwaySign.SignType[0];
+			selectedIds = new HashSet<>();
+			isRailwaySign = false;
 		}
 
 		buttonsEdit = new ButtonWidget[length];
@@ -137,7 +147,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	@Override
 	protected void init() {
 		super.init();
-		setIsSelecting(false, false);
+		setIsSelecting(!isRailwaySign, false);
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IGui.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
@@ -321,7 +331,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			button.visible = !isSelecting;
 		}
 		buttonClear.visible = !isSelecting;
-		buttonDone.visible = isSelecting;
+		buttonDone.visible = isSelecting && isRailwaySign;
 		availableList.x = isSelecting ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
 		selectedList.x = isSelecting ? width / 2 + SQUARE_SIZE : width;
 		updateList();
@@ -351,6 +361,9 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private void onAdd(NameColorDataBase data, int index) {
 		final int finalIndex = availableIndices.get(availableData.indexOf(data));
+		if (!isRailwaySign) {
+			selectedIds.clear();
+		}
 		if (isSelectingPlatform) {
 			selectedIds.add(platformIds.get(finalIndex));
 		} else if (isSelectingRoute) {

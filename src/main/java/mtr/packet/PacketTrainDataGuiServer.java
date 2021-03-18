@@ -1,6 +1,7 @@
 package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
+import mtr.block.BlockRouteSignBase;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -77,6 +78,8 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			final BlockEntity entity = player.world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signTypes);
+			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
+				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.size() == 0 ? 0 : (long) selectedIds.toArray()[0]);
 			}
 		});
 	}
