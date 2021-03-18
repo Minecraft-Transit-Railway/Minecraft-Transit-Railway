@@ -85,9 +85,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
 
 		if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED)) {
-			final Map<Long, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(stationId);
+			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(stationId);
 			if (routesInStation != null) {
-				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
 				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);

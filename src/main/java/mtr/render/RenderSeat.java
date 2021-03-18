@@ -61,7 +61,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int entityLight) {
 		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
-		if (player == null || player != entity.getPlayer()) {
+		if (player == null || !player.getClass().toGenericString().toLowerCase().contains("replaymod") && player != entity.getPlayer()) {
 			return;
 		}
 		final World world = entity.world;
@@ -177,7 +177,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				messages.add(IGui.addToStationName(stationName, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
 			}
 
-			final Map<Long, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStationId);
+			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStationId);
 			if (routesInStation != null) {
 				final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRouteName)).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
 				final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");

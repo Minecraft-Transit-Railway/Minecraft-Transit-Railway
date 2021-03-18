@@ -33,7 +33,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final BlockRailwaySign.SignType[] signTypes;
 	private final Set<Long> selectedIds;
 	private final List<Long> platformIds;
-	private final List<Long> routeIds;
+	private final List<Integer> routeColors;
 	private final List<NameColorDataBase> platformsForList;
 	private final List<NameColorDataBase> routesForList;
 	private final List<Integer> availableIndices;
@@ -67,7 +67,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		final Optional<Long> stationId = ClientData.stations.stream().filter(station -> station.inStation(signPos.getX(), signPos.getZ())).map(station -> station.id).findFirst();
 		List<NameColorDataBase> routesForList1 = new ArrayList<>();
 		List<NameColorDataBase> platformsForList1 = new ArrayList<>();
-		List<Long> routeIds1 = new ArrayList<>();
+		List<Integer> routeColors1 = new ArrayList<>();
 		List<Long> platformIds1 = new ArrayList<>();
 		if (stationId.isPresent()) {
 			try {
@@ -76,19 +76,19 @@ public class RailwaySignScreen extends Screen implements IGui {
 				platformIds1 = platforms.stream().map(platform -> platform.id).collect(Collectors.toList());
 				platformsForList1 = platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.platformToRoute.get(platform).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).collect(Collectors.toList());
 
-				routeIds1 = new ArrayList<>();
+				routeColors1 = new ArrayList<>();
 				routesForList1 = new ArrayList<>();
-				final Map<Long, ClientData.ColorNamePair> routeMap = ClientData.routesInStation.get(stationId.get());
-				List<Long> finalRouteIds = routeIds1;
+				final Map<Integer, ClientData.ColorNamePair> routeMap = ClientData.routesInStation.get(stationId.get());
+				List<Integer> finalRouteColors = routeColors1;
 				List<NameColorDataBase> finalRoutesForList = routesForList1;
-				routeMap.forEach((id, route) -> {
-					finalRouteIds.add(id);
+				routeMap.forEach((color, route) -> {
+					finalRouteColors.add(color);
 					finalRoutesForList.add(new DataConverter(route.name, route.color));
 				});
 			} catch (Exception e) {
 				e.printStackTrace();
 				platformIds1 = new ArrayList<>();
-				routeIds1 = new ArrayList<>();
+				routeColors1 = new ArrayList<>();
 				platformsForList1 = new ArrayList<>();
 				routesForList1 = new ArrayList<>();
 			}
@@ -96,7 +96,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		routesForList = routesForList1;
 		platformsForList = platformsForList1;
-		routeIds = routeIds1;
+		routeColors = routeColors1;
 		platformIds = platformIds1;
 
 		if (world != null) {
@@ -343,10 +343,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 		availableData.clear();
 		selectedData.clear();
 		final List<NameColorDataBase> initialData = isSelectingPlatform ? platformsForList : routesForList;
-		final List<Long> idList = isSelectingPlatform ? platformIds : routeIds;
+		final List<? extends Number> idList = isSelectingPlatform ? platformIds : routeColors;
 
 		for (int i = 0; i < initialData.size(); i++) {
-			if (selectedIds.contains(idList.get(i))) {
+			if (selectedIds.contains(idList.get(i).longValue())) {
 				selectedIndices.add(i);
 				selectedData.add(initialData.get(i));
 			} else {
@@ -367,7 +367,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		if (isSelectingPlatform) {
 			selectedIds.add(platformIds.get(finalIndex));
 		} else if (isSelectingRoute) {
-			selectedIds.add(routeIds.get(finalIndex));
+			selectedIds.add((long) routeColors.get(finalIndex));
 		}
 		updateList();
 	}
@@ -377,7 +377,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		if (isSelectingPlatform) {
 			selectedIds.remove(platformIds.get(finalIndex));
 		} else if (isSelectingRoute) {
-			selectedIds.remove(routeIds.get(finalIndex));
+			selectedIds.remove((long) routeColors.get(finalIndex));
 		}
 		updateList();
 	}

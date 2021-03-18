@@ -21,7 +21,7 @@ public final class ClientData {
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
 	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
 	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
-	public static Map<Long, Map<Long, ColorNamePair>> routesInStation = new HashMap<>();
+	public static Map<Long, Map<Integer, ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
@@ -59,11 +59,7 @@ public final class ClientData {
 					if (!routesInStation.containsKey(station.id)) {
 						routesInStation.put(station.id, new HashMap<>());
 					}
-					final long existingId = routesInStation.get(station.id).keySet().stream().filter(key -> routesInStation.get(station.id).get(key).color == route.color).findFirst().orElse(0L);
-					if (existingId < route.id) {
-						routesInStation.get(station.id).remove(existingId);
-						routesInStation.get(station.id).put(route.id, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
-					}
+					routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
 				}
 			});
 			route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
