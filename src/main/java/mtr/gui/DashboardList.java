@@ -153,7 +153,17 @@ public class DashboardList implements IGui {
 				RenderSystem.enableTexture();
 				RenderSystem.disableBlend();
 
-				textRenderer.draw(matrices, IGui.formatStationName(data.name), x + TEXT_PADDING * 2 + TEXT_HEIGHT, y + drawY, ARGB_WHITE);
+				final String drawString = IGui.formatStationName(data.name);
+				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
+				final int textWidth = textRenderer.getWidth(drawString);
+				final int availableSpace = width - textStart;
+				matrices.push();
+				matrices.translate(x + textStart, 0, 0);
+				if (textWidth > availableSpace) {
+					matrices.scale((float) availableSpace / textWidth, 1, 1);
+				}
+				textRenderer.draw(matrices, drawString, 0, y + drawY, ARGB_WHITE);
+				matrices.pop();
 			}
 		}
 	}

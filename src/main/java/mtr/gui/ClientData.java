@@ -19,9 +19,9 @@ public final class ClientData {
 	public static Set<Route> routes = new HashSet<>();
 
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
-	public static Map<Long, List<Platform>> platformsInStation = new HashMap<>();
+	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
 	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
-	public static Map<Long, List<ColorNamePair>> routesInStation = new HashMap<>();
+	public static Map<Long, Map<Long, ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
@@ -39,9 +39,9 @@ public final class ClientData {
 			final Station station = RailwayData.getStationByPlatform(stations, platform);
 			if (station != null) {
 				if (!platformsInStation.containsKey(station.id)) {
-					platformsInStation.put(station.id, new ArrayList<>());
+					platformsInStation.put(station.id, new HashMap<>());
 				}
-				platformsInStation.get(station.id).add(platform);
+				platformsInStation.get(station.id).put(platform.id, platform);
 			}
 
 			final BlockPos platformPos = platform.getMidPos(true);
@@ -49,7 +49,6 @@ public final class ClientData {
 				platformsWithOffset.put(platformPos, platforms.stream().filter(platform1 -> platform1.getMidPos().getX() == platformPos.getX() && platform1.getMidPos().getZ() == platformPos.getZ()).sorted(Comparator.comparingInt(platform1 -> platform1.getMidPos().getY())).collect(Collectors.toList()));
 			}
 		});
-		platformsInStation.forEach((stationId, posList) -> Collections.sort(posList));
 
 		routesInStation.clear();
 		schedulesForPlatform.clear();
@@ -58,10 +57,12 @@ public final class ClientData {
 				final Station station = platformIdToStation.get(platformId);
 				if (station != null) {
 					if (!routesInStation.containsKey(station.id)) {
-						routesInStation.put(station.id, new ArrayList<>());
+						routesInStation.put(station.id, new HashMap<>());
 					}
-					if (routesInStation.get(station.id).stream().noneMatch(colorNamePair -> route.color == colorNamePair.color)) {
-						routesInStation.get(station.id).add(new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+					final long existingId = routesInStation.get(station.id).keySet().stream().filter(key -> routesInStation.get(station.id).get(key).color == route.color).findFirst().orElse(0L);
+					if (existingId < route.id) {
+						routesInStation.get(station.id).remove(existingId);
+						routesInStation.get(station.id).put(route.id, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
 					}
 				}
 			});
@@ -72,7 +73,6 @@ public final class ClientData {
 				schedulesForPlatform.get(platformId).addAll(scheduleEntry);
 			});
 		});
-		routesInStation.forEach((stationId, routeList) -> routeList.sort(Comparator.comparingInt(a -> a.color)));
 
 		stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 		platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
@@ -81,7 +81,7 @@ public final class ClientData {
 				if (station == null) {
 					return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
 				} else {
-					return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
+					return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
 				}
 			}).collect(Collectors.toList());
 			return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);

@@ -14,12 +14,11 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-import java.util.List;
+import java.util.Map;
 
 public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
 
@@ -49,22 +48,22 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
 		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
-		final List<Platform> platformPositions = ClientData.platformsInStation.get(stationId);
+		final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(stationId);
 		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}
-
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.get(entity.getPlatformIndex() % platformPositions.size()), true);
-
-		matrices.push();
-		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
-		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
-
-		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
-		matrices.pop();
+//
+//		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.values().get(entity.getPlatformIndex() % platformPositions.size()), true);
+//
+//		matrices.push();
+//		matrices.translate(0.5, 0, 0.5);
+//		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+//		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+//		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
+//
+//		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
+//		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
+//		matrices.pop();
 	}
 
 	@Override

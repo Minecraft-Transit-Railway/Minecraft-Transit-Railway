@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
@@ -176,9 +177,9 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				messages.add(IGui.addToStationName(stationName, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
 			}
 
-			final List<ClientData.ColorNamePair> colorNamePairs = ClientData.routesInStation.get(nextStationId);
-			if (colorNamePairs != null) {
-				final List<String> interchangeRoutes = colorNamePairs.stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRouteName)).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+			final Map<Long, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStationId);
+			if (routesInStation != null) {
+				final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRouteName)).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
 				final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
 				if (!mergedStations.isEmpty()) {
 					messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));

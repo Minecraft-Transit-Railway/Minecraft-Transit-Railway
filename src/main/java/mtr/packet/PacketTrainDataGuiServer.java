@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
@@ -57,7 +58,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	public static void receiveSignTypesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
-		final int platformRouteIndex = packet.readInt();
+		final int selectedIdsLength = packet.readInt();
+		final Set<Long> selectedIds = new HashSet<>();
+		for (int i = 0; i < selectedIdsLength; i++) {
+			selectedIds.add(packet.readLong());
+		}
 		final int signLength = packet.readInt();
 		final BlockRailwaySign.SignType[] signTypes = new BlockRailwaySign.SignType[signLength];
 		for (int i = 0; i < signLength; i++) {
@@ -71,7 +76,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(platformRouteIndex, signTypes);
+				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signTypes);
 			}
 		});
 	}

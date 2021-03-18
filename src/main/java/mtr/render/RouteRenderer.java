@@ -170,7 +170,7 @@ public class RouteRenderer implements IGui {
 
 		matrices.push();
 
-		if (destinationString.isEmpty()) {
+		if (destinationString.isEmpty() && visibleArrow) {
 			final float chunkHeight = arrowSize / routeCount;
 			for (int i = 0; i < routeCount; i++) {
 				IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/circle.png", centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, light);
@@ -186,14 +186,15 @@ public class RouteRenderer implements IGui {
 			final float textX;
 			if (vertical && hasLeft != hasRight) {
 				horizontalAlignment2 = horizontalAlignment1;
-				textX = hasLeft ? left + (arrowSize + arrowPadding) * 2 : right - (arrowSize + arrowPadding) * 2;
+				final float extraPadding = (arrowSize + arrowPadding) * (visibleArrow ? 2 : 1);
+				textX = hasLeft ? left + extraPadding : right - extraPadding;
 			} else {
 				horizontalAlignment2 = HorizontalAlignment.CENTER;
 				textX = centerX + (arrowSize + arrowPadding) * ((hasLeft ? 0.5F : 0) + (hasRight ? -0.5F : 0) + (leftToRight ? 0.5F : -0.5F));
 			}
 
 			final int textColor = vertical ? ARGB_WHITE : ARGB_BLACK;
-			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0));
+			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft && visibleArrow ? 1 : 0) + (hasRight && visibleArrow ? 1 : 0));
 			IGui.drawStringWithFont(matrices, textRenderer, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, ((x1, y1, x2, y2) -> {
 				if (hasLeft && visibleArrow) {
 					IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/arrow.png", x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, facing, textColor, light);

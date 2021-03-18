@@ -10,6 +10,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Set;
+
 public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void openDashboardScreenS2C(MinecraftClient minecraftClient) {
@@ -33,10 +35,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		sendAllInChunks(ClientData.stations, ClientData.platforms, ClientData.routes, packet -> ClientPlayNetworking.send(PACKET_CHUNK_C2S, packet));
 	}
 
-	public static void sendSignTypesC2S(BlockPos signPos, int platformRouteIndex, BlockRailwaySign.SignType[] signTypes) {
+	public static void sendSignTypesC2S(BlockPos signPos, Set<Long> selectedIds, BlockRailwaySign.SignType[] signTypes) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
-		packet.writeInt(platformRouteIndex);
+		packet.writeInt(selectedIds.size());
+		selectedIds.forEach(packet::writeLong);
 		packet.writeInt(signTypes.length);
 		for (final BlockRailwaySign.SignType signType : signTypes) {
 			packet.writeString(signType == null ? "" : signType.toString());

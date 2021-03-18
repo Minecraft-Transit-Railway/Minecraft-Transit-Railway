@@ -13,10 +13,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DashboardScreen extends Screen implements IGui {
@@ -180,8 +177,8 @@ public class DashboardScreen extends Screen implements IGui {
 				if (editingStation == null) {
 					dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
 				} else {
-					final List<Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
-					dashboardList.setData(platformData == null ? new ArrayList<>() : platformData, true, false, true, false, false, false);
+					final Map<Long, Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
+					dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
 				}
 				break;
 			case 1:

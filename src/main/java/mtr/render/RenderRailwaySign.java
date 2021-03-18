@@ -3,6 +3,7 @@ package mtr.render;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
@@ -18,7 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> extends BlockEntityRenderer<T> implements IBlock, IGui {
 
@@ -56,7 +58,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signTypes.length), 0.5F, SMALL_OFFSET * 2, facing, ARGB_BLACK, light);
 
 				final int index = i;
-				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getPlatformRouteIndex(), facing, (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, -1));
+				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getSelectedIds(), facing, (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, -1));
 			}
 		}
 
@@ -68,7 +70,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		return true;
 	}
 
-	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, int platformIndex, Direction facing, DrawTexture drawTexture) {
+	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> selectedIds, Direction facing, DrawTexture drawTexture) {
 		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
 			return;
 		}
@@ -82,23 +84,49 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
 
-		if (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED) {
-			final List<ClientData.ColorNamePair> routes = ClientData.routesInStation.get(stationId);
-			if (routes != null && routes.size() > 0) {
-				final ClientData.ColorNamePair colorNamePair = routes.get(platformIndex % routes.size());
+		if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED)) {
+			final Map<Long, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(stationId);
+			if (routesInStation != null) {
+				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+				final int selectedCount = selectedIdsSorted.size();
 
-				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 3);
-				IGui.drawStringWithFont(matrices, textRenderer, colorNamePair.name, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? x + size - margin * 1.5F : x + margin * 1.5F, y + margin * 1.5F, maxWidth, size - margin * 3, 0.01F, ARGB_WHITE, false, (x1, y1, x2, y2) -> IGui.drawRectangle(matrices, vertexConsumers, x1 - margin / 2, y1 - margin / 2, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, facing, colorNamePair.color + ARGB_BLACK, -1));
-			}
-		} else if (signType == BlockRailwaySign.SignType.PLATFORM || signType == BlockRailwaySign.SignType.PLATFORM_FLIPPED) {
-			if (vertexConsumers == null) {
-				drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);
-			}
+				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);
+				final List<Float> textWidths = new ArrayList<>();
+				for (final ClientData.ColorNamePair route : selectedIdsSorted) {
+					IGui.drawStringWithFont(matrices, textRenderer, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, 1, 0, false, (x1, y1, x2, y2) -> textWidths.add(x2));
+				}
 
-			final List<Platform> platformPositions = ClientData.platformsInStation.get(stationId);
-			if (platformPositions != null && platformPositions.size() > 0) {
-				final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPositions.get(platformIndex % platformPositions.size()), true);
-				routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x - size) + margin, (flipped ? x + size * 2 : x + (maxWidthRight + 1) * size) - margin, y + margin, y + size - margin, flipped, !flipped, facing, -1, false);
+				matrices.push();
+				matrices.translate(flipped ? x + size - margin : x + margin, 0, 0);
+
+				final float totalTextWidth = textWidths.stream().reduce(Float::sum).orElse(0F) + 1.5F * margin * selectedCount;
+				if (totalTextWidth > maxWidth) {
+					matrices.scale((maxWidth - margin / 2) / (totalTextWidth - margin / 2), 1, 1);
+				}
+
+				float xOffset = margin * 0.5F;
+				for (int i = 0; i < selectedIdsSorted.size(); i++) {
+					final ClientData.ColorNamePair route = selectedIdsSorted.get(i);
+					IGui.drawStringWithFont(matrices, textRenderer, route.name, flipped ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipped ? -xOffset : xOffset, y + margin * 1.5F, -1, size - margin * 3, 0.01F, ARGB_WHITE, false, (x1, y1, x2, y2) -> IGui.drawRectangle(matrices, vertexConsumers, x1 - margin / 2, y1 - margin / 2, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, facing, route.color + ARGB_BLACK, -1));
+					xOffset += textWidths.get(i) + margin * 1.5F;
+				}
+
+				matrices.pop();
+			}
+		} else if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.PLATFORM || signType == BlockRailwaySign.SignType.PLATFORM_FLIPPED)) {
+			final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(stationId);
+			if (platformPositions != null) {
+				final List<Platform> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).map(platformPositions::get).sorted(NameColorDataBase::compareTo).collect(Collectors.toList());
+				final int selectedCount = selectedIdsSorted.size();
+
+				final float smallPadding = margin / selectedCount;
+				final float height = (size - margin * 2 + smallPadding) / selectedCount;
+				for (int i = 0; i < selectedIdsSorted.size(); i++) {
+					final float topOffset = i * height + margin;
+					final float bottomOffset = (i + 1) * height + margin - smallPadding;
+					final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, selectedIdsSorted.get(i), true);
+					routeRenderer.renderArrow((flipped ? x - maxWidthLeft * size : x) + margin, (flipped ? x + size : x + (maxWidthRight + 1) * size) - margin, topOffset, bottomOffset, flipped, !flipped, facing, -1, false);
+				}
 			}
 		} else {
 			drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);

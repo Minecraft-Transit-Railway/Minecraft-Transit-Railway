@@ -32,7 +32,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.List;
+import java.util.*;
 
 public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEntityProvider, IBlock {
 
@@ -185,14 +185,15 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 	public static class TileEntityRailwaySign extends BlockEntity implements BlockEntityClientSerializable {
 
-		private int platformRouteIndex;
+		private final Set<Long> selectedIds;
 		private final SignType[] signTypes;
-		private static final String KEY_PLATFORM_ROUTE_INDEX = "platform_index";
+		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
 
 		public TileEntityRailwaySign(int length, boolean isOdd) {
 			super(getType(length, isOdd));
 			signTypes = new SignType[length];
+			selectedIds = new HashSet<>();
 		}
 
 		@Override
@@ -210,7 +211,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 		@Override
 		public void fromClientTag(CompoundTag tag) {
-			platformRouteIndex = tag.getInt(KEY_PLATFORM_ROUTE_INDEX);
+			selectedIds.clear();
+			Arrays.stream(tag.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signTypes.length; i++) {
 				try {
 					signTypes[i] = SignType.valueOf(tag.getString(KEY_SIGN_LENGTH + i));
@@ -222,15 +224,16 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putInt(KEY_PLATFORM_ROUTE_INDEX, platformRouteIndex);
+			tag.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
 			for (int i = 0; i < signTypes.length; i++) {
 				tag.putString(KEY_SIGN_LENGTH + i, signTypes[i] == null ? "" : signTypes[i].toString());
 			}
 			return tag;
 		}
 
-		public void setData(int platformRouteIndex, SignType[] signTypes) {
-			this.platformRouteIndex = Math.max(platformRouteIndex, 0);
+		public void setData(Set<Long> selectedIds, SignType[] signTypes) {
+			this.selectedIds.clear();
+			this.selectedIds.addAll(selectedIds);
 			if (this.signTypes.length == signTypes.length) {
 				System.arraycopy(signTypes, 0, this.signTypes, 0, signTypes.length);
 			}
@@ -238,8 +241,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			sync();
 		}
 
-		public int getPlatformRouteIndex() {
-			return platformRouteIndex;
+		public Set<Long> getSelectedIds() {
+			return selectedIds;
 		}
 
 		public SignType[] getSign() {
@@ -280,8 +283,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		EXIT_3("exit_3", true, false),
 		ESCALATOR("escalator", true, false),
 		ESCALATOR_FLIPPED("escalator", true, true),
-		STAIRS_FLIPPED("stairs", true, true),
-		STAIRS("stairs", true, false),
+		STAIRS_UP("stairs_up", true, false),
+		STAIRS_UP_FLIPPED("stairs_up", true, true),
+		STAIRS_DOWN_FLIPPED("stairs_down", true, true),
+		STAIRS_DOWN("stairs_down", true, false),
 		LIFT_1("lift_1", true, false),
 		LIFT_2("lift_2", true, false),
 		WHEELCHAIR("wheelchair", true, false),
@@ -289,6 +294,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		FEMALE("female", true, false),
 		MALE("male", true, false),
 		TRAIN("train", true, false),
+		TRAIN_OLD("train_old", true, false),
 		AIRPORT_EXPRESS("airport_express", true, false),
 		LIGHT_RAIL_1("light_rail_1", true, false),
 		LIGHT_RAIL_2("light_rail_2", false, false),
@@ -300,10 +306,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		YELLOW_HEAD_2("yellow_head_2", false, false),
 		CROSS("cross", true, false),
 		LOGO("logo", false, false),
-		PLATFORM("circle", true, false, true),
-		PLATFORM_FLIPPED("circle", true, true, true),
-		LINE("circle", true, false, true),
-		LINE_FLIPPED("circle", true, true, true),
+		PLATFORM("platform", true, false, true),
+		PLATFORM_FLIPPED("platform", true, true, true),
+		LINE("line", true, false, true),
+		LINE_FLIPPED("line", true, true, true),
 		LIFT_1_TEXT("lift_1", true, false, true),
 		LIFT_1_TEXT_FLIPPED("lift_1", true, true, true),
 		LIFT_2_TEXT("lift_2", true, false, true),
@@ -318,6 +324,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		WHEELCHAIR_TOILETS_FLIPPED("wheelchair", true, true, true),
 		TRAINS("train", true, false, true),
 		TRAINS_FLIPPED("train", true, true, true),
+		TRAINS_OLD("train_old", true, false, true),
+		TRAINS_OLD_FLIPPED("train_old", true, true, true),
 		AIRPORT_EXPRESS_TRAINS("airport_express", true, false, true),
 		AIRPORT_EXPRESS_TRAINS_FLIPPED("airport_express", true, true, true),
 		LIGHT_RAIL_1_TRAINS("light_rail_1", true, false, true),
