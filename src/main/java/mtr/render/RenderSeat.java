@@ -209,7 +209,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 	private static Text getThisStationText(int x, int z) {
 		final String stationName = ClientData.stations.stream().filter(station -> station.inStation(x, z)).map(station -> station.name).findFirst().orElse("");
-		return Text.of(IGui.formatStationName(IGui.addToStationName(stationName, new TranslatableText("gui.mtr.this_station_cjk").getString(), new TranslatableText("gui.mtr.this_station").getString(), "", "")));
+		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(stationName), new TranslatableText("gui.mtr.this_station_cjk").getString(), new TranslatableText("gui.mtr.this_station").getString(), "", "")));
 	}
 
 	private static Station getNextStation(Route route, BlockPos pos) {
@@ -224,12 +224,12 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	private static Text getNextStationText(Station station) {
-		return Text.of(IGui.formatStationName(IGui.addToStationName(station.name, new TranslatableText("gui.mtr.next_station_cjk").getString(), new TranslatableText("gui.mtr.next_station").getString(), "", "")));
+		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station == null ? "" : station.name), new TranslatableText("gui.mtr.next_station_cjk").getString(), new TranslatableText("gui.mtr.next_station").getString(), "", "")));
 	}
 
 	private static Text getLastStationText(Route route) {
 		final Station station = ClientData.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
-		return Text.of(IGui.formatStationName(IGui.addToStationName(station.name, new TranslatableText("gui.mtr.last_station_cjk").getString(), new TranslatableText("gui.mtr.last_station").getString(), "", "")));
+		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station == null ? "" : station.name), new TranslatableText("gui.mtr.last_station_cjk").getString(), new TranslatableText("gui.mtr.last_station").getString(), "", "")));
 	}
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
