@@ -180,7 +180,6 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public void generateGraph(WorldAccess world, Set<Platform> platforms) {
-		System.out.println("generated");
 		final PathFinder routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
 		path.clear();
 		path.addAll(routePathFinder.findPath());

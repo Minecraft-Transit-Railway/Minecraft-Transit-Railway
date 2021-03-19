@@ -27,6 +27,8 @@ public class RenderPIDS1 extends BlockEntityRenderer<BlockPIDS1.TileEntityBlockP
 
 	private static final int SCALE = 64;
 	private static final int TOTAL_SCALED_WIDTH = SCALE * 30 / 16;
+	private static final int DESTINATION_MAX_WIDTH = TOTAL_SCALED_WIDTH * 6 / 10;
+	private static final int ARRIVAL_MAX_WIDTH = TOTAL_SCALED_WIDTH - DESTINATION_MAX_WIDTH;
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int TEXT_COLOR = 0xFF9900;
 
@@ -46,7 +48,7 @@ public class RenderPIDS1 extends BlockEntityRenderer<BlockPIDS1.TileEntityBlockP
 			return;
 		}
 
-		final Platform platform = ClientData.platforms.stream().filter(platform2 -> platform2.isCloseToPlatform(pos)).findFirst().orElse(null);
+		final Platform platform = ClientData.getClosePlatform(pos);
 		if (platform == null) {
 			return;
 		}
@@ -107,9 +109,26 @@ public class RenderPIDS1 extends BlockEntityRenderer<BlockPIDS1.TileEntityBlockP
 			matrices.scale(1F / SCALE, 1F / SCALE, 1F / SCALE);
 
 			final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+
+			matrices.push();
+			final int destinationWidth = textRenderer.getWidth(destinationString);
+			if (destinationWidth > DESTINATION_MAX_WIDTH) {
+				matrices.scale((float) DESTINATION_MAX_WIDTH / destinationWidth, 1, 1);
+			}
 			textRenderer.draw(matrices, destinationString, 0, 0, TEXT_COLOR);
+			matrices.pop();
+
 			if (arrivalText != null) {
-				textRenderer.draw(matrices, arrivalText, TOTAL_SCALED_WIDTH - textRenderer.getWidth(arrivalText), 0, TEXT_COLOR);
+				matrices.push();
+				final int arrivalWidth = textRenderer.getWidth(arrivalText);
+				if (arrivalWidth > ARRIVAL_MAX_WIDTH) {
+					matrices.translate(DESTINATION_MAX_WIDTH, 0, 0);
+					matrices.scale((float) ARRIVAL_MAX_WIDTH / arrivalWidth, 1, 1);
+				} else {
+					matrices.translate(TOTAL_SCALED_WIDTH - arrivalWidth, 0, 0);
+				}
+				textRenderer.draw(matrices, arrivalText, 0, 0, TEXT_COLOR);
+				matrices.pop();
 			}
 
 			matrices.pop();

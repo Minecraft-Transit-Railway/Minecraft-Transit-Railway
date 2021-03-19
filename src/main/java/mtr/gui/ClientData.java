@@ -84,6 +84,24 @@ public final class ClientData {
 		}).collect(Collectors.toList())));
 	}
 
+	public static Station getStation(BlockPos pos) {
+		try {
+			return ClientData.stations.stream().filter(station -> station.inStation(pos.getX(), pos.getZ())).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Platform getClosePlatform(BlockPos pos) {
+		try {
+			return ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static class PlatformRouteDetails {
 
 		public final String routeName;

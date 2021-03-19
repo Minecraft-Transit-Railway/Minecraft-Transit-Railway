@@ -43,7 +43,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Platform platform = ClientData.platforms.stream().filter(platform2 -> platform2.isCloseToPlatform(pos)).findFirst().orElse(null);
+		final Platform platform = ClientData.getClosePlatform(pos);
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, false);
 
 		matrices.push();

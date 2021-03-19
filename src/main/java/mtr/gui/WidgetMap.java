@@ -88,13 +88,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 		try {
 			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+			for (Station station : ClientData.stations) {
+				drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		for (Station station : ClientData.stations) {
-			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
-		}
 		mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE));
 
 		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {

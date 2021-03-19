@@ -124,6 +124,7 @@ public class RailwayData extends PersistentState {
 			this.routes.addAll(routes);
 			validateData();
 			this.routes.forEach(route -> route.generateGraph(world, platforms));
+			System.out.println("Routes generated");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

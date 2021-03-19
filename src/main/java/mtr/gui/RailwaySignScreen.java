@@ -5,6 +5,7 @@ import mtr.block.BlockRouteSignBase;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
+import mtr.data.Station;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderRailwaySign;
 import net.minecraft.block.entity.BlockEntity;
@@ -64,40 +65,28 @@ public class RailwaySignScreen extends Screen implements IGui {
 		selectedData = new ArrayList<>();
 		final ClientWorld world = MinecraftClient.getInstance().world;
 
-		final Optional<Long> stationId = ClientData.stations.stream().filter(station -> station.inStation(signPos.getX(), signPos.getZ())).map(station -> station.id).findFirst();
-		List<NameColorDataBase> routesForList1 = new ArrayList<>();
-		List<NameColorDataBase> platformsForList1 = new ArrayList<>();
-		List<Integer> routeColors1 = new ArrayList<>();
-		List<Long> platformIds1 = new ArrayList<>();
-		if (stationId.isPresent()) {
-			try {
-				final List<Platform> platforms = new ArrayList<>(ClientData.platformsInStation.get(stationId.get()).values());
+		platformsForList = new ArrayList<>();
+		platformIds = new ArrayList<>();
+		routesForList = new ArrayList<>();
+		routeColors = new ArrayList<>();
+
+		try {
+			final Station station = ClientData.getStation(signPos);
+			if (station != null) {
+				final List<Platform> platforms = new ArrayList<>(ClientData.platformsInStation.get(station.id).values());
 				platforms.sort(NameColorDataBase::compareTo);
-				platformIds1 = platforms.stream().map(platform -> platform.id).collect(Collectors.toList());
-				platformsForList1 = platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.platformToRoute.get(platform).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).collect(Collectors.toList());
+				platforms.stream().map(platform -> platform.id).forEach(platformIds::add);
+				platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.platformToRoute.get(platform).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
 
-				routeColors1 = new ArrayList<>();
-				routesForList1 = new ArrayList<>();
-				final Map<Integer, ClientData.ColorNamePair> routeMap = ClientData.routesInStation.get(stationId.get());
-				List<Integer> finalRouteColors = routeColors1;
-				List<NameColorDataBase> finalRoutesForList = routesForList1;
+				final Map<Integer, ClientData.ColorNamePair> routeMap = ClientData.routesInStation.get(station.id);
 				routeMap.forEach((color, route) -> {
-					finalRouteColors.add(color);
-					finalRoutesForList.add(new DataConverter(route.name, route.color));
+					routeColors.add(color);
+					routesForList.add(new DataConverter(route.name, route.color));
 				});
-			} catch (Exception e) {
-				e.printStackTrace();
-				platformIds1 = new ArrayList<>();
-				routeColors1 = new ArrayList<>();
-				platformsForList1 = new ArrayList<>();
-				routesForList1 = new ArrayList<>();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		routesForList = routesForList1;
-		platformsForList = platformsForList1;
-		routeColors = routeColors1;
-		platformIds = platformIds1;
 
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(signPos);

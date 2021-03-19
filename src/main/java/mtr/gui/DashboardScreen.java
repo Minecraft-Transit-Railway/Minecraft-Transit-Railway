@@ -172,33 +172,37 @@ public class DashboardScreen extends Screen implements IGui {
 		textFieldColor.tick();
 		dashboardList.tick();
 
-		switch (selectedTab) {
-			default:
-				if (editingStation == null) {
-					dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
-				} else {
-					final Map<Long, Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
-					dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
-				}
-				break;
-			case 1:
-				if (editingRoute == null) {
-					dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
-				} else {
-					final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
-						final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
-						if (station != null) {
-							return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
-						} else {
-							return new DataConverter(String.format("(%s)", platform.name), 0);
-						}
-					}).collect(Collectors.toList());
-					dashboardList.setData(routeData, false, false, false, true, false, true);
-				}
-				break;
-			case 2:
-//				dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
-				break;
+		try {
+			switch (selectedTab) {
+				default:
+					if (editingStation == null) {
+						dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
+					} else {
+						final Map<Long, Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
+						dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
+					}
+					break;
+				case 1:
+					if (editingRoute == null) {
+						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
+					} else {
+						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
+							final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+							if (station != null) {
+								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
+							} else {
+								return new DataConverter(String.format("(%s)", platform.name), 0);
+							}
+						}).collect(Collectors.toList());
+						dashboardList.setData(routeData, false, false, false, true, false, true);
+					}
+					break;
+				case 2:
+					// dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
+					break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -263,19 +267,23 @@ public class DashboardScreen extends Screen implements IGui {
 	}
 
 	private void onDelete(NameColorDataBase data, int index) {
-		switch (selectedTab) {
-			case 0:
-				final Station station = (Station) data;
-				ClientData.stations.remove(station);
-				break;
-			case 1:
-				if (editingRoute == null) {
-					final Route route = (Route) data;
-					ClientData.routes.remove(route);
-				} else {
-					editingRoute.platformIds.remove(index);
-				}
-				break;
+		try {
+			switch (selectedTab) {
+				case 0:
+					final Station station = (Station) data;
+					ClientData.stations.remove(station);
+					break;
+				case 1:
+					if (editingRoute == null) {
+						final Route route = (Route) data;
+						ClientData.routes.remove(route);
+					} else {
+						editingRoute.platformIds.remove(index);
+					}
+					break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -319,7 +327,11 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private void onDoneEditingStation() {
 		if (isNew) {
-			ClientData.stations.add(editingStation);
+			try {
+				ClientData.stations.add(editingStation);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
@@ -328,7 +340,11 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private void onDoneEditingRoute() {
 		if (isNew) {
-			ClientData.routes.add(editingRoute);
+			try {
+				ClientData.routes.add(editingRoute);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());

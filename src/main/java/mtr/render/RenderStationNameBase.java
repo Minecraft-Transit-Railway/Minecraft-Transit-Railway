@@ -2,6 +2,7 @@ package mtr.render;
 
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.data.Station;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -58,8 +59,8 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
 		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-		final String stationName = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.name).orElse(new TranslatableText("gui.mtr.untitled").getString());
-		drawStationName(entity, matrices, vertexConsumers, stationName, color);
+		final Station station = ClientData.getStation(pos);
+		drawStationName(entity, matrices, vertexConsumers, station == null ? new TranslatableText("gui.mtr.untitled").getString() : station.name, color);
 		matrices.pop();
 	}
 

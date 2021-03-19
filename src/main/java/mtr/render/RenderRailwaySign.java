@@ -5,6 +5,7 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
+import mtr.data.Station;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -82,10 +83,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final boolean flipped = signType.flipped;
 		final boolean flipTexture = flipped && !hasCustomText;
 
-		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
-
 		if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED)) {
-			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(stationId);
+			final Station station = ClientData.getStation(pos);
+			if (station == null) {
+				return;
+			}
+
+			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(station.id);
 			if (routesInStation != null) {
 				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
@@ -114,7 +118,12 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				matrices.pop();
 			}
 		} else if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.PLATFORM || signType == BlockRailwaySign.SignType.PLATFORM_FLIPPED)) {
-			final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(stationId);
+			final Station station = ClientData.getStation(pos);
+			if (station == null) {
+				return;
+			}
+
+			final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(station.id);
 			if (platformPositions != null) {
 				final List<Platform> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).map(platformPositions::get).sorted(NameColorDataBase::compareTo).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();

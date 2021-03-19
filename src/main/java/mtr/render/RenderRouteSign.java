@@ -5,6 +5,7 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.Platform;
+import mtr.data.Station;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
@@ -48,12 +49,15 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Long stationId = ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).map(station -> station.id).findFirst().orElse(0L);
-		final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(stationId);
-		if (platformPositions == null || platformPositions.isEmpty()) {
+		final Station station = ClientData.getStation(pos);
+		if (station == null) {
 			return;
 		}
 
+		final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(station.id);
+		if (platformPositions == null || platformPositions.isEmpty()) {
+			return;
+		}
 
 		final Platform platform = platformPositions.get(entity.getPlatformId());
 		if (platform == null) {

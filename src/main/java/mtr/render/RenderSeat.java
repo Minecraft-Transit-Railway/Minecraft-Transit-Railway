@@ -27,6 +27,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
@@ -77,93 +78,98 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		matrices.translate(-entityX, -entityY, -entityZ);
 
 		final long worldTime = world.getLunarTime();
-		ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + tickDelta, tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
-			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
-			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
-			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
-			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-			if (shouldNotRender(player, posAverage, halfRenderDistance)) {
-				return;
-			}
-			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-			final ModelTrainBase model = getModel(trainType);
 
-			matrices.push();
-			matrices.translate(offsetX, offsetY, offsetZ);
-			matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
-			matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
+		try {
+			ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + (world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE) ? tickDelta : 0), tickDelta, entity, ((x, y, z, yaw, pitch, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
+				final double offsetX = x + (shouldOffsetRender ? entityX : 0);
+				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
+				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
+				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
+				if (shouldNotRender(player, posAverage, halfRenderDistance)) {
+					return;
+				}
+				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
+				final ModelTrainBase model = getModel(trainType);
 
-			if (model == null) {
-				matrices.translate(0, 0.5, 0);
-				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90));
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
-				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
-				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
-			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
-			}
+				matrices.push();
+				matrices.translate(offsetX, offsetY, offsetZ);
+				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
+				matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
 
-			matrices.pop();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender) -> {
-			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
-			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
-			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
-			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-			if (shouldNotRender(player, posAverage, halfRenderDistance)) {
-				return;
-			}
-			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-
-			final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");
-			final String connectorSideTexture = getConnectorTextureString(trainType.id, "side");
-			final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
-			final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
-
-			matrices.push();
-			if (shouldOffsetRender) {
-				matrices.translate(entityX, entityY, entityZ);
-			}
-
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
-
-			drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, MAX_LIGHT);
-			drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, MAX_LIGHT);
-			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
-			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
-			matrices.pop();
-		}, (speed, x, y, z) -> {
-			final Text text;
-
-			if (speed <= 5) {
-				switch ((int) ((worldTime / 20) % 3)) {
-					default:
-						text = getThisStationText(x, z);
-						break;
-					case 1:
-						final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
-						if (nextStation == null) {
-							text = getThisStationText(x, z);
-							nextStationId = 0;
-						} else {
-							text = getNextStationText(nextStation);
-							nextStationId = nextStation.id;
-						}
-						break;
-					case 2:
-						text = getLastStationText(route);
-						break;
+				if (model == null) {
+					matrices.translate(0, 0.5, 0);
+					matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90));
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
+					MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
+					MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+				} else {
+					model.render(matrices, vertexConsumers, getTrainTexture(trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
 				}
 
-				announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
-				thisRouteName = route.name.split("\\|\\|")[0];
-			} else {
-				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
-			}
-			player.sendMessage(text, true);
-		}));
+				matrices.pop();
+			}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender) -> {
+				final double offsetX = x + (shouldOffsetRender ? entityX : 0);
+				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
+				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
+				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
+				if (shouldNotRender(player, posAverage, halfRenderDistance)) {
+					return;
+				}
+				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
+
+				final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");
+				final String connectorSideTexture = getConnectorTextureString(trainType.id, "side");
+				final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
+				final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
+
+				matrices.push();
+				if (shouldOffsetRender) {
+					matrices.translate(entityX, entityY, entityZ);
+				}
+
+				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
+				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
+				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
+				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
+
+				drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, MAX_LIGHT);
+				drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, MAX_LIGHT);
+				drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
+				drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
+				matrices.pop();
+			}, (speed, x, y, z) -> {
+				final Text text;
+
+				if (speed <= 5) {
+					switch ((int) ((worldTime / 20) % 3)) {
+						default:
+							text = getThisStationText(x, z);
+							break;
+						case 1:
+							final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
+							if (nextStation == null) {
+								text = getThisStationText(x, z);
+								nextStationId = 0;
+							} else {
+								text = getNextStationText(nextStation);
+								nextStationId = nextStation.id;
+							}
+							break;
+						case 2:
+							text = getLastStationText(route);
+							break;
+					}
+
+					announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
+					thisRouteName = route.name.split("\\|\\|")[0];
+				} else {
+					text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
+				}
+				player.sendMessage(text, true);
+			}));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		matrices.pop();
 
@@ -213,7 +219,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	private static Station getNextStation(Route route, BlockPos pos) {
-		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).findFirst().orElse(null);
+		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos) && route.platformIds.contains(platform.id)).findFirst().orElse(null);
 		if (currentPlatform != null) {
 			final int nextPlatformIndex = route.platformIds.indexOf(currentPlatform.id) + 1;
 			if (nextPlatformIndex < route.platformIds.size()) {
