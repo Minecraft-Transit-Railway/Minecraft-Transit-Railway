@@ -86,7 +86,12 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 		final Pair<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
 
-		ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+		try {
+			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		for (Station station : ClientData.stations) {
 			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 		}
@@ -115,13 +120,17 @@ public class WidgetMap implements Drawable, Element, IGui {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 		if (scale >= 8) {
-			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-				final int platformCount = platforms.size();
-				for (int i = 0; i < platformCount; i++) {
-					final int index = i;
-					drawFromWorldCoords(platformPos.getX() + 0.5, platformPos.getZ() + (i + 0.5) / platformCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platforms.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
-				}
-			});
+			try {
+				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
+					final int platformCount = platforms.size();
+					for (int i = 0; i < platformCount; i++) {
+						final int index = i;
+						drawFromWorldCoords(platformPos.getX() + 0.5, platformPos.getZ() + (i + 0.5) / platformCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platforms.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		if (scale >= 2) {
 			for (Station station : ClientData.stations) {
@@ -230,18 +239,22 @@ public class WidgetMap implements Drawable, Element, IGui {
 	}
 
 	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {
-		ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-			final int platformCount = platforms.size();
-			for (int i = 0; i < platformCount; i++) {
-				final float left = platformPos.getX();
-				final float right = platformPos.getX() + 1;
-				final float top = platformPos.getZ() + (float) i / platformCount;
-				final float bottom = platformPos.getZ() + (i + 1F) / platformCount;
-				if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
-					mouseOnPlatformCallback.mouseOnPlatformCallback(platforms.get(i), left, top, right, bottom);
+		try {
+			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
+				final int platformCount = platforms.size();
+				for (int i = 0; i < platformCount; i++) {
+					final float left = platformPos.getX();
+					final float right = platformPos.getX() + 1;
+					final float top = platformPos.getZ() + (float) i / platformCount;
+					final float bottom = platformPos.getZ() + (i + 1F) / platformCount;
+					if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
+						mouseOnPlatformCallback.mouseOnPlatformCallback(platforms.get(i), left, top, right, bottom);
+					}
 				}
-			}
-		});
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private Pair<Integer, Integer> coordsToWorldPos(int mouseX, int mouseY) {

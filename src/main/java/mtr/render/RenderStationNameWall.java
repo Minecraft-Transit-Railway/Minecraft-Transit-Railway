@@ -16,6 +16,6 @@ public class RenderStationNameWall extends RenderStationNameBase<BlockStationNam
 
 	@Override
 	protected void drawStationName(BlockStationNameBase.TileEntityStationNameBase entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, String stationName, int color) {
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 60, color, color != ARGB_BLACK, null);
+		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 60, color, false, null);
 	}
 }

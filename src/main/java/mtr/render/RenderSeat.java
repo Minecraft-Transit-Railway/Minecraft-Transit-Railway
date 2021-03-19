@@ -61,7 +61,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int entityLight) {
 		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
-		if (player == null || !player.getClass().toGenericString().toLowerCase().contains("replaymod") && player != entity.getPlayer()) {
+		if (player == null || !isReplayMod(player) && player != entity.getPlayer()) {
 			return;
 		}
 		final World world = entity.world;
@@ -199,7 +199,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance) {
-		return player == null || player.getBlockPos().getManhattanDistance(pos) > maxDistance;
+		return player == null || player.getBlockPos().getManhattanDistance(pos) > maxDistance && !isReplayMod(player);
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance) {
@@ -234,6 +234,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
 		IGui.drawTexture(matrices, vertexConsumers, texture, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
+	}
+
+	private static boolean isReplayMod(PlayerEntity playerEntity) {
+		return playerEntity.getClass().toGenericString().toLowerCase().contains("replaymod");
 	}
 
 	private static Identifier getTrainTexture(String trainId) {
