@@ -315,7 +315,7 @@ public final class Route extends NameColorDataBase implements IGui {
 								final Vec3d positionRotated = entitySeat.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 
 								if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5) {
-									if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding()) {
+									if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding() && Math.abs(positionRotated.z) <= halfSpacing) {
 										entitySeat.resetSeatCoolDown();
 										serverPlayer.startRiding(entitySeat);
 										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
