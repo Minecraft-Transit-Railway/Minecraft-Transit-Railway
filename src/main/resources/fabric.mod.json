@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"mtr.MTRClient"
+		],
+		"modmenu": [
+			"mtr.config.ModMenuConfig"
 		]
 	},
 	"mixins": [

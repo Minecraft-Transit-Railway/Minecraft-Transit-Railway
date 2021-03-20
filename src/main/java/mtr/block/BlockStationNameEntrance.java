@@ -39,7 +39,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 	@Override
 	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return world.getBlockState(pos.offset(facing)).isSideSolidFullSquare(world, pos.offset(facing), facing.getOpposite());
+		return world.getBlockState(pos.offset(facing)).getMaterial().isSolid();
 	}
 
 	@Override

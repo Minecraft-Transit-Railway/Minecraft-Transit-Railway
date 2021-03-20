@@ -3,8 +3,8 @@ package mtr.gui;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.data.Station;
-import mtr.data.Train;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -42,8 +42,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private final TextRenderer textRenderer;
 
 	private static final int ARGB_BLUE = 0xFF4285F4;
-	private static final int SCALE_UPPER_LIMIT = 16;
-	private static final double SCALE_LOWER_LIMIT = 0.0078125;
+	private static final int SCALE_UPPER_LIMIT = 64;
+	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
 	public WidgetMap(OnDrawCorners onDrawCorners, OnClickPlatform onClickPlatform) {
 		this.onDrawCorners = onDrawCorners;
@@ -84,21 +84,18 @@ public class WidgetMap implements Drawable, Element, IGui {
 			}
 		}
 
-		for (Platform platform : ClientData.platforms) {
-			final BlockPos posStart = platform.getPos1();
-			final BlockPos posEnd = platform.getPos2().add(1, 0, 1);
-			drawRectangleFromWorldCoords(buffer, posStart.getX(), posStart.getZ(), posEnd.getX(), posEnd.getZ(), ARGB_WHITE);
-		}
-		for (Station station : ClientData.stations) {
-			drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
-		}
-		for (Train train : ClientData.trains) {
-			for (int i = 0; i < train.posX.length - 1; i++) {
-				final double carX = (train.posX[i] + train.posX[i + 1]) / 2;
-				final double carZ = (train.posZ[i] + train.posZ[i + 1]) / 2;
-				drawRectangleFromWorldCoords(buffer, carX - 0.5, carZ - 0.5, carX + 0.5, carZ + 0.5, ARGB_BLACK + train.color);
+		final Pair<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
+
+		try {
+			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+			for (Station station : ClientData.stations) {
+				drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
+		mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE));
 
 		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {
 			drawRectangleFromWorldCoords(buffer, drawStation1, drawStation2, ARGB_WHITE_TRANSLUCENT);
@@ -123,9 +120,16 @@ public class WidgetMap implements Drawable, Element, IGui {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 		if (scale >= 8) {
-			for (Platform platform : ClientData.platforms) {
-				final BlockPos pos = platform.getMidPos();
-				drawFromWorldCoords(pos.getX() + 0.5, pos.getZ() + 0.5, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platform.name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+			try {
+				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
+					final int platformCount = platforms.size();
+					for (int i = 0; i < platformCount; i++) {
+						final int index = i;
+						drawFromWorldCoords(platformPos.getX() + 0.5, platformPos.getZ() + (i + 0.5) / platformCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platforms.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		if (scale >= 2) {
@@ -135,8 +139,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			}
 		}
 
-		final Pair<Integer, Integer> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-		final String mousePosText = String.format("(%d, %d)", mouseWorldPos.getLeft(), mouseWorldPos.getRight());
+		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getLeft() * 10) / 10F, Math.round(mouseWorldPos.getRight() * 10) / 10F);
 		DrawableHelper.drawStringWithShadow(matrices, textRenderer, mousePosText, x + width - TEXT_PADDING - textRenderer.getWidth(mousePosText), y + TEXT_PADDING, ARGB_WHITE);
 	}
 
@@ -165,8 +168,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 				drawStation1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
 				drawStation2 = null;
 			} else if (mapState == 2) {
-				final Pair<Integer, Integer> worldPos = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				ClientData.platforms.stream().filter(platform -> platform.inPlatform(worldPos.getLeft(), worldPos.getRight())).findAny().ifPresent(platform -> onClickPlatform.onClickPlatform(platform.id));
+				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.onClickPlatform(platform.id));
+			} else {
+				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new ScheduleScreen(platform)));
 			}
 			return true;
 		} else {
@@ -212,6 +218,12 @@ public class WidgetMap implements Drawable, Element, IGui {
 		scale = Math.max(2, scale);
 	}
 
+	public void find(BlockPos pos) {
+		centerX = pos.getX();
+		centerY = pos.getZ();
+		scale = Math.max(8, scale);
+	}
+
 	public void startEditingStation(Station editingStation) {
 		mapState = 1;
 		drawStation1 = editingStation.corner1;
@@ -226,9 +238,33 @@ public class WidgetMap implements Drawable, Element, IGui {
 		mapState = 0;
 	}
 
+	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {
+		try {
+			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
+				final int platformCount = platforms.size();
+				for (int i = 0; i < platformCount; i++) {
+					final float left = platformPos.getX();
+					final float right = platformPos.getX() + 1;
+					final float top = platformPos.getZ() + (float) i / platformCount;
+					final float bottom = platformPos.getZ() + (i + 1F) / platformCount;
+					if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
+						mouseOnPlatformCallback.mouseOnPlatformCallback(platforms.get(i), left, top, right, bottom);
+					}
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private Pair<Integer, Integer> coordsToWorldPos(int mouseX, int mouseY) {
-		final int left = (int) Math.floor((mouseX - width / 2D) / scale + centerX);
-		final int right = (int) Math.floor((mouseY - height / 2D) / scale + centerY);
+		final Pair<Double, Double> worldPos = coordsToWorldPos((double) mouseX, mouseY);
+		return new Pair<>((int) Math.floor(worldPos.getLeft()), (int) Math.floor(worldPos.getRight()));
+	}
+
+	private Pair<Double, Double> coordsToWorldPos(double mouseX, double mouseY) {
+		final double left = (mouseX - width / 2D) / scale + centerX;
+		final double right = (mouseY - height / 2D) / scale + centerY;
 		return new Pair<>(left, right);
 	}
 
@@ -273,5 +309,10 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@FunctionalInterface
 	private interface DrawFromWorldCoords {
 		void drawFromWorldCoords(double x1, double y1);
+	}
+
+	@FunctionalInterface
+	private interface MouseOnPlatformCallback {
+		void mouseOnPlatformCallback(Platform platform, double x1, double z1, double x2, double z2);
 	}
 }

@@ -2,9 +2,8 @@ package mtr;
 
 import mtr.block.*;
 import mtr.data.RailwayData;
-import mtr.data.Train;
-import mtr.entity.*;
-import mtr.packet.IPacket;
+import mtr.entity.EntitySeat;
+import mtr.packet.PacketTrainDataBase;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -18,29 +17,29 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class MTR implements ModInitializer {
 
 	public static final String MOD_ID = "mtr";
 
-	public static final EntityType<EntityMinecart> MINECART = registerEntity("minecart", EntityMinecart::new, Train.TrainType.MINECART.getLength(), 1);
-	public static final EntityType<EntitySP1900> SP1900 = registerEntity("sp1900", EntitySP1900::new, Train.TrainType.SP1900.getLength(), 4);
-	public static final EntityType<EntitySP1900Mini> SP1900_MINI = registerEntity("sp1900_mini", EntitySP1900Mini::new, Train.TrainType.SP1900_MINI.getLength(), 4);
-	public static final EntityType<EntityMTrain> M_TRAIN = registerEntity("m_train", EntityMTrain::new, Train.TrainType.M_TRAIN.getLength(), 4);
-	public static final EntityType<EntityMTrainMini> M_TRAIN_MINI = registerEntity("m_train_mini", EntityMTrainMini::new, Train.TrainType.M_TRAIN_MINI.getLength(), 4);
-	public static final EntityType<EntityLightRail1> LIGHT_RAIL_1 = registerEntity("light_rail_1", EntityLightRail1::new, Train.TrainType.LIGHT_RAIL_1.getLength(), 4);
+	public static final EntityType<EntitySeat> SEAT = registerEntity("seat", EntitySeat::new);
 
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
+	public static final BlockEntityType<BlockPIDS1.TileEntityBlockPIDS1> PIDS_1_TILE_ENTITY = registerTileEntity("pids_1", BlockPIDS1.TileEntityBlockPIDS1::new, Blocks.PIDS_1);
+	public static final BlockEntityType<BlockRail.TileEntityRail> RAIL_TILE_ENTITY = registerTileEntity("rail", BlockRail.TileEntityRail::new, Blocks.RAIL);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_EVEN_TILE_ENTITY = registerTileEntity("railway_sign_2_even", () -> new BlockRailwaySign.TileEntityRailwaySign(2, false), Blocks.RAILWAY_SIGN_2_EVEN);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_ODD_TILE_ENTITY = registerTileEntity("railway_sign_2_odd", () -> new BlockRailwaySign.TileEntityRailwaySign(2, true), Blocks.RAILWAY_SIGN_2_ODD);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_3_EVEN_TILE_ENTITY = registerTileEntity("railway_sign_3_even", () -> new BlockRailwaySign.TileEntityRailwaySign(3, false), Blocks.RAILWAY_SIGN_3_EVEN);
@@ -62,6 +61,17 @@ public class MTR implements ModInitializer {
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 
+	private static final int SP1900_SPEED_COUNT = 120;
+	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
+	public static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
+	public static final SoundEvent SP1900_DOOR_OPEN = registerSoundEvent("sp1900_door_open");
+	public static final SoundEvent SP1900_DOOR_CLOSE = registerSoundEvent("sp1900_door_close");
+	private static final int M_TRAIN_SPEED_COUNT = 90;
+	public static final SoundEvent[] M_TRAIN_ACCELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_acceleration_");
+	public static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
+	public static final SoundEvent M_TRAIN_DOOR_OPEN = registerSoundEvent("m_train_door_open");
+	public static final SoundEvent M_TRAIN_DOOR_CLOSE = registerSoundEvent("m_train_door_close");
+
 	@Override
 	public void onInitialize() {
 		registerItem("apg_door", Items.APG_DOOR);
@@ -73,6 +83,14 @@ public class MTR implements ModInitializer {
 		registerItem("psd_door", Items.PSD_DOOR);
 		registerItem("psd_glass", Items.PSD_GLASS);
 		registerItem("psd_glass_end", Items.PSD_GLASS_END);
+		registerItem("rail_connector_1_wooden", Items.RAIL_CONNECTOR_1_WOODEN);
+		registerItem("rail_connector_2_stone", Items.RAIL_CONNECTOR_2_STONE);
+		registerItem("rail_connector_3_iron", Items.RAIL_CONNECTOR_3_IRON);
+		registerItem("rail_connector_4_obsidian", Items.RAIL_CONNECTOR_4_OBSIDIAN);
+		registerItem("rail_connector_5_blaze", Items.RAIL_CONNECTOR_5_BLAZE);
+		registerItem("rail_connector_6_diamond", Items.RAIL_CONNECTOR_6_DIAMOND);
+		registerItem("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
+		registerItem("rail_remover", Items.RAIL_REMOVER);
 
 		registerBlock("apg_door", Blocks.APG_DOOR);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
@@ -94,11 +112,11 @@ public class MTR implements ModInitializer {
 		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
-		registerBlock("platform_rail", Blocks.PLATFORM_RAIL, ItemGroup.TRANSPORTATION);
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
+		registerBlock("rail", Blocks.RAIL, ItemGroup.TRANSPORTATION);
 		registerBlock("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroup.DECORATIONS);
 		registerBlock("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroup.DECORATIONS);
 		registerBlock("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroup.DECORATIONS);
@@ -155,9 +173,10 @@ public class MTR implements ModInitializer {
 		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
 		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 
-		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_STATIONS_AND_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveStationsAndRoutesC2S(player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(IPacket.ID_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveChunk(packet, packet2 -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_C2S, packet2), packet1 -> PacketTrainDataGuiServer.receiveAllC2S(minecraftServer, player, packet1)));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(packet, packet2 -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet2)));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
 			RailwayData railwayData = RailwayData.getInstance(serverWorld);
@@ -167,10 +186,17 @@ public class MTR implements ModInitializer {
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
-				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-				if (railwayData != null) {
-					PacketTrainDataGuiServer.broadcastS2C(serverWorld, railwayData);
-				}
+				serverWorld.getEntitiesByType(SEAT, checkEntity -> {
+					if (checkEntity instanceof EntitySeat) {
+						final PlayerEntity checkPlayer = ((EntitySeat) checkEntity).getPlayer();
+						return checkPlayer == null || entity.getUuid().equals(checkPlayer.getUuid());
+					} else {
+						return false;
+					}
+				}).forEach(Entity::kill);
+				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
+				seat.setPlayerId(entity.getUuid());
+				serverWorld.spawnEntity(seat);
 			}
 		});
 	}
@@ -192,7 +218,33 @@ public class MTR implements ModInitializer {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
 	}
 
-	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory, float width, float height) {
-		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(width, height)).build());
+	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory) {
+		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(0.125F, 0.125F)).build());
+	}
+
+	private static SoundEvent registerSoundEvent(String path) {
+		final Identifier id = new Identifier(MOD_ID, path);
+		return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
+	}
+
+	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
+		return IntStream.range(0, size).mapToObj(i -> {
+			String group;
+			switch (i % groupSize) {
+				case 0:
+					group = "a";
+					break;
+				case 1:
+					group = "b";
+					break;
+				case 2:
+					group = "c";
+					break;
+				default:
+					group = "";
+					break;
+			}
+			return registerSoundEvent(path + (i / 3) + group);
+		}).toArray(SoundEvent[]::new);
 	}
 }

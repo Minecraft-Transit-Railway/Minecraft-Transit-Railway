@@ -1,261 +1,153 @@
 package mtr.data;
 
-import mtr.block.BlockPlatformRail;
+import mtr.block.BlockRail;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.WorldAccess;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public final class Platform extends DataBase {
+public final class Platform extends NameColorDataBase {
 
-	public boolean shuffleRoutes;
-	public boolean shuffleTrains;
+	private int dwellTime;
+	private final Set<BlockPos> positions;
 
-	public final List<Long> routeIds;
-	public final List<Train.TrainType> trainTypes;
+	public static final int MAX_DWELL_TIME = 120;
+	private static final int DEFAULT_DWELL_TIME = 12;
 
-	public static final int HOURS_IN_DAY = 24;
-	public static final int TICKS_PER_HOUR = 1000;
+	private static final String KEY_DWELL_TIME = "dwell_time";
+	private static final String KEY_POS_1 = "pos_1";
+	private static final String KEY_POS_2 = "pos_2";
 
-	private BlockPos pos;
-	private Direction.Axis axis;
-	private int length;
-
-	private List<Triple<Integer, Long, Train.TrainType>> schedule;
-
-	private final int[] frequencies;
-
-	private static final String KEY_POS = "pos";
-	private static final String KEY_AXIS = "axis";
-	private static final String KEY_LENGTH = "length";
-	private static final String KEY_ROUTE_IDS = "route_ids";
-	private static final String KEY_TRAIN_TYPES = "train_types";
-	private static final String KEY_FREQUENCIES = "frequencies";
-	private static final String KEY_SHUFFLE_ROUTES = "shuffle_routes";
-	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
-
-	public Platform(BlockPos pos, Direction.Axis axis, int length) {
+	public Platform(BlockPos pos1, BlockPos pos2) {
 		super();
 		name = "1";
-		this.pos = pos;
-		this.axis = axis;
-		this.length = length;
-		routeIds = new ArrayList<>();
-		trainTypes = new ArrayList<>();
-		frequencies = new int[HOURS_IN_DAY];
-		shuffleRoutes = false;
-		shuffleTrains = true;
-		schedule = new ArrayList<>();
+		dwellTime = DEFAULT_DWELL_TIME;
+		positions = new HashSet<>();
+		positions.add(pos1);
+		positions.add(pos2);
 	}
 
 	public Platform(CompoundTag tag) {
 		super(tag);
-		pos = BlockPos.fromLong(tag.getLong(KEY_POS));
-		axis = tag.getBoolean(KEY_AXIS) ? Direction.Axis.X : Direction.Axis.Z;
-		length = tag.getInt(KEY_LENGTH);
-
-		routeIds = new ArrayList<>();
-		final long[] routeIdsArray = tag.getLongArray(KEY_ROUTE_IDS);
-		for (final long routeId : routeIdsArray) {
-			routeIds.add(routeId);
-		}
-
-		trainTypes = new ArrayList<>();
-		final int[] trainTypesIndices = tag.getIntArray(KEY_TRAIN_TYPES);
-		for (final int trainTypeIndex : trainTypesIndices) {
-			trainTypes.add(Train.TrainType.values()[trainTypeIndex]);
-		}
-
-		frequencies = tag.getIntArray(KEY_FREQUENCIES);
-		generateSchedule();
-
-		shuffleRoutes = tag.getBoolean(KEY_SHUFFLE_ROUTES);
-		shuffleTrains = tag.getBoolean(KEY_SHUFFLE_TRAINS);
+		dwellTime = tag.getInt(KEY_DWELL_TIME);
+		positions = new HashSet<>();
+		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_1)));
+		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_2)));
 	}
 
 	public Platform(PacketByteBuf packet) {
 		super(packet);
-		pos = packet.readBlockPos();
-		axis = packet.readBoolean() ? Direction.Axis.X : Direction.Axis.Z;
-		length = packet.readInt();
-
-		routeIds = new ArrayList<>();
-		final int routeCount = packet.readInt();
-		for (int i = 0; i < routeCount; i++) {
-			routeIds.add(packet.readLong());
-		}
-
-		trainTypes = new ArrayList<>();
-		final int trainTypeCount = packet.readInt();
-		for (int i = 0; i < trainTypeCount; i++) {
-			trainTypes.add(Train.TrainType.values()[packet.readInt()]);
-		}
-
-		frequencies = packet.readIntArray();
-		generateSchedule();
-
-		shuffleRoutes = packet.readBoolean();
-		shuffleTrains = packet.readBoolean();
+		dwellTime = packet.readInt();
+		positions = new HashSet<>();
+		positions.add(packet.readBlockPos());
+		positions.add(packet.readBlockPos());
 	}
 
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
-		tag.putLong(KEY_POS, pos.asLong());
-		tag.putBoolean(KEY_AXIS, axis == Direction.Axis.X);
-		tag.putInt(KEY_LENGTH, length);
-		tag.putLongArray(KEY_ROUTE_IDS, routeIds);
-		tag.putIntArray(KEY_TRAIN_TYPES, trainTypes.stream().map(Enum::ordinal).collect(Collectors.toList()));
-		tag.putIntArray(KEY_FREQUENCIES, frequencies);
-		tag.putBoolean(KEY_SHUFFLE_ROUTES, shuffleRoutes);
-		tag.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
+		tag.putInt(KEY_DWELL_TIME, dwellTime);
+		tag.putLong(KEY_POS_1, getPosition(0).asLong());
+		tag.putLong(KEY_POS_2, getPosition(1).asLong());
 		return tag;
 	}
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
-		packet.writeBlockPos(pos);
-		packet.writeBoolean(axis == Direction.Axis.X);
-		packet.writeInt(length);
-		packet.writeInt(routeIds.size());
-		routeIds.forEach(packet::writeLong);
-		packet.writeInt(trainTypes.size());
-		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
-		packet.writeIntArray(frequencies);
-		packet.writeBoolean(shuffleRoutes);
-		packet.writeBoolean(shuffleTrains);
+		packet.writeInt(dwellTime);
+		packet.writeBlockPos(getPosition(0));
+		packet.writeBlockPos(getPosition(1));
 	}
 
-	public BlockPos getPos1() {
-		return pos;
+	public int getDwellTime() {
+		if (dwellTime <= 0 || dwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
+		}
+		return dwellTime;
 	}
 
-	public BlockPos getPos2() {
-		if (axis == Direction.Axis.X) {
-			return pos.offset(Direction.EAST, length);
+	public void setDwellTime(int newDwellTime) {
+		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
 		} else {
-			return pos.offset(Direction.SOUTH, length);
+			dwellTime = newDwellTime;
 		}
 	}
 
 	public BlockPos getMidPos() {
-		final BlockPos pos2 = getPos2();
-		return new BlockPos((pos.getX() + pos2.getX()) / 2, pos.getY(), (pos.getZ() + pos2.getZ()) / 2);
+		return getMidPos(false);
 	}
 
-	public int getFrequency(int index) {
-		if (index >= 0 && index < HOURS_IN_DAY) {
-			return frequencies[index];
-		} else {
-			return 0;
-		}
-	}
-
-	public void setFrequencies(int frequency, int index) {
-		if (index >= 0 && index < HOURS_IN_DAY) {
-			frequencies[index] = frequency;
-		}
-		generateSchedule();
-	}
-
-	public void updateDimensions(WorldAccess world) {
-		final Platform tempPlatform = BlockPlatformRail.createNewPlatform(world, getMidPos());
-		if (tempPlatform != null) {
-			pos = tempPlatform.pos;
-			axis = tempPlatform.axis;
-			length = tempPlatform.length;
-		}
+	public BlockPos getMidPos(boolean zeroY) {
+		final BlockPos pos = getPosition(0).add(getPosition(1));
+		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
 	public boolean inPlatform(int x, int z) {
-		final BlockPos pos2 = getPos2();
-		return RailwayData.isBetween(x, pos.getX(), pos2.getX()) && RailwayData.isBetween(z, pos.getZ(), pos2.getZ());
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return RailwayData.isBetween(x, pos1.getX(), pos2.getX()) && RailwayData.isBetween(z, pos1.getZ(), pos2.getZ());
 	}
 
-	public Train createTrainOnPlatform(WorldAccess world, Set<Platform> platforms, Set<Route> routes, int worldTime) {
-		final Optional<Triple<Integer, Long, Train.TrainType>> optionalScheduleEntry = getSchedule().stream().filter(scheduleEntry -> scheduleEntry.getLeft() == worldTime).findFirst();
-		if (optionalScheduleEntry.isPresent()) {
-			final Triple<Integer, Long, Train.TrainType> scheduleEntry = optionalScheduleEntry.get();
-			final Route route = RailwayData.getDataById(routes, shuffleRoutes ? getRandomElementFromList(routeIds) : scheduleEntry.getMiddle());
-			final Train.TrainType trainType = shuffleTrains ? getRandomElementFromList(trainTypes) : scheduleEntry.getRight();
+	public boolean isValidPlatform(WorldAccess world) {
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return isValidPlatform(world, pos1, pos2) && isValidPlatform(world, pos2, pos1);
+	}
 
-			final Direction spawnDirection = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-			final Train newTrain = new Train(trainType, pos, (length + 1) / trainType.getSpacing(), spawnDirection);
-			newTrain.paths.addAll(route.getPath(world, platforms, this));
-			return newTrain;
+	public boolean containsPos(BlockPos pos) {
+		return positions.contains(pos);
+	}
+
+	public boolean isOverlapping(Platform newPlatform) {
+		return containsPos(newPlatform.getPosition(0)) || containsPos(newPlatform.getPosition(1));
+	}
+
+	public boolean isCloseToPlatform(BlockPos pos) {
+		return new Box(getPosition(0), getPosition(1)).stretch(-4, 0, -4).stretch(5, 5, 5).contains(pos.getX(), pos.getY(), pos.getZ());
+	}
+
+	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		final double d1 = pos1.getSquaredDistance(pos);
+		final double d2 = pos2.getSquaredDistance(pos);
+		final List<BlockPos> orderedPositions = new ArrayList<>();
+		if (d2 > d1 == reverse) {
+			orderedPositions.add(pos2);
+			orderedPositions.add(pos1);
 		} else {
-			return null;
+			orderedPositions.add(pos1);
+			orderedPositions.add(pos2);
 		}
+		return orderedPositions;
 	}
 
-	public int getLength() {
-		return length;
+	public BlockPos getOtherPosition(BlockPos pos) {
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return pos.equals(pos1) ? pos2 : pos1;
 	}
 
-	public List<Triple<Integer, Long, Train.TrainType>> getSchedule() {
-		return schedule;
+	private BlockPos getPosition(int index) {
+		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
 
-	public float getHeadway(int hour) {
-		return frequencies[hour] == 0 ? 0 : 2F * TICKS_PER_HOUR / frequencies[hour];
-	}
-
-	private void generateSchedule() {
-		final List<Triple<Integer, Long, Train.TrainType>> tempSchedule = new ArrayList<>();
-
-		if (routeIds.size() > 0 && trainTypes.size() > 0) {
-			int lastTime = -HOURS_IN_DAY * TICKS_PER_HOUR;
-			int lastRouteIndex = -1;
-			int lastTrainTypeIndex = -1;
-
-			for (int i = 0; i < HOURS_IN_DAY * TICKS_PER_HOUR; i++) {
-				final float headway = getHeadway(i / TICKS_PER_HOUR);
-				if (headway > 0 && i >= headway + lastTime) {
-
-					final long route;
-					if (shuffleRoutes) {
-						route = -1;
-					} else {
-						lastRouteIndex++;
-						if (lastRouteIndex >= routeIds.size()) {
-							lastRouteIndex = 0;
-						}
-						route = routeIds.get(lastRouteIndex);
-					}
-
-					final Train.TrainType trainType;
-					if (shuffleTrains) {
-						trainType = null;
-					} else {
-						lastTrainTypeIndex++;
-						if (lastTrainTypeIndex >= trainTypes.size()) {
-							lastTrainTypeIndex = 0;
-						}
-						trainType = trainTypes.get(lastTrainTypeIndex);
-					}
-
-					tempSchedule.add(new ImmutableTriple<>(i, route, trainType));
-					lastTime = i;
-				}
-			}
+	private static boolean isValidPlatform(WorldAccess world, BlockPos posStart, BlockPos posEnd) {
+		final BlockEntity entity = world.getBlockEntity(posStart);
+		if (entity instanceof BlockRail.TileEntityRail) {
+			final BlockRail.TileEntityRail entityRail = (BlockRail.TileEntityRail) entity;
+			return entityRail.railMap.containsKey(posEnd) && entityRail.railMap.get(posEnd).railType == Rail.RailType.PLATFORM;
+		} else {
+			return false;
 		}
-
-		schedule = tempSchedule;
-	}
-
-	private static <T> T getRandomElementFromList(List<T> list) {
-		return list.get(new Random().nextInt(list.size()));
-	}
-
-	@Override
-	public String toString() {
-		return String.format("Platform: %s, +%d%s", pos, length, axis);
 	}
 }

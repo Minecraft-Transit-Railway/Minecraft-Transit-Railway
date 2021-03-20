@@ -1,8 +1,10 @@
 package mtr.render;
 
-import mtr.block.BlockPlatformRail;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.Platform;
+import mtr.entity.EntitySeat;
+import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -33,9 +35,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		}
 
 		final BlockPos pos = entity.getPos();
-
-		final BlockPos platformPos = findPlatformPos(world, pos);
-		if (platformPos == null) {
+		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
 			return;
 		}
 
@@ -43,7 +43,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platformPos, false);
+		final Platform platform = ClientData.getClosePlatform(pos);
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);
@@ -56,17 +57,17 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			if (glassLength > 1) {
 				switch (getRenderType(world, pos, state)) {
 					case ARROW:
-						routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, light);
+						routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
 						break;
 					case ROUTE:
 						final boolean flipLine = arrowDirection == 1;
-						routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), light);
+						routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
 						break;
 				}
 			}
 		}
 
-		renderAdditional(matrices, vertexConsumers, routeRenderer, state, light);
+		renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
 
 		matrices.pop();
 	}
@@ -87,20 +88,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 	protected abstract RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, int light);
-
-	private BlockPos findPlatformPos(WorldAccess world, BlockPos pos) {
-		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
-		for (int y = 1; y <= 3; y++) {
-			for (int x = 1; x <= 2; x++) {
-				final BlockPos checkPos = pos.down(y).offset(facing, x);
-				if (world.getBlockState(checkPos).getBlock() instanceof BlockPlatformRail) {
-					return BlockPlatformRail.getPlatformPos1(world, checkPos);
-				}
-			}
-		}
-		return null;
-	}
+	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
 
 	private int getGlassLength(WorldAccess world, BlockPos pos, Direction facing) {
 		int glassLength = 1;

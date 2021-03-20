@@ -1,0 +1,57 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/metal",
+		"wood": "block/oak_log"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 6 ],
+			"to": [ 16, 1, 10 ],
+			"faces": {
+				"down": { "texture": "#wood", "cullface": "down" },
+				"up": { "texture": "#wood" },
+				"north": { "texture": "#wood" },
+				"south": { "texture": "#wood" },
+				"east": { "texture": "#wood" },
+				"west": { "texture": "#wood" }
+			}
+		},
+		{
+			"from": [ 1, 1, 7 ],
+			"to": [ 2, 12, 9 ],
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{
+			"from": [ 14, 1, 7 ],
+			"to": [ 15, 12, 9 ],
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{
+			"from": [ 0, 12, 7.5 ],
+			"to": [ 16, 16, 8.5 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle", "cullface": "up" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		}
+	]
+}

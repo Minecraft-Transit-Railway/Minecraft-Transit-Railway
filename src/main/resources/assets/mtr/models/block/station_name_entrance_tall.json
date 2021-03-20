@@ -7,6 +7,7 @@
 			"from": [ 0, 0, 0.05 ],
 			"to": [ 16, 16, 0.05 ],
 			"faces": {
+				"north": { "texture": "#particle", "cullface": "north" },
 				"south": { "texture": "#particle" }
 			}
 		}

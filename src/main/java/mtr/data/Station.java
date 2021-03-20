@@ -5,7 +5,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
-public final class Station extends DataBase {
+public final class Station extends NameColorDataBase {
 
 	public Pair<Integer, Integer> corner1, corner2;
 

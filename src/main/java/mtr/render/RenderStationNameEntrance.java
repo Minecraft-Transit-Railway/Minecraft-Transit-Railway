@@ -5,7 +5,6 @@ import mtr.block.BlockStationNameEntrance;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.gui.IGui;
-import mtr.model.ModelTrainBase;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -30,12 +29,11 @@ public class RenderStationNameEntrance extends RenderStationNameBase<BlockStatio
 			return;
 		}
 
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, BlockStationNameBase.FACING);
 		final int propagateProperty = IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY);
 		final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
 		final int length = getLength(world, pos);
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, ((x1, y1, x2, y2) -> {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/logo.png", x1 - logoSize, -logoSize / 2, logoSize, logoSize, ModelTrainBase.MAX_LIGHT);
-		}));
+		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, ((x1, y1, x2, y2) -> IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/logo.png", x1 - logoSize, -logoSize / 2, logoSize, logoSize, facing, -1)));
 	}
 
 	private int getLength(WorldAccess world, BlockPos pos) {

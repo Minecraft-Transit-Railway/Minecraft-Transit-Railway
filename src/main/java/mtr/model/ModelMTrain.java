@@ -1,11 +1,10 @@
 package mtr.model;
 
-import mtr.gui.IGui;
+import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 
 public class ModelMTrain extends ModelTrainBase {
 
@@ -759,9 +758,10 @@ public class ModelMTrain extends ModelTrainBase {
 	}
 
 	private static final int DOOR_MAX = 14;
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay();
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
@@ -782,7 +782,7 @@ public class ModelMTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head) {
 		final float doorLeft = doorLeftValue * DOOR_MAX;
 		final float doorRight = doorRightValue * DOOR_MAX;
 		final boolean notLastDoor = getDoorPositions().length > 4 && position != getDoorPositions()[0] && position != getDoorPositions()[4];
@@ -887,61 +887,8 @@ public class ModelMTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorLabels(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RenderStage renderStage, int light, float positionScaled, float doorLeftValue, float doorRightValue) {
-		final int colorAdjustment = 0xFFB0B0B0;
-		final int colorAdjustmentDark = 0xFF707070;
-		final float doorLeft = doorLeftValue * DOOR_MAX / 16;
-		final float doorRight = doorRightValue * DOOR_MAX / 16;
-
-		matrices.push();
-		matrices.translate(1.25, -0.875, 0);
-		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(6.34F));
-		if (renderStage == RenderStage.EXTERIOR) {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_left.png", 0.0625F, -0.91F, positionScaled - 0.3485F - doorLeft, 0.0625F, -0.765F, positionScaled - 0.2375F - doorLeft, 0, 0, 1, 1, colorAdjustmentDark, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_right.png", 0.0625F, -0.91F, positionScaled + 0.2375F + doorLeft, 0.0625F, -0.765F, positionScaled + 0.3485F + doorLeft, 0, 0, 1, 1, colorAdjustmentDark, light);
-		} else {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/gap_left.png", -0.013F, -1.12F, positionScaled + 0.7F + doorLeft, -0.013F, -1.03F, positionScaled + 0.2375F + doorLeft, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/gap_right.png", -0.013F, -1.12F, positionScaled - 0.2375F - doorLeft, -0.013F, -1.03F, positionScaled - 0.7F - doorLeft, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_left.png", -0.013F, -0.91F, positionScaled + 0.3485F + doorLeft, -0.013F, -0.765F, positionScaled + 0.2375F + doorLeft, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_right.png", -0.013F, -0.91F, positionScaled - 0.2375F - doorLeft, -0.013F, -0.765F, positionScaled - 0.3485F - doorLeft, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -0.013F, -1.125F, positionScaled + 0.875F + doorLeft, -0.013F, 0, positionScaled + 0.8125F + doorLeft, 1, 0, 0, 24, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -0.013F, -1.125F, positionScaled - 0.8125F - doorLeft, -0.013F, 0, positionScaled - 0.875F - doorLeft, 0, 0, 1, 24, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -0.075F, -1.3125F, positionScaled + 0.874F, -0.0125F, 0, positionScaled + 0.874F, 0, 0.1F, 1, 28.1F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -0.0125F, -1.3125F, positionScaled - 0.874F, -0.075F, 0, positionScaled - 0.874F, 1, 0.1F, 0, 28.1F, colorAdjustment, light);
-		}
-		matrices.pop();
-
-		if (renderStage == RenderStage.INTERIOR) {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 1.237F, -0.91F, positionScaled + 0.875F + doorLeft, 1.237F, -0.16F, positionScaled + 0.8125F + doorLeft, 1, 0.25F, 0, 16.25F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 1.237F, -0.91F, positionScaled - 0.8125F - doorLeft, 1.237F, -0.16F, positionScaled - 0.875F - doorLeft, 0, 0.25F, 1, 16.25F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 1.175F, -0.875F, positionScaled + 0.8745F, 1.2375F, -0.3125F, positionScaled + 0.8745F, 0, 0, 1, 12, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 1.2375F, -0.875F, positionScaled - 0.8745F, 1.175F, -0.3125F, positionScaled - 0.8745F, 1, 0, 0, 12, colorAdjustment, light);
-		}
-
-		matrices.push();
-		matrices.translate(-1.25, -0.875, 0);
-		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(6.34F));
-		if (renderStage == RenderStage.EXTERIOR) {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_left.png", -0.0625F, -0.91F, positionScaled + 0.3485F + doorRight, -0.0625F, -0.765F, positionScaled + 0.2375F + doorRight, 0, 0, 1, 1, colorAdjustmentDark, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_right.png", -0.0625F, -0.91F, positionScaled - 0.2375F - doorRight, -0.0625F, -0.765F, positionScaled - 0.3485F - doorRight, 0, 0, 1, 1, colorAdjustmentDark, light);
-		} else {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/gap_left.png", 0.013F, -1.12F, positionScaled - 0.7F - doorRight, 0.013F, -1.03F, positionScaled - 0.2375F - doorRight, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/gap_right.png", 0.013F, -1.12F, positionScaled + 0.2375F + doorRight, 0.013F, -1.03F, positionScaled + 0.7F + doorRight, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_left.png", 0.013F, -0.91F, positionScaled - 0.3485F - doorRight, 0.013F, -0.765F, positionScaled - 0.2375F - doorRight, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/door_right.png", 0.013F, -0.91F, positionScaled + 0.2375F + doorRight, 0.013F, -0.765F, positionScaled + 0.3485F + doorRight, 0, 0, 1, 1, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 0.013F, -1.125F, positionScaled - 0.875F - doorRight, 0.013F, 0, positionScaled - 0.8125F - doorRight, 1, 0, 0, 24, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 0.013F, -1.125F, positionScaled + 0.8125F + doorRight, 0.013F, 0, positionScaled + 0.875F + doorRight, 0, 0, 1, 24, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 0.075F, -1.3125F, positionScaled - 0.874F, 0.0125F, 0, positionScaled - 0.874F, 0, 0.1F, 1, 28.1F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", 0.0125F, -1.3125F, positionScaled + 0.874F, 0.075F, 0, positionScaled + 0.874F, 1, 0.1F, 0, 28.1F, colorAdjustment, light);
-		}
-		matrices.pop();
-
-		if (renderStage == RenderStage.INTERIOR) {
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -1.237F, -0.91F, positionScaled - 0.875F - doorRight, -1.237F, -0.16F, positionScaled - 0.8125F - doorRight, 1, 0.25F, 0, 16.25F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -1.237F, -0.91F, positionScaled + 0.8125F + doorRight, -1.237F, -0.16F, positionScaled + 0.875F + doorRight, 0, 0.25F, 1, 16.25F, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -1.175F, -0.875F, positionScaled - 0.8745F, -1.2375F, -0.3125F, positionScaled - 0.8745F, 0, 0, 1, 12, colorAdjustment, light);
-			IGui.drawTexture(matrices, vertexConsumers, "mtr:textures/sign/stripe.png", -1.2375F, -0.875F, positionScaled + 0.8745F, -1.175F, -0.3125F, positionScaled + 0.8745F, 1, 0, 0, 12, colorAdjustment, light);
-		}
+	protected ModelDoorOverlayBase getModelDoorOverlay() {
+		return MODEL_DOOR_OVERLAY;
 	}
 
 	@Override
@@ -957,5 +904,115 @@ public class ModelMTrain extends ModelTrainBase {
 	@Override
 	protected int[] getEndPositions() {
 		return new int[]{-184, 184};
+	}
+
+	private static class ModelDoorOverlay extends ModelDoorOverlayBase {
+
+		private final ModelPart door_left_overlay_interior;
+		private final ModelPart door_left_top_r1;
+		private final ModelPart door_right_overlay_interior;
+		private final ModelPart door_right_top_r1;
+		private final ModelPart door_right_bottom_r1;
+		private final ModelPart door_left_overlay_exterior;
+		private final ModelPart door_left_top_r2;
+		private final ModelPart door_right_overlay_exterior;
+		private final ModelPart door_right_top_r2;
+		private final ModelPart wall_1;
+		private final ModelPart upper_wall_1_r1;
+		private final ModelPart wall_2;
+		private final ModelPart upper_wall_2_r1;
+
+		public ModelDoorOverlay() {
+			textureWidth = 32;
+			textureHeight = 32;
+			door_left_overlay_interior = new ModelPart(this);
+			door_left_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
+			door_left_overlay_interior.setTextureOffset(0, 3).addCuboid(-19.7F, -14.5F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
+
+			door_left_top_r1 = new ModelPart(this);
+			door_left_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
+			door_left_overlay_interior.addChild(door_left_top_r1);
+			setRotationAngle(door_left_top_r1, 0.0F, 0.0F, 0.1107F);
+			door_left_top_r1.setTextureOffset(0, -16).addCuboid(1.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+
+			door_right_overlay_interior = new ModelPart(this);
+			door_right_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
+
+
+			door_right_top_r1 = new ModelPart(this);
+			door_right_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
+			door_right_overlay_interior.addChild(door_right_top_r1);
+			setRotationAngle(door_right_top_r1, 0.0F, 3.1416F, 0.1107F);
+			door_right_top_r1.setTextureOffset(0, -16).addCuboid(-1.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+
+			door_right_bottom_r1 = new ModelPart(this);
+			door_right_bottom_r1.setPivot(0.0F, 0.0F, 0.0F);
+			door_right_overlay_interior.addChild(door_right_bottom_r1);
+			setRotationAngle(door_right_bottom_r1, 0.0F, 3.1416F, 0.0F);
+			door_right_bottom_r1.setTextureOffset(0, 3).addCuboid(19.7F, -14.5F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
+
+			door_left_overlay_exterior = new ModelPart(this);
+			door_left_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
+
+
+			door_left_top_r2 = new ModelPart(this);
+			door_left_top_r2.setPivot(-20.8F, -14.0F, 0.0F);
+			door_left_overlay_exterior.addChild(door_left_top_r2);
+			setRotationAngle(door_left_top_r2, 0.0F, 0.0F, 0.1107F);
+			door_left_top_r2.setTextureOffset(0, -16).addCuboid(0.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+
+			door_right_overlay_exterior = new ModelPart(this);
+			door_right_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
+
+
+			door_right_top_r2 = new ModelPart(this);
+			door_right_top_r2.setPivot(-20.8F, -14.0F, 0.0F);
+			door_right_overlay_exterior.addChild(door_right_top_r2);
+			setRotationAngle(door_right_top_r2, 0.0F, 3.1416F, 0.1107F);
+			door_right_top_r2.setTextureOffset(0, -16).addCuboid(-0.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+
+
+			wall_1 = new ModelPart(this);
+			wall_1.setPivot(0.0F, 24.0F, 0.0F);
+			wall_1.setTextureOffset(27, 19).addCuboid(-20.75F, -14.0F, -13.9F, 2.0F, 9.0F, 0.0F, 0.0F, false);
+
+			upper_wall_1_r1 = new ModelPart(this);
+			upper_wall_1_r1.setPivot(-20.0F, -14.0F, 0.0F);
+			wall_1.addChild(upper_wall_1_r1);
+			setRotationAngle(upper_wall_1_r1, 0.0F, 0.0F, 0.1107F);
+			upper_wall_1_r1.setTextureOffset(27, 0).addCuboid(-0.75F, -19.0F, -13.89F, 2.0F, 19.0F, 0.0F, 0.0F, false);
+
+			wall_2 = new ModelPart(this);
+			wall_2.setPivot(0.0F, 24.0F, 0.0F);
+			wall_2.setTextureOffset(1, 19).addCuboid(-20.75F, -14.0F, 13.9F, 2.0F, 9.0F, 0.0F, 0.0F, false);
+
+			upper_wall_2_r1 = new ModelPart(this);
+			upper_wall_2_r1.setPivot(-20.0F, -14.0F, 0.0F);
+			wall_2.addChild(upper_wall_2_r1);
+			setRotationAngle(upper_wall_2_r1, 0.0F, 0.0F, 0.1107F);
+			upper_wall_2_r1.setTextureOffset(1, 0).addCuboid(-0.75F, -19.0F, 13.89F, 2.0F, 19.0F, 0.0F, 0.0F, false);
+		}
+
+		@Override
+		protected void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ModelTrainBase.RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
+			final float doorLeft = doorLeftValue * DOOR_MAX;
+			final float doorRight = doorRightValue * DOOR_MAX;
+			switch (renderStage) {
+				case INTERIOR:
+					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position + doorRight);
+					ModelTrainBase.renderOnce(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position - doorRight);
+					ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position - doorLeft);
+					ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position + doorLeft);
+					ModelTrainBase.renderMirror(wall_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position);
+					ModelTrainBase.renderMirror(wall_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position);
+					break;
+				case EXTERIOR:
+					ModelTrainBase.renderOnce(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, position + doorRight);
+					ModelTrainBase.renderOnce(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, position - doorRight);
+					ModelTrainBase.renderOnceFlipped(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, position - doorLeft);
+					ModelTrainBase.renderOnceFlipped(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, position + doorLeft);
+					break;
+			}
+		}
 	}
 }

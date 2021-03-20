@@ -13,10 +13,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DashboardScreen extends Screen implements IGui {
@@ -48,6 +45,10 @@ public class DashboardScreen extends Screen implements IGui {
 	private static final int MAX_COLOR_LENGTH = 6;
 
 	public DashboardScreen() {
+		this(0);
+	}
+
+	public DashboardScreen(int initialTab) {
 		super(new LiteralText(""));
 
 		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickPlatform);
@@ -58,7 +59,14 @@ public class DashboardScreen extends Screen implements IGui {
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(0));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(1));
-		buttonTabTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.trains"), button -> onSelectTab(2));
+
+		// TODO temporarily using the trains tab button for options
+		buttonTabTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("menu.options"), button -> {
+			if (client != null) {
+				client.openScreen(new ConfigScreen());
+			}
+		});
+
 		buttonAddStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_station"), button -> startEditingStation(new Station(), true));
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
 		buttonDoneEditingStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingStation());
@@ -66,13 +74,15 @@ public class DashboardScreen extends Screen implements IGui {
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::onFind, this::onEdit, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
 
-		onSelectTab(0);
+		onSelectTab(initialTab);
 	}
 
 	@Override
 	protected void init() {
+		super.init();
+
 		final int tabCount = 3;
 		final int bottomRowY = height - SQUARE_SIZE;
 
@@ -136,7 +146,7 @@ public class DashboardScreen extends Screen implements IGui {
 			renderBackground(matrices);
 			widgetMap.render(matrices, mouseX, mouseY, delta);
 			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			dashboardList.render(matrices, textRenderer);
+			dashboardList.render(matrices, textRenderer, mouseX, mouseY, delta);
 			super.render(matrices, mouseX, mouseY, delta);
 			textFieldName.render(matrices, mouseX, mouseY, delta);
 			textFieldColor.render(matrices, mouseX, mouseY, delta);
@@ -152,7 +162,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		dashboardList.mouseScrolled(amount);
+		dashboardList.mouseScrolled(mouseX, mouseY, amount);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
@@ -160,35 +170,45 @@ public class DashboardScreen extends Screen implements IGui {
 	public void tick() {
 		textFieldName.tick();
 		textFieldColor.tick();
+		dashboardList.tick();
 
-		switch (selectedTab) {
-			default:
-				dashboardList.setData(ClientData.stations, true, true, false, false, true);
-				break;
-			case 1:
-				if (editingRoute == null) {
-					dashboardList.setData(ClientData.routes, false, true, false, false, true);
-				} else {
-					final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
-						final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
-						if (station != null) {
-							return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
-						} else {
-							return new DataConverter(String.format("(%s)", platform.name), 0);
-						}
-					}).collect(Collectors.toList());
-					dashboardList.setData(routeData, false, false, true, false, true);
-				}
-				break;
-			case 2:
-				dashboardList.setData(ClientData.trains, true, false, false, false, false);
-				break;
+		try {
+			switch (selectedTab) {
+				default:
+					if (editingStation == null) {
+						dashboardList.setData(ClientData.stations, true, false, true, false, false, true);
+					} else {
+						final Map<Long, Platform> platformData = ClientData.platformsInStation.get(editingStation.id);
+						dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
+					}
+					break;
+				case 1:
+					if (editingRoute == null) {
+						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
+					} else {
+						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
+							final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+							if (station != null) {
+								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
+							} else {
+								return new DataConverter(String.format("(%s)", platform.name), 0);
+							}
+						}).collect(Collectors.toList());
+						dashboardList.setData(routeData, false, false, false, true, false, true);
+					}
+					break;
+				case 2:
+					// dashboardList.setData(ClientData.trains, true, false, false, false, false, false);
+					break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendStationsAndRoutesC2S(ClientData.stations, ClientData.routes);
+		PacketTrainDataGuiClient.sendAllC2S();
 		super.onClose();
 	}
 
@@ -206,23 +226,39 @@ public class DashboardScreen extends Screen implements IGui {
 		stopEditing();
 	}
 
-	private void onFind(DataBase data, int index) {
+	private void onFind(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
-				final Station station = (Station) data;
-				widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+				if (editingStation == null) {
+					final Station station = (Station) data;
+					widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+				} else {
+					final Platform platform = (Platform) data;
+					widgetMap.find(platform.getMidPos());
+				}
 				break;
 			case 2:
-				final Train train = (Train) data;
-				widgetMap.find(train.posX[0], train.posZ[0], train.posX[train.posX.length - 1], train.posZ[train.posZ.length - 1]);
+				// TODO restore train tab functionality
 				break;
 		}
 	}
 
-	private void onEdit(DataBase data, int index) {
+	private void onSchedule(NameColorDataBase data, int index) {
+		if (selectedTab == 1 && client != null) {
+			final Route route = (Route) data;
+			client.openScreen(new PlatformScreen(route));
+		}
+	}
+
+	private void onEdit(NameColorDataBase data, int index) {
 		switch (selectedTab) {
 			case 0:
-				startEditingStation((Station) data, false);
+				if (editingStation == null) {
+					startEditingStation((Station) data, false);
+				} else if (client != null) {
+					final Platform platform = (Platform) data;
+					client.openScreen(new ScheduleScreen(platform));
+				}
 				break;
 			case 1:
 				startEditingRoute((Route) data, false);
@@ -230,20 +266,24 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 	}
 
-	private void onDelete(DataBase data, int index) {
-		switch (selectedTab) {
-			case 0:
-				final Station station = (Station) data;
-				ClientData.stations.remove(station);
-				break;
-			case 1:
-				if (editingRoute == null) {
-					final Route route = (Route) data;
-					ClientData.routes.remove(route);
-				} else {
-					editingRoute.platformIds.remove(index);
-				}
-				break;
+	private void onDelete(NameColorDataBase data, int index) {
+		try {
+			switch (selectedTab) {
+				case 0:
+					final Station station = (Station) data;
+					ClientData.stations.remove(station);
+					break;
+				case 1:
+					if (editingRoute == null) {
+						final Route route = (Route) data;
+						ClientData.routes.remove(route);
+					} else {
+						editingRoute.platformIds.remove(index);
+					}
+					break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -287,7 +327,11 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private void onDoneEditingStation() {
 		if (isNew) {
-			ClientData.stations.add(editingStation);
+			try {
+				ClientData.stations.add(editingStation);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
@@ -296,7 +340,11 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private void onDoneEditingRoute() {
 		if (isNew) {
-			ClientData.routes.add(editingRoute);
+			try {
+				ClientData.routes.add(editingRoute);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());

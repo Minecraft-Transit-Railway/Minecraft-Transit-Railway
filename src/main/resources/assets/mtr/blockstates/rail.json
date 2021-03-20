@@ -1,0 +1,18 @@
+{
+	"variants": {
+		"facing=false,is_connected=false": {
+			"model": "mtr:block/rail_buffer"
+		},
+		"facing=true,is_connected=false": {
+			"model": "mtr:block/rail_buffer",
+			"y": 90
+		},
+		"facing=false,is_connected=true": {
+			"model": "mtr:block/rail_connection"
+		},
+		"facing=true,is_connected=true": {
+			"model": "mtr:block/rail_connection",
+			"y": 90
+		}
+	}
+}
