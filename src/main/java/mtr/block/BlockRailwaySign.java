@@ -55,9 +55,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
 				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), hitSide.getOpposite());
 				if (checkPos != null) {
+					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, checkPos);
 					final RailwayData railwayData = RailwayData.getInstance(world);
 					if (railwayData != null) {
-						PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), checkPos);
+						railwayData.addPlayerToBroadcast(player);
 					}
 				}
 			}

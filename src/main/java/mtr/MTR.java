@@ -173,8 +173,8 @@ public class MTR implements ModInitializer {
 		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
 		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveChunk(packet, packet2 -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_C2S, packet2), packet1 -> PacketTrainDataGuiServer.receiveAllC2S(minecraftServer, player, packet1)));
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(packet, packet2 -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet2)));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveChunk(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_C2S, packet1)), packet1 -> PacketTrainDataGuiServer.receiveAllC2S(minecraftServer, player, packet1)));
+		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet1))));
 		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
 
@@ -194,9 +194,15 @@ public class MTR implements ModInitializer {
 						return false;
 					}
 				}).forEach(Entity::kill);
+
 				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
 				seat.setPlayerId(entity.getUuid());
 				serverWorld.spawnEntity(seat);
+
+				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
+				if (railwayData != null) {
+					railwayData.addPlayerToBroadcast((PlayerEntity) entity);
+				}
 			}
 		});
 	}

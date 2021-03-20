@@ -11,21 +11,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
-	public static void openDashboardScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send(player, PACKET_CHUNK_S2C, packet));
+	public static void openDashboardScreenS2C(ServerPlayerEntity player) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		ServerPlayNetworking.send(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
 	}
 
-	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, BlockPos signPos) {
-		sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send(player, PACKET_CHUNK_S2C, packet));
+	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, BlockPos signPos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
 		ServerPlayNetworking.send(player, PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet);
@@ -38,10 +35,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			final Set<Station> stations = deserializeData(packet, Station::new);
 			final Set<Platform> platforms = deserializeData(packet, Platform::new);
 			final Set<Route> routes = deserializeData(packet, Route::new);
-			minecraftServer.execute(() -> {
-				railwayData.setData(world, stations, platforms, routes);
-				broadcastS2C(world, railwayData);
-			});
+			minecraftServer.execute(() -> railwayData.setData(world, stations, platforms, routes));
 		}
 	}
 
@@ -50,10 +44,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final Platform platform = new Platform(packet);
-			minecraftServer.execute(() -> {
-				railwayData.setData(world, platform);
-				broadcastS2C(world, railwayData);
-			});
+			minecraftServer.execute(() -> railwayData.setData(world, platform));
 		}
 	}
 
@@ -82,12 +73,5 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.size() == 0 ? 0 : (long) selectedIds.toArray()[0]);
 			}
 		});
-	}
-
-	public static void broadcastS2C(WorldAccess world, RailwayData railwayData) {
-		final Set<Station> stations = railwayData.getStations();
-		final Set<Platform> platforms = railwayData.getPlatforms(world);
-		final Set<Route> routes = railwayData.getRoutes();
-		world.getPlayers().forEach(player -> sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_CHUNK_S2C, packet)));
 	}
 }

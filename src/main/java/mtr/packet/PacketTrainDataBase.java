@@ -72,7 +72,7 @@ public abstract class PacketTrainDataBase {
 		return objects;
 	}
 
-	protected static void sendAllInChunks(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, PacketCallback sendPacket) {
+	public static void sendAllInChunks(Set<Station> stations, Set<Platform> platforms, Set<Route> routes, PacketCallback sendPacket) {
 		final long tempPacketId = new Random().nextLong();
 		tempPacketsSender.put(tempPacketId, PacketTrainDataBase.serializeAll(stations, platforms, routes));
 		sendChunk(tempPacketId, 0, sendPacket);

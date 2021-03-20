@@ -1,13 +1,20 @@
 package mtr.data;
 
+import mtr.packet.PacketTrainDataBase;
+import mtr.packet.PacketTrainDataGuiServer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class RailwayData extends PersistentState {
@@ -20,6 +27,11 @@ public class RailwayData extends PersistentState {
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
+
+	private final List<Route> scheduleGenerate = new ArrayList<>();
+	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
+
+	private static final int BROADCAST_DELAY = 2;
 
 	public RailwayData() {
 		super(NAME);
@@ -109,7 +121,28 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(WorldAccess world) {
-		routes.forEach(route -> route.getPositionYaw(world, world.getLunarTime()));
+		final long lunarTime = world.getLunarTime();
+		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
+
+		if (!scheduleGenerate.isEmpty() && lunarTime % BROADCAST_DELAY == 0) {
+			final Route route = scheduleGenerate.remove(0);
+			route.generateGraph(world, platforms);
+			System.out.println("Generated route " + route.name);
+
+			if (scheduleGenerate.isEmpty()) {
+				scheduleBroadcast.addAll(world.getPlayers());
+			}
+		}
+
+		if (!scheduleBroadcast.isEmpty() && (lunarTime + BROADCAST_DELAY / 2) % BROADCAST_DELAY == 0) {
+			final PlayerEntity player = scheduleBroadcast.remove(0);
+			PacketTrainDataGuiServer.sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send((ServerPlayerEntity) player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet));
+			System.out.println("Broadcasting to player " + player);
+		}
+	}
+
+	public void addPlayerToBroadcast(PlayerEntity player) {
+		scheduleBroadcast.add(player);
 	}
 
 	// writing data
@@ -122,9 +155,9 @@ public class RailwayData extends PersistentState {
 			this.platforms.addAll(platforms);
 			this.routes.clear();
 			this.routes.addAll(routes);
-			validateData();
-			this.routes.forEach(route -> route.generateGraph(world, platforms));
-			System.out.println("Routes generated");
+			validatePlatforms(world);
+			scheduleGenerate.clear();
+			scheduleGenerate.addAll(this.routes);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

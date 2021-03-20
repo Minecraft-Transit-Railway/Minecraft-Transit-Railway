@@ -19,9 +19,10 @@ public class ItemDashboard extends Item {
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		if (!world.isClient()) {
-			RailwayData railwayData = RailwayData.getInstance(world);
+			PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayerEntity) user);
+			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayerEntity) user, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes());
+				railwayData.addPlayerToBroadcast(user);
 			}
 		}
 		return super.use(world, user, hand);

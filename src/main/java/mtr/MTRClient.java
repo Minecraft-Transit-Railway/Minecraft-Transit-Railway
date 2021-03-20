@@ -130,8 +130,8 @@ public class MTRClient implements ClientModInitializer {
 		registerStationColor(Blocks.STATION_NAME_TALL_WALL);
 		registerStationColor(Blocks.STATION_POLE);
 
-		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveChunk(packet, packet2 -> ClientPlayNetworking.send(PacketTrainDataBase.PACKET_CHUNK_S2C, packet2), ClientData::receivePacket));
-		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.handleResponseFromReceiver(packet, packet2 -> ClientPlayNetworking.send(PacketTrainDataBase.PACKET_CHUNK_C2S, packet2)));
+		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveChunk(packet, packet1 -> minecraftClient.execute(() -> ClientPlayNetworking.send(PacketTrainDataBase.PACKET_CHUNK_S2C, packet1)), packet1 -> minecraftClient.execute(() -> ClientData.receivePacket(packet1))));
+		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.handleResponseFromReceiver(packet, packet1 -> minecraftClient.execute(() -> ClientPlayNetworking.send(PacketTrainDataBase.PACKET_CHUNK_C2S, packet1))));
 		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient));
 		ClientPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 

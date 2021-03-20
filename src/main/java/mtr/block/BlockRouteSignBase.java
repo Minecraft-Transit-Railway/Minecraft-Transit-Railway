@@ -37,9 +37,10 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
 				if (entity instanceof TileEntityRouteSignBase) {
+					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, entity.getPos());
 					final RailwayData railwayData = RailwayData.getInstance(world);
 					if (railwayData != null) {
-						PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, railwayData.getStations(), railwayData.getPlatforms(world), railwayData.getRoutes(), entity.getPos());
+						railwayData.addPlayerToBroadcast(player);
 					}
 				}
 			}
