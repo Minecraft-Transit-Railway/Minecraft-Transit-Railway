@@ -189,14 +189,20 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public boolean findPath() {
 		if (routePathFinder != null) {
-			final List<PathData> result = routePathFinder.findPath();
-			if (result != null) {
+			try {
+				final List<PathData> result = routePathFinder.findPath();
+				if (result != null) {
+					path.clear();
+					path.addAll(result);
+					routePathFinder = null;
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 				path.clear();
-				path.addAll(result);
-				routePathFinder = null;
 				return true;
-			} else {
-				return false;
 			}
 		} else {
 			path.clear();

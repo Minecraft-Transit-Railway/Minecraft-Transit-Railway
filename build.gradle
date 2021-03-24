@@ -1,6 +1,6 @@
 plugins {
-    id 'fabric-loom' version '0.6-SNAPSHOT'
-    id 'maven-publish'
+    id "fabric-loom" version "0.6-SNAPSHOT"
+    id "maven-publish"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -16,6 +16,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompile "io.github.prospector:modmenu:${project.mod_menu_version}"
+    modCompile "com.github.BlueMap-Minecraft:BlueMapAPI:${project.blue_map_version}"
 }
 
 processResources {
@@ -58,4 +59,13 @@ publishing {
     }
 
     repositories {}
+}
+
+allprojects {
+    repositories {
+        maven {
+            name = "BlueMap"
+            url = "https://jitpack.io/"
+        }
+    }
 }
