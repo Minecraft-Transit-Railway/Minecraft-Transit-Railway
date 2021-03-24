@@ -175,7 +175,6 @@ public class MTR implements ModInitializer {
 
 		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveChunk(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_C2S, packet1)), packet1 -> PacketTrainDataGuiServer.receiveAllC2S(minecraftServer, player, packet1)));
 		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet1))));
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePlatformC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {

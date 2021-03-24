@@ -28,7 +28,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 
 	public NameColorDataBase(PacketByteBuf packet) {
 		id = packet.readLong();
-		name = packet.readString(PACKET_STRING_READ_LENGTH);
+		name = packet.readString(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
 		color = packet.readInt();
 	}
 

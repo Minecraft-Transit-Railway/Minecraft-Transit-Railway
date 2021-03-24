@@ -35,16 +35,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			final Set<Station> stations = deserializeData(packet, Station::new);
 			final Set<Platform> platforms = deserializeData(packet, Platform::new);
 			final Set<Route> routes = deserializeData(packet, Route::new);
-			minecraftServer.execute(() -> railwayData.setData(world, stations, platforms, routes));
-		}
-	}
-
-	public static void receivePlatformC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(world);
-		if (railwayData != null) {
-			final Platform platform = new Platform(packet);
-			minecraftServer.execute(() -> railwayData.setData(world, platform));
+			minecraftServer.execute(() -> railwayData.setData(stations, platforms, routes));
 		}
 	}
 

@@ -10,14 +10,34 @@ import java.util.*;
 
 public class PathFinder {
 
+	private int platformIndex;
+	private float tOffset;
+	private Platform platform1Temp;
+	private Platform platform2Temp;
+	private float currentSpeed;
+	private List<BlockPos> tempPath;
+	private int tempPathIndex;
+	private FindStage findStage;
+
 	private final WorldAccess world;
 	private final List<Platform> platforms;
 	private final List<PathData> path;
+	private final Set<BlockPos> blacklist;
 
 	public PathFinder(WorldAccess world, List<Platform> platforms) {
+		platformIndex = 1;
+		tOffset = 0;
+		platform1Temp = null;
+		platform2Temp = null;
+		currentSpeed = 1;
+		tempPath = new ArrayList<>();
+		tempPathIndex = 1;
+		findStage = FindStage.INIT_FORWARD;
+
 		this.world = world;
 		this.platforms = platforms;
 		path = new ArrayList<>();
+		blacklist = new HashSet<>();
 	}
 
 	public List<PathData> findPath() {
@@ -25,71 +45,80 @@ public class PathFinder {
 			return new ArrayList<>();
 		}
 
-		path.clear();
-		float tOffset = 0;
+		switch (findStage) {
+			case INIT_FORWARD:
+				platform1Temp = platforms.get(platformIndex - 1);
+				platform2Temp = platforms.get(platformIndex);
+				tempPath = platform1Temp.getOrderedPositions(platform2Temp.getMidPos(), true);
+				findStage = FindStage.TEMP_PATH_FORWARD;
+				break;
+			case INIT_BACKWARD:
+				tempPath = platform1Temp.getOrderedPositions(platform2Temp.getMidPos(), false);
+				findStage = FindStage.TEMP_PATH_BACKWARD;
+				break;
+			case TEMP_PATH_FORWARD:
+			case TEMP_PATH_BACKWARD:
+				final BlockPos lastPos = tempPath.get(tempPath.size() - 1);
+				final BlockPos secondLastPos = tempPath.get(tempPath.size() - 2);
+				tempPathIndex = 1;
 
-		for (int i = 1; i < platforms.size(); i++) {
-			final Platform platform1 = platforms.get(i - 1);
-			final Platform platform2 = platforms.get(i);
-
-			final List<BlockPos> tempPath = getTempPath(platform1, platform2, true);
-			if (tempPath.isEmpty()) {
-				tempPath.addAll(getTempPath(platform1, platform2, false));
-				if (tempPath.isEmpty()) {
-					return path;
-				}
-			}
-
-			if (i == 1) {
-				tOffset = generatePathData(tempPath.subList(0, 2), platform1.getDwellTime(), tOffset, 1);
-			}
-			tempPath.remove(0);
-
-			tOffset = generatePathData(tempPath, platform2.getDwellTime(), tOffset, 0);
-		}
-
-		return path;
-	}
-
-	private float generatePathData(List<BlockPos> tempPath, int dwellTime, float tOffset, float initialSpeed) {
-		float speed = initialSpeed;
-		for (int j = 1; j < tempPath.size(); j++) {
-			final BlockPos tempPos = tempPath.get(j - 1);
-			final BlockEntity entity = world.getBlockEntity(tempPos);
-			if (entity instanceof BlockRail.TileEntityRail) {
-				final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPath.get(j)), speed, j == tempPath.size() - 1 ? dwellTime : 0, tOffset);
-				path.add(pathData);
-				tOffset += pathData.getTime();
-				speed = pathData.finalSpeed;
-			}
-		}
-		return tOffset;
-	}
-
-	private List<BlockPos> getTempPath(Platform platform1, Platform platform2, boolean reverse) {
-		final Set<BlockPos> blacklist = new HashSet<>();
-		final List<BlockPos> tempPath = platform1.getOrderedPositions(platform2.getMidPos(), reverse);
-		final BlockPos pos2 = platform2.getMidPos();
-
-		while (tempPath.size() >= 2) {
-			final BlockPos lastPos = tempPath.get(tempPath.size() - 1);
-			final BlockPos secondLastPos = tempPath.get(tempPath.size() - 2);
-
-			if (platform2.containsPos(lastPos)) {
-				tempPath.add(platform2.getOtherPosition(lastPos));
-				return tempPath;
-			} else {
-				Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos, secondLastPos).stream().filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, blockPos.getSquaredDistance(pos2))).min(BlockPosWeighted::compareTo);
-				if (blockPosWeighted.isPresent()) {
-					blacklist.add(blockPosWeighted.get().pos);
-					tempPath.add(blockPosWeighted.get().pos);
+				if (platform2Temp.containsPos(lastPos)) {
+					tempPath.add(platform2Temp.getOtherPosition(lastPos));
+					if (!path.isEmpty()) {
+						tempPath.remove(0);
+					}
+					findStage = FindStage.CONVERTING;
 				} else {
-					tempPath.remove(tempPath.size() - 1);
+					final BlockPos pos2 = platform2Temp.getMidPos();
+					Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos, secondLastPos).stream().filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, blockPos.getSquaredDistance(pos2))).min(BlockPosWeighted::compareTo);
+					if (blockPosWeighted.isPresent()) {
+						blacklist.add(blockPosWeighted.get().pos);
+						tempPath.add(blockPosWeighted.get().pos);
+					} else {
+						tempPath.remove(tempPath.size() - 1);
+					}
 				}
-			}
+
+				if (tempPath.size() < 2) {
+					tempPath.clear();
+					if (findStage == FindStage.TEMP_PATH_FORWARD) {
+						findStage = FindStage.INIT_BACKWARD;
+					} else {
+						return path;
+					}
+				}
+				break;
+			case CONVERTING:
+				if (path.isEmpty()) {
+					generatePathData(tempPath.subList(0, 2), platform1Temp.getDwellTime());
+					tempPath.remove(0);
+				}
+
+				generatePathData(tempPath, platform2Temp.getDwellTime());
+				tempPathIndex++;
+
+				if (tempPathIndex >= tempPath.size()) {
+					platformIndex++;
+					findStage = FindStage.INIT_FORWARD;
+					if (platformIndex >= platforms.size()) {
+						return path;
+					}
+				}
+				break;
 		}
 
-		return new ArrayList<>();
+		return null;
+	}
+
+	private void generatePathData(List<BlockPos> tempPathSubList, int dwellTime) {
+		final BlockPos tempPos = tempPathSubList.get(tempPathIndex - 1);
+		final BlockEntity entity = world.getBlockEntity(tempPos);
+		if (entity instanceof BlockRail.TileEntityRail) {
+			final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPathSubList.get(tempPathIndex)), currentSpeed, tempPathIndex == tempPathSubList.size() - 1 ? dwellTime : 0, tOffset);
+			path.add(pathData);
+			tOffset += pathData.getTime();
+			currentSpeed = pathData.finalSpeed;
+		}
 	}
 
 	private Set<BlockPos> getConnectedPositions(BlockPos thisPos, BlockPos lastPos) {
@@ -101,7 +130,7 @@ public class PathFinder {
 		}
 	}
 
-	protected static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
+	private static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
 
 		protected final BlockPos pos;
 		protected final double weight;
@@ -116,4 +145,6 @@ public class PathFinder {
 			return Double.compare(weight, o.weight);
 		}
 	}
+
+	private enum FindStage {INIT_FORWARD, INIT_BACKWARD, TEMP_PATH_FORWARD, TEMP_PATH_BACKWARD, CONVERTING}
 }

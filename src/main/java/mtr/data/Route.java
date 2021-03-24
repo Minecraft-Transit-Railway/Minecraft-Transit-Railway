@@ -28,6 +28,8 @@ public final class Route extends NameColorDataBase implements IGui {
 	public String customDestination;
 	public boolean shuffleTrains;
 
+	private PathFinder routePathFinder;
+
 	public final List<Long> platformIds;
 	public final List<TrainType> trainTypes;
 
@@ -93,8 +95,8 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		path = new ArrayList<>();
 		final CompoundTag tagPath = tag.getCompound(KEY_PATH);
-		for (final String key : tagPath.getKeys()) {
-			path.add(new PathData(tagPath.getCompound(key)));
+		for (int i = 0; i < tagPath.getKeys().size(); i++) {
+			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
 		schedule = new HashMap<>();
@@ -179,10 +181,27 @@ public final class Route extends NameColorDataBase implements IGui {
 		path.forEach(pathData -> pathData.writePacket(packet));
 	}
 
-	public void generateGraph(WorldAccess world, Set<Platform> platforms) {
-		final PathFinder routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
-		path.clear();
-		path.addAll(routePathFinder.findPath());
+	public void startFindingPath(WorldAccess world, Set<Platform> platforms) {
+		if (routePathFinder == null) {
+			routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
+		}
+	}
+
+	public boolean findPath() {
+		if (routePathFinder != null) {
+			final List<PathData> result = routePathFinder.findPath();
+			if (result != null) {
+				path.clear();
+				path.addAll(result);
+				routePathFinder = null;
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			path.clear();
+			return true;
+		}
 	}
 
 	public int getFrequency(int index) {
@@ -306,7 +325,7 @@ public final class Route extends NameColorDataBase implements IGui {
 							final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 							final int ridingCar = i;
-							final float margin = halfSpacing + BOX_PADDING + speed;
+							final float margin = halfSpacing + BOX_PADDING + speed * 2;
 							world.getEntitiesByClass(EntitySeat.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), entitySeat -> true).forEach(entitySeat -> {
 								final PlayerEntity serverPlayer = entitySeat.getPlayer();
 								if (serverPlayer == null) {

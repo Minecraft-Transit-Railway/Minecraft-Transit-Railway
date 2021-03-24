@@ -73,7 +73,7 @@ public class ItemRailModifier extends Item {
 									if (isPlatform) {
 										final RailwayData railwayData = RailwayData.getInstance(world);
 										if (railwayData != null) {
-											railwayData.setData(world, new Platform(posStart, posEnd));
+											railwayData.setData(new Platform(posStart, posEnd));
 										}
 									}
 								}

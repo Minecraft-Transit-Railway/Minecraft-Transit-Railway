@@ -29,9 +29,8 @@ public class RailwayData extends PersistentState {
 	private final Set<Route> routes;
 
 	private final List<Route> scheduleGenerate = new ArrayList<>();
+	private final List<Platform> scheduleValidate = new ArrayList<>();
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
-
-	private static final int BROADCAST_DELAY = 2;
 
 	public RailwayData() {
 		super(NAME);
@@ -102,15 +101,6 @@ public class RailwayData extends PersistentState {
 		return stations;
 	}
 
-	public Set<Platform> getPlatforms(WorldAccess world) {
-		try {
-			validatePlatforms(world);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return platforms;
-	}
-
 	public Set<Route> getRoutes() {
 		try {
 			validateData();
@@ -124,20 +114,40 @@ public class RailwayData extends PersistentState {
 		final long lunarTime = world.getLunarTime();
 		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
 
-		if (!scheduleGenerate.isEmpty() && lunarTime % BROADCAST_DELAY == 0) {
-			final Route route = scheduleGenerate.remove(0);
-			route.generateGraph(world, platforms);
-			System.out.println("Generated route " + route.name);
+		if (!scheduleGenerate.isEmpty()) {
+			final Route route = scheduleGenerate.get(0);
+			route.startFindingPath(world, platforms);
+			if (route.findPath()) {
+				scheduleGenerate.remove(route);
+				System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
+			}
 
 			if (scheduleGenerate.isEmpty()) {
+				scheduleValidate.clear();
+				scheduleValidate.addAll(platforms);
+			}
+		}
+
+		if (!scheduleValidate.isEmpty()) {
+			final Platform platform = scheduleValidate.remove(0);
+			final BlockPos platformMidPos = platform.getMidPos();
+			if (world.isChunkLoaded(platformMidPos.getX() / 16, platformMidPos.getZ() / 16) && !platform.isValidPlatform(world)) {
+				platforms.remove(platform);
+			}
+
+			if (scheduleValidate.isEmpty()) {
+				System.out.println("Done validating platforms");
+				scheduleBroadcast.clear();
 				scheduleBroadcast.addAll(world.getPlayers());
 			}
 		}
 
-		if (!scheduleBroadcast.isEmpty() && (lunarTime + BROADCAST_DELAY / 2) % BROADCAST_DELAY == 0) {
+		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
-			PacketTrainDataGuiServer.sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send((ServerPlayerEntity) player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet));
-			System.out.println("Broadcasting to player " + player);
+			if (player != null) {
+				PacketTrainDataGuiServer.sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send((ServerPlayerEntity) player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet));
+				System.out.println("Broadcasting to player " + player);
+			}
 		}
 	}
 
@@ -147,7 +157,7 @@ public class RailwayData extends PersistentState {
 
 	// writing data
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	public void setData(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
 		try {
 			this.stations.clear();
 			this.stations.addAll(stations);
@@ -155,7 +165,7 @@ public class RailwayData extends PersistentState {
 			this.platforms.addAll(platforms);
 			this.routes.clear();
 			this.routes.addAll(routes);
-			validatePlatforms(world);
+			validateData();
 			scheduleGenerate.clear();
 			scheduleGenerate.addAll(this.routes);
 		} catch (Exception e) {
@@ -163,22 +173,18 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
-	public void setData(WorldAccess world, Platform newPlatform) {
+	public void setData(Platform newPlatform) {
 		try {
 			platforms.removeIf(platform -> platform.isOverlapping(newPlatform));
 			platforms.add(newPlatform);
-			validatePlatforms(world);
+			scheduleValidate.clear();
+			scheduleValidate.addAll(platforms);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	// validation
-
-	private void validatePlatforms(WorldAccess world) {
-		platforms.removeIf(platform -> !platform.isValidPlatform(world));
-		validateData();
-	}
 
 	private void validateData() {
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
