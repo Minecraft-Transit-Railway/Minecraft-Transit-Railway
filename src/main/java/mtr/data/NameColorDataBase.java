@@ -1,9 +1,11 @@
 package mtr.data;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.Random;
+import java.util.function.Consumer;
 
 public abstract class NameColorDataBase extends SerializedDataBase implements Comparable<NameColorDataBase> {
 
@@ -16,7 +18,11 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	private static final String KEY_COLOR = "color";
 
 	public NameColorDataBase() {
-		id = new Random().nextInt(Integer.MAX_VALUE);
+		this(0);
+	}
+
+	public NameColorDataBase(long id) {
+		this.id = id == 0 ? new Random().nextLong() : id;
 		name = "";
 	}
 
@@ -46,6 +52,22 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		packet.writeLong(id);
 		packet.writeString(name);
 		packet.writeInt(color);
+	}
+
+	public void update(String key, PacketByteBuf packet) {
+		if (key.equals(KEY_NAME)) {
+			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			color = packet.readInt();
+		}
+	}
+
+	public void setNameColor(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_NAME);
+		packet.writeString(name);
+		packet.writeInt(color);
+		sendPacket.accept(packet);
 	}
 
 	@Override

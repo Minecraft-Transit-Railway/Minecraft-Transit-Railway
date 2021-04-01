@@ -1,7 +1,9 @@
 package mtr.gui;
 
 import mtr.data.*;
+import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DashboardScreen extends Screen implements IGui {
+public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	private int selectedTab;
 	private Station editingStation;
@@ -51,7 +53,7 @@ public class DashboardScreen extends Screen implements IGui {
 	public DashboardScreen(int initialTab) {
 		super(new LiteralText(""));
 
-		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickPlatform);
+		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickPlatform);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -187,7 +189,7 @@ public class DashboardScreen extends Screen implements IGui {
 						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
 					} else {
 						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
-							final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+							final Station station = ClientData.platformIdToStation.get(platform.id);
 							if (station != null) {
 								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
 							} else {
@@ -204,12 +206,6 @@ public class DashboardScreen extends Screen implements IGui {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void onClose() {
-		PacketTrainDataGuiClient.sendAllC2S();
-		super.onClose();
 	}
 
 	@Override
@@ -271,14 +267,17 @@ public class DashboardScreen extends Screen implements IGui {
 			switch (selectedTab) {
 				case 0:
 					final Station station = (Station) data;
+					PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
 					ClientData.stations.remove(station);
 					break;
 				case 1:
 					if (editingRoute == null) {
 						final Route route = (Route) data;
+						PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
 						ClientData.routes.remove(route);
 					} else {
 						editingRoute.platformIds.remove(index);
+						editingRoute.setPlatformIds(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
 					}
 					break;
 			}
@@ -321,8 +320,13 @@ public class DashboardScreen extends Screen implements IGui {
 		toggleButtons();
 	}
 
+	private void onDrawCornersMouseRelease() {
+		editingStation.setCorners(packet -> ClientPlayNetworking.send(PACKET_UPDATE_STATION, packet));
+	}
+
 	private void onClickPlatform(long platformId) {
 		editingRoute.platformIds.add(platformId);
+		editingRoute.setPlatformIds(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void onDoneEditingStation() {
@@ -335,6 +339,7 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
+		editingStation.setNameColor(packet -> ClientPlayNetworking.send(PACKET_UPDATE_STATION, packet));
 		stopEditing();
 	}
 
@@ -348,6 +353,7 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());
+		editingRoute.setNameColor(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
 		stopEditing();
 	}
 

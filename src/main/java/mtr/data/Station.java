@@ -1,9 +1,12 @@
 package mtr.data;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.function.Consumer;
 
 public final class Station extends NameColorDataBase {
 
@@ -13,9 +16,14 @@ public final class Station extends NameColorDataBase {
 	private static final String KEY_Z_MIN = "z_min";
 	private static final String KEY_X_MAX = "x_max";
 	private static final String KEY_Z_MAX = "z_max";
+	private static final String KEY_CORNERS = "corners";
 
 	public Station() {
 		super();
+	}
+
+	public Station(long id) {
+		super(id);
 	}
 
 	public Station(CompoundTag tag) {
@@ -47,6 +55,27 @@ public final class Station extends NameColorDataBase {
 		packet.writeInt(corner1.getRight());
 		packet.writeInt(corner2.getLeft());
 		packet.writeInt(corner2.getRight());
+	}
+
+	@Override
+	public void update(String key, PacketByteBuf packet) {
+		if (key.equals(KEY_CORNERS)) {
+			corner1 = new Pair<>(packet.readInt(), packet.readInt());
+			corner2 = new Pair<>(packet.readInt(), packet.readInt());
+		} else {
+			super.update(key, packet);
+		}
+	}
+
+	public void setCorners(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_CORNERS);
+		packet.writeInt(corner1.getLeft());
+		packet.writeInt(corner1.getRight());
+		packet.writeInt(corner2.getLeft());
+		packet.writeInt(corner2.getRight());
+		sendPacket.accept(packet);
 	}
 
 	public boolean inStation(int x, int z) {

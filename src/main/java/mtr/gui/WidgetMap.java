@@ -22,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
+import java.util.function.Consumer;
+
 
 public class WidgetMap implements Drawable, Element, IGui {
 
@@ -36,7 +38,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private int mapState;
 
 	private final OnDrawCorners onDrawCorners;
-	private final OnClickPlatform onClickPlatform;
+	private final Runnable onDrawCornersMouseRelease;
+	private final Consumer<Long> onClickPlatform;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -45,8 +48,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, OnClickPlatform onClickPlatform) {
+	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickPlatform) {
 		this.onDrawCorners = onDrawCorners;
+		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
 		this.onClickPlatform = onClickPlatform;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -162,6 +166,14 @@ public class WidgetMap implements Drawable, Element, IGui {
 	}
 
 	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		if (mapState == 1) {
+			onDrawCornersMouseRelease.run();
+		}
+		return true;
+	}
+
+	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
 			if (mapState == 1) {
@@ -169,7 +181,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				drawStation2 = null;
 			} else if (mapState == 2) {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.onClickPlatform(platform.id));
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.accept(platform.id));
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
 				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new ScheduleScreen(platform)));
@@ -299,11 +311,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@FunctionalInterface
 	public interface OnDrawCorners {
 		void onDrawCorners(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
-	}
-
-	@FunctionalInterface
-	public interface OnClickPlatform {
-		void onClickPlatform(long stationId);
 	}
 
 	@FunctionalInterface

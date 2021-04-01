@@ -3,7 +3,7 @@ package mtr;
 import mtr.block.*;
 import mtr.data.RailwayData;
 import mtr.entity.EntitySeat;
-import mtr.packet.PacketTrainDataBase;
+import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -29,7 +29,7 @@ import net.minecraft.util.registry.Registry;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class MTR implements ModInitializer {
+public class MTR implements ModInitializer, IPacket {
 
 	public static final String MOD_ID = "mtr";
 
@@ -173,9 +173,14 @@ public class MTR implements ModInitializer {
 		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
 		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_C2S, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveChunk(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_C2S, packet1)), packet1 -> PacketTrainDataGuiServer.receiveAllC2S(minecraftServer, player, packet1)));
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(packet, packet1 -> minecraftServer.execute(() -> ServerPlayNetworking.send(player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet1))));
-		ServerPlayNetworking.registerGlobalReceiver(PacketTrainDataBase.PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteStation(minecraftServer, player, packet, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeletePlatform(minecraftServer, player, packet, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteStation(minecraftServer, player, packet, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeletePlatform(minecraftServer, player, packet, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, true));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
 			RailwayData railwayData = RailwayData.getInstance(serverWorld);

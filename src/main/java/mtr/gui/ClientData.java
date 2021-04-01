@@ -1,15 +1,12 @@
 package mtr.gui;
 
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Route;
-import mtr.data.Station;
-import mtr.packet.PacketTrainDataBase;
+import mtr.data.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class ClientData {
@@ -27,10 +24,14 @@ public final class ClientData {
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 
 	public static void receivePacket(PacketByteBuf packet) {
-		stations = PacketTrainDataBase.deserializeData(packet, Station::new);
-		platforms = PacketTrainDataBase.deserializeData(packet, Platform::new);
-		routes = PacketTrainDataBase.deserializeData(packet, Route::new);
+		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
+		stations = deserializeData(packetCopy, Station::new);
+		platforms = deserializeData(packetCopy, Platform::new);
+		routes = deserializeData(packetCopy, Route::new);
+		updateReferences();
+	}
 
+	public static void updateReferences() {
 		platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
 		platformsInStation.clear();
@@ -100,6 +101,15 @@ public final class ClientData {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private static <T extends NameColorDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
+		final Set<T> objects = new HashSet<>();
+		final int dataCount = packet.readInt();
+		for (int i = 0; i < dataCount; i++) {
+			objects.add(supplier.apply(packet));
+		}
+		return objects;
 	}
 
 	public static class PlatformRouteDetails {

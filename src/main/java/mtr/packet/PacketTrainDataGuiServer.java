@@ -19,14 +19,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.awt.*;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	private static final String BLUE_MAP_MARKER_SET_STATIONS_ID = "mtr_stations";
 	private static final String BLUE_MAP_MARKER_SET_STATIONS_TITLE = "Minecraft Transit Railway Stations";
+
+	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
+	private static final Map<Long, PacketByteBuf> TEMP_PACKETS_SENDER = new HashMap<>();
 
 	public static void openDashboardScreenS2C(ServerPlayerEntity player) {
 		final PacketByteBuf packet = PacketByteBufs.create();
@@ -39,21 +40,72 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet);
 	}
 
-	public static void receiveAllC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(world);
-		if (railwayData != null) {
-			final Set<Station> stations = deserializeData(packet, Station::new);
-			final Set<Platform> platforms = deserializeData(packet, Platform::new);
-			final Set<Route> routes = deserializeData(packet, Route::new);
-			minecraftServer.execute(() -> {
-				railwayData.setData(stations, platforms, routes);
-				try {
-					updateBlueMap(world, stations);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+		final long tempPacketId = new Random().nextLong();
+		final PacketByteBuf packet = PacketByteBufs.create();
+		serializeData(packet, stations);
+		serializeData(packet, platforms);
+		serializeData(packet, routes);
+		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
+		sendChunk(player, tempPacketId, 0);
+	}
+
+	public static void receiveUpdateOrDeleteStation(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		if (isDelete) {
+			deleteData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_DELETE_STATION, fullPacket);
+				railwayData.markDirty();
 			});
+		} else {
+			updateData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_UPDATE_STATION, fullPacket);
+				railwayData.markDirty();
+			}, Station::new);
+		}
+
+		updateBlueMap(player.world);
+	}
+
+	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		if (isDelete) {
+			deleteData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_DELETE_PLATFORM, fullPacket);
+				railwayData.markDirty();
+			});
+		} else {
+			updateData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_UPDATE_PLATFORM, fullPacket);
+				railwayData.markDirty();
+			}, null);
+		}
+	}
+
+	public static void receiveUpdateOrDeleteRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		if (isDelete) {
+			deleteData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_DELETE_ROUTE, fullPacket);
+				railwayData.markDirty();
+			});
+		} else {
+			updateData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				ServerPlayNetworking.send(player, PACKET_UPDATE_ROUTE, fullPacket);
+				railwayData.markDirty();
+			}, Route::new);
 		}
 	}
 
@@ -84,7 +136,44 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
-	private static void updateBlueMap(World world, Set<Station> stations) throws IOException {
+	public static void handleResponseFromReceiver(ServerPlayerEntity player, PacketByteBuf packet) {
+		final long tempPacketId = packet.readLong();
+		final int chunk = packet.readInt();
+		sendChunk(player, tempPacketId, chunk);
+	}
+
+	private static <T extends NameColorDataBase> void serializeData(PacketByteBuf packet, Set<T> objects) {
+		packet.writeInt(objects.size());
+		objects.forEach(object -> object.writePacket(packet));
+	}
+
+	private static void sendChunk(ServerPlayerEntity player, long tempPacketId, int chunk) {
+		final PacketByteBuf packetChunk = PacketByteBufs.create();
+		packetChunk.writeLong(tempPacketId);
+		packetChunk.writeInt(chunk);
+
+		final PacketByteBuf tempPacket = TEMP_PACKETS_SENDER.get(tempPacketId);
+		if (chunk * PACKET_CHUNK_SIZE > tempPacket.readableBytes()) {
+			TEMP_PACKETS_SENDER.remove(tempPacketId);
+			packetChunk.writeBoolean(true);
+		} else {
+			packetChunk.writeBoolean(false);
+			packetChunk.writeBytes(tempPacket.copy(chunk * PACKET_CHUNK_SIZE, Math.min(PACKET_CHUNK_SIZE, tempPacket.readableBytes() - chunk * PACKET_CHUNK_SIZE)));
+		}
+
+		try {
+			ServerPlayNetworking.send(player, PACKET_CHUNK_S2C, packetChunk);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void updateBlueMap(World world) {
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData == null) {
+			return;
+		}
+
 		final BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
 		if (api == null) {
 			return;
@@ -95,24 +184,29 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			return;
 		}
 
-		final MarkerAPI markerApi = api.getMarkerAPI();
+		try {
+			final Set<Station> stations = railwayData.getStations();
+			final MarkerAPI markerApi = api.getMarkerAPI();
 
-		final MarkerSet markerSetStations = markerApi.createMarkerSet(BLUE_MAP_MARKER_SET_STATIONS_ID);
-		markerSetStations.setLabel(BLUE_MAP_MARKER_SET_STATIONS_TITLE);
-		markerSetStations.getMarkers().forEach(markerSetStations::removeMarker);
-		final int stationY = world.getSeaLevel();
+			final MarkerSet markerSetStations = markerApi.createMarkerSet(BLUE_MAP_MARKER_SET_STATIONS_ID);
+			markerSetStations.setLabel(BLUE_MAP_MARKER_SET_STATIONS_TITLE);
+			markerSetStations.getMarkers().forEach(markerSetStations::removeMarker);
+			final int stationY = world.getSeaLevel();
 
-		stations.forEach(station -> {
-			final BlockPos stationPos = station.getCenter();
-			final int stationX = stationPos.getX();
-			final int stationZ = stationPos.getZ();
-			final ShapeMarker marker = markerSetStations.createShapeMarker(String.valueOf(station.id), map, stationX, stationY, stationZ, Shape.createCircle(stationX, stationZ, 4, 32), stationY);
-			marker.setLabel(station.name.replace("|", "\n"));
-			final Color stationColor = new Color(station.color);
-			marker.setFillColor(stationColor);
-			marker.setBorderColor(stationColor.darker());
-		});
+			stations.forEach(station -> {
+				final BlockPos stationPos = station.getCenter();
+				final int stationX = stationPos.getX();
+				final int stationZ = stationPos.getZ();
+				final ShapeMarker marker = markerSetStations.createShapeMarker(String.valueOf(station.id), map, stationX, stationY, stationZ, Shape.createCircle(stationX, stationZ, 4, 32), stationY);
+				marker.setLabel(station.name.replace("|", "\n"));
+				final Color stationColor = new Color(station.color);
+				marker.setFillColor(stationColor);
+				marker.setBorderColor(stationColor.darker());
+			});
 
-		markerApi.save();
+			markerApi.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

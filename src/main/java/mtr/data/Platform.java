@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockRail;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public final class Platform extends NameColorDataBase {
 
@@ -67,6 +69,15 @@ public final class Platform extends NameColorDataBase {
 		packet.writeBlockPos(getPosition(1));
 	}
 
+	@Override
+	public void update(String key, PacketByteBuf packet) {
+		if (KEY_DWELL_TIME.equals(key)) {
+			dwellTime = packet.readInt();
+		} else {
+			super.update(key, packet);
+		}
+	}
+
 	public int getDwellTime() {
 		if (dwellTime <= 0 || dwellTime > MAX_DWELL_TIME) {
 			dwellTime = DEFAULT_DWELL_TIME;
@@ -74,12 +85,18 @@ public final class Platform extends NameColorDataBase {
 		return dwellTime;
 	}
 
-	public void setDwellTime(int newDwellTime) {
+	public void setDwellTime(int newDwellTime, Consumer<PacketByteBuf> sendPacket) {
 		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
 			dwellTime = DEFAULT_DWELL_TIME;
 		} else {
 			dwellTime = newDwellTime;
 		}
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_DWELL_TIME);
+		packet.writeInt(dwellTime);
+		sendPacket.accept(packet);
 	}
 
 	public BlockPos getMidPos() {
@@ -89,12 +106,6 @@ public final class Platform extends NameColorDataBase {
 	public BlockPos getMidPos(boolean zeroY) {
 		final BlockPos pos = getPosition(0).add(getPosition(1));
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
-	}
-
-	public boolean inPlatform(int x, int z) {
-		final BlockPos pos1 = getPosition(0);
-		final BlockPos pos2 = getPosition(1);
-		return RailwayData.isBetween(x, pos1.getX(), pos2.getX()) && RailwayData.isBetween(z, pos1.getZ(), pos2.getZ());
 	}
 
 	public boolean isValidPlatform(WorldAccess world) {

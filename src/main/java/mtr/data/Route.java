@@ -7,6 +7,7 @@ import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,14 +22,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class Route extends NameColorDataBase implements IGui {
 
-	public String customDestination;
-	public boolean shuffleTrains;
-
 	private PathFinder routePathFinder;
+	private String customDestination;
+	private boolean shuffleTrains;
 
 	public final List<Long> platformIds;
 	public final List<TrainType> trainTypes;
@@ -57,7 +58,11 @@ public final class Route extends NameColorDataBase implements IGui {
 	private static final String KEY_PATH = "path";
 
 	public Route() {
-		super();
+		this(0);
+	}
+
+	public Route(long id) {
+		super(id);
 		platformIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
 		path = new ArrayList<>();
@@ -181,6 +186,79 @@ public final class Route extends NameColorDataBase implements IGui {
 		path.forEach(pathData -> pathData.writePacket(packet));
 	}
 
+	@Override
+	public void update(String key, PacketByteBuf packet) {
+		switch (key) {
+			case KEY_PLATFORM_IDS:
+				platformIds.clear();
+				final int platformCount = packet.readInt();
+				for (int i = 0; i < platformCount; i++) {
+					platformIds.add(packet.readLong());
+				}
+				break;
+			case KEY_TRAIN_TYPES:
+				trainTypes.clear();
+				final int trainTypeCount = packet.readInt();
+				for (int i = 0; i < trainTypeCount; i++) {
+					trainTypes.add(TrainType.values()[packet.readInt()]);
+				}
+				break;
+			case KEY_FREQUENCIES:
+				for (int i = 0; i < HOURS_IN_DAY; i++) {
+					frequencies[i] = packet.readInt();
+				}
+				break;
+			case KEY_CUSTOM_DESTINATION:
+				customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
+				break;
+			case KEY_SHUFFLE_TRAINS:
+				shuffleTrains = packet.readBoolean();
+				break;
+			default:
+				super.update(key, packet);
+				break;
+		}
+		generateSchedule();
+	}
+
+	public void setPlatformIds(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_PLATFORM_IDS);
+		packet.writeInt(platformIds.size());
+		platformIds.forEach(packet::writeLong);
+		sendPacket.accept(packet);
+	}
+
+	public void setTrainTypes(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_TRAIN_TYPES);
+		packet.writeInt(trainTypes.size());
+		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
+		sendPacket.accept(packet);
+	}
+
+	public void setCustomDestination(String newCustomDestination, Consumer<PacketByteBuf> sendPacket) {
+		customDestination = newCustomDestination;
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_CUSTOM_DESTINATION);
+		packet.writeString(customDestination);
+		sendPacket.accept(packet);
+	}
+
+	public void setShuffleTrains(boolean newShuffleTrains, Consumer<PacketByteBuf> sendPacket) {
+		shuffleTrains = newShuffleTrains;
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_SHUFFLE_TRAINS);
+		packet.writeBoolean(shuffleTrains);
+		sendPacket.accept(packet);
+	}
+
 	public void startFindingPath(WorldAccess world, Set<Platform> platforms) {
 		if (routePathFinder == null) {
 			routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
@@ -218,10 +296,27 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 	}
 
-	public void setFrequencies(int frequency, int index) {
+	public void setFrequencies(int newFrequency, int index, Consumer<PacketByteBuf> sendPacket) {
 		if (index >= 0 && index < frequencies.length) {
-			frequencies[index] = frequency;
+			frequencies[index] = newFrequency;
 		}
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_FREQUENCIES);
+		packet.writeInt(frequencies.length);
+		for (final int frequency : frequencies) {
+			packet.writeInt(frequency);
+		}
+		sendPacket.accept(packet);
+	}
+
+	public String getCustomDestination() {
+		return customDestination;
+	}
+
+	public boolean getShuffleTrains() {
+		return shuffleTrains;
 	}
 
 	public void getPositionYaw(WorldAccess world, long worldTime) {

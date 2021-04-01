@@ -1,8 +1,6 @@
 package mtr.data;
 
-import mtr.packet.PacketTrainDataBase;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -101,6 +99,10 @@ public class RailwayData extends PersistentState {
 		return stations;
 	}
 
+	public Set<Platform> getPlatforms() {
+		return platforms;
+	}
+
 	public Set<Route> getRoutes() {
 		try {
 			validateData();
@@ -137,22 +139,48 @@ public class RailwayData extends PersistentState {
 
 			if (scheduleValidate.isEmpty()) {
 				System.out.println("Done validating platforms");
-				scheduleBroadcast.clear();
-				scheduleBroadcast.addAll(world.getPlayers());
 			}
 		}
 
 		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
-				PacketTrainDataGuiServer.sendAllInChunks(stations, platforms, routes, packet -> ServerPlayNetworking.send((ServerPlayerEntity) player, PacketTrainDataBase.PACKET_CHUNK_S2C, packet));
-				System.out.println("Broadcasting to player " + player);
+				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes);
+				System.out.println("Sending all data to player " + player);
 			}
 		}
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
 		scheduleBroadcast.add(player);
+	}
+
+	// getting data
+
+	public Station getStationById(long id) {
+		final Station station = getDataById(stations, id);
+		if (station == null) {
+			final Station newStation = new Station(id);
+			stations.add(newStation);
+			return newStation;
+		} else {
+			return station;
+		}
+	}
+
+	public Platform getPlatformById(long id) {
+		return getDataById(platforms, id);
+	}
+
+	public Route getRouteById(long id) {
+		final Route route = getDataById(routes, id);
+		if (route == null) {
+			final Route newRoute = new Route(id);
+			routes.add(newRoute);
+			return newRoute;
+		} else {
+			return route;
+		}
 	}
 
 	// writing data
