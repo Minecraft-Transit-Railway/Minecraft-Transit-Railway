@@ -22,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
+import java.util.ConcurrentModificationException;
 import java.util.function.Consumer;
 
 
@@ -264,6 +265,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 					}
 				}
 			});
+		} catch (ConcurrentModificationException ignored) {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

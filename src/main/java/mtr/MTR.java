@@ -181,6 +181,8 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteStation(minecraftServer, player, packet, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeletePlatform(minecraftServer, player, packet, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateRoute(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ALL_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateAllRoutes(minecraftServer, player));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
 			RailwayData railwayData = RailwayData.getInstance(serverWorld);

@@ -3,7 +3,6 @@ package mtr.gui;
 import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,6 +31,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	private final ButtonWidget buttonTabTrains;
 	private final ButtonWidget buttonAddStation;
 	private final ButtonWidget buttonAddRoute;
+	private final ButtonWidget buttonGenerateAllRoutes;
 	private final ButtonWidget buttonDoneEditingStation;
 	private final ButtonWidget buttonDoneEditingRoute;
 	private final ButtonWidget buttonZoomIn;
@@ -71,12 +71,13 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		buttonAddStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_station"), button -> startEditingStation(new Station(), true));
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
+		buttonGenerateAllRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.generate_all_routes"), button -> onGenerateAllRoutes());
 		buttonDoneEditingStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingStation());
 		buttonDoneEditingRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingRoute());
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, this::onSort, null, this::onDelete, this::getList);
 
 		onSelectTab(initialTab);
 	}
@@ -94,7 +95,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		IGui.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
 		IGui.setPositionAndWidth(buttonTabTrains, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
 		IGui.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH / 2);
+		IGui.setPositionAndWidth(buttonGenerateAllRoutes, PANEL_WIDTH / 2, bottomRowY, PANEL_WIDTH / 2);
 		IGui.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE, bottomRowY - SQUARE_SIZE, SQUARE_SIZE);
@@ -133,6 +135,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		addButton(buttonTabTrains);
 		addButton(buttonAddStation);
 		addButton(buttonAddRoute);
+		addButton(buttonGenerateAllRoutes);
 		addButton(buttonDoneEditingStation);
 		addButton(buttonDoneEditingRoute);
 		addButton(buttonZoomIn);
@@ -262,6 +265,12 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		}
 	}
 
+	private void onSort() {
+		if (selectedTab == 1 && editingRoute != null) {
+			editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		}
+	}
+
 	private void onDelete(NameColorDataBase data, int index) {
 		try {
 			switch (selectedTab) {
@@ -277,7 +286,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 						ClientData.routes.remove(route);
 					} else {
 						editingRoute.platformIds.remove(index);
-						editingRoute.setPlatformIds(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
+						editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 					}
 					break;
 			}
@@ -321,12 +330,12 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	}
 
 	private void onDrawCornersMouseRelease() {
-		editingStation.setCorners(packet -> ClientPlayNetworking.send(PACKET_UPDATE_STATION, packet));
+		editingStation.setCorners(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 	}
 
 	private void onClickPlatform(long platformId) {
 		editingRoute.platformIds.add(platformId);
-		editingRoute.setPlatformIds(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
+		editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void onDoneEditingStation() {
@@ -339,7 +348,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
-		editingStation.setNameColor(packet -> ClientPlayNetworking.send(PACKET_UPDATE_STATION, packet));
+		editingStation.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		stopEditing();
 	}
 
@@ -353,8 +362,19 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());
-		editingRoute.setNameColor(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
+		editingRoute.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		PacketTrainDataGuiClient.sendGenerateData(editingRoute.id);
 		stopEditing();
+	}
+
+	private void onGenerateAllRoutes() {
+		PacketTrainDataGuiClient.sendGenerateAllRoutes();
+		if (client != null) {
+			client.openScreen(null);
+			if (client.player != null) {
+				client.player.sendMessage(new TranslatableText("gui.mtr.generating_all_routes", ClientData.routes.size()), true);
+			}
+		}
 	}
 
 	private void stopEditing() {
@@ -367,6 +387,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	private void toggleButtons() {
 		buttonAddStation.visible = selectedTab == 0 && editingStation == null;
 		buttonAddRoute.visible = selectedTab == 1 && editingRoute == null;
+		buttonGenerateAllRoutes.visible = selectedTab == 1 && editingRoute == null;
 		buttonDoneEditingStation.visible = selectedTab == 0 && editingStation != null;
 		buttonDoneEditingStation.active = nonNullCorners(editingStation);
 		buttonDoneEditingRoute.visible = selectedTab == 1 && editingRoute != null;

@@ -100,15 +100,14 @@ public class RailwayData extends PersistentState {
 	}
 
 	public Set<Platform> getPlatforms() {
+		scheduleValidate.clear();
+		scheduleValidate.addAll(platforms);
 		return platforms;
 	}
 
 	public Set<Route> getRoutes() {
-		try {
-			validateData();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		scheduleValidate.clear();
+		scheduleValidate.addAll(platforms);
 		return routes;
 	}
 
@@ -122,11 +121,8 @@ public class RailwayData extends PersistentState {
 			if (route.findPath()) {
 				scheduleGenerate.remove(route);
 				System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
-			}
-
-			if (scheduleGenerate.isEmpty()) {
-				scheduleValidate.clear();
-				scheduleValidate.addAll(platforms);
+				scheduleBroadcast.clear();
+				scheduleBroadcast.addAll(world.getPlayers());
 			}
 		}
 
@@ -139,6 +135,9 @@ public class RailwayData extends PersistentState {
 
 			if (scheduleValidate.isEmpty()) {
 				System.out.println("Done validating platforms");
+				scheduleBroadcast.clear();
+				scheduleBroadcast.addAll(world.getPlayers());
+				validateData();
 			}
 		}
 
@@ -151,55 +150,28 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
-	public void addPlayerToBroadcast(PlayerEntity player) {
-		scheduleBroadcast.add(player);
-	}
-
-	// getting data
-
-	public Station getStationById(long id) {
-		final Station station = getDataById(stations, id);
-		if (station == null) {
-			final Station newStation = new Station(id);
-			stations.add(newStation);
-			return newStation;
-		} else {
-			return station;
+	public void addRouteToGenerate(long id) {
+		final Route route = getDataById(routes, id);
+		if (route != null && !scheduleGenerate.contains(route)) {
+			scheduleGenerate.add(route);
 		}
 	}
 
-	public Platform getPlatformById(long id) {
-		return getDataById(platforms, id);
+	public void addAllRoutesToGenerate() {
+		routes.forEach(route -> {
+			if (!scheduleGenerate.contains(route)) {
+				scheduleGenerate.add(route);
+			}
+		});
 	}
 
-	public Route getRouteById(long id) {
-		final Route route = getDataById(routes, id);
-		if (route == null) {
-			final Route newRoute = new Route(id);
-			routes.add(newRoute);
-			return newRoute;
-		} else {
-			return route;
+	public void addPlayerToBroadcast(PlayerEntity player) {
+		if (!scheduleBroadcast.contains(player)) {
+			scheduleBroadcast.add(player);
 		}
 	}
 
 	// writing data
-
-	public void setData(Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		try {
-			this.stations.clear();
-			this.stations.addAll(stations);
-			this.platforms.clear();
-			this.platforms.addAll(platforms);
-			this.routes.clear();
-			this.routes.addAll(routes);
-			validateData();
-			scheduleGenerate.clear();
-			scheduleGenerate.addAll(this.routes);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	public void setData(Platform newPlatform) {
 		try {

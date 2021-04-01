@@ -304,7 +304,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_FREQUENCIES);
-		packet.writeInt(frequencies.length);
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
 		}

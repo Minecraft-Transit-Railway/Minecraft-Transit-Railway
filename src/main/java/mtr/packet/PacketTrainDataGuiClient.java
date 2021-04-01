@@ -97,10 +97,25 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
+	public static void sendUpdate(Identifier packetId, PacketByteBuf packet) {
+		ClientPlayNetworking.send(packetId, packet);
+		ClientData.updateReferences();
+	}
+
 	public static void sendDeleteData(Identifier packetId, long id) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
-		ClientPlayNetworking.send(packetId, packet);
+		sendUpdate(packetId, packet);
+	}
+
+	public static void sendGenerateData(long id) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		ClientPlayNetworking.send(PACKET_GENERATE_ROUTE, packet);
+	}
+
+	public static void sendGenerateAllRoutes() {
+		ClientPlayNetworking.send(PACKET_GENERATE_ALL_ROUTES, PacketByteBufs.create());
 	}
 
 	public static void sendSignTypesC2S(BlockPos signPos, Set<Long> selectedIds, BlockRailwaySign.SignType[] signTypes) {

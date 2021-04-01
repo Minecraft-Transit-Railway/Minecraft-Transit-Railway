@@ -5,6 +5,7 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
@@ -91,7 +92,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(station.id);
 			if (routesInStation != null) {
-				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+				final List<ClientData.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
 				final float maxWidth = Math.max(0, ((flipped ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);

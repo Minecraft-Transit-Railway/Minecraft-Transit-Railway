@@ -51,6 +51,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void receiveUpdateOrDeleteStation(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(player.world);
 		if (railwayData == null) {
 			return;
@@ -58,12 +59,20 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 		if (isDelete) {
 			deleteData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_DELETE_STATION, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_STATION, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			});
 		} else {
 			updateData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_UPDATE_STATION, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_STATION, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			}, Station::new);
 		}
@@ -72,6 +81,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(player.world);
 		if (railwayData == null) {
 			return;
@@ -79,34 +89,70 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 		if (isDelete) {
 			deleteData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_DELETE_PLATFORM, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_PLATFORM, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			});
 		} else {
 			updateData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_UPDATE_PLATFORM, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_PLATFORM, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			}, null);
 		}
 	}
 
 	public static void receiveUpdateOrDeleteRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		final World world = player.world;
+		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
 			return;
 		}
 
 		if (isDelete) {
 			deleteData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_DELETE_ROUTE, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_ROUTE, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			});
 		} else {
 			updateData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				ServerPlayNetworking.send(player, PACKET_UPDATE_ROUTE, fullPacket);
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_ROUTE, fullPacket);
+					}
+				});
 				railwayData.markDirty();
 			}, Route::new);
 		}
+	}
+
+	public static void receiveGenerateRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		final long id = packet.readLong();
+		minecraftServer.execute(() -> railwayData.addRouteToGenerate(id));
+	}
+
+	public static void receiveGenerateAllRoutes(MinecraftServer minecraftServer, ServerPlayerEntity player) {
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		minecraftServer.execute(railwayData::addAllRoutesToGenerate);
 	}
 
 	public static void receiveSignTypesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {

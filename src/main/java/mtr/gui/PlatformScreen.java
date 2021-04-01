@@ -5,7 +5,7 @@ import mtr.data.NameColorDataBase;
 import mtr.data.Route;
 import mtr.data.TrainType;
 import mtr.packet.IPacket;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -54,17 +54,17 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 
 		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
 			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index, packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet)), PlatformScreen::getSliderString);
+			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)), PlatformScreen::getSliderString);
 		}
 
 		buttonAddTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_train"), button -> onAddingTrain());
 		buttonCancel = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.cancel"), button -> setAdding(false));
-		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> this.route.setShuffleTrains(checked, packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet)));
+		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> this.route.setShuffleTrains(checked, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
 
 		textFieldCustomDestination = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onRemove, () -> route.trainTypes);
+		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
+		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> route.trainTypes);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 
 		textFieldCustomDestination.setText(route.getCustomDestination());
 		textFieldCustomDestination.setMaxLength(MAX_CUSTOM_DESTINATION_LENGTH);
-		textFieldCustomDestination.setChangedListener(text -> route.setCustomDestination(textFieldCustomDestination.getText(), packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet)));
+		textFieldCustomDestination.setChangedListener(text -> route.setCustomDestination(textFieldCustomDestination.getText(), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
 
 		addNewList.init();
 		trainList.init();
@@ -186,14 +186,18 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 	private void onAdded(NameColorDataBase data, int index) {
 		if (addingTrain) {
 			route.trainTypes.add(TrainType.values()[index]);
-			route.setTrainTypes(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
+			route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 		}
 		setAdding(false);
 	}
 
+	private void onSort() {
+		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+	}
+
 	private void onRemove(NameColorDataBase data, int index) {
 		route.trainTypes.remove(index);
-		route.setTrainTypes(packet -> ClientPlayNetworking.send(PACKET_UPDATE_ROUTE, packet));
+		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void setAdding(boolean addingTrain) {
