@@ -1,0 +1,34 @@
+{
+	"variants": {
+		"facing=north,open=false": {
+			"model": "mtr:block/ticket_barrier_exit_1"
+		},
+		"facing=east,open=false": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 90
+		},
+		"facing=south,open=false": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 180
+		},
+		"facing=west,open=false": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 270
+		},
+		"facing=north,open=true": {
+			"model": "mtr:block/ticket_barrier_exit_1"
+		},
+		"facing=east,open=true": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 90
+		},
+		"facing=south,open=true": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 180
+		},
+		"facing=west,open=true": {
+			"model": "mtr:block/ticket_barrier_exit_1",
+			"y": 270
+		}
+	}
+}

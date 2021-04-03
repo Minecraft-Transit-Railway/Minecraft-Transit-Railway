@@ -140,7 +140,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		if (scale >= 2) {
 			for (Station station : ClientData.stations) {
 				final BlockPos pos = station.getCenter();
-				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, station.name, x + (float) x1, y + (float) y1));
+				final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
+				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
 			}
 		}
 

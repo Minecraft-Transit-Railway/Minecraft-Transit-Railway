@@ -89,5 +89,7 @@ public interface Blocks {
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();
 	Block STATION_NAME_WALL = new BlockStationNameWall(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	Block STATION_POLE = new BlockStationPole(FabricBlockSettings.of(Material.STONE, MaterialColor.STONE).requiresTool().hardness(2).nonOpaque());
+	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrierEntrance(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrierExit(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
 }

@@ -1,4 +1,20 @@
 {
+	"ticket_barrier": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_barrier",
+				"pitch": 0.5
+			}
+		]
+	},
+	"ticket_barrier_concessionary": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_barrier_concessionary",
+				"pitch": 0.5
+			}
+		]
+	},
 	"sp1900_door_open": {
 		"sounds": [
 			{

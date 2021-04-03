@@ -39,12 +39,13 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	private final TextFieldWidget textFieldName;
 	private final TextFieldWidget textFieldColor;
+	private final TextFieldWidget textFieldZone;
 
 	private final DashboardList dashboardList;
 
 	private static final int COLOR_WIDTH = 48;
 	private static final int MAX_STATION_LENGTH = 128;
-	private static final int MAX_COLOR_LENGTH = 6;
+	private static final int MAX_COLOR_ZONE_LENGTH = 6;
 
 	public DashboardScreen() {
 		this(0);
@@ -58,6 +59,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldZone = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(0));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(1));
@@ -104,6 +106,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
 		IGui.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IGui.setPositionAndWidth(textFieldZone, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING * 3 / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
@@ -117,13 +120,22 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		textFieldName.setMaxLength(MAX_STATION_LENGTH);
 		textFieldName.setChangedListener(text -> textFieldName.setSuggestion(text.isEmpty() ? new TranslatableText("gui.mtr.name").getString() : ""));
 		textFieldColor.setVisible(false);
-		textFieldColor.setMaxLength(MAX_COLOR_LENGTH);
+		textFieldColor.setMaxLength(MAX_COLOR_ZONE_LENGTH);
 		textFieldColor.setChangedListener(text -> {
 			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
 			if (!newText.equals(text)) {
 				textFieldColor.setText(newText);
 			}
 			textFieldColor.setSuggestion(newText.isEmpty() ? new TranslatableText("gui.mtr.color").getString() : "");
+		});
+		textFieldZone.setVisible(false);
+		textFieldZone.setMaxLength(MAX_COLOR_ZONE_LENGTH);
+		textFieldZone.setChangedListener(text -> {
+			final String newText = text.replaceAll("[^0-9]", "");
+			if (!newText.equals(text)) {
+				textFieldZone.setText(newText);
+			}
+			textFieldZone.setSuggestion(newText.isEmpty() ? new TranslatableText("gui.mtr.zone").getString() : "");
 		});
 
 		dashboardList.init();
@@ -143,6 +155,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		addChild(textFieldName);
 		addChild(textFieldColor);
+		addChild(textFieldZone);
 	}
 
 	@Override
@@ -155,6 +168,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			super.render(matrices, mouseX, mouseY, delta);
 			textFieldName.render(matrices, mouseX, mouseY, delta);
 			textFieldColor.render(matrices, mouseX, mouseY, delta);
+			textFieldZone.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -175,6 +189,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	public void tick() {
 		textFieldName.tick();
 		textFieldColor.tick();
+		textFieldZone.tick();
 		dashboardList.tick();
 
 		try {
@@ -306,6 +321,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		textFieldName.setText(editingStation.name);
 		textFieldColor.setText(colorIntToString(editingStation.color));
+		textFieldZone.setText(String.valueOf(editingStation.zone));
 
 		widgetMap.startEditingStation(editingStation);
 		toggleButtons();
@@ -348,6 +364,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
+		try {
+			editingStation.zone = Integer.parseInt(textFieldZone.getText());
+		} catch (Exception ignored) {
+			editingStation.zone = 0;
+		}
 		editingStation.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		stopEditing();
 	}
@@ -395,7 +416,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		final boolean showTextFields = (selectedTab == 0 && editingStation != null) || (selectedTab == 1 && editingRoute != null);
 		textFieldName.visible = showTextFields;
 		textFieldColor.visible = showTextFields;
-		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
+		textFieldZone.visible = selectedTab == 0 && editingStation != null;
+		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? (selectedTab == 0 ? 2 : 1) * SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
 	}
 
 	private static int colorStringToInt(String string) {

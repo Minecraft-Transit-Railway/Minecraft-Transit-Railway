@@ -11,12 +11,14 @@ import java.util.function.Consumer;
 public final class Station extends NameColorDataBase {
 
 	public Pair<Integer, Integer> corner1, corner2;
+	public int zone;
 
 	private static final String KEY_X_MIN = "x_min";
 	private static final String KEY_Z_MIN = "z_min";
 	private static final String KEY_X_MAX = "x_max";
 	private static final String KEY_Z_MAX = "z_max";
 	private static final String KEY_CORNERS = "corners";
+	private static final String KEY_ZONE = "zone";
 
 	public Station() {
 		super();
@@ -30,12 +32,14 @@ public final class Station extends NameColorDataBase {
 		super(tag);
 		corner1 = new Pair<>(tag.getInt(KEY_X_MIN), tag.getInt(KEY_Z_MIN));
 		corner2 = new Pair<>(tag.getInt(KEY_X_MAX), tag.getInt(KEY_Z_MAX));
+		zone = tag.getInt(KEY_ZONE);
 	}
 
 	public Station(PacketByteBuf packet) {
 		super(packet);
 		corner1 = new Pair<>(packet.readInt(), packet.readInt());
 		corner2 = new Pair<>(packet.readInt(), packet.readInt());
+		zone = packet.readInt();
 	}
 
 	@Override
@@ -45,6 +49,7 @@ public final class Station extends NameColorDataBase {
 		tag.putInt(KEY_Z_MIN, corner1.getRight());
 		tag.putInt(KEY_X_MAX, corner2.getLeft());
 		tag.putInt(KEY_Z_MAX, corner2.getRight());
+		tag.putInt(KEY_ZONE, zone);
 		return tag;
 	}
 
@@ -55,6 +60,7 @@ public final class Station extends NameColorDataBase {
 		packet.writeInt(corner1.getRight());
 		packet.writeInt(corner2.getLeft());
 		packet.writeInt(corner2.getRight());
+		packet.writeInt(zone);
 	}
 
 	@Override
@@ -64,7 +70,16 @@ public final class Station extends NameColorDataBase {
 			corner2 = new Pair<>(packet.readInt(), packet.readInt());
 		} else {
 			super.update(key, packet);
+			zone = packet.readInt();
 		}
+	}
+
+	@Override
+	public PacketByteBuf setNameColor(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = super.setNameColor(null);
+		packet.writeInt(zone);
+		sendPacket.accept(packet);
+		return packet;
 	}
 
 	public void setCorners(Consumer<PacketByteBuf> sendPacket) {
