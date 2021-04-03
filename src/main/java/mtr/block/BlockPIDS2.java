@@ -10,28 +10,28 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-public class BlockPIDS1 extends BlockPIDSBase implements BlockEntityProvider {
+public class BlockPIDS2 extends BlockPIDSBase implements BlockEntityProvider {
 
-	public BlockPIDS1(Settings settings) {
+	public BlockPIDS2(Settings settings) {
 		super(settings);
 	}
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 11, 16, IBlock.getStatePropertySafe(state, FACING));
-		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 11, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
+		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 9, 16, IBlock.getStatePropertySafe(state, FACING));
+		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 9, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
 		return VoxelShapes.union(shape1, shape2);
 	}
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityBlockPIDS1();
+		return new TileEntityBlockPIDS2();
 	}
 
-	public static class TileEntityBlockPIDS1 extends BlockEntity {
+	public static class TileEntityBlockPIDS2 extends BlockEntity {
 
-		public TileEntityBlockPIDS1() {
-			super(MTR.PIDS_1_TILE_ENTITY);
+		public TileEntityBlockPIDS2() {
+			super(MTR.PIDS_2_TILE_ENTITY);
 		}
 	}
 }

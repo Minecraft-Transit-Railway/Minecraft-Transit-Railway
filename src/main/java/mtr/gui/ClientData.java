@@ -32,57 +32,61 @@ public final class ClientData {
 	}
 
 	public static void updateReferences() {
-		platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+		try {
+			platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-		platformsInStation.clear();
-		platformsWithOffset.clear();
-		platforms.forEach(platform -> {
-			final Station station = RailwayData.getStationByPlatform(stations, platform);
-			if (station != null) {
-				if (!platformsInStation.containsKey(station.id)) {
-					platformsInStation.put(station.id, new HashMap<>());
-				}
-				platformsInStation.get(station.id).put(platform.id, platform);
-			}
-
-			final BlockPos platformPos = platform.getMidPos(true);
-			if (!platformsWithOffset.containsKey(platformPos)) {
-				platformsWithOffset.put(platformPos, platforms.stream().filter(platform1 -> platform1.getMidPos().getX() == platformPos.getX() && platform1.getMidPos().getZ() == platformPos.getZ()).sorted(Comparator.comparingInt(platform1 -> platform1.getMidPos().getY())).collect(Collectors.toList()));
-			}
-		});
-
-		routesInStation.clear();
-		schedulesForPlatform.clear();
-		routes.forEach(route -> {
-			route.platformIds.forEach(platformId -> {
-				final Station station = platformIdToStation.get(platformId);
+			platformsInStation.clear();
+			platformsWithOffset.clear();
+			platforms.forEach(platform -> {
+				final Station station = RailwayData.getStationByPlatform(stations, platform);
 				if (station != null) {
-					if (!routesInStation.containsKey(station.id)) {
-						routesInStation.put(station.id, new HashMap<>());
+					if (!platformsInStation.containsKey(station.id)) {
+						platformsInStation.put(station.id, new HashMap<>());
 					}
-					routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+					platformsInStation.get(station.id).put(platform.id, platform);
 				}
-			});
-			route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
-				if (!schedulesForPlatform.containsKey(platformId)) {
-					schedulesForPlatform.put(platformId, new HashSet<>());
-				}
-				schedulesForPlatform.get(platformId).addAll(scheduleEntry);
-			});
-		});
 
-		stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
-		platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
-			final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
-				final Station station = platformIdToStation.get(platformId);
-				if (station == null) {
-					return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
-				} else {
-					return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
+				final BlockPos platformPos = platform.getMidPos(true);
+				if (!platformsWithOffset.containsKey(platformPos)) {
+					platformsWithOffset.put(platformPos, platforms.stream().filter(platform1 -> platform1.getMidPos().getX() == platformPos.getX() && platform1.getMidPos().getZ() == platformPos.getZ()).sorted(Comparator.comparingInt(platform1 -> platform1.getMidPos().getY())).collect(Collectors.toList()));
 				}
-			}).collect(Collectors.toList());
-			return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
-		}).collect(Collectors.toList())));
+			});
+
+			routesInStation.clear();
+			schedulesForPlatform.clear();
+			routes.forEach(route -> {
+				route.platformIds.forEach(platformId -> {
+					final Station station = platformIdToStation.get(platformId);
+					if (station != null) {
+						if (!routesInStation.containsKey(station.id)) {
+							routesInStation.put(station.id, new HashMap<>());
+						}
+						routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+					}
+				});
+				route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
+					if (!schedulesForPlatform.containsKey(platformId)) {
+						schedulesForPlatform.put(platformId, new HashSet<>());
+					}
+					schedulesForPlatform.get(platformId).addAll(scheduleEntry);
+				});
+			});
+
+			stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
+			platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
+				final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
+					final Station station = platformIdToStation.get(platformId);
+					if (station == null) {
+						return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
+					} else {
+						return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
+					}
+				}).collect(Collectors.toList());
+				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
+			}).collect(Collectors.toList())));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static Station getStation(BlockPos pos) {
