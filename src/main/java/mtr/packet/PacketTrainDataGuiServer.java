@@ -8,13 +8,19 @@ import de.bluecolored.bluemap.api.marker.Shape;
 import de.bluecolored.bluemap.api.marker.ShapeMarker;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
+import mtr.block.BlockTicketBarrierBase;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -38,6 +44,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
 		ServerPlayNetworking.send(player, PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet);
+	}
+
+	public static void openTicketMachineScreenS2C(World world, ServerPlayerEntity player) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(BlockTicketBarrierBase.getPlayerScore(world, player, BlockTicketBarrierBase.BALANCE_OBJECTIVE).getScore());
+		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
 	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
@@ -179,6 +191,22 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
 				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.size() == 0 ? 0 : (long) selectedIds.toArray()[0]);
 			}
+		});
+	}
+
+	public static void receiveAddBalanceC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final int addAmount = packet.readInt();
+		final int emeralds = packet.readInt();
+
+		minecraftServer.execute(() -> {
+			final World world = player.world;
+
+			BlockTicketBarrierBase.addObjectivesIfMissing(world);
+			ScoreboardPlayerScore balanceScore = BlockTicketBarrierBase.getPlayerScore(world, player, BlockTicketBarrierBase.BALANCE_OBJECTIVE);
+			balanceScore.setScore(balanceScore.getScore() + addAmount);
+
+			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
+			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
 		});
 	}
 

@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.scoreboard.ScoreboardCriterion;
-import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
@@ -29,11 +28,12 @@ public abstract class BlockTicketBarrierBase extends HorizontalFacingBlock {
 
 	public static final BooleanProperty OPEN = BooleanProperty.of("open");
 
+	public static final String BALANCE_OBJECTIVE = "mtr_balance";
+
 	protected static final int BASE_FARE = 2;
 	protected static final int ZONE_FARE = 1;
 	protected static final int EVASION_FINE = 500;
 
-	private static final String BALANCE_OBJECTIVE = "mtr_balance";
 	private static final String ENTRY_ZONE_OBJECTIVE = "mtr_entry_zone";
 
 	public BlockTicketBarrierBase(Settings settings) {
@@ -50,18 +50,11 @@ public abstract class BlockTicketBarrierBase extends HorizontalFacingBlock {
 			if (open && playerPosRotated.z > 0) {
 				world.setBlockState(pos, state.with(OPEN, false));
 			} else if (!open && playerPosRotated.z < 0) {
-				if (!world.getScoreboard().containsObjective(BALANCE_OBJECTIVE)) {
-					world.getScoreboard().addObjective(BALANCE_OBJECTIVE, ScoreboardCriterion.DUMMY, new LiteralText("Balance"), ScoreboardCriterion.RenderType.INTEGER);
-				}
-				if (!world.getScoreboard().containsObjective(ENTRY_ZONE_OBJECTIVE)) {
-					world.getScoreboard().addObjective(ENTRY_ZONE_OBJECTIVE, ScoreboardCriterion.DUMMY, new LiteralText("Entry Zone"), ScoreboardCriterion.RenderType.INTEGER);
-				}
+				addObjectivesIfMissing(world);
 
 				final PlayerEntity player = (PlayerEntity) entity;
-				final ScoreboardObjective balanceObjective = world.getScoreboard().getObjective(BALANCE_OBJECTIVE);
-				final ScoreboardObjective entryZoneObjective = world.getScoreboard().getObjective(ENTRY_ZONE_OBJECTIVE);
-				final ScoreboardPlayerScore balanceScore = world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), balanceObjective);
-				final ScoreboardPlayerScore entryZoneScore = world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), entryZoneObjective);
+				final ScoreboardPlayerScore balanceScore = getPlayerScore(world, player, BALANCE_OBJECTIVE);
+				final ScoreboardPlayerScore entryZoneScore = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE);
 
 				onPassBarrier(world, pos, player, balanceScore, entryZoneScore);
 
@@ -119,4 +112,19 @@ public abstract class BlockTicketBarrierBase extends HorizontalFacingBlock {
 	protected abstract void onPassBarrier(World world, Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore);
 
 	protected abstract boolean canOpen(int balance);
+
+	public static void addObjectivesIfMissing(World world) {
+		try {
+			world.getScoreboard().addObjective(BALANCE_OBJECTIVE, ScoreboardCriterion.DUMMY, new LiteralText("Balance"), ScoreboardCriterion.RenderType.INTEGER);
+		} catch (Exception ignored) {
+		}
+		try {
+			world.getScoreboard().addObjective(ENTRY_ZONE_OBJECTIVE, ScoreboardCriterion.DUMMY, new LiteralText("Entry Zone"), ScoreboardCriterion.RenderType.INTEGER);
+		} catch (Exception ignored) {
+		}
+	}
+
+	public static ScoreboardPlayerScore getPlayerScore(World world, PlayerEntity player, String objectiveName) {
+		return world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), world.getScoreboard().getObjective(objectiveName));
+	}
 }

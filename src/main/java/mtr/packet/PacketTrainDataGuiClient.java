@@ -7,6 +7,7 @@ import mtr.data.Station;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
+import mtr.gui.TicketMachineScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -35,6 +36,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
 				minecraftClient.openScreen(new RailwaySignScreen(pos));
+			}
+		});
+	}
+
+	public static void openTicketMachineScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final int balance = packet.readInt();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof TicketMachineScreen)) {
+				minecraftClient.openScreen(new TicketMachineScreen(balance));
 			}
 		});
 	}
@@ -128,5 +138,12 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeString(signType == null ? "" : signType.toString());
 		}
 		ClientPlayNetworking.send(PACKET_SIGN_TYPES, packet);
+	}
+
+	public static void addBalanceC2S(int addAmount, int emeralds) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(addAmount);
+		packet.writeInt(emeralds);
+		ClientPlayNetworking.send(PACKET_ADD_BALANCE, packet);
 	}
 }

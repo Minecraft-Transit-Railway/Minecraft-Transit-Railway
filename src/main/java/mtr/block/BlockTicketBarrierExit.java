@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.data.Station;
-import mtr.gui.IGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.text.TranslatableText;
@@ -22,7 +21,7 @@ public class BlockTicketBarrierExit extends BlockTicketBarrierBase {
 		entryZoneScore.setScore(0);
 		balanceScore.incrementScore(-finalFare);
 
-		player.sendMessage(new TranslatableText("gui.mtr.exit_barrier", IGui.formatStationName(station.name), finalFare, balanceScore.getScore()), true);
+		player.sendMessage(new TranslatableText("gui.mtr.exit_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), finalFare, balanceScore.getScore()), true);
 	}
 
 	@Override
