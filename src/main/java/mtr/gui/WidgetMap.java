@@ -94,7 +94,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 		try {
 			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
 			for (Station station : ClientData.stations) {
-				drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+				if (Station.nonNullCorners(station)) {
+					drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -140,8 +142,10 @@ public class WidgetMap implements Drawable, Element, IGui {
 		if (scale >= 2) {
 			for (Station station : ClientData.stations) {
 				final BlockPos pos = station.getCenter();
-				final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-				drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+				if (pos != null) {
+					final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
+					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+				}
 			}
 		}
 

@@ -1,11 +1,5 @@
 package mtr.packet;
 
-import de.bluecolored.bluemap.api.BlueMapAPI;
-import de.bluecolored.bluemap.api.BlueMapMap;
-import de.bluecolored.bluemap.api.marker.MarkerAPI;
-import de.bluecolored.bluemap.api.marker.MarkerSet;
-import de.bluecolored.bluemap.api.marker.Shape;
-import de.bluecolored.bluemap.api.marker.ShapeMarker;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockTicketBarrierBase;
@@ -24,13 +18,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.awt.*;
 import java.util.*;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
-
-	private static final String BLUE_MAP_MARKER_SET_STATIONS_ID = "mtr_stations";
-	private static final String BLUE_MAP_MARKER_SET_STATIONS_TITLE = "Minecraft Transit Railway Stations";
 
 	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
 	private static final Map<Long, PacketByteBuf> TEMP_PACKETS_SENDER = new HashMap<>();
@@ -89,7 +79,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			}, Station::new);
 		}
 
-		updateBlueMap(player.world);
+		try {
+			UpdateBlueMap.updateBlueMap(player.world);
+		} catch (NoClassDefFoundError ignored) {
+			System.out.println("BlueMap is not loaded");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
@@ -237,48 +233,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 		try {
 			ServerPlayNetworking.send(player, PACKET_CHUNK_S2C, packetChunk);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void updateBlueMap(World world) {
-		final RailwayData railwayData = RailwayData.getInstance(world);
-		if (railwayData == null) {
-			return;
-		}
-
-		final BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
-		if (api == null) {
-			return;
-		}
-
-		final BlueMapMap map = api.getMaps().stream().filter(map1 -> world.getRegistryKey().getValue().getPath().contains(map1.getId())).findFirst().orElse(null);
-		if (map == null) {
-			return;
-		}
-
-		try {
-			final Set<Station> stations = railwayData.getStations();
-			final MarkerAPI markerApi = api.getMarkerAPI();
-
-			final MarkerSet markerSetStations = markerApi.createMarkerSet(BLUE_MAP_MARKER_SET_STATIONS_ID);
-			markerSetStations.setLabel(BLUE_MAP_MARKER_SET_STATIONS_TITLE);
-			markerSetStations.getMarkers().forEach(markerSetStations::removeMarker);
-			final int stationY = world.getSeaLevel();
-
-			stations.forEach(station -> {
-				final BlockPos stationPos = station.getCenter();
-				final int stationX = stationPos.getX();
-				final int stationZ = stationPos.getZ();
-				final ShapeMarker marker = markerSetStations.createShapeMarker(String.valueOf(station.id), map, stationX, stationY, stationZ, Shape.createCircle(stationX, stationZ, 4, 32), stationY);
-				marker.setLabel(station.name.replace("|", "\n"));
-				final Color stationColor = new Color(station.color);
-				marker.setFillColor(stationColor);
-				marker.setBorderColor(stationColor.darker());
-			});
-
-			markerApi.save();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

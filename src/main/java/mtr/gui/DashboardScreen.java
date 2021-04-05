@@ -131,7 +131,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		textFieldZone.setVisible(false);
 		textFieldZone.setMaxLength(MAX_COLOR_ZONE_LENGTH);
 		textFieldZone.setChangedListener(text -> {
-			final String newText = text.replaceAll("[^0-9]", "");
+			final String newText = text.replaceAll("[^0-9-]", "");
 			if (!newText.equals(text)) {
 				textFieldZone.setText(newText);
 			}
@@ -245,7 +245,9 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			case 0:
 				if (editingStation == null) {
 					final Station station = (Station) data;
-					widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+					if (Station.nonNullCorners(station)) {
+						widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+					}
 				} else {
 					final Platform platform = (Platform) data;
 					widgetMap.find(platform.getMidPos());
@@ -410,7 +412,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		buttonAddRoute.visible = selectedTab == 1 && editingRoute == null;
 		buttonGenerateAllRoutes.visible = selectedTab == 1 && editingRoute == null;
 		buttonDoneEditingStation.visible = selectedTab == 0 && editingStation != null;
-		buttonDoneEditingStation.active = nonNullCorners(editingStation);
+		buttonDoneEditingStation.active = Station.nonNullCorners(editingStation);
 		buttonDoneEditingRoute.visible = selectedTab == 1 && editingRoute != null;
 
 		final boolean showTextFields = (selectedTab == 0 && editingStation != null) || (selectedTab == 1 && editingRoute != null);
@@ -430,9 +432,5 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	private static String colorIntToString(int color) {
 		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
-	}
-
-	private static boolean nonNullCorners(Station station) {
-		return station != null && station.corner1 != null && station.corner2 != null;
 	}
 }
