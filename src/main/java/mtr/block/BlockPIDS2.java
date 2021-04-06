@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.MTR;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
@@ -10,11 +9,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-public class BlockPIDS2 extends BlockPIDSBase implements BlockEntityProvider {
-
-	public BlockPIDS2(Settings settings) {
-		super(settings);
-	}
+public class BlockPIDS2 extends BlockPIDSBase {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {

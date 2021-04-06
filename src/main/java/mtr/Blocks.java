@@ -12,6 +12,9 @@ public interface Blocks {
 	Block APG_DOOR = new BlockAPGDoor();
 	Block APG_GLASS = new BlockAPGGlass();
 	Block APG_GLASS_END = new BlockAPGGlassEnd();
+	Block ARRIVAL_PROJECTOR_1_SMALL = new BlockArrivalProjector1Small();
+	Block ARRIVAL_PROJECTOR_1_MEDIUM = new BlockArrivalProjector1Medium();
+	Block ARRIVAL_PROJECTOR_1_LARGE = new BlockArrivalProjector1Large();
 	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
 	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(5));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
@@ -27,8 +30,8 @@ public interface Blocks {
 	Block GLASS_FENCE_TSH = new BlockGlassFence();
 	Block GLASS_FENCE_WKS = new BlockGlassFence();
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
-	Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
-	Block PIDS_2 = new BlockPIDS2(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
+	Block PIDS_1 = new BlockPIDS1();
+	Block PIDS_2 = new BlockPIDS2();
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
 	Block PSD_DOOR = new BlockPSDDoor();
 	Block PSD_GLASS = new BlockPSDGlass();

@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "mtr:block/arrival_projector_1_medium"
+		},
+		"facing=east": {
+			"model": "mtr:block/arrival_projector_1_medium",
+			"y": 90
+		},
+		"facing=south": {
+			"model": "mtr:block/arrival_projector_1_medium",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "mtr:block/arrival_projector_1_medium",
+			"y": 270
+		}
+	}
+}

@@ -488,7 +488,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				final float departureTime = pathData.tOffset + pathData.getTime();
 				timeOffsets.put(platformId, new HashSet<>());
 
-				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1))));
+				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1), platformId)));
 				platformIdIndex++;
 			}
 
@@ -639,13 +639,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		public final float arrivalTime;
 		public final float departureTime;
 		public final TrainType trainType;
-		public final long lastStationId;
+		public final long lastPlatformId;
+		public final long platformId;
 
-		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastStationId) {
+		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastPlatformId, long platformId) {
 			this.arrivalTime = arrivalTime % TICKS_PER_DAY;
 			this.departureTime = departureTime % TICKS_PER_DAY;
 			this.trainType = trainType;
-			this.lastStationId = lastStationId;
+			this.lastPlatformId = lastPlatformId;
+			this.platformId = platformId;
 		}
 	}
 

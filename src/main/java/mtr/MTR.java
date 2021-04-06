@@ -35,6 +35,9 @@ public class MTR implements ModInitializer, IPacket {
 
 	public static final EntityType<EntitySeat> SEAT = registerEntity("seat", EntitySeat::new);
 
+	public static final BlockEntityType<BlockArrivalProjector1Small.TileEntityArrivalProjector1Small> ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY = registerTileEntity("arrival_projector_1_small", BlockArrivalProjector1Small.TileEntityArrivalProjector1Small::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL);
+	public static final BlockEntityType<BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium> ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY = registerTileEntity("arrival_projector_1_medium", BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM);
+	public static final BlockEntityType<BlockArrivalProjector1Large.TileEntityArrivalProjector1Large> ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY = registerTileEntity("arrival_projector_1_large", BlockArrivalProjector1Large.TileEntityArrivalProjector1Large::new, Blocks.ARRIVAL_PROJECTOR_1_LARGE);
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
@@ -99,6 +102,9 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("apg_door", Blocks.APG_DOOR);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
 		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
+		registerBlock("arrival_projector_1_small", Blocks.ARRIVAL_PROJECTOR_1_SMALL, ItemGroup.DECORATIONS);
+		registerBlock("arrival_projector_1_medium", Blocks.ARRIVAL_PROJECTOR_1_MEDIUM, ItemGroup.DECORATIONS);
+		registerBlock("arrival_projector_1_large", Blocks.ARRIVAL_PROJECTOR_1_LARGE, ItemGroup.DECORATIONS);
 		registerBlock("ceiling", Blocks.CEILING, ItemGroup.DECORATIONS);
 		registerBlock("clock", Blocks.CLOCK, ItemGroup.DECORATIONS);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);

@@ -1,9 +1,7 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.HorizontalFacingBlock;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,10 +13,10 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPIDSBase extends HorizontalFacingBlock {
+public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProvider {
 
-	public BlockPIDSBase(Settings settings) {
-		super(settings);
+	public BlockPIDSBase() {
+		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
 	}
 
 	@Override
