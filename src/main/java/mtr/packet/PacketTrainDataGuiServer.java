@@ -2,7 +2,6 @@ package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockTicketBarrierBase;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -38,7 +37,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	public static void openTicketMachineScreenS2C(World world, ServerPlayerEntity player) {
 		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeInt(BlockTicketBarrierBase.getPlayerScore(world, player, BlockTicketBarrierBase.BALANCE_OBJECTIVE).getScore());
+		packet.writeInt(TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore());
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
@@ -197,8 +196,8 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final World world = player.world;
 
-			BlockTicketBarrierBase.addObjectivesIfMissing(world);
-			ScoreboardPlayerScore balanceScore = BlockTicketBarrierBase.getPlayerScore(world, player, BlockTicketBarrierBase.BALANCE_OBJECTIVE);
+			TicketSystem.addObjectivesIfMissing(world);
+			ScoreboardPlayerScore balanceScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE);
 			balanceScore.setScore(balanceScore.getScore() + addAmount);
 
 			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);

@@ -47,6 +47,7 @@
 	"block.mtr.ticket_barrier_entrance_1": "闸机 （入口）",
 	"block.mtr.ticket_barrier_exit_1": "闸机 （出口）",
 	"block.mtr.ticket_machine": "售票机",
+	"block.mtr.ticket_processor": "车票处理器",
 	"gui.mtr.add_balance_for_emeralds": "增值 $%s （%s 绿宝石）",
 	"gui.mtr.add_route": "新增路线",
 	"gui.mtr.add_station": "新增车站",

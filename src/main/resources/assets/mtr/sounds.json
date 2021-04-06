@@ -15,6 +15,22 @@
 			}
 		]
 	},
+	"ticket_processor": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_processor",
+				"pitch": 0.5
+			}
+		]
+	},
+	"ticket_processor_concessionary": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_processor_concessionary",
+				"pitch": 0.5
+			}
+		]
+	},
 	"sp1900_door_open": {
 		"sounds": [
 			{
