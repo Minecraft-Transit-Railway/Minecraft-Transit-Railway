@@ -1,0 +1,9 @@
+{
+	"parent": "mtr:block/ticket_barrier_1_base",
+	"textures": {
+		"color": "block/green_concrete",
+		"yellow_glass_off": "mtr:block/transparent",
+		"yellow_glass_on": "block/yellow_concrete",
+		"sign": "mtr:sign/arrow_up"
+	}
+}

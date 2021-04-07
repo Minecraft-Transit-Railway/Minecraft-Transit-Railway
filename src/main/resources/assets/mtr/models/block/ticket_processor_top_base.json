@@ -2,7 +2,7 @@
 	"parent": "block/block",
 	"textures": {
 		"particle": "mtr:block/metal",
-		"cover": "block/light_gray_concrete",
+		"cover": "block/gray_concrete",
 		"color": "block/yellow_concrete",
 		"overlay": "mtr:block/ticket_processor"
 	},
@@ -36,6 +36,33 @@
 			"rotation": { "origin": [ 8, 6, 3 ], "axis": "x", "angle": -22.5 },
 			"faces": {
 				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#overlay" }
+			}
+		},
+		{   "__comment": "Red light",
+			"from": [ 6.6875, 5.8125, 6.15 ],
+			"to": [ 7.25, 6.375, 6.15 ],
+			"rotation": { "origin": [ 8, 6, 3 ], "axis": "x", "angle": -22.5 },
+			"shade": false,
+			"faces": {
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#red_light" }
+			}
+		},
+		{   "__comment": "Yellow light",
+			"from": [ 7.71875, 5.8125, 6.15 ],
+			"to": [ 8.28125, 6.375, 6.15 ],
+			"rotation": { "origin": [ 8, 6, 3 ], "axis": "x", "angle": -22.5 },
+			"shade": false,
+			"faces": {
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#yellow_light" }
+			}
+		},
+		{   "__comment": "Green light",
+			"from": [ 8.75, 5.8125, 6.15 ],
+			"to": [ 9.3125, 6.375, 6.15 ],
+			"rotation": { "origin": [ 8, 6, 3 ], "axis": "x", "angle": -22.5 },
+			"shade": false,
+			"faces": {
+				"south": { "uv": [ 0, 0, 16, 16 ], "texture": "#green_light" }
 			}
 		},
 		{   "__comment": "Left cover",

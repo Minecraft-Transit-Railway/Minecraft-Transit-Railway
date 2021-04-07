@@ -67,8 +67,11 @@ public class MTR implements ModInitializer, IPacket {
 
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
-	public static final SoundEvent TICKET_PROCESSOR = registerSoundEvent("ticket_processor");
-	public static final SoundEvent TICKET_PROCESSOR_CONCESSIONARY = registerSoundEvent("ticket_processor_concessionary");
+	public static final SoundEvent TICKET_PROCESSOR_ENTRY = registerSoundEvent("ticket_processor_entry");
+	public static final SoundEvent TICKET_PROCESSOR_ENTRY_CONCESSIONARY = registerSoundEvent("ticket_processor_entry_concessionary");
+	public static final SoundEvent TICKET_PROCESSOR_EXIT = registerSoundEvent("ticket_processor_exit");
+	public static final SoundEvent TICKET_PROCESSOR_EXIT_CONCESSIONARY = registerSoundEvent("ticket_processor_exit_concessionary");
+	public static final SoundEvent TICKET_PROCESSOR_FAIL = registerSoundEvent("ticket_processor_fail");
 
 	private static final int SP1900_SPEED_COUNT = 120;
 	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");

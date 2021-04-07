@@ -7,6 +7,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,15 +19,15 @@ public class TicketSystem {
 	private static final int ZONE_FARE = 1;
 	private static final int EVASION_FINE = 500;
 
-	public static boolean passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent sound, SoundEvent concessionarySound) {
+	public static EnumTicketBarrierOpen passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, SoundEvent failSound) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
-			return false;
+			return EnumTicketBarrierOpen.CLOSED;
 		}
 
 		final Station station = railwayData.getStations().stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		if (station == null) {
-			return false;
+			return EnumTicketBarrierOpen.CLOSED;
 		}
 
 		addObjectivesIfMissing(world);
@@ -34,15 +35,15 @@ public class TicketSystem {
 		final ScoreboardPlayerScore balanceScore = getPlayerScore(world, player, BALANCE_OBJECTIVE);
 		final ScoreboardPlayerScore entryZoneScore = getPlayerScore(world, player, ENTRY_ZONE_OBJECTIVE);
 
-		final boolean canOpen;
+		final boolean isEntering;
 		if (isEntrance && isExit) {
-			if (entryZoneScore.getScore() != 0) {
-				onExit(station, player, balanceScore, entryZoneScore);
-				canOpen = true;
-			} else {
-				canOpen = onEnter(station, player, balanceScore, entryZoneScore);
-			}
-		} else if (isEntrance) {
+			isEntering = entryZoneScore.getScore() == 0;
+		} else {
+			isEntering = isEntrance;
+		}
+
+		final boolean canOpen;
+		if (isEntering) {
 			canOpen = onEnter(station, player, balanceScore, entryZoneScore);
 		} else {
 			onExit(station, player, balanceScore, entryZoneScore);
@@ -50,9 +51,12 @@ public class TicketSystem {
 		}
 
 		if (canOpen) {
-			world.playSound(null, pos, isConcessionary(player) ? concessionarySound : sound, SoundCategory.BLOCKS, 1, 1);
+			world.playSound(null, pos, isConcessionary(player) ? (isEntering ? entrySoundConcessionary : exitSoundConcessionary) : (isEntering ? entrySound : exitSound), SoundCategory.BLOCKS, 1, 1);
+		} else if (failSound != null) {
+			world.playSound(null, pos, failSound, SoundCategory.BLOCKS, 1, 1);
 		}
-		return canOpen;
+
+		return canOpen ? isConcessionary(player) ? EnumTicketBarrierOpen.OPEN_CONCESSIONARY : EnumTicketBarrierOpen.OPEN : EnumTicketBarrierOpen.CLOSED;
 	}
 
 	public static void addObjectivesIfMissing(World world) {
@@ -109,5 +113,24 @@ public class TicketSystem {
 
 	private static int decodeZone(int zone) {
 		return zone > 0 ? zone - 1 : zone;
+	}
+
+	public enum EnumTicketBarrierOpen implements StringIdentifiable {
+
+		CLOSED("closed"), OPEN("open"), OPEN_CONCESSIONARY("open_concessionary");
+		private final String name;
+
+		EnumTicketBarrierOpen(String nameIn) {
+			name = nameIn;
+		}
+
+		@Override
+		public String asString() {
+			return name;
+		}
+
+		public boolean isOpen() {
+			return this != CLOSED;
+		}
 	}
 }

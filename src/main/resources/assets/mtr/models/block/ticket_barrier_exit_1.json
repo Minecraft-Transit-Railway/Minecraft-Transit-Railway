@@ -1,6 +1,0 @@
-{
-	"parent": "mtr:block/ticket_barrier_1_base",
-	"textures": {
-		"color": "block/green_concrete"
-	}
-}

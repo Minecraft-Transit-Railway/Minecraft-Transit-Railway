@@ -188,7 +188,7 @@ public class EntitySeat extends Entity {
 
 	public boolean isScheduleTimeAndRouteId(int scheduleTime, long routeId) {
 		if (world.isClient) {
-			return dataTracker != null && dataTracker.get(SCHEDULE_TIME) == scheduleTime && dataTracker.get(ROUTE_ID) == routeId;
+			return dataTracker != null && dataTracker.get(SCHEDULE_TIME) == scheduleTime && dataTracker.get(ROUTE_ID) == (int) routeId;
 		} else {
 			return this.scheduleTime == scheduleTime && this.routeId == routeId;
 		}

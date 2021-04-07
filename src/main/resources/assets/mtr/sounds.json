@@ -15,18 +15,42 @@
 			}
 		]
 	},
-	"ticket_processor": {
+	"ticket_processor_entry": {
 		"sounds": [
 			{
-				"name": "mtr:ticket_processor",
+				"name": "mtr:ticket_processor_entry",
 				"pitch": 0.5
 			}
 		]
 	},
-	"ticket_processor_concessionary": {
+	"ticket_processor_entry_concessionary": {
 		"sounds": [
 			{
-				"name": "mtr:ticket_processor_concessionary",
+				"name": "mtr:ticket_processor_entry_concessionary",
+				"pitch": 0.5
+			}
+		]
+	},
+	"ticket_processor_exit": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_processor_exit",
+				"pitch": 0.5
+			}
+		]
+	},
+	"ticket_processor_exit_concessionary": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_processor_exit_concessionary",
+				"pitch": 0.5
+			}
+		]
+	},
+	"ticket_processor_fail": {
+		"sounds": [
+			{
+				"name": "mtr:ticket_processor_fail",
 				"pitch": 0.5
 			}
 		]
