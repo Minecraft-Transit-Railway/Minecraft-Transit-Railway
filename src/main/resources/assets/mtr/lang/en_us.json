@@ -198,6 +198,8 @@
 	"tooltip.mtr.selected_block": "Selected Block: %s",
 	"tooltip.mtr.station_color": "Colour depends on the station",
 	"tooltip.mtr.station_color_name": "Colour and text depend on the station",
+	"train.mtr.A_TRAIN_TCL": "CAF Tung Chung Line",
+	"train.mtr.A_TRAIN_TCL_MINI": "CAF Tung Chung Line (Mini)",
 	"train.mtr.C1141A": "C1141A / TML C Train",
 	"train.mtr.C1141A_MINI": "C1141A / TML C Train (Mini)",
 	"train.mtr.LIGHT_RAIL_1": "Light Rail (Phase 1)",

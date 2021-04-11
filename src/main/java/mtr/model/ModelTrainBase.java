@@ -40,10 +40,10 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront) {
 		for (int position : getWindowPositions()) {
-			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd2Head);
+			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd1Head, isEnd2Head);
 		}
 		for (int position : getDoorPositions()) {
-			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd2Head);
+			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head);
 		}
 
 		if (isEnd1Head) {
@@ -59,9 +59,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head);
+	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head);
+	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head);
 
 	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights);
 
@@ -104,6 +104,12 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
 		bone.setPivot(0, 0, position);
+		setRotationAngle(bone, 0, (float) Math.PI, 0);
+		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	}
+
+	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.setPivot(-positionX, 0, positionZ);
 		setRotationAngle(bone, 0, (float) Math.PI, 0);
 		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
 	}

@@ -83,6 +83,8 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
 	public static final SoundEvent M_TRAIN_DOOR_OPEN = registerSoundEvent("m_train_door_open");
 	public static final SoundEvent M_TRAIN_DOOR_CLOSE = registerSoundEvent("m_train_door_close");
+	public static final SoundEvent A_TRAIN_DOOR_OPEN = registerSoundEvent("a_train_door_open");
+	public static final SoundEvent A_TRAIN_DOOR_CLOSE = registerSoundEvent("a_train_door_close");
 
 	@Override
 	public void onInitialize() {

@@ -3866,5 +3866,21 @@
 				"attenuation_distance": 32
 			}
 		]
+	},
+	"a_train_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:a_train/door_open",
+				"pitch": 0.5
+			}
+		]
+	},
+	"a_train_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:a_train/door_close",
+				"pitch": 0.5
+			}
+		]
 	}
 }

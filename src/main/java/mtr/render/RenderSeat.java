@@ -52,6 +52,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private static final ModelSP1900Mini MODEL_C1141A_MINI = new ModelSP1900Mini(true);
 	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
+	private static final ModelATrain MODEL_A_TRAIN_TCL = new ModelATrain();
+	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini();
 	private static final ModelLightRail1 MODEL_LIGHT_RAIL_1 = new ModelLightRail1();
 
 	public RenderSeat(EntityRenderDispatcher dispatcher) {
@@ -149,10 +151,14 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 							final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
 							if (nextStation == null) {
 								text = getThisStationText(x, z);
-								nextStationId = 0;
+								if (speed == 0) {
+									nextStationId = 0;
+								}
 							} else {
 								text = getNextStationText(nextStation);
-								nextStationId = nextStation.id;
+								if (speed == 0) {
+									nextStationId = nextStation.id;
+								}
 							}
 							break;
 						case 2:
@@ -268,6 +274,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				return MODEL_M_TRAIN;
 			case M_TRAIN_MINI:
 				return MODEL_M_TRAIN_MINI;
+			case A_TRAIN_TCL:
+				return MODEL_A_TRAIN_TCL;
+			case A_TRAIN_TCL_MINI:
+				return MODEL_A_TRAIN_TCL_MINI;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			default:
