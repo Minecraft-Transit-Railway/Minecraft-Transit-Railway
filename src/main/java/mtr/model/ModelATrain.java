@@ -1236,8 +1236,8 @@ public class ModelATrain extends ModelTrainBase {
 		protected void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
 			final float doorLeftZ = doorLeftValue * DOOR_MAX;
 			final float doorRightZ = doorRightValue * DOOR_MAX;
-			final float doorLeftX = doorLeftValue < 0.05 ? -doorLeftValue * 20 - 0.01F : -1.01F;
-			final float doorRightX = doorRightValue < 0.05 ? -doorRightValue * 20 - 0.01F : -1.01F;
+			final float doorLeftX = doorLeftValue < 0.05 ? -doorLeftValue * 20 - 0.1F : -1.1F;
+			final float doorRightX = doorRightValue < 0.05 ? -doorRightValue * 20 - 0.1F : -1.1F;
 			switch (renderStage) {
 				case INTERIOR:
 					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, doorRightX, position + doorRightZ);
