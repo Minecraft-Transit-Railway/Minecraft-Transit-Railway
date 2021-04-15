@@ -981,8 +981,8 @@ public class ModelATrain extends ModelTrainBase {
 				renderMirror(roof_window, matrices, vertices, light, position);
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 21.9F);
-				renderMirror(side_panel, matrices, vertices, light, position + 21.9F);
+				renderMirror(side_panel, matrices, vertices, light, position - 22F);
+				renderMirror(side_panel, matrices, vertices, light, position + 22F);
 				break;
 			case EXTERIOR:
 				if (position == getWindowPositions()[0] && isEnd1Head) {
