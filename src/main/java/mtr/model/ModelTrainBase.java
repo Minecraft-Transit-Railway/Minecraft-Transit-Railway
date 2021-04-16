@@ -29,8 +29,11 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 		if (renderDetails) {
 			for (int position : getDoorPositions()) {
-				getModelDoorOverlay().render(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position, doorLeftValue, doorRightValue);
-				getModelDoorOverlay().render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftValue, doorRightValue);
+				final ModelDoorOverlayBase modelDoorOverlay = getModelDoorOverlay();
+				if (modelDoorOverlay != null) {
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position, doorLeftValue, doorRightValue);
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftValue, doorRightValue);
+				}
 			}
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
 		}
