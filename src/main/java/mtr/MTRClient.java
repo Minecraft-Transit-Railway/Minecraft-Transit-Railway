@@ -5,6 +5,7 @@ import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.model.APGDoorModel;
+import mtr.model.PSDDoor2Model;
 import mtr.model.PSDDoorModel;
 import mtr.model.PSDTopModel;
 import mtr.packet.IPacket;
@@ -174,6 +175,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 
 		private static final Identifier APG_DOOR_MODEL = new Identifier("mtr:block/apg_door");
 		private static final Identifier PSD_DOOR_MODEL = new Identifier("mtr:block/psd_door");
+		private static final Identifier PSD_DOOR_MODEL_2 = new Identifier("mtr:block/psd_door_2");
 		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
 
 		@Override
@@ -182,6 +184,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 				return new APGDoorModel();
 			} else if (identifier.equals(PSD_DOOR_MODEL)) {
 				return new PSDDoorModel();
+			} else if (identifier.equals(PSD_DOOR_MODEL_2)) {
+				return new PSDDoor2Model();
 			} else if (identifier.equals(PSD_TOP_MODEL)) {
 				return new PSDTopModel();
 			} else {
