@@ -138,6 +138,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
+		registerBlock("psd_door_2", Blocks.PSD_DOOR_2);
+		registerBlock("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
 		registerBlock("rail", Blocks.RAIL, ItemGroup.TRANSPORTATION);
