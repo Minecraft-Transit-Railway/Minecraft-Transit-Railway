@@ -282,8 +282,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				return MODEL_A_TRAIN_TCL_MINI;
 			case A_TRAIN_AEL:
 				return MODEL_A_TRAIN_AEL;
-			case A_TRAIN_AEL_MINI:
-				return MODEL_A_TRAIN_AEL_MINI;
+//			case A_TRAIN_AEL_MINI:
+//				return MODEL_A_TRAIN_AEL_MINI;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			default:

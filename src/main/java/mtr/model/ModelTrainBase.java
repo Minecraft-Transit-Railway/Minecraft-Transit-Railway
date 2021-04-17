@@ -117,5 +117,10 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
 	}
 
+	protected static boolean isIndex(int index, int value, int[] array) {
+		final int finalIndex = index < 0 ? array.length + index : index;
+		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
+	}
+
 	protected enum RenderStage {LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
 }
