@@ -198,6 +198,8 @@
 	"tooltip.mtr.selected_block": "Selected Block: ",
 	"tooltip.mtr.station_color": "顏色取決於車站",
 	"tooltip.mtr.station_color_name": "顏色和文字取決於車站",
+	"train.mtr.A_TRAIN_AEL": "CAF 機場快綫列車",
+	"train.mtr.A_TRAIN_AEL_MINI": "CAF 機場快綫列車 （迷你）",
 	"train.mtr.A_TRAIN_TCL": "CAF 東涌綫列車",
 	"train.mtr.A_TRAIN_TCL_MINI": "CAF 東涌綫列車 （迷你）",
 	"train.mtr.C1141A": "C1141A / 屯馬綫中國製列車",
