@@ -37,8 +37,8 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
-		final boolean isPSD = type == EnumPSDAPGType.PSD;
-		final boolean isDoor = item == EnumPSDAPGItem.PSD_APG_DOOR;
+		final boolean isPSD = type == EnumPSDAPGType.PSD || type == EnumPSDAPGType.PSD_2;
+		final boolean isDoor = item == EnumPSDAPGItem.PSD_APG_DOOR || item == EnumPSDAPGItem.PSD_APG_DOOR_2;
 
 		if (blocksNotReplaceable(context, isDoor ? 2 : 1, isPSD ? 3 : 2, getBlockStateFromItem().getBlock())) {
 			return ActionResult.FAIL;
@@ -85,6 +85,10 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 				return isPSD ? Blocks.PSD_GLASS.getDefaultState() : Blocks.APG_GLASS.getDefaultState();
 			case PSD_APG_GLASS_END:
 				return isPSD ? Blocks.PSD_GLASS_END.getDefaultState() : Blocks.APG_GLASS_END.getDefaultState();
+			case PSD_APG_DOOR_2:
+				return Blocks.PSD_DOOR_2.getDefaultState();
+			case PSD_APG_GLASS_2:
+				return Blocks.PSD_GLASS_2.getDefaultState();
 		}
 		return net.minecraft.block.Blocks.AIR.getDefaultState();
 	}
@@ -117,7 +121,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 
 	public enum EnumPSDAPGType implements StringIdentifiable {
 
-		PSD("psd"), APG("apg");
+		PSD("psd"), PSD_2("psd_2"), APG("apg");
 		private final String name;
 
 		EnumPSDAPGType(String name) {
@@ -132,7 +136,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 
 	public enum EnumPSDAPGItem implements StringIdentifiable {
 
-		PSD_APG_DOOR("psd_apg_door"), PSD_APG_GLASS("psd_apg_glass"), PSD_APG_GLASS_END("psd_apg_glass_end");
+		PSD_APG_DOOR("psd_apg_door"), PSD_APG_GLASS("psd_apg_glass"), PSD_APG_GLASS_END("psd_apg_glass_end"), PSD_APG_DOOR_2("psd_apg_door_2"), PSD_APG_GLASS_2("psd_apg_glass_2");
 		private final String name;
 
 		EnumPSDAPGItem(String name) {

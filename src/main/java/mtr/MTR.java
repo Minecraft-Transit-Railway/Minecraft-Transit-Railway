@@ -102,6 +102,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerItem("escalator", Items.ESCALATOR);
 		registerItem("psd_door", Items.PSD_DOOR);
 		registerItem("psd_glass", Items.PSD_GLASS);
+		registerItem("psd_door_2", Items.PSD_DOOR_2);
+		registerItem("psd_glass_2", Items.PSD_GLASS_2);
 		registerItem("psd_glass_end", Items.PSD_GLASS_END);
 		registerItem("rail_connector_1_wooden", Items.RAIL_CONNECTOR_1_WOODEN);
 		registerItem("rail_connector_2_stone", Items.RAIL_CONNECTOR_2_STONE);
@@ -138,6 +140,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR);
 		registerBlock("psd_glass", Blocks.PSD_GLASS);
+		registerBlock("psd_door_2", Blocks.PSD_DOOR_2);
+		registerBlock("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END);
 		registerBlock("psd_top", Blocks.PSD_TOP);
 		registerBlock("rail", Blocks.RAIL, ItemGroup.TRANSPORTATION);
