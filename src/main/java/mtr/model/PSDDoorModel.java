@@ -84,7 +84,7 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
 	@Override
 	protected Block getBlock() {
-		return new BlockPSDDoor();
+		return new BlockPSDDoor(1);
 	}
 
 	private void createCube(QuadEmitter emitter, Direction facing, boolean side, float open, boolean top, float outer, float inner, float depth, int mainTextureIndex, int innerTextureIndex) {
