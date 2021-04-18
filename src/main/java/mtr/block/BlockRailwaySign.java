@@ -306,6 +306,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		XRL_2("xrl_2", true, false),
 		YELLOW_HEAD_1("yellow_head_1", true, false),
 		YELLOW_HEAD_2("yellow_head_2", false, false),
+		SP1900_1("sp1900_1", true, false),
+		SP1900_2("sp1900_2", true, false),
 		CROSS("cross", true, false),
 		LOGO("logo", false, false),
 		PLATFORM("platform", true, false, true),
