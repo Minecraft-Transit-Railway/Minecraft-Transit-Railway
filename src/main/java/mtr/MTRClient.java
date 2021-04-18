@@ -5,7 +5,6 @@ import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.model.APGDoorModel;
-import mtr.model.PSDDoor2Model;
 import mtr.model.PSDDoorModel;
 import mtr.model.PSDTopModel;
 import mtr.packet.IPacket;
@@ -183,9 +182,9 @@ public class MTRClient implements ClientModInitializer, IPacket {
 			if (identifier.equals(APG_DOOR_MODEL)) {
 				return new APGDoorModel();
 			} else if (identifier.equals(PSD_DOOR_MODEL)) {
-				return new PSDDoorModel();
+				return new PSDDoorModel(1);
 			} else if (identifier.equals(PSD_DOOR_MODEL_2)) {
-				return new PSDDoor2Model();
+				return new PSDDoorModel(2);
 			} else if (identifier.equals(PSD_TOP_MODEL)) {
 				return new PSDTopModel();
 			} else {
