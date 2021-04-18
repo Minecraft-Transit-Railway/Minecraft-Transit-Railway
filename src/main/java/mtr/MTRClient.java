@@ -182,9 +182,9 @@ public class MTRClient implements ClientModInitializer, IPacket {
 			if (identifier.equals(APG_DOOR_MODEL)) {
 				return new APGDoorModel();
 			} else if (identifier.equals(PSD_DOOR_MODEL)) {
-				return new PSDDoorModel(1);
+				return new PSDDoorModel(0);
 			} else if (identifier.equals(PSD_DOOR_MODEL_2)) {
-				return new PSDDoorModel(2);
+				return new PSDDoorModel(1);
 			} else if (identifier.equals(PSD_TOP_MODEL)) {
 				return new PSDTopModel();
 			} else {
