@@ -198,6 +198,8 @@
 	"tooltip.block.mtr.glass_fence_wks": "Wu Kai Sha",
 	"tooltip.mtr.psd_apg_door": "Door Section",
 	"tooltip.mtr.psd_apg_glass": "Glass Section",
+	"tooltip.mtr.psd_apg_door_2": "Door Section",
+	"tooltip.mtr.psd_apg_glass_2": "Glass Section",
 	"tooltip.mtr.psd_apg_glass_end": "Glass End Section",
 	"tooltip.mtr.rail_speed_limit": "Speed Limit: %s",
 	"tooltip.mtr.railway_sign_even": "Orientation: Even",
