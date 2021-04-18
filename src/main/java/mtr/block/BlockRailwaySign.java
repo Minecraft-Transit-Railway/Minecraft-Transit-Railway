@@ -279,6 +279,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		ARROW_UP_RIGHT("arrow_up_left", true, true),
 		ARROW_DOWN_LEFT("arrow_down_left", true, false),
 		ARROW_DOWN_RIGHT("arrow_down_left", true, true),
+		ARROW_TURN_BACK("arrow_turn_back",true,false),
 		EXIT_1("exit_1", false, false),
 		EXIT_2("exit_2", true, false),
 		EXIT_3("exit_3", true, false),
