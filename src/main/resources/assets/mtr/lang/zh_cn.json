@@ -136,6 +136,8 @@
 	"item.mtr.rail_remover": "铁轨移除器",
 	"sign.mtr.airport_express": "Trains to Airport",
 	"sign.mtr.airport_express_cjk": "往机场列车",
+	"sign.mtr.airport_express_cty": "Trains to City",
+	"sign.mtr.airport_express_cty_cjk": "往市區",
 	"sign.mtr.cross": "No Entry",
 	"sign.mtr.cross_cjk": "不准进入",
 	"sign.mtr.customer_service_centre": "Customer Service Centre",
