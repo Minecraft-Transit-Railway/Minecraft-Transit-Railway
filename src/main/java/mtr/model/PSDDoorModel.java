@@ -66,7 +66,7 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 	@Override
 	protected Mesh bake(BlockState state, Function<SpriteIdentifier, Sprite> textureGetter) {
 		for (int i = 0; i < SPRITE_COUNT; i++) {
-			if (style == 1) {
+			if (style == 0) {
 				SPRITES[i] = textureGetter.apply(SPRITE_IDS[i]);
 			} else {
 				SPRITES_2[i] = textureGetter.apply(SPRITE_IDS_2[i]);
@@ -99,12 +99,12 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
 	@Override
 	public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
-		return Arrays.asList(style == 1 ? SPRITE_IDS : SPRITE_IDS_2);
+		return Arrays.asList(style == 0 ? SPRITE_IDS : SPRITE_IDS_2);
 	}
 
 	@Override
 	public Sprite getSprite() {
-		return style == 1 ? SPRITES[2] : SPRITES_2[2];
+		return style == 0 ? SPRITES[2] : SPRITES_2[2];
 	}
 
 	@Override
@@ -117,24 +117,24 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 		final float x2 = side ? 1 - outer : inner;
 
 		emitter.square(facing, 1 - x2, 0, 1 - x1, 1, depth);
-		emitter.spriteBake(0, style == 1 ? SPRITES[(top ? 5 : 1) + mainTextureIndex] : SPRITES_2[(top ? 5 : 1) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
+		emitter.spriteBake(0, style == 0 ? SPRITES[(top ? 5 : 1) + mainTextureIndex] : SPRITES_2[(top ? 5 : 1) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
 		emitter.square(facing, 1 - x2 + open, 0, 1 - x1 + open, 1, depth);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.getOpposite(), x1, 0, x2, 1, 0.875F - depth);
-		emitter.spriteBake(0, style == 1 ? SPRITES[(top ? 4 : 0) + mainTextureIndex] : SPRITES_2[(top ? 4 : 0) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
+		emitter.spriteBake(0, style == 0 ? SPRITES[(top ? 4 : 0) + mainTextureIndex] : SPRITES_2[(top ? 4 : 0) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
 		emitter.square(facing.getOpposite(), x1 - open, 0, x2 - open, 1, 0.875F - depth);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.rotateYClockwise(), 0.875F - depth, 0, 1 - depth, 1, 1 - x2 + open);
-		emitter.spriteBake(0, style == 1 ? SPRITES[side ? 0 : innerTextureIndex] : SPRITES_2[side ? 0 : innerTextureIndex], MutableQuadView.BAKE_LOCK_UV);
+		emitter.spriteBake(0, style == 0 ? SPRITES[side ? 0 : innerTextureIndex] : SPRITES_2[side ? 0 : innerTextureIndex], MutableQuadView.BAKE_LOCK_UV);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.rotateYCounterclockwise(), depth, 0, 0.125F + depth, 1, x1 - open);
-		emitter.spriteBake(0, style == 1 ? SPRITES[side ? innerTextureIndex : 0] : SPRITES_2[side ? innerTextureIndex : 0], MutableQuadView.BAKE_LOCK_UV);
+		emitter.spriteBake(0, style == 0 ? SPRITES[side ? innerTextureIndex : 0] : SPRITES_2[side ? innerTextureIndex : 0], MutableQuadView.BAKE_LOCK_UV);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 	}

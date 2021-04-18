@@ -14,6 +14,6 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 
 	@Override
 	public Item asItem() {
-		return style == 1 ? Items.PSD_DOOR : Items.PSD_DOOR_2;
+		return style == 0 ? Items.PSD_DOOR : Items.PSD_DOOR_2;
 	}
 }
