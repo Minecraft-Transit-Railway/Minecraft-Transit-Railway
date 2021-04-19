@@ -243,6 +243,9 @@ public interface IGui {
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
+		if (a == 0) {
+			return;
+		}
 		vertexConsumer.vertex(x1, y1, 0).color(r, g, b, a).next();
 		vertexConsumer.vertex(x1, y2, 0).color(r, g, b, a).next();
 		vertexConsumer.vertex(x2, y2, 0).color(r, g, b, a).next();
@@ -281,6 +284,9 @@ public interface IGui {
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
+		if (a == 0) {
+			return;
+		}
 		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
