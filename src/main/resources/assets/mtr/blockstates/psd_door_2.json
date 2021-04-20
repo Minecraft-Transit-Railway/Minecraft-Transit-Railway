@@ -1,7 +1,7 @@
 {
-    "variants": {
-        "": {
-            "model": "mtr:block/psd_door_2"
-        }
-    }
+	"variants": {
+		"": {
+			"model": "mtr:block/psd_door_2"
+		}
+	}
 }

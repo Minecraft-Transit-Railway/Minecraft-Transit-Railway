@@ -28,7 +28,7 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 	private final int rightPanelsX;
 
 	private static final int SLIDER_WIDTH = 64;
-	private static final int SETTINGS_HEIGHT = SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING;
+	private static final int SETTINGS_HEIGHT = 0; // SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING; TODO add back later
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = 50;
 	private static final int CUSTOM_DESTINATION_X_OFFSET = 108;
@@ -97,7 +97,8 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 
 		addButton(buttonAddTrains);
 		addButton(buttonCancel);
-		addButton(buttonShuffleTrains);
+		// TODO fix shuffle trains
+		// addButton(buttonShuffleTrains);
 
 		addChild(textFieldCustomDestination);
 
@@ -128,16 +129,17 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.add_train"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
+				// drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
 				renderBackground(matrices);
-				textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
+				// TODO add custom destination
+				// textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
 				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
 
-				drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				// drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+				// drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), (rightPanelsX + width) / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 
 				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Route.HOURS_IN_DAY);

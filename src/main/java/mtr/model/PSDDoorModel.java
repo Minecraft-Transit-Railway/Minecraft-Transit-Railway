@@ -26,13 +26,9 @@ import java.util.function.Function;
 
 public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
-	public final int style;
+	private final int style;
 
-	public PSDDoorModel(int style) {
-		this.style = style;
-	}
-
-	private static final SpriteIdentifier[] SPRITE_IDS = new SpriteIdentifier[]{
+	private static final SpriteIdentifier[] SPRITE_IDS_1 = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/black")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_side_light")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom")),
@@ -44,30 +40,34 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_back"))
 	};
-	private static final int SPRITE_COUNT = SPRITE_IDS.length;
+	private static final int SPRITE_COUNT_1 = SPRITE_IDS_1.length;
 
 	private static final SpriteIdentifier[] SPRITE_IDS_2 = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/black")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_side_light")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_2")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_back_2")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_2")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_back_2")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom_2")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom_back_2")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_2")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_back_2")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_2")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_back_2"))
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_2")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_back_2"))
 	};
 	private static final int SPRITE_COUNT_2 = SPRITE_IDS_2.length;
 
-	private final Sprite[] SPRITES = new Sprite[SPRITE_COUNT];
+	private final Sprite[] SPRITES_1 = new Sprite[SPRITE_COUNT_1];
 	private final Sprite[] SPRITES_2 = new Sprite[SPRITE_COUNT_2];
+
+	public PSDDoorModel(int style) {
+		this.style = style;
+	}
 
 	@Override
 	protected Mesh bake(BlockState state, Function<SpriteIdentifier, Sprite> textureGetter) {
-		for (int i = 0; i < SPRITE_COUNT; i++) {
+		for (int i = 0; i < SPRITE_COUNT_1; i++) {
 			if (style == 0) {
-				SPRITES[i] = textureGetter.apply(SPRITE_IDS[i]);
+				SPRITES_1[i] = textureGetter.apply(SPRITE_IDS_1[i]);
 			} else {
 				SPRITES_2[i] = textureGetter.apply(SPRITE_IDS_2[i]);
 			}
@@ -99,12 +99,12 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
 	@Override
 	public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
-		return Arrays.asList(style == 0 ? SPRITE_IDS : SPRITE_IDS_2);
+		return Arrays.asList(style == 0 ? SPRITE_IDS_1 : SPRITE_IDS_2);
 	}
 
 	@Override
 	public Sprite getSprite() {
-		return style == 0 ? SPRITES[2] : SPRITES_2[2];
+		return style == 0 ? SPRITES_1[2] : SPRITES_2[2];
 	}
 
 	@Override
@@ -117,24 +117,24 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 		final float x2 = side ? 1 - outer : inner;
 
 		emitter.square(facing, 1 - x2, 0, 1 - x1, 1, depth);
-		emitter.spriteBake(0, style == 0 ? SPRITES[(top ? 5 : 1) + mainTextureIndex] : SPRITES_2[(top ? 5 : 1) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
+		emitter.spriteBake(0, (style == 0 ? SPRITES_1 : SPRITES_2)[(top ? 5 : 1) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
 		emitter.square(facing, 1 - x2 + open, 0, 1 - x1 + open, 1, depth);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.getOpposite(), x1, 0, x2, 1, 0.875F - depth);
-		emitter.spriteBake(0, style == 0 ? SPRITES[(top ? 4 : 0) + mainTextureIndex] : SPRITES_2[(top ? 4 : 0) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
+		emitter.spriteBake(0, (style == 0 ? SPRITES_1 : SPRITES_2)[(top ? 4 : 0) + mainTextureIndex], MutableQuadView.BAKE_LOCK_UV + (side ? MutableQuadView.BAKE_FLIP_U : 0));
 		emitter.square(facing.getOpposite(), x1 - open, 0, x2 - open, 1, 0.875F - depth);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.rotateYClockwise(), 0.875F - depth, 0, 1 - depth, 1, 1 - x2 + open);
-		emitter.spriteBake(0, style == 0 ? SPRITES[side ? 0 : innerTextureIndex] : SPRITES_2[side ? 0 : innerTextureIndex], MutableQuadView.BAKE_LOCK_UV);
+		emitter.spriteBake(0, (style == 0 ? SPRITES_1 : SPRITES_2)[side ? 0 : innerTextureIndex], MutableQuadView.BAKE_LOCK_UV);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 
 		emitter.square(facing.rotateYCounterclockwise(), depth, 0, 0.125F + depth, 1, x1 - open);
-		emitter.spriteBake(0, style == 0 ? SPRITES[side ? innerTextureIndex : 0] : SPRITES_2[side ? innerTextureIndex : 0], MutableQuadView.BAKE_LOCK_UV);
+		emitter.spriteBake(0, (style == 0 ? SPRITES_1 : SPRITES_2)[side ? innerTextureIndex : 0], MutableQuadView.BAKE_LOCK_UV);
 		emitter.spriteColor(0, -1, -1, -1, -1);
 		emitter.emit();
 	}

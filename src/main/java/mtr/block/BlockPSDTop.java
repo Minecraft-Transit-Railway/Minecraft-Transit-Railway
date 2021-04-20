@@ -52,7 +52,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public Item asItem() {
-		return Items.PSD_GLASS;
+		return Items.PSD_GLASS_1;
 	}
 
 	@Override

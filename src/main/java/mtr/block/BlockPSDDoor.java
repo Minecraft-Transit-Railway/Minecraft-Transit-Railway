@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 
 public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 
-	public final int style;
+	private final int style;
 
 	public BlockPSDDoor(int style) {
 		super();
@@ -14,6 +14,6 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 
 	@Override
 	public Item asItem() {
-		return style == 0 ? Items.PSD_DOOR : Items.PSD_DOOR_2;
+		return style == 0 ? Items.PSD_DOOR_1 : Items.PSD_DOOR_2;
 	}
 }

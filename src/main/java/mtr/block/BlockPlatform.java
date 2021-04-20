@@ -55,7 +55,7 @@ public class BlockPlatform extends HorizontalFacingBlock {
 		final Block blockAbove = stateAbove.getBlock();
 
 		EnumDoorType doorType;
-		if (blockAbove instanceof BlockPSDGlassEnd || blockAbove instanceof BlockPSDDoor ||blockAbove instanceof BlockPSDGlass) {
+		if (blockAbove instanceof BlockPSDDoor || blockAbove instanceof BlockPSDGlass || blockAbove instanceof BlockPSDGlassEnd) {
 			doorType = EnumDoorType.PSD;
 			facing = IBlock.getStatePropertySafe(stateAbove, FACING);
 		} else if (blockAbove instanceof BlockAPGDoor || blockAbove instanceof BlockAPGGlass || blockAbove instanceof BlockAPGGlassEnd) {

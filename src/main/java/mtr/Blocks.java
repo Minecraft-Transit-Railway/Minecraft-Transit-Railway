@@ -33,11 +33,12 @@ public interface Blocks {
 	Block PIDS_1 = new BlockPIDS(0);
 	Block PIDS_2 = new BlockPIDS(1);
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
-	Block PSD_DOOR = new BlockPSDDoor(0);
-	Block PSD_GLASS = new BlockPSDGlass(0);
+	Block PSD_DOOR_1 = new BlockPSDDoor(0);
+	Block PSD_GLASS_1 = new BlockPSDGlass(0);
+	Block PSD_GLASS_END_1 = new BlockPSDGlassEnd(0);
 	Block PSD_DOOR_2 = new BlockPSDDoor(1);
 	Block PSD_GLASS_2 = new BlockPSDGlass(1);
-	Block PSD_GLASS_END = new BlockPSDGlassEnd();
+	Block PSD_GLASS_END_2 = new BlockPSDGlassEnd(1);
 	Block PSD_TOP = new BlockPSDTop();
 	Block RAIL = new BlockRail(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).nonOpaque());
 	Block RAILWAY_SIGN_2_EVEN = new BlockRailwaySign(2, false);

@@ -1,5 +1,5 @@
 {
-	"parent": "mtr:block/psd_glass_middle_base_2",
+	"parent": "mtr:block/psd_glass_middle_base",
 	"textures": {
 		"bottom": "mtr:block/black",
 		"top": "mtr:block/transparent",
