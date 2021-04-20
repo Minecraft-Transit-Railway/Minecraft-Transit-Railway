@@ -2,7 +2,7 @@
 	"parent": "block/block",
 	"textures": {
 		"black": "mtr:block/black",
-		"particle": "mtr:item/psd_glass_end"
+		"particle": "mtr:item/psd_glass_end_1"
 	},
 	"elements": [
 		{

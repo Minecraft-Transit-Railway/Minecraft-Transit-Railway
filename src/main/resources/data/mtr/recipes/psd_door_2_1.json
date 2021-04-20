@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:psd_glass_end_2"
+		}
+	],
+	"result": {
+		"item": "mtr:psd_door_2"
+	}
+}

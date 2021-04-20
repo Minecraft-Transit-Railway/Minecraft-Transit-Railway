@@ -46,9 +46,12 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_WKS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS, RenderLayer.getCutout());
-		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR_2, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_2, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_2, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.RAIL, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_COLOR_STAINED_GLASS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_BLOCK, RenderLayer.getCutout());
@@ -171,15 +174,18 @@ public class MTRClient implements ClientModInitializer, IPacket {
 	private static class ModelProvider implements ModelResourceProvider {
 
 		private static final Identifier APG_DOOR_MODEL = new Identifier("mtr:block/apg_door");
-		private static final Identifier PSD_DOOR_MODEL = new Identifier("mtr:block/psd_door");
+		private static final Identifier PSD_DOOR_MODEL_1 = new Identifier("mtr:block/psd_door_1");
+		private static final Identifier PSD_DOOR_MODEL_2 = new Identifier("mtr:block/psd_door_2");
 		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
 
 		@Override
 		public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) {
 			if (identifier.equals(APG_DOOR_MODEL)) {
 				return new APGDoorModel();
-			} else if (identifier.equals(PSD_DOOR_MODEL)) {
-				return new PSDDoorModel();
+			} else if (identifier.equals(PSD_DOOR_MODEL_1)) {
+				return new PSDDoorModel(0);
+			} else if (identifier.equals(PSD_DOOR_MODEL_2)) {
+				return new PSDDoorModel(1);
 			} else if (identifier.equals(PSD_TOP_MODEL)) {
 				return new PSDTopModel();
 			} else {

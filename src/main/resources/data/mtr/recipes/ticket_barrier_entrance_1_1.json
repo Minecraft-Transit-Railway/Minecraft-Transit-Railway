@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"RG",
+		"BB"
+	],
+	"key": {
+		"R": {
+			"tag": "c:redstone_dusts"
+		},
+		"G": {
+			"tag": "c:glowstone_dusts"
+		},
+		"B": {
+			"tag": "c:iron_blocks"
+		}
+	},
+	"result": {
+		"item": "mtr:ticket_barrier_entrance_1",
+		"count": 32
+	}
+}

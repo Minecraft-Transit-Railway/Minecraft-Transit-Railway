@@ -5,6 +5,8 @@ import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.material.MaterialFinder;
+import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
@@ -47,10 +49,10 @@ public class PSDTopModel extends CustomBlockModelBase implements IBlock {
 			SPRITES[i] = textureGetter.apply(SPRITE_IDS[i]);
 		}
 
-		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+		final Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		if (renderer != null) {
-			MeshBuilder builder = renderer.meshBuilder();
-			QuadEmitter emitter = builder.getEmitter();
+			final MeshBuilder builder = renderer.meshBuilder();
+			final QuadEmitter emitter = builder.getEmitter();
 
 			final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 			final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
@@ -90,24 +92,30 @@ public class PSDTopModel extends CustomBlockModelBase implements IBlock {
 			// light
 			if (doorLight != BlockPSDTop.EnumDoorLight.NONE) {
 				final boolean isOn = doorLight == BlockPSDTop.EnumDoorLight.ON;
+				final MaterialFinder materialFinder = renderer.materialFinder();
+				final RenderMaterial lightMaterial = materialFinder.emissive(0, isOn).disableAo(0, isOn).disableDiffuse(0, isOn).find();
 				// front
 				emitter.square(facing.getOpposite(), isRight ? 0 : 0.9375F, 0, isRight ? 0.0625F : 1, 0.0625F, 0.625F);
+				emitter.material(lightMaterial);
 				emitter.spriteBake(0, SPRITES[isOn ? 3 : 2], MutableQuadView.BAKE_LOCK_UV + (isRight ? MutableQuadView.BAKE_FLIP_U : 0));
 				emitter.spriteColor(0, -1, -1, -1, -1);
 				emitter.emit();
 				// right
 				emitter.square(facing.rotateYClockwise(), 0.625F, 0, 0.6875F, 0.0625F, isRight ? 0.9375F : 0);
+				emitter.material(lightMaterial);
 				emitter.spriteBake(0, SPRITES[isOn ? 3 : 2], MutableQuadView.BAKE_LOCK_UV);
 				emitter.spriteColor(0, -1, -1, -1, -1);
 				emitter.lightmap(0, 15);
 				emitter.emit();
 				// left
 				emitter.square(facing.rotateYCounterclockwise(), 0.3125F, 0, 0.375F, 0.0625F, isRight ? 0 : 0.9375F);
+				emitter.material(lightMaterial);
 				emitter.spriteBake(0, SPRITES[isOn ? 3 : 2], MutableQuadView.BAKE_LOCK_UV);
 				emitter.spriteColor(0, -1, -1, -1, -1);
 				emitter.emit();
 				// bottom
 				emitter.square(facing, isRight ? 0 : 0.9375F, 0.0625F, isRight ? 0.0625F : 1, 0.125F, 0.5F);
+				emitter.material(lightMaterial);
 				emitter.spriteBake(0, SPRITES[isOn ? 3 : 2], MutableQuadView.BAKE_LOCK_UV + (isRight ? MutableQuadView.BAKE_FLIP_U : 0));
 				customShape(emitter, facing, isRight ? 0.0625F : 1, 0, 0.3125F, isRight ? 0.0625F : 1, 0, 0.375F, isRight ? 0 : 0.9375F, 0, 0.375F, isRight ? 0 : 0.9375F, 0, 0.3125F);
 			}

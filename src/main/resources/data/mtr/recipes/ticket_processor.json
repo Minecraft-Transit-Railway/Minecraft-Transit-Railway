@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		" I ",
+		"RIG",
+		"III"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"G": {
+			"tag": "c:glowstone_dusts"
+		},
+		"R": {
+			"tag": "c:redstone_dusts"
+		}
+	},
+	"result": {
+		"item": "mtr:ticket_processor",
+		"count": 32
+	}
+}

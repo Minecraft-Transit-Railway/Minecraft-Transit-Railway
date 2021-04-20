@@ -577,7 +577,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 				if (headway > 0 && i >= headway + lastTime) {
 					final TrainType trainType;
-					if (shuffleTrains) {
+					if (false) { // TODO fix shuffle trains
 						trainType = trainTypes.get(new Random().nextInt(trainTypes.size()));
 					} else {
 						lastTrainTypeIndex++;

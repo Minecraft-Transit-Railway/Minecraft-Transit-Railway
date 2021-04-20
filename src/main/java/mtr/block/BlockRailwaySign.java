@@ -279,6 +279,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		ARROW_UP_RIGHT("arrow_up_left", true, true),
 		ARROW_DOWN_LEFT("arrow_down_left", true, false),
 		ARROW_DOWN_RIGHT("arrow_down_left", true, true),
+		ARROW_TURN_BACK_LEFT("arrow_turn_back", true, false),
+		ARROW_TURN_BACK_RIGHT("arrow_turn_back", true, true),
 		EXIT_1("exit_1", false, false),
 		EXIT_2("exit_2", true, false),
 		EXIT_3("exit_3", true, false),
@@ -303,6 +305,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		LIGHT_RAIL_4("light_rail_4", false, false),
 		XRL_1("xrl_1", true, false),
 		XRL_2("xrl_2", true, false),
+		SP1900("sp1900", true, false),
 		YELLOW_HEAD_1("yellow_head_1", true, false),
 		YELLOW_HEAD_2("yellow_head_2", false, false),
 		CROSS("cross", true, false),
@@ -329,6 +332,12 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		TRAINS_OLD_FLIPPED("train_old", true, true, true),
 		AIRPORT_EXPRESS_TRAINS("airport_express", true, false, true),
 		AIRPORT_EXPRESS_TRAINS_FLIPPED("airport_express", true, true, true),
+		AIRPORT_EXPRESS_TRAINS_CITY("airport_express", "airport_express_city", true, false, true),
+		AIRPORT_EXPRESS_TRAINS_CITY_FLIPPED("airport_express", "airport_express_city", true, true, true),
+		IN_TOWN_CHECK_IN("check_in", "in_town_check_in", true, false, true),
+		IN_TOWN_CHECK_IN_FLIPPED("check_in", "in_town_check_in", true, true, true),
+		CHECK_IN_PASSENGERS("check_in", "check_in_passengers", true, false, true),
+		CHECK_IN_PASSENGERS_FLIPPED("check_in", "check_in_passengers", true, true, true),
 		LIGHT_RAIL_1_TRAINS("light_rail_1", true, false, true),
 		LIGHT_RAIL_1_TRAINS_FLIPPED("light_rail_1", true, true, true),
 		LIGHT_RAIL_2_TRAINS("light_rail_2", false, false, true),
@@ -341,6 +350,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		XRL_1_TRAINS_FLIPPED("xrl_1", true, true, true),
 		XRL_2_TRAINS("xrl_2", true, false, true),
 		XRL_2_TRAINS_FLIPPED("xrl_2", true, true, true),
+		SP1900_TRAINS("sp1900", true, false, true),
+		SP1900_TRAINS_FLIPPED("sp1900", true, true, true),
 		YELLOW_HEAD_1_TRAINS("yellow_head_1", true, false, true),
 		YELLOW_HEAD_1_TRAINS_FLIPPED("yellow_head_1", true, true, true),
 		YELLOW_HEAD_2_TRAINS("yellow_head_2", false, false, true),
@@ -351,25 +362,41 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		TICKETS_FLIPPED("tickets", true, true, true),
 		NO_ENTRY("cross", true, false, true),
 		NO_ENTRY_FLIPPED("cross", true, true, true),
+		EMERGENCY_EXIT("emergency_exit", "emergency_exit", false, false, false, true, 0x00944F),
+		EMERGENCY_EXIT_FLIPPED("emergency_exit", "emergency_exit", false, true, true, true, 0x00944F),
+		WIFI("wifi", "wifi", true, false, false, true, 0xFA7B22),
+		WIFI_FLIPPED("wifi", "wifi", true, true, true, true, 0xFA7B22),
 		LOGO_TEXT("logo", false, false, true),
 		LOGO_TEXT_FLIPPED("logo", false, true, true);
 
 		public final Identifier id;
 		public final String text;
 		public final boolean small;
-		public final boolean flipped;
+		public final boolean flipTexture;
+		public final boolean flipCustomText;
 		public final boolean hasCustomText;
+		public final int backgroundColor;
 
-		SignType(String texture, boolean small, boolean flipped, boolean hasCustomText) {
+		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean flipCustomText, boolean hasCustomText, int backgroundColor) {
 			id = new Identifier("mtr:textures/sign/" + texture + ".png");
-			text = new TranslatableText("sign.mtr." + texture + "_cjk").append("|").append(new TranslatableText("sign.mtr." + texture)).getString();
+			text = new TranslatableText("sign.mtr." + translation + "_cjk").append("|").append(new TranslatableText("sign.mtr." + translation)).getString();
 			this.small = small;
-			this.flipped = flipped;
+			this.flipTexture = flipTexture;
+			this.flipCustomText = flipCustomText;
 			this.hasCustomText = hasCustomText;
+			this.backgroundColor = backgroundColor;
 		}
 
-		SignType(String texture, boolean small, boolean flipped) {
-			this(texture, small, flipped, false);
+		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean hasCustomText) {
+			this(texture, translation, small, false, flipTexture, hasCustomText, 0);
+		}
+
+		SignType(String texture, boolean small, boolean flipTexture, boolean hasCustomText) {
+			this(texture, texture, small, false, flipTexture, hasCustomText, 0);
+		}
+
+		SignType(String texture, boolean small, boolean flipTexture) {
+			this(texture, texture, small, flipTexture, false, false, 0);
 		}
 	}
 }

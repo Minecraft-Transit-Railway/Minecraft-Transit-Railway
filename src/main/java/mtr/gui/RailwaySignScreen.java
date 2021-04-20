@@ -52,7 +52,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private static final int SIGN_SIZE = 32;
 	private static final int ROW_START = 56;
-	private static final int COLUMNS = 21;
+	private static final int COLUMNS = 24;
+	private static final int BUTTONS_SELECTION_HEIGHT = 16;
 	final BlockRailwaySign.SignType[] ALL_SIGN_TYPES = BlockRailwaySign.SignType.values();
 
 	public RailwaySignScreen(BlockPos signPos) {
@@ -123,10 +124,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonsSelection = new ButtonWidget[ALL_SIGN_TYPES.length];
 		for (int i = 0; i < ALL_SIGN_TYPES.length; i++) {
 			final int index = i;
-			buttonsSelection[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> setNewSignType(ALL_SIGN_TYPES[index]));
+			buttonsSelection[i] = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new LiteralText(""), button -> setNewSignType(ALL_SIGN_TYPES[index]));
 		}
 
-		buttonClear = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignType(null));
+		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignType(null));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false));
 
 		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
@@ -148,7 +149,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		for (int i = 0; i < buttonsSelection.length; i++) {
 			final int columns = ALL_SIGN_TYPES[i].hasCustomText ? 3 : 1;
 
-			IGui.setPositionAndWidth(buttonsSelection[i], (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + ROW_START, SQUARE_SIZE * columns);
+			IGui.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
 			buttonsSelection[i].visible = false;
 			addButton(buttonsSelection[i]);
 
@@ -167,7 +168,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		selectedList.height = height - SQUARE_SIZE * 5;
 		selectedList.width = PANEL_WIDTH;
 
-		IGui.setPositionAndWidth(buttonClear, (width - SQUARE_SIZE * COLUMNS) / 2 + column * SQUARE_SIZE, row * SQUARE_SIZE + ROW_START, SQUARE_SIZE * (COLUMNS - column));
+		IGui.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
 		buttonClear.visible = false;
 		addButton(buttonClear);
 
@@ -213,10 +214,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 					int row = 0;
 					for (final BlockRailwaySign.SignType signType : ALL_SIGN_TYPES) {
 						final int columns = signType.hasCustomText ? 3 : 1;
-						final boolean moveRight = signType.hasCustomText && signType.flipped;
+						final boolean moveRight = signType.hasCustomText && signType.flipCustomText;
 
 						client.getTextureManager().bindTexture(signType.id);
-						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - SQUARE_SIZE * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * SQUARE_SIZE, row * SQUARE_SIZE + ROW_START, SQUARE_SIZE, 2, 2, selectedIds, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT, 2, 2, selectedIds, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 
 						column += columns;
 						if (column >= COLUMNS) {
@@ -288,7 +289,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			setIsSelecting(isPlatform, isLine);
 
 			if (newSignType != null && newSignType.hasCustomText) {
-				if (newSignType.flipped) {
+				if (newSignType.flipCustomText) {
 					for (int i = editingIndex - 1; i >= 0; i--) {
 						signTypes[i] = null;
 					}
@@ -300,7 +301,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			}
 
 			for (int i = 0; i < signTypes.length; i++) {
-				if (signTypes[i] != null && signTypes[i].hasCustomText && (i < editingIndex && !signTypes[i].flipped || i > editingIndex && signTypes[i].flipped)) {
+				if (signTypes[i] != null && signTypes[i].hasCustomText && (i < editingIndex && !signTypes[i].flipCustomText || i > editingIndex && signTypes[i].flipCustomText)) {
 					signTypes[i] = null;
 				}
 			}
