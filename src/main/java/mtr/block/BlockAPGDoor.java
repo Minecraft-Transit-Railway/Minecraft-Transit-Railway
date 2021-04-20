@@ -24,10 +24,9 @@ public class BlockAPGDoor extends BlockPSDAPGDoorBase {
 
 		final Direction facing = IBlock.getStatePropertySafe(superState, FACING);
 		final EnumSide side = IBlock.getStatePropertySafe(superState, SIDE);
-		final boolean isGlass = newState.getBlock() instanceof BlockAPGGlass || newState.getBlock() instanceof BlockAPGGlassEnd;
 
 		if (side == EnumSide.LEFT && facing.rotateYCounterclockwise() == direction || side == EnumSide.RIGHT && facing.rotateYClockwise() == direction) {
-			return superState.with(GLASS, isGlass);
+			return superState.with(GLASS, newState.getBlock() instanceof BlockAPGGlass || newState.getBlock() instanceof BlockAPGGlassEnd);
 		} else {
 			return superState;
 		}

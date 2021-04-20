@@ -99,7 +99,7 @@ public class APGDoorModel extends CustomBlockModelBase implements IBlock, IGui {
 					emitter.square(facingMain, side ? 0.0625F : 0.8125F, 0.5F, side ? 0.1875F : 0.9375F, 0.5625F, 1 - SMALL_OFFSET);
 					emitter.material(lightMaterial);
 					emitter.spriteBake(0, SPRITES[isOn ? 5 : 4], MutableQuadView.BAKE_LOCK_UV);
-					customShape(emitter, facingMain, side ? 0.8125F : 0.0625F, 0.5F, 1 - SMALL_OFFSET, side ? 0.8125F : 0.0625F, (side ? 0.5625F : 0.51075F) + SMALL_OFFSET, 1 - SMALL_OFFSET, side ? 0.9375F : 0.1875F, (side ? 0.51075F : 0.5625F) + SMALL_OFFSET, 1 - SMALL_OFFSET, side ? 0.9375F : 0.1875F, 0.5F, 1 - SMALL_OFFSET);
+					customShape(emitter, facingMain, side ? 0.8125F : 0.0625F - SMALL_OFFSET, 0.5F, 1 - SMALL_OFFSET, side ? 0.8125F : 0.0625F - SMALL_OFFSET, (side ? 0.5625F : 0.51075F) + SMALL_OFFSET, 1 - SMALL_OFFSET, side ? 0.9375F + SMALL_OFFSET : 0.1875F, (side ? 0.51075F : 0.5625F) + SMALL_OFFSET, 1 - SMALL_OFFSET, side ? 0.9375F + SMALL_OFFSET : 0.1875F, 0.5F, 1 - SMALL_OFFSET);
 
 					emitter.square(facing, 0, 0.5F, 0.03125F, 0.0625F, 0.75F - SMALL_OFFSET);
 					emitter.material(lightMaterial);
@@ -114,7 +114,12 @@ public class APGDoorModel extends CustomBlockModelBase implements IBlock, IGui {
 					emitter.square(facing, 0, 0.5F, 0.03125F, 0.0625F, 0.75F - SMALL_OFFSET);
 					emitter.material(lightMaterial);
 					emitter.spriteBake(0, SPRITES[isOn ? 5 : 4], MutableQuadView.BAKE_NORMALIZED);
-					customShape(emitter, facing, side ? 1.03125F : SMALL_OFFSET, 0.5625F + SMALL_OFFSET, 0.1875F, side ? 1.03125F : SMALL_OFFSET, 0.51075F + SMALL_OFFSET, 0.0625F, side ? 1 - SMALL_OFFSET : -0.03125F, 0.51075F + SMALL_OFFSET, 0.0625F, side ? 1 - SMALL_OFFSET : -0.03125F, 0.5625F + SMALL_OFFSET, 0.1875F);
+					customShape(emitter, facing, side ? 1.03125F : SMALL_OFFSET, 0.5625F + SMALL_OFFSET, 0.1875F, side ? 1.03125F : SMALL_OFFSET, 0.51075F + SMALL_OFFSET, 0.0625F - SMALL_OFFSET, side ? 1 - SMALL_OFFSET : -0.03125F, 0.51075F + SMALL_OFFSET, 0.0625F - SMALL_OFFSET, side ? 1 - SMALL_OFFSET : -0.03125F, 0.5625F + SMALL_OFFSET, 0.1875F);
+
+					emitter.square(facing, 0, 0.5F, 0.03125F, 0.0625F, 0.75F - SMALL_OFFSET);
+					emitter.material(lightMaterial);
+					emitter.spriteBake(0, SPRITES[isOn ? 5 : 4], MutableQuadView.BAKE_NORMALIZED);
+					customShape(emitter, facing, side ? 1 - SMALL_OFFSET : -0.03125F, 0.5F, 0.0625F - SMALL_OFFSET, side ? 1 - SMALL_OFFSET : -0.03125F, 0.51075F + SMALL_OFFSET, 0.0625F - SMALL_OFFSET, side ? 1.03125F : SMALL_OFFSET, 0.51075F + SMALL_OFFSET, 0.0625F - SMALL_OFFSET, side ? 1.03125F : SMALL_OFFSET, 0.5F, 0.0625F - SMALL_OFFSET);
 				}
 			} else {
 				customShape(emitter, facing, -open, 0.375F, 0, -open, 0.4375F, 0.0625F, 1 - open, 0.4375F, 0.0625F, 1 - open, 0.375F, 0);

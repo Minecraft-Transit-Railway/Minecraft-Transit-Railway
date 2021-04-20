@@ -31,14 +31,14 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 	private static final SpriteIdentifier[] SPRITE_IDS_1 = new SpriteIdentifier[]{
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/black")),
 			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_side_light")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_back")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom_back")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_back")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top")),
-			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_back"))
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_bottom_back_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_bottom_back_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_top_back_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_1")),
+			new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("mtr:block/psd_door_end_top_back_1"))
 	};
 	private static final int SPRITE_COUNT_1 = SPRITE_IDS_1.length;
 
@@ -65,10 +65,12 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 
 	@Override
 	protected Mesh bake(BlockState state, Function<SpriteIdentifier, Sprite> textureGetter) {
-		for (int i = 0; i < SPRITE_COUNT_1; i++) {
-			if (style == 0) {
+		if (style == 0) {
+			for (int i = 0; i < SPRITE_COUNT_1; i++) {
 				SPRITES_1[i] = textureGetter.apply(SPRITE_IDS_1[i]);
-			} else {
+			}
+		} else {
+			for (int i = 0; i < SPRITE_COUNT_2; i++) {
 				SPRITES_2[i] = textureGetter.apply(SPRITE_IDS_2[i]);
 			}
 		}

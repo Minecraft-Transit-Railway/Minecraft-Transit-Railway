@@ -208,7 +208,6 @@ public class ModelATrain extends ModelTrainBase {
 	private final ModelPart headlight_2a_r1;
 	private final ModelPart headlight_1a_r1;
 	private final ModelPart tail_lights;
-	private final ModelPart tail_light_2b_r1;
 	private final ModelPart tail_light_2a_r1;
 	private final ModelPart tail_light_1a_r1;
 	private final ModelPart seat;
@@ -1378,46 +1377,39 @@ public class ModelATrain extends ModelTrainBase {
 
 
 		headlight_2b_r1 = new ModelPart(this);
-		headlight_2b_r1.setPivot(0.0F, -4.0F, -42.0F);
+		headlight_2b_r1.setPivot(0.0F, -4.0F, -42.1F);
 		headlights.addChild(headlight_2b_r1);
 		setRotationAngle(headlight_2b_r1, -0.3491F, 0.0F, 0.0F);
-		headlight_2b_r1.setTextureOffset(20, 4).addCuboid(8.0F, -4.0F, 0.1F, 4.0F, 4.0F, 0.0F, 0.0F, true);
-		headlight_2b_r1.setTextureOffset(20, 4).addCuboid(-12.0F, -4.0F, 0.1F, 4.0F, 4.0F, 0.0F, 0.0F, false);
+		headlight_2b_r1.setTextureOffset(20, 4).addCuboid(8.0F, -4.0F, 0.0F, 4.0F, 4.0F, 0.0F, 0.0F, true);
+		headlight_2b_r1.setTextureOffset(20, 4).addCuboid(-12.0F, -4.0F, 0.0F, 4.0F, 4.0F, 0.0F, 0.0F, false);
 
 		headlight_2a_r1 = new ModelPart(this);
-		headlight_2a_r1.setPivot(12.0F, -4.0F, -42.0F);
+		headlight_2a_r1.setPivot(12.0F, -4.0F, -42.1F);
 		headlights.addChild(headlight_2a_r1);
 		setRotationAngle(headlight_2a_r1, -0.3491F, -0.3491F, 0.0F);
-		headlight_2a_r1.setTextureOffset(20, 0).addCuboid(0.0F, -4.0F, 0.1F, 6.0F, 4.0F, 0.0F, 0.0F, true);
+		headlight_2a_r1.setTextureOffset(20, 0).addCuboid(0.0F, -4.0F, 0.0F, 6.0F, 4.0F, 0.0F, 0.0F, true);
 
 		headlight_1a_r1 = new ModelPart(this);
-		headlight_1a_r1.setPivot(-12.0F, -4.0F, -42.0F);
+		headlight_1a_r1.setPivot(-12.0F, -4.0F, -42.1F);
 		headlights.addChild(headlight_1a_r1);
 		setRotationAngle(headlight_1a_r1, -0.3491F, 0.3491F, 0.0F);
-		headlight_1a_r1.setTextureOffset(20, 0).addCuboid(-6.0F, -4.0F, 0.1F, 6.0F, 4.0F, 0.0F, 0.0F, false);
+		headlight_1a_r1.setTextureOffset(20, 0).addCuboid(-6.0F, -4.0F, 0.0F, 6.0F, 4.0F, 0.0F, 0.0F, false);
 
 		tail_lights = new ModelPart(this);
 		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
 
 
-		tail_light_2b_r1 = new ModelPart(this);
-		tail_light_2b_r1.setPivot(0.0F, -4.0F, -42.0F);
-		tail_lights.addChild(tail_light_2b_r1);
-		setRotationAngle(tail_light_2b_r1, -0.3491F, 0.0F, 0.0F);
-		tail_light_2b_r1.setTextureOffset(20, 12).addCuboid(8.0F, -4.0F, 0.1F, 4.0F, 4.0F, 0.0F, 0.0F, true);
-		tail_light_2b_r1.setTextureOffset(20, 12).addCuboid(-12.0F, -4.0F, 0.1F, 4.0F, 4.0F, 0.0F, 0.0F, false);
-
 		tail_light_2a_r1 = new ModelPart(this);
 		tail_light_2a_r1.setPivot(12.0F, -4.0F, -42.0F);
 		tail_lights.addChild(tail_light_2a_r1);
 		setRotationAngle(tail_light_2a_r1, -0.3491F, -0.3491F, 0.0F);
-		tail_light_2a_r1.setTextureOffset(20, 8).addCuboid(0.0F, -4.0F, 0.1F, 6.0F, 4.0F, 0.0F, 0.0F, true);
+		tail_light_2a_r1.setTextureOffset(20, 8).addCuboid(0.0F, -4.0F, -0.1F, 6.0F, 4.0F, 0.0F, 0.0F, true);
 
 		tail_light_1a_r1 = new ModelPart(this);
 		tail_light_1a_r1.setPivot(-12.0F, -4.0F, -42.0F);
 		tail_lights.addChild(tail_light_1a_r1);
 		setRotationAngle(tail_light_1a_r1, -0.3491F, 0.3491F, 0.0F);
-		tail_light_1a_r1.setTextureOffset(20, 8).addCuboid(-6.0F, -4.0F, 0.1F, 6.0F, 4.0F, 0.0F, 0.0F, false);
+		tail_light_1a_r1.setTextureOffset(20, 8).addCuboid(-6.0F, -4.0F, -0.1F, 6.0F, 4.0F, 0.0F, 0.0F, false);
 
 		seat = new ModelPart(this);
 		seat.setPivot(0.0F, 24.0F, 0.0F);

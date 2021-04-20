@@ -7,7 +7,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_air"
+				"model": "mtr:block/psd_glass_end_bottom_left_air_1"
 			}
 		},
 		{
@@ -17,7 +17,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_air",
+				"model": "mtr:block/psd_glass_end_bottom_left_air_1",
 				"y": 90
 			}
 		},
@@ -28,7 +28,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_air",
+				"model": "mtr:block/psd_glass_end_bottom_left_air_1",
 				"y": 180
 			}
 		},
@@ -39,7 +39,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_air",
+				"model": "mtr:block/psd_glass_end_bottom_left_air_1",
 				"y": 270
 			}
 		},
@@ -50,7 +50,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_air"
+				"model": "mtr:block/psd_glass_end_top_left_air_1"
 			}
 		},
 		{
@@ -60,7 +60,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_air",
+				"model": "mtr:block/psd_glass_end_top_left_air_1",
 				"y": 90
 			}
 		},
@@ -71,7 +71,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_air",
+				"model": "mtr:block/psd_glass_end_top_left_air_1",
 				"y": 180
 			}
 		},
@@ -82,7 +82,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_air",
+				"model": "mtr:block/psd_glass_end_top_left_air_1",
 				"y": 270
 			}
 		},
@@ -93,7 +93,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_air"
+				"model": "mtr:block/psd_glass_end_bottom_right_air_1"
 			}
 		},
 		{
@@ -103,7 +103,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_air",
+				"model": "mtr:block/psd_glass_end_bottom_right_air_1",
 				"y": 90
 			}
 		},
@@ -114,7 +114,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_air",
+				"model": "mtr:block/psd_glass_end_bottom_right_air_1",
 				"y": 180
 			}
 		},
@@ -125,7 +125,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_air",
+				"model": "mtr:block/psd_glass_end_bottom_right_air_1",
 				"y": 270
 			}
 		},
@@ -136,7 +136,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_air"
+				"model": "mtr:block/psd_glass_end_top_right_air_1"
 			}
 		},
 		{
@@ -146,7 +146,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_air",
+				"model": "mtr:block/psd_glass_end_top_right_air_1",
 				"y": 90
 			}
 		},
@@ -157,7 +157,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_air",
+				"model": "mtr:block/psd_glass_end_top_right_air_1",
 				"y": 180
 			}
 		},
@@ -168,7 +168,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_air",
+				"model": "mtr:block/psd_glass_end_top_right_air_1",
 				"y": 270
 			}
 		},
@@ -179,7 +179,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_door"
+				"model": "mtr:block/psd_glass_end_bottom_left_door_1"
 			}
 		},
 		{
@@ -189,7 +189,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_door",
+				"model": "mtr:block/psd_glass_end_bottom_left_door_1",
 				"y": 90
 			}
 		},
@@ -200,7 +200,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_door",
+				"model": "mtr:block/psd_glass_end_bottom_left_door_1",
 				"y": 180
 			}
 		},
@@ -211,7 +211,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_door",
+				"model": "mtr:block/psd_glass_end_bottom_left_door_1",
 				"y": 270
 			}
 		},
@@ -222,7 +222,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_door"
+				"model": "mtr:block/psd_glass_end_top_left_door_1"
 			}
 		},
 		{
@@ -232,7 +232,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_door",
+				"model": "mtr:block/psd_glass_end_top_left_door_1",
 				"y": 90
 			}
 		},
@@ -243,7 +243,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_door",
+				"model": "mtr:block/psd_glass_end_top_left_door_1",
 				"y": 180
 			}
 		},
@@ -254,7 +254,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_door",
+				"model": "mtr:block/psd_glass_end_top_left_door_1",
 				"y": 270
 			}
 		},
@@ -265,7 +265,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_door"
+				"model": "mtr:block/psd_glass_end_bottom_right_door_1"
 			}
 		},
 		{
@@ -275,7 +275,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_door",
+				"model": "mtr:block/psd_glass_end_bottom_right_door_1",
 				"y": 90
 			}
 		},
@@ -286,7 +286,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_door",
+				"model": "mtr:block/psd_glass_end_bottom_right_door_1",
 				"y": 180
 			}
 		},
@@ -297,7 +297,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_door",
+				"model": "mtr:block/psd_glass_end_bottom_right_door_1",
 				"y": 270
 			}
 		},
@@ -308,7 +308,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_door"
+				"model": "mtr:block/psd_glass_end_top_right_door_1"
 			}
 		},
 		{
@@ -318,7 +318,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_door",
+				"model": "mtr:block/psd_glass_end_top_right_door_1",
 				"y": 90
 			}
 		},
@@ -329,7 +329,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_door",
+				"model": "mtr:block/psd_glass_end_top_right_door_1",
 				"y": 180
 			}
 		},
@@ -340,7 +340,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_door",
+				"model": "mtr:block/psd_glass_end_top_right_door_1",
 				"y": 270
 			}
 		},
@@ -352,7 +352,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left"
+				"model": "mtr:block/psd_glass_end_bottom_left_1"
 			}
 		},
 		{
@@ -363,7 +363,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left",
+				"model": "mtr:block/psd_glass_end_bottom_left_1",
 				"y": 90
 			}
 		},
@@ -375,7 +375,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left",
+				"model": "mtr:block/psd_glass_end_bottom_left_1",
 				"y": 180
 			}
 		},
@@ -387,7 +387,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left",
+				"model": "mtr:block/psd_glass_end_bottom_left_1",
 				"y": 270
 			}
 		},
@@ -399,7 +399,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left"
+				"model": "mtr:block/psd_glass_end_top_left_1"
 			}
 		},
 		{
@@ -410,7 +410,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left",
+				"model": "mtr:block/psd_glass_end_top_left_1",
 				"y": 90
 			}
 		},
@@ -422,7 +422,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left",
+				"model": "mtr:block/psd_glass_end_top_left_1",
 				"y": 180
 			}
 		},
@@ -434,7 +434,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left",
+				"model": "mtr:block/psd_glass_end_top_left_1",
 				"y": 270
 			}
 		},
@@ -446,7 +446,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_middle"
+				"model": "mtr:block/psd_glass_end_bottom_left_middle_1"
 			}
 		},
 		{
@@ -457,7 +457,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_middle",
+				"model": "mtr:block/psd_glass_end_bottom_left_middle_1",
 				"y": 90
 			}
 		},
@@ -469,7 +469,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_middle",
+				"model": "mtr:block/psd_glass_end_bottom_left_middle_1",
 				"y": 180
 			}
 		},
@@ -481,7 +481,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_left_middle",
+				"model": "mtr:block/psd_glass_end_bottom_left_middle_1",
 				"y": 270
 			}
 		},
@@ -493,7 +493,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_middle"
+				"model": "mtr:block/psd_glass_end_top_left_middle_1"
 			}
 		},
 		{
@@ -504,7 +504,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_middle",
+				"model": "mtr:block/psd_glass_end_top_left_middle_1",
 				"y": 90
 			}
 		},
@@ -516,7 +516,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_middle",
+				"model": "mtr:block/psd_glass_end_top_left_middle_1",
 				"y": 180
 			}
 		},
@@ -528,7 +528,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_left_middle",
+				"model": "mtr:block/psd_glass_end_top_left_middle_1",
 				"y": 270
 			}
 		},
@@ -540,7 +540,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right"
+				"model": "mtr:block/psd_glass_end_bottom_right_1"
 			}
 		},
 		{
@@ -551,7 +551,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right",
+				"model": "mtr:block/psd_glass_end_bottom_right_1",
 				"y": 90
 			}
 		},
@@ -563,7 +563,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right",
+				"model": "mtr:block/psd_glass_end_bottom_right_1",
 				"y": 180
 			}
 		},
@@ -575,7 +575,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right",
+				"model": "mtr:block/psd_glass_end_bottom_right_1",
 				"y": 270
 			}
 		},
@@ -587,7 +587,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right"
+				"model": "mtr:block/psd_glass_end_top_right_1"
 			}
 		},
 		{
@@ -598,7 +598,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right",
+				"model": "mtr:block/psd_glass_end_top_right_1",
 				"y": 90
 			}
 		},
@@ -610,7 +610,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right",
+				"model": "mtr:block/psd_glass_end_top_right_1",
 				"y": 180
 			}
 		},
@@ -622,7 +622,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right",
+				"model": "mtr:block/psd_glass_end_top_right_1",
 				"y": 270
 			}
 		},
@@ -634,7 +634,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_middle"
+				"model": "mtr:block/psd_glass_end_bottom_right_middle_1"
 			}
 		},
 		{
@@ -645,7 +645,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_middle",
+				"model": "mtr:block/psd_glass_end_bottom_right_middle_1",
 				"y": 90
 			}
 		},
@@ -657,7 +657,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_middle",
+				"model": "mtr:block/psd_glass_end_bottom_right_middle_1",
 				"y": 180
 			}
 		},
@@ -669,7 +669,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_bottom_right_middle",
+				"model": "mtr:block/psd_glass_end_bottom_right_middle_1",
 				"y": 270
 			}
 		},
@@ -681,7 +681,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_middle"
+				"model": "mtr:block/psd_glass_end_top_right_middle_1"
 			}
 		},
 		{
@@ -692,7 +692,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_middle",
+				"model": "mtr:block/psd_glass_end_top_right_middle_1",
 				"y": 90
 			}
 		},
@@ -704,7 +704,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_middle",
+				"model": "mtr:block/psd_glass_end_top_right_middle_1",
 				"y": 180
 			}
 		},
@@ -716,7 +716,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/psd_glass_end_top_right_middle",
+				"model": "mtr:block/psd_glass_end_top_right_middle_1",
 				"y": 270
 			}
 		}

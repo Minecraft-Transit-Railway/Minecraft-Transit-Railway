@@ -2,7 +2,7 @@
 	"parent": "block/block",
 	"textures": {
 		"light": "mtr:block/psd_side_light",
-		"particle": "mtr:item/psd_glass"
+		"particle": "mtr:item/psd_glass_1"
 	},
 	"elements": [
 		{

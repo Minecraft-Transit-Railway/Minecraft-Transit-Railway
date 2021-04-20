@@ -174,7 +174,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 	private static class ModelProvider implements ModelResourceProvider {
 
 		private static final Identifier APG_DOOR_MODEL = new Identifier("mtr:block/apg_door");
-		private static final Identifier PSD_DOOR_MODEL = new Identifier("mtr:block/psd_door");
+		private static final Identifier PSD_DOOR_MODEL_1 = new Identifier("mtr:block/psd_door_1");
 		private static final Identifier PSD_DOOR_MODEL_2 = new Identifier("mtr:block/psd_door_2");
 		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
 
@@ -182,7 +182,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) {
 			if (identifier.equals(APG_DOOR_MODEL)) {
 				return new APGDoorModel();
-			} else if (identifier.equals(PSD_DOOR_MODEL)) {
+			} else if (identifier.equals(PSD_DOOR_MODEL_1)) {
 				return new PSDDoorModel(0);
 			} else if (identifier.equals(PSD_DOOR_MODEL_2)) {
 				return new PSDDoorModel(1);
