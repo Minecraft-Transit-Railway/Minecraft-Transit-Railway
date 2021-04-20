@@ -73,10 +73,10 @@ public class PSDDoorModel extends CustomBlockModelBase implements IBlock {
 			}
 		}
 
-		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+		final Renderer renderer = RendererAccess.INSTANCE.getRenderer();
 		if (renderer != null) {
-			MeshBuilder builder = renderer.meshBuilder();
-			QuadEmitter emitter = builder.getEmitter();
+			final MeshBuilder builder = renderer.meshBuilder();
+			final QuadEmitter emitter = builder.getEmitter();
 
 			final boolean end = IBlock.getStatePropertySafe(state, BlockPSDDoor.END);
 			final Direction facing = IBlock.getStatePropertySafe(state, BlockPSDDoor.FACING);

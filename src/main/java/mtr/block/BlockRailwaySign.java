@@ -387,16 +387,16 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			this.backgroundColor = backgroundColor;
 		}
 
-		SignType(String texture, String translation, boolean small, boolean flipped, boolean hasCustomText) {
-			this(texture, translation, small, false, flipped, hasCustomText, 0);
+		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean hasCustomText) {
+			this(texture, translation, small, false, flipTexture, hasCustomText, 0);
 		}
 
-		SignType(String texture, boolean small, boolean flipped, boolean hasCustomText) {
-			this(texture, texture, small, false, flipped, hasCustomText, 0);
+		SignType(String texture, boolean small, boolean flipTexture, boolean hasCustomText) {
+			this(texture, texture, small, false, flipTexture, hasCustomText, 0);
 		}
 
-		SignType(String texture, boolean small, boolean flipped) {
-			this(texture, small, flipped, false);
+		SignType(String texture, boolean small, boolean flipTexture) {
+			this(texture, texture, small, flipTexture, false, false, 0);
 		}
 	}
 }

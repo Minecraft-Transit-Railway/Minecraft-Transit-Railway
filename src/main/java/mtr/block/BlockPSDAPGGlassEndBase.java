@@ -22,7 +22,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		BlockState superState = super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
+		final BlockState superState = super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
 		if (superState.getBlock() == Blocks.AIR) {
 			return superState;
 		} else {
