@@ -41,8 +41,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private long nextStationId;
 	private int announceTime;
 	private String thisRouteName;
+	private int maxTrainRenderDistance;
 
 	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DETAIL_RADIUS * EntitySeat.DETAIL_RADIUS;
+	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 	private static final int ANNOUNCE_DELAY = 100;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
@@ -60,6 +62,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 	public RenderSeat(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+		maxTrainRenderDistance = MinecraftClient.getInstance().options.viewDistance * 8;
 	}
 
 	@Override
@@ -73,7 +76,17 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		if (world == null) {
 			return;
 		}
-		final int halfRenderDistance = client.options.viewDistance * 8;
+
+		if (Config.useDynamicFPS()) {
+			final float lastFrameDuration = client.getLastFrameDuration();
+			if (lastFrameDuration > 0.8) {
+				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - 16, EntitySeat.DETAIL_RADIUS);
+			} else if (lastFrameDuration < 0.5) {
+				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, MAX_RADIUS_REPLAY_MOD);
+			}
+		} else {
+			maxTrainRenderDistance = client.options.viewDistance * 8;
+		}
 
 		matrices.push();
 		final double entityX = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX());
@@ -89,7 +102,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
 				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-				if (shouldNotRender(player, posAverage, halfRenderDistance)) {
+				if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
 					return;
 				}
 				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
@@ -116,7 +129,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
 				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-				if (shouldNotRender(player, posAverage, halfRenderDistance)) {
+				if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
 					return;
 				}
 				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
@@ -181,7 +194,9 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		matrices.pop();
 
-		if (Config.useTTSAnnouncements() && worldTime % Route.TICKS_PER_DAY == announceTime && entity.hasPassengers()) {
+		final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
+		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
+		if ((showAnnouncementMessages || useTTSAnnouncements) && worldTime % Route.TICKS_PER_DAY == announceTime && entity.hasPassengers()) {
 			final List<String> messages = new ArrayList<>();
 			final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
 			final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
@@ -201,8 +216,12 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			}
 
 			final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-			Narrator.getNarrator().say(message, false);
-			player.sendMessage(Text.of(message), false);
+			if (useTTSAnnouncements) {
+				Narrator.getNarrator().say(message, false);
+			}
+			if (showAnnouncementMessages) {
+				player.sendMessage(Text.of(message), false);
+			}
 			announceTime = -1;
 		}
 	}
@@ -213,7 +232,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance) {
-		return player == null || player.getBlockPos().getManhattanDistance(pos) > maxDistance && !isReplayMod(player);
+		return player == null || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance) {
