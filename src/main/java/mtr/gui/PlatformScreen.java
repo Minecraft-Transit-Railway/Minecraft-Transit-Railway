@@ -4,6 +4,8 @@ import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Route;
 import mtr.data.TrainType;
+import mtr.packet.IPacket;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,10 +16,9 @@ import net.minecraft.text.TranslatableText;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
-public class PlatformScreen extends Screen implements IGui {
+public class PlatformScreen extends Screen implements IGui, IPacket {
 
 	private boolean addingTrain;
 
@@ -27,7 +28,7 @@ public class PlatformScreen extends Screen implements IGui {
 	private final int rightPanelsX;
 
 	private static final int SLIDER_WIDTH = 64;
-	private static final int SETTINGS_HEIGHT = SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING;
+	private static final int SETTINGS_HEIGHT = 0; // SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING; TODO add back later
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = 50;
 	private static final int CUSTOM_DESTINATION_X_OFFSET = 108;
@@ -53,17 +54,17 @@ public class PlatformScreen extends Screen implements IGui {
 
 		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
 			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index), PlatformScreen::getSliderString);
+			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)), PlatformScreen::getSliderString);
 		}
 
 		buttonAddTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_train"), button -> onAddingTrain());
 		buttonCancel = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.cancel"), button -> setAdding(false));
-		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> this.route.shuffleTrains = checked);
+		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> this.route.setShuffleTrains(checked, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
 
 		textFieldCustomDestination = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, null, (data, index) -> this.route.trainTypes.remove(index), this::getTrainList);
+		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
+		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> route.trainTypes);
 	}
 
 	@Override
@@ -83,9 +84,9 @@ public class PlatformScreen extends Screen implements IGui {
 		trainList.height = height - SETTINGS_HEIGHT - SQUARE_SIZE * 2;
 		trainList.width = width - rightPanelsX;
 
-		textFieldCustomDestination.setText(route.customDestination);
+		textFieldCustomDestination.setText(route.getCustomDestination());
 		textFieldCustomDestination.setMaxLength(MAX_CUSTOM_DESTINATION_LENGTH);
-		textFieldCustomDestination.setChangedListener(text -> route.customDestination = textFieldCustomDestination.getText());
+		textFieldCustomDestination.setChangedListener(text -> route.setCustomDestination(textFieldCustomDestination.getText(), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
 
 		addNewList.init();
 		trainList.init();
@@ -96,7 +97,8 @@ public class PlatformScreen extends Screen implements IGui {
 
 		addButton(buttonAddTrains);
 		addButton(buttonCancel);
-		addButton(buttonShuffleTrains);
+		// TODO fix shuffle trains
+		// addButton(buttonShuffleTrains);
 
 		addChild(textFieldCustomDestination);
 
@@ -106,7 +108,7 @@ public class PlatformScreen extends Screen implements IGui {
 			sliders[i].setValue(route.getFrequency(i));
 		}
 
-		buttonShuffleTrains.setChecked(route.shuffleTrains);
+		buttonShuffleTrains.setChecked(route.getShuffleTrains());
 	}
 
 	@Override
@@ -127,16 +129,17 @@ public class PlatformScreen extends Screen implements IGui {
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.add_train"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
+				// drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
 				renderBackground(matrices);
-				textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
+				// TODO add custom destination
+				// textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
 				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
 
-				drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				// drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+				// drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), (rightPanelsX + width) / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 
 				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Route.HOURS_IN_DAY);
@@ -185,12 +188,18 @@ public class PlatformScreen extends Screen implements IGui {
 	private void onAdded(NameColorDataBase data, int index) {
 		if (addingTrain) {
 			route.trainTypes.add(TrainType.values()[index]);
+			route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 		}
 		setAdding(false);
 	}
 
-	private List<TrainType> getTrainList() {
-		return route.trainTypes;
+	private void onSort() {
+		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+	}
+
+	private void onRemove(NameColorDataBase data, int index) {
+		route.trainTypes.remove(index);
+		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void setAdding(boolean addingTrain) {

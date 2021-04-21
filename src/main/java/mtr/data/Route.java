@@ -7,6 +7,7 @@ import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,12 +22,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class Route extends NameColorDataBase implements IGui {
 
-	public String customDestination;
-	public boolean shuffleTrains;
+	private PathFinder routePathFinder;
+	private String customDestination;
+	private boolean shuffleTrains;
 
 	public final List<Long> platformIds;
 	public final List<TrainType> trainTypes;
@@ -55,7 +58,11 @@ public final class Route extends NameColorDataBase implements IGui {
 	private static final String KEY_PATH = "path";
 
 	public Route() {
-		super();
+		this(0);
+	}
+
+	public Route(long id) {
+		super(id);
 		platformIds = new ArrayList<>();
 		trainTypes = new ArrayList<>();
 		path = new ArrayList<>();
@@ -93,8 +100,8 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		path = new ArrayList<>();
 		final CompoundTag tagPath = tag.getCompound(KEY_PATH);
-		for (final String key : tagPath.getKeys()) {
-			path.add(new PathData(tagPath.getCompound(key)));
+		for (int i = 0; i < tagPath.getKeys().size(); i++) {
+			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
 		schedule = new HashMap<>();
@@ -179,10 +186,106 @@ public final class Route extends NameColorDataBase implements IGui {
 		path.forEach(pathData -> pathData.writePacket(packet));
 	}
 
-	public void generateGraph(WorldAccess world, Set<Platform> platforms) {
-		final PathFinder routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
-		path.clear();
-		path.addAll(routePathFinder.findPath());
+	@Override
+	public void update(String key, PacketByteBuf packet) {
+		switch (key) {
+			case KEY_PLATFORM_IDS:
+				platformIds.clear();
+				final int platformCount = packet.readInt();
+				for (int i = 0; i < platformCount; i++) {
+					platformIds.add(packet.readLong());
+				}
+				break;
+			case KEY_TRAIN_TYPES:
+				trainTypes.clear();
+				final int trainTypeCount = packet.readInt();
+				for (int i = 0; i < trainTypeCount; i++) {
+					trainTypes.add(TrainType.values()[packet.readInt()]);
+				}
+				break;
+			case KEY_FREQUENCIES:
+				for (int i = 0; i < HOURS_IN_DAY; i++) {
+					frequencies[i] = packet.readInt();
+				}
+				break;
+			case KEY_CUSTOM_DESTINATION:
+				customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
+				break;
+			case KEY_SHUFFLE_TRAINS:
+				shuffleTrains = packet.readBoolean();
+				break;
+			default:
+				super.update(key, packet);
+				break;
+		}
+		generateSchedule();
+	}
+
+	public void setPlatformIds(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_PLATFORM_IDS);
+		packet.writeInt(platformIds.size());
+		platformIds.forEach(packet::writeLong);
+		sendPacket.accept(packet);
+	}
+
+	public void setTrainTypes(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_TRAIN_TYPES);
+		packet.writeInt(trainTypes.size());
+		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
+		sendPacket.accept(packet);
+	}
+
+	public void setCustomDestination(String newCustomDestination, Consumer<PacketByteBuf> sendPacket) {
+		customDestination = newCustomDestination;
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_CUSTOM_DESTINATION);
+		packet.writeString(customDestination);
+		sendPacket.accept(packet);
+	}
+
+	public void setShuffleTrains(boolean newShuffleTrains, Consumer<PacketByteBuf> sendPacket) {
+		shuffleTrains = newShuffleTrains;
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_SHUFFLE_TRAINS);
+		packet.writeBoolean(shuffleTrains);
+		sendPacket.accept(packet);
+	}
+
+	public void startFindingPath(WorldAccess world, Set<Platform> platforms) {
+		if (routePathFinder == null) {
+			routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
+		}
+	}
+
+	public boolean findPath() {
+		if (routePathFinder != null) {
+			try {
+				final List<PathData> result = routePathFinder.findPath();
+				if (result != null) {
+					path.clear();
+					path.addAll(result);
+					routePathFinder = null;
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				path.clear();
+				return true;
+			}
+		} else {
+			path.clear();
+			return true;
+		}
 	}
 
 	public int getFrequency(int index) {
@@ -193,10 +296,26 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 	}
 
-	public void setFrequencies(int frequency, int index) {
+	public void setFrequencies(int newFrequency, int index, Consumer<PacketByteBuf> sendPacket) {
 		if (index >= 0 && index < frequencies.length) {
-			frequencies[index] = frequency;
+			frequencies[index] = newFrequency;
 		}
+
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_FREQUENCIES);
+		for (final int frequency : frequencies) {
+			packet.writeInt(frequency);
+		}
+		sendPacket.accept(packet);
+	}
+
+	public String getCustomDestination() {
+		return customDestination;
+	}
+
+	public boolean getShuffleTrains() {
+		return shuffleTrains;
 	}
 
 	public void getPositionYaw(WorldAccess world, long worldTime) {
@@ -306,7 +425,7 @@ public final class Route extends NameColorDataBase implements IGui {
 							final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 							final int ridingCar = i;
-							final float margin = halfSpacing + BOX_PADDING + speed;
+							final float margin = halfSpacing + BOX_PADDING + speed * 2;
 							world.getEntitiesByClass(EntitySeat.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), entitySeat -> true).forEach(entitySeat -> {
 								final PlayerEntity serverPlayer = entitySeat.getPlayer();
 								if (serverPlayer == null) {
@@ -369,7 +488,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				final float departureTime = pathData.tOffset + pathData.getTime();
 				timeOffsets.put(platformId, new HashSet<>());
 
-				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1))));
+				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1), platformId)));
 				platformIdIndex++;
 			}
 
@@ -458,7 +577,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 				if (headway > 0 && i >= headway + lastTime) {
 					final TrainType trainType;
-					if (shuffleTrains) {
+					if (false) { // TODO fix shuffle trains
 						trainType = trainTypes.get(new Random().nextInt(trainTypes.size()));
 					} else {
 						lastTrainTypeIndex++;
@@ -520,13 +639,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		public final float arrivalTime;
 		public final float departureTime;
 		public final TrainType trainType;
-		public final long lastStationId;
+		public final long lastPlatformId;
+		public final long platformId;
 
-		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastStationId) {
+		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastPlatformId, long platformId) {
 			this.arrivalTime = arrivalTime % TICKS_PER_DAY;
 			this.departureTime = departureTime % TICKS_PER_DAY;
 			this.trainType = trainType;
-			this.lastStationId = lastStationId;
+			this.lastPlatformId = lastPlatformId;
+			this.platformId = platformId;
 		}
 	}
 

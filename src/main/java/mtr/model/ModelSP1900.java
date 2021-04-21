@@ -1382,7 +1382,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay();
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
@@ -1393,10 +1393,13 @@ public class ModelSP1900 extends ModelTrainBase {
 				renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position - 12);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position + 12);
+				if (isC1141A) {
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 12);
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 12);
+				} else {
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+				}
 				break;
 			case EXTERIOR:
 				if (isEnd2Head) {
@@ -1412,7 +1415,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head) {
 		final float doorLeft = doorLeftValue * DOOR_MAX;
 		final float doorRight = doorRightValue * DOOR_MAX;
 
@@ -1504,8 +1507,11 @@ public class ModelSP1900 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+				if (isC1141A) {
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+				} else {
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+				}
 				break;
 			case EXTERIOR:
 				renderOnce(head_exterior, matrices, vertices, light, position);
@@ -1530,8 +1536,11 @@ public class ModelSP1900 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+				if (isC1141A) {
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+				} else {
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+				}
 				break;
 			case EXTERIOR:
 				renderOnce(end_exterior, matrices, vertices, light, position);
@@ -1556,8 +1565,11 @@ public class ModelSP1900 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
-				renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+				if (isC1141A) {
+					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+				} else {
+					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+				}
 				break;
 			case EXTERIOR:
 				renderOnceFlipped(end_exterior, matrices, vertices, light, position);

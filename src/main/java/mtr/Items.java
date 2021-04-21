@@ -16,9 +16,12 @@ public interface Items {
 	Item BRUSH = new Item(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
 	Item DASHBOARD = new ItemDashboard(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
 	Item ESCALATOR = new ItemEscalator(new Item.Settings().group(ItemGroup.TRANSPORTATION));
-	Item PSD_DOOR = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD);
-	Item PSD_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD);
-	Item PSD_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD);
+	Item PSD_DOOR_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
+	Item PSD_GLASS_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
+	Item PSD_GLASS_END_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
+	Item PSD_DOOR_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
+	Item PSD_GLASS_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
+	Item PSD_GLASS_END_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
 	Item RAIL_CONNECTOR_1_WOODEN = new ItemRailModifier(true, Rail.RailType.WOODEN);
 	Item RAIL_CONNECTOR_2_STONE = new ItemRailModifier(true, Rail.RailType.STONE);
 	Item RAIL_CONNECTOR_3_IRON = new ItemRailModifier(true, Rail.RailType.IRON);

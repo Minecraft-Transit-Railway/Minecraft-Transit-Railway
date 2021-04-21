@@ -1,6 +1,8 @@
 package mtr.gui;
 
 import mtr.data.Platform;
+import mtr.packet.IPacket;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -9,7 +11,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class ScheduleScreen extends Screen implements IGui {
+public class ScheduleScreen extends Screen implements IGui, IPacket {
 
 	private final Platform platform;
 	private final TextFieldWidget textFieldPlatformNumber;
@@ -33,7 +35,7 @@ public class ScheduleScreen extends Screen implements IGui {
 		textWidth = Math.max(textRenderer.getWidth(platformNumberText), textRenderer.getWidth(dwellTimeText)) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
 
-		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> platform.setDwellTime(value + 1), value -> String.format("%ss", (value + 1) / 2F));
+		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> platform.setDwellTime(value + 1, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet)), value -> String.format("%ss", (value + 1) / 2F));
 	}
 
 	@Override
@@ -77,6 +79,7 @@ public class ScheduleScreen extends Screen implements IGui {
 	@Override
 	public void onClose() {
 		super.onClose();
+		platform.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
 		if (client != null) {
 			client.openScreen(new DashboardScreen(0));
 		}

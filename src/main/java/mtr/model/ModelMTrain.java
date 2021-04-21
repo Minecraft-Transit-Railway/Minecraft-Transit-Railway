@@ -761,7 +761,7 @@ public class ModelMTrain extends ModelTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay();
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
@@ -771,8 +771,8 @@ public class ModelMTrain extends ModelTrainBase {
 				renderMirror(roof_window, matrices, vertices, light, position);
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 21.9F);
-				renderMirror(side_panel, matrices, vertices, light, position + 21.9F);
+				renderMirror(side_panel, matrices, vertices, light, position - 22F);
+				renderMirror(side_panel, matrices, vertices, light, position + 22F);
 				break;
 			case EXTERIOR:
 				renderMirror(window_exterior, matrices, vertices, light, position);
@@ -782,7 +782,7 @@ public class ModelMTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head) {
 		final float doorLeft = doorLeftValue * DOOR_MAX;
 		final float doorRight = doorRightValue * DOOR_MAX;
 		final boolean notLastDoor = getDoorPositions().length > 4 && position != getDoorPositions()[0] && position != getDoorPositions()[4];

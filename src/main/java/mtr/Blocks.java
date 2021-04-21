@@ -12,6 +12,9 @@ public interface Blocks {
 	Block APG_DOOR = new BlockAPGDoor();
 	Block APG_GLASS = new BlockAPGGlass();
 	Block APG_GLASS_END = new BlockAPGGlassEnd();
+	Block ARRIVAL_PROJECTOR_1_SMALL = new BlockArrivalProjector1Small();
+	Block ARRIVAL_PROJECTOR_1_MEDIUM = new BlockArrivalProjector1Medium();
+	Block ARRIVAL_PROJECTOR_1_LARGE = new BlockArrivalProjector1Large();
 	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(15));
 	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MaterialColor.QUARTZ).requiresTool().hardness(2).luminance(5));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
@@ -27,11 +30,15 @@ public interface Blocks {
 	Block GLASS_FENCE_TSH = new BlockGlassFence();
 	Block GLASS_FENCE_WKS = new BlockGlassFence();
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
-	Block PIDS_1 = new BlockPIDS1(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
+	Block PIDS_1 = new BlockPIDS(0);
+	Block PIDS_2 = new BlockPIDS(1);
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
-	Block PSD_DOOR = new BlockPSDDoor();
-	Block PSD_GLASS = new BlockPSDGlass();
-	Block PSD_GLASS_END = new BlockPSDGlassEnd();
+	Block PSD_DOOR_1 = new BlockPSDDoor(0);
+	Block PSD_GLASS_1 = new BlockPSDGlass(0);
+	Block PSD_GLASS_END_1 = new BlockPSDGlassEnd(0);
+	Block PSD_DOOR_2 = new BlockPSDDoor(1);
+	Block PSD_GLASS_2 = new BlockPSDGlass(1);
+	Block PSD_GLASS_END_2 = new BlockPSDGlassEnd(1);
 	Block PSD_TOP = new BlockPSDTop();
 	Block RAIL = new BlockRail(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).hardness(2).nonOpaque());
 	Block RAILWAY_SIGN_2_EVEN = new BlockRailwaySign(2, false);
@@ -88,5 +95,8 @@ public interface Blocks {
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();
 	Block STATION_NAME_WALL = new BlockStationNameWall(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
 	Block STATION_POLE = new BlockStationPole(FabricBlockSettings.of(Material.STONE, MaterialColor.STONE).requiresTool().hardness(2).nonOpaque());
+	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
+	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);
 	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
+	Block TICKET_PROCESSOR = new BlockTicketProcessor(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
 }

@@ -1,13 +1,18 @@
 package mtr.data;
 
+import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class RailwayData extends PersistentState {
@@ -20,6 +25,10 @@ public class RailwayData extends PersistentState {
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
+
+	private final List<Route> scheduleGenerate = new ArrayList<>();
+	private final List<Platform> scheduleValidate = new ArrayList<>();
+	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 
 	public RailwayData() {
 		super(NAME);
@@ -90,62 +99,92 @@ public class RailwayData extends PersistentState {
 		return stations;
 	}
 
-	public Set<Platform> getPlatforms(WorldAccess world) {
-		try {
-			validatePlatforms(world);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public Set<Platform> getPlatforms() {
+		scheduleValidate.clear();
+		scheduleValidate.addAll(platforms);
 		return platforms;
 	}
 
 	public Set<Route> getRoutes() {
-		try {
-			validateData();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		scheduleValidate.clear();
+		scheduleValidate.addAll(platforms);
 		return routes;
 	}
 
 	public void simulateTrains(WorldAccess world) {
-		routes.forEach(route -> route.getPositionYaw(world, world.getLunarTime()));
+		final long lunarTime = world.getLunarTime();
+		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
+
+		if (!scheduleGenerate.isEmpty()) {
+			final Route route = scheduleGenerate.get(0);
+			route.startFindingPath(world, platforms);
+			if (route.findPath()) {
+				scheduleGenerate.remove(route);
+				System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
+				scheduleBroadcast.clear();
+				scheduleBroadcast.addAll(world.getPlayers());
+			}
+		}
+
+		if (!scheduleValidate.isEmpty()) {
+			final Platform platform = scheduleValidate.remove(0);
+			final BlockPos platformMidPos = platform.getMidPos();
+			if (world.isChunkLoaded(platformMidPos.getX() / 16, platformMidPos.getZ() / 16) && !platform.isValidPlatform(world)) {
+				platforms.remove(platform);
+			}
+
+			if (scheduleValidate.isEmpty()) {
+				System.out.println("Done validating platforms");
+				scheduleBroadcast.clear();
+				scheduleBroadcast.addAll(world.getPlayers());
+				validateData();
+			}
+		}
+
+		if (!scheduleBroadcast.isEmpty()) {
+			final PlayerEntity player = scheduleBroadcast.remove(0);
+			if (player != null) {
+				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes);
+				System.out.println("Sending all data to player " + player);
+			}
+		}
+	}
+
+	public void addRouteToGenerate(long id) {
+		final Route route = getDataById(routes, id);
+		if (route != null && !scheduleGenerate.contains(route)) {
+			scheduleGenerate.add(route);
+		}
+	}
+
+	public void addAllRoutesToGenerate() {
+		routes.forEach(route -> {
+			if (!scheduleGenerate.contains(route)) {
+				scheduleGenerate.add(route);
+			}
+		});
+	}
+
+	public void addPlayerToBroadcast(PlayerEntity player) {
+		if (!scheduleBroadcast.contains(player)) {
+			scheduleBroadcast.add(player);
+		}
 	}
 
 	// writing data
 
-	public void setData(WorldAccess world, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
-		try {
-			this.stations.clear();
-			this.stations.addAll(stations);
-			this.platforms.clear();
-			this.platforms.addAll(platforms);
-			this.routes.clear();
-			this.routes.addAll(routes);
-			validateData();
-			this.routes.forEach(route -> route.generateGraph(world, platforms));
-			System.out.println("Routes generated");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void setData(WorldAccess world, Platform newPlatform) {
+	public void setData(Platform newPlatform) {
 		try {
 			platforms.removeIf(platform -> platform.isOverlapping(newPlatform));
 			platforms.add(newPlatform);
-			validatePlatforms(world);
+			scheduleValidate.clear();
+			scheduleValidate.addAll(platforms);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	// validation
-
-	private void validatePlatforms(WorldAccess world) {
-		platforms.removeIf(platform -> !platform.isValidPlatform(world));
-		validateData();
-	}
 
 	private void validateData() {
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));

@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:psd_glass"
+		},
+		{
+			"item": "mtr:psd_glass"
+		}
+	],
+	"result": {
+		"item": "mtr:psd_glass_2",
+		"count": 2
+	}
+}

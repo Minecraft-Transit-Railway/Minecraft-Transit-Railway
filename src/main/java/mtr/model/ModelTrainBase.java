@@ -13,8 +13,6 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
-	private static final int MAX_LIGHT_TRAIN = 0xF00000;
-
 	@Override
 	public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
@@ -24,15 +22,18 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 	}
 
 	public final void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.LIGHTS, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(texture)), RenderStage.INTERIOR, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.LIGHTS, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(texture)), RenderStage.INTERIOR, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
 
 		if (renderDetails) {
 			for (int position : getDoorPositions()) {
-				getModelDoorOverlay().render(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position, doorLeftValue, doorRightValue);
-				getModelDoorOverlay().render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftValue, doorRightValue);
+				final ModelDoorOverlayBase modelDoorOverlay = getModelDoorOverlay();
+				if (modelDoorOverlay != null) {
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position, doorLeftValue, doorRightValue);
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftValue, doorRightValue);
+				}
 			}
-			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT_TRAIN, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
 		}
 
 		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
@@ -40,10 +41,10 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront) {
 		for (int position : getWindowPositions()) {
-			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd2Head);
+			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd1Head, isEnd2Head);
 		}
 		for (int position : getDoorPositions()) {
-			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd2Head);
+			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head);
 		}
 
 		if (isEnd1Head) {
@@ -59,9 +60,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd2Head);
+	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd2Head);
+	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head);
 
 	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights);
 
@@ -106,6 +107,17 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		bone.setPivot(0, 0, position);
 		setRotationAngle(bone, 0, (float) Math.PI, 0);
 		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	}
+
+	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.setPivot(-positionX, 0, positionZ);
+		setRotationAngle(bone, 0, (float) Math.PI, 0);
+		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	}
+
+	protected static boolean isIndex(int index, int value, int[] array) {
+		final int finalIndex = index < 0 ? array.length + index : index;
+		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
 	}
 
 	protected enum RenderStage {LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}

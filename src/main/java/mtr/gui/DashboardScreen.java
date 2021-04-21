@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.data.*;
+import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -16,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DashboardScreen extends Screen implements IGui {
+public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	private int selectedTab;
 	private Station editingStation;
@@ -30,6 +31,7 @@ public class DashboardScreen extends Screen implements IGui {
 	private final ButtonWidget buttonTabTrains;
 	private final ButtonWidget buttonAddStation;
 	private final ButtonWidget buttonAddRoute;
+	private final ButtonWidget buttonGenerateAllRoutes;
 	private final ButtonWidget buttonDoneEditingStation;
 	private final ButtonWidget buttonDoneEditingRoute;
 	private final ButtonWidget buttonZoomIn;
@@ -37,12 +39,13 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private final TextFieldWidget textFieldName;
 	private final TextFieldWidget textFieldColor;
+	private final TextFieldWidget textFieldZone;
 
 	private final DashboardList dashboardList;
 
 	private static final int COLOR_WIDTH = 48;
 	private static final int MAX_STATION_LENGTH = 128;
-	private static final int MAX_COLOR_LENGTH = 6;
+	private static final int MAX_COLOR_ZONE_LENGTH = 6;
 
 	public DashboardScreen() {
 		this(0);
@@ -51,11 +54,12 @@ public class DashboardScreen extends Screen implements IGui {
 	public DashboardScreen(int initialTab) {
 		super(new LiteralText(""));
 
-		widgetMap = new WidgetMap(this::onDrawCorners, this::onClickPlatform);
+		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickPlatform);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldZone = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(0));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(1));
@@ -69,12 +73,13 @@ public class DashboardScreen extends Screen implements IGui {
 
 		buttonAddStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_station"), button -> startEditingStation(new Station(), true));
 		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
+		buttonGenerateAllRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.generate_all_routes"), button -> onGenerateAllRoutes());
 		buttonDoneEditingStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingStation());
 		buttonDoneEditingRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingRoute());
 		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 
-		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onSchedule, this::onEdit, this::onSort, null, this::onDelete, this::getList);
 
 		onSelectTab(initialTab);
 	}
@@ -92,7 +97,8 @@ public class DashboardScreen extends Screen implements IGui {
 		IGui.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
 		IGui.setPositionAndWidth(buttonTabTrains, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
 		IGui.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
+		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH / 2);
+		IGui.setPositionAndWidth(buttonGenerateAllRoutes, PANEL_WIDTH / 2, bottomRowY, PANEL_WIDTH / 2);
 		IGui.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
 		IGui.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE, bottomRowY - SQUARE_SIZE, SQUARE_SIZE);
@@ -100,6 +106,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
 		IGui.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IGui.setPositionAndWidth(textFieldZone, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING * 3 / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
@@ -113,13 +120,22 @@ public class DashboardScreen extends Screen implements IGui {
 		textFieldName.setMaxLength(MAX_STATION_LENGTH);
 		textFieldName.setChangedListener(text -> textFieldName.setSuggestion(text.isEmpty() ? new TranslatableText("gui.mtr.name").getString() : ""));
 		textFieldColor.setVisible(false);
-		textFieldColor.setMaxLength(MAX_COLOR_LENGTH);
+		textFieldColor.setMaxLength(MAX_COLOR_ZONE_LENGTH);
 		textFieldColor.setChangedListener(text -> {
 			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
 			if (!newText.equals(text)) {
 				textFieldColor.setText(newText);
 			}
 			textFieldColor.setSuggestion(newText.isEmpty() ? new TranslatableText("gui.mtr.color").getString() : "");
+		});
+		textFieldZone.setVisible(false);
+		textFieldZone.setMaxLength(MAX_COLOR_ZONE_LENGTH);
+		textFieldZone.setChangedListener(text -> {
+			final String newText = text.replaceAll("[^0-9-]", "");
+			if (!newText.equals(text)) {
+				textFieldZone.setText(newText);
+			}
+			textFieldZone.setSuggestion(newText.isEmpty() ? new TranslatableText("gui.mtr.zone").getString() : "");
 		});
 
 		dashboardList.init();
@@ -131,6 +147,7 @@ public class DashboardScreen extends Screen implements IGui {
 		addButton(buttonTabTrains);
 		addButton(buttonAddStation);
 		addButton(buttonAddRoute);
+		addButton(buttonGenerateAllRoutes);
 		addButton(buttonDoneEditingStation);
 		addButton(buttonDoneEditingRoute);
 		addButton(buttonZoomIn);
@@ -138,6 +155,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 		addChild(textFieldName);
 		addChild(textFieldColor);
+		addChild(textFieldZone);
 	}
 
 	@Override
@@ -150,6 +168,7 @@ public class DashboardScreen extends Screen implements IGui {
 			super.render(matrices, mouseX, mouseY, delta);
 			textFieldName.render(matrices, mouseX, mouseY, delta);
 			textFieldColor.render(matrices, mouseX, mouseY, delta);
+			textFieldZone.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -170,6 +189,7 @@ public class DashboardScreen extends Screen implements IGui {
 	public void tick() {
 		textFieldName.tick();
 		textFieldColor.tick();
+		textFieldZone.tick();
 		dashboardList.tick();
 
 		try {
@@ -187,7 +207,7 @@ public class DashboardScreen extends Screen implements IGui {
 						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
 					} else {
 						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
-							final Station station = RailwayData.getStationByPlatform(ClientData.stations, platform);
+							final Station station = ClientData.platformIdToStation.get(platform.id);
 							if (station != null) {
 								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
 							} else {
@@ -204,12 +224,6 @@ public class DashboardScreen extends Screen implements IGui {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void onClose() {
-		PacketTrainDataGuiClient.sendAllC2S();
-		super.onClose();
 	}
 
 	@Override
@@ -231,7 +245,9 @@ public class DashboardScreen extends Screen implements IGui {
 			case 0:
 				if (editingStation == null) {
 					final Station station = (Station) data;
-					widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+					if (Station.nonNullCorners(station)) {
+						widgetMap.find(station.corner1.getLeft(), station.corner1.getRight(), station.corner2.getLeft(), station.corner2.getRight());
+					}
 				} else {
 					final Platform platform = (Platform) data;
 					widgetMap.find(platform.getMidPos());
@@ -266,19 +282,28 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 	}
 
+	private void onSort() {
+		if (selectedTab == 1 && editingRoute != null) {
+			editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		}
+	}
+
 	private void onDelete(NameColorDataBase data, int index) {
 		try {
 			switch (selectedTab) {
 				case 0:
 					final Station station = (Station) data;
+					PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
 					ClientData.stations.remove(station);
 					break;
 				case 1:
 					if (editingRoute == null) {
 						final Route route = (Route) data;
+						PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
 						ClientData.routes.remove(route);
 					} else {
 						editingRoute.platformIds.remove(index);
+						editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 					}
 					break;
 			}
@@ -298,6 +323,7 @@ public class DashboardScreen extends Screen implements IGui {
 
 		textFieldName.setText(editingStation.name);
 		textFieldColor.setText(colorIntToString(editingStation.color));
+		textFieldZone.setText(String.valueOf(editingStation.zone));
 
 		widgetMap.startEditingStation(editingStation);
 		toggleButtons();
@@ -321,8 +347,13 @@ public class DashboardScreen extends Screen implements IGui {
 		toggleButtons();
 	}
 
+	private void onDrawCornersMouseRelease() {
+		editingStation.setCorners(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+	}
+
 	private void onClickPlatform(long platformId) {
 		editingRoute.platformIds.add(platformId);
+		editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void onDoneEditingStation() {
@@ -335,6 +366,12 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 		editingStation.name = IGui.textOrUntitled(textFieldName.getText());
 		editingStation.color = colorStringToInt(textFieldColor.getText());
+		try {
+			editingStation.zone = Integer.parseInt(textFieldZone.getText());
+		} catch (Exception ignored) {
+			editingStation.zone = 0;
+		}
+		editingStation.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		stopEditing();
 	}
 
@@ -348,7 +385,19 @@ public class DashboardScreen extends Screen implements IGui {
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
 		editingRoute.color = colorStringToInt(textFieldColor.getText());
+		editingRoute.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		PacketTrainDataGuiClient.sendGenerateData(editingRoute.id);
 		stopEditing();
+	}
+
+	private void onGenerateAllRoutes() {
+		PacketTrainDataGuiClient.sendGenerateAllRoutes();
+		if (client != null) {
+			client.openScreen(null);
+			if (client.player != null) {
+				client.player.sendMessage(new TranslatableText("gui.mtr.generating_all_routes", ClientData.routes.size()), true);
+			}
+		}
 	}
 
 	private void stopEditing() {
@@ -361,14 +410,16 @@ public class DashboardScreen extends Screen implements IGui {
 	private void toggleButtons() {
 		buttonAddStation.visible = selectedTab == 0 && editingStation == null;
 		buttonAddRoute.visible = selectedTab == 1 && editingRoute == null;
+		buttonGenerateAllRoutes.visible = selectedTab == 1 && editingRoute == null;
 		buttonDoneEditingStation.visible = selectedTab == 0 && editingStation != null;
-		buttonDoneEditingStation.active = nonNullCorners(editingStation);
+		buttonDoneEditingStation.active = Station.nonNullCorners(editingStation);
 		buttonDoneEditingRoute.visible = selectedTab == 1 && editingRoute != null;
 
 		final boolean showTextFields = (selectedTab == 0 && editingStation != null) || (selectedTab == 1 && editingRoute != null);
 		textFieldName.visible = showTextFields;
 		textFieldColor.visible = showTextFields;
-		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
+		textFieldZone.visible = selectedTab == 0 && editingStation != null;
+		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? (selectedTab == 0 ? 2 : 1) * SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
 	}
 
 	private static int colorStringToInt(String string) {
@@ -381,9 +432,5 @@ public class DashboardScreen extends Screen implements IGui {
 
 	private static String colorIntToString(int color) {
 		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
-	}
-
-	private static boolean nonNullCorners(Station station) {
-		return station != null && station.corner1 != null && station.corner2 != null;
 	}
 }

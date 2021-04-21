@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/psd_glass_end_right_air_base",
+	"textures": {
+		"front": "mtr:block/psd_glass_diagonal_bottom_1",
+		"back": "mtr:block/psd_glass_diagonal_bottom_back_1"
+	}
+}

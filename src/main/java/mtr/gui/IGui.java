@@ -5,7 +5,6 @@ import mtr.config.Config;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -44,7 +43,7 @@ public interface IGui {
 	int ARGB_LIGHT_GRAY = 0xFFAAAAAA;
 	int ARGB_BACKGROUND = 0xFF121212;
 
-	int MAX_LIGHT = LightmapTextureManager.pack(0xFF, 0xFF);
+	int MAX_LIGHT = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');
@@ -243,6 +242,9 @@ public interface IGui {
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
+		if (a == 0) {
+			return;
+		}
 		vertexConsumer.vertex(x1, y1, 0).color(r, g, b, a).next();
 		vertexConsumer.vertex(x1, y2, 0).color(r, g, b, a).next();
 		vertexConsumer.vertex(x2, y2, 0).color(r, g, b, a).next();
@@ -281,10 +283,14 @@ public interface IGui {
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
 		final int b = color & 0xFF;
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		if (a == 0) {
+			return;
+		}
+		final int newLight = light == -1 ? MAX_LIGHT : light;
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
 	@FunctionalInterface

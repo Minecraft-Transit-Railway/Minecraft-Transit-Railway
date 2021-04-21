@@ -60,7 +60,7 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onSchedule, OnClick onEdit, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
+	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onSchedule, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.registerButton = registerButton;
 		this.addChild = addChild;
 		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -69,8 +69,14 @@ public class DashboardList implements IGui {
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
 		buttonSchedule = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_schedule.png"), 20, 40, button -> onClick(onSchedule));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
-		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> onUp(getList));
-		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> onDown(getList));
+		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
+			onUp(getList);
+			onSort.run();
+		});
+		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> {
+			onDown(getList);
+			onSort.run();
+		});
 		buttonAdd = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
 		buttonDelete = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}

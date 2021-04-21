@@ -47,6 +47,13 @@
 				"east": { "uv": [ 0, 7, 16, 8 ], "texture": "#fronttop" },
 				"south": { "texture": "#sidetop", "cullface": "south" }
 			}
+		},
+		{
+			"from": [ 1, 8, 0 ],
+			"to": [ 3, 9, 16 ],
+			"faces": {
+				"south": { "uv": [ 16, 0, 0, 8 ], "texture": "#sidetriangle", "cullface": "south" }
+			}
 		}
 	]
 }
