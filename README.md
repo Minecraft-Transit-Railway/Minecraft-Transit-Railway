@@ -6,6 +6,8 @@ and items. With this mod, it is possible to build a fully functional railway sys
 
 This mod is now available for Fabric 1.16.2/3/4/5 as a public beta. Enjoy :)
 
+[![Video Trailer](https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/video-preview.png)](https://www.youtube.com/watch?v=1cZfU7t4cAk)
+
 Please report any issues or bugs that you find; that would be greatly appreciated! Refer to the [todo list](https://github.com/jonafanho/Minecraft-Transit-Railway/wiki/Todo-List) to see currently known issues.
 
 ## Downloads and Installation
