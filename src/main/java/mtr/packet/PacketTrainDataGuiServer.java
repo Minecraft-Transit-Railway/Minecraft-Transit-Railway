@@ -41,12 +41,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes) {
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Rail.RailEntry> rails) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 		serializeData(packet, stations);
 		serializeData(packet, platforms);
 		serializeData(packet, routes);
+		serializeData(packet, rails);
 		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
 		sendChunk(player, tempPacketId, 0);
 	}
@@ -211,7 +212,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		sendChunk(player, tempPacketId, chunk);
 	}
 
-	private static <T extends NameColorDataBase> void serializeData(PacketByteBuf packet, Set<T> objects) {
+	private static <T extends SerializedDataBase> void serializeData(PacketByteBuf packet, Set<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));
 	}

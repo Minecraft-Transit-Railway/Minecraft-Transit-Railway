@@ -21,10 +21,12 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_ROUTES = "routes";
+	private static final String KEY_RAILS = "rails";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
+	private final Set<Rail.RailEntry> rails;
 
 	private final List<Route> scheduleGenerate = new ArrayList<>();
 	private final List<Platform> scheduleValidate = new ArrayList<>();
@@ -35,24 +37,30 @@ public class RailwayData extends PersistentState {
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
+		rails = new HashSet<>();
 	}
 
 	@Override
 	public void fromTag(CompoundTag tag) {
 		try {
 			final CompoundTag tagStations = tag.getCompound(KEY_STATIONS);
-			for (String key : tagStations.getKeys()) {
+			for (final String key : tagStations.getKeys()) {
 				stations.add(new Station(tagStations.getCompound(key)));
 			}
 
 			final CompoundTag tagNewPlatforms = tag.getCompound(KEY_PLATFORMS);
-			for (String key : tagNewPlatforms.getKeys()) {
+			for (final String key : tagNewPlatforms.getKeys()) {
 				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
 			}
 
 			final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
-			for (String key : tagNewRoutes.getKeys()) {
+			for (final String key : tagNewRoutes.getKeys()) {
 				routes.add(new Route(tagNewRoutes.getCompound(key)));
+			}
+
+			final CompoundTag tagNewRails = tag.getCompound(KEY_RAILS);
+			for (final String key : tagNewRails.getKeys()) {
+				rails.add(new Rail.RailEntry(tagNewRails.getCompound(key)));
 			}
 
 			validateData();
@@ -65,29 +73,10 @@ public class RailwayData extends PersistentState {
 	public CompoundTag toTag(CompoundTag tag) {
 		try {
 			validateData();
-			final CompoundTag tagStations = new CompoundTag();
-			int i = 0;
-			for (Station station : stations) {
-				tagStations.put(KEY_STATIONS + i, station.toCompoundTag());
-				i++;
-			}
-			tag.put(KEY_STATIONS, tagStations);
-
-			final CompoundTag tagNewPlatforms = new CompoundTag();
-			int j = 0;
-			for (Platform platform : platforms) {
-				tagNewPlatforms.put(KEY_PLATFORMS + j, platform.toCompoundTag());
-				j++;
-			}
-			tag.put(KEY_PLATFORMS, tagNewPlatforms);
-
-			final CompoundTag tagNewRoutes = new CompoundTag();
-			int k = 0;
-			for (Route route : routes) {
-				tagNewRoutes.put(KEY_ROUTES + k, route.toCompoundTag());
-				k++;
-			}
-			tag.put(KEY_ROUTES, tagNewRoutes);
+			writeTag(tag, stations, KEY_STATIONS);
+			writeTag(tag, platforms, KEY_PLATFORMS);
+			writeTag(tag, routes, KEY_ROUTES);
+			writeTag(tag, rails, KEY_RAILS);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -144,7 +133,7 @@ public class RailwayData extends PersistentState {
 		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
-				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes);
+				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, rails);
 				System.out.println("Sending all data to player " + player);
 			}
 		}
@@ -181,6 +170,15 @@ public class RailwayData extends PersistentState {
 			scheduleValidate.addAll(platforms);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void addRail(BlockPos start, BlockPos end, Rail rail) {
+		final Rail.RailEntry railEntry = rails.stream().filter(railEntry2 -> railEntry2.pos.equals(start)).findFirst().orElse(null);
+		if (railEntry == null) {
+			rails.add(new Rail.RailEntry(start, end, rail));
+		} else {
+			railEntry.connections.put(end, rail);
 		}
 	}
 
@@ -233,5 +231,15 @@ public class RailwayData extends PersistentState {
 		} else {
 			return null;
 		}
+	}
+
+	private static void writeTag(CompoundTag tag, Set<? extends SerializedDataBase> dataSet, String key) {
+		final CompoundTag tagSet = new CompoundTag();
+		int i = 0;
+		for (final SerializedDataBase data : dataSet) {
+			tagSet.put(key + i, data.toCompoundTag());
+			i++;
+		}
+		tag.put(key, tagSet);
 	}
 }

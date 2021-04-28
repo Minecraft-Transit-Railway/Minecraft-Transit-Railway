@@ -14,6 +14,7 @@ public final class ClientData {
 	public static Set<Station> stations = new HashSet<>();
 	public static Set<Platform> platforms = new HashSet<>();
 	public static Set<Route> routes = new HashSet<>();
+	public static Set<Rail.RailEntry> rails = new HashSet<>();
 
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
 	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
@@ -28,6 +29,7 @@ public final class ClientData {
 		stations = deserializeData(packetCopy, Station::new);
 		platforms = deserializeData(packetCopy, Platform::new);
 		routes = deserializeData(packetCopy, Route::new);
+		rails = deserializeData(packetCopy, Rail.RailEntry::new);
 		updateReferences();
 	}
 
@@ -107,7 +109,7 @@ public final class ClientData {
 		}
 	}
 
-	private static <T extends NameColorDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
+	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();
 		for (int i = 0; i < dataCount; i++) {
