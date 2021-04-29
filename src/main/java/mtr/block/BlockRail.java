@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.MTR;
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -38,14 +39,9 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient) {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof TileEntityRail) {
-				for (final BlockPos newPos : ((TileEntityRail) entity).railMap.keySet()) {
-					final BlockEntity newEntity = world.getBlockEntity(newPos);
-					if (newEntity instanceof TileEntityRail) {
-						((TileEntityRail) newEntity).removeRail(pos);
-					}
-				}
+			final RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.validateRails();
 			}
 		}
 	}

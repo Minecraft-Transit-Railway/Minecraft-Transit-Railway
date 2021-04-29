@@ -223,13 +223,11 @@ public class MTR implements ModInitializer, IPacket {
 		ServerChunkEvents.CHUNK_LOAD.register((serverWorld, worldChunk) -> {
 			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 			if (railwayData != null) {
-				System.out.println(serverWorld.blockEntities);
 				serverWorld.blockEntities.forEach(blockEntity -> {
 					if (blockEntity instanceof BlockRail.TileEntityRail) {
-						((BlockRail.TileEntityRail) blockEntity).railMap.forEach((blockPos, rail) -> railwayData.addRail(blockEntity.getPos(), blockPos, rail));
+						((BlockRail.TileEntityRail) blockEntity).railMap.forEach((blockPos, rail) -> railwayData.addRail(blockEntity.getPos(), blockPos, rail, false));
 					}
 				});
-				railwayData.markDirty();
 			}
 		});
 		// TODO temporary code end

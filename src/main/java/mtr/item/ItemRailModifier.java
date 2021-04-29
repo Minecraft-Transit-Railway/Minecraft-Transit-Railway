@@ -2,10 +2,9 @@ package mtr.item;
 
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
-import mtr.data.Platform;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -41,17 +40,18 @@ public class ItemRailModifier extends Item {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final World world = context.getWorld();
 		if (!world.isClient) {
+			final RailwayData railwayData = RailwayData.getInstance(world);
 			final BlockPos posStart = context.getBlockPos();
-			final BlockEntity entity = world.getBlockEntity(posStart);
+			final BlockState stateStart = world.getBlockState(posStart);
 
-			if (entity instanceof BlockRail.TileEntityRail) {
+			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
 				final CompoundTag tag = context.getStack().getOrCreateTag();
 
 				if (tag.contains(TAG_POS)) {
 					final BlockPos posEnd = BlockPos.fromLong(tag.getLong(TAG_POS));
-					final BlockEntity entity2 = world.getBlockEntity(posEnd);
+					final BlockState stateEnd = world.getBlockState(posEnd);
 
-					if (entity2 instanceof BlockRail.TileEntityRail) {
+					if (stateEnd.getBlock() instanceof BlockRail) {
 						if (isConnector) {
 							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
 							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
@@ -60,32 +60,25 @@ public class ItemRailModifier extends Item {
 							final PlayerEntity player = context.getPlayer();
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								final boolean isPlatform = railType == Rail.RailType.PLATFORM;
-
-								if (isPlatform && (((BlockRail.TileEntityRail) entity).hasPlatform() || ((BlockRail.TileEntityRail) entity2).hasPlatform())) {
+								if (railType == Rail.RailType.PLATFORM && (railwayData.hasPlatform(posStart, posEnd))) {
 									if (player != null) {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
 									}
 								} else {
-									((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
-									((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
-
-									if (isPlatform) {
-										final RailwayData railwayData = RailwayData.getInstance(world);
-										if (railwayData != null) {
-											railwayData.setData(new Platform(posStart, posEnd));
-										}
-									}
+									railwayData.addRail(posStart, posEnd, new Rail(posStart, facingStart, posEnd, facingEnd, railType), true);
+									railwayData.addRail(posEnd, posStart, new Rail(posEnd, facingEnd, posStart, facingStart, railType), true);
+									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
+									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
 								}
-
 							} else {
 								if (player != null) {
 									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
 								}
 							}
 						} else {
-							((BlockRail.TileEntityRail) entity).removeRail(posEnd);
-							((BlockRail.TileEntityRail) entity2).removeRail(posStart);
+							railwayData.removeRailConnection(posStart, posEnd);
+							world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, railwayData.hasAnyConnection(posStart)));
+							world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, railwayData.hasAnyConnection(posEnd)));
 						}
 					}
 

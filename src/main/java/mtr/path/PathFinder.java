@@ -1,10 +1,10 @@
 package mtr.path;
 
-import mtr.block.BlockRail;
 import mtr.data.Platform;
-import net.minecraft.block.entity.BlockEntity;
+import mtr.data.Rail;
+import mtr.data.RailwayData;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.util.math.Direction;
 
 import java.util.*;
 
@@ -19,12 +19,12 @@ public class PathFinder {
 	private int tempPathIndex;
 	private FindStage findStage;
 
-	private final WorldAccess world;
+	private final Set<Rail.RailEntry> rails;
 	private final List<Platform> platforms;
 	private final List<PathData> path;
 	private final Set<BlockPos> blacklist;
 
-	public PathFinder(WorldAccess world, List<Platform> platforms) {
+	public PathFinder(Set<Rail.RailEntry> rails, List<Platform> platforms) {
 		platformIndex = 1;
 		tOffset = 0;
 		platform1Temp = null;
@@ -34,7 +34,7 @@ public class PathFinder {
 		tempPathIndex = 1;
 		findStage = FindStage.INIT_FORWARD;
 
-		this.world = world;
+		this.rails = rails;
 		this.platforms = platforms;
 		path = new ArrayList<>();
 		blacklist = new HashSet<>();
@@ -112,9 +112,9 @@ public class PathFinder {
 
 	private void generatePathData(List<BlockPos> tempPathSubList, int dwellTime) {
 		final BlockPos tempPos = tempPathSubList.get(tempPathIndex - 1);
-		final BlockEntity entity = world.getBlockEntity(tempPos);
-		if (entity instanceof BlockRail.TileEntityRail) {
-			final PathData pathData = new PathData(((BlockRail.TileEntityRail) entity).railMap.get(tempPathSubList.get(tempPathIndex)), currentSpeed, tempPathIndex == tempPathSubList.size() - 1 ? dwellTime : 0, tOffset);
+		final Rail.RailEntry railEntry = RailwayData.getRailEntry(rails, tempPos);
+		if (railEntry != null) {
+			final PathData pathData = new PathData(railEntry.connections.get(tempPathSubList.get(tempPathIndex)), currentSpeed, tempPathIndex == tempPathSubList.size() - 1 ? dwellTime : 0, tOffset);
 			path.add(pathData);
 			tOffset += pathData.getTime();
 			currentSpeed = pathData.finalSpeed;
@@ -122,11 +122,18 @@ public class PathFinder {
 	}
 
 	private Set<BlockPos> getConnectedPositions(BlockPos thisPos, BlockPos lastPos) {
-		final BlockEntity entity = world.getBlockEntity(thisPos);
-		if (entity instanceof BlockRail.TileEntityRail) {
-			return ((BlockRail.TileEntityRail) entity).getConnectedPositions(lastPos);
-		} else {
+		final Rail.RailEntry railEntry = RailwayData.getRailEntry(rails, thisPos);
+		if (railEntry == null || !railEntry.connections.containsKey(lastPos)) {
 			return new HashSet<>();
+		} else {
+			final Direction findDirection = railEntry.connections.get(lastPos).facing.getOpposite();
+			final Set<BlockPos> connectedPositions = new HashSet<>();
+			railEntry.connections.forEach((blockPos, rail) -> {
+				if (rail.facing == findDirection) {
+					connectedPositions.add(blockPos);
+				}
+			});
+			return connectedPositions;
 		}
 	}
 

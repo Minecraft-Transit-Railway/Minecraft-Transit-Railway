@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.block.BlockRail;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -8,7 +9,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public class RailwayData extends PersistentState {
 	private final Set<Rail.RailEntry> rails;
 
 	private final List<Route> scheduleGenerate = new ArrayList<>();
-	private final List<Platform> scheduleValidate = new ArrayList<>();
+	private final List<Rail.RailEntry> scheduleValidate = new ArrayList<>();
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 
 	public RailwayData() {
@@ -89,44 +89,50 @@ public class RailwayData extends PersistentState {
 	}
 
 	public Set<Platform> getPlatforms() {
-		scheduleValidate.clear();
-		scheduleValidate.addAll(platforms);
 		return platforms;
 	}
 
 	public Set<Route> getRoutes() {
-		scheduleValidate.clear();
-		scheduleValidate.addAll(platforms);
 		return routes;
 	}
 
-	public void simulateTrains(WorldAccess world) {
+	public void simulateTrains(World world) {
 		final long lunarTime = world.getLunarTime();
 		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
 
 		if (!scheduleGenerate.isEmpty()) {
 			final Route route = scheduleGenerate.get(0);
-			route.startFindingPath(world, platforms);
-			if (route.findPath()) {
-				scheduleGenerate.remove(route);
-				System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
-				scheduleBroadcast.clear();
-				scheduleBroadcast.addAll(world.getPlayers());
+			route.startFindingPath(rails, platforms);
+			while (!route.findPath()) {
+				// TODO fix this loop
 			}
+
+			scheduleGenerate.remove(route);
+			System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
+			scheduleBroadcast.clear();
+			scheduleBroadcast.addAll(world.getPlayers());
 		}
 
-		if (!scheduleValidate.isEmpty()) {
-			final Platform platform = scheduleValidate.remove(0);
-			final BlockPos platformMidPos = platform.getMidPos();
-			if (world.isChunkLoaded(platformMidPos.getX() / 16, platformMidPos.getZ() / 16) && !platform.isValidPlatform(world)) {
-				platforms.remove(platform);
+		while (!scheduleValidate.isEmpty()) {
+			final Rail.RailEntry railEntryValidate = scheduleValidate.remove(0);
+			final boolean loadedChunk = world.isChunkLoaded(railEntryValidate.pos.getX() / 16, railEntryValidate.pos.getZ() / 16);
+			if (loadedChunk) {
+				if (!(world.getBlockState(railEntryValidate.pos).getBlock() instanceof BlockRail)) {
+					rails.remove(railEntryValidate);
+					rails.forEach(railEntry -> railEntry.connections.remove(railEntryValidate.pos));
+				}
 			}
 
 			if (scheduleValidate.isEmpty()) {
-				System.out.println("Done validating platforms");
+				rails.removeIf(railEntry -> railEntry.connections.size() == 0);
+				System.out.println("Done validating rails");
 				scheduleBroadcast.clear();
 				scheduleBroadcast.addAll(world.getPlayers());
 				validateData();
+			}
+
+			if (loadedChunk) {
+				break;
 			}
 		}
 
@@ -162,27 +168,66 @@ public class RailwayData extends PersistentState {
 
 	// writing data
 
-	public void setData(Platform newPlatform) {
+	public void addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		try {
-			platforms.removeIf(platform -> platform.isOverlapping(newPlatform));
-			platforms.add(newPlatform);
-			scheduleValidate.clear();
-			scheduleValidate.addAll(platforms);
+			final Rail.RailEntry railEntry = getRailEntry(rails, posStart);
+			final boolean addedRail;
+			if (railEntry == null) {
+				rails.add(new Rail.RailEntry(posStart, posEnd, rail));
+				addedRail = true;
+			} else {
+				if (railEntry.connections.containsKey(posEnd)) {
+					addedRail = false;
+				} else {
+					railEntry.connections.put(posEnd, rail);
+					addedRail = true;
+				}
+			}
+
+			if (validate) {
+				if (rail.railType == Rail.RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
+					final Platform newPlatform = new Platform(posStart, posEnd);
+					platforms.add(newPlatform);
+				}
+
+				if (addedRail) {
+					validateRails();
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void addRail(BlockPos start, BlockPos end, Rail rail) {
-		final Rail.RailEntry railEntry = rails.stream().filter(railEntry2 -> railEntry2.pos.equals(start)).findFirst().orElse(null);
-		if (railEntry == null) {
-			rails.add(new Rail.RailEntry(start, end, rail));
-		} else {
-			railEntry.connections.put(end, rail);
-		}
+	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
+		rails.forEach(railEntry -> {
+			if (railEntry.pos.equals(pos1)) {
+				railEntry.connections.remove(pos2);
+			}
+			if (railEntry.pos.equals(pos2)) {
+				railEntry.connections.remove(pos1);
+			}
+		});
+
+		validateRails();
+	}
+
+	public boolean hasPlatform(BlockPos pos1, BlockPos pos2) {
+		return rails.stream().anyMatch(railEntry -> (railEntry.pos.equals(pos1) || railEntry.pos.equals(pos2)) && railEntry.connections.values().stream().anyMatch(rail -> rail.railType == Rail.RailType.PLATFORM));
+	}
+
+	public boolean hasAnyConnection(BlockPos pos) {
+		return rails.stream().anyMatch(railEntry -> railEntry.pos.equals(pos));
 	}
 
 	// validation
+
+	public void validateRails() {
+		platforms.removeIf(platform -> !platform.isValidPlatform(rails));
+		scheduleValidate.clear();
+		scheduleValidate.addAll(rails);
+		markDirty();
+	}
 
 	private void validateData() {
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
@@ -217,6 +262,10 @@ public class RailwayData extends PersistentState {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static Rail.RailEntry getRailEntry(Set<Rail.RailEntry> rails, BlockPos pos) {
+		return rails.stream().filter(railEntry -> railEntry.pos.equals(pos)).findFirst().orElse(null);
 	}
 
 	// other

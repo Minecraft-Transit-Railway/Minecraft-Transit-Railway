@@ -259,9 +259,9 @@ public final class Route extends NameColorDataBase implements IGui {
 		sendPacket.accept(packet);
 	}
 
-	public void startFindingPath(WorldAccess world, Set<Platform> platforms) {
+	public void startFindingPath(Set<Rail.RailEntry> rails, Set<Platform> platforms) {
 		if (routePathFinder == null) {
-			routePathFinder = new PathFinder(world, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
+			routePathFinder = new PathFinder(rails, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
 		}
 	}
 

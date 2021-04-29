@@ -455,5 +455,9 @@ public class Rail extends SerializedDataBase {
 				rail.writePacket(packet);
 			});
 		}
+
+		public boolean hasConnection(BlockPos start, BlockPos end) {
+			return pos.equals(start) && connections.containsKey(end);
+		}
 	}
 }

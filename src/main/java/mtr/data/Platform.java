@@ -108,18 +108,14 @@ public final class Platform extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
-	public boolean isValidPlatform(WorldAccess world) {
+	public boolean isValidPlatform(Set<Rail.RailEntry> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		return isValidPlatform(world, pos1, pos2) && isValidPlatform(world, pos2, pos1);
+		return rails.stream().anyMatch(railEntry -> railEntry.hasConnection(pos1, pos2) || railEntry.hasConnection(pos2, pos1));
 	}
 
 	public boolean containsPos(BlockPos pos) {
 		return positions.contains(pos);
-	}
-
-	public boolean isOverlapping(Platform newPlatform) {
-		return containsPos(newPlatform.getPosition(0)) || containsPos(newPlatform.getPosition(1));
 	}
 
 	public boolean isCloseToPlatform(BlockPos pos) {
