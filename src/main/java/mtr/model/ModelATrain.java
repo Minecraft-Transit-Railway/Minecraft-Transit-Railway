@@ -217,7 +217,7 @@ public class ModelATrain extends ModelTrainBase {
 	private final ModelPart back_left_r1;
 	private final ModelPart back_r1;
 
-	private final boolean isAel;
+	protected final boolean isAel;
 
 	public ModelATrain(boolean isAel) {
 		this.isAel = isAel;

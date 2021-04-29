@@ -1,9 +1,7 @@
 package mtr.block;
 
-import mtr.MTR;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,19 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public class BlockPIDS extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProvider {
 
-	private final int style;
-
-	public BlockPIDS(int style) {
+	public BlockPIDSBase() {
 		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
-		this.style = style;
 	}
 
 	@Override
@@ -62,18 +54,6 @@ public class BlockPIDS extends HorizontalFacingBlock implements BlockEntityProvi
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, style == 1 ? 11 : 9, 16, IBlock.getStatePropertySafe(state, FACING));
-		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 11, style == 1 ? 11 : 9, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
-		return VoxelShapes.union(shape1, shape2);
-	}
-
-	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityBlockPIDS(style);
-	}
-
-	@Override
 	public PistonBehavior getPistonBehavior(BlockState state) {
 		return PistonBehavior.BLOCK;
 	}
@@ -81,13 +61,5 @@ public class BlockPIDS extends HorizontalFacingBlock implements BlockEntityProvi
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
-	}
-
-
-	public static class TileEntityBlockPIDS extends BlockEntity {
-
-		public TileEntityBlockPIDS(int style) {
-			super(style == 1 ? MTR.PIDS_2_TILE_ENTITY : MTR.PIDS_1_TILE_ENTITY);
-		}
 	}
 }

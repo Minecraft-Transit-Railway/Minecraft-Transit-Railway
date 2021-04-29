@@ -8,16 +8,16 @@ public class ModelATrainMini extends ModelATrain {
 
 	@Override
 	protected int[] getWindowPositions() {
-		return new int[]{0};
+		return isAel ? new int[]{-93, -67, -41, 41, 67, 93} : new int[]{0};
 	}
 
 	@Override
 	protected int[] getDoorPositions() {
-		return new int[]{-40, 40};
+		return isAel ? new int[]{0} : new int[]{-40, 40};
 	}
 
 	@Override
 	protected int[] getEndPositions() {
-		return new int[]{-64, 64};
+		return isAel ? new int[]{-104, 104} : new int[]{-64, 64};
 	}
 }

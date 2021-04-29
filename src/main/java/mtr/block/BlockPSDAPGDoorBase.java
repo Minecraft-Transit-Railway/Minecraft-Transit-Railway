@@ -12,6 +12,7 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -52,17 +53,8 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		final int open = IBlock.getStatePropertySafe(state, OPEN);
-		if (open > 0) {
-			final int height = isAPG() && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 9 : 16;
-			final EnumSide side = IBlock.getStatePropertySafe(state, SIDE);
-			final double open1 = open / 2D;
-			final double open2 = 16 - open / 2D;
-			return IBlock.getVoxelShapeByDirection(side == EnumSide.LEFT ? 0 : open1, 0, 0, side == EnumSide.RIGHT ? 16 : open2, height, 4, IBlock.getStatePropertySafe(state, FACING));
-		} else {
-			return super.getOutlineShape(state, world, pos, context);
-		}
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return IBlock.getStatePropertySafe(state, OPEN) > 0 ? VoxelShapes.empty() : super.getCollisionShape(state, world, pos, context);
 	}
 
 	@Override

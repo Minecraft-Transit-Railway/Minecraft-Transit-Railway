@@ -30,8 +30,8 @@ public interface Blocks {
 	Block GLASS_FENCE_TSH = new BlockGlassFence();
 	Block GLASS_FENCE_WKS = new BlockGlassFence();
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
-	Block PIDS_1 = new BlockPIDS(0);
-	Block PIDS_2 = new BlockPIDS(1);
+	Block PIDS_1 = new BlockPIDS1();
+	Block PIDS_2 = new BlockPIDS2();
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
