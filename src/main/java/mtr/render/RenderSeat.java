@@ -78,16 +78,15 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			return;
 		}
 
-		final int halfRenderDistance = client.options.viewDistance * 8;
 		if (Config.useDynamicFPS()) {
 			final float lastFrameDuration = client.getLastFrameDuration();
 			if (lastFrameDuration > 0.8) {
-				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - 16, EntitySeat.DETAIL_RADIUS);
+				maxTrainRenderDistance = Math.max(maxTrainRenderDistance / 2, EntitySeat.DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.5) {
 				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, MAX_RADIUS_REPLAY_MOD);
 			}
 		} else {
-			maxTrainRenderDistance = halfRenderDistance;
+			maxTrainRenderDistance = client.options.viewDistance * 8;
 		}
 
 		matrices.push();
@@ -196,19 +195,25 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
-		ClientData.rails.forEach(railEntry -> railEntry.connections.values().forEach(rail -> rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-			if (shouldNotRender(player, new BlockPos(x1, y1, z1), halfRenderDistance)) {
+		ClientData.rails.forEach(railEntry -> {
+			if (shouldNotRender(player, railEntry.pos, maxTrainRenderDistance)) {
 				return;
 			}
 
-			final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
-			final BlockPos pos2 = new BlockPos(x1, y1, z1);
-			final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
-			final int color = renderColors || rail.railType == Rail.RailType.PLATFORM ? rail.railType.color : -1;
+			railEntry.connections.values().forEach(rail -> rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxTrainRenderDistance)) {
+					return;
+				}
 
-			IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-			IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-		})));
+				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
+				final BlockPos pos2 = new BlockPos(x1, y1, z1);
+				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+				final int color = renderColors || rail.railType == Rail.RailType.PLATFORM ? rail.railType.color : -1;
+
+				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+			}));
+		});
 
 		matrices.pop();
 
@@ -279,7 +284,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	private static Text getLastStationText(Route route) {
-		final Station station = ClientData.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
+		final Station station = route.platformIds.size() > 0 ? ClientData.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)) : null;
 		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station == null ? "" : station.name), new TranslatableText("gui.mtr.last_station_cjk").getString(), new TranslatableText("gui.mtr.last_station").getString(), "", "")));
 	}
 

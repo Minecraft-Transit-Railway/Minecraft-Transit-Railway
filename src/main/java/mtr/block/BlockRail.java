@@ -41,7 +41,8 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		if (!world.isClient) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.validateRails();
+				railwayData.removeNode(world, pos);
+				railwayData.addPlayerToBroadcast(player);
 			}
 		}
 	}
@@ -69,6 +70,10 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
 		return new TileEntityRail();
+	}
+
+	public static void resetRailNode(World world, BlockPos pos) {
+		world.setBlockState(pos, world.getBlockState(pos).with(BlockRail.IS_CONNECTED, false));
 	}
 
 	public static class TileEntityRail extends BlockEntity implements BlockEntityClientSerializable {

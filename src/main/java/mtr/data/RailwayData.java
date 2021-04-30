@@ -2,6 +2,7 @@ package mtr.data;
 
 import mtr.block.BlockRail;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,6 +17,10 @@ import java.util.List;
 import java.util.Set;
 
 public class RailwayData extends PersistentState {
+
+	// TODO temporary code start
+	private boolean generated;
+	// TODO temporary code end
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -38,6 +43,7 @@ public class RailwayData extends PersistentState {
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
 		rails = new HashSet<>();
+		generated = false;
 	}
 
 	@Override
@@ -97,6 +103,15 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void simulateTrains(World world) {
+		// TODO temporary code start
+		if (!generated) {
+			routes.forEach(route -> route.generateRails(world, this));
+			scheduleBroadcast.addAll(world.getPlayers());
+			generated = true;
+			System.out.println("Generated rails");
+		}
+		// TODO temporary code end
+
 		final long lunarTime = world.getLunarTime();
 		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
 
@@ -116,11 +131,8 @@ public class RailwayData extends PersistentState {
 		while (!scheduleValidate.isEmpty()) {
 			final Rail.RailEntry railEntryValidate = scheduleValidate.remove(0);
 			final boolean loadedChunk = world.isChunkLoaded(railEntryValidate.pos.getX() / 16, railEntryValidate.pos.getZ() / 16);
-			if (loadedChunk) {
-				if (!(world.getBlockState(railEntryValidate.pos).getBlock() instanceof BlockRail)) {
-					rails.remove(railEntryValidate);
-					rails.forEach(railEntry -> railEntry.connections.remove(railEntryValidate.pos));
-				}
+			if (loadedChunk && !(world.getBlockState(railEntryValidate.pos).getBlock() instanceof BlockRail)) {
+				removeNode(world, railEntryValidate.pos);
 			}
 
 			if (scheduleValidate.isEmpty()) {
@@ -199,40 +211,73 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
-	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
-		rails.forEach(railEntry -> {
-			if (railEntry.pos.equals(pos1)) {
-				railEntry.connections.remove(pos2);
+	public void removeNode(World world, BlockPos pos) {
+		try {
+			final Rail.RailEntry railEntry = getRailEntry(rails, pos);
+			if (railEntry != null) {
+				rails.remove(railEntry);
+				rails.forEach(validateRailEntry -> {
+					validateRailEntry.connections.remove(pos);
+					if (validateRailEntry.connections.size() == 0) {
+						rails.remove(validateRailEntry);
+						BlockRail.resetRailNode(world, validateRailEntry.pos);
+					}
+				});
 			}
-			if (railEntry.pos.equals(pos2)) {
-				railEntry.connections.remove(pos1);
-			}
-		});
 
-		validateRails();
+			validateRails();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void removeRailConnection(World world, BlockPos pos1, BlockPos pos2) {
+		try {
+			rails.forEach(railEntry -> {
+				if (railEntry.pos.equals(pos1)) {
+					railEntry.connections.remove(pos2);
+				}
+				if (railEntry.pos.equals(pos2)) {
+					railEntry.connections.remove(pos1);
+				}
+				if (railEntry.connections.size() == 0) {
+					BlockRail.resetRailNode(world, railEntry.pos);
+				}
+			});
+
+			validateRails();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean hasPlatform(BlockPos pos1, BlockPos pos2) {
 		return rails.stream().anyMatch(railEntry -> (railEntry.pos.equals(pos1) || railEntry.pos.equals(pos2)) && railEntry.connections.values().stream().anyMatch(rail -> rail.railType == Rail.RailType.PLATFORM));
 	}
 
-	public boolean hasAnyConnection(BlockPos pos) {
-		return rails.stream().anyMatch(railEntry -> railEntry.pos.equals(pos));
-	}
-
 	// validation
 
 	public void validateRails() {
-		platforms.removeIf(platform -> !platform.isValidPlatform(rails));
+		validateData();
 		scheduleValidate.clear();
 		scheduleValidate.addAll(rails);
-		markDirty();
 	}
 
 	private void validateData() {
+		if (generated) {
+			platforms.removeIf(platform -> !platform.isValidPlatform(rails));
+		}
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
 		markDirty();
 	}
+
+	// TODO temporary code start
+	public void generateRail(BlockEntity entity) {
+		if (entity instanceof BlockRail.TileEntityRail) {
+			((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> addRail(entity.getPos(), blockPos, rail, false));
+		}
+	}
+	// TODO temporary code end
 
 	// static finders
 

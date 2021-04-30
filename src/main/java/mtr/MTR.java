@@ -6,7 +6,6 @@ import mtr.entity.EntitySeat;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -218,19 +217,6 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateRoute(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ALL_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateAllRoutes(minecraftServer, player));
-
-		// TODO temporary code start
-		ServerChunkEvents.CHUNK_LOAD.register((serverWorld, worldChunk) -> {
-			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-			if (railwayData != null) {
-				serverWorld.blockEntities.forEach(blockEntity -> {
-					if (blockEntity instanceof BlockRail.TileEntityRail) {
-						((BlockRail.TileEntityRail) blockEntity).railMap.forEach((blockPos, rail) -> railwayData.addRail(blockEntity.getPos(), blockPos, rail, false));
-					}
-				});
-			}
-		});
-		// TODO temporary code end
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
 			final RailwayData railwayData = RailwayData.getInstance(serverWorld);

@@ -425,7 +425,7 @@ public final class Route extends NameColorDataBase implements IGui {
 							final boolean doorRightOpen = openDoors(world, x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 							final int ridingCar = i;
-							final float margin = halfSpacing + BOX_PADDING + speed * 2;
+							final float margin = halfSpacing + BOX_PADDING + speed * 4;
 							world.getEntitiesByClass(EntitySeat.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), entitySeat -> true).forEach(entitySeat -> {
 								final PlayerEntity serverPlayer = entitySeat.getPlayer();
 								if (serverPlayer == null) {
@@ -501,6 +501,15 @@ public final class Route extends NameColorDataBase implements IGui {
 	public static float wrapTime(float time1, float time2) {
 		return (time1 - time2 + Route.TICKS_PER_DAY) % Route.TICKS_PER_DAY;
 	}
+
+	// TODO temporary code start
+	public void generateRails(World world, RailwayData railwayData) {
+		path.forEach(pathData -> {
+			final Pos3f pos3f = pathData.getPosition(0);
+			railwayData.generateRail(world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z)));
+		});
+	}
+	// TODO temporary code end
 
 	private List<Pos3f> getPositions(float value, int trainSpacing) {
 		final List<Pos3f> positions = new ArrayList<>();

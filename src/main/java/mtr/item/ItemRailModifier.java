@@ -52,12 +52,12 @@ public class ItemRailModifier extends Item {
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
 					if (stateEnd.getBlock() instanceof BlockRail) {
+						final PlayerEntity player = context.getPlayer();
 						if (isConnector) {
 							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
 							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
 							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
-							final PlayerEntity player = context.getPlayer();
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
 								if (railType == Rail.RailType.PLATFORM && (railwayData.hasPlatform(posStart, posEnd))) {
@@ -65,8 +65,9 @@ public class ItemRailModifier extends Item {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
 									}
 								} else {
-									railwayData.addRail(posStart, posEnd, new Rail(posStart, facingStart, posEnd, facingEnd, railType), true);
+									railwayData.addRail(posStart, posEnd, new Rail(posStart, facingStart, posEnd, facingEnd, railType), false);
 									railwayData.addRail(posEnd, posStart, new Rail(posEnd, facingEnd, posStart, facingStart, railType), true);
+									railwayData.addPlayerToBroadcast(player);
 									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
 									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
 								}
@@ -76,9 +77,8 @@ public class ItemRailModifier extends Item {
 								}
 							}
 						} else {
-							railwayData.removeRailConnection(posStart, posEnd);
-							world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, railwayData.hasAnyConnection(posStart)));
-							world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, railwayData.hasAnyConnection(posEnd)));
+							railwayData.removeRailConnection(world, posStart, posEnd);
+							railwayData.addPlayerToBroadcast(player);
 						}
 					}
 
