@@ -3,7 +3,6 @@ package mtr.render;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.Platform;
-import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -35,7 +34,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
 			return;
 		}
 
@@ -61,7 +60,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 						break;
 					case ROUTE:
 						final boolean flipLine = arrowDirection == 1;
-						if (!RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS / 4)) {
+						if (!RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance / 2)) {
 							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
 						}
 						break;

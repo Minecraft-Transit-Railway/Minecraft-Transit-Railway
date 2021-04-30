@@ -6,7 +6,6 @@ import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.Platform;
 import mtr.data.Station;
-import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -38,7 +37,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
 			return;
 		}
 
@@ -73,7 +72,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
 
 		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		if (!RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS / 4)) {
+		if (!RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance / 2)) {
 			routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
 		}
 		matrices.pop();

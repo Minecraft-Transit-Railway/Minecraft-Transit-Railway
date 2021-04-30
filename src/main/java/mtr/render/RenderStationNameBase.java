@@ -3,7 +3,6 @@ package mtr.render;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.data.Station;
-import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
@@ -35,7 +34,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
 			return;
 		}
 

@@ -4,7 +4,6 @@ import mtr.block.IBlock;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
-import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -69,7 +68,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
 			return;
 		}
 

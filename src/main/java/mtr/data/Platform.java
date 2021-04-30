@@ -1,13 +1,10 @@
 package mtr.data;
 
-import mtr.block.BlockRail;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -146,15 +143,5 @@ public final class Platform extends NameColorDataBase {
 
 	private BlockPos getPosition(int index) {
 		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
-	}
-
-	private static boolean isValidPlatform(WorldAccess world, BlockPos posStart, BlockPos posEnd) {
-		final BlockEntity entity = world.getBlockEntity(posStart);
-		if (entity instanceof BlockRail.TileEntityRail) {
-			final BlockRail.TileEntityRail entityRail = (BlockRail.TileEntityRail) entity;
-			return entityRail.railMap.containsKey(posEnd) && entityRail.railMap.get(posEnd).railType == Rail.RailType.PLATFORM;
-		} else {
-			return false;
-		}
 	}
 }

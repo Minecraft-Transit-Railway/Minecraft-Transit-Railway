@@ -42,7 +42,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	private long nextStationId;
 	private int announceTime;
 	private String thisRouteName;
-	private int maxTrainRenderDistance;
+
+	public static int maxTrainRenderDistance;
 
 	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DETAIL_RADIUS * EntitySeat.DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
@@ -63,7 +64,6 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 	public RenderSeat(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
-		maxTrainRenderDistance = MinecraftClient.getInstance().options.viewDistance * 8;
 	}
 
 	@Override

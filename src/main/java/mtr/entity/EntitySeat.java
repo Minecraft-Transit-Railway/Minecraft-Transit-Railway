@@ -39,7 +39,7 @@ public class EntitySeat extends Entity {
 	private float clientRidingPercentageZ;
 
 	public static final int DETAIL_RADIUS = 32;
-	public static final int MAX_SEAT_COOL_DOWN = 2;
+	private static final int MAX_SEAT_COOL_DOWN = 2;
 
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final TrackedData<Float> RIDING_PERCENTAGE_X = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);

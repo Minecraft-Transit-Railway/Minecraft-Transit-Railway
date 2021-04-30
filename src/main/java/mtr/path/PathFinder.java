@@ -69,11 +69,18 @@ public class PathFinder {
 					}
 					findStage = FindStage.CONVERTING;
 				} else {
-					final BlockPos pos2 = platform2Temp.getMidPos();
-					Optional<BlockPosWeighted> blockPosWeighted = getConnectedPositions(lastPos, secondLastPos).stream().filter(blockPos -> !blacklist.contains(blockPos)).map(blockPos -> new BlockPosWeighted(blockPos, blockPos.getSquaredDistance(pos2))).min(BlockPosWeighted::compareTo);
-					if (blockPosWeighted.isPresent()) {
-						blacklist.add(blockPosWeighted.get().pos);
-						tempPath.add(blockPosWeighted.get().pos);
+					final BlockPos posPlatform = platform2Temp.getMidPos();
+					final Map<BlockPos, Rail.RailType> connectedPositions = getConnectedPositions(lastPos, secondLastPos);
+					final Optional<BlockPos> blockPosClosest = connectedPositions.keySet().stream().filter(blockPos -> !blacklist.contains(blockPos)).min((pos1, pos2) -> {
+						if (connectedPositions.get(pos1).speedLimit == connectedPositions.get(pos2).speedLimit) {
+							return pos1.getSquaredDistance(posPlatform) > pos2.getSquaredDistance(posPlatform) ? 1 : -1;
+						} else {
+							return connectedPositions.get(pos2).speedLimit - connectedPositions.get(pos1).speedLimit;
+						}
+					});
+					if (blockPosClosest.isPresent()) {
+						blacklist.add(blockPosClosest.get());
+						tempPath.add(blockPosClosest.get());
 					} else {
 						tempPath.remove(tempPath.size() - 1);
 					}
@@ -121,35 +128,19 @@ public class PathFinder {
 		}
 	}
 
-	private Set<BlockPos> getConnectedPositions(BlockPos thisPos, BlockPos lastPos) {
+	private Map<BlockPos, Rail.RailType> getConnectedPositions(BlockPos thisPos, BlockPos lastPos) {
 		final Rail.RailEntry railEntry = RailwayData.getRailEntry(rails, thisPos);
 		if (railEntry == null || !railEntry.connections.containsKey(lastPos)) {
-			return new HashSet<>();
+			return new HashMap<>();
 		} else {
 			final Direction findDirection = railEntry.connections.get(lastPos).facing.getOpposite();
-			final Set<BlockPos> connectedPositions = new HashSet<>();
+			final Map<BlockPos, Rail.RailType> connectedPositions = new HashMap<>();
 			railEntry.connections.forEach((blockPos, rail) -> {
 				if (rail.facing == findDirection) {
-					connectedPositions.add(blockPos);
+					connectedPositions.put(blockPos, rail.railType);
 				}
 			});
 			return connectedPositions;
-		}
-	}
-
-	private static class BlockPosWeighted implements Comparable<BlockPosWeighted> {
-
-		protected final BlockPos pos;
-		protected final double weight;
-
-		protected BlockPosWeighted(BlockPos pos, double weight) {
-			this.pos = pos;
-			this.weight = weight;
-		}
-
-		@Override
-		public int compareTo(BlockPosWeighted o) {
-			return Double.compare(weight, o.weight);
 		}
 	}
 

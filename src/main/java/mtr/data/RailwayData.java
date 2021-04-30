@@ -137,7 +137,6 @@ public class RailwayData extends PersistentState {
 			}
 
 			if (scheduleGenerate.isEmpty()) {
-				System.out.println("Done generating routes");
 				scheduleBroadcast.clear();
 				scheduleBroadcast.addAll(world.getPlayers());
 			}
@@ -152,7 +151,6 @@ public class RailwayData extends PersistentState {
 
 			if (scheduleValidate.isEmpty()) {
 				rails.removeIf(railEntry -> railEntry.connections.size() == 0);
-				System.out.println("Done validating rails");
 				validateData();
 			}
 
@@ -165,7 +163,6 @@ public class RailwayData extends PersistentState {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
 				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, rails);
-				System.out.println("Sending all data to player " + player);
 			}
 		}
 	}
@@ -189,17 +186,10 @@ public class RailwayData extends PersistentState {
 	public void addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		try {
 			final Rail.RailEntry railEntry = getRailEntry(rails, posStart);
-			final boolean addedRail;
 			if (railEntry == null) {
 				rails.add(new Rail.RailEntry(posStart, posEnd, rail));
-				addedRail = true;
 			} else {
-				if (railEntry.connections.containsKey(posEnd)) {
-					addedRail = false;
-				} else {
-					railEntry.connections.put(posEnd, rail);
-					addedRail = true;
-				}
+				railEntry.connections.put(posEnd, rail);
 			}
 
 			if (validate) {
@@ -207,10 +197,7 @@ public class RailwayData extends PersistentState {
 					final Platform newPlatform = new Platform(posStart, posEnd);
 					platforms.add(newPlatform);
 				}
-
-				if (addedRail) {
-					validateRails();
-				}
+				validateRails();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
