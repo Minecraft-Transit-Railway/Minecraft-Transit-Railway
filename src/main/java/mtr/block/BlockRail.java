@@ -3,6 +3,7 @@ package mtr.block;
 import mtr.MTR;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -42,7 +43,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
 				railwayData.removeNode(world, pos);
-				railwayData.addPlayerToBroadcast(player);
+				PacketTrainDataGuiServer.removeNodeS2C(world, pos);
 			}
 		}
 	}

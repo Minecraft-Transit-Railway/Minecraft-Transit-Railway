@@ -4,6 +4,7 @@ import mtr.block.BlockRail;
 import mtr.block.IBlock;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -65,11 +66,13 @@ public class ItemRailModifier extends Item {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
 									}
 								} else {
-									railwayData.addRail(posStart, posEnd, new Rail(posStart, facingStart, posEnd, facingEnd, railType), false);
-									railwayData.addRail(posEnd, posStart, new Rail(posEnd, facingEnd, posStart, facingStart, railType), true);
-									railwayData.addPlayerToBroadcast(player);
+									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, railType);
+									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
+									railwayData.addRail(posStart, posEnd, rail1, false);
+									railwayData.addRail(posEnd, posStart, rail2, true);
 									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
 									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
+									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2);
 								}
 							} else {
 								if (player != null) {
@@ -78,7 +81,7 @@ public class ItemRailModifier extends Item {
 							}
 						} else {
 							railwayData.removeRailConnection(world, posStart, posEnd);
-							railwayData.addPlayerToBroadcast(player);
+							PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 						}
 					}
 

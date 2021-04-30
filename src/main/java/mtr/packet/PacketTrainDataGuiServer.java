@@ -41,6 +41,28 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
+	public static void createRailS2C(World world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		rail1.writePacket(packet);
+		rail2.writePacket(packet);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
+	}
+
+	public static void removeNodeS2C(World world, BlockPos pos) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_NODE, packet));
+	}
+
+	public static void removeRailConnectionS2C(World world, BlockPos pos1, BlockPos pos2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
+	}
+
 	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Rail.RailEntry> rails) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
@@ -142,16 +164,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				railwayData.markDirty();
 			}, Route::new);
 		}
-	}
-
-	public static void receiveGenerateRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
-
-		final long id = packet.readLong();
-		minecraftServer.execute(() -> railwayData.addRouteToGenerate(id));
 	}
 
 	public static void receiveGenerateAllRoutes(MinecraftServer minecraftServer, ServerPlayerEntity player) {

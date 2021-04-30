@@ -2,7 +2,6 @@ package mtr.data;
 
 import mtr.block.BlockRail;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,6 +20,8 @@ public class RailwayData extends PersistentState {
 	// TODO temporary code start
 	private boolean generated;
 	// TODO temporary code end
+
+	private static final long GENERATE_ROUTE_MAX_MILLIS = 20;
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -43,7 +44,9 @@ public class RailwayData extends PersistentState {
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
 		rails = new HashSet<>();
-		generated = false;
+		// TODO temporary code start
+		generated = true;
+		// TODO temporary code end
 	}
 
 	@Override
@@ -69,6 +72,10 @@ public class RailwayData extends PersistentState {
 				rails.add(new Rail.RailEntry(tagNewRails.getCompound(key)));
 			}
 
+			// TODO temporary code start
+			generated = tag.getBoolean("generated");
+			// TODO temporary code end
+
 			validateData();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -83,6 +90,11 @@ public class RailwayData extends PersistentState {
 			writeTag(tag, platforms, KEY_PLATFORMS);
 			writeTag(tag, routes, KEY_ROUTES);
 			writeTag(tag, rails, KEY_RAILS);
+
+			// TODO temporary code start
+			tag.putBoolean("generated", generated);
+			// TODO temporary code end
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -108,24 +120,27 @@ public class RailwayData extends PersistentState {
 			routes.forEach(route -> route.generateRails(world, this));
 			scheduleBroadcast.addAll(world.getPlayers());
 			generated = true;
-			System.out.println("Generated rails");
+			markDirty();
+			System.out.println("Generated rails (this should only happen once!)");
 		}
 		// TODO temporary code end
 
+		final long millsStart = System.currentTimeMillis();
 		final long lunarTime = world.getLunarTime();
 		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
 
-		if (!scheduleGenerate.isEmpty()) {
+		while (!scheduleGenerate.isEmpty() && System.currentTimeMillis() - millsStart < GENERATE_ROUTE_MAX_MILLIS) {
 			final Route route = scheduleGenerate.get(0);
 			route.startFindingPath(rails, platforms);
-			while (!route.findPath()) {
-				// TODO fix this loop
+			if (route.findPath()) {
+				scheduleGenerate.remove(route);
 			}
 
-			scheduleGenerate.remove(route);
-			System.out.println(String.format("Generated route %s, %s remaining", route.name, scheduleGenerate.size()));
-			scheduleBroadcast.clear();
-			scheduleBroadcast.addAll(world.getPlayers());
+			if (scheduleGenerate.isEmpty()) {
+				System.out.println("Done generating routes");
+				scheduleBroadcast.clear();
+				scheduleBroadcast.addAll(world.getPlayers());
+			}
 		}
 
 		while (!scheduleValidate.isEmpty()) {
@@ -138,8 +153,6 @@ public class RailwayData extends PersistentState {
 			if (scheduleValidate.isEmpty()) {
 				rails.removeIf(railEntry -> railEntry.connections.size() == 0);
 				System.out.println("Done validating rails");
-				scheduleBroadcast.clear();
-				scheduleBroadcast.addAll(world.getPlayers());
 				validateData();
 			}
 
@@ -154,13 +167,6 @@ public class RailwayData extends PersistentState {
 				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, rails);
 				System.out.println("Sending all data to player " + player);
 			}
-		}
-	}
-
-	public void addRouteToGenerate(long id) {
-		final Route route = getDataById(routes, id);
-		if (route != null && !scheduleGenerate.contains(route)) {
-			scheduleGenerate.add(route);
 		}
 	}
 
@@ -212,43 +218,13 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void removeNode(World world, BlockPos pos) {
-		try {
-			final Rail.RailEntry railEntry = getRailEntry(rails, pos);
-			if (railEntry != null) {
-				rails.remove(railEntry);
-				rails.forEach(validateRailEntry -> {
-					validateRailEntry.connections.remove(pos);
-					if (validateRailEntry.connections.size() == 0) {
-						rails.remove(validateRailEntry);
-						BlockRail.resetRailNode(world, validateRailEntry.pos);
-					}
-				});
-			}
-
-			validateRails();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		removeNode(world, rails, pos);
+		validateRails();
 	}
 
 	public void removeRailConnection(World world, BlockPos pos1, BlockPos pos2) {
-		try {
-			rails.forEach(railEntry -> {
-				if (railEntry.pos.equals(pos1)) {
-					railEntry.connections.remove(pos2);
-				}
-				if (railEntry.pos.equals(pos2)) {
-					railEntry.connections.remove(pos1);
-				}
-				if (railEntry.connections.size() == 0) {
-					BlockRail.resetRailNode(world, railEntry.pos);
-				}
-			});
-
-			validateRails();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		removeRailConnection(world, rails, pos1, pos2);
+		validateRails();
 	}
 
 	public boolean hasPlatform(BlockPos pos1, BlockPos pos2) {
@@ -257,10 +233,11 @@ public class RailwayData extends PersistentState {
 
 	// validation
 
-	public void validateRails() {
+	private void validateRails() {
 		validateData();
 		scheduleValidate.clear();
 		scheduleValidate.addAll(rails);
+		addAllRoutesToGenerate();
 	}
 
 	private void validateData() {
@@ -270,14 +247,6 @@ public class RailwayData extends PersistentState {
 		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
 		markDirty();
 	}
-
-	// TODO temporary code start
-	public void generateRail(BlockEntity entity) {
-		if (entity instanceof BlockRail.TileEntityRail) {
-			((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> addRail(entity.getPos(), blockPos, rail, false));
-		}
-	}
-	// TODO temporary code end
 
 	// static finders
 
@@ -314,6 +283,46 @@ public class RailwayData extends PersistentState {
 	}
 
 	// other
+
+	public static void removeNode(World world, Set<Rail.RailEntry> rails, BlockPos pos) {
+		try {
+			final Rail.RailEntry railEntry = getRailEntry(rails, pos);
+			if (railEntry != null) {
+				rails.remove(railEntry);
+				final Set<Rail.RailEntry> railEntriesToRemove = new HashSet<>();
+				rails.forEach(validateRailEntry -> {
+					validateRailEntry.connections.remove(pos);
+					if (validateRailEntry.connections.size() == 0) {
+						railEntriesToRemove.add(validateRailEntry);
+						if (world != null) {
+							BlockRail.resetRailNode(world, validateRailEntry.pos);
+						}
+					}
+				});
+				railEntriesToRemove.forEach(rails::remove);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void removeRailConnection(World world, Set<Rail.RailEntry> rails, BlockPos pos1, BlockPos pos2) {
+		try {
+			rails.forEach(railEntry -> {
+				if (railEntry.pos.equals(pos1)) {
+					railEntry.connections.remove(pos2);
+				}
+				if (railEntry.pos.equals(pos2)) {
+					railEntry.connections.remove(pos1);
+				}
+				if (railEntry.connections.size() == 0 && world != null) {
+					BlockRail.resetRailNode(world, railEntry.pos);
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static boolean isBetween(double value, double value1, double value2) {
 		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);

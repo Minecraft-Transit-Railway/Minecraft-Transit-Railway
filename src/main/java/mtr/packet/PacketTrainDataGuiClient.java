@@ -2,6 +2,8 @@ package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import mtr.block.BlockRailwaySign;
+import mtr.data.Rail;
+import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.gui.ClientData;
@@ -47,6 +49,28 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 				minecraftClient.openScreen(new TicketMachineScreen(balance));
 			}
 		});
+	}
+
+	public static void createRailS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final Rail rail1 = new Rail(packet);
+		final Rail rail2 = new Rail(packet);
+		minecraftClient.execute(() -> {
+			ClientData.rails.add(new Rail.RailEntry(pos1, pos2, rail1));
+			ClientData.rails.add(new Rail.RailEntry(pos2, pos1, rail2));
+		});
+	}
+
+	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.rails, pos));
+	}
+
+	public static void removeRailConnectionS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2));
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {
@@ -116,12 +140,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		sendUpdate(packetId, packet);
-	}
-
-	public static void sendGenerateData(long id) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeLong(id);
-		ClientPlayNetworking.send(PACKET_GENERATE_ROUTE, packet);
 	}
 
 	public static void sendGenerateAllRoutes() {

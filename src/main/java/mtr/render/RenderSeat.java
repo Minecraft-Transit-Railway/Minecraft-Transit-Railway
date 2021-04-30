@@ -81,7 +81,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		if (Config.useDynamicFPS()) {
 			final float lastFrameDuration = client.getLastFrameDuration();
 			if (lastFrameDuration > 0.8) {
-				maxTrainRenderDistance = Math.max(maxTrainRenderDistance / 2, EntitySeat.DETAIL_RADIUS);
+				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - EntitySeat.DETAIL_RADIUS) / 2, EntitySeat.DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.5) {
 				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, MAX_RADIUS_REPLAY_MOD);
 			}

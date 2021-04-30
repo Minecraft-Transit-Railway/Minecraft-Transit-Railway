@@ -3,6 +3,7 @@ package mtr.data;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
+import mtr.block.BlockRail;
 import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.path.PathData;
@@ -10,6 +11,7 @@ import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
@@ -506,7 +508,10 @@ public final class Route extends NameColorDataBase implements IGui {
 	public void generateRails(World world, RailwayData railwayData) {
 		path.forEach(pathData -> {
 			final Pos3f pos3f = pathData.getPosition(0);
-			railwayData.generateRail(world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z)));
+			final BlockEntity entity = world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z));
+			if (entity instanceof BlockRail.TileEntityRail) {
+				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> railwayData.addRail(entity.getPos(), blockPos, rail, false));
+			}
 		});
 	}
 	// TODO temporary code end

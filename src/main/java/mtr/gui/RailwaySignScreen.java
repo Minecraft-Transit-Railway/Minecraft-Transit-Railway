@@ -350,16 +350,20 @@ public class RailwaySignScreen extends Screen implements IGui {
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		final int finalIndex = availableIndices.get(availableData.indexOf(data));
-		if (!isRailwaySign) {
-			selectedIds.clear();
+		try {
+			final int finalIndex = availableIndices.get(availableData.indexOf(data));
+			if (!isRailwaySign) {
+				selectedIds.clear();
+			}
+			if (isSelectingPlatform) {
+				selectedIds.add(platformIds.get(finalIndex));
+			} else if (isSelectingRoute) {
+				selectedIds.add((long) routeColors.get(finalIndex));
+			}
+			updateList();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		if (isSelectingPlatform) {
-			selectedIds.add(platformIds.get(finalIndex));
-		} else if (isSelectingRoute) {
-			selectedIds.add((long) routeColors.get(finalIndex));
-		}
-		updateList();
 	}
 
 	private void onDelete(NameColorDataBase data, int index) {
