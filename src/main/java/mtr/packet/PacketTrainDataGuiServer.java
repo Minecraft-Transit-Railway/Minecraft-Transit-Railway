@@ -175,7 +175,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(railwayData::addAllRoutesToGenerate);
 	}
 
-	public static void receiveSignTypesC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
 		final int selectedIdsLength = packet.readInt();
 		final Set<Long> selectedIds = new HashSet<>();
@@ -183,19 +183,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			selectedIds.add(packet.readLong());
 		}
 		final int signLength = packet.readInt();
-		final BlockRailwaySign.SignType[] signTypes = new BlockRailwaySign.SignType[signLength];
+		final String[] signIds = new String[signLength];
 		for (int i = 0; i < signLength; i++) {
-			try {
-				signTypes[i] = BlockRailwaySign.SignType.valueOf(packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH));
-			} catch (Exception e) {
-				signTypes[i] = null;
-			}
+			final String signId = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+			signIds[i] = signId.isEmpty() ? null : signId;
 		}
 
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signTypes);
+				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
 				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.size() == 0 ? 0 : (long) selectedIds.toArray()[0]);
 			}

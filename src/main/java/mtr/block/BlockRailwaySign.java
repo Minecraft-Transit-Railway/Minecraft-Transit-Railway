@@ -187,13 +187,13 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	public static class TileEntityRailwaySign extends BlockEntity implements BlockEntityClientSerializable {
 
 		private final Set<Long> selectedIds;
-		private final SignType[] signTypes;
+		private final String[] signIds;
 		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
 
 		public TileEntityRailwaySign(int length, boolean isOdd) {
 			super(getType(length, isOdd));
-			signTypes = new SignType[length];
+			signIds = new String[length];
 			selectedIds = new HashSet<>();
 		}
 
@@ -214,29 +214,26 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		public void fromClientTag(CompoundTag tag) {
 			selectedIds.clear();
 			Arrays.stream(tag.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
-			for (int i = 0; i < signTypes.length; i++) {
-				try {
-					signTypes[i] = SignType.valueOf(tag.getString(KEY_SIGN_LENGTH + i));
-				} catch (Exception e) {
-					signTypes[i] = null;
-				}
+			for (int i = 0; i < signIds.length; i++) {
+				final String signId = tag.getString(KEY_SIGN_LENGTH + i);
+				signIds[i] = signId.isEmpty() ? null : signId;
 			}
 		}
 
 		@Override
 		public CompoundTag toClientTag(CompoundTag tag) {
 			tag.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
-			for (int i = 0; i < signTypes.length; i++) {
-				tag.putString(KEY_SIGN_LENGTH + i, signTypes[i] == null ? "" : signTypes[i].toString());
+			for (int i = 0; i < signIds.length; i++) {
+				tag.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
 			return tag;
 		}
 
-		public void setData(Set<Long> selectedIds, SignType[] signTypes) {
+		public void setData(Set<Long> selectedIds, String[] signTypes) {
 			this.selectedIds.clear();
 			this.selectedIds.addAll(selectedIds);
-			if (this.signTypes.length == signTypes.length) {
-				System.arraycopy(signTypes, 0, this.signTypes, 0, signTypes.length);
+			if (signIds.length == signTypes.length) {
+				System.arraycopy(signTypes, 0, signIds, 0, signTypes.length);
 			}
 			markDirty();
 			sync();
@@ -246,8 +243,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			return selectedIds;
 		}
 
-		public SignType[] getSign() {
-			return signTypes;
+		public String[] getSignIds() {
+			return signIds;
 		}
 
 		private static BlockEntityType<?> getType(int length, boolean isOdd) {
@@ -369,21 +366,19 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		LOGO_TEXT("logo", false, false, true),
 		LOGO_TEXT_FLIPPED("logo", false, true, true);
 
-		public final Identifier id;
-		public final String text;
+		public final Identifier textureId;
+		public final String customText;
 		public final boolean small;
 		public final boolean flipTexture;
 		public final boolean flipCustomText;
-		public final boolean hasCustomText;
 		public final int backgroundColor;
 
 		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean flipCustomText, boolean hasCustomText, int backgroundColor) {
-			id = new Identifier("mtr:textures/sign/" + texture + ".png");
-			text = new TranslatableText("sign.mtr." + translation + "_cjk").append("|").append(new TranslatableText("sign.mtr." + translation)).getString();
+			textureId = new Identifier("mtr:textures/sign/" + texture + ".png");
+			customText = hasCustomText ? new TranslatableText("sign.mtr." + translation + "_cjk").append("|").append(new TranslatableText("sign.mtr." + translation)).getString() : "";
 			this.small = small;
 			this.flipTexture = flipTexture;
 			this.flipCustomText = flipCustomText;
-			this.hasCustomText = hasCustomText;
 			this.backgroundColor = backgroundColor;
 		}
 

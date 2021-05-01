@@ -414,7 +414,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	public static int colorStringToInt(String string) {
 		try {
-			return Integer.parseInt(string, 16);
+			return Integer.parseInt(string.toUpperCase().replaceAll("[^0-9A-F]", ""), 16);
 		} catch (Exception ignored) {
 			return 0;
 		}

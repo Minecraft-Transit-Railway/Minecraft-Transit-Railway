@@ -3,6 +3,7 @@ package mtr.render;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.config.CustomResources;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
@@ -16,6 +17,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
@@ -42,20 +44,23 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			return;
 		}
 		final BlockRailwaySign block = (BlockRailwaySign) state.getBlock();
-		if (entity.getSign().length != block.length) {
+		if (entity.getSignIds().length != block.length) {
 			return;
 		}
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
-		final BlockRailwaySign.SignType[] signTypes = entity.getSign();
+		final String[] signIds = entity.getSignIds();
 
 		boolean renderBackground = false;
 		int backgroundColor = 0;
-		for (BlockRailwaySign.SignType signType : signTypes) {
-			if (signType != null) {
-				renderBackground = true;
-				if (signType.backgroundColor != 0) {
-					backgroundColor = signType.backgroundColor;
-					break;
+		for (final String signId : signIds) {
+			if (signId != null) {
+				final CustomResources.CustomSign sign = getSign(signId);
+				if (sign != null) {
+					renderBackground = true;
+					if (sign.backgroundColor != 0) {
+						backgroundColor = sign.backgroundColor;
+						break;
+					}
 				}
 			}
 		}
@@ -67,12 +72,11 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		matrices.translate(block.getXStart() / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 3);
 
 		if (renderBackground) {
-			IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signTypes.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, -1);
+			IGui.drawRectangle(matrices, vertexConsumers, 0, 0, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, -1);
 		}
-		for (int i = 0; i < signTypes.length; i++) {
-			if (signTypes[i] != null) {
-				final int index = i;
-				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signTypes[i], 0.5F * i, 0, 0.5F, i, signTypes.length - i - 1, entity.getSelectedIds(), facing, (x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, signTypes[index].id.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, -1));
+		for (int i = 0; i < signIds.length; i++) {
+			if (signIds[i] != null) {
+				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> IGui.drawTexture(matrices, vertexConsumers, textureId.toString(), x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, -1));
 			}
 		}
 
@@ -84,19 +88,24 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		return true;
 	}
 
-	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, BlockRailwaySign.SignType signType, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> selectedIds, Direction facing, DrawTexture drawTexture) {
+	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> selectedIds, Direction facing, DrawTexture drawTexture) {
 		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
 			return;
 		}
 
-		final float signSize = (signType.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
+		final CustomResources.CustomSign sign = getSign(signId);
+		if (sign == null) {
+			return;
+		}
+
+		final float signSize = (sign.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
 		final float margin = (size - signSize) / 2;
 
-		final boolean hasCustomText = signType.hasCustomText;
-		final boolean flipCustomText = signType.flipCustomText;
-		final boolean flipTexture = signType.flipTexture;
+		final boolean hasCustomText = sign.hasCustomText();
+		final boolean flipCustomText = sign.flipCustomText;
+		final boolean flipTexture = sign.flipTexture;
 
-		if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.LINE || signType == BlockRailwaySign.SignType.LINE_FLIPPED)) {
+		if (vertexConsumers != null && (signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()))) {
 			final Station station = ClientData.getStation(pos);
 			if (station == null) {
 				return;
@@ -130,7 +139,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 				matrices.pop();
 			}
-		} else if (vertexConsumers != null && (signType == BlockRailwaySign.SignType.PLATFORM || signType == BlockRailwaySign.SignType.PLATFORM_FLIPPED)) {
+		} else if (vertexConsumers != null && (signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()))) {
 			final Station station = ClientData.getStation(pos);
 			if (station == null) {
 				return;
@@ -151,20 +160,29 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				}
 			}
 		} else {
-			drawTexture.drawTexture(x + margin, y + margin, signSize, flipTexture);
+			drawTexture.drawTexture(sign.textureId, x + margin, y + margin, signSize, flipTexture);
 
 			if (hasCustomText) {
 				final float fixedMargin = size * (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2;
-				final boolean isSmall = signType.small;
+				final boolean isSmall = sign.small;
 				final float maxWidth = Math.max(0, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
 				final float start = flipCustomText ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
-				IGui.drawStringWithFont(matrices, textRenderer, signType.text, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, null);
+				IGui.drawStringWithFont(matrices, textRenderer, sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, null);
 			}
+		}
+	}
+
+	public static CustomResources.CustomSign getSign(String signId) {
+		try {
+			final BlockRailwaySign.SignType sign = BlockRailwaySign.SignType.valueOf(signId);
+			return new CustomResources.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
+		} catch (Exception ignored) {
+			return signId == null ? null : CustomResources.customSigns.get(signId);
 		}
 	}
 
 	@FunctionalInterface
 	public interface DrawTexture {
-		void drawTexture(float x, float y, float size, boolean flipTexture);
+		void drawTexture(Identifier textureId, float x, float y, float size, boolean flipTexture);
 	}
 }

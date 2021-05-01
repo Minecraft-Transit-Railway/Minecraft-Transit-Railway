@@ -1,7 +1,6 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
-import mtr.block.BlockRailwaySign;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
 import mtr.data.Route;
@@ -146,14 +145,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		ClientPlayNetworking.send(PACKET_GENERATE_ALL_ROUTES, PacketByteBufs.create());
 	}
 
-	public static void sendSignTypesC2S(BlockPos signPos, Set<Long> selectedIds, BlockRailwaySign.SignType[] signTypes) {
+	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(signPos);
 		packet.writeInt(selectedIds.size());
 		selectedIds.forEach(packet::writeLong);
-		packet.writeInt(signTypes.length);
-		for (final BlockRailwaySign.SignType signType : signTypes) {
-			packet.writeString(signType == null ? "" : signType.toString());
+		packet.writeInt(signIds.length);
+		for (final String signType : signIds) {
+			packet.writeString(signType == null ? "" : signType);
 		}
 		ClientPlayNetworking.send(PACKET_SIGN_TYPES, packet);
 	}

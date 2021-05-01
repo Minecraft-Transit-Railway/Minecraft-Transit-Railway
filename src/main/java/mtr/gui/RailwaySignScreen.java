@@ -2,6 +2,7 @@ package mtr.gui;
 
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
+import mtr.config.CustomResources;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
@@ -31,7 +32,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final BlockPos signPos;
 	private final boolean isRailwaySign;
 	private final int length;
-	private final BlockRailwaySign.SignType[] signTypes;
+	private final String[] signIds;
 	private final Set<Long> selectedIds;
 	private final List<Long> platformIds;
 	private final List<Integer> routeColors;
@@ -41,6 +42,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final List<Integer> selectedIndices;
 	private final List<NameColorDataBase> availableData;
 	private final List<NameColorDataBase> selectedData;
+	private final List<String> allSignIds = new ArrayList<>();
 
 	private final ButtonWidget[] buttonsEdit;
 	private final ButtonWidget[] buttonsSelection;
@@ -54,7 +56,6 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private static final int ROW_START = 56;
 	private static final int COLUMNS = 24;
 	private static final int BUTTONS_SELECTION_HEIGHT = 16;
-	final BlockRailwaySign.SignType[] ALL_SIGN_TYPES = BlockRailwaySign.SignType.values();
 
 	public RailwaySignScreen(BlockPos signPos) {
 		super(new LiteralText(""));
@@ -71,11 +72,18 @@ public class RailwaySignScreen extends Screen implements IGui {
 		routesForList = new ArrayList<>();
 		routeColors = new ArrayList<>();
 
+		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
+			allSignIds.add(signType.toString());
+		}
+		final List<String> sortedKeys = new ArrayList<>(CustomResources.customSigns.keySet());
+		Collections.sort(sortedKeys);
+		allSignIds.addAll(sortedKeys);
+
 		try {
 			final Station station = ClientData.getStation(signPos);
 			if (station != null) {
 				final List<Platform> platforms = new ArrayList<>(ClientData.platformsInStation.get(station.id).values());
-				platforms.sort(NameColorDataBase::compareTo);
+				Collections.sort(platforms);
 				platforms.stream().map(platform -> platform.id).forEach(platformIds::add);
 				platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.platformToRoute.get(platform).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
 
@@ -92,11 +100,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
-				signTypes = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSign();
+				signIds = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSignIds();
 				selectedIds = ((BlockRailwaySign.TileEntityRailwaySign) entity).getSelectedIds();
 				isRailwaySign = true;
 			} else {
-				signTypes = new BlockRailwaySign.SignType[0];
+				signIds = new String[0];
 				selectedIds = new HashSet<>();
 				isRailwaySign = false;
 				if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
@@ -110,7 +118,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			}
 		} else {
 			length = 0;
-			signTypes = new BlockRailwaySign.SignType[0];
+			signIds = new String[0];
 			selectedIds = new HashSet<>();
 			isRailwaySign = false;
 		}
@@ -121,13 +129,13 @@ public class RailwaySignScreen extends Screen implements IGui {
 			buttonsEdit[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("selectWorld.edit"), button -> edit(index));
 		}
 
-		buttonsSelection = new ButtonWidget[ALL_SIGN_TYPES.length];
-		for (int i = 0; i < ALL_SIGN_TYPES.length; i++) {
+		buttonsSelection = new ButtonWidget[allSignIds.size()];
+		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new LiteralText(""), button -> setNewSignType(ALL_SIGN_TYPES[index]));
+			buttonsSelection[i] = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
 		}
 
-		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignType(null));
+		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false));
 
 		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
@@ -147,7 +155,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		int column = 0;
 		int row = 0;
 		for (int i = 0; i < buttonsSelection.length; i++) {
-			final int columns = ALL_SIGN_TYPES[i].hasCustomText ? 3 : 1;
+			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
+			final int columns = sign != null && sign.hasCustomText() ? 3 : 1;
 
 			IGui.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
 			buttonsSelection[i].visible = false;
@@ -202,22 +211,28 @@ public class RailwaySignScreen extends Screen implements IGui {
 					return;
 				}
 
-				for (int i = 0; i < signTypes.length; i++) {
-					if (signTypes[i] != null) {
-						client.getTextureManager().bindTexture(signTypes[i].id);
-						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signTypes[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signTypes.length - i - 1, selectedIds, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+				for (int i = 0; i < signIds.length; i++) {
+					if (signIds[i] != null) {
+						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
+							client.getTextureManager().bindTexture(textureId);
+							drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
+						});
 					}
 				}
 
 				if (editingIndex >= 0) {
 					int column = 0;
 					int row = 0;
-					for (final BlockRailwaySign.SignType signType : ALL_SIGN_TYPES) {
-						final int columns = signType.hasCustomText ? 3 : 1;
-						final boolean moveRight = signType.hasCustomText && signType.flipCustomText;
+					for (final String signId : allSignIds) {
+						final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
+						final int columns = sign != null && sign.hasCustomText() ? 3 : 1;
 
-						client.getTextureManager().bindTexture(signType.id);
-						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signType, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT, 2, 2, selectedIds, Direction.UP, (x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						if (sign != null) {
+							final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
+
+							client.getTextureManager().bindTexture(sign.textureId);
+							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT, 2, 2, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						}
 
 						column += columns;
 						if (column >= COLUMNS) {
@@ -249,7 +264,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendSignTypesC2S(signPos, selectedIds, signTypes);
+		PacketTrainDataGuiClient.sendSignIdsC2S(signPos, selectedIds, signIds);
 		super.onClose();
 	}
 
@@ -282,31 +297,33 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonsEdit[editingIndex].active = false;
 	}
 
-	private void setNewSignType(BlockRailwaySign.SignType newSignType) {
-		if (editingIndex >= 0 && editingIndex < signTypes.length) {
-			final boolean isPlatform = newSignType == BlockRailwaySign.SignType.PLATFORM || newSignType == BlockRailwaySign.SignType.PLATFORM_FLIPPED;
-			final boolean isLine = newSignType == BlockRailwaySign.SignType.LINE || newSignType == BlockRailwaySign.SignType.LINE_FLIPPED;
+	private void setNewSignId(String newSignId) {
+		if (editingIndex >= 0 && editingIndex < signIds.length) {
+			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
+			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
 			setIsSelecting(isPlatform, isLine);
+			final CustomResources.CustomSign newSign = RenderRailwaySign.getSign(newSignId);
 
-			if (newSignType != null && newSignType.hasCustomText) {
-				if (newSignType.flipCustomText) {
+			if (newSign != null && newSign.hasCustomText()) {
+				if (newSign.flipCustomText) {
 					for (int i = editingIndex - 1; i >= 0; i--) {
-						signTypes[i] = null;
+						signIds[i] = null;
 					}
 				} else {
-					for (int i = editingIndex + 1; i < signTypes.length; i++) {
-						signTypes[i] = null;
+					for (int i = editingIndex + 1; i < signIds.length; i++) {
+						signIds[i] = null;
 					}
 				}
 			}
 
-			for (int i = 0; i < signTypes.length; i++) {
-				if (signTypes[i] != null && signTypes[i].hasCustomText && (i < editingIndex && !signTypes[i].flipCustomText || i > editingIndex && signTypes[i].flipCustomText)) {
-					signTypes[i] = null;
+			for (int i = 0; i < signIds.length; i++) {
+				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
+				if (signIds[i] != null && sign != null && sign.hasCustomText() && (i < editingIndex && !sign.flipCustomText || i > editingIndex && sign.flipCustomText)) {
+					signIds[i] = null;
 				}
 			}
 
-			signTypes[editingIndex] = newSignType;
+			signIds[editingIndex] = newSignId;
 		}
 	}
 
