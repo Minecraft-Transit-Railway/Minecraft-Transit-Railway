@@ -108,7 +108,7 @@ public final class Platform extends NameColorDataBase {
 	public boolean isValidPlatform(Set<Rail.RailEntry> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		return rails.stream().anyMatch(railEntry -> railEntry.hasConnection(pos1, pos2) || railEntry.hasConnection(pos2, pos1));
+		return rails.stream().anyMatch(railEntry -> railEntry.hasConnection(pos1, pos2) && railEntry.connections.get(pos2).railType == Rail.RailType.PLATFORM || railEntry.hasConnection(pos2, pos1) && railEntry.connections.get(pos1).railType == Rail.RailType.PLATFORM);
 	}
 
 	public boolean containsPos(BlockPos pos) {

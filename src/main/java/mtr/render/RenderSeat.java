@@ -195,12 +195,12 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
-		ClientData.rails.forEach(railEntry -> {
-			if (shouldNotRender(player, railEntry.pos, maxTrainRenderDistance)) {
+		ClientData.rails.forEach(railEntry -> railEntry.connections.forEach((endPos, rail) -> {
+			if (!RailwayData.isBetween(player.getX(), railEntry.pos.getX(), endPos.getX(), maxTrainRenderDistance) || !RailwayData.isBetween(player.getZ(), railEntry.pos.getZ(), endPos.getZ(), maxTrainRenderDistance)) {
 				return;
 			}
 
-			railEntry.connections.values().forEach(rail -> rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxTrainRenderDistance)) {
 					return;
 				}
@@ -212,8 +212,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-			}));
-		});
+			});
+		}));
 
 		matrices.pop();
 

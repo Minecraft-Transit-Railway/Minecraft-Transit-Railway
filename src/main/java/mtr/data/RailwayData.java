@@ -312,7 +312,11 @@ public class RailwayData extends PersistentState {
 	}
 
 	public static boolean isBetween(double value, double value1, double value2) {
-		return value >= Math.min(value1, value2) && value <= Math.max(value1, value2);
+		return isBetween(value, value1, value2, 0);
+	}
+
+	public static boolean isBetween(double value, double value1, double value2, double padding) {
+		return value >= Math.min(value1, value2) - padding && value <= Math.max(value1, value2) + padding;
 	}
 
 	public static RailwayData getInstance(World world) {
