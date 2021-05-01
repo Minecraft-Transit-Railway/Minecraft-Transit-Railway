@@ -190,7 +190,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.accept(platform.id));
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new ScheduleScreen(platform)));
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new PlatformScreen(platform)));
 			}
 			return true;
 		} else {

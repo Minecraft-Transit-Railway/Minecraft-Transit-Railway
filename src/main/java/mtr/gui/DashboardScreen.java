@@ -264,7 +264,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	private void onSchedule(NameColorDataBase data, int index) {
 		if (selectedTab == 1 && client != null) {
 			final Route route = (Route) data;
-			client.openScreen(new PlatformScreen(route));
+			client.openScreen(new ScheduleScreen(route));
 		}
 	}
 
@@ -275,7 +275,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					startEditingStation((Station) data, false);
 				} else if (client != null) {
 					final Platform platform = (Platform) data;
-					client.openScreen(new ScheduleScreen(platform));
+					client.openScreen(new PlatformScreen(platform));
 				}
 				break;
 			case 1:

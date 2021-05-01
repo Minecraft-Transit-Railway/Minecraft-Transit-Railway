@@ -1,234 +1,92 @@
 package mtr.gui;
 
-import mtr.data.DataConverter;
-import mtr.data.NameColorDataBase;
-import mtr.data.Route;
-import mtr.data.TrainType;
+import mtr.data.Platform;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class PlatformScreen extends Screen implements IGui, IPacket {
 
-	private boolean addingTrain;
+	private final Platform platform;
+	private final TextFieldWidget textFieldPlatformNumber;
+	private final WidgetShorterSlider sliderDwellTime;
 
-	private final Route route;
-	private final int sliderX;
-	private final int sliderWidthWithText;
-	private final int rightPanelsX;
+	private final Text platformNumberText = new TranslatableText("gui.mtr.platform_number");
+	private final Text dwellTimeText = new TranslatableText("gui.mtr.dwell_time");
 
-	private static final int SLIDER_WIDTH = 64;
-	private static final int SETTINGS_HEIGHT = 0; // SQUARE_SIZE * 3 + TEXT_PADDING + TEXT_FIELD_PADDING; TODO add back later
-	private static final int MAX_TRAINS_PER_HOUR = 5;
-	private static final int SECONDS_PER_MC_HOUR = 50;
-	private static final int CUSTOM_DESTINATION_X_OFFSET = 108;
-	private static final int MAX_CUSTOM_DESTINATION_LENGTH = 128;
+	private final int textWidth, startX;
 
-	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Route.HOURS_IN_DAY];
-	private final ButtonWidget buttonAddTrains;
-	private final ButtonWidget buttonCancel;
-	private final WidgetBetterCheckbox buttonShuffleTrains;
-	private final TextFieldWidget textFieldCustomDestination;
+	private static final int MAX_PLATFORM_NAME_LENGTH = 10;
+	private static final int SLIDER_WIDTH = 160;
 
-	private final DashboardList addNewList;
-	private final DashboardList trainList;
-
-	public PlatformScreen(Route route) {
+	public PlatformScreen(Platform platform) {
 		super(new LiteralText(""));
-		this.route = route;
+		this.platform = platform;
 
-		client = MinecraftClient.getInstance();
-		sliderX = client.textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
-		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + client.textRenderer.getWidth(getSliderString(0));
-		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + client.textRenderer.getWidth(getSliderString(1));
+		textRenderer = MinecraftClient.getInstance().textRenderer;
+		textFieldPlatformNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
-			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> this.route.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)), PlatformScreen::getSliderString);
-		}
+		textWidth = Math.max(textRenderer.getWidth(platformNumberText), textRenderer.getWidth(dwellTimeText)) + TEXT_PADDING;
+		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
 
-		buttonAddTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_train"), button -> onAddingTrain());
-		buttonCancel = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.cancel"), button -> setAdding(false));
-		buttonShuffleTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.shuffle_trains"), checked -> this.route.setShuffleTrains(checked, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
-
-		textFieldCustomDestination = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> route.trainTypes);
+		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> platform.setDwellTime(value + 1, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet)), value -> String.format("%ss", (value + 1) / 2F));
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 
-		IGui.setPositionAndWidth(buttonAddTrains, rightPanelsX, height - SQUARE_SIZE, width - rightPanelsX);
-		IGui.setPositionAndWidth(buttonCancel, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - rightPanelsX);
-		IGui.setPositionAndWidth(textFieldCustomDestination, rightPanelsX + CUSTOM_DESTINATION_X_OFFSET, SQUARE_SIZE, width - rightPanelsX - CUSTOM_DESTINATION_X_OFFSET - TEXT_FIELD_PADDING - TEXT_PADDING);
+		IGui.setPositionAndWidth(textFieldPlatformNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
+		textFieldPlatformNumber.setText(platform.name);
+		textFieldPlatformNumber.setMaxLength(MAX_PLATFORM_NAME_LENGTH);
+		textFieldPlatformNumber.setChangedListener(text -> {
+			textFieldPlatformNumber.setSuggestion(text.isEmpty() ? "1" : "");
+			platform.name = textFieldPlatformNumber.getText();
+		});
 
-		addNewList.y = SQUARE_SIZE * 2;
-		addNewList.height = height - SQUARE_SIZE * 4;
-		addNewList.width = PANEL_WIDTH;
+		addChild(textFieldPlatformNumber);
+		addButton(sliderDwellTime);
 
-		trainList.y = SETTINGS_HEIGHT + SQUARE_SIZE;
-		trainList.height = height - SETTINGS_HEIGHT - SQUARE_SIZE * 2;
-		trainList.width = width - rightPanelsX;
-
-		textFieldCustomDestination.setText(route.getCustomDestination());
-		textFieldCustomDestination.setMaxLength(MAX_CUSTOM_DESTINATION_LENGTH);
-		textFieldCustomDestination.setChangedListener(text -> route.setCustomDestination(textFieldCustomDestination.getText(), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet)));
-
-		addNewList.init();
-		trainList.init();
-
-		for (WidgetShorterSlider slider : sliders) {
-			addButton(slider);
-		}
-
-		addButton(buttonAddTrains);
-		addButton(buttonCancel);
-		// TODO fix shuffle trains
-		// addButton(buttonShuffleTrains);
-
-		addChild(textFieldCustomDestination);
-
-		setAdding(false);
-
-		for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(route.getFrequency(i));
-		}
-
-		buttonShuffleTrains.setChecked(route.getShuffleTrains());
+		sliderDwellTime.y = height / 2 + TEXT_FIELD_PADDING / 2;
+		sliderDwellTime.setHeight(SQUARE_SIZE);
+		sliderDwellTime.setValue(platform.getDwellTime() - 1);
 	}
 
 	@Override
 	public void tick() {
-		textFieldCustomDestination.tick();
-		trainList.tick();
-		addNewList.tick();
-		trainList.setData(route.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, true, false, true);
+		textFieldPlatformNumber.tick();
 	}
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
-			if (addingTrain) {
-				renderBackground(matrices);
-				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				super.render(matrices, mouseX, mouseY, delta);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.add_train"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
-			} else {
-				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				// drawHorizontalLine(matrices, rightPanelsX, width, SETTINGS_HEIGHT, ARGB_WHITE_TRANSLUCENT);
-				renderBackground(matrices);
-				// TODO add custom destination
-				// textFieldCustomDestination.render(matrices, mouseX, mouseY, delta);
-				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				super.render(matrices, mouseX, mouseY, delta);
-
-				// drawTextWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.custom_destination"), rightPanelsX + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				// drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.settings"), (rightPanelsX + width) / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains"), (rightPanelsX + width) / 2, SETTINGS_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
-
-				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Route.HOURS_IN_DAY);
-				for (int i = 0; i < Route.HOURS_IN_DAY; i++) {
-					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
-					sliders[i].y = SQUARE_SIZE + lineHeight * i;
-					sliders[i].setHeight(lineHeight);
-				}
-			}
+			renderBackground(matrices);
+			textFieldPlatformNumber.render(matrices, mouseX, mouseY, delta);
+			textRenderer.draw(matrices, platformNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+			textRenderer.draw(matrices, dwellTimeText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
-		addNewList.mouseMoved(mouseX, mouseY);
-		trainList.mouseMoved(mouseX, mouseY);
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		addNewList.mouseScrolled(mouseX, mouseY, amount);
-		trainList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled(mouseX, mouseY, amount);
-	}
-
-	@Override
 	public void onClose() {
 		super.onClose();
+		platform.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
 		if (client != null) {
-			client.openScreen(new DashboardScreen(1));
+			client.openScreen(new DashboardScreen(0));
 		}
 	}
 
 	@Override
 	public boolean isPauseScreen() {
 		return false;
-	}
-
-	private void onAddingTrain() {
-		addNewList.setData(Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, false, true, false);
-		setAdding(true);
-	}
-
-	private void onAdded(NameColorDataBase data, int index) {
-		if (addingTrain) {
-			route.trainTypes.add(TrainType.values()[index]);
-			route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
-		}
-		setAdding(false);
-	}
-
-	private void onSort() {
-		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
-	}
-
-	private void onRemove(NameColorDataBase data, int index) {
-		route.trainTypes.remove(index);
-		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
-	}
-
-	private void setAdding(boolean addingTrain) {
-		this.addingTrain = addingTrain;
-
-		for (WidgetShorterSlider slider : sliders) {
-			slider.visible = !addingTrain;
-		}
-		buttonAddTrains.visible = !addingTrain;
-		buttonCancel.visible = addingTrain;
-		buttonShuffleTrains.visible = !addingTrain;
-		textFieldCustomDestination.visible = !addingTrain;
-
-		addNewList.x = addingTrain ? (width - PANEL_WIDTH) / 2 : width;
-		trainList.x = addingTrain ? width : rightPanelsX;
-	}
-
-	private static String getSliderString(int value) {
-		final String headwayText;
-		if (value == 0) {
-			headwayText = "";
-		} else {
-			headwayText = " (" + (Math.round(20F * SECONDS_PER_MC_HOUR / value) / 10F) + new TranslatableText("gui.mtr.s").getString() + ")";
-		}
-		return value / 2F + new TranslatableText("gui.mtr.tph").getString() + headwayText;
-	}
-
-	private static String getTimeString(int hour) {
-		final String hourString = StringUtils.leftPad(String.valueOf(hour), 2, "0");
-		return String.format("%s:00-%s:59", hourString, hourString);
 	}
 }
