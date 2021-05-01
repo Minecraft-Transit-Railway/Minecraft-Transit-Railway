@@ -412,7 +412,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? (selectedTab == 0 ? 2 : 1) * SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
 	}
 
-	private static int colorStringToInt(String string) {
+	public static int colorStringToInt(String string) {
 		try {
 			return Integer.parseInt(string, 16);
 		} catch (Exception ignored) {

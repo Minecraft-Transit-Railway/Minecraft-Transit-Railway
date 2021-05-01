@@ -4,6 +4,7 @@ import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
 import mtr.block.BlockRail;
+import mtr.config.CustomResources;
 import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.path.PathData;
@@ -34,10 +35,10 @@ public final class Route extends NameColorDataBase implements IGui {
 	private boolean shuffleTrains;
 
 	public final List<Long> platformIds;
-	public final List<TrainType> trainTypes;
+	public final List<CustomResources.TrainMapping> trainTypeMappings;
 
 	private final List<PathData> path;
-	private final Map<Integer, TrainType> schedule;
+	private final Map<Integer, CustomResources.TrainMapping> schedule;
 
 	private final int[] frequencies;
 
@@ -54,6 +55,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
 	private static final String KEY_TRAIN_TYPES = "train_types";
+	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_FREQUENCIES = "frequencies";
 	private static final String KEY_CUSTOM_DESTINATION = "custom_destination";
 	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
@@ -66,7 +68,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	public Route(long id) {
 		super(id);
 		platformIds = new ArrayList<>();
-		trainTypes = new ArrayList<>();
+		trainTypeMappings = new ArrayList<>();
 		path = new ArrayList<>();
 		schedule = new HashMap<>();
 		frequencies = new int[HOURS_IN_DAY];
@@ -83,11 +85,11 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(platformId);
 		}
 
-		trainTypes = new ArrayList<>();
+		trainTypeMappings = new ArrayList<>();
 		final int trainTypesLength = tag.getInt(KEY_TRAIN_TYPES);
 		for (int i = 0; i < trainTypesLength; i++) {
 			try {
-				trainTypes.add(TrainType.valueOf(tag.getString(KEY_TRAIN_TYPES + i)));
+				trainTypeMappings.add(new CustomResources.TrainMapping(tag.getString(KEY_TRAIN_CUSTOM_ID + i), TrainType.valueOf(tag.getString(KEY_TRAIN_TYPES + i))));
 			} catch (Exception ignored) {
 			}
 		}
@@ -119,10 +121,10 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(packet.readLong());
 		}
 
-		trainTypes = new ArrayList<>();
+		trainTypeMappings = new ArrayList<>();
 		final int trainTypeCount = packet.readInt();
 		for (int i = 0; i < trainTypeCount; i++) {
-			trainTypes.add(TrainType.values()[packet.readInt()]);
+			trainTypeMappings.add(new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]));
 		}
 
 		frequencies = new int[HOURS_IN_DAY];
@@ -148,9 +150,10 @@ public final class Route extends NameColorDataBase implements IGui {
 		final CompoundTag tag = super.toCompoundTag();
 		tag.putLongArray(KEY_PLATFORM_IDS, platformIds);
 
-		tag.putInt(KEY_TRAIN_TYPES, trainTypes.size());
-		for (int i = 0; i < trainTypes.size(); i++) {
-			tag.putString(KEY_TRAIN_TYPES + i, trainTypes.get(i).toString());
+		tag.putInt(KEY_TRAIN_TYPES, trainTypeMappings.size());
+		for (int i = 0; i < trainTypeMappings.size(); i++) {
+			tag.putString(KEY_TRAIN_CUSTOM_ID + i, trainTypeMappings.get(i).customId);
+			tag.putString(KEY_TRAIN_TYPES + i, trainTypeMappings.get(i).trainType.toString());
 		}
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
@@ -174,8 +177,11 @@ public final class Route extends NameColorDataBase implements IGui {
 		super.writePacket(packet);
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
-		packet.writeInt(trainTypes.size());
-		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
+		packet.writeInt(trainTypeMappings.size());
+		trainTypeMappings.forEach(trainMapping -> {
+			packet.writeString(trainMapping.customId);
+			packet.writeInt(trainMapping.trainType.ordinal());
+		});
 
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
@@ -199,10 +205,10 @@ public final class Route extends NameColorDataBase implements IGui {
 				}
 				break;
 			case KEY_TRAIN_TYPES:
-				trainTypes.clear();
+				trainTypeMappings.clear();
 				final int trainTypeCount = packet.readInt();
 				for (int i = 0; i < trainTypeCount; i++) {
-					trainTypes.add(TrainType.values()[packet.readInt()]);
+					trainTypeMappings.add(new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]));
 				}
 				break;
 			case KEY_FREQUENCIES:
@@ -232,12 +238,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		sendPacket.accept(packet);
 	}
 
-	public void setTrainTypes(Consumer<PacketByteBuf> sendPacket) {
+	public void setTrainTypeMappings(Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_TRAIN_TYPES);
-		packet.writeInt(trainTypes.size());
-		trainTypes.forEach(trainType -> packet.writeInt(trainType.ordinal()));
+		packet.writeInt(trainTypeMappings.size());
+		trainTypeMappings.forEach(trainMapping -> {
+			packet.writeString(trainMapping.customId);
+			packet.writeInt(trainMapping.trainType.ordinal());
+		});
 		sendPacket.accept(packet);
 	}
 
@@ -325,8 +334,9 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public void getPositionYaw(WorldAccess world, float worldTime, float tickDelta, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
-		schedule.forEach((scheduleTime, trainType) -> {
+		schedule.forEach((scheduleTime, trainMapping) -> {
 			final float ticks = wrapTime(worldTime, scheduleTime);
+			final TrainType trainType = trainMapping.trainType;
 			final List<Pos3f> positions = getPositions(ticks, trainType.getSpacing());
 			final float doorValue = getDoorValue(ticks);
 			final float speed = getSpeed(ticks);
@@ -393,7 +403,7 @@ public final class Route extends NameColorDataBase implements IGui {
 						final boolean doorRightOpen = openDoors(world, absoluteX, absoluteY, absoluteZ, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 						if (positionYawCallback != null) {
-							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, shouldOffsetRender);
+							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainMapping.customId, trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, shouldOffsetRender);
 						}
 
 						previousRendered--;
@@ -490,7 +500,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				final float departureTime = pathData.tOffset + pathData.getTime();
 				timeOffsets.put(platformId, new HashSet<>());
 
-				schedule.forEach((scheduleTime, trainType) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainType, platformIds.get(platformIds.size() - 1), platformId)));
+				schedule.forEach((scheduleTime, trainMapping) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainMapping.trainType, platformIds.get(platformIds.size() - 1), platformId)));
 				platformIdIndex++;
 			}
 
@@ -582,7 +592,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	private void generateSchedule() {
 		schedule.clear();
 
-		if (trainTypes.size() > 0) {
+		if (trainTypeMappings.size() > 0) {
 			int lastTime = -TICKS_PER_DAY;
 			int lastTrainTypeIndex = -1;
 
@@ -590,18 +600,18 @@ public final class Route extends NameColorDataBase implements IGui {
 				final float headway = getHeadway(i / TICKS_PER_HOUR);
 
 				if (headway > 0 && i >= headway + lastTime) {
-					final TrainType trainType;
-					if (false) { // TODO fix shuffle trains
-						trainType = trainTypes.get(new Random().nextInt(trainTypes.size()));
+					final CustomResources.TrainMapping trainMapping;
+					if (false) {
+						// TODO fix shuffle trains
 					} else {
 						lastTrainTypeIndex++;
-						if (lastTrainTypeIndex >= trainTypes.size()) {
+						if (lastTrainTypeIndex >= trainTypeMappings.size()) {
 							lastTrainTypeIndex = 0;
 						}
-						trainType = trainTypes.get(lastTrainTypeIndex);
+						trainMapping = trainTypeMappings.get(lastTrainTypeIndex);
 					}
 
-					schedule.put((int) wrapTime(i, 6000), trainType);
+					schedule.put((int) wrapTime(i, 6000), trainMapping);
 					lastTime = i;
 				}
 			}
@@ -667,7 +677,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	@FunctionalInterface
 	public interface PositionYawCallback {
-		void positionYawCallback(float x, float y, float z, float yaw, float pitch, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean shouldOffsetRender);
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean shouldOffsetRender);
 	}
 
 	@FunctionalInterface

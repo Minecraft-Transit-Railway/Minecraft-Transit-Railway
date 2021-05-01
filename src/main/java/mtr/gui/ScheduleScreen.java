@@ -1,5 +1,6 @@
 package mtr.gui;
 
+import mtr.config.CustomResources;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Route;
@@ -15,7 +16,10 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ScheduleScreen extends Screen implements IGui, IPacket {
@@ -64,7 +68,7 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 		textFieldCustomDestination = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> route.trainTypes);
+		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> route.trainTypeMappings);
 	}
 
 	@Override
@@ -116,7 +120,14 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 		textFieldCustomDestination.tick();
 		trainList.tick();
 		addNewList.tick();
-		trainList.setData(route.trainTypes.stream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, true, false, true);
+		trainList.setData(route.trainTypeMappings.stream().map(trainMapping -> {
+			if (trainMapping.customId.isEmpty() || !CustomResources.customTrains.containsKey(trainMapping.customId)) {
+				return new DataConverter(trainMapping.trainType.getName(), trainMapping.trainType.color);
+			} else {
+				final CustomResources.CustomTrain customTrain = CustomResources.customTrains.get(trainMapping.customId);
+				return new DataConverter(customTrain.name, customTrain.color);
+			}
+		}).collect(Collectors.toList()), false, false, false, true, false, true);
 	}
 
 	@Override
@@ -181,25 +192,50 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 	}
 
 	private void onAddingTrain() {
-		addNewList.setData(Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.color)).collect(Collectors.toList()), false, false, false, false, true, false);
+		final List<DataConverter> trainList = new ArrayList<>();
+		Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.color)).forEach(trainList::add);
+
+		final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
+		Collections.sort(sortedKeys);
+		sortedKeys.forEach(key -> {
+			final CustomResources.CustomTrain customTrain = CustomResources.customTrains.get(key);
+			trainList.add(new DataConverter(customTrain.name, customTrain.color));
+		});
+
+		addNewList.setData(trainList, false, false, false, false, true, false);
 		setAdding(true);
 	}
 
 	private void onAdded(NameColorDataBase data, int index) {
-		if (addingTrain) {
-			route.trainTypes.add(TrainType.values()[index]);
-			route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		final int trainTypesCount = TrainType.values().length;
+		final int customTrainCount = CustomResources.customTrains.size();
+
+		if (addingTrain && index < trainTypesCount + customTrainCount) {
+			final CustomResources.TrainMapping trainMapping;
+			if (index < trainTypesCount) {
+				trainMapping = new CustomResources.TrainMapping("", TrainType.values()[index]);
+			} else {
+				final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
+				Collections.sort(sortedKeys);
+				final String customId = sortedKeys.get(index - trainTypesCount);
+				trainMapping = customId == null ? null : new CustomResources.TrainMapping(customId, CustomResources.customTrains.get(customId).baseTrainType);
+			}
+
+			if (trainMapping != null) {
+				route.trainTypeMappings.add(trainMapping);
+				route.setTrainTypeMappings(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+			}
 		}
 		setAdding(false);
 	}
 
 	private void onSort() {
-		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		route.setTrainTypeMappings(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void onRemove(NameColorDataBase data, int index) {
-		route.trainTypes.remove(index);
-		route.setTrainTypes(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+		route.trainTypeMappings.remove(index);
+		route.setTrainTypeMappings(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
 	private void setAdding(boolean addingTrain) {

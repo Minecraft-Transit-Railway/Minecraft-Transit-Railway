@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.config.Config;
+import mtr.config.CustomResources;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
@@ -20,10 +21,12 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 public class MTRClient implements ClientModInitializer, IPacket {
@@ -160,6 +163,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 				Config.refreshProperties();
 			}
 		});
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
 	}
 
 	private static void registerStationColor(Block block) {

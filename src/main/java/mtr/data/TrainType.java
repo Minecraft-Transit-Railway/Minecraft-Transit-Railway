@@ -58,7 +58,7 @@ public enum TrainType {
 	}
 
 	public String getName() {
-		return new TranslatableText("train.mtr." + toString()).getString();
+		return new TranslatableText("train.mtr." + this).getString();
 	}
 
 	public int getLength() {
