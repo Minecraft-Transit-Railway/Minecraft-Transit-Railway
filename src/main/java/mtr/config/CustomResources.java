@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 		try {
 			manager.getAllResources(new Identifier(MTR.MOD_ID, CUSTOM_RESOURCES_ID + ".json")).forEach(resource -> {
 				try (final InputStream stream = resource.getInputStream()) {
-					final JsonObject jsonConfig = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();
+					final JsonObject jsonConfig = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
 
 					try {
 						jsonConfig.get(CUSTOM_TRAINS_KEY).getAsJsonObject().entrySet().forEach(entry -> {
