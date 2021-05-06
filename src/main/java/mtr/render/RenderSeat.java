@@ -101,7 +101,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		final long worldTime = world.getLunarTime();
 
 		try {
-			ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + (world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE) ? tickDelta : 0), tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, shouldOffsetRender) -> {
+			ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + (world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE) ? tickDelta : 0), tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
 				final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
@@ -124,7 +124,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 					MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 					MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 				} else {
-					model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
+					model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
 				}
 
 				matrices.pop();

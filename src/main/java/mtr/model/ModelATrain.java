@@ -1,9 +1,7 @@
 package mtr.model;
 
-import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class ModelATrain extends ModelTrainBase {
@@ -1449,7 +1447,7 @@ public class ModelATrain extends ModelTrainBase {
 
 	private static final int DOOR_MAX_TCL = 14;
 	private static final int DOOR_MAX_AEL = 11;
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay();
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX_TCL, 8, "door_overlay_a_train_tcl_left.png", "door_overlay_a_train_tcl_right.png");
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1489,12 +1487,7 @@ public class ModelATrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head) {
-		final float doorLeftZ = Math.min(doorLeftValue * DOOR_MAX_TCL, isAel ? DOOR_MAX_AEL : DOOR_MAX_TCL);
-		final float doorRightZ = Math.min(doorRightValue * DOOR_MAX_TCL, isAel ? DOOR_MAX_AEL : DOOR_MAX_TCL);
-		final float doorLeftX = doorLeftValue < 0.05 ? -doorLeftValue * 20 - 0.01F : -1.01F;
-		final float doorRightX = doorRightValue < 0.05 ? -doorRightValue * 20 - 0.01F : -1.01F;
-
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean notLastDoor = !isIndex(0, position, getDoorPositions()) && !isIndex(-1, position, getDoorPositions());
 
 		switch (renderStage) {
@@ -1710,8 +1703,13 @@ public class ModelATrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayBase getModelDoorOverlay() {
+	protected ModelDoorOverlay getModelDoorOverlay() {
 		return isAel ? null : MODEL_DOOR_OVERLAY;
+	}
+
+	@Override
+	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+		return null;
 	}
 
 	@Override
@@ -1729,118 +1727,15 @@ public class ModelATrain extends ModelTrainBase {
 		return new int[]{-184, 184};
 	}
 
-	private static class ModelDoorOverlay extends ModelDoorOverlayBase {
+	@Override
+	protected float getDoorAnimationX(float value, boolean opening) {
+		return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
+	}
 
-		private final ModelPart door_left_overlay_interior;
-		private final ModelPart door_left_top_2_r1;
-		private final ModelPart door_right_overlay_interior;
-		private final ModelPart door_right_top_2_r1;
-		private final ModelPart door_right_bottom_r1;
-		private final ModelPart door_left_overlay_exterior;
-		private final ModelPart door_left_top_r1;
-		private final ModelPart door_right_overlay_exterior;
-		private final ModelPart door_right_top_r1;
-		private final ModelPart wall_1;
-		private final ModelPart upper_wall_2_r1;
-		private final ModelPart wall_2;
-		private final ModelPart upper_wall_4_r1;
-
-		public ModelDoorOverlay() {
-			textureWidth = 32;
-			textureHeight = 32;
-			door_left_overlay_interior = new ModelPart(this);
-			door_left_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
-			door_left_overlay_interior.setTextureOffset(0, 3).addCuboid(-19.7F, -14.5F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
-
-			door_left_top_2_r1 = new ModelPart(this);
-			door_left_top_2_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_left_overlay_interior.addChild(door_left_top_2_r1);
-			setRotationAngle(door_left_top_2_r1, 0.0F, 0.0F, 0.1396F);
-			door_left_top_2_r1.setTextureOffset(26, 1).addCuboid(1.1F, -19.0F, 12.0F, 0.0F, 19.0F, 2.0F, 0.0F, false);
-			door_left_top_2_r1.setTextureOffset(4, -12).addCuboid(1.1F, -18.0F, 0.5F, 0.0F, 19.0F, 12.0F, 0.0F, false);
-
-			door_right_overlay_interior = new ModelPart(this);
-			door_right_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_right_top_2_r1 = new ModelPart(this);
-			door_right_top_2_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_right_overlay_interior.addChild(door_right_top_2_r1);
-			setRotationAngle(door_right_top_2_r1, 0.0F, 3.1416F, 0.1396F);
-			door_right_top_2_r1.setTextureOffset(1, 1).addCuboid(-1.1F, -19.0F, 13.0F, 0.0F, 19.0F, 2.0F, 0.0F, false);
-			door_right_top_2_r1.setTextureOffset(4, -12).addCuboid(-1.1F, -18.0F, 0.5F, 0.0F, 19.0F, 12.0F, 0.0F, false);
-
-			door_right_bottom_r1 = new ModelPart(this);
-			door_right_bottom_r1.setPivot(0.0F, 0.0F, 0.0F);
-			door_right_overlay_interior.addChild(door_right_bottom_r1);
-			setRotationAngle(door_right_bottom_r1, 0.0F, 3.1416F, 0.0F);
-			door_right_bottom_r1.setTextureOffset(0, 3).addCuboid(19.7F, -14.5F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
-
-			door_left_overlay_exterior = new ModelPart(this);
-			door_left_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_left_top_r1 = new ModelPart(this);
-			door_left_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_left_overlay_exterior.addChild(door_left_top_r1);
-			setRotationAngle(door_left_top_r1, 0.0F, 0.0F, 0.1396F);
-			door_left_top_r1.setTextureOffset(0, -13).addCuboid(0.1F, -15.5F, 0.5F, 0.0F, 16.0F, 16.0F, 0.0F, false);
-
-			door_right_overlay_exterior = new ModelPart(this);
-			door_right_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_right_top_r1 = new ModelPart(this);
-			door_right_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_right_overlay_exterior.addChild(door_right_top_r1);
-			setRotationAngle(door_right_top_r1, 0.0F, 3.1416F, 0.1396F);
-			door_right_top_r1.setTextureOffset(0, -13).addCuboid(-0.1F, -15.5F, 0.5F, 0.0F, 16.0F, 16.0F, 0.0F, false);
-
-			wall_1 = new ModelPart(this);
-			wall_1.setPivot(0.0F, 24.0F, 0.0F);
-			wall_1.setTextureOffset(27, 19).addCuboid(-20.25F, -14.0F, -13.9F, 2.0F, 9.0F, 0.0F, 0.0F, false);
-
-			upper_wall_2_r1 = new ModelPart(this);
-			upper_wall_2_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			wall_1.addChild(upper_wall_2_r1);
-			setRotationAngle(upper_wall_2_r1, 0.0F, 0.0F, 0.1396F);
-			upper_wall_2_r1.setTextureOffset(27, 0).addCuboid(-0.25F, -19.0F, -13.89F, 2.0F, 3.0F, 0.0F, 0.0F, false);
-			upper_wall_2_r1.setTextureOffset(27, 2).addCuboid(-0.25F, -3.0F, -13.89F, 2.0F, 3.0F, 0.0F, 0.0F, false);
-
-			wall_2 = new ModelPart(this);
-			wall_2.setPivot(0.0F, 24.0F, 0.0F);
-			wall_2.setTextureOffset(1, 19).addCuboid(-20.25F, -14.0F, 13.9F, 2.0F, 9.0F, 0.0F, 0.0F, false);
-
-			upper_wall_4_r1 = new ModelPart(this);
-			upper_wall_4_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			wall_2.addChild(upper_wall_4_r1);
-			setRotationAngle(upper_wall_4_r1, 0.0F, 0.0F, 0.1396F);
-			upper_wall_4_r1.setTextureOffset(1, 0).addCuboid(-0.25F, -19.0F, 13.89F, 2.0F, 3.0F, 0.0F, 0.0F, false);
-			upper_wall_4_r1.setTextureOffset(1, 2).addCuboid(-0.25F, -3.0F, 13.89F, 2.0F, 3.0F, 0.0F, 0.0F, false);
-		}
-
-		@Override
-		protected void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
-			final float doorLeftZ = doorLeftValue * DOOR_MAX_TCL;
-			final float doorRightZ = doorRightValue * DOOR_MAX_TCL;
-			final float doorLeftX = doorLeftValue < 0.05 ? -doorLeftValue * 20 - 0.1F : -1.1F;
-			final float doorRightX = doorRightValue < 0.05 ? -doorRightValue * 20 - 0.1F : -1.1F;
-			switch (renderStage) {
-				case INTERIOR:
-					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, doorRightX, position + doorRightZ);
-					ModelTrainBase.renderOnce(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, doorRightX, position - doorRightZ);
-					ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, doorLeftX, position - doorLeftZ);
-					ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, doorLeftX, position + doorLeftZ);
-					ModelTrainBase.renderMirror(wall_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position);
-					ModelTrainBase.renderMirror(wall_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position);
-					break;
-				case EXTERIOR:
-					ModelTrainBase.renderOnce(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, doorRightX, position + doorRightZ);
-					ModelTrainBase.renderOnce(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, doorRightX, position - doorRightZ);
-					ModelTrainBase.renderOnceFlipped(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, doorLeftX, position - doorLeftZ);
-					ModelTrainBase.renderOnceFlipped(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, doorLeftX, position + doorLeftZ);
-					break;
-			}
-		}
+	@Override
+	protected float getDoorAnimationZ(float value, boolean opening) {
+		final int doorMax = isAel ? DOOR_MAX_AEL : DOOR_MAX_TCL;
+		final float time = 0.5F * (isAel ? (float) DOOR_MAX_AEL / DOOR_MAX_TCL : 1);
+		return smoothEnds(-doorMax, doorMax, -time, time, value);
 	}
 }

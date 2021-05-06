@@ -397,13 +397,14 @@ public final class Route extends NameColorDataBase implements IGui {
 
 					final boolean isEnd1Head = i == 0;
 					final boolean isEnd2Head = i == positions.size() - 2;
+					final float newDoorValue = getDoorValue(ticks + 1);
 
 					if (world.isClient()) {
 						final boolean doorLeftOpen = openDoors(world, absoluteX, absoluteY, absoluteZ, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
 						final boolean doorRightOpen = openDoors(world, absoluteX, absoluteY, absoluteZ, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 						if (positionYawCallback != null) {
-							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainMapping.customId, trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, shouldOffsetRender);
+							positionYawCallback.positionYawCallback(x, y, z, (float) Math.toDegrees(yaw), (float) Math.toDegrees(pitch), trainMapping.customId, trainType, isEnd1Head, isEnd2Head, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, newDoorValue > doorValue, shouldOffsetRender);
 						}
 
 						previousRendered--;
@@ -474,10 +475,9 @@ public final class Route extends NameColorDataBase implements IGui {
 							final BlockPos soundPos = new BlockPos(x, y, z);
 							trainType.playSpeedSoundEffect(world, worldTime, soundPos, speed, getSpeed(ticks + 1));
 
-							final float newDoorValue = getDoorValue(ticks + 1);
-							if (doorValue == 0 && newDoorValue > 0 && trainType.doorOpenSoundEvent != null) {
+							if (doorValue <= 0 && newDoorValue > 0 && trainType.doorOpenSoundEvent != null) {
 								world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
-							} else if (doorValue == 1 && newDoorValue < 1 && trainType.doorCloseSoundEvent != null) {
+							} else if (doorValue >= trainType.doorCloseSoundTime && newDoorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
 								world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
 							}
 						}
@@ -636,7 +636,7 @@ public final class Route extends NameColorDataBase implements IGui {
 							for (int i = -1; i <= 1; i++) {
 								final BlockState state = world.getBlockState(checkPos.up(i));
 								if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
-									((World) world).setBlockState(checkPos.up(i), state.with(BlockPSDAPGDoorBase.OPEN, (int) (doorValue * BlockPSDAPGDoorBase.MAX_OPEN_VALUE)));
+									((World) world).setBlockState(checkPos.up(i), state.with(BlockPSDAPGDoorBase.OPEN, (int) MathHelper.clamp(doorValue * PathData.DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE)));
 								}
 							}
 						}
@@ -677,7 +677,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	@FunctionalInterface
 	public interface PositionYawCallback {
-		void positionYawCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean shouldOffsetRender);
+		void positionYawCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean opening, boolean shouldOffsetRender);
 	}
 
 	@FunctionalInterface

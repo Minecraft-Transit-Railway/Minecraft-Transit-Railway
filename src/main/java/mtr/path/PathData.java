@@ -21,7 +21,7 @@ public class PathData extends SerializedDataBase {
 	private final int delay;
 
 	public static final int DOOR_DELAY = 20;
-	public static final int DOOR_MOVE_TIME = 32;
+	public static final int DOOR_MOVE_TIME = 64;
 
 	private static final String KEY_RAIL = "rail";
 	private static final String KEY_LENGTH = "length";
@@ -169,9 +169,10 @@ public class PathData extends SerializedDataBase {
 
 	public float getDoorValue(float value) {
 		final float offsetValue = value - tOffset - tEnd;
+		final float maxDoorMoveTime = Math.min(DOOR_MOVE_TIME, delay / 2 - DOOR_DELAY);
 		final float stage1 = DOOR_DELAY;
-		final float stage2 = DOOR_DELAY + DOOR_MOVE_TIME;
-		final float stage3 = delay - DOOR_DELAY - DOOR_MOVE_TIME;
+		final float stage2 = DOOR_DELAY + maxDoorMoveTime;
+		final float stage3 = delay - DOOR_DELAY - maxDoorMoveTime;
 		final float stage4 = delay - DOOR_DELAY;
 		if (offsetValue < stage1 || offsetValue >= stage4) {
 			return 0;
