@@ -5595,6 +5595,22 @@
 			}
 		]
 	},
+	"k_train_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:k_train/door_open",
+				"pitch": 0.5
+			}
+		]
+	},
+	"k_train_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:k_train/door_close",
+				"pitch": 0.5
+			}
+		]
+	},
 	"a_train_door_open": {
 		"sounds": [
 			{
