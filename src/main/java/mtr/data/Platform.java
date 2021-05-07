@@ -18,7 +18,7 @@ public final class Platform extends NameColorDataBase {
 	private final Set<BlockPos> positions;
 
 	public static final int MAX_DWELL_TIME = 120;
-	private static final int DEFAULT_DWELL_TIME = 12;
+	private static final int DEFAULT_DWELL_TIME = 20;
 
 	private static final String KEY_DWELL_TIME = "dwell_time";
 	private static final String KEY_POS_1 = "pos_1";
