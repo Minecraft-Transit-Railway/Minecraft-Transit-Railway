@@ -963,13 +963,13 @@ public class ModelMTrain extends ModelTrainBase {
 	protected float getDoorAnimationZ(float value, boolean opening) {
 		if (opening) {
 			if (value > 0.4) {
-				return smoothEnds(DOOR_MAX - 0.5F, DOOR_MAX, 0.4F, 0.5F, value);
+				return smoothEnds(DOOR_MAX - 1, DOOR_MAX - 0.5F, 0.4F, 0.5F, value);
 			} else {
-				return smoothEnds(-DOOR_MAX + 0.5F, DOOR_MAX - 0.5F, -0.4F, 0.4F, value);
+				return smoothEnds(-DOOR_MAX + 1, DOOR_MAX - 1, -0.4F, 0.4F, value);
 			}
 		} else {
 			if (value > 0.2) {
-				return smoothEnds(1, DOOR_MAX, 0.2F, 0.5F, value);
+				return smoothEnds(1, DOOR_MAX - 0.5F, 0.2F, 0.5F, value);
 			} else if (value > 0.1) {
 				return smoothEnds(1.5F, 1, 0.1F, 0.2F, value);
 			} else {
