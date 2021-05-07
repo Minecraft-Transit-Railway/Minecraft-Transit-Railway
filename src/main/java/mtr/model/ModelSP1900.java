@@ -198,6 +198,10 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart tail_light_4_r1_r1;
 	private final ModelPart tail_light_3_r1_r1;
 	private final ModelPart tail_light_1_r1_r1;
+	private final ModelPart door_light_on;
+	private final ModelPart light_r1;
+	private final ModelPart door_light_off;
+	private final ModelPart light_r2;
 	private final ModelPart bb_main;
 
 	private final boolean isC1141A;
@@ -1371,6 +1375,26 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(tail_light_1_r1_r1, 0.3491F, 0.5236F, 0.0873F);
 		tail_light_1_r1_r1.setTextureOffset(16, 40).addCuboid(8.0F, -15.5F, 43.4F, 4.0F, 6.0F, 0.0F, 0.0F, false);
 
+		door_light_on = new ModelPart(this);
+		door_light_on.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r1 = new ModelPart(this);
+		light_r1.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_on.addChild(light_r1);
+		setRotationAngle(light_r1, 0.0F, 0.0F, 0.1107F);
+		light_r1.setTextureOffset(82, 0).addCuboid(-1.0F, -21.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.5F, false);
+
+		door_light_off = new ModelPart(this);
+		door_light_off.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r2 = new ModelPart(this);
+		light_r2.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_off.addChild(light_r2);
+		setRotationAngle(light_r2, 0.0F, 0.0F, 0.1107F);
+		light_r2.setTextureOffset(86, 0).addCuboid(-1.0F, -21.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.5F, false);
+
 		bb_main = new ModelPart(this);
 		bb_main.setPivot(0.0F, 24.0F, 0.0F);
 		bb_main.setTextureOffset(4, 0).addCuboid(0.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
@@ -1415,11 +1439,17 @@ public class ModelSP1900 extends ModelTrainBase {
 
 	@Override
 	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
+		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
+
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
 				if (isC1141A) {
 					renderMirror(door_light_c1141a, matrices, vertices, light, position);
+				}
+				if (middleDoor && doorOpen) {
+					renderMirror(door_light_on, matrices, vertices, light, position - 32);
 				}
 				break;
 			case INTERIOR:
@@ -1456,6 +1486,9 @@ public class ModelSP1900 extends ModelTrainBase {
 					renderOnce(door_exterior_2, matrices, vertices, light, position);
 				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
+				if (middleDoor && !doorOpen) {
+					renderMirror(door_light_off, matrices, vertices, light, position - 32);
+				}
 				break;
 		}
 	}

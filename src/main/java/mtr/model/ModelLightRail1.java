@@ -527,6 +527,20 @@ public class ModelLightRail1 extends ModelTrainBase {
 
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+		if (opening) {
+			if (value > 0.4) {
+				return smoothEnds(DOOR_MAX - 0.5F, DOOR_MAX, 0.4F, 0.5F, value);
+			} else {
+				return smoothEnds(-DOOR_MAX + 0.5F, DOOR_MAX - 0.5F, -0.4F, 0.4F, value);
+			}
+		} else {
+			if (value > 0.3) {
+				return smoothEnds(1, DOOR_MAX, 0.3F, 0.5F, value);
+			} else if (value > 0.1) {
+				return smoothEnds(3, 1, 0.1F, 0.3F, value);
+			} else {
+				return smoothEnds(-3, 3, -0.1F, 0.1F, value);
+			}
+		}
 	}
 }

@@ -112,6 +112,12 @@ public class ModelMTrain extends ModelTrainBase {
 	private final ModelPart front_side_lower_2_r1;
 	private final ModelPart headlights;
 	private final ModelPart tail_lights;
+	private final ModelPart door_light;
+	private final ModelPart outer_roof_1_r5;
+	private final ModelPart door_light_on;
+	private final ModelPart light_r1;
+	private final ModelPart door_light_off;
+	private final ModelPart light_r2;
 
 	public ModelMTrain() {
 		textureWidth = 320;
@@ -753,6 +759,36 @@ public class ModelMTrain extends ModelTrainBase {
 		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
 		tail_lights.setTextureOffset(110, 36).addCuboid(10.0F, -1.0F, -28.1F, 4.0F, 4.0F, 0.0F, 0.0F, true);
 		tail_lights.setTextureOffset(110, 36).addCuboid(-14.0F, -1.0F, -28.1F, 4.0F, 4.0F, 0.0F, 0.0F, false);
+
+		door_light = new ModelPart(this);
+		door_light.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		outer_roof_1_r5 = new ModelPart(this);
+		outer_roof_1_r5.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light.addChild(outer_roof_1_r5);
+		setRotationAngle(outer_roof_1_r5, 0.0F, 0.0F, 0.1107F);
+		outer_roof_1_r5.setTextureOffset(24, 34).addCuboid(-1.1F, -22.0F, -2.0F, 0.0F, 4.0F, 4.0F, 0.0F, false);
+
+		door_light_on = new ModelPart(this);
+		door_light_on.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r1 = new ModelPart(this);
+		light_r1.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_on.addChild(light_r1);
+		setRotationAngle(light_r1, 0.0F, 0.0F, 0.1107F);
+		light_r1.setTextureOffset(22, 39).addCuboid(-1.0F, -20.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
+
+		door_light_off = new ModelPart(this);
+		door_light_off.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r2 = new ModelPart(this);
+		light_r2.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_off.addChild(light_r2);
+		setRotationAngle(light_r2, 0.0F, 0.0F, 0.1107F);
+		light_r2.setTextureOffset(22, 41).addCuboid(-1.0F, -20.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
 	}
 
 	private static final int DOOR_MAX = 14;
@@ -781,12 +817,17 @@ public class ModelMTrain extends ModelTrainBase {
 
 	@Override
 	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
-		final boolean notLastDoor = getDoorPositions().length > 4 && position != getDoorPositions()[0] && position != getDoorPositions()[4];
+		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
+		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
+		final boolean notLastDoor = !isIndex(0, position, getDoorPositions()) && !isIndex(-1, position, getDoorPositions());
 
 		switch (renderStage) {
 			case LIGHTS:
 				if (notLastDoor) {
 					renderMirror(roof_light, matrices, vertices, light, position);
+				}
+				if (middleDoor && doorOpen) {
+					renderMirror(door_light_on, matrices, vertices, light, position - 30);
 				}
 				break;
 			case INTERIOR:
@@ -808,6 +849,12 @@ public class ModelMTrain extends ModelTrainBase {
 				door_right_exterior.setPivot(0, 0, -doorLeftZ);
 				renderOnceFlipped(door_exterior, matrices, vertices, light, position);
 				renderMirror(roof_exterior, matrices, vertices, light, position);
+				if (middleDoor) {
+					renderMirror(door_light, matrices, vertices, light, position - 30);
+					if (!doorOpen) {
+						renderMirror(door_light_off, matrices, vertices, light, position - 30);
+					}
+				}
 				break;
 		}
 	}
@@ -914,6 +961,20 @@ public class ModelMTrain extends ModelTrainBase {
 
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
-		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
+		if (opening) {
+			if (value > 0.4) {
+				return smoothEnds(DOOR_MAX - 0.5F, DOOR_MAX, 0.4F, 0.5F, value);
+			} else {
+				return smoothEnds(-DOOR_MAX + 0.5F, DOOR_MAX - 0.5F, -0.4F, 0.4F, value);
+			}
+		} else {
+			if (value > 0.2) {
+				return smoothEnds(1, DOOR_MAX, 0.2F, 0.5F, value);
+			} else if (value > 0.1) {
+				return smoothEnds(1.5F, 1, 0.1F, 0.2F, value);
+			} else {
+				return smoothEnds(-1.5F, 1.5F, -0.1F, 0.1F, value);
+			}
+		}
 	}
 }
