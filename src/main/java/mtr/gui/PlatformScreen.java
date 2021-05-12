@@ -14,6 +14,7 @@ import net.minecraft.text.TranslatableText;
 public class PlatformScreen extends Screen implements IGui, IPacket {
 
 	private final Platform platform;
+	private final DashboardScreen dashboardScreen;
 	private final TextFieldWidget textFieldPlatformNumber;
 	private final WidgetShorterSlider sliderDwellTime;
 
@@ -25,9 +26,10 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 	private static final int MAX_PLATFORM_NAME_LENGTH = 10;
 	private static final int SLIDER_WIDTH = 160;
 
-	public PlatformScreen(Platform platform) {
+	public PlatformScreen(Platform platform, DashboardScreen dashboardScreen) {
 		super(new LiteralText(""));
 		this.platform = platform;
+		this.dashboardScreen = dashboardScreen;
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldPlatformNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -81,7 +83,7 @@ public class PlatformScreen extends Screen implements IGui, IPacket {
 		super.onClose();
 		platform.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
 		if (client != null) {
-			client.openScreen(new DashboardScreen(0));
+			client.openScreen(dashboardScreen);
 		}
 	}
 

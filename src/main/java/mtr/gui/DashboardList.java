@@ -37,7 +37,7 @@ public class DashboardList implements IGui {
 	private final TexturedButtonWidget buttonNextPage;
 
 	private final TexturedButtonWidget buttonFind;
-	private final TexturedButtonWidget buttonSchedule;
+	private final TexturedButtonWidget buttonDrawArea;
 	private final TexturedButtonWidget buttonEdit;
 	private final TexturedButtonWidget buttonUp;
 	private final TexturedButtonWidget buttonDown;
@@ -52,7 +52,7 @@ public class DashboardList implements IGui {
 	private int hoverIndex, page, totalPages;
 
 	private boolean hasFind;
-	private boolean hasSchedule;
+	private boolean hasDrawArea;
 	private boolean hasEdit;
 	private boolean hasSort;
 	private boolean hasAdd;
@@ -60,14 +60,14 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onSchedule, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
+	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.registerButton = registerButton;
 		this.addChild = addChild;
 		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
-		buttonSchedule = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_schedule.png"), 20, 40, button -> onClick(onSchedule));
+		buttonDrawArea = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
 		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
 			onUp(getList);
@@ -87,7 +87,7 @@ public class DashboardList implements IGui {
 		IGui.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
 
 		buttonFind.visible = false;
-		buttonSchedule.visible = false;
+		buttonDrawArea.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -98,7 +98,7 @@ public class DashboardList implements IGui {
 		registerButton.registerButton(buttonNextPage);
 
 		registerButton.registerButton(buttonFind);
-		registerButton.registerButton(buttonSchedule);
+		registerButton.registerButton(buttonDrawArea);
 		registerButton.registerButton(buttonEdit);
 		registerButton.registerButton(buttonUp);
 		registerButton.registerButton(buttonDown);
@@ -123,16 +123,16 @@ public class DashboardList implements IGui {
 		setPage(page);
 	}
 
-	public void setData(Set<? extends NameColorDataBase> dataSet, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(Set<? extends NameColorDataBase> dataSet, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		List<? extends NameColorDataBase> dataList = new ArrayList<>(dataSet);
 		Collections.sort(dataList);
-		setData(dataList, hasFind, hasSchedule, hasEdit, hasSort, hasAdd, hasDelete);
+		setData(dataList, hasFind, hasDrawArea, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
-		this.hasSchedule = hasSchedule;
+		this.hasDrawArea = hasDrawArea;
 		this.hasEdit = hasEdit;
 		this.hasSort = hasSort;
 		this.hasAdd = hasAdd;
@@ -176,7 +176,7 @@ public class DashboardList implements IGui {
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		buttonFind.visible = false;
-		buttonSchedule.visible = false;
+		buttonDrawArea.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -189,7 +189,7 @@ public class DashboardList implements IGui {
 			final int itemsToShow = itemsToShow();
 			if (hoverIndex >= 0 && hoverIndex + page * itemsToShow < dataSize) {
 				buttonFind.visible = hasFind;
-				buttonSchedule.visible = hasSchedule;
+				buttonDrawArea.visible = hasDrawArea;
 				buttonEdit.visible = hasEdit;
 				buttonUp.visible = hasSort;
 				buttonDown.visible = hasSort;
@@ -200,8 +200,8 @@ public class DashboardList implements IGui {
 				buttonDown.active = hoverIndex + itemsToShow * page < dataSize - 1;
 
 				final int renderOffset = y + hoverIndex * SQUARE_SIZE + TOP_OFFSET;
-				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0) + (hasSchedule ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonSchedule, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0) + (hasDrawArea ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IGui.setPositionAndWidth(buttonDrawArea, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), renderOffset, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0)), renderOffset, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * (2 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);
 				IGui.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);

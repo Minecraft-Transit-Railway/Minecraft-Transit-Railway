@@ -2,6 +2,7 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import mtr.data.AreaBase;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
@@ -35,12 +36,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private double scale;
 	private double centerX;
 	private double centerY;
-	private Pair<Integer, Integer> drawStation1, drawStation2;
-	private int mapState;
+	private Pair<Integer, Integer> drawArea1, drawArea2;
+	private MapState mapState;
 
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
 	private final Consumer<Long> onClickPlatform;
+	private final DashboardScreen dashboardScreen;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -49,10 +51,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickPlatform) {
+	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickPlatform, DashboardScreen dashboardScreen) {
 		this.onDrawCorners = onDrawCorners;
 		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
 		this.onClickPlatform = onClickPlatform;
+		this.dashboardScreen = dashboardScreen;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
@@ -104,8 +107,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 		mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE));
 
-		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {
-			drawRectangleFromWorldCoords(buffer, drawStation1, drawStation2, ARGB_WHITE_TRANSLUCENT);
+		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
+			drawRectangleFromWorldCoords(buffer, drawArea1, drawArea2, ARGB_WHITE_TRANSLUCENT);
 		}
 
 		if (player != null) {
@@ -121,9 +124,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 		RenderSystem.disableBlend();
 
 
-		if (mapState == 1) {
-			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_station").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
-		} else if (mapState == 2) {
+		if (mapState == MapState.EDITING_AREA) {
+			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+		} else if (mapState == MapState.EDITING_ROUTE) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 		if (scale >= 8) {
@@ -155,15 +158,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		if (mapState == 1) {
-			drawStation2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
-			if (drawStation1.getLeft().equals(drawStation2.getLeft())) {
-				drawStation2 = new Pair<>(drawStation2.getLeft() + 1, drawStation2.getRight());
+		if (mapState == MapState.EDITING_AREA) {
+			drawArea2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
+			if (drawArea1.getLeft().equals(drawArea2.getLeft())) {
+				drawArea2 = new Pair<>(drawArea2.getLeft() + 1, drawArea2.getRight());
 			}
-			if (drawStation1.getRight().equals(drawStation2.getRight())) {
-				drawStation2 = new Pair<>(drawStation2.getLeft(), drawStation2.getRight() + 1);
+			if (drawArea1.getRight().equals(drawArea2.getRight())) {
+				drawArea2 = new Pair<>(drawArea2.getLeft(), drawArea2.getRight() + 1);
 			}
-			onDrawCorners.onDrawCorners(drawStation1, drawStation2);
+			onDrawCorners.onDrawCorners(drawArea1, drawArea2);
 		} else {
 			centerX -= deltaX / scale;
 			centerY -= deltaY / scale;
@@ -173,7 +176,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (mapState == 1) {
+		if (mapState == MapState.EDITING_AREA) {
 			onDrawCornersMouseRelease.run();
 		}
 		return true;
@@ -182,15 +185,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
-			if (mapState == 1) {
-				drawStation1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				drawStation2 = null;
-			} else if (mapState == 2) {
+			if (mapState == MapState.EDITING_AREA) {
+				drawArea1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
+				drawArea2 = null;
+			} else if (mapState == MapState.EDITING_ROUTE) {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
 				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.accept(platform.id));
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new PlatformScreen(platform)));
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new PlatformScreen(platform, dashboardScreen)));
 			}
 			return true;
 		} else {
@@ -242,18 +245,18 @@ public class WidgetMap implements Drawable, Element, IGui {
 		scale = Math.max(8, scale);
 	}
 
-	public void startEditingStation(Station editingStation) {
-		mapState = 1;
-		drawStation1 = editingStation.corner1;
-		drawStation2 = editingStation.corner2;
+	public void startEditingArea(AreaBase editingArea) {
+		mapState = MapState.EDITING_AREA;
+		drawArea1 = editingArea.corner1;
+		drawArea2 = editingArea.corner2;
 	}
 
 	public void startEditingRoute() {
-		mapState = 2;
+		mapState = MapState.EDITING_ROUTE;
 	}
 
 	public void stopEditing() {
-		mapState = 0;
+		mapState = MapState.DEFAULT;
 	}
 
 	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {
@@ -329,4 +332,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private interface MouseOnPlatformCallback {
 		void mouseOnPlatformCallback(Platform platform, double x1, double z1, double x2, double z2);
 	}
+
+	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}
 }

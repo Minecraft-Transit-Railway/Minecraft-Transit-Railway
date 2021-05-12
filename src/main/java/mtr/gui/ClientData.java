@@ -93,7 +93,7 @@ public final class ClientData {
 
 	public static Station getStation(BlockPos pos) {
 		try {
-			return ClientData.stations.stream().filter(station -> station.inStation(pos.getX(), pos.getZ())).findFirst().orElse(null);
+			return ClientData.stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

@@ -379,6 +379,7 @@ public class Rail extends SerializedDataBase {
 		OBSIDIAN(120, MaterialColor.PURPLE),
 		BLAZE(160, MaterialColor.ORANGE),
 		DIAMOND(300, MaterialColor.DIAMOND),
+		DEPOT(40, MaterialColor.YELLOW),
 		PLATFORM(100, MaterialColor.RED);
 
 		public final int speedLimit;

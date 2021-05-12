@@ -3,108 +3,180 @@ package mtr.data;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public final class Station extends NameColorDataBase {
+public final class Station extends AreaBase {
 
-	public Pair<Integer, Integer> corner1, corner2;
 	public int zone;
+	public final Map<String, List<String>> exits;
 
-	private static final String KEY_X_MIN = "x_min";
-	private static final String KEY_Z_MIN = "z_min";
-	private static final String KEY_X_MAX = "x_max";
-	private static final String KEY_Z_MAX = "z_max";
-	private static final String KEY_CORNERS = "corners";
 	private static final String KEY_ZONE = "zone";
+	private static final String KEY_EXITS = "exits";
+
+	private static final String KEY_EXIT_EDIT_PARENT = "exit_edit_parent";
+	private static final String KEY_EXIT_DELETE_PARENT = "exit_delete_parent";
+	private static final String KEY_EXIT_DESTINATIONS = "exit_destinations";
 
 	public Station() {
 		super();
+		exits = new HashMap<>();
 	}
 
 	public Station(long id) {
 		super(id);
+		exits = new HashMap<>();
 	}
 
 	public Station(CompoundTag tag) {
 		super(tag);
-		setCorners(tag.getInt(KEY_X_MIN), tag.getInt(KEY_Z_MIN), tag.getInt(KEY_X_MAX), tag.getInt(KEY_Z_MAX));
 		zone = tag.getInt(KEY_ZONE);
+
+		exits = new HashMap<>();
+		final CompoundTag tagExits = tag.getCompound(KEY_EXITS);
+		for (final String keyParent : tagExits.getKeys()) {
+			final List<String> destinations = new ArrayList<>();
+			final CompoundTag tagDestinations = tagExits.getCompound(keyParent);
+			for (final String keyDestination : tagDestinations.getKeys()) {
+				destinations.add(tagDestinations.getString(keyDestination));
+			}
+			exits.put(keyParent, destinations);
+		}
 	}
 
 	public Station(PacketByteBuf packet) {
 		super(packet);
-		setCorners(packet.readInt(), packet.readInt(), packet.readInt(), packet.readInt());
 		zone = packet.readInt();
+		exits = new HashMap<>();
+		final int exitCount = packet.readInt();
+		for (int i = 0; i < exitCount; i++) {
+			final String parent = packet.readString(PACKET_STRING_READ_LENGTH);
+			final List<String> destinations = new ArrayList<>();
+			final int destinationCount = packet.readInt();
+			for (int j = 0; j < destinationCount; j++) {
+				destinations.add(packet.readString(PACKET_STRING_READ_LENGTH));
+			}
+			exits.put(parent, destinations);
+		}
 	}
 
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = super.toCompoundTag();
-		tag.putInt(KEY_X_MIN, corner1 == null ? 0 : corner1.getLeft());
-		tag.putInt(KEY_Z_MIN, corner1 == null ? 0 : corner1.getRight());
-		tag.putInt(KEY_X_MAX, corner2 == null ? 0 : corner2.getLeft());
-		tag.putInt(KEY_Z_MAX, corner2 == null ? 0 : corner2.getRight());
 		tag.putInt(KEY_ZONE, zone);
+
+		final CompoundTag tagExits = new CompoundTag();
+		exits.forEach((parent, destinations) -> {
+			final CompoundTag tagDestinations = new CompoundTag();
+			for (int i = 0; i < destinations.size(); i++) {
+				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
+			}
+			tagExits.put(parent, tagDestinations);
+		});
+		tag.put(KEY_EXITS, tagExits);
 		return tag;
 	}
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
-		packet.writeInt(corner1 == null ? 0 : corner1.getLeft());
-		packet.writeInt(corner1 == null ? 0 : corner1.getRight());
-		packet.writeInt(corner2 == null ? 0 : corner2.getLeft());
-		packet.writeInt(corner2 == null ? 0 : corner2.getRight());
 		packet.writeInt(zone);
+		packet.writeInt(exits.size());
+		exits.forEach((parent, destinations) -> {
+			packet.writeString(parent);
+			packet.writeInt(destinations.size());
+			destinations.forEach(packet::writeString);
+		});
 	}
 
 	@Override
 	public void update(String key, PacketByteBuf packet) {
-		if (key.equals(KEY_CORNERS)) {
-			setCorners(packet.readInt(), packet.readInt(), packet.readInt(), packet.readInt());
-		} else {
-			super.update(key, packet);
-			zone = packet.readInt();
+		switch (key) {
+			case KEY_EXIT_EDIT_PARENT:
+				final String oldParent = packet.readString(PACKET_STRING_READ_LENGTH);
+				final String newParent = packet.readString(PACKET_STRING_READ_LENGTH);
+				setExitParent(oldParent, newParent);
+				break;
+			case KEY_EXIT_DELETE_PARENT:
+				exits.remove(packet.readString(PACKET_STRING_READ_LENGTH));
+				break;
+			case KEY_EXIT_DESTINATIONS:
+				final String parent = packet.readString(PACKET_STRING_READ_LENGTH);
+				if (parentExists(parent)) {
+					exits.get(parent).clear();
+					final int destinationCount = packet.readInt();
+					for (int i = 0; i < destinationCount; i++) {
+						exits.get(parent).add(packet.readString(PACKET_STRING_READ_LENGTH));
+					}
+				}
+				break;
+			case KEY_ZONE:
+				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				zone = packet.readInt();
+				break;
+			default:
+				super.update(key, packet);
+				break;
 		}
 	}
 
-	@Override
-	public PacketByteBuf setNameColor(Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = super.setNameColor(null);
-		packet.writeInt(zone);
-		sendPacket.accept(packet);
-		return packet;
-	}
-
-	public void setCorners(Consumer<PacketByteBuf> sendPacket) {
+	public void setZone(Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
-		packet.writeString(KEY_CORNERS);
-		packet.writeInt(corner1 == null ? 0 : corner1.getLeft());
-		packet.writeInt(corner1 == null ? 0 : corner1.getRight());
-		packet.writeInt(corner2 == null ? 0 : corner2.getLeft());
-		packet.writeInt(corner2 == null ? 0 : corner2.getRight());
+		packet.writeString(KEY_ZONE);
+		packet.writeString(name);
+		packet.writeInt(color);
+		packet.writeInt(zone);
 		sendPacket.accept(packet);
 	}
 
-	public boolean inStation(int x, int z) {
-		return nonNullCorners(this) && RailwayData.isBetween(x, corner1.getLeft(), corner2.getLeft()) && RailwayData.isBetween(z, corner1.getRight(), corner2.getRight());
+	public void setExitParent(String oldParent, String newParent, Consumer<PacketByteBuf> sendPacket) {
+		setExitParent(oldParent, newParent);
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_EXIT_EDIT_PARENT);
+		packet.writeString(oldParent);
+		packet.writeString(newParent);
+		sendPacket.accept(packet);
 	}
 
-	public BlockPos getCenter() {
-		return nonNullCorners(this) ? new BlockPos((corner1.getLeft() + corner2.getLeft()) / 2, 0, (corner1.getRight() + corner2.getRight()) / 2) : null;
+	public void deleteExitParent(String parent, Consumer<PacketByteBuf> sendPacket) {
+		exits.remove(parent);
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_EXIT_DELETE_PARENT);
+		packet.writeString(parent);
+		sendPacket.accept(packet);
 	}
 
-
-	private void setCorners(int corner1a, int corner1b, int corner2a, int corner2b) {
-		corner1 = corner1a == 0 && corner1b == 0 ? null : new Pair<>(corner1a, corner1b);
-		corner2 = corner2a == 0 && corner2b == 0 ? null : new Pair<>(corner2a, corner2b);
+	public void setExitDestinations(String parent, Consumer<PacketByteBuf> sendPacket) {
+		if (parentExists(parent)) {
+			final PacketByteBuf packet = PacketByteBufs.create();
+			packet.writeLong(id);
+			packet.writeString(KEY_EXIT_DESTINATIONS);
+			packet.writeString(parent);
+			packet.writeInt(exits.get(parent).size());
+			exits.get(parent).forEach(packet::writeString);
+			sendPacket.accept(packet);
+		}
 	}
 
-	public static boolean nonNullCorners(Station station) {
-		return station != null && station.corner1 != null && station.corner2 != null;
+	private void setExitParent(String oldParent, String newParent) {
+		if (parentExists(oldParent)) {
+			final List<String> existingDestinations = exits.get(oldParent);
+			exits.remove(oldParent);
+			exits.put(newParent, existingDestinations == null ? new ArrayList<>() : existingDestinations);
+		} else {
+			exits.put(newParent, new ArrayList<>());
+		}
+	}
+
+	private boolean parentExists(String parent) {
+		return parent != null && exits.containsKey(parent);
 	}
 }

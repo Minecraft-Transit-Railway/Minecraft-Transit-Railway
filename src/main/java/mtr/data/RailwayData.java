@@ -258,7 +258,7 @@ public class RailwayData extends PersistentState {
 	public static Station getStationByPlatform(Set<Station> stations, Platform platform) {
 		try {
 			final BlockPos pos = platform.getMidPos();
-			return stations.stream().filter(station -> station.inStation(pos.getX(), pos.getZ())).findFirst().orElse(null);
+			return stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

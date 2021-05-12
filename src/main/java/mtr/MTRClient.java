@@ -170,7 +170,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
 			final int defaultColor = 0x7F7F7F;
 			if (pos != null) {
-				return ClientData.stations.stream().filter(station1 -> station1.inStation(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
+				return ClientData.stations.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
 			} else {
 				return defaultColor;
 			}

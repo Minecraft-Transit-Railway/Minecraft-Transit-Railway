@@ -267,7 +267,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	private static Text getThisStationText(int x, int z) {
-		final String stationName = ClientData.stations.stream().filter(station -> station.inStation(x, z)).map(station -> station.name).findFirst().orElse("");
+		final String stationName = ClientData.stations.stream().filter(station -> station.inArea(x, z)).map(station -> station.name).findFirst().orElse("");
 		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(stationName), new TranslatableText("gui.mtr.this_station_cjk").getString(), new TranslatableText("gui.mtr.this_station").getString(), "", "")));
 	}
 

@@ -27,6 +27,7 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 	private boolean addingTrain;
 
 	private final Route route;
+	private final DashboardScreen dashboardScreen;
 	private final int sliderX;
 	private final int sliderWidthWithText;
 	private final int rightPanelsX;
@@ -47,9 +48,10 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 	private final DashboardList addNewList;
 	private final DashboardList trainList;
 
-	public ScheduleScreen(Route route) {
+	public ScheduleScreen(Route route, DashboardScreen dashboardScreen) {
 		super(new LiteralText(""));
 		this.route = route;
+		this.dashboardScreen = dashboardScreen;
 
 		client = MinecraftClient.getInstance();
 		sliderX = client.textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
@@ -182,7 +184,7 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(new DashboardScreen(1));
+			client.openScreen(dashboardScreen);
 		}
 	}
 
