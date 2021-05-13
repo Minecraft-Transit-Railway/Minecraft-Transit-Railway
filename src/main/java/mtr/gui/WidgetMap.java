@@ -2,10 +2,7 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mtr.data.AreaBase;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -38,11 +35,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private double centerY;
 	private Pair<Integer, Integer> drawArea1, drawArea2;
 	private MapState mapState;
+	private boolean showStations;
+	private boolean showDepots;
 
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
-	private final Consumer<Long> onClickPlatform;
-	private final DashboardScreen dashboardScreen;
+	private final Consumer<Long> onClickAddPlatformToRoute;
+	private final Consumer<Platform> onClickEditPlatform;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -51,11 +50,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickPlatform, DashboardScreen dashboardScreen) {
+	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<Platform> onClickEditPlatform) {
 		this.onDrawCorners = onDrawCorners;
 		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
-		this.onClickPlatform = onClickPlatform;
-		this.dashboardScreen = dashboardScreen;
+		this.onClickAddPlatformToRoute = onClickAddPlatformToRoute;
+		this.onClickEditPlatform = onClickEditPlatform;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
@@ -69,6 +68,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			centerY = player.getZ();
 		}
 		scale = 1;
+		setShowItems(true, false);
 	}
 
 	@Override
@@ -96,9 +96,18 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 		try {
 			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
-			for (Station station : ClientData.stations) {
-				if (Station.nonNullCorners(station)) {
-					drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+			if (showStations) {
+				for (final Station station : ClientData.stations) {
+					if (AreaBase.nonNullCorners(station)) {
+						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+					}
+				}
+			}
+			if (showDepots) {
+				for (final Depot depot : ClientData.depots) {
+					if (AreaBase.nonNullCorners(depot)) {
+						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -143,11 +152,21 @@ public class WidgetMap implements Drawable, Element, IGui {
 			}
 		}
 		if (scale >= 2) {
-			for (Station station : ClientData.stations) {
-				final BlockPos pos = station.getCenter();
-				if (pos != null) {
-					final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+			if (showStations) {
+				for (final Station station : ClientData.stations) {
+					final BlockPos pos = station.getCenter();
+					if (pos != null) {
+						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+					}
+				}
+			}
+			if (showDepots) {
+				for (final Depot depot : ClientData.depots) {
+					final BlockPos pos = depot.getCenter();
+					if (pos != null) {
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, depot.name, x + (float) x1, y + (float) y1));
+					}
 				}
 			}
 		}
@@ -190,10 +209,10 @@ public class WidgetMap implements Drawable, Element, IGui {
 				drawArea2 = null;
 			} else if (mapState == MapState.EDITING_ROUTE) {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.accept(platform.id));
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(platform.id));
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new PlatformScreen(platform, dashboardScreen)));
+				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickEditPlatform.accept(platform));
 			}
 			return true;
 		} else {
@@ -218,7 +237,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE && mouseY >= y + height - SQUARE_SIZE * 2);
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 5 && mouseY >= y + height - SQUARE_SIZE);
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {
@@ -257,6 +276,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	public void stopEditing() {
 		mapState = MapState.DEFAULT;
+	}
+
+	public void setShowItems(boolean showStations, boolean showDepots) {
+		this.showStations = showStations;
+		this.showDepots = showDepots;
 	}
 
 	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {

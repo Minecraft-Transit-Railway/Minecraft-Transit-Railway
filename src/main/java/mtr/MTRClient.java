@@ -72,6 +72,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_4_OBSIDIAN, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_5_BLAZE, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_6_DIAMOND, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_DEPOT, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_PLATFORM, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_REMOVER, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 
@@ -152,9 +153,11 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteStation(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeletePlatform(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteRoute(minecraftClient, packet, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteDepot(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteStation(minecraftClient, packet, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeletePlatform(minecraftClient, packet, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteRoute(minecraftClient, packet, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteDepot(minecraftClient, packet, true));
 
 		Config.refreshProperties();
 

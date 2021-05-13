@@ -20,10 +20,12 @@ public interface IPacket {
 	Identifier PACKET_UPDATE_STATION = new Identifier(MTR.MOD_ID, "packet_update_station");
 	Identifier PACKET_UPDATE_PLATFORM = new Identifier(MTR.MOD_ID, "packet_update_platform");
 	Identifier PACKET_UPDATE_ROUTE = new Identifier(MTR.MOD_ID, "packet_update_route");
+	Identifier PACKET_UPDATE_DEPOT = new Identifier(MTR.MOD_ID, "packet_update_depot");
 
 	Identifier PACKET_DELETE_STATION = new Identifier(MTR.MOD_ID, "packet_delete_station");
 	Identifier PACKET_DELETE_PLATFORM = new Identifier(MTR.MOD_ID, "packet_delete_platform");
 	Identifier PACKET_DELETE_ROUTE = new Identifier(MTR.MOD_ID, "packet_delete_route");
+	Identifier PACKET_DELETE_DEPOT = new Identifier(MTR.MOD_ID, "packet_delete_depot");
 
 	Identifier PACKET_GENERATE_ALL_ROUTES = new Identifier(MTR.MOD_ID, "packet_generate_all_routes");
 }

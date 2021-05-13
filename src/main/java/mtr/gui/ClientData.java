@@ -14,8 +14,10 @@ public final class ClientData {
 	public static Set<Station> stations = new HashSet<>();
 	public static Set<Platform> platforms = new HashSet<>();
 	public static Set<Route> routes = new HashSet<>();
+	public static Set<Depot> depots = new HashSet<>();
 	public static Set<Rail.RailEntry> rails = new HashSet<>();
 
+	public static Map<Long, Route> routeIdMap = new HashMap<>();
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
 	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
 	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
@@ -29,12 +31,14 @@ public final class ClientData {
 		stations = deserializeData(packetCopy, Station::new);
 		platforms = deserializeData(packetCopy, Platform::new);
 		routes = deserializeData(packetCopy, Route::new);
+		depots = deserializeData(packetCopy, Depot::new);
 		rails = deserializeData(packetCopy, Rail.RailEntry::new);
 		updateReferences();
 	}
 
 	public static void updateReferences() {
 		try {
+			routeIdMap = routes.stream().collect(Collectors.toMap(route -> route.id, route -> route));
 			platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
 			platformsInStation.clear();

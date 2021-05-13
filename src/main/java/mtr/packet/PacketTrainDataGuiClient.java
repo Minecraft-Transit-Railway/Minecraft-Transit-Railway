@@ -1,10 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
-import mtr.data.Rail;
-import mtr.data.RailwayData;
-import mtr.data.Route;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
@@ -127,6 +124,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			deleteData(ClientData.routes, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
 		} else {
 			updateData(ClientData.routes, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), Route::new);
+		}
+	}
+
+	public static void receiveUpdateOrDeleteDepot(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
+		if (isDelete) {
+			deleteData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
+		} else {
+			updateData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), Depot::new);
 		}
 	}
 

@@ -27,11 +27,13 @@ public class RailwayData extends PersistentState {
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_ROUTES = "routes";
+	private static final String KEY_DEPOTS = "depots";
 	private static final String KEY_RAILS = "rails";
 
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
 	private final Set<Route> routes;
+	private final Set<Depot> depots;
 	private final Set<Rail.RailEntry> rails;
 
 	private final List<Route> scheduleGenerate = new ArrayList<>();
@@ -43,6 +45,7 @@ public class RailwayData extends PersistentState {
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
 		routes = new HashSet<>();
+		depots = new HashSet<>();
 		rails = new HashSet<>();
 		// TODO temporary code start
 		generated = true;
@@ -67,6 +70,11 @@ public class RailwayData extends PersistentState {
 				routes.add(new Route(tagNewRoutes.getCompound(key)));
 			}
 
+			final CompoundTag tagNewDepots = tag.getCompound(KEY_DEPOTS);
+			for (final String key : tagNewDepots.getKeys()) {
+				depots.add(new Depot(tagNewDepots.getCompound(key)));
+			}
+
 			final CompoundTag tagNewRails = tag.getCompound(KEY_RAILS);
 			for (final String key : tagNewRails.getKeys()) {
 				rails.add(new Rail.RailEntry(tagNewRails.getCompound(key)));
@@ -89,6 +97,7 @@ public class RailwayData extends PersistentState {
 			writeTag(tag, stations, KEY_STATIONS);
 			writeTag(tag, platforms, KEY_PLATFORMS);
 			writeTag(tag, routes, KEY_ROUTES);
+			writeTag(tag, depots, KEY_DEPOTS);
 			writeTag(tag, rails, KEY_RAILS);
 
 			// TODO temporary code start
@@ -112,6 +121,10 @@ public class RailwayData extends PersistentState {
 
 	public Set<Route> getRoutes() {
 		return routes;
+	}
+
+	public Set<Depot> getDepots() {
+		return depots;
 	}
 
 	public void simulateTrains(World world) {
@@ -162,7 +175,7 @@ public class RailwayData extends PersistentState {
 		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
-				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, rails);
+				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, depots, rails);
 			}
 		}
 	}

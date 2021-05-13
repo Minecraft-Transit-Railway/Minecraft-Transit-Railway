@@ -63,12 +63,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Rail.RailEntry> rails) {
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots, Set<Rail.RailEntry> rails) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 		serializeData(packet, stations);
 		serializeData(packet, platforms);
 		serializeData(packet, routes);
+		serializeData(packet, depots);
 		serializeData(packet, rails);
 		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
 		sendChunk(player, tempPacketId, 0);
@@ -163,6 +164,34 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				});
 				railwayData.markDirty();
 			}, Route::new);
+		}
+	}
+
+	public static void receiveUpdateOrDeleteDepot(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final World world = player.world;
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		if (isDelete) {
+			deleteData(railwayData.getDepots(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_DEPOT, fullPacket);
+					}
+				});
+				railwayData.markDirty();
+			});
+		} else {
+			updateData(railwayData.getDepots(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_DEPOT, fullPacket);
+					}
+				});
+				railwayData.markDirty();
+			}, Depot::new);
 		}
 	}
 

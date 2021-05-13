@@ -89,7 +89,7 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		IGui.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 		IGui.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
-		textFieldName.setMaxLength(DashboardScreen.MAX_STATION_LENGTH);
+		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 		textFieldName.setText(station.name);
 		textFieldColor.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldColor.setText(DashboardScreen.colorIntToString(station.color));
@@ -124,7 +124,7 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 			}
 			textFieldExitParentNumber.setSuggestion(newText.isEmpty() ? "1" : "");
 		});
-		textFieldExitDestination.setMaxLength(DashboardScreen.MAX_STATION_LENGTH);
+		textFieldExitDestination.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 
 		exitParentList.x = 0;
 		exitParentList.y = EXIT_PANELS_START;
