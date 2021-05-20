@@ -26,7 +26,6 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public final class Route extends NameColorDataBase implements IGui {
 
@@ -270,35 +269,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		sendPacket.accept(packet);
 	}
 
-	public void startFindingPath(Set<Rail.RailEntry> rails, Set<Platform> platforms) {
-		if (routePathFinder == null) {
-			routePathFinder = new PathFinder(rails, platformIds.stream().map(platformId -> RailwayData.getDataById(platforms, platformId)).collect(Collectors.toList()));
-		}
-	}
-
-	public boolean findPath() {
-		if (routePathFinder != null) {
-			try {
-				final List<PathData> result = routePathFinder.findPath();
-				if (result != null) {
-					path.clear();
-					path.addAll(result);
-					routePathFinder = null;
-					return true;
-				} else {
-					return false;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				path.clear();
-				return true;
-			}
-		} else {
-			path.clear();
-			return true;
-		}
-	}
-
 	public int getFrequency(int index) {
 		if (index >= 0 && index < frequencies.length) {
 			return frequencies[index];
@@ -520,7 +490,10 @@ public final class Route extends NameColorDataBase implements IGui {
 			final Pos3f pos3f = pathData.getPosition(0);
 			final BlockEntity entity = world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z));
 			if (entity instanceof BlockRail.TileEntityRail) {
-				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> railwayData.addRail(entity.getPos(), blockPos, rail, false));
+				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
+					railwayData.addRail(entity.getPos(), blockPos, rail, false);
+					railwayData.addRail(blockPos, entity.getPos(), rail, false);
+				});
 			}
 		});
 	}

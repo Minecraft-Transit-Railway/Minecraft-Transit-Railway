@@ -192,7 +192,7 @@ public class PathData extends SerializedDataBase {
 	}
 
 	public boolean isPlatform(long platformId, Set<Platform> platforms) {
-		if (rail.railType != Rail.RailType.PLATFORM) {
+		if (rail.railType != RailType.PLATFORM) {
 			return false;
 		}
 

@@ -1,20 +1,16 @@
 package mtr.data;
 
-import mtr.gui.IGui;
-import net.minecraft.block.MaterialColor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
-	public final Direction facing;
+	public final Direction facingStart;
+	public final Direction facingEnd;
 	private final float h1, k1, r1, tStart1, tEnd1;
 	private final float h2, k2, r2, tStart2, tEnd2;
 	private final int yStart, yEnd;
@@ -48,7 +44,8 @@ public class Rail extends SerializedDataBase {
 	// z = k*T + h*r
 
 	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType) {
-		facing = facingStart;
+		this.facingStart = facingStart;
+		this.facingEnd = facingEnd;
 		this.railType = railType;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
@@ -203,7 +200,6 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public Rail(CompoundTag tag) {
-		facing = Direction.fromHorizontal(tag.getInt(KEY_FACING));
 		h1 = tag.getFloat(KEY_H_1);
 		k1 = tag.getFloat(KEY_K_1);
 		h2 = tag.getFloat(KEY_H_2);
@@ -221,10 +217,13 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = tag.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = RailType.valueOf(tag.getString(KEY_RAIL_TYPE));
+
+		facingStart = getDirection(0, 0.1F);
+		final float length = getLength();
+		facingEnd = getDirection(length, length - 0.1F);
 	}
 
 	public Rail(PacketByteBuf packet) {
-		facing = Direction.fromHorizontal(packet.readInt());
 		h1 = packet.readFloat();
 		k1 = packet.readFloat();
 		h2 = packet.readFloat();
@@ -242,12 +241,15 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = RailType.valueOf(packet.readString(PACKET_STRING_READ_LENGTH));
+
+		facingStart = getDirection(0, 0.1F);
+		final float length = getLength();
+		facingEnd = getDirection(length, length - 0.1F);
 	}
 
 	@Override
 	public CompoundTag toCompoundTag() {
 		final CompoundTag tag = new CompoundTag();
-		tag.putInt(KEY_FACING, facing.getHorizontal());
 		tag.putFloat(KEY_H_1, h1);
 		tag.putFloat(KEY_K_1, k1);
 		tag.putFloat(KEY_H_2, h2);
@@ -270,7 +272,6 @@ public class Rail extends SerializedDataBase {
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
-		packet.writeInt(facing.getHorizontal());
 		packet.writeFloat(h1);
 		packet.writeFloat(k1);
 		packet.writeFloat(h2);
@@ -357,6 +358,12 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
+	private Direction getDirection(float start, float end) {
+		final Pos3f pos1 = getPosition(start);
+		final Pos3f pos2 = getPosition(end);
+		return Direction.fromRotation(Math.toDegrees(Math.atan2(pos2.x - pos1.x, pos1.z - pos2.z)) + 180);
+	}
+
 	private static float getTBounds(float x, float h, float z, float k, float r) {
 		return (float) (MathHelper.atan2(z - k, x - h) * r);
 	}
@@ -372,93 +379,8 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	public enum RailType implements IGui {
-		WOODEN(20, MaterialColor.WOOD),
-		STONE(40, MaterialColor.STONE),
-		IRON(80, MaterialColor.WHITE),
-		OBSIDIAN(120, MaterialColor.PURPLE),
-		BLAZE(160, MaterialColor.ORANGE),
-		DIAMOND(300, MaterialColor.DIAMOND),
-		DEPOT(40, MaterialColor.YELLOW),
-		PLATFORM(100, MaterialColor.RED);
-
-		public final int speedLimit;
-		public final float maxBlocksPerTick;
-		public final int color;
-
-		RailType(int speedLimit, MaterialColor materialColor) {
-			this.speedLimit = speedLimit;
-			maxBlocksPerTick = speedLimit / 3.6F / 20;
-			color = materialColor.color + ARGB_BLACK_TRANSLUCENT;
-		}
-	}
-
 	@FunctionalInterface
 	public interface RenderRail {
 		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float y1, float y2);
-	}
-
-	public static class RailEntry extends SerializedDataBase {
-
-		public final BlockPos pos;
-		public final Map<BlockPos, Rail> connections;
-
-		private static final String KEY_NODE_POS = "node_pos";
-		private static final String KEY_RAIL_CONNECTIONS = "rail_connections";
-
-		public RailEntry(BlockPos start, BlockPos end, Rail rail) {
-			pos = start;
-			connections = new HashMap<>();
-			connections.put(end, rail);
-		}
-
-		public RailEntry(CompoundTag tag) {
-			pos = BlockPos.fromLong(tag.getLong(KEY_NODE_POS));
-			connections = new HashMap<>();
-
-			final CompoundTag tagConnections = tag.getCompound(KEY_RAIL_CONNECTIONS);
-			for (final String keyConnection : tagConnections.getKeys()) {
-				connections.put(BlockPos.fromLong(tagConnections.getCompound(keyConnection).getLong(KEY_NODE_POS)), new Rail(tagConnections.getCompound(keyConnection)));
-			}
-		}
-
-		public RailEntry(PacketByteBuf packet) {
-			pos = BlockPos.fromLong(packet.readLong());
-			connections = new HashMap<>();
-			final int connectionSize = packet.readInt();
-			for (int i = 0; i < connectionSize; i++) {
-				connections.put(BlockPos.fromLong(packet.readLong()), new Rail(packet));
-			}
-		}
-
-		@Override
-		public CompoundTag toCompoundTag() {
-			final CompoundTag tagRail = new CompoundTag();
-			tagRail.putLong(KEY_NODE_POS, pos.asLong());
-
-			final CompoundTag tagConnections = new CompoundTag();
-			connections.forEach((endNodePos, rail) -> {
-				final CompoundTag tagConnection = rail.toCompoundTag();
-				tagConnection.putLong(KEY_NODE_POS, endNodePos.asLong());
-				tagConnections.put(KEY_RAIL_CONNECTIONS + endNodePos.asLong(), tagConnection);
-			});
-
-			tagRail.put(KEY_RAIL_CONNECTIONS, tagConnections);
-			return tagRail;
-		}
-
-		@Override
-		public void writePacket(PacketByteBuf packet) {
-			packet.writeLong(pos.asLong());
-			packet.writeInt(connections.size());
-			connections.forEach((endNodePos, rail) -> {
-				packet.writeLong(endNodePos.asLong());
-				rail.writePacket(packet);
-			});
-		}
-
-		public boolean hasConnection(BlockPos start, BlockPos end) {
-			return pos.equals(start) && connections.containsKey(end);
-		}
 	}
 }

@@ -3,6 +3,7 @@ package mtr.item;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
 import mtr.data.Rail;
+import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.BlockState;
@@ -27,11 +28,11 @@ import java.util.List;
 public class ItemRailModifier extends Item {
 
 	private final boolean isConnector;
-	private final Rail.RailType railType;
+	private final RailType railType;
 
 	public static final String TAG_POS = "pos";
 
-	public ItemRailModifier(boolean isConnector, Rail.RailType railType) {
+	public ItemRailModifier(boolean isConnector, RailType railType) {
 		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
 		this.isConnector = isConnector;
 		this.railType = railType;
@@ -61,7 +62,7 @@ public class ItemRailModifier extends Item {
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								if (railType == Rail.RailType.PLATFORM && (railwayData.hasPlatform(posStart, posEnd))) {
+								if (railType == RailType.PLATFORM && (railwayData.hasPlatform(posStart) || railwayData.hasPlatform(posEnd))) {
 									if (player != null) {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
 									}
@@ -80,7 +81,7 @@ public class ItemRailModifier extends Item {
 								}
 							}
 						} else {
-							railwayData.removeRailConnection(world, posStart, posEnd);
+							railwayData.removeRailConnection(posStart, posEnd);
 							PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 						}
 					}

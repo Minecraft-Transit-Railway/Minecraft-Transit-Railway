@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.MTR;
 import mtr.data.Rail;
+import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -42,7 +43,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		if (!world.isClient) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.removeNode(world, pos);
+				railwayData.removeNode(pos);
 				PacketTrainDataGuiServer.removeNodeS2C(world, pos);
 			}
 		}
@@ -121,7 +122,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			return tag;
 		}
 
-		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, Rail.RailType railType) {
+		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, RailType railType) {
 			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
 				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2, railType));
 
@@ -149,16 +150,16 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		}
 
 		public boolean hasPlatform() {
-			return railMap.values().stream().anyMatch(rail -> rail.railType == Rail.RailType.PLATFORM);
+			return railMap.values().stream().anyMatch(rail -> rail.railType == RailType.PLATFORM);
 		}
 
 		public Set<BlockPos> getConnectedPositions(BlockPos posFrom) {
 			final Set<BlockPos> positions = new HashSet<>();
 			final Rail railFrom = railMap.get(posFrom);
 			if (railFrom != null) {
-				final Direction findDirection = railFrom.facing.getOpposite();
+				final Direction findDirection = railFrom.facingStart.getOpposite();
 				railMap.forEach((pos, rail) -> {
-					if (rail.facing == findDirection) {
+					if (rail.facingStart == findDirection) {
 						positions.add(pos);
 					}
 				});

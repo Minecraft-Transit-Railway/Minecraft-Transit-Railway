@@ -53,8 +53,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final Rail rail1 = new Rail(packet);
 		final Rail rail2 = new Rail(packet);
 		minecraftClient.execute(() -> {
-			ClientData.rails.add(new Rail.RailEntry(pos1, pos2, rail1));
-			ClientData.rails.add(new Rail.RailEntry(pos2, pos1, rail2));
+			if (!ClientData.rails.containsKey(pos1)) {
+				ClientData.rails.put(pos1, new HashMap<>());
+			}
+			ClientData.rails.get(pos1).put(pos2, rail1);
+			if (!ClientData.rails.containsKey(pos2)) {
+				ClientData.rails.put(pos2, new HashMap<>());
+			}
+			ClientData.rails.get(pos2).put(pos1, rail2);
 		});
 	}
 

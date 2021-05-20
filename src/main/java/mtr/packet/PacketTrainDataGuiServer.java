@@ -63,14 +63,25 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots, Set<Rail.RailEntry> rails) {
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
+
 		serializeData(packet, stations);
 		serializeData(packet, platforms);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
-		serializeData(packet, rails);
+
+		packet.writeInt(rails.size());
+		rails.forEach((posStart, railMap) -> {
+			packet.writeBlockPos(posStart);
+			packet.writeInt(railMap.size());
+			railMap.forEach((posEnd, rail) -> {
+				packet.writeBlockPos(posEnd);
+				rail.writePacket(packet);
+			});
+		});
+
 		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
 		sendChunk(player, tempPacketId, 0);
 	}

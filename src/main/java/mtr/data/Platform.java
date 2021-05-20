@@ -6,10 +6,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public final class Platform extends NameColorDataBase {
@@ -105,10 +102,10 @@ public final class Platform extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
-	public boolean isValidPlatform(Set<Rail.RailEntry> rails) {
+	public boolean isValidPlatform(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		return rails.stream().anyMatch(railEntry -> railEntry.hasConnection(pos1, pos2) && railEntry.connections.get(pos2).railType == Rail.RailType.PLATFORM || railEntry.hasConnection(pos2, pos1) && railEntry.connections.get(pos1).railType == Rail.RailType.PLATFORM);
+		return isValidPlatform(rails, pos1, pos2) && isValidPlatform(rails, pos2, pos1);
 	}
 
 	public boolean containsPos(BlockPos pos) {
@@ -143,5 +140,9 @@ public final class Platform extends NameColorDataBase {
 
 	private BlockPos getPosition(int index) {
 		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
+	}
+
+	public static boolean isValidPlatform(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
+		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2) && rails.get(pos1).get(pos2).railType == RailType.PLATFORM;
 	}
 }

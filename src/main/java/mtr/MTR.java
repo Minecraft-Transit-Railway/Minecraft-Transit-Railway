@@ -228,7 +228,7 @@ public class MTR implements ModInitializer, IPacket {
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
 			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 			if (railwayData != null) {
-				railwayData.simulateTrains(serverWorld);
+				railwayData.simulateTrains();
 			}
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {

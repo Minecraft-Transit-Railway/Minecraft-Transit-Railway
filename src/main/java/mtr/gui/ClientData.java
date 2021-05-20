@@ -15,7 +15,7 @@ public final class ClientData {
 	public static Set<Platform> platforms = new HashSet<>();
 	public static Set<Route> routes = new HashSet<>();
 	public static Set<Depot> depots = new HashSet<>();
-	public static Set<Rail.RailEntry> rails = new HashSet<>();
+	public static Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
 
 	public static Map<Long, Route> routeIdMap = new HashMap<>();
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
@@ -32,7 +32,19 @@ public final class ClientData {
 		platforms = deserializeData(packetCopy, Platform::new);
 		routes = deserializeData(packetCopy, Route::new);
 		depots = deserializeData(packetCopy, Depot::new);
-		rails = deserializeData(packetCopy, Rail.RailEntry::new);
+
+		rails.clear();
+		final int railsCount = packetCopy.readInt();
+		for (int i = 0; i < railsCount; i++) {
+			final BlockPos startPos = packetCopy.readBlockPos();
+			final Map<BlockPos, Rail> railMap = new HashMap<>();
+			final int railCount = packetCopy.readInt();
+			for (int j = 0; j < railCount; j++) {
+				railMap.put(packetCopy.readBlockPos(), new Rail(packetCopy));
+			}
+			rails.put(startPos, railMap);
+		}
+
 		updateReferences();
 	}
 

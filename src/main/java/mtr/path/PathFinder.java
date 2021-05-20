@@ -2,147 +2,106 @@ package mtr.path;
 
 import mtr.data.Platform;
 import mtr.data.Rail;
-import mtr.data.RailwayData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PathFinder {
 
-	private int platformIndex;
-	private float tOffset;
-	private Platform platform1Temp;
-	private Platform platform2Temp;
-	private float currentSpeed;
-	private List<BlockPos> tempPath;
-	private int tempPathIndex;
-	private FindStage findStage;
-
-	private final Set<Rail.RailEntry> rails;
-	private final List<Platform> platforms;
-	private final List<PathData> path;
-	private final Set<BlockPos> blacklist;
-
-	public PathFinder(Set<Rail.RailEntry> rails, List<Platform> platforms) {
-		platformIndex = 1;
-		tOffset = 0;
-		platform1Temp = null;
-		platform2Temp = null;
-		currentSpeed = 1;
-		tempPath = new ArrayList<>();
-		tempPathIndex = 1;
-		findStage = FindStage.INIT_FORWARD;
-
-		this.rails = rails;
-		this.platforms = platforms;
-		path = new ArrayList<>();
-		blacklist = new HashSet<>();
-	}
-
-	public List<PathData> findPath() {
+	public static List<BlockPos> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<Platform> platforms) {
 		if (platforms.size() < 2) {
 			return new ArrayList<>();
 		}
 
-		switch (findStage) {
-			case INIT_FORWARD:
-				platform1Temp = platforms.get(platformIndex - 1);
-				platform2Temp = platforms.get(platformIndex);
-				tempPath = platform1Temp.getOrderedPositions(platform2Temp.getMidPos(), true);
-				findStage = FindStage.TEMP_PATH_FORWARD;
-				break;
-			case INIT_BACKWARD:
-				tempPath = platform1Temp.getOrderedPositions(platform2Temp.getMidPos(), false);
-				findStage = FindStage.TEMP_PATH_BACKWARD;
-				break;
-			case TEMP_PATH_FORWARD:
-			case TEMP_PATH_BACKWARD:
-				final BlockPos lastPos = tempPath.get(tempPath.size() - 1);
-				final BlockPos secondLastPos = tempPath.get(tempPath.size() - 2);
-				tempPathIndex = 1;
+		final List<BlockPos> path = new ArrayList<>();
+		for (int i = 0; i < platforms.size() - 1; i++) {
+			final Platform platformStart = platforms.get(i);
+			final Platform platformEnd = platforms.get(i + 1);
 
-				if (platform2Temp.containsPos(lastPos)) {
-					tempPath.add(platform2Temp.getOtherPosition(lastPos));
-					if (!path.isEmpty()) {
-						tempPath.remove(0);
-					}
-					findStage = FindStage.CONVERTING;
+			final List<BlockPos> partialPath1 = findPath(rails, platformStart, platformEnd, true);
+			if (partialPath1.isEmpty()) {
+				final List<BlockPos> partialPath2 = findPath(rails, platformStart, platformEnd, false);
+				if (partialPath2.isEmpty()) {
+					return path;
 				} else {
-					final BlockPos posPlatform = platform2Temp.getMidPos();
-					final Map<BlockPos, Rail.RailType> connectedPositions = getConnectedPositions(lastPos, secondLastPos);
-					final Optional<BlockPos> blockPosClosest = connectedPositions.keySet().stream().filter(blockPos -> !blacklist.contains(blockPos)).min((pos1, pos2) -> {
-						if (connectedPositions.get(pos1).speedLimit == connectedPositions.get(pos2).speedLimit) {
-							return pos1.getSquaredDistance(posPlatform) > pos2.getSquaredDistance(posPlatform) ? 1 : -1;
-						} else {
-							return connectedPositions.get(pos2).speedLimit - connectedPositions.get(pos1).speedLimit;
-						}
-					});
-					if (blockPosClosest.isPresent()) {
-						blacklist.add(blockPosClosest.get());
-						tempPath.add(blockPosClosest.get());
-					} else {
-						tempPath.remove(tempPath.size() - 1);
-					}
+					path.addAll(partialPath2);
 				}
-
-				if (tempPath.size() < 2) {
-					tempPath.clear();
-					if (findStage == FindStage.TEMP_PATH_FORWARD) {
-						findStage = FindStage.INIT_BACKWARD;
-					} else {
-						return path;
-					}
-				}
-				break;
-			case CONVERTING:
-				if (path.isEmpty()) {
-					generatePathData(tempPath.subList(0, 2), platform1Temp.getDwellTime());
-					tempPath.remove(0);
-				}
-
-				generatePathData(tempPath, platform2Temp.getDwellTime());
-				tempPathIndex++;
-
-				if (tempPathIndex >= tempPath.size()) {
-					platformIndex++;
-					findStage = FindStage.INIT_FORWARD;
-					if (platformIndex >= platforms.size()) {
-						return path;
-					}
-				}
-				break;
+			} else {
+				path.addAll(partialPath1);
+			}
 		}
 
-		return null;
+		return path;
 	}
 
-	private void generatePathData(List<BlockPos> tempPathSubList, int dwellTime) {
-		final BlockPos tempPos = tempPathSubList.get(tempPathIndex - 1);
-		final Rail.RailEntry railEntry = RailwayData.getRailEntry(rails, tempPos);
-		if (railEntry != null) {
-			final PathData pathData = new PathData(railEntry.connections.get(tempPathSubList.get(tempPathIndex)), currentSpeed, tempPathIndex == tempPathSubList.size() - 1 ? dwellTime : 0, tOffset);
-			path.add(pathData);
-			tOffset += pathData.getTime();
-			currentSpeed = pathData.finalSpeed;
-		}
-	}
+	private static List<BlockPos> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, Platform platformStart, Platform platformEnd, boolean reverse) {
+		final BlockPos platformEndMidPos = platformEnd.getMidPos();
+		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
+			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
+				return pos1.getSquaredDistance(platformEndMidPos) > pos2.getSquaredDistance(platformEndMidPos) ? 1 : -1;
+			} else {
+				return newConnections.get(pos2).railType.speedLimit - newConnections.get(pos1).railType.speedLimit;
+			}
+		};
 
-	private Map<BlockPos, Rail.RailType> getConnectedPositions(BlockPos thisPos, BlockPos lastPos) {
-		final Rail.RailEntry railEntry = RailwayData.getRailEntry(rails, thisPos);
-		if (railEntry == null || !railEntry.connections.containsKey(lastPos)) {
-			return new HashMap<>();
-		} else {
-			final Direction findDirection = railEntry.connections.get(lastPos).facing.getOpposite();
-			final Map<BlockPos, Rail.RailType> connectedPositions = new HashMap<>();
-			railEntry.connections.forEach((blockPos, rail) -> {
-				if (rail.facing == findDirection) {
-					connectedPositions.put(blockPos, rail.railType);
+		final List<PathPart> path = new ArrayList<>();
+		platformStart.getOrderedPositions(platformEndMidPos, reverse).forEach(startPos -> {
+			final List<BlockPos> startOptions = new ArrayList<>(rails.get(startPos).keySet());
+			startOptions.sort(comparator.apply(rails.get(startPos)));
+			path.add(new PathPart(Direction.UP, startPos, startOptions));
+		});
+
+		while (!path.isEmpty()) {
+			final PathPart lastPathPart = path.get(path.size() - 1);
+
+			if (lastPathPart.otherOptions.isEmpty()) {
+				path.remove(lastPathPart);
+			} else {
+				final BlockPos newPos = lastPathPart.otherOptions.remove(0);
+				final Map<BlockPos, Rail> newConnections = rails.get(newPos);
+				final Direction newDirection = rails.get(lastPathPart.pos).get(newPos).facingEnd.getOpposite();
+				final List<BlockPos> otherOptions = new ArrayList<>();
+
+				newConnections.forEach((connectedPos, rail) -> {
+					if (rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
+						otherOptions.add(connectedPos);
+					}//-263 81 -460, -264 81 -330
+				});
+
+				if (!otherOptions.isEmpty()) {
+					otherOptions.sort(comparator.apply(newConnections));
+					path.add(new PathPart(newDirection, newPos, otherOptions));
 				}
-			});
-			return connectedPositions;
+
+				if (platformEnd.containsPos(newPos)) {
+					return path.stream().map(pathPart -> pathPart.pos).collect(Collectors.toList());
+				}
+			}
 		}
+
+		return new ArrayList<>();
 	}
 
-	private enum FindStage {INIT_FORWARD, INIT_BACKWARD, TEMP_PATH_FORWARD, TEMP_PATH_BACKWARD, CONVERTING}
+	private static class PathPart {
+
+		private final Direction direction;
+		private final BlockPos pos;
+		private final List<BlockPos> otherOptions;
+
+		private PathPart(Direction direction, BlockPos pos, List<BlockPos> otherOptions) {
+			this.direction = direction;
+			this.pos = pos;
+			this.otherOptions = otherOptions;
+		}
+
+		private boolean isSame(BlockPos newPos, Direction newDirection) {
+			return newPos.equals(pos) && newDirection == direction;
+		}
+	}
 }
