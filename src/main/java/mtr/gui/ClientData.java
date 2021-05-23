@@ -46,6 +46,7 @@ public final class ClientData {
 		}
 
 		updateReferences();
+		ClientData.depots.forEach(depot -> depot.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes));
 	}
 
 	public static void updateReferences() {

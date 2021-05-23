@@ -15,7 +15,8 @@ import java.util.function.Consumer;
 public class Depot extends AreaBase {
 
 	public final List<Long> routeIds;
-	public final List<BlockPos> path;
+	public final List<Rail> path;
+	public final List<Float> railLengths;
 	public final List<Train> trains;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
@@ -24,6 +25,7 @@ public class Depot extends AreaBase {
 		super();
 		routeIds = new ArrayList<>();
 		path = new ArrayList<>();
+		railLengths = new ArrayList<>();
 		trains = new ArrayList<>();
 	}
 
@@ -31,6 +33,7 @@ public class Depot extends AreaBase {
 		super(id);
 		routeIds = new ArrayList<>();
 		path = new ArrayList<>();
+		railLengths = new ArrayList<>();
 		trains = new ArrayList<>();
 	}
 
@@ -42,6 +45,7 @@ public class Depot extends AreaBase {
 			routeIds.add(routeId);
 		}
 		path = new ArrayList<>();
+		railLengths = new ArrayList<>();
 		trains = new ArrayList<>();
 	}
 
@@ -53,6 +57,7 @@ public class Depot extends AreaBase {
 			routeIds.add(packet.readLong());
 		}
 		path = new ArrayList<>();
+		railLengths = new ArrayList<>();
 		trains = new ArrayList<>();
 	}
 
@@ -111,8 +116,15 @@ public class Depot extends AreaBase {
 		path.clear();
 		path.addAll(PathFinder.findPath(rails, platformsInRoute));
 
+		railLengths.clear();
+		float sum = 0;
+		for (final Rail rail : path) {
+			sum += rail.getLength();
+			railLengths.add(sum);
+		}
+
 		// TODO
 		trains.clear();
-		trains.add(new Train(TrainType.M_TRAIN, 2, 0));
+		trains.add(new Train(TrainType.M_TRAIN, 2, 0, path, railLengths));
 	}
 }

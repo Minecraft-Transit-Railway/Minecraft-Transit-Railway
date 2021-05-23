@@ -138,9 +138,6 @@ public class RailwayData extends PersistentState {
 		}
 		// TODO temporary code end
 
-		final long lunarTime = world.getLunarTime();
-		routes.forEach(route -> route.getPositionYaw(world, lunarTime));
-
 		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
@@ -148,14 +145,11 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		depots.forEach(depot -> depot.trains.forEach(train -> train.move(rails, depot.path)));
+		depots.forEach(depot -> depot.trains.forEach(train -> train.move(null)));
 	}
 
 	public void addAllRoutesToGenerate() {
-		final long startNanos = System.nanoTime();
 		depots.forEach(depot -> depot.generateRoute(rails, platforms, routes));
-		final float totalMillis = (System.nanoTime() - startNanos) / 1000000F;
-		System.out.printf("Generated all routes (%s ms)%n", totalMillis);
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {

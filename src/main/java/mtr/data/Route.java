@@ -299,10 +299,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		return shuffleTrains;
 	}
 
-	public void getPositionYaw(WorldAccess world, long worldTime) {
-		getPositionYaw(world, worldTime + 1, 0, null, null, null, null);
-	}
-
 	public void getPositionYaw(WorldAccess world, float worldTime, float tickDelta, EntitySeat clientSeat, PositionYawCallback positionYawCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
 		schedule.forEach((scheduleTime, trainMapping) -> {
 			final float ticks = wrapTime(worldTime, scheduleTime);
@@ -492,7 +488,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			if (entity instanceof BlockRail.TileEntityRail) {
 				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
 					railwayData.addRail(entity.getPos(), blockPos, rail, false);
-					railwayData.addRail(blockPos, entity.getPos(), rail, false);
+					railwayData.addRail(blockPos, entity.getPos(), new Rail(blockPos, rail.facingEnd, entity.getPos(), rail.facingStart, rail.railType), false);
 				});
 			}
 		});

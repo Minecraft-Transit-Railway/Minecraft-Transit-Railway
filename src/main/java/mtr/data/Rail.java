@@ -291,17 +291,16 @@ public class Rail extends SerializedDataBase {
 		packet.writeString(railType.toString());
 	}
 
-	public Pos3f getPosition(float value) {
+	public Pos3f getPosition(float rawValue) {
 		final float count1 = Math.abs(tEnd1 - tStart1);
 		final float count2 = Math.abs(tEnd2 - tStart2);
+		final float value = MathHelper.clamp(rawValue, 0, count1 + count2);
 		final float y = getPositionY(value);
 
-		if (value >= 0 && value <= count1) {
+		if (value <= count1) {
 			return getPositionXZ(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1).add(0, y, 0);
-		} else if (value <= count1 + count2) {
-			return getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2).add(0, y, 0);
 		} else {
-			return null;
+			return getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2).add(0, y, 0);
 		}
 	}
 
