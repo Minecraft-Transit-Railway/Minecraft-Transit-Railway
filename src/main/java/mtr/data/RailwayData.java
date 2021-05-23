@@ -145,7 +145,7 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		depots.forEach(depot -> depot.trains.forEach(train -> train.move(null)));
+		depots.forEach(depot -> depot.trains.forEach(train -> train.move(world, null, null)));
 	}
 
 	public void addAllRoutesToGenerate() {

@@ -99,7 +99,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.depots.forEach(depot -> depot.trains.forEach(train -> train.move((x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
+		ClientData.depots.forEach(depot -> depot.trains.forEach(train -> train.move(world, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
@@ -125,6 +125,36 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
 			}
 
+			matrices.pop();
+		}, (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender) -> {
+			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
+			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
+			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
+			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
+			if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
+				return;
+			}
+			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
+
+			final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");
+			final String connectorSideTexture = getConnectorTextureString(trainType.id, "side");
+			final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
+			final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
+
+			matrices.push();
+			if (shouldOffsetRender) {
+				matrices.translate(entityX, entityY, entityZ);
+			}
+
+			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
+			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
+			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
+			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
+
+			drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, MAX_LIGHT);
+			drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, MAX_LIGHT);
+			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
+			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
 			matrices.pop();
 		})));
 

@@ -13,17 +13,17 @@ import java.util.function.Function;
 
 public class PathFinder {
 
-	public static List<Rail> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<Platform> platforms) {
+	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<Platform> platforms) {
 		if (platforms.size() < 2) {
 			return new ArrayList<>();
 		}
 
-		final List<Rail> path = new ArrayList<>();
+		final List<PathData2> path = new ArrayList<>();
 		for (int i = 0; i < platforms.size() - 1; i++) {
 			final Platform platformStart = platforms.get(i);
 			final Platform platformEnd = platforms.get(i + 1);
 
-			final List<Rail> partialPath = findPath(rails, platformStart, platformEnd);
+			final List<PathData2> partialPath = findPath(rails, platformStart, platformEnd, path.isEmpty() ? 0 : path.get(path.size() - 1).distance);
 			if (partialPath.isEmpty()) {
 				return path;
 			} else {
@@ -34,7 +34,7 @@ public class PathFinder {
 		return path;
 	}
 
-	private static List<Rail> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, Platform platformStart, Platform platformEnd) {
+	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, Platform platformStart, Platform platformEnd, float sumOffset) {
 		final BlockPos platformEndMidPos = platformEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
 			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
@@ -60,10 +60,13 @@ public class PathFinder {
 					addPathPart(rails, newPos, lastPathPart.pos, path, comparator);
 
 					if (platformEnd.containsPos(newPos)) {
-						final List<Rail> railPath = new ArrayList<>();
+						final List<PathData2> railPath = new ArrayList<>();
+						float sum = sumOffset;
 						for (int j = 0; j < path.size() - 1; j++) {
 							try {
-								railPath.add(rails.get(path.get(j).pos).get(path.get(j + 1).pos));
+								final Rail rail = rails.get(path.get(j).pos).get(path.get(j + 1).pos);
+								sum += rail.getLength();
+								railPath.add(new PathData2(rail, sum, j == 0 ? platformStart.getDwellTime() : j == path.size() - 1 ? platformEnd.getDwellTime() : 0));
 							} catch (Exception ignored) {
 								return railPath;
 							}
