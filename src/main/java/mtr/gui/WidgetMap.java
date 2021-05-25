@@ -21,6 +21,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.function.Consumer;
 
 
@@ -41,7 +42,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
 	private final Consumer<Long> onClickAddPlatformToRoute;
-	private final Consumer<Platform> onClickEditPlatform;
+	private final Consumer<SavedRailBase> onClickEditSavedRail;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -50,11 +51,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<Platform> onClickEditPlatform) {
+	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase> onClickEditSavedRail) {
 		this.onDrawCorners = onDrawCorners;
 		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
 		this.onClickAddPlatformToRoute = onClickAddPlatformToRoute;
-		this.onClickEditPlatform = onClickEditPlatform;
+		this.onClickEditSavedRail = onClickEditSavedRail;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
@@ -95,7 +96,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final Pair<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
 
 		try {
-			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+			if (showStations) {
+				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+			}
+			if (showDepots) {
+				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
+			}
+
 			if (showStations) {
 				for (final Station station : ClientData.stations) {
 					if (AreaBase.nonNullCorners(station)) {
@@ -110,11 +117,16 @@ public class WidgetMap implements Drawable, Element, IGui {
 					}
 				}
 			}
+
+			if (showStations) {
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
+			}
+			if (showDepots) {
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), false);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE));
 
 		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
 			drawRectangleFromWorldCoords(buffer, drawArea1, drawArea2, ARGB_WHITE_TRANSLUCENT);
@@ -140,13 +152,12 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 		if (scale >= 8) {
 			try {
-				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-					final int platformCount = platforms.size();
-					for (int i = 0; i < platformCount; i++) {
-						final int index = i;
-						drawFromWorldCoords(platformPos.getX() + 0.5, platformPos.getZ() + (i + 0.5) / platformCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platforms.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
-					}
-				});
+				if (showStations) {
+					ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+				}
+				if (showDepots) {
+					ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -209,10 +220,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 				drawArea2 = null;
 			} else if (mapState == MapState.EDITING_ROUTE) {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(platform.id));
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickEditPlatform.accept(platform));
+				if (showStations) {
+					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), true);
+				}
+				if (showDepots) {
+					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), false);
+				}
 			}
 			return true;
 		} else {
@@ -283,17 +299,17 @@ public class WidgetMap implements Drawable, Element, IGui {
 		this.showDepots = showDepots;
 	}
 
-	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {
+	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		try {
-			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-				final int platformCount = platforms.size();
-				for (int i = 0; i < platformCount; i++) {
-					final float left = platformPos.getX();
-					final float right = platformPos.getX() + 1;
-					final float top = platformPos.getZ() + (float) i / platformCount;
-					final float bottom = platformPos.getZ() + (i + 1F) / platformCount;
+			(isPlatform ? ClientData.platformsWithOffset : ClientData.sidingsWithOffset).forEach((savedRailPos, savedRails) -> {
+				final int savedRailCount = savedRails.size();
+				for (int i = 0; i < savedRailCount; i++) {
+					final float left = savedRailPos.getX();
+					final float right = savedRailPos.getX() + 1;
+					final float top = savedRailPos.getZ() + (float) i / savedRailCount;
+					final float bottom = savedRailPos.getZ() + (i + 1F) / savedRailCount;
 					if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
-						mouseOnPlatformCallback.mouseOnPlatformCallback(platforms.get(i), left, top, right, bottom);
+						mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 					}
 				}
 			});
@@ -342,6 +358,14 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 	}
 
+	private void drawSavedRail(MatrixStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
+		final int savedRailCount = savedRails.size();
+		for (int i = 0; i < savedRailCount; i++) {
+			final int index = i;
+			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+		}
+	}
+
 	@FunctionalInterface
 	public interface OnDrawCorners {
 		void onDrawCorners(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
@@ -353,8 +377,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 	}
 
 	@FunctionalInterface
-	private interface MouseOnPlatformCallback {
-		void mouseOnPlatformCallback(Platform platform, double x1, double z1, double x2, double z2);
+	private interface MouseOnSavedRailCallback {
+		void mouseOnSavedRailCallback(SavedRailBase savedRail, double x1, double z1, double x2, double z2);
 	}
 
 	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}

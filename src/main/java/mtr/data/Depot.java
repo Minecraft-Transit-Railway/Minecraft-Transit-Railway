@@ -7,10 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Depot extends AreaBase {
@@ -95,7 +92,7 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public void generateRoute(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes) {
+	public void generateRoute(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
 		final List<Platform> platformsInRoute = new ArrayList<>();
 		routeIds.forEach(routeId -> {
 			final Route route = RailwayData.getDataById(routes, routeId);
@@ -112,8 +109,22 @@ public class Depot extends AreaBase {
 		path.clear();
 		path.addAll(PathFinder.findPath(rails, platformsInRoute));
 
-		// TODO
-		trains.clear();
-		trains.add(new Train(TrainType.M_TRAIN, 2, 0, path));
+		final List<Siding> sidingsInDepot = new ArrayList<>();
+		sidings.forEach(siding -> {
+			final BlockPos sidingPos = siding.getMidPos();
+			if (inArea(sidingPos.getX(), sidingPos.getZ())) {
+				sidingsInDepot.add(siding);
+			}
+		});
+		sidingsInDepot.sort(Comparator.comparing(siding -> siding.name));
+
+		final int trainsToAdd = sidingsInDepot.size() - trains.size();
+		if (trainsToAdd < 0) {
+			trains.subList(trains.size() + trainsToAdd, trains.size()).clear();
+		} else if (trainsToAdd > 0) {
+			for (int i = 0; i < trainsToAdd; i++) {
+				trains.add(new Train(TrainType.M_TRAIN, 2, 0, path));
+			}
+		}
 	}
 }

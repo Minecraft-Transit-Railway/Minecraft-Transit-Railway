@@ -22,6 +22,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 	private final Depot depot;
 	private final DashboardScreen dashboardScreen;
+	private final int trainCount;
 
 	private final Text depotNameText = new TranslatableText("gui.mtr.depot_name");
 	private final Text depotColorText = new TranslatableText("gui.mtr.depot_color");
@@ -29,7 +30,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private final TextFieldWidget textFieldName;
 	private final TextFieldWidget textFieldColor;
 
-	private final ButtonWidget buttonAddTrains;
+	private final ButtonWidget buttonEditInstructions;
 	private final ButtonWidget buttonDone;
 
 	private final DashboardList addNewList;
@@ -42,12 +43,13 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		super(new LiteralText(""));
 		this.depot = depot;
 		this.dashboardScreen = dashboardScreen;
+		trainCount = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id).size() : 0;
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		buttonAddTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
+		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
@@ -72,7 +74,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 			}
 		});
 
-		IGui.setPositionAndWidth(buttonAddTrains, width - EDIT_WIDTH, PANELS_START, EDIT_WIDTH);
+		IGui.setPositionAndWidth(buttonEditInstructions, width - EDIT_WIDTH, PANELS_START, EDIT_WIDTH);
 		IGui.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
 		addNewList.y = SQUARE_SIZE * 2;
@@ -89,7 +91,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 		addChild(textFieldName);
 		addChild(textFieldColor);
-		addButton(buttonAddTrains);
+		addButton(buttonEditInstructions);
 		addButton(buttonDone);
 	}
 
@@ -120,6 +122,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3, TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, depotColorText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
+
+				textRenderer.draw(matrices, new TranslatableText("gui.mtr.trains_in_depot", trainCount), TEXT_PADDING, PANELS_START + TEXT_PADDING, ARGB_WHITE);
 
 				super.render(matrices, mouseX, mouseY, delta);
 			}
@@ -162,7 +166,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		addingTrain = isSelecting;
 		addNewList.x = addingTrain ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
-		buttonAddTrains.visible = !addingTrain;
+		buttonEditInstructions.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
 	}
 

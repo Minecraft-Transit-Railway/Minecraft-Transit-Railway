@@ -63,12 +63,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 
 		serializeData(packet, stations);
 		serializeData(packet, platforms);
+		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
 
@@ -122,6 +123,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	// TODO fix platform and siding packets
 	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(player.world);

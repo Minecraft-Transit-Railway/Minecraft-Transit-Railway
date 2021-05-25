@@ -72,7 +72,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_4_OBSIDIAN, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_5_BLAZE, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_6_DIAMOND, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
-		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_DEPOT, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_SIDING, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_PLATFORM, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_REMOVER, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 

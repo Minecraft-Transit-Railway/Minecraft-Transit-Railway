@@ -22,6 +22,7 @@ public class RailwayData extends PersistentState {
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
+	private static final String KEY_SIDINGS = "sidings";
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_DEPOTS = "depots";
 	private static final String KEY_RAILS = "rails";
@@ -29,6 +30,7 @@ public class RailwayData extends PersistentState {
 	private final World world;
 	private final Set<Station> stations;
 	private final Set<Platform> platforms;
+	private final Set<Siding> sidings;
 	private final Set<Route> routes;
 	private final Set<Depot> depots;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
@@ -40,6 +42,7 @@ public class RailwayData extends PersistentState {
 		this.world = world;
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
+		sidings = new HashSet<>();
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
@@ -59,6 +62,11 @@ public class RailwayData extends PersistentState {
 			final CompoundTag tagNewPlatforms = tag.getCompound(KEY_PLATFORMS);
 			for (final String key : tagNewPlatforms.getKeys()) {
 				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
+			}
+
+			final CompoundTag tagNewSidings = tag.getCompound(KEY_SIDINGS);
+			for (final String key : tagNewSidings.getKeys()) {
+				sidings.add(new Siding(tagNewSidings.getCompound(key)));
 			}
 
 			final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
@@ -93,6 +101,7 @@ public class RailwayData extends PersistentState {
 			validateData();
 			writeTag(tag, stations, KEY_STATIONS);
 			writeTag(tag, platforms, KEY_PLATFORMS);
+			writeTag(tag, sidings, KEY_SIDINGS);
 			writeTag(tag, routes, KEY_ROUTES);
 			writeTag(tag, depots, KEY_DEPOTS);
 
@@ -141,7 +150,7 @@ public class RailwayData extends PersistentState {
 		if (!scheduleBroadcast.isEmpty()) {
 			final PlayerEntity player = scheduleBroadcast.remove(0);
 			if (player != null) {
-				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, routes, depots, rails);
+				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, sidings, routes, depots, rails);
 			}
 		}
 
@@ -149,7 +158,7 @@ public class RailwayData extends PersistentState {
 	}
 
 	public void addAllRoutesToGenerate() {
-		depots.forEach(depot -> depot.generateRoute(rails, platforms, routes));
+		depots.forEach(depot -> depot.generateRoute(rails, platforms, sidings, routes));
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
@@ -169,8 +178,9 @@ public class RailwayData extends PersistentState {
 
 			if (validate) {
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					final Platform newPlatform = new Platform(posStart, posEnd);
-					platforms.add(newPlatform);
+					platforms.add(new Platform(posStart, posEnd));
+				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(depotRail -> depotRail.containsPos(posStart) || depotRail.containsPos(posEnd))) {
+					sidings.add(new Siding(posStart, posEnd));
 				}
 				validateRails();
 			}
@@ -189,8 +199,8 @@ public class RailwayData extends PersistentState {
 		validateRails();
 	}
 
-	public boolean hasPlatform(BlockPos pos) {
-		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType == RailType.PLATFORM);
+	public boolean hasSavedRail(BlockPos pos) {
+		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
 	}
 
 	// validation
@@ -214,11 +224,12 @@ public class RailwayData extends PersistentState {
 
 	private void validateData() {
 		if (generated) {
-			platforms.removeIf(platform -> !platform.isValidPlatform(rails));
+			platforms.removeIf(platform -> !platform.isValidSavedRail(rails));
+			sidings.removeIf(siding -> !siding.isValidSavedRail(rails));
 
 			final List<BlockPos> railsToRemove = new ArrayList<>();
 			rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-				if (rail.railType == RailType.PLATFORM && !Platform.isValidPlatform(rails, endPos, startPos)) {
+				if (rail.railType.hasSavedRail && !SavedRailBase.isValidSavedRail(rails, endPos, startPos)) {
 					railsToRemove.add(startPos);
 					railsToRemove.add(endPos);
 				}
@@ -252,10 +263,10 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
-	public static Station getStationByPlatform(Set<Station> stations, Platform platform) {
+	public static <T extends AreaBase> T getAreaBySavedRail(Set<T> areas, SavedRailBase savedRail) {
 		try {
-			final BlockPos pos = platform.getMidPos();
-			return stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
+			final BlockPos pos = savedRail.getMidPos();
+			return areas.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

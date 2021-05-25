@@ -13,6 +13,7 @@ public final class ClientData {
 
 	public static Set<Station> stations = new HashSet<>();
 	public static Set<Platform> platforms = new HashSet<>();
+	public static Set<Siding> sidings = new HashSet<>();
 	public static Set<Route> routes = new HashSet<>();
 	public static Set<Depot> depots = new HashSet<>();
 	public static Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
@@ -20,7 +21,9 @@ public final class ClientData {
 	public static Map<Long, Route> routeIdMap = new HashMap<>();
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
 	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
+	public static Map<Long, Map<Long, Siding>> sidingsInDepot = new HashMap<>();
 	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
+	public static Map<BlockPos, List<Siding>> sidingsWithOffset = new HashMap<>();
 	public static Map<Long, Map<Integer, ColorNamePair>> routesInStation = new HashMap<>();
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
@@ -30,6 +33,7 @@ public final class ClientData {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
 		stations = deserializeData(packetCopy, Station::new);
 		platforms = deserializeData(packetCopy, Platform::new);
+		sidings = deserializeData(packetCopy, Siding::new);
 		routes = deserializeData(packetCopy, Route::new);
 		depots = deserializeData(packetCopy, Depot::new);
 
@@ -46,30 +50,16 @@ public final class ClientData {
 		}
 
 		updateReferences();
-		ClientData.depots.forEach(depot -> depot.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes));
+		ClientData.depots.forEach(depot -> depot.generateRoute(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes));
 	}
 
 	public static void updateReferences() {
 		try {
 			routeIdMap = routes.stream().collect(Collectors.toMap(route -> route.id, route -> route));
-			platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getStationByPlatform(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+			platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getAreaBySavedRail(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-			platformsInStation.clear();
-			platformsWithOffset.clear();
-			platforms.forEach(platform -> {
-				final Station station = RailwayData.getStationByPlatform(stations, platform);
-				if (station != null) {
-					if (!platformsInStation.containsKey(station.id)) {
-						platformsInStation.put(station.id, new HashMap<>());
-					}
-					platformsInStation.get(station.id).put(platform.id, platform);
-				}
-
-				final BlockPos platformPos = platform.getMidPos(true);
-				if (!platformsWithOffset.containsKey(platformPos)) {
-					platformsWithOffset.put(platformPos, platforms.stream().filter(platform1 -> platform1.getMidPos().getX() == platformPos.getX() && platform1.getMidPos().getZ() == platformPos.getZ()).sorted(Comparator.comparingInt(platform1 -> platform1.getMidPos().getY())).collect(Collectors.toList()));
-				}
-			});
+			writeSavedRailMaps(stations, platforms, platformsWithOffset, platformsInStation);
+			writeSavedRailMaps(depots, sidings, sidingsWithOffset, sidingsInDepot);
 
 			routesInStation.clear();
 			schedulesForPlatform.clear();
@@ -119,7 +109,7 @@ public final class ClientData {
 
 	public static Platform getClosePlatform(BlockPos pos) {
 		try {
-			return ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos)).findFirst().orElse(null);
+			return ClientData.platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos)).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -133,6 +123,24 @@ public final class ClientData {
 			objects.add(supplier.apply(packet));
 		}
 		return objects;
+	}
+
+	private static <T extends AreaBase, U extends SavedRailBase> void writeSavedRailMaps(Set<T> areas, Set<U> savedRails, Map<BlockPos, List<U>> savedRailsWithOffset, Map<Long, Map<Long, U>> savedRailsInAreaMap) {
+		savedRailsInAreaMap.clear();
+		savedRails.forEach(savedRail -> {
+			final T area = RailwayData.getAreaBySavedRail(areas, savedRail);
+			if (area != null) {
+				if (!savedRailsInAreaMap.containsKey(area.id)) {
+					savedRailsInAreaMap.put(area.id, new HashMap<>());
+				}
+				savedRailsInAreaMap.get(area.id).put(savedRail.id, savedRail);
+			}
+
+			final BlockPos midPos = savedRail.getMidPos(true);
+			if (!savedRailsWithOffset.containsKey(midPos)) {
+				savedRailsWithOffset.put(midPos, savedRails.stream().filter(savedRail1 -> savedRail1.getMidPos().getX() == midPos.getX() && savedRail1.getMidPos().getZ() == midPos.getZ()).sorted(Comparator.comparingInt(savedRail1 -> savedRail1.getMidPos().getY())).collect(Collectors.toList()));
+			}
+		});
 	}
 
 	public static class PlatformRouteDetails {

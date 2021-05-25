@@ -51,7 +51,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	public DashboardScreen() {
 		super(new LiteralText(""));
 
-		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditPlatform);
+		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -209,7 +209,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					if (editingArea == null) {
 						dashboardList.setData(ClientData.depots, true, true, true, false, false, true);
 					} else {
-						dashboardList.setData(new ArrayList<>(), true, false, false, false, false, false);
+						final Map<Long, Siding> sidingData = ClientData.sidingsInDepot.get(editingArea.id);
+						dashboardList.setData(sidingData == null ? new ArrayList<>() : new ArrayList<>(sidingData.values()), true, false, true, false, false, false);
 					}
 					break;
 			}
@@ -267,8 +268,9 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 							client.openScreen(new EditStationScreen((Station) data, this));
 						}
 					} else {
-						final Platform platform = (Platform) data;
-						client.openScreen(new PlatformScreen(platform, this));
+						if (data instanceof Platform) {
+							client.openScreen(new SavedRailScreen((Platform) data, this));
+						}
 					}
 				}
 				break;
@@ -276,8 +278,16 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				startEditingRoute((Route) data, false);
 				break;
 			case DEPOTS:
-				if (client != null && data instanceof Depot) {
-					client.openScreen(new EditDepotScreen((Depot) data, this));
+				if (client != null) {
+					if (editingArea == null) {
+						if (data instanceof Depot) {
+							client.openScreen(new EditDepotScreen((Depot) data, this));
+						}
+					} else {
+						if (data instanceof Siding) {
+							client.openScreen(new SavedRailScreen((Siding) data, this));
+						}
+					}
 				}
 				break;
 		}
@@ -361,8 +371,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
-	private void onClickEditPlatform(Platform platform) {
-		MinecraftClient.getInstance().openScreen(new PlatformScreen(platform, this));
+	private void onClickEditSavedRail(SavedRailBase savedRail) {
+		MinecraftClient.getInstance().openScreen(new SavedRailScreen(savedRail, this));
 	}
 
 	private void onDoneEditingArea(boolean isStation) {

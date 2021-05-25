@@ -269,7 +269,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final BlockPos pos2 = new BlockPos(x1, y1, z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
-				final int color = renderColors || rail.railType == RailType.PLATFORM ? rail.railType.color : -1;
+				final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
 
 				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
@@ -330,7 +330,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 	}
 
 	private static Station getNextStation(Route route, BlockPos pos) {
-		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToPlatform(pos) && route.platformIds.contains(platform.id)).findFirst().orElse(null);
+		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos) && route.platformIds.contains(platform.id)).findFirst().orElse(null);
 		if (currentPlatform != null) {
 			final int nextPlatformIndex = route.platformIds.indexOf(currentPlatform.id) + 1;
 			if (nextPlatformIndex < route.platformIds.size()) {

@@ -62,7 +62,7 @@ public class ItemRailModifier extends Item {
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								if (railType == RailType.PLATFORM && (railwayData.hasPlatform(posStart) || railwayData.hasPlatform(posEnd))) {
+								if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 									if (player != null) {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
 									}

@@ -28,7 +28,7 @@ public interface Items {
 	Item RAIL_CONNECTOR_4_OBSIDIAN = new ItemRailModifier(true, RailType.OBSIDIAN);
 	Item RAIL_CONNECTOR_5_BLAZE = new ItemRailModifier(true, RailType.BLAZE);
 	Item RAIL_CONNECTOR_6_DIAMOND = new ItemRailModifier(true, RailType.DIAMOND);
-	Item RAIL_CONNECTOR_DEPOT = new ItemRailModifier(true, RailType.DEPOT);
 	Item RAIL_CONNECTOR_PLATFORM = new ItemRailModifier(true, RailType.PLATFORM);
+	Item RAIL_CONNECTOR_SIDING = new ItemRailModifier(true, RailType.SIDING);
 	Item RAIL_REMOVER = new ItemRailModifier(false, null);
 }
