@@ -99,7 +99,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.depots.forEach(depot -> depot.trains.forEach(train -> train.move(world, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
@@ -156,7 +156,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
 			matrices.pop();
-		})));
+		}));
 
 //		try {
 //			ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + (world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE) ? tickDelta : 0), tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {

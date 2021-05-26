@@ -154,7 +154,7 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		depots.forEach(depot -> depot.trains.forEach(train -> train.move(world, null, null)));
+		sidings.forEach(siding -> siding.simulateTrain(world, null, null));
 	}
 
 	public void addAllRoutesToGenerate() {
@@ -180,7 +180,7 @@ public class RailwayData extends PersistentState {
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
 					platforms.add(new Platform(posStart, posEnd));
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(depotRail -> depotRail.containsPos(posStart) || depotRail.containsPos(posEnd))) {
-					sidings.add(new Siding(posStart, posEnd));
+					sidings.add(new Siding(posStart, posEnd, (int) Math.floor(rail.getLength())));
 				}
 				validateRails();
 			}
