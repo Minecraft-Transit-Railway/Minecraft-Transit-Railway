@@ -19,25 +19,30 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Siding extends SavedRailBase implements IGui {
 
+	private Depot depot;
+	private Rail sidingRail;
 	private CustomResources.TrainMapping trainTypeMapping;
 	private int trainLength;
+
 	private float speed;
 	private float railProgress;
-	private float stopTime;
+	private float stopCounter;
 	private int nextStoppingIndex;
 	private long lastNanos;
-	private long scheduledStartTime;
+	private TrainState trainState = TrainState.AT_SIDING;
 
 	private final int railLength;
-	private final List<PathData2> path = new ArrayList<>();
+	private final List<PathData2> pathSidingToFirstPlatform = new ArrayList<>();
+	private final List<PathData2> pathRoute = new ArrayList<>();
+	private final List<PathData2> pathLastPlatformToSiding = new ArrayList<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
-	private static final String KEY_SCHEDULED_START_TIME = "scheduled_start_time";
 
 	private static final int TICK_DURATION_NANOS = 50000000;
 	private static final float ACCELERATION = 0.01F;
@@ -53,8 +58,6 @@ public class Siding extends SavedRailBase implements IGui {
 		trainTypeMapping = new CustomResources.TrainMapping("", TrainType.values()[0]);
 
 		trainLength = railLength / trainTypeMapping.trainType.getSpacing();
-		System.out.println("hi1" + trainLength);
-		speed = ACCELERATION;
 		lastNanos = System.nanoTime();
 	}
 
@@ -67,11 +70,8 @@ public class Siding extends SavedRailBase implements IGui {
 		} catch (Exception ignored) {
 		}
 		trainTypeMapping = new CustomResources.TrainMapping(tag.getString(KEY_TRAIN_CUSTOM_ID), trainType);
-		scheduledStartTime = tag.getLong(KEY_SCHEDULED_START_TIME);
 
 		trainLength = railLength / trainTypeMapping.trainType.getSpacing();
-		System.out.println("hi2" + trainLength);
-		speed = ACCELERATION;
 		lastNanos = System.nanoTime();
 	}
 
@@ -79,11 +79,8 @@ public class Siding extends SavedRailBase implements IGui {
 		super(packet);
 		railLength = packet.readInt();
 		trainTypeMapping = new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
-		scheduledStartTime = packet.readLong();
 
 		trainLength = railLength / trainTypeMapping.trainType.getSpacing();
-		System.out.println("hi3" + trainLength);
-		speed = ACCELERATION;
 		lastNanos = System.nanoTime();
 	}
 
@@ -93,7 +90,6 @@ public class Siding extends SavedRailBase implements IGui {
 		tag.putInt(KEY_RAIL_LENGTH, railLength);
 		tag.putString(KEY_TRAIN_CUSTOM_ID, trainTypeMapping.customId);
 		tag.putString(KEY_TRAIN_TYPE, trainTypeMapping.trainType.toString());
-		tag.putLong(KEY_SCHEDULED_START_TIME, scheduledStartTime);
 		return tag;
 	}
 
@@ -103,7 +99,6 @@ public class Siding extends SavedRailBase implements IGui {
 		packet.writeInt(railLength);
 		packet.writeString(trainTypeMapping.customId);
 		packet.writeInt(trainTypeMapping.trainType.ordinal());
-		packet.writeLong(scheduledStartTime);
 	}
 
 	@Override
@@ -113,75 +108,127 @@ public class Siding extends SavedRailBase implements IGui {
 				trainTypeMapping = new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				trainLength = railLength / trainTypeMapping.trainType.getSpacing();
 				break;
-			case KEY_SCHEDULED_START_TIME:
-				scheduledStartTime = packet.readLong();
-				break;
 			default:
 				super.update(key, packet);
 				break;
 		}
 	}
 
-	public void setPath(List<PathData2> newPath) {
-		path.clear();
-		path.addAll(newPath);
+	public void setPath(List<PathData2> pathSidingToFirstPlatform, List<PathData2> pathRoute, List<PathData2> pathLastPlatformToSiding, Depot depot) {
+		this.pathSidingToFirstPlatform.clear();
+		this.pathSidingToFirstPlatform.addAll(pathSidingToFirstPlatform);
+		this.pathRoute.clear();
+		this.pathRoute.addAll(pathRoute);
+		this.pathLastPlatformToSiding.clear();
+		this.pathLastPlatformToSiding.addAll(pathLastPlatformToSiding);
+		this.depot = depot;
 	}
 
-	public void simulateTrain(WorldAccess world, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback) {
+	public void simulateTrain(WorldAccess world, Map<BlockPos, Map<BlockPos, Rail>> rails, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback) {
+		try {
+			final long currentNanos = System.nanoTime();
+
+			if (trainState == TrainState.AT_SIDING) {
+				if (sidingRail == null) {
+					try {
+						final List<BlockPos> railPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
+						sidingRail = rails.get(railPositions.get(0)).get(railPositions.get(1));
+					} catch (Exception ignored) {
+					}
+				}
+
+				if (sidingRail != null) {
+					final Pos3f[] positions = new Pos3f[trainLength + 1];
+					for (int i = 0; i < trainLength + 1; i++) {
+						positions[i] = sidingRail.getPosition(i * trainTypeMapping.trainType.getSpacing());
+					}
+					render(world, positions, 0, renderTrainCallback, renderConnectionCallback);
+				}
+
+				if (!pathSidingToFirstPlatform.isEmpty() && !pathRoute.isEmpty() && !pathLastPlatformToSiding.isEmpty() && depot.deployTrain(world)) {
+					System.out.println("deploying train");
+					trainState = TrainState.GOING_TO_ROUTE;
+					speed = ACCELERATION;
+					railProgress = pathSidingToFirstPlatform.get(0).distance;
+				}
+			} else {
+				final Pos3f[] positions = new Pos3f[trainLength + 1];
+				for (int i = 0; i < trainLength + 1; i++) {
+					positions[i] = getRoutePosition(i);
+				}
+				render(world, positions, moveTrain(world.isClient() ? (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS : 1), renderTrainCallback, renderConnectionCallback);
+			}
+
+			lastNanos = currentNanos;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private float moveTrain(float ticksElapsed) {
+		final float newAcceleration = ACCELERATION * ticksElapsed;
+		final List<PathData2> path = getPath();
 		if (path.isEmpty()) {
-			return;
+			return 0;
 		}
 
-		final long currentNanos = System.nanoTime();
-		final float ticksElapsed = renderTrainCallback == null ? 1 : (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS;
-		final float newAcceleration = ACCELERATION * ticksElapsed;
-		final float doorValue;
-		final boolean opening;
-
-		if (currentNanos < scheduledStartTime) {
-			railProgress = 0;
-			doorValue = 0;
-			opening = false;
+		if (railProgress >= path.get(path.size() - 1).distance) {
+			// TODO out of bounds error checking, stop on last platform
+			switch (trainState) {
+				case GOING_TO_ROUTE:
+					trainState = TrainState.ON_ROUTE;
+					speed = ACCELERATION;
+					railProgress = pathRoute.get(0).distance;
+					break;
+				case ON_ROUTE:
+					trainState = TrainState.GOING_TO_SIDING;
+					speed = ACCELERATION;
+					railProgress = pathLastPlatformToSiding.get(0).distance;
+					break;
+				case GOING_TO_SIDING:
+					trainState = TrainState.AT_SIDING;
+					break;
+			}
+			return 0;
 		} else {
+			final float doorValue;
+
 			if (speed <= 0) {
 				speed = 0;
-				stopTime += ticksElapsed;
+				stopCounter += ticksElapsed;
 
 				final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
-				doorValue = getDoorValue(dwellTicks, stopTime);
-				opening = stopTime < dwellTicks / 2F;
-				if (stopTime > dwellTicks) {
-					stopTime = 0;
+				doorValue = (stopCounter < dwellTicks / 2F ? 1 : -1) * getDoorValue(dwellTicks, stopCounter);
+
+				if (stopCounter > dwellTicks) {
+					stopCounter = 0;
 					speed = newAcceleration;
 					nextStoppingIndex = getNextStoppingIndex();
 				}
-			} else if (path.get(nextStoppingIndex).distance - railProgress < 0.5 * speed * speed / ACCELERATION) {
-				speed -= newAcceleration;
-				doorValue = 0;
-				opening = false;
 			} else {
-				final int headIndex = getIndex(0);
-				final float railSpeed = path.get(headIndex).rail.railType.maxBlocksPerTick;
-				if (speed < railSpeed && (speed < RailType.WOODEN.maxBlocksPerTick || headIndex < nextStoppingIndex)) {
-					speed += newAcceleration;
-				} else if (speed > railSpeed) {
+				if (path.get(nextStoppingIndex).distance - railProgress < 0.5 * speed * speed / ACCELERATION) {
 					speed -= newAcceleration;
+				} else {
+					final int headIndex = getIndex(0);
+					final float railSpeed = path.get(headIndex).rail.railType.maxBlocksPerTick;
+					if (speed < railSpeed && (speed < RailType.WOODEN.maxBlocksPerTick || headIndex < nextStoppingIndex)) {
+						speed += newAcceleration;
+					} else if (speed > railSpeed) {
+						speed -= newAcceleration;
+					}
 				}
+
 				doorValue = 0;
-				opening = false;
 			}
+
 			railProgress += speed * ticksElapsed;
-
-			if (railProgress > path.get(path.size() - 1).distance) {
-				railProgress = 0;
-				speed = 0;
-			}
+			return doorValue;
 		}
+	}
 
-		final Pos3f[] positions = new Pos3f[trainLength + 1];
-		for (int i = 0; i < trainLength + 1; i++) {
-			positions[i] = getPosition(i);
-		}
+	private void render(WorldAccess world, Pos3f[] positions, float doorValueRaw, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback) {
+		final float doorValue = Math.abs(doorValueRaw);
+		final boolean opening = doorValueRaw > 0;
 
 		float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
 		int previousRendered = 0;
@@ -233,34 +280,45 @@ public class Siding extends SavedRailBase implements IGui {
 				prevCarPitch = pitch;
 				previousRendered = 2;
 			}
+		}
+	}
 
-			lastNanos = currentNanos;
+	private List<PathData2> getPath() {
+		switch (trainState) {
+			case GOING_TO_ROUTE:
+				return pathSidingToFirstPlatform;
+			case ON_ROUTE:
+				return pathRoute;
+			case GOING_TO_SIDING:
+				return pathLastPlatformToSiding;
+			default:
+				return new ArrayList<>();
 		}
 	}
 
 	private int getIndex(int car) {
-		for (int i = 0; i < path.size(); i++) {
-			if (railProgress - car * trainTypeMapping.trainType.getSpacing() < path.get(i).distance) {
+		for (int i = 0; i < getPath().size(); i++) {
+			if (railProgress - car * trainTypeMapping.trainType.getSpacing() < getPath().get(i).distance) {
 				return i;
 			}
 		}
-		return path.size() - 1;
+		return getPath().size() - 1;
 	}
 
-	private Pos3f getPosition(int car) {
+	private Pos3f getRoutePosition(int car) {
 		final int index = getIndex(car);
 		final float newRailProgress = railProgress - car * trainTypeMapping.trainType.getSpacing();
-		return path.get(index).rail.getPosition(index == 0 ? newRailProgress : newRailProgress - path.get(index - 1).distance);
+		return getPath().get(index).rail.getPosition(index == 0 ? newRailProgress : newRailProgress - getPath().get(index - 1).distance);
 	}
 
 	private int getNextStoppingIndex() {
 		final int headIndex = getIndex(0);
-		for (int i = headIndex; i < path.size(); i++) {
-			if (path.get(i).dwellTime > 0) {
+		for (int i = headIndex; i < getPath().size(); i++) {
+			if (getPath().get(i).dwellTime > 0) {
 				return i;
 			}
 		}
-		return path.size() - 1;
+		return getPath().size() - 1;
 	}
 
 	private static float getDoorValue(int dwellTicks, float value) {
@@ -317,6 +375,8 @@ public class Siding extends SavedRailBase implements IGui {
 	private static float getAverage(float a, float b) {
 		return (a + b) / 2;
 	}
+
+	private enum TrainState {AT_SIDING, GOING_TO_ROUTE, ON_ROUTE, GOING_TO_SIDING}
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {

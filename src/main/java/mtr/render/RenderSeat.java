@@ -99,7 +99,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, ClientData.rails, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);

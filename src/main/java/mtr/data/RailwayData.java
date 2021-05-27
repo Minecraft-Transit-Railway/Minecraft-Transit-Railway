@@ -105,7 +105,7 @@ public class RailwayData extends PersistentState {
 			writeTag(tag, routes, KEY_ROUTES);
 			writeTag(tag, depots, KEY_DEPOTS);
 
-			Set<RailEntry> railSet = new HashSet<>();
+			final Set<RailEntry> railSet = new HashSet<>();
 			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
 			writeTag(tag, railSet, KEY_RAILS);
 
@@ -154,7 +154,7 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(world, null, null));
+		sidings.forEach(siding -> siding.simulateTrain(world, rails, null, null));
 	}
 
 	public void addAllRoutesToGenerate() {
