@@ -217,7 +217,7 @@
 	"tooltip.mtr.railway_sign_even": "配置モード：偶数",
 	"tooltip.mtr.railway_sign_length": "長さ：%s",
 	"tooltip.mtr.railway_sign_odd": "配置モード：奇数",
-	"tooltip.mtr.selected_block": "ブロック選択済: ",
+	"tooltip.mtr.selected_block": "ブロック選択済: %s",
 	"tooltip.mtr.station_color": "ブロック色は駅によって異なります。",
 	"tooltip.mtr.station_color_name": "ブロック色やテキストは駅によって異なります。",
 	"train.mtr.A_TRAIN_AEL": "ADtranz-CAF電車（機場快線仕様）",
