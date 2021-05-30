@@ -20,6 +20,12 @@ the mod or to see the project information.
 There is a [new wiki](https://github.com/jonafanho/Minecraft-Transit-Railway/wiki) for the mod, right here on GitHub!
 Take a look.
 
+## Help Translate the Mod!
+
+The [Crowdin site for the Minecraft Transit Railway mod](https://crwd.in/minecraft-transit-railway) is available!
+
+Crowdin is a cloud-based platform for translators to contribute to a project. With your help, we can translate the mod to many different languages. You may create a free account to start translating.
+
 ## License
 
 This project is licensed with the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed with the [Open Font License](http://scripts.sil.org/OFL).
