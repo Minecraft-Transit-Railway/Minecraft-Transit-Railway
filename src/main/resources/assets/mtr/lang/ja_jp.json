@@ -97,7 +97,7 @@
 	"gui.mtr.search": "検索",
 	"gui.mtr.selected": "決定",
 	"gui.mtr.separator": "/",
-	"gui.mtr.separator_cjk": "/",
+	"gui.mtr.separator_cjk": "•",
 	"gui.mtr.settings": "設定",
 	"gui.mtr.shuffle_routes": "ランダム路線",
 	"gui.mtr.shuffle_trains": "ランダム電車",
