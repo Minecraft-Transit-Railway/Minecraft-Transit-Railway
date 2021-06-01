@@ -24,9 +24,9 @@ public class PathFinder {
 			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
 			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
 
-			final List<PathData2> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd, path.isEmpty() ? 0 : path.get(path.size() - 1).distance);
+			final List<PathData2> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
 			if (partialPath.isEmpty()) {
-				return path;
+				return new ArrayList<>();
 			} else {
 				path.addAll(partialPath);
 			}
@@ -35,7 +35,7 @@ public class PathFinder {
 		return path;
 	}
 
-	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd, float sumOffset) {
+	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {
 		final BlockPos savedRailBaseEndMidPos = savedRailBaseEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
 			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
@@ -61,23 +61,22 @@ public class PathFinder {
 					addPathPart(rails, newPos, lastPathPart.pos, path, comparator);
 
 					if (savedRailBaseEnd.containsPos(newPos)) {
+						addPathPart(rails, savedRailBaseEnd.getOtherPosition(newPos), newPos, path, comparator);
 						final List<PathData2> railPath = new ArrayList<>();
-						float sum = sumOffset;
 						for (int j = 0; j < path.size() - 1; j++) {
 							try {
 								final Rail rail = rails.get(path.get(j).pos).get(path.get(j + 1).pos);
 								final int dwellTime;
 								if (j == 0) {
 									dwellTime = savedRailBaseStart instanceof Platform ? ((Platform) savedRailBaseStart).getDwellTime() : 0;
-								} else if (j == path.size() - 1) {
-									dwellTime = savedRailBaseStart instanceof Platform ? ((Platform) savedRailBaseStart).getDwellTime() : 0;
+								} else if (j == path.size() - 2) {
+									dwellTime = savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0;
 								} else {
 									dwellTime = 0;
 								}
-								sum += rail.getLength();
-								railPath.add(new PathData2(rail, sum, dwellTime));
+								railPath.add(new PathData2(rail, dwellTime, path.get(j).pos, path.get(j + 1).pos));
 							} catch (Exception ignored) {
-								return railPath;
+								return new ArrayList<>();
 							}
 						}
 						return railPath;

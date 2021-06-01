@@ -154,7 +154,7 @@ public class Depot extends AreaBase {
 	public boolean deployTrain(WorldAccess world) {
 		final long currentMillis = System.currentTimeMillis();
 		final int hour = (int) wrapTime(world.getLunarTime(), -6000) / TICKS_PER_HOUR;
-		final boolean success = currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR / frequencies[hour];
+		final boolean success = frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR / frequencies[hour];
 		if (success) {
 			lastDeployedMillis = currentMillis;
 		}
@@ -175,27 +175,51 @@ public class Depot extends AreaBase {
 			}
 		});
 
-		final List<PathData2> pathRoute = PathFinder.findPath(rails, platformsInRoute);
-		sidings.forEach(siding -> {
-			final BlockPos sidingPos = siding.getMidPos();
-			if (inArea(sidingPos.getX(), sidingPos.getZ())) {
-				final List<SavedRailBase> sidingToFirstPlatform = new ArrayList<>();
-				if (platformsInRoute.size() > 0) {
-					sidingToFirstPlatform.add(siding);
-					sidingToFirstPlatform.add(platformsInRoute.get(0));
-				}
-				final List<PathData2> pathSidingToFirstPlatform = PathFinder.findPath(rails, sidingToFirstPlatform);
+		final List<PathData2> path = PathFinder.findPath(rails, platformsInRoute);
+		if (!path.isEmpty()) {
+			sidings.forEach(siding -> {
+				final BlockPos sidingPos = siding.getMidPos();
+				if (inArea(sidingPos.getX(), sidingPos.getZ())) {
+					final List<PathData2> finalPath = new ArrayList<>();
 
-				final List<SavedRailBase> lastPlatformToSiding = new ArrayList<>();
-				if (platformsInRoute.size() > 0) {
-					lastPlatformToSiding.add(siding);
-					lastPlatformToSiding.add(platformsInRoute.get(platformsInRoute.size() - 1));
-				}
-				final List<PathData2> pathLastPlatformToSiding = PathFinder.findPath(rails, lastPlatformToSiding);
+					final List<SavedRailBase> sidingToFirstPlatform = new ArrayList<>();
+					if (platformsInRoute.size() > 0) {
+						sidingToFirstPlatform.add(siding);
+						sidingToFirstPlatform.add(platformsInRoute.get(0));
+					}
+					final List<PathData2> sidingToFirstPlatformPath = PathFinder.findPath(rails, sidingToFirstPlatform);
+					if (sidingToFirstPlatformPath.isEmpty()) {
+						return;
+					}
+					finalPath.addAll(sidingToFirstPlatformPath);
 
-				siding.setPath(pathSidingToFirstPlatform, pathRoute, pathLastPlatformToSiding, this);
-			}
-		});
+					finalPath.addAll(path);
+
+					final List<SavedRailBase> lastPlatformToSiding = new ArrayList<>();
+					if (platformsInRoute.size() > 0) {
+						lastPlatformToSiding.add(platformsInRoute.get(platformsInRoute.size() - 1));
+						lastPlatformToSiding.add(siding);
+					}
+					final List<PathData2> lastPlatformToSidingPath = PathFinder.findPath(rails, lastPlatformToSiding);
+					if (lastPlatformToSidingPath.isEmpty()) {
+						return;
+					}
+					finalPath.addAll(lastPlatformToSidingPath);
+
+					final List<Integer> indicesToRemove = new ArrayList<>();
+					for (int i = 0; i < finalPath.size() - 1; i++) {
+						if (finalPath.get(i).isEqual(finalPath.get(i + 1))) {
+							indicesToRemove.add(i);
+						}
+					}
+					for (int i = 0; i < indicesToRemove.size(); i++) {
+						finalPath.remove(indicesToRemove.get(i) - i);
+					}
+
+					siding.setPath(finalPath, this);
+				}
+			});
+		}
 	}
 
 	public static float wrapTime(float time1, float time2) {

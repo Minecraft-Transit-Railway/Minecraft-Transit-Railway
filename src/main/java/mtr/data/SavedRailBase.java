@@ -55,10 +55,6 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return positions.contains(pos);
 	}
 
-	private BlockPos getPosition(int index) {
-		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
-	}
-
 	public BlockPos getMidPos() {
 		return getMidPos(false);
 	}
@@ -92,6 +88,16 @@ public abstract class SavedRailBase extends NameColorDataBase {
 			orderedPositions.add(pos2);
 		}
 		return orderedPositions;
+	}
+
+	public BlockPos getOtherPosition(BlockPos pos) {
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		return pos.equals(pos1) ? pos2 : pos1;
+	}
+
+	private BlockPos getPosition(int index) {
+		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
 
 	public static boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {

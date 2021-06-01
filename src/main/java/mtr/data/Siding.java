@@ -36,9 +36,8 @@ public class Siding extends SavedRailBase implements IGui {
 	private TrainState trainState = TrainState.AT_SIDING;
 
 	private final int railLength;
-	private final List<PathData2> pathSidingToFirstPlatform = new ArrayList<>();
-	private final List<PathData2> pathRoute = new ArrayList<>();
-	private final List<PathData2> pathLastPlatformToSiding = new ArrayList<>();
+	private final List<PathData2> path = new ArrayList<>();
+	private final List<Float> distances = new ArrayList<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
 	private static final String KEY_TRAIN_TYPE = "train_type";
@@ -114,13 +113,17 @@ public class Siding extends SavedRailBase implements IGui {
 		}
 	}
 
-	public void setPath(List<PathData2> pathSidingToFirstPlatform, List<PathData2> pathRoute, List<PathData2> pathLastPlatformToSiding, Depot depot) {
-		this.pathSidingToFirstPlatform.clear();
-		this.pathSidingToFirstPlatform.addAll(pathSidingToFirstPlatform);
-		this.pathRoute.clear();
-		this.pathRoute.addAll(pathRoute);
-		this.pathLastPlatformToSiding.clear();
-		this.pathLastPlatformToSiding.addAll(pathLastPlatformToSiding);
+	public void setPath(List<PathData2> path, Depot depot) {
+		this.path.clear();
+		this.path.addAll(path);
+
+		distances.clear();
+		float sum = 0;
+		for (final PathData2 pathData : path) {
+			sum += pathData.rail.getLength();
+			distances.add(sum);
+		}
+
 		this.depot = depot;
 	}
 
@@ -140,16 +143,21 @@ public class Siding extends SavedRailBase implements IGui {
 				if (sidingRail != null) {
 					final Pos3f[] positions = new Pos3f[trainLength + 1];
 					for (int i = 0; i < trainLength + 1; i++) {
-						positions[i] = sidingRail.getPosition(i * trainTypeMapping.trainType.getSpacing());
+						positions[i] = sidingRail.getPosition(railLength - i * trainTypeMapping.trainType.getSpacing());
 					}
 					render(world, positions, 0, renderTrainCallback, renderConnectionCallback);
 				}
 
-				if (!pathSidingToFirstPlatform.isEmpty() && !pathRoute.isEmpty() && !pathLastPlatformToSiding.isEmpty() && depot.deployTrain(world)) {
+				if (!path.isEmpty() && depot.deployTrain(world)) {
 					System.out.println("deploying train");
-					trainState = TrainState.GOING_TO_ROUTE;
+					trainState = TrainState.ON_ROUTE;
 					speed = ACCELERATION;
-					railProgress = pathSidingToFirstPlatform.get(0).distance;
+					final PathData2 pathData = path.get(0);
+					if (pathData.rail.equals(sidingRail)) {
+						railProgress = distances.get(0);
+					} else {
+						railProgress = trainLength * trainTypeMapping.trainType.getSpacing();
+					}
 				}
 			} else {
 				final Pos3f[] positions = new Pos3f[trainLength + 1];
@@ -167,28 +175,13 @@ public class Siding extends SavedRailBase implements IGui {
 
 	private float moveTrain(float ticksElapsed) {
 		final float newAcceleration = ACCELERATION * ticksElapsed;
-		final List<PathData2> path = getPath();
 		if (path.isEmpty()) {
 			return 0;
 		}
 
-		if (railProgress >= path.get(path.size() - 1).distance) {
-			// TODO out of bounds error checking, stop on last platform
-			switch (trainState) {
-				case GOING_TO_ROUTE:
-					trainState = TrainState.ON_ROUTE;
-					speed = ACCELERATION;
-					railProgress = pathRoute.get(0).distance;
-					break;
-				case ON_ROUTE:
-					trainState = TrainState.GOING_TO_SIDING;
-					speed = ACCELERATION;
-					railProgress = pathLastPlatformToSiding.get(0).distance;
-					break;
-				case GOING_TO_SIDING:
-					trainState = TrainState.AT_SIDING;
-					break;
-			}
+		if (railProgress >= distances.get(distances.size() - 1)) {
+			System.out.println("back at siding");
+			trainState = TrainState.AT_SIDING;
 			return 0;
 		} else {
 			final float doorValue;
@@ -203,10 +196,13 @@ public class Siding extends SavedRailBase implements IGui {
 				if (stopCounter > dwellTicks) {
 					stopCounter = 0;
 					speed = newAcceleration;
+					if (path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOpposite(path.get(nextStoppingIndex + 1))) {
+						railProgress += trainLength * trainTypeMapping.trainType.getSpacing();
+					}
 					nextStoppingIndex = getNextStoppingIndex();
 				}
 			} else {
-				if (path.get(nextStoppingIndex).distance - railProgress < 0.5 * speed * speed / ACCELERATION) {
+				if (distances.get(nextStoppingIndex) - railProgress < 0.5 * speed * speed / ACCELERATION) {
 					speed -= newAcceleration;
 				} else {
 					final int headIndex = getIndex(0);
@@ -283,42 +279,32 @@ public class Siding extends SavedRailBase implements IGui {
 		}
 	}
 
-	private List<PathData2> getPath() {
-		switch (trainState) {
-			case GOING_TO_ROUTE:
-				return pathSidingToFirstPlatform;
-			case ON_ROUTE:
-				return pathRoute;
-			case GOING_TO_SIDING:
-				return pathLastPlatformToSiding;
-			default:
-				return new ArrayList<>();
-		}
+	private float getRailProgress(int car) {
+		return railProgress - car * trainTypeMapping.trainType.getSpacing();
 	}
 
 	private int getIndex(int car) {
-		for (int i = 0; i < getPath().size(); i++) {
-			if (railProgress - car * trainTypeMapping.trainType.getSpacing() < getPath().get(i).distance) {
+		for (int i = 0; i < path.size(); i++) {
+			if (getRailProgress(car) < distances.get(i)) {
 				return i;
 			}
 		}
-		return getPath().size() - 1;
+		return path.size() - 1;
 	}
 
 	private Pos3f getRoutePosition(int car) {
 		final int index = getIndex(car);
-		final float newRailProgress = railProgress - car * trainTypeMapping.trainType.getSpacing();
-		return getPath().get(index).rail.getPosition(index == 0 ? newRailProgress : newRailProgress - getPath().get(index - 1).distance);
+		return path.get(index).rail.getPosition(getRailProgress(car) - (index == 0 ? 0 : distances.get(index - 1)));
 	}
 
 	private int getNextStoppingIndex() {
 		final int headIndex = getIndex(0);
-		for (int i = headIndex; i < getPath().size(); i++) {
-			if (getPath().get(i).dwellTime > 0) {
+		for (int i = headIndex; i < path.size(); i++) {
+			if (path.get(i).dwellTime > 0) {
 				return i;
 			}
 		}
-		return getPath().size() - 1;
+		return path.size() - 1;
 	}
 
 	private static float getDoorValue(int dwellTicks, float value) {
@@ -376,7 +362,7 @@ public class Siding extends SavedRailBase implements IGui {
 		return (a + b) / 2;
 	}
 
-	private enum TrainState {AT_SIDING, GOING_TO_ROUTE, ON_ROUTE, GOING_TO_SIDING}
+	private enum TrainState {AT_SIDING, ON_ROUTE}
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
