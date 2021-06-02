@@ -2,6 +2,7 @@ package mtr.path;
 
 import mtr.data.Platform;
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import mtr.data.SavedRailBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -14,25 +15,40 @@ import java.util.function.Function;
 
 public class PathFinder {
 
-	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
-		if (savedRailBases.size() < 2) {
+	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase... savedRailBases) {
+		if (savedRailBases.length < 2) {
 			return new ArrayList<>();
 		}
 
 		final List<PathData2> path = new ArrayList<>();
-		for (int i = 0; i < savedRailBases.size() - 1; i++) {
-			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
-			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
+		for (int i = 0; i < savedRailBases.length - 1; i++) {
+			final SavedRailBase savedRailBaseStart = savedRailBases[i];
+			final SavedRailBase savedRailBaseEnd = savedRailBases[i + 1];
 
 			final List<PathData2> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
 			if (partialPath.isEmpty()) {
 				return new ArrayList<>();
 			} else {
-				path.addAll(partialPath);
+				addToPath(path, partialPath);
 			}
 		}
 
 		return path;
+	}
+
+	public static boolean addToPath(List<PathData2> path, List<PathData2> addPath) {
+		if (addPath.isEmpty()) {
+			path.clear();
+			return false;
+		} else {
+			final boolean sameFirstRail = !path.isEmpty() && path.get(path.size() - 1).isSameRail(addPath.get(0));
+			for (int i = 0; i < addPath.size(); i++) {
+				if (!(i == 0 && sameFirstRail)) {
+					path.add(addPath.get(i));
+				}
+			}
+			return true;
+		}
 	}
 
 	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {
@@ -61,25 +77,24 @@ public class PathFinder {
 					addPathPart(rails, newPos, lastPathPart.pos, path, comparator);
 
 					if (savedRailBaseEnd.containsPos(newPos)) {
-						addPathPart(rails, savedRailBaseEnd.getOtherPosition(newPos), newPos, path, comparator);
 						final List<PathData2> railPath = new ArrayList<>();
 						for (int j = 0; j < path.size() - 1; j++) {
-							try {
-								final Rail rail = rails.get(path.get(j).pos).get(path.get(j + 1).pos);
-								final int dwellTime;
-								if (j == 0) {
-									dwellTime = savedRailBaseStart instanceof Platform ? ((Platform) savedRailBaseStart).getDwellTime() : 0;
-								} else if (j == path.size() - 2) {
-									dwellTime = savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0;
-								} else {
-									dwellTime = 0;
-								}
-								railPath.add(new PathData2(rail, dwellTime, path.get(j).pos, path.get(j + 1).pos));
-							} catch (Exception ignored) {
+							final BlockPos pos1 = path.get(j).pos;
+							final BlockPos pos2 = path.get(j + 1).pos;
+							if (RailwayData.containsRail(rails, pos1, pos2)) {
+								railPath.add(new PathData2(rails.get(pos1).get(pos2), 0, pos1, pos2));
+							} else {
 								return new ArrayList<>();
 							}
 						}
-						return railPath;
+
+						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
+						if (RailwayData.containsRail(rails, newPos, endPos)) {
+							railPath.add(new PathData2(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos));
+							return railPath;
+						} else {
+							return new ArrayList<>();
+						}
 					}
 				}
 			}

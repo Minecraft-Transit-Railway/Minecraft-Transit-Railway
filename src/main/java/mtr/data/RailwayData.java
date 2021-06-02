@@ -308,6 +308,10 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
+	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
+		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
 	public static boolean isBetween(double value, double value1, double value2) {
 		return isBetween(value, value1, value2, 0);
 	}

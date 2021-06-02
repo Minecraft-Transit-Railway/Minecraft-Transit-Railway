@@ -175,45 +175,31 @@ public class Depot extends AreaBase {
 			}
 		});
 
-		final List<PathData2> path = PathFinder.findPath(rails, platformsInRoute);
+		if (platformsInRoute.isEmpty()) {
+			return;
+		}
+
+		final List<PathData2> path = PathFinder.findPath(rails, platformsInRoute.toArray(new SavedRailBase[0]));
 		if (!path.isEmpty()) {
 			sidings.forEach(siding -> {
 				final BlockPos sidingPos = siding.getMidPos();
+
 				if (inArea(sidingPos.getX(), sidingPos.getZ())) {
 					final List<PathData2> finalPath = new ArrayList<>();
 
-					final List<SavedRailBase> sidingToFirstPlatform = new ArrayList<>();
-					if (platformsInRoute.size() > 0) {
-						sidingToFirstPlatform.add(siding);
-						sidingToFirstPlatform.add(platformsInRoute.get(0));
+					final boolean success1 = PathFinder.addToPath(finalPath, PathFinder.findPath(rails, siding, platformsInRoute.get(0)));
+					if (success1) {
+						PathFinder.addToPath(finalPath, path);
 					}
-					final List<PathData2> sidingToFirstPlatformPath = PathFinder.findPath(rails, sidingToFirstPlatform);
-					if (sidingToFirstPlatformPath.isEmpty()) {
-						return;
-					}
-					finalPath.addAll(sidingToFirstPlatformPath);
+					final boolean success2 = success1 && PathFinder.addToPath(finalPath, PathFinder.findPath(rails, platformsInRoute.get(platformsInRoute.size() - 1), siding));
 
-					finalPath.addAll(path);
-
-					final List<SavedRailBase> lastPlatformToSiding = new ArrayList<>();
-					if (platformsInRoute.size() > 0) {
-						lastPlatformToSiding.add(platformsInRoute.get(platformsInRoute.size() - 1));
-						lastPlatformToSiding.add(siding);
-					}
-					final List<PathData2> lastPlatformToSidingPath = PathFinder.findPath(rails, lastPlatformToSiding);
-					if (lastPlatformToSidingPath.isEmpty()) {
-						return;
-					}
-					finalPath.addAll(lastPlatformToSidingPath);
-
-					final List<Integer> indicesToRemove = new ArrayList<>();
-					for (int i = 0; i < finalPath.size() - 1; i++) {
-						if (finalPath.get(i).isEqual(finalPath.get(i + 1))) {
-							indicesToRemove.add(i);
+					if (!success2) {
+						final List<BlockPos> orderedPositions = siding.getOrderedPositions(new BlockPos(0, 0, 0), false);
+						final BlockPos pos1 = orderedPositions.get(0);
+						final BlockPos pos2 = orderedPositions.get(1);
+						if (RailwayData.containsRail(rails, pos1, pos2)) {
+							finalPath.add(new PathData2(rails.get(pos1).get(pos2), 0, pos1, pos2));
 						}
-					}
-					for (int i = 0; i < indicesToRemove.size(); i++) {
-						finalPath.remove(indicesToRemove.get(i) - i);
 					}
 
 					siding.setPath(finalPath, this);

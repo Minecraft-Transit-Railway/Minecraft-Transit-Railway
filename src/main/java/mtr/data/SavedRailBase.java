@@ -101,6 +101,6 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public static boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
-		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2) && rails.get(pos1).get(pos2).railType.hasSavedRail;
+		return RailwayData.containsRail(rails, pos1, pos2) && rails.get(pos1).get(pos2).railType.hasSavedRail;
 	}
 }

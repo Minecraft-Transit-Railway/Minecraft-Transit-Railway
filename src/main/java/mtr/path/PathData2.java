@@ -18,11 +18,11 @@ public class PathData2 {
 		this.endingPos = endingPos;
 	}
 
-	public boolean isEqual(PathData2 pathData) {
+	public boolean isSameRail(PathData2 pathData) {
 		return startingPos.equals(pathData.startingPos) && endingPos.equals(pathData.endingPos);
 	}
 
-	public boolean isOpposite(PathData2 pathData) {
+	public boolean isOppositeRail(PathData2 pathData) {
 		return startingPos.equals(pathData.endingPos) && endingPos.equals(pathData.startingPos);
 	}
 }

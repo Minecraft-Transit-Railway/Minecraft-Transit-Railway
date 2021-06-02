@@ -377,18 +377,6 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		final Rail rail = (Rail) o;
-		return Float.compare(rail.h1, h1) == 0 && Float.compare(rail.k1, k1) == 0 && Float.compare(rail.r1, r1) == 0 && Float.compare(rail.tStart1, tStart1) == 0 && Float.compare(rail.tEnd1, tEnd1) == 0 && Float.compare(rail.h2, h2) == 0 && Float.compare(rail.k2, k2) == 0 && Float.compare(rail.r2, r2) == 0 && Float.compare(rail.tStart2, tStart2) == 0 && Float.compare(rail.tEnd2, tEnd2) == 0 && yStart == rail.yStart && yEnd == rail.yEnd && reverseT1 == rail.reverseT1 && isStraight1 == rail.isStraight1 && reverseT2 == rail.reverseT2 && isStraight2 == rail.isStraight2 && railType == rail.railType && facingStart == rail.facingStart && facingEnd == rail.facingEnd;
-	}
-
 	@FunctionalInterface
 	public interface RenderRail {
 		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float y1, float y2);
