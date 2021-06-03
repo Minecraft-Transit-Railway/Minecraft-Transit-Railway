@@ -1,0 +1,44 @@
+{
+	"textures": {
+		"particle": "mtr:block/metal",
+		"back": "mtr:block/black",
+		"orange": "mtr:block/light_on",
+		"pids1": "mtr:block/pids_1",
+		"pids2": "mtr:block/pids_2",
+		"pids3": "mtr:block/pids_3",
+		"pids4": "mtr:block/pids_4",
+		"pids5": "mtr:block/pids_5"
+	},
+	"elements": [
+		{   "__comment": "Main",
+			"from": [ 6, 0, 0 ],
+			"to": [ 10, 10, 16 ],
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle" },
+				"south": { "texture": "#particle", "cullface": "south" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Pole",
+			"from": [ 7.5, 10, 12.5 ],
+			"to": [ 8.5, 16, 13.5 ],
+			"faces": {
+				"up": { "texture": "#particle", "cullface": "up" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{   "__comment": "Background",
+			"from": [ 5.95, 0.70, 0 ],
+			"to": [ 10.05, 9.30, 15.30 ],
+			"faces": {
+				"east": { "texture": "#back" },
+				"west": { "texture": "#back" }
+			}
+		}
+	]
+}
