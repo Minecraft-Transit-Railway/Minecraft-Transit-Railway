@@ -15,40 +15,30 @@ import java.util.function.Function;
 
 public class PathFinder {
 
-	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase... savedRailBases) {
-		if (savedRailBases.length < 2) {
+	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
+		if (savedRailBases.size() < 2) {
 			return new ArrayList<>();
 		}
 
 		final List<PathData2> path = new ArrayList<>();
-		for (int i = 0; i < savedRailBases.length - 1; i++) {
-			final SavedRailBase savedRailBaseStart = savedRailBases[i];
-			final SavedRailBase savedRailBaseEnd = savedRailBases[i + 1];
+		for (int i = 0; i < savedRailBases.size() - 1; i++) {
+			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
+			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
 
 			final List<PathData2> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
 			if (partialPath.isEmpty()) {
 				return new ArrayList<>();
 			} else {
-				addToPath(path, partialPath);
+				final boolean sameFirstRail = !path.isEmpty() && path.get(path.size() - 1).isSameRail(partialPath.get(0));
+				for (int j = 0; j < partialPath.size(); j++) {
+					if (!(j == 0 && sameFirstRail)) {
+						path.add(partialPath.get(j));
+					}
+				}
 			}
 		}
 
 		return path;
-	}
-
-	public static boolean addToPath(List<PathData2> path, List<PathData2> addPath) {
-		if (addPath.isEmpty()) {
-			path.clear();
-			return false;
-		} else {
-			final boolean sameFirstRail = !path.isEmpty() && path.get(path.size() - 1).isSameRail(addPath.get(0));
-			for (int i = 0; i < addPath.size(); i++) {
-				if (!(i == 0 && sameFirstRail)) {
-					path.add(addPath.get(i));
-				}
-			}
-			return true;
-		}
 	}
 
 	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {

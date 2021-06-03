@@ -1,17 +1,12 @@
 package mtr.data;
 
-import mtr.path.PathData2;
-import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class Depot extends AreaBase {
@@ -159,53 +154,6 @@ public class Depot extends AreaBase {
 			lastDeployedMillis = currentMillis;
 		}
 		return success;
-	}
-
-	public void generateRoute(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
-		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
-		routeIds.forEach(routeId -> {
-			final Route route = RailwayData.getDataById(routes, routeId);
-			if (route != null) {
-				route.platformIds.forEach(platformId -> {
-					final Platform platform = RailwayData.getDataById(platforms, platformId);
-					if (platform != null) {
-						platformsInRoute.add(platform);
-					}
-				});
-			}
-		});
-
-		if (platformsInRoute.isEmpty()) {
-			return;
-		}
-
-		final List<PathData2> path = PathFinder.findPath(rails, platformsInRoute.toArray(new SavedRailBase[0]));
-		if (!path.isEmpty()) {
-			sidings.forEach(siding -> {
-				final BlockPos sidingPos = siding.getMidPos();
-
-				if (inArea(sidingPos.getX(), sidingPos.getZ())) {
-					final List<PathData2> finalPath = new ArrayList<>();
-
-					final boolean success1 = PathFinder.addToPath(finalPath, PathFinder.findPath(rails, siding, platformsInRoute.get(0)));
-					if (success1) {
-						PathFinder.addToPath(finalPath, path);
-					}
-					final boolean success2 = success1 && PathFinder.addToPath(finalPath, PathFinder.findPath(rails, platformsInRoute.get(platformsInRoute.size() - 1), siding));
-
-					if (!success2) {
-						final List<BlockPos> orderedPositions = siding.getOrderedPositions(new BlockPos(0, 0, 0), false);
-						final BlockPos pos1 = orderedPositions.get(0);
-						final BlockPos pos2 = orderedPositions.get(1);
-						if (RailwayData.containsRail(rails, pos1, pos2)) {
-							finalPath.add(new PathData2(rails.get(pos1).get(pos2), 0, pos1, pos2));
-						}
-					}
-
-					siding.setPath(finalPath, this);
-				}
-			});
-		}
 	}
 
 	public static float wrapTime(float time1, float time2) {

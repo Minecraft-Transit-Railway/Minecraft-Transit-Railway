@@ -152,6 +152,34 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void receiveUpdateOrDeleteSiding(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+		final World world = player.world;
+		final RailwayData railwayData = RailwayData.getInstance(player.world);
+		if (railwayData == null) {
+			return;
+		}
+
+		if (isDelete) {
+			deleteData(railwayData.getSidings(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_SIDING, fullPacket);
+					}
+				});
+				railwayData.markDirty();
+			});
+		} else {
+			updateData(railwayData.getSidings(), minecraftServer, packet, (updatePacket, fullPacket) -> {
+				world.getPlayers().forEach(worldPlayer -> {
+					if (!worldPlayer.getUuid().equals(player.getUuid())) {
+						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_SIDING, fullPacket);
+					}
+				});
+				railwayData.markDirty();
+			}, null);
+		}
+	}
+
 	public static void receiveUpdateOrDeleteRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
@@ -206,15 +234,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				railwayData.markDirty();
 			}, Depot::new);
 		}
-	}
-
-	public static void receiveGenerateAllRoutes(MinecraftServer minecraftServer, ServerPlayerEntity player) {
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
-
-		minecraftServer.execute(railwayData::addAllRoutesToGenerate);
 	}
 
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {

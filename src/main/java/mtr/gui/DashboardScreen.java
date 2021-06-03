@@ -224,12 +224,6 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		return false;
 	}
 
-	@Override
-	public void onClose() {
-		super.onClose();
-		PacketTrainDataGuiClient.sendGenerateAllRoutes();
-	}
-
 	private void onSelectTab(SelectedTab tab) {
 		selectedTab = tab;
 		buttonTabStations.active = tab != SelectedTab.STATIONS;

@@ -864,6 +864,8 @@ public class ModelMTrain extends ModelTrainBase {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
@@ -882,6 +884,8 @@ public class ModelMTrain extends ModelTrainBase {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:

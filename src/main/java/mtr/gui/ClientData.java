@@ -50,7 +50,7 @@ public final class ClientData {
 		}
 
 		updateReferences();
-		ClientData.depots.forEach(depot -> depot.generateRoute(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes));
+		sidings.forEach(siding -> siding.generateRoute(rails, platforms, routes, depots));
 	}
 
 	public static void updateReferences() {

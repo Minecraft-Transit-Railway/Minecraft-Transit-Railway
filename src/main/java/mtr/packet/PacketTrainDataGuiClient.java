@@ -125,6 +125,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
+	public static void receiveUpdateOrDeleteSiding(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
+		if (isDelete) {
+			deleteData(ClientData.sidings, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
+		} else {
+			updateData(ClientData.sidings, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), null);
+		}
+	}
+
 	public static void receiveUpdateOrDeleteRoute(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
 		if (isDelete) {
 			deleteData(ClientData.routes, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
@@ -150,10 +158,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		sendUpdate(packetId, packet);
-	}
-
-	public static void sendGenerateAllRoutes() {
-		ClientPlayNetworking.send(PACKET_GENERATE_ALL_ROUTES, PacketByteBufs.create());
 	}
 
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
