@@ -47,7 +47,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms,int defaultColor, float scaleMultiplier, int firstTrainArrivalColor, boolean showDotAfterMin) {
 		super(dispatcher);
-		scale = (180 * maxArrivals / maxHeight) * scaleMultiplier;
+		scale = (160 * maxArrivals / maxHeight) * scaleMultiplier;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.6F;
@@ -65,7 +65,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		this.showAllPlatforms = showAllPlatforms;
 		this.showDotAfterMin = showDotAfterMin;
 	}
-	
+
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int defaultColor, float scaleMultiplier, int firstTrainArrivalColor) {
 		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, defaultColor, scaleMultiplier, firstTrainArrivalColor, false);
 	}
