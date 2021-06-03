@@ -43,6 +43,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
 	public static final BlockEntityType<BlockPIDS1.TileEntityBlockPIDS1> PIDS_1_TILE_ENTITY = registerTileEntity("pids_1", BlockPIDS1.TileEntityBlockPIDS1::new, Blocks.PIDS_1);
 	public static final BlockEntityType<BlockPIDS2.TileEntityBlockPIDS2> PIDS_2_TILE_ENTITY = registerTileEntity("pids_2", BlockPIDS2.TileEntityBlockPIDS2::new, Blocks.PIDS_2);
+	public static final BlockEntityType<BlockPIDS3.TileEntityBlockPIDS3> PIDS_3_TILE_ENTITY = registerTileEntity("pids_3", BlockPIDS3.TileEntityBlockPIDS3::new, Blocks.PIDS_3);
 	public static final BlockEntityType<BlockRail.TileEntityRail> RAIL_TILE_ENTITY = registerTileEntity("rail", BlockRail.TileEntityRail::new, Blocks.RAIL);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_EVEN_TILE_ENTITY = registerTileEntity("railway_sign_2_even", () -> new BlockRailwaySign.TileEntityRailwaySign(2, false), Blocks.RAILWAY_SIGN_2_EVEN);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_ODD_TILE_ENTITY = registerTileEntity("railway_sign_2_odd", () -> new BlockRailwaySign.TileEntityRailwaySign(2, true), Blocks.RAILWAY_SIGN_2_ODD);
@@ -73,7 +74,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent TICKET_PROCESSOR_EXIT_CONCESSIONARY = registerSoundEvent("ticket_processor_exit_concessionary");
 	public static final SoundEvent TICKET_PROCESSOR_FAIL = registerSoundEvent("ticket_processor_fail");
 
-	private static final int SP1900_SPEED_COUNT = 120;
+    private static final int SP1900_SPEED_COUNT = 120;
 	private static final int C1141A_SPEED_COUNT = 96;
 	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
 	public static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
@@ -144,6 +145,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
 		registerBlock("pids_2", Blocks.PIDS_2, ItemGroup.DECORATIONS);
+		registerBlock("pids_3", Blocks.PIDS_3, ItemGroup.DECORATIONS);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR_1);
 		registerBlock("psd_glass", Blocks.PSD_GLASS_1);

@@ -32,6 +32,7 @@ public interface Blocks {
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
 	Block PIDS_1 = new BlockPIDS1();
 	Block PIDS_2 = new BlockPIDS2();
+	Block PIDS_3 = new BlockPIDS3();
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
