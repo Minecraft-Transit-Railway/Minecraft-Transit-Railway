@@ -309,36 +309,36 @@ public final class Route extends NameColorDataBase implements IGui {
 
 			float renderOffsetX = 0, renderOffsetY = 0, renderOffsetZ = 0;
 			boolean shouldOffsetRender = false;
-			if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
-				final float ridingPercentageZ = clientSeat.getRidingPercentageZ(tickDelta);
-				final int ridingCar = (int) Math.floor(ridingPercentageZ);
-				if (ridingCar < positions.size() - 1) {
-					final Pos3f pos1 = positions.get(ridingCar);
-					final Pos3f pos2 = positions.get(ridingCar + 1);
-					if (pos1 != null && pos2 != null) {
-						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
-						final float pitch = (float) Math.asin((pos2.y - pos1.y) / pos2.getDistanceTo(pos1));
-						final Vec3d ridingOffset = new Vec3d(getValueFromPercentage(clientSeat.getRidingPercentageX(tickDelta), trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(ridingPercentageZ), pos2.getDistanceTo(pos1))).rotateX(pitch).rotateY(yaw);
-						final float absoluteX = getAverage(pos1.x, pos2.x);
-						final float absoluteY = getAverage(pos1.y, pos2.y);
-						final float absoluteZ = getAverage(pos1.z, pos2.z);
-
-						if (speed > 0) {
-							renderOffsetX = absoluteX + (float) ridingOffset.x;
-							renderOffsetY = absoluteY + (float) ridingOffset.y + 1;
-							renderOffsetZ = absoluteZ + (float) ridingOffset.z;
-							shouldOffsetRender = true;
-							clientSeat.getPlayer().yaw -= Math.toDegrees(yaw - clientSeat.prevTrainYaw);
-						}
-
-						clientSeat.prevTrainYaw = yaw;
-
-						if (speedCallback != null) {
-							speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ);
-						}
-					}
-				}
-			}
+//			if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
+//				final float ridingPercentageZ = clientSeat.getRidingPercentageZ(tickDelta);
+//				final int ridingCar = (int) Math.floor(ridingPercentageZ);
+//				if (ridingCar < positions.size() - 1) {
+//					final Pos3f pos1 = positions.get(ridingCar);
+//					final Pos3f pos2 = positions.get(ridingCar + 1);
+//					if (pos1 != null && pos2 != null) {
+//						final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
+//						final float pitch = (float) Math.asin((pos2.y - pos1.y) / pos2.getDistanceTo(pos1));
+//						final Vec3d ridingOffset = new Vec3d(getValueFromPercentage(clientSeat.getRidingPercentageX(tickDelta), trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(ridingPercentageZ), pos2.getDistanceTo(pos1))).rotateX(pitch).rotateY(yaw);
+//						final float absoluteX = getAverage(pos1.x, pos2.x);
+//						final float absoluteY = getAverage(pos1.y, pos2.y);
+//						final float absoluteZ = getAverage(pos1.z, pos2.z);
+//
+//						if (speed > 0) {
+//							renderOffsetX = absoluteX + (float) ridingOffset.x;
+//							renderOffsetY = absoluteY + (float) ridingOffset.y + 1;
+//							renderOffsetZ = absoluteZ + (float) ridingOffset.z;
+//							shouldOffsetRender = true;
+//							clientSeat.getPlayer().yaw -= Math.toDegrees(yaw - clientSeat.prevTrainYaw);
+//						}
+//
+//						clientSeat.prevTrainYaw = yaw;
+//
+//						if (speedCallback != null) {
+//							speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ);
+//						}
+//					}
+//				}
+//			}
 
 			float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
 			int previousRendered = 0;
@@ -416,30 +416,30 @@ public final class Route extends NameColorDataBase implements IGui {
 									if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding() && Math.abs(positionRotated.z) <= halfSpacing) {
 										entitySeat.resetSeatCoolDown();
 										serverPlayer.startRiding(entitySeat);
-										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
+//										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
 										entitySeat.ridingPercentageX = (float) (positionRotated.x / trainType.width + 0.5);
 										entitySeat.ridingPercentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
 									}
 
-									if (entitySeat.getIsRiding() && ridingCar == Math.floor(entitySeat.ridingPercentageZ) && entitySeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
-										final Vec3d velocity = new Vec3d(getValueFromPercentage(entitySeat.ridingPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(entitySeat.ridingPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
-										entitySeat.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, 0, 0);
-										entitySeat.fallDistance = 0;
-										entitySeat.resetSeatCoolDown();
-
-										final Vec3d movement = new Vec3d(serverPlayer.sidewaysSpeed / 3, 0, serverPlayer.forwardSpeed / 3).rotateY((float) -Math.toRadians(serverPlayer.yaw) - yaw);
-										entitySeat.ridingPercentageX += movement.x / trainType.width;
-										entitySeat.ridingPercentageZ += movement.z / realSpacing;
-										entitySeat.ridingPercentageX = MathHelper.clamp(entitySeat.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
-										entitySeat.ridingPercentageZ = MathHelper.clamp(entitySeat.ridingPercentageZ, 0, positions.size() - 1.01F);
-										entitySeat.updateRidingPercentage();
-										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
-									}
+//									if (entitySeat.getIsRiding() && ridingCar == Math.floor(entitySeat.ridingPercentageZ) && entitySeat.isScheduleTimeAndRouteId(scheduleTime, id)) {
+//										final Vec3d velocity = new Vec3d(getValueFromPercentage(entitySeat.ridingPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(entitySeat.ridingPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
+//										entitySeat.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, 0, 0);
+//										entitySeat.fallDistance = 0;
+//										entitySeat.resetSeatCoolDown();
+//
+//										final Vec3d movement = new Vec3d(serverPlayer.sidewaysSpeed / 3, 0, serverPlayer.forwardSpeed / 3).rotateY((float) -Math.toRadians(serverPlayer.yaw) - yaw);
+//										entitySeat.ridingPercentageX += movement.x / trainType.width;
+//										entitySeat.ridingPercentageZ += movement.z / realSpacing;
+//										entitySeat.ridingPercentageX = MathHelper.clamp(entitySeat.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
+//										entitySeat.ridingPercentageZ = MathHelper.clamp(entitySeat.ridingPercentageZ, 0, positions.size() - 1.01F);
+//										entitySeat.updateRidingPercentage();
+//										entitySeat.setScheduleTimeAndRouteId(scheduleTime, id);
+//									}
 								}
 							});
 
 							final BlockPos soundPos = new BlockPos(x, y, z);
-							trainType.playSpeedSoundEffect(world, worldTime, soundPos, speed, getSpeed(ticks + 1));
+//							trainType.playSpeedSoundEffect(world, worldTime, soundPos, speed, getSpeed(ticks + 1));
 
 							if (doorValue <= 0 && newDoorValue > 0 && trainType.doorOpenSoundEvent != null) {
 								world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);

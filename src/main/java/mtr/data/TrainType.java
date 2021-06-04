@@ -67,12 +67,12 @@ public enum TrainType {
 		return length + 1;
 	}
 
-	public void playSpeedSoundEffect(WorldAccess world, float worldTime, BlockPos pos, float speed, float futureSpeed) {
-		if (worldTime % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
-			final int floorSpeed = (int) Math.ceil(futureSpeed / PathData.ACCELERATION / TICKS_PER_SPEED_SOUND);
+	public void playSpeedSoundEffect(WorldAccess world, BlockPos pos, float oldSpeed, float speed) {
+		if (world.getLunarTime() % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
+			final int floorSpeed = (int) Math.ceil(speed / PathData.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
-				final boolean isAccelerating = futureSpeed == speed ? new Random().nextBoolean() : futureSpeed > speed;
+				final boolean isAccelerating = speed == oldSpeed ? new Random().nextBoolean() : speed > oldSpeed;
 				world.playSound(null, pos, isAccelerating ? accelerationSoundEvents[index] : decelerationSoundEvents[index], SoundCategory.BLOCKS, 1, 1);
 			}
 		}

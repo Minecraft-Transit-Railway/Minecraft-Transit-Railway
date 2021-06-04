@@ -28,8 +28,7 @@ public class EntitySeat extends Entity {
 	private int seatCoolDown;
 	private float prevRidingPercentageX;
 	private float prevRidingPercentageZ;
-	private float scheduleTime;
-	private float routeId;
+	private float sidingId;
 
 	private int clientInterpolationSteps;
 	private double clientX;
@@ -44,8 +43,7 @@ public class EntitySeat extends Entity {
 	private static final TrackedData<Optional<UUID>> PLAYER_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final TrackedData<Float> RIDING_PERCENTAGE_X = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
 	private static final TrackedData<Float> RIDING_PERCENTAGE_Z = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Integer> SCHEDULE_TIME = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
-	private static final TrackedData<Integer> ROUTE_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
+	private static final TrackedData<Integer> SIDING_ID = DataTracker.registerData(EntitySeat.class, TrackedDataHandlerRegistry.INTEGER);
 
 	public EntitySeat(EntityType<?> type, World world) {
 		super(type, world);
@@ -137,8 +135,7 @@ public class EntitySeat extends Entity {
 		dataTracker.startTracking(PLAYER_ID, Optional.of(new UUID(0, 0)));
 		dataTracker.startTracking(RIDING_PERCENTAGE_X, 0F);
 		dataTracker.startTracking(RIDING_PERCENTAGE_Z, 0F);
-		dataTracker.startTracking(SCHEDULE_TIME, 0);
-		dataTracker.startTracking(ROUTE_ID, 0);
+		dataTracker.startTracking(SIDING_ID, 0);
 	}
 
 	@Override
@@ -177,20 +174,18 @@ public class EntitySeat extends Entity {
 		return MathHelper.lerp(tickDelta, prevRidingPercentageZ, ridingPercentageZ);
 	}
 
-	public void setScheduleTimeAndRouteId(int scheduleTime, long routeId) {
+	public void setSidingId(long sidingId) {
 		if (dataTracker != null) {
-			dataTracker.set(SCHEDULE_TIME, scheduleTime);
-			dataTracker.set(ROUTE_ID, (int) routeId);
+			dataTracker.set(SIDING_ID, (int) sidingId);
 		}
-		this.scheduleTime = scheduleTime;
-		this.routeId = routeId;
+		this.sidingId = sidingId;
 	}
 
-	public boolean isScheduleTimeAndRouteId(int scheduleTime, long routeId) {
+	public boolean isSidingId(long sidingId) {
 		if (world.isClient) {
-			return dataTracker != null && dataTracker.get(SCHEDULE_TIME) == scheduleTime && dataTracker.get(ROUTE_ID) == (int) routeId;
+			return dataTracker != null && dataTracker.get(SIDING_ID) == (int) sidingId;
 		} else {
-			return this.scheduleTime == scheduleTime && this.routeId == routeId;
+			return this.sidingId == sidingId;
 		}
 	}
 

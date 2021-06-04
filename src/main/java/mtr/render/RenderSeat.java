@@ -99,7 +99,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, shouldOffsetRender) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
@@ -157,6 +157,40 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 			matrices.pop();
+		}, (speed, x, y, z) -> {
+			final Text text;
+
+			if (speed <= 5) {
+				switch ((int) ((worldTime / 20) % 3)) {
+					default:
+						text = getThisStationText(x, z);
+						break;
+					// TODO correct next station text
+//					case 1:
+//						final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
+//						if (nextStation == null) {
+//							text = getThisStationText(x, z);
+//							if (speed == 0) {
+//								nextStationId = 0;
+//							}
+//						} else {
+//							text = getNextStationText(nextStation);
+//							if (speed == 0) {
+//								nextStationId = nextStation.id;
+//							}
+//						}
+//						break;
+//					case 2:
+//						text = getLastStationText(route);
+//						break;
+				}
+
+				announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
+//				thisRouteName = route.name.split("\\|\\|")[0];
+			} else {
+				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
+			}
+			player.sendMessage(text, true);
 		}, () -> siding.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
 
 //		try {
