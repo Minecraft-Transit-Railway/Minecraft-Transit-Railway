@@ -15,17 +15,17 @@ import java.util.function.Function;
 
 public class PathFinder {
 
-	public static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
+	public static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
 		if (savedRailBases.size() < 2) {
 			return new ArrayList<>();
 		}
 
-		final List<PathData2> path = new ArrayList<>();
+		final List<PathData> path = new ArrayList<>();
 		for (int i = 0; i < savedRailBases.size() - 1; i++) {
 			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
 			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
 
-			final List<PathData2> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
+			final List<PathData> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
 			if (partialPath.isEmpty()) {
 				return new ArrayList<>();
 			} else {
@@ -41,7 +41,7 @@ public class PathFinder {
 		return path;
 	}
 
-	private static List<PathData2> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {
+	private static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {
 		final BlockPos savedRailBaseEndMidPos = savedRailBaseEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
 			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
@@ -67,12 +67,12 @@ public class PathFinder {
 					addPathPart(rails, newPos, lastPathPart.pos, path, comparator);
 
 					if (savedRailBaseEnd.containsPos(newPos)) {
-						final List<PathData2> railPath = new ArrayList<>();
+						final List<PathData> railPath = new ArrayList<>();
 						for (int j = 0; j < path.size() - 1; j++) {
 							final BlockPos pos1 = path.get(j).pos;
 							final BlockPos pos2 = path.get(j + 1).pos;
 							if (RailwayData.containsRail(rails, pos1, pos2)) {
-								railPath.add(new PathData2(rails.get(pos1).get(pos2), 0, pos1, pos2));
+								railPath.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2));
 							} else {
 								return new ArrayList<>();
 							}
@@ -80,7 +80,7 @@ public class PathFinder {
 
 						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
 						if (RailwayData.containsRail(rails, newPos, endPos)) {
-							railPath.add(new PathData2(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos));
+							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos));
 							return railPath;
 						} else {
 							return new ArrayList<>();

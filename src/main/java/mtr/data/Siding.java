@@ -8,7 +8,6 @@ import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
-import mtr.path.PathData2;
 import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -45,7 +44,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	private boolean isOnRoute = false;
 
 	private final float railLength;
-	private final List<PathData2> path = new ArrayList<>();
+	private final List<PathData> path = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
@@ -57,8 +56,8 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	private static final String KEY_NEXT_STOPPING_INDEX = "next_stopping_index";
 	private static final String KEY_IS_ON_ROUTE = "is_on_route";
 
+	public static final float ACCELERATION = 0.01F;
 	private static final int TICK_DURATION_NANOS = 50000000;
-	private static final float ACCELERATION = 0.01F;
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
 
@@ -188,13 +187,13 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			final BlockPos pos1 = orderedPositions.get(0);
 			final BlockPos pos2 = orderedPositions.get(1);
 			if (RailwayData.containsRail(rails, pos1, pos2)) {
-				path.add(new PathData2(rails.get(pos1).get(pos2), 0, pos1, pos2));
+				path.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2));
 			}
 		}
 
 		distances.clear();
 		float sum = 0;
-		for (final PathData2 pathData : path) {
+		for (final PathData pathData : path) {
 			sum += pathData.rail.getLength();
 			distances.add(sum);
 		}
@@ -541,7 +540,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 							for (int i = -1; i <= 1; i++) {
 								final BlockState state = world.getBlockState(checkPos.up(i));
 								if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
-									((World) world).setBlockState(checkPos.up(i), state.with(BlockPSDAPGDoorBase.OPEN, (int) MathHelper.clamp(doorValue * PathData.DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE)));
+									((World) world).setBlockState(checkPos.up(i), state.with(BlockPSDAPGDoorBase.OPEN, (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE)));
 								}
 							}
 						}

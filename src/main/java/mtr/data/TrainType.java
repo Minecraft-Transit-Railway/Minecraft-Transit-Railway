@@ -1,7 +1,6 @@
 package mtr.data;
 
 import mtr.MTR;
-import mtr.path.PathData;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.TranslatableText;
@@ -59,17 +58,13 @@ public enum TrainType {
 		return new TranslatableText("train.mtr." + this).getString();
 	}
 
-	public int getLength() {
-		return length;
-	}
-
 	public int getSpacing() {
 		return length + 1;
 	}
 
 	public void playSpeedSoundEffect(WorldAccess world, BlockPos pos, float oldSpeed, float speed) {
 		if (world.getLunarTime() % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
-			final int floorSpeed = (int) Math.ceil(speed / PathData.ACCELERATION / TICKS_PER_SPEED_SOUND);
+			final int floorSpeed = (int) Math.ceil(speed / Siding.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
 				final boolean isAccelerating = speed == oldSpeed ? new Random().nextBoolean() : speed > oldSpeed;
