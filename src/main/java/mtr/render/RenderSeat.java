@@ -23,6 +23,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -39,15 +40,10 @@ import java.util.stream.Collectors;
 
 public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
-	private long nextStationId;
-	private int announceTime;
-	private String thisRouteName;
-
 	public static int maxTrainRenderDistance;
 
 	private static final int DETAIL_RADIUS_SQUARED = EntitySeat.DETAIL_RADIUS * EntitySeat.DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
-	private static final int ANNOUNCE_DELAY = 100;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
 	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900(false);
@@ -157,137 +153,61 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
 			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 			matrices.pop();
-		}, (speed, x, y, z) -> {
-			final Text text;
-
-			if (speed <= 5) {
+		}, (speed, x, y, z, stopIndex, routeIds) -> {
+			if (!(speed <= 5 && useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				final Text text;
 				switch ((int) ((worldTime / 20) % 3)) {
 					default:
-						text = getThisStationText(x, z);
+						text = getStationText(thisStation, "this");
 						break;
-					// TODO correct next station text
-//					case 1:
-//						final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
-//						if (nextStation == null) {
-//							text = getThisStationText(x, z);
-//							if (speed == 0) {
-//								nextStationId = 0;
-//							}
-//						} else {
-//							text = getNextStationText(nextStation);
-//							if (speed == 0) {
-//								nextStationId = nextStation.id;
-//							}
-//						}
-//						break;
-//					case 2:
-//						text = getLastStationText(route);
-//						break;
+					case 1:
+						if (nextStation == null) {
+							text = getStationText(thisStation, "this");
+						} else {
+							text = getStationText(nextStation, "next");
+						}
+						break;
+					case 2:
+						text = getStationText(lastStation, "last");
+						break;
 				}
-
-				announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
-//				thisRouteName = route.name.split("\\|\\|")[0];
-			} else {
-				text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
+				player.sendMessage(text, true);
+			}))) {
+				player.sendMessage(new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F), true);
 			}
-			player.sendMessage(text, true);
-		}, () -> siding.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
+		}, (stopIndex, routeIds) -> {
+			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
+			final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 
-//		try {
-//			ClientData.routes.forEach(route -> route.getPositionYaw(world, worldTime + (world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE) ? tickDelta : 0), tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, shouldOffsetRender) -> {
-//				final double offsetX = x + (shouldOffsetRender ? entityX : 0);
-//				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
-//				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
-//				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-//				if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
-//					return;
-//				}
-//				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-//				final ModelTrainBase model = getModel(trainType);
-//
-//				matrices.push();
-//				matrices.translate(offsetX, offsetY, offsetZ);
-//				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180 + yaw));
-//				matrices.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180 + pitch));
-//
-//				if (model == null) {
-//					matrices.translate(0, 0.5, 0);
-//					matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90));
-//					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
-//					MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
-//					MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
-//				} else {
-//					model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, player.getPos().squaredDistanceTo(offsetX, offsetY, offsetZ) <= DETAIL_RADIUS_SQUARED);
-//				}
-//
-//				matrices.pop();
-//			}, (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, shouldOffsetRender) -> {
-//				final double offsetX = x + (shouldOffsetRender ? entityX : 0);
-//				final double offsetY = y + (shouldOffsetRender ? entityY : 0);
-//				final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
-//				final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-//				if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
-//					return;
-//				}
-//				final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-//
-//				final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");
-//				final String connectorSideTexture = getConnectorTextureString(trainType.id, "side");
-//				final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
-//				final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
-//
-//				matrices.push();
-//				if (shouldOffsetRender) {
-//					matrices.translate(entityX, entityY, entityZ);
-//				}
-//
-//				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
-//				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
-//				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
-//				drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
-//
-//				drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, MAX_LIGHT);
-//				drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, MAX_LIGHT);
-//				drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, MAX_LIGHT);
-//				drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, MAX_LIGHT);
-//				matrices.pop();
-//			}, (speed, x, y, z) -> {
-//				final Text text;
-//
-//				if (speed <= 5) {
-//					switch ((int) ((worldTime / 20) % 3)) {
-//						default:
-//							text = getThisStationText(x, z);
-//							break;
-//						case 1:
-//							final Station nextStation = getNextStation(route, new BlockPos(x, y, z));
-//							if (nextStation == null) {
-//								text = getThisStationText(x, z);
-//								if (speed == 0) {
-//									nextStationId = 0;
-//								}
-//							} else {
-//								text = getNextStationText(nextStation);
-//								if (speed == 0) {
-//									nextStationId = nextStation.id;
-//								}
-//							}
-//							break;
-//						case 2:
-//							text = getLastStationText(route);
-//							break;
-//					}
-//
-//					announceTime = (int) ((worldTime + ANNOUNCE_DELAY) % Route.TICKS_PER_DAY);
-//					thisRouteName = route.name.split("\\|\\|")[0];
-//				} else {
-//					text = new TranslatableText("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F);
-//				}
-//				player.sendMessage(text, true);
-//			}));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+			if ((showAnnouncementMessages || useTTSAnnouncements) && entity.hasPassengers()) {
+				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					final List<String> messages = new ArrayList<>();
+					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
+					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
+
+					if (nextStation != null) {
+						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
+
+						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
+						if (routesInStation != null) {
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
+							if (!mergedStations.isEmpty()) {
+								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
+							}
+						}
+					}
+
+					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
+					if (useTTSAnnouncements) {
+						Narrator.getNarrator().say(message, false);
+					}
+					if (showAnnouncementMessages) {
+						player.sendMessage(Text.of(message), false);
+					}
+				});
+			}
+		}, () -> siding.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
 
 		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
@@ -312,37 +232,6 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		}));
 
 		matrices.pop();
-
-		final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
-		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
-		if ((showAnnouncementMessages || useTTSAnnouncements) && worldTime % Route.TICKS_PER_DAY == announceTime && entity.hasPassengers()) {
-			final List<String> messages = new ArrayList<>();
-			final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
-			final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
-
-			final String stationName = ClientData.stationNames.get(nextStationId);
-			if (stationName != null) {
-				messages.add(IGui.addToStationName(stationName, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
-			}
-
-			final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStationId);
-			if (routesInStation != null) {
-				final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRouteName)).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-				final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
-				if (!mergedStations.isEmpty()) {
-					messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
-				}
-			}
-
-			final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-			if (useTTSAnnouncements) {
-				Narrator.getNarrator().say(message, false);
-			}
-			if (showAnnouncementMessages) {
-				player.sendMessage(Text.of(message), false);
-			}
-			announceTime = -1;
-		}
 	}
 
 	@Override
@@ -359,29 +248,36 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		return shouldNotRender(player, pos, maxDistance);
 	}
 
-	private static Text getThisStationText(int x, int z) {
-		final String stationName = ClientData.stations.stream().filter(station -> station.inArea(x, z)).map(station -> station.name).findFirst().orElse("");
-		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(stationName), new TranslatableText("gui.mtr.this_station_cjk").getString(), new TranslatableText("gui.mtr.this_station").getString(), "", "")));
-	}
+	private static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RouteAndStationsCallback routeAndStationsCallback) {
+		if (stopIndex < 0) {
+			return false;
+		}
 
-	private static Station getNextStation(Route route, BlockPos pos) {
-		final Platform currentPlatform = ClientData.platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos) && route.platformIds.contains(platform.id)).findFirst().orElse(null);
-		if (currentPlatform != null) {
-			final int nextPlatformIndex = route.platformIds.indexOf(currentPlatform.id) + 1;
-			if (nextPlatformIndex < route.platformIds.size()) {
-				return ClientData.platformIdToStation.get(route.platformIds.get(nextPlatformIndex));
+		int sum = 0;
+		for (int i = 0; i < routeIds.size(); i++) {
+			final Route thisRoute = RailwayData.getDataById(ClientData.routes, routeIds.get(i));
+			final Route nextRoute = i < routeIds.size() - 1 ? RailwayData.getDataById(ClientData.routes, routeIds.get(i + 1)) : null;
+			if (thisRoute != null) {
+				final int difference = stopIndex - sum;
+				sum += thisRoute.platformIds.size();
+				if (stopIndex < sum) {
+					final Station thisStation = ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference));
+					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
+					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : ClientData.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
+					routeAndStationsCallback.routeAndStationsCallback(thisRoute, nextRoute, thisStation, nextStation, lastStation);
+					return true;
+				}
 			}
 		}
-		return null;
+		return false;
 	}
 
-	private static Text getNextStationText(Station station) {
-		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station == null ? "" : station.name), new TranslatableText("gui.mtr.next_station_cjk").getString(), new TranslatableText("gui.mtr.next_station").getString(), "", "")));
-	}
-
-	private static Text getLastStationText(Route route) {
-		final Station station = route.platformIds.size() > 0 ? ClientData.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)) : null;
-		return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station == null ? "" : station.name), new TranslatableText("gui.mtr.last_station_cjk").getString(), new TranslatableText("gui.mtr.last_station").getString(), "", "")));
+	private static Text getStationText(Station station, String textKey) {
+		if (station != null) {
+			return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station.name), new TranslatableText("gui.mtr." + textKey + "_station_cjk").getString(), new TranslatableText("gui.mtr." + textKey + "_station").getString(), "", "")));
+		} else {
+			return new LiteralText("");
+		}
 	}
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
@@ -435,5 +331,10 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			default:
 				return null;
 		}
+	}
+
+	@FunctionalInterface
+	private interface RouteAndStationsCallback {
+		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
 	}
 }

@@ -25,7 +25,7 @@ public class PathFinder {
 			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
 			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
 
-			final List<PathData> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd);
+			final List<PathData> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd, i);
 			if (partialPath.isEmpty()) {
 				return new ArrayList<>();
 			} else {
@@ -41,7 +41,7 @@ public class PathFinder {
 		return path;
 	}
 
-	private static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd) {
+	private static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd, int index) {
 		final BlockPos savedRailBaseEndMidPos = savedRailBaseEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
 			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
@@ -72,7 +72,7 @@ public class PathFinder {
 							final BlockPos pos1 = path.get(j).pos;
 							final BlockPos pos2 = path.get(j + 1).pos;
 							if (RailwayData.containsRail(rails, pos1, pos2)) {
-								railPath.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2));
+								railPath.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2, index));
 							} else {
 								return new ArrayList<>();
 							}
@@ -80,7 +80,7 @@ public class PathFinder {
 
 						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
 						if (RailwayData.containsRail(rails, newPos, endPos)) {
-							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos));
+							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, index + 1));
 							return railPath;
 						} else {
 							return new ArrayList<>();

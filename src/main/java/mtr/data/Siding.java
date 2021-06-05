@@ -187,7 +187,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			final BlockPos pos1 = orderedPositions.get(0);
 			final BlockPos pos2 = orderedPositions.get(1);
 			if (RailwayData.containsRail(rails, pos1, pos2)) {
-				path.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2));
+				path.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2, -1));
 			}
 		}
 
@@ -199,9 +199,10 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		}
 	}
 
-	public void simulateTrain(WorldAccess world, float tickDelta, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, Runnable generateRoute) {
+	public void simulateTrain(World world, float tickDelta, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		try {
 			final long currentNanos = System.nanoTime();
+			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
@@ -226,7 +227,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			}
 
 			if (!path.isEmpty()) {
-				render(world, doorValueRaw, oldSpeed, oldDoorValue, tickDelta, clientSeat, renderTrainCallback, renderConnectionCallback, speedCallback);
+				render(world, doorValueRaw, oldRailProgress, oldSpeed, oldDoorValue, tickDelta, clientSeat, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback);
 			}
 			lastNanos = currentNanos;
 		} catch (Exception e) {
@@ -234,7 +235,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		}
 	}
 
-	private float moveTrain(WorldAccess world, float ticksElapsed) {
+	private float moveTrain(World world, float ticksElapsed) {
 		final float newAcceleration = ACCELERATION * ticksElapsed;
 		if (path.isEmpty()) {
 			return 0;
@@ -292,7 +293,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		nextStoppingIndex = getNextStoppingIndex();
 	}
 
-	private void render(WorldAccess world, float doorValueRaw, float oldSpeed, float oldDoorValue, float tickDelta, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback) {
+	private void render(WorldAccess world, float doorValueRaw, float oldRailProgress, float oldSpeed, float oldDoorValue, float tickDelta, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback) {
 		final Pos3f[] positions = new Pos3f[trainLength + 1];
 		for (int i = 0; i < trainLength + 1; i++) {
 			positions[i] = getRoutePosition(i);
@@ -326,7 +327,14 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 					clientSeat.prevTrainYaw = yaw;
 
 					if (speedCallback != null) {
-						speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ);
+						speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ, path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
+					}
+
+					if (announcementCallback != null) {
+						float targetProgress = distances.get(getPreviousStoppingIndex()) + trainLength;
+						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
+							announcementCallback.announcementCallback(path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
+						}
 					}
 				}
 			}
@@ -471,11 +479,21 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		return path.size() - 1;
 	}
 
+	private int getPreviousStoppingIndex() {
+		final int headIndex = getIndex(0);
+		for (int i = headIndex; i >= 0; i--) {
+			if (path.get(i).dwellTime > 0) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
 	private int getTrainSpacing() {
 		return trainTypeMapping.trainType.getSpacing();
 	}
 
-	private void syncTrainToClient(WorldAccess world) {
+	private void syncTrainToClient(World world) {
 		if (!world.isClient()) {
 			final PacketByteBuf packet = PacketByteBufs.create();
 			packet.writeLong(id);
@@ -485,6 +503,10 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			packet.writeFloat(stopCounter);
 			packet.writeInt(nextStoppingIndex);
 			packet.writeBoolean(isOnRoute);
+			final RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData != null) {
+				railwayData.markDirty();
+			}
 			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
 		}
 	}
@@ -566,6 +588,11 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 
 	@FunctionalInterface
 	public interface SpeedCallback {
-		void speedCallback(float speed, int x, int y, int z);
+		void speedCallback(float speed, int x, int y, int z, int stopIndex, List<Long> routeIds);
+	}
+
+	@FunctionalInterface
+	public interface AnnouncementCallback {
+		void announcementCallback(int stopIndex, List<Long> routeIds);
 	}
 }
