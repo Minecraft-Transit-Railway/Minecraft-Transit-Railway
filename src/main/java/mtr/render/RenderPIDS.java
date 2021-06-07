@@ -40,42 +40,24 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 	private final boolean showAllPlatforms;
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
-	private final int firstTrainColor;
-	private final int defaultColor;
-	private final boolean showDotAfterMin;
-	private int currentTextColor;
+	private static final int TEXT_COLOR = 0xFF9900;
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms,int defaultColor, float scaleMultiplier, int firstTrainArrivalColor, boolean showDotAfterMin) {
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms) {
 		super(dispatcher);
-		scale = (180 * maxArrivals / maxHeight) * scaleMultiplier;
+		scale = 160 * maxArrivals / maxHeight;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.6F;
 		platformMaxWidth = showAllPlatforms ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
-		this.defaultColor = defaultColor;
 		this.maxArrivals = maxArrivals;
 		this.maxHeight = maxHeight;
 		this.startX = startX;
 		this.startY = startY;
 		this.startZ = startZ;
 		this.rotate90 = rotate90;
-		this.firstTrainColor = firstTrainArrivalColor;
 		this.renderArrivalNumber = renderArrivalNumber;
 		this.showAllPlatforms = showAllPlatforms;
-		this.showDotAfterMin = showDotAfterMin;
-	}
-	
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int defaultColor, float scaleMultiplier, int firstTrainArrivalColor) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, defaultColor, scaleMultiplier, firstTrainArrivalColor, false);
-	}
-
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int defaultColor, float scaleMultiplier) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, defaultColor, scaleMultiplier, defaultColor, false);
-	}
-
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms,int defaultColor) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, defaultColor, 1, defaultColor, false);
 	}
 
 	@Override
@@ -150,13 +132,11 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					final int seconds = (int) Math.ceil(arrivalTime / 20);
 					final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 					if (seconds >= 60) {
-						arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(showDotAfterMin && !isCJK ? "." : "");
+						arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
 					} else {
-						arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(showDotAfterMin && !isCJK ? "." : "") : null;
-						currentTextColor = seconds < 1 ? firstTrainColor : defaultColor;
+						arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
 					}
 				} else {
-					currentTextColor = firstTrainColor;
 					arrivalText = null;
 				}
 
@@ -170,13 +150,13 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
 				if (renderArrivalNumber) {
-					textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, currentTextColor);
+					textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, TEXT_COLOR);
 				}
 
 				if (showAllPlatforms) {
 					final String platformName = platformIdToName.get(currentSchedule.platformId);
 					if (platformName != null) {
-						textRenderer.draw(matrices, platformName, destinationStart + destinationMaxWidth, 0, currentTextColor);
+						textRenderer.draw(matrices, platformName, destinationStart + destinationMaxWidth, 0, TEXT_COLOR);
 					}
 				}
 
@@ -186,7 +166,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				if (destinationWidth > destinationMaxWidth) {
 					matrices.scale(destinationMaxWidth / destinationWidth, 1, 1);
 				}
-				textRenderer.draw(matrices, destinationString, 0, 0, currentTextColor);
+				textRenderer.draw(matrices, destinationString, 0, 0, TEXT_COLOR);
 				matrices.pop();
 
 				if (arrivalText != null) {
@@ -198,7 +178,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					} else {
 						matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 					}
-					textRenderer.draw(matrices, arrivalText, 0, 0, currentTextColor);
+					textRenderer.draw(matrices, arrivalText, 0, 0, TEXT_COLOR);
 					matrices.pop();
 				}
 
