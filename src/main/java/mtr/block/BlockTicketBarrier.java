@@ -38,7 +38,7 @@ public class BlockTicketBarrier extends HorizontalFacingBlock {
 			if (open.isOpen() && playerPosRotated.z > 0) {
 				world.setBlockState(pos, state.with(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
 			} else if (!open.isOpen() && playerPosRotated.z < 0) {
-				world.setBlockState(pos, state.with(OPEN, TicketSystem.passThrough(world, pos, (PlayerEntity) entity, isEntrance, !isEntrance, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, null)));
+				world.setBlockState(pos, state.with(OPEN, TicketSystem.passThrough(world, pos, (PlayerEntity) entity, isEntrance, !isEntrance, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, null, false)));
 			}
 		}
 	}
