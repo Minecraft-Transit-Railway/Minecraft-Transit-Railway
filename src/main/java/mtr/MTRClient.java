@@ -153,10 +153,12 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeRailConnectionS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteStation(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeletePlatform(minecraftClient, packet, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteSiding(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteRoute(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteDepot(minecraftClient, packet, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteStation(minecraftClient, packet, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeletePlatform(minecraftClient, packet, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteSiding(minecraftClient, packet, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteRoute(minecraftClient, packet, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteDepot(minecraftClient, packet, true));
 

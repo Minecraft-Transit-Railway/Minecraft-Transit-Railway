@@ -2,6 +2,7 @@ package mtr.model;
 
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -114,20 +115,22 @@ public class ModelDoorOverlay extends EntityModel<Entity> {
 	public final void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ModelTrainBase.RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ModelTrainBase.RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean lightsOn) {
 		switch (renderStage) {
 			case INTERIOR:
+				final RenderLayer renderLayerInteriorLeft = lightsOn ? MoreRenderLayers.getInterior(doorOverlayTextureLeft) : MoreRenderLayers.getExterior(doorOverlayTextureLeft);
+				final RenderLayer renderLayerInteriorRight = lightsOn ? MoreRenderLayers.getInterior(doorOverlayTextureRight) : MoreRenderLayers.getExterior(doorOverlayTextureRight);
 				if (renderRight) {
-					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureRight)), light, doorRightX, position + doorRightZ);
-					ModelTrainBase.renderOnce(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureLeft)), light, doorRightX, position - doorRightZ);
-					ModelTrainBase.renderOnce(wall_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureLeft)), light, position);
-					ModelTrainBase.renderOnce(wall_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureRight)), light, position);
+					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(renderLayerInteriorRight), light, doorRightX, position + doorRightZ);
+					ModelTrainBase.renderOnce(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(renderLayerInteriorLeft), light, doorRightX, position - doorRightZ);
+					ModelTrainBase.renderOnce(wall_1, matrices, vertexConsumers.getBuffer(renderLayerInteriorLeft), light, position);
+					ModelTrainBase.renderOnce(wall_2, matrices, vertexConsumers.getBuffer(renderLayerInteriorRight), light, position);
 				}
 				if (renderLeft) {
-					ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureRight)), light, doorLeftX, position - doorLeftZ);
-					ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureLeft)), light, doorLeftX, position + doorLeftZ);
-					ModelTrainBase.renderOnceFlipped(wall_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureLeft)), light, position);
-					ModelTrainBase.renderOnceFlipped(wall_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(doorOverlayTextureRight)), light, position);
+					ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(renderLayerInteriorRight), light, doorLeftX, position - doorLeftZ);
+					ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(renderLayerInteriorLeft), light, doorLeftX, position + doorLeftZ);
+					ModelTrainBase.renderOnceFlipped(wall_1, matrices, vertexConsumers.getBuffer(renderLayerInteriorLeft), light, position);
+					ModelTrainBase.renderOnceFlipped(wall_2, matrices, vertexConsumers.getBuffer(renderLayerInteriorRight), light, position);
 				}
 				break;
 			case EXTERIOR:

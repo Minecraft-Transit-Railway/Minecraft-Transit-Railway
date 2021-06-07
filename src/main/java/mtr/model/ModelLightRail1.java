@@ -442,6 +442,8 @@ public class ModelLightRail1 extends ModelTrainBase {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnce(headlights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
@@ -466,6 +468,8 @@ public class ModelLightRail1 extends ModelTrainBase {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnce(tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
