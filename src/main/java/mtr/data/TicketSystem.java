@@ -18,11 +18,11 @@ public class TicketSystem {
 	private static final int BASE_FARE = 2;
 	private static final int ZONE_FARE = 1;
 	private static final int EVASION_FINE = 500;
-	private static boolean RemindIfNoRecord;
+	private static boolean remindIfNoRecord;
 
-	public static EnumTicketBarrierOpen passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, SoundEvent failSound, boolean RemindNoRecord) {
+	public static EnumTicketBarrierOpen passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, SoundEvent failSound, boolean remindNoRecord) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
-		RemindIfNoRecord = RemindNoRecord;
+		remindIfNoRecord = remindNoRecord;
 		if (railwayData == null) {
 			return EnumTicketBarrierOpen.CLOSED;
 		}
@@ -79,7 +79,7 @@ public class TicketSystem {
 		final int entryZone = entryZoneScore.getScore();
 
 		if (entryZone != 0) {
-			if(!RemindIfNoRecord) {
+			if(!remindIfNoRecord) {
 				entryZoneScore.setScore(0);
 				balanceScore.incrementScore(-EVASION_FINE);
 			} else {
@@ -103,7 +103,7 @@ public class TicketSystem {
 		final int fare = BASE_FARE + ZONE_FARE * Math.abs(station.zone - decodeZone(entryZone));
 		final int finalFare = entryZone != 0 ? isConcessionary(player) ? (int) Math.ceil(fare / 2F) : fare : EVASION_FINE;
 
-		if(entryZone == 0 && RemindIfNoRecord) {
+		if(entryZone == 0 && remindIfNoRecord) {
 			player.sendMessage(new TranslatableText("gui.mtr.already_exited"), true);
 			return false;
 		} else {
