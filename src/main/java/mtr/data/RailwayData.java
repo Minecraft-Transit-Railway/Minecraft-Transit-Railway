@@ -90,7 +90,7 @@ public class RailwayData extends PersistentState {
 			// TODO temporary code end
 
 			validateData();
-			sidings.forEach(siding -> siding.generateRoute(rails, platforms, routes, depots));
+			sidings.forEach(siding -> siding.generateRoute(world, rails, platforms, routes, depots));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -159,7 +159,7 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(world, 0, null, null, null, null, null, () -> siding.generateRoute(rails, platforms, routes, depots)));
+		sidings.forEach(siding -> siding.simulateTrain(0, null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {

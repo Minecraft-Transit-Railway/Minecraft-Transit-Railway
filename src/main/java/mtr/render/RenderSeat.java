@@ -95,7 +95,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(world, tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, shouldOffsetRender) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(tickDelta, entity, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, shouldOffsetRender) -> {
 			final double offsetX = x + (shouldOffsetRender ? entityX : 0);
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
@@ -207,7 +207,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 					}
 				});
 			}
-		}, () -> siding.generateRoute(ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
+		}, () -> siding.generateRoute(world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
 
 		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);

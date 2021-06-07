@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.data.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -50,7 +51,7 @@ public final class ClientData {
 		}
 
 		updateReferences();
-		sidings.forEach(siding -> siding.generateRoute(rails, platforms, routes, depots));
+		sidings.forEach(siding -> siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots));
 	}
 
 	public static void updateReferences() {
