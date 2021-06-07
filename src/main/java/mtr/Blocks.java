@@ -32,7 +32,6 @@ public interface Blocks {
 	Block LOGO = new Block(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(10));
 	Block PIDS_1 = new BlockPIDS1();
 	Block PIDS_2 = new BlockPIDS2();
-	Block PIDS_3 = new BlockPIDS3();
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MaterialColor.YELLOW).requiresTool().hardness(2));
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
@@ -99,5 +98,7 @@ public interface Blocks {
 	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
 	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);
 	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
-	Block TICKET_PROCESSOR = new BlockTicketProcessor(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
+	Block TICKET_PROCESSOR = new BlockTicketProcessor(true, true, true);
+	Block TICKET_PROCESSOR_ENTER = new BlockTicketProcessorEnter(true, false, true);
+	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessorExit(false, true, true);
 }
