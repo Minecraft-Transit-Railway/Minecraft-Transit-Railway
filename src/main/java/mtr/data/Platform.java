@@ -15,6 +15,11 @@ public final class Platform extends SavedRailBase {
 	private static final int DEFAULT_DWELL_TIME = 20;
 	private static final String KEY_DWELL_TIME = "dwell_time";
 
+	public Platform(long id, BlockPos pos1, BlockPos pos2) {
+		super(id, pos1, pos2);
+		dwellTime = DEFAULT_DWELL_TIME;
+	}
+
 	public Platform(BlockPos pos1, BlockPos pos2) {
 		super(pos1, pos2);
 		dwellTime = DEFAULT_DWELL_TIME;

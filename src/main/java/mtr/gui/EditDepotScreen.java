@@ -190,6 +190,10 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		depot.name = textFieldName.getText();
 		depot.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
 		depot.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+
+		if (client.world != null) {
+			ClientData.sidings.forEach(siding -> siding.generateRoute(client.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots));
+		}
 	}
 
 	@Override

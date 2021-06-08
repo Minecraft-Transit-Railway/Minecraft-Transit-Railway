@@ -127,6 +127,7 @@ public final class ClientData {
 	}
 
 	private static <T extends AreaBase, U extends SavedRailBase> void writeSavedRailMaps(Set<T> areas, Set<U> savedRails, Map<BlockPos, List<U>> savedRailsWithOffset, Map<Long, Map<Long, U>> savedRailsInAreaMap) {
+		savedRailsWithOffset.clear();
 		savedRailsInAreaMap.clear();
 		savedRails.forEach(savedRail -> {
 			final T area = RailwayData.getAreaBySavedRail(areas, savedRail);

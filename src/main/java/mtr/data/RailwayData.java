@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockRail;
+import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public class RailwayData extends PersistentState {
+public class RailwayData extends PersistentState implements IPacket {
 
 	// TODO temporary code start
 	private boolean generated;
@@ -89,8 +90,11 @@ public class RailwayData extends PersistentState {
 			generated = tag.getBoolean("generated");
 			// TODO temporary code end
 
-			validateData();
-			sidings.forEach(siding -> siding.generateRoute(world, rails, platforms, routes, depots));
+			if (generated) {
+				validateData(rails, platforms, sidings, routes);
+			}
+			updateSidings();
+			markDirty();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -99,7 +103,10 @@ public class RailwayData extends PersistentState {
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
 		try {
-			validateData();
+			if (generated) {
+				validateData(rails, platforms, sidings, routes);
+			}
+			markDirty();
 			writeTag(tag, stations, KEY_STATIONS);
 			writeTag(tag, platforms, KEY_PLATFORMS);
 			writeTag(tag, sidings, KEY_SIDINGS);
@@ -168,9 +175,13 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
+	public void updateSidings() {
+		sidings.forEach(siding -> siding.generateRoute(world, rails, platforms, routes, depots));
+	}
+
 	// writing data
 
-	public void addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
+	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		try {
 			if (!rails.containsKey(posStart)) {
 				rails.put(posStart, new HashMap<>());
@@ -178,69 +189,45 @@ public class RailwayData extends PersistentState {
 			rails.get(posStart).put(posEnd, rail);
 
 			if (validate) {
+				final long id;
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					platforms.add(new Platform(posStart, posEnd));
+					final Platform platform = new Platform(posStart, posEnd);
+					platforms.add(platform);
+					id = platform.id;
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(depotRail -> depotRail.containsPos(posStart) || depotRail.containsPos(posEnd))) {
-					sidings.add(new Siding(posStart, posEnd, (int) Math.floor(rail.getLength())));
+					final Siding siding = new Siding(posStart, posEnd, (int) Math.floor(rail.getLength()));
+					sidings.add(siding);
+					siding.generateRoute(world, rails, platforms, routes, depots);
+					id = siding.id;
+				} else {
+					id = 0;
 				}
-				validateRails();
+				return id;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	public void removeNode(BlockPos pos) {
 		removeNode(world, rails, pos);
-		validateRails();
+		if (generated) {
+			validateData(rails, platforms, sidings, routes);
+		}
+		markDirty();
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
 		removeRailConnection(world, rails, pos1, pos2);
-		validateRails();
+		if (generated) {
+			validateData(rails, platforms, sidings, routes);
+		}
+		markDirty();
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
-	}
-
-	// validation
-
-	private void validateRails() {
-		final Set<BlockPos> railsToRemove = new HashSet<>();
-		rails.forEach((startPos, railMap) -> {
-			final boolean loadedChunk = world.isChunkLoaded(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
-				removeNode(null, rails, startPos);
-			}
-
-			if (railMap.isEmpty()) {
-				railsToRemove.add(startPos);
-			}
-		});
-		railsToRemove.forEach(rails::remove);
-		validateData();
-	}
-
-	private void validateData() {
-		if (generated) {
-			platforms.removeIf(platform -> !platform.isValidSavedRail(rails));
-			sidings.removeIf(siding -> !siding.isValidSavedRail(rails));
-
-			final List<BlockPos> railsToRemove = new ArrayList<>();
-			rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-				if (rail.railType.hasSavedRail && !SavedRailBase.isValidSavedRail(rails, endPos, startPos)) {
-					railsToRemove.add(startPos);
-					railsToRemove.add(endPos);
-				}
-			}));
-			for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
-				removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
-			}
-
-			routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
-			markDirty();
-		}
 	}
 
 	// static finders
@@ -284,6 +271,9 @@ public class RailwayData extends PersistentState {
 					BlockRail.resetRailNode(world, startPos);
 				}
 			});
+			if (world != null) {
+				validateRails(world, rails);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -303,6 +293,9 @@ public class RailwayData extends PersistentState {
 					BlockRail.resetRailNode(world, pos2);
 				}
 			}
+			if (world != null) {
+				validateRails(world, rails);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -310,6 +303,24 @@ public class RailwayData extends PersistentState {
 
 	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
+	public static void validateData(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
+		platforms.removeIf(platform -> platform.isInvalidSavedRail(rails));
+		sidings.removeIf(siding -> siding.isInvalidSavedRail(rails));
+
+		final List<BlockPos> railsToRemove = new ArrayList<>();
+		rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+			if (rail.railType.hasSavedRail && SavedRailBase.isInvalidSavedRail(rails, endPos, startPos)) {
+				railsToRemove.add(startPos);
+				railsToRemove.add(endPos);
+			}
+		}));
+		for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
+			removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
+		}
+
+		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
 	}
 
 	public static boolean isBetween(double value, double value1, double value2) {
@@ -326,6 +337,21 @@ public class RailwayData extends PersistentState {
 		} else {
 			return null;
 		}
+	}
+
+	private static void validateRails(World world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		final Set<BlockPos> railsToRemove = new HashSet<>();
+		rails.forEach((startPos, railMap) -> {
+			final boolean loadedChunk = world.isChunkLoaded(startPos.getX() / 16, startPos.getZ() / 16);
+			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
+				removeNode(null, rails, startPos);
+			}
+
+			if (railMap.isEmpty()) {
+				railsToRemove.add(startPos);
+			}
+		});
+		railsToRemove.forEach(rails::remove);
 	}
 
 	private static void writeTag(CompoundTag tag, Set<? extends SerializedDataBase> dataSet, String key) {

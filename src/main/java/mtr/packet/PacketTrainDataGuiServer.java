@@ -41,12 +41,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
-	public static void createRailS2C(World world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2) {
+	public static void createRailS2C(World world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		rail1.writePacket(packet);
 		rail2.writePacket(packet);
+		packet.writeLong(savedRailId);
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
@@ -123,7 +124,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	// TODO fix platform and siding packets
 	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(player.world);
@@ -175,6 +175,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_SIDING, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			}, null);
 		}
@@ -231,6 +232,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_DEPOT, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			}, Depot::new);
 		}
