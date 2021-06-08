@@ -175,6 +175,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_SIDING, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			}, null);
 		}

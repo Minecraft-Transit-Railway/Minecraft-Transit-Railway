@@ -103,6 +103,7 @@
 	"gui.mtr.s": "秒",
 	"gui.mtr.search": "搜寻",
 	"gui.mtr.selected": "已选定",
+	"gui.mtr.selected_train": "已选定的列车",
 	"gui.mtr.separator": "/",
 	"gui.mtr.separator_cjk": "/",
 	"gui.mtr.settings": "设定",

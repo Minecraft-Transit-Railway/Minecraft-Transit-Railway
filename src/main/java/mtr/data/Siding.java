@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class Siding extends SavedRailBase implements IGui, IPacket {
 
@@ -165,6 +166,20 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 				super.update(key, packet);
 				break;
 		}
+	}
+
+	public void setTrainTypeMapping(String customId, TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_TRAIN_TYPE);
+		packet.writeString(customId);
+		packet.writeInt(trainType.ordinal());
+		sendPacket.accept(packet);
+		setTrainDetails(customId, trainType);
+	}
+
+	public CustomResources.TrainMapping getTrainTypeMapping() {
+		return trainTypeMapping;
 	}
 
 	public void generateRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots) {

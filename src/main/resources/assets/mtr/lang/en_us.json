@@ -103,6 +103,7 @@
 	"gui.mtr.s": "s",
 	"gui.mtr.search": "Search",
 	"gui.mtr.selected": "Selected",
+	"gui.mtr.selected_train": "Selected Train",
 	"gui.mtr.separator": "/",
 	"gui.mtr.separator_cjk": "/",
 	"gui.mtr.settings": "Settings",
