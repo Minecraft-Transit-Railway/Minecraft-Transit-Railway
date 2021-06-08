@@ -362,7 +362,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 					}
 
 					if (announcementCallback != null) {
-						float targetProgress = distances.get(getPreviousStoppingIndex()) + trainLength;
+						float targetProgress = distances.get(getPreviousStoppingIndex()) + trainLength * trainType.getSpacing();
 						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
 							announcementCallback.announcementCallback(path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
 						}

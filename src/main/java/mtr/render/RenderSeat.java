@@ -147,7 +147,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
 			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
-			final int lightOnLevel = lightsOn ? MAX_LIGHT : light;
+			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
 			drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);

@@ -98,11 +98,13 @@ public class PathFinder {
 		final Direction newDirection = rails.get(lastPos).get(newPos).facingEnd.getOpposite();
 		final List<BlockPos> otherOptions = new ArrayList<>();
 
-		newConnections.forEach((connectedPos, rail) -> {
-			if (rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
-				otherOptions.add(connectedPos);
-			}
-		});
+		if (newConnections != null) {
+			newConnections.forEach((connectedPos, rail) -> {
+				if (rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
+					otherOptions.add(connectedPos);
+				}
+			});
+		}
 
 		if (!otherOptions.isEmpty()) {
 			otherOptions.sort(comparator.apply(newConnections));

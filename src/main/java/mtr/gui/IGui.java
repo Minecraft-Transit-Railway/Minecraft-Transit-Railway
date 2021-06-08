@@ -43,7 +43,8 @@ public interface IGui {
 	int ARGB_LIGHT_GRAY = 0xFFAAAAAA;
 	int ARGB_BACKGROUND = 0xFF121212;
 
-	int MAX_LIGHT = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders
+	int MAX_LIGHT_INTERIOR = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders
+	int MAX_LIGHT_GLOWING = 0xF000F0;
 
 	static String formatStationName(String name) {
 		return name.replace('|', ' ');
@@ -286,7 +287,7 @@ public interface IGui {
 		if (a == 0) {
 			return;
 		}
-		final int newLight = light == -1 ? MAX_LIGHT : light;
+		final int newLight = light == -1 ? MAX_LIGHT_GLOWING : light;
 		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();

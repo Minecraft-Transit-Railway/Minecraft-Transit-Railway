@@ -28,20 +28,21 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		final float doorLeftZ = getDoorAnimationZ(doorLeftValue, opening);
 		final float doorRightZ = getDoorAnimationZ(doorRightValue, opening);
 
-		final int lightOnLevel = lightsOn ? MAX_LIGHT : light;
+		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
+		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
 		final RenderLayer renderLayerLight = lightsOn ? MoreRenderLayers.getLight(texture) : MoreRenderLayers.getExterior(texture);
 		final RenderLayer renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
 		final RenderLayer renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
 
-		render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
-		render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
 
 		if (renderDetails) {
 			for (int position : getDoorPositions()) {
 				final ModelDoorOverlay modelDoorOverlay = getModelDoorOverlay();
 				if (modelDoorOverlay != null) {
-					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 				}
 				final ModelDoorOverlayTop modelDoorOverlayTop = getModelDoorOverlayTop();
@@ -49,7 +50,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 					modelDoorOverlayTop.render(matrices, vertexConsumers, light, position);
 				}
 			}
-			render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
+			render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
 		}
 
 		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront);
