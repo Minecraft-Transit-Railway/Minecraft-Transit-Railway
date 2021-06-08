@@ -68,7 +68,14 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
 	private static final float CONNECTION_X_OFFSET = 0.25F;
 
-	public Siding(BlockPos pos1, BlockPos pos2, int railLength) {
+	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
+		super(id, pos1, pos2);
+		this.railLength = railLength;
+		setTrainDetails("", TrainType.values()[0]);
+		lastNanos = System.nanoTime();
+	}
+
+	public Siding(BlockPos pos1, BlockPos pos2, float railLength) {
 		super(pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", TrainType.values()[0]);
@@ -165,6 +172,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		final BlockPos midPos = getMidPos();
 		depot = depots.stream().filter(depot1 -> depot1.inArea(midPos.getX(), midPos.getZ())).findFirst().orElse(null);
 
+		path.clear();
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 		platformsInRoute.add(this);
 		if (depot != null) {
@@ -173,7 +181,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 				if (route != null) {
 					route.platformIds.forEach(platformId -> {
 						final Platform platform = RailwayData.getDataById(platforms, platformId);
-						if (platform != null) {
+						if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
 							platformsInRoute.add(platform);
 						}
 					});
@@ -232,7 +240,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 					reversed = false;
 				}
 			} else {
-				oldDoorValue = Math.abs(getDoorValue());
+				oldDoorValue = nextStoppingIndex < path.size() ? Math.abs(getDoorValue()) : 0;
 
 				final float ticksElapsed = world.isClient() ? (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS : 1;
 				final float newAcceleration = ACCELERATION * ticksElapsed;
@@ -351,6 +359,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		final float doorValue = Math.abs(doorValueRaw);
 		final boolean opening = doorValueRaw > 0;
 
+		final List<EntitySeat> reversedSeats = new ArrayList<>();
 		float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
 		int previousRendered = 0;
 		for (int i = 0; i < trainLength; i++) {
@@ -418,7 +427,11 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 							}
 							final Vec3d positionRotated = entitySeat.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 
-							// TODO player falls off when train is reversing
+							if (reversed && !reversedSeats.contains(entitySeat)) {
+								entitySeat.ridingPercentageZ = trainLength - entitySeat.ridingPercentageZ;
+								reversedSeats.add(entitySeat);
+							}
+
 							if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5) {
 								if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding() && Math.abs(positionRotated.z) <= halfSpacing) {
 									entitySeat.resetSeatCoolDown();
@@ -448,10 +461,12 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 						final BlockPos soundPos = new BlockPos(x, y, z);
 						trainType.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
 
-						if (oldDoorValue <= 0 && doorValue > 0 && trainType.doorOpenSoundEvent != null) {
-							world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
-						} else if (oldDoorValue >= trainType.doorCloseSoundTime && doorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
-							world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
+						if (doorLeftOpen || doorRightOpen) {
+							if (oldDoorValue <= 0 && doorValue > 0 && trainType.doorOpenSoundEvent != null) {
+								world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
+							} else if (oldDoorValue >= trainType.doorCloseSoundTime && doorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
+								world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
+							}
 						}
 					}
 				}

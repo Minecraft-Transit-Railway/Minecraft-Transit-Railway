@@ -100,9 +100,9 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			final double offsetY = y + (shouldOffsetRender ? entityY : 0);
 			final double offsetZ = z + (shouldOffsetRender ? entityZ : 0);
 			final BlockPos posAverage = new BlockPos(offsetX, offsetY, offsetZ);
-//			if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
-//				return;
-//			}
+			if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
+				return;
+			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 			final ModelTrainBase model = getModel(trainType);
 
@@ -260,6 +260,9 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
+				if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
+					sum--;
+				}
 				if (stopIndex < sum) {
 					final Station thisStation = ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference));
 					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;

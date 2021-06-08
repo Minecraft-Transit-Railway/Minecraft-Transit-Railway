@@ -70,10 +70,10 @@ public class ItemRailModifier extends Item {
 									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, railType);
 									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
 									railwayData.addRail(posStart, posEnd, rail1, false);
-									railwayData.addRail(posEnd, posStart, rail2, true);
+									final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
 									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
 									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
-									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2);
+									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
 								}
 							} else {
 								if (player != null) {

@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.MTR;
-import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -56,10 +55,6 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), hitSide.getOpposite());
 				if (checkPos != null) {
 					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, checkPos);
-					final RailwayData railwayData = RailwayData.getInstance(world);
-					if (railwayData != null) {
-						railwayData.addPlayerToBroadcast(player);
-					}
 				}
 			}
 		});

@@ -14,6 +14,14 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
+	public SavedRailBase(long id, BlockPos pos1, BlockPos pos2) {
+		super(id);
+		name = "1";
+		positions = new HashSet<>();
+		positions.add(pos1);
+		positions.add(pos2);
+	}
+
 	public SavedRailBase(BlockPos pos1, BlockPos pos2) {
 		super();
 		name = "1";
@@ -64,10 +72,10 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
-	public boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		return isValidSavedRail(rails, pos1, pos2) && isValidSavedRail(rails, pos2, pos1);
+		return isInvalidSavedRail(rails, pos1, pos2) || isInvalidSavedRail(rails, pos2, pos1);
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos) {
@@ -100,7 +108,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
 
-	public static boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
-		return RailwayData.containsRail(rails, pos1, pos2) && rails.get(pos1).get(pos2).railType.hasSavedRail;
+	public static boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
+		return !RailwayData.containsRail(rails, pos1, pos2) || !rails.get(pos1).get(pos2).railType.hasSavedRail;
 	}
 }

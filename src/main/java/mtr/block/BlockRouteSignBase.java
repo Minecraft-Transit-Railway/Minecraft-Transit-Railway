@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.data.RailwayData;
 import mtr.gui.IGui;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -38,10 +37,6 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
 				if (entity instanceof TileEntityRouteSignBase) {
 					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, entity.getPos());
-					final RailwayData railwayData = RailwayData.getInstance(world);
-					if (railwayData != null) {
-						railwayData.addPlayerToBroadcast(player);
-					}
 				}
 			}
 		});
