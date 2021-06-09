@@ -51,6 +51,7 @@
 	"block.mtr.ticket_barrier_exit_1": "闸机 （出口）",
 	"block.mtr.ticket_machine": "售票机",
 	"block.mtr.ticket_processor": "车票处理器",
+	"block.mtr.ticket_processor_check": "车票查阅器",
 	"block.mtr.ticket_processor_enter": "车票处理器 (入闸)",
 	"block.mtr.ticket_processor_exit": "车票处理器 (出闸)",
 	"gui.mtr.add_balance_for_emeralds": "增值 $%s （%s 绿宝石）",

@@ -213,6 +213,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor", Blocks.TICKET_PROCESSOR, ItemGroup.DECORATIONS);
 		registerBlock("ticket_processor_enter", Blocks.TICKET_PROCESSOR_ENTER, ItemGroup.DECORATIONS);
 		registerBlock("ticket_processor_exit", Blocks.TICKET_PROCESSOR_EXIT, ItemGroup.DECORATIONS);
+		registerBlock("ticket_processor_check", Blocks.TICKET_PROCESSOR_CHECK, ItemGroup.DECORATIONS);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));

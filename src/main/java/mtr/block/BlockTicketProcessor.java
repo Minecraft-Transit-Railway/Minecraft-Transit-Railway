@@ -16,7 +16,8 @@ public class BlockTicketProcessor extends BlockTicketProcessorBase {
 	public boolean isEntrance;
 	public boolean isExit;
 	public boolean remindIfNoRecord;
-	public BlockTicketProcessor(boolean entrance, boolean exit, boolean remindNoRecord) {
+	public BlockTicketProcessor(boolean entrance, boolean exit, boolean remindNoRecord, boolean haveLight) {
+		super(haveLight);
 		isEntrance = entrance;
 		isExit = exit;
 		remindIfNoRecord = remindNoRecord;

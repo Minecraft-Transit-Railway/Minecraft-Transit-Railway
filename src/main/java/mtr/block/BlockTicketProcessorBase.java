@@ -19,9 +19,10 @@ import java.util.Random;
 public class BlockTicketProcessorBase extends BlockDirectionalDoubleBlockBase {
 
 	public static final EnumProperty<EnumTicketProcessorLights> LIGHTS = EnumProperty.of("lights", EnumTicketProcessorLights.class);
-
-	public BlockTicketProcessorBase() {
+	public boolean haveLight;
+	public BlockTicketProcessorBase(boolean haveLight) {
 		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
+		this.haveLight = haveLight;
 	}
 
 	@Override
@@ -36,7 +37,7 @@ public class BlockTicketProcessorBase extends BlockDirectionalDoubleBlockBase {
 
 	@Override
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		world.setBlockState(pos, state.with(LIGHTS, EnumTicketProcessorLights.NONE));
+		if(haveLight) world.setBlockState(pos, state.with(LIGHTS, EnumTicketProcessorLights.NONE));
 	}
 
 	public enum EnumTicketProcessorLights implements StringIdentifiable {

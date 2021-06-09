@@ -65,6 +65,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENTER, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_EXIT, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_CHECK, RenderLayer.getCutout());
 
 		ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ModelProvider());
 

@@ -51,6 +51,7 @@
 	"block.mtr.ticket_barrier_exit_1": "閘機 （出口）",
 	"block.mtr.ticket_machine": "售票機",
 	"block.mtr.ticket_processor": "車票處理器",
+	"block.mtr.ticket_processor_check": "車票查閱器",
 	"block.mtr.ticket_processor_enter": "車票處理器 (入閘)",
 	"block.mtr.ticket_processor_exit": "車票處理器 (出閘)",
 	"gui.mtr.add_balance_for_emeralds": "增值 $%s （%s 綠寶石）",
