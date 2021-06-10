@@ -132,26 +132,26 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			}
 			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
 
-			final String connectorExteriorTexture = getConnectorTextureString(trainType.id, "exterior");
-			final String connectorSideTexture = getConnectorTextureString(trainType.id, "side");
-			final String connectorRoofTexture = getConnectorTextureString(trainType.id, "roof");
-			final String connectorFloorTexture = getConnectorTextureString(trainType.id, "floor");
+			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainType.id, "exterior"))));
+			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
+			final VertexConsumer vertexConsumerRoof = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof"))));
+			final VertexConsumer vertexConsumerFloor = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor"))));
 
 			matrices.push();
 			if (shouldOffsetRender) {
 				matrices.translate(entityX, entityY, entityZ);
 			}
 
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, thisPos2, prevPos3, prevPos4, thisPos1, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos2, thisPos3, thisPos4, prevPos1, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos3, thisPos2, thisPos3, prevPos2, light);
-			drawTexture(matrices, vertexConsumers, connectorExteriorTexture, prevPos1, thisPos4, thisPos1, prevPos4, light);
+			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
+			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
+			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
+			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
 			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
-			drawTexture(matrices, vertexConsumers, connectorSideTexture, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers, connectorSideTexture, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers, connectorRoofTexture, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers, connectorFloorTexture, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
+			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
+			drawTexture(matrices, vertexConsumerRoof, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumerFloor, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 			matrices.pop();
 		}, (speed, x, y, z, stopIndex, routeIds) -> {
 			if (!(speed <= 5 && useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
@@ -209,6 +209,7 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 			}
 		}, () -> siding.generateRoute(world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
 
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
@@ -226,8 +227,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 				final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
 
-				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-				IGui.drawTexture(matrices, vertexConsumers, "textures/block/rail.png", x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IGui.drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IGui.drawTexture(matrices, vertexConsumer, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 			});
 		}));
 
@@ -283,8 +284,8 @@ public class RenderSeat extends EntityRenderer<EntitySeat> implements IGui {
 		}
 	}
 
-	private static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
-		IGui.drawTexture(matrices, vertexConsumers, texture, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
+	private static void drawTexture(MatrixStack matrices, VertexConsumer vertexConsumer, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
+		IGui.drawTexture(matrices, vertexConsumer, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
 	}
 
 	private static boolean isReplayMod(PlayerEntity playerEntity) {

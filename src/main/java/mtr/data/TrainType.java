@@ -64,7 +64,7 @@ public enum TrainType {
 
 	public void playSpeedSoundEffect(WorldAccess world, BlockPos pos, float oldSpeed, float speed) {
 		if (world.getLunarTime() % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
-			final int floorSpeed = (int) Math.ceil(speed / Siding.ACCELERATION / TICKS_PER_SPEED_SOUND);
+			final int floorSpeed = (int) Math.floor(speed / Siding.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
 				final boolean isAccelerating = speed == oldSpeed ? new Random().nextBoolean() : speed > oldSpeed;

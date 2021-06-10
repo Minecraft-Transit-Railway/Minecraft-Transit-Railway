@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -163,12 +164,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 			}
 		}
 		if (scale >= 2) {
+			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 			if (showStations) {
 				for (final Station station : ClientData.stations) {
 					final BlockPos pos = station.getCenter();
 					if (pos != null) {
 						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
 			}
@@ -176,10 +178,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 				for (final Depot depot : ClientData.depots) {
 					final BlockPos pos = depot.getCenter();
 					if (pos != null) {
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, depot.name, x + (float) x1, y + (float) y1));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
 			}
+			immediate.draw();
 		}
 
 		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getLeft() * 10) / 10F, Math.round(mouseWorldPos.getRight() * 10) / 10F);

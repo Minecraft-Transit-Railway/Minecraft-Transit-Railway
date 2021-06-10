@@ -10,6 +10,7 @@ import mtr.gui.ClientData;
 import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -63,7 +64,8 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, true);
+		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, true, false);
 
 		matrices.push();
 		matrices.translate(0.5, 0, 0.5);
@@ -72,10 +74,11 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
 
 		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		if (!RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance / 8)) {
+		if (!RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance / 2)) {
 			routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
 		}
 		matrices.pop();
+		immediate.draw();
 	}
 
 	@Override
