@@ -1,5 +1,6 @@
 package mtr.gui;
 
+import mtr.data.IGui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.util.math.MatrixStack;

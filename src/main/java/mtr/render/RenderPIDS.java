@@ -1,11 +1,11 @@
 package mtr.render;
 
 import mtr.block.IBlock;
+import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;

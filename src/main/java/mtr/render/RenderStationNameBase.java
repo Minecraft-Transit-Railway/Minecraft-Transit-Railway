@@ -2,9 +2,10 @@ package mtr.render;
 
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
+import mtr.data.IGui;
 import mtr.data.Station;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRenderer<T> implements IGui {
+public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRenderer<T> implements IGui, IDrawing {
 
 	public RenderStationNameBase(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);

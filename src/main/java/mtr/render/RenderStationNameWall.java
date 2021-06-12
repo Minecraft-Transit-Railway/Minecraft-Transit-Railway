@@ -2,7 +2,7 @@ package mtr.render;
 
 import mtr.block.BlockStationNameBase;
 import mtr.block.BlockStationNameWall;
-import mtr.gui.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -16,6 +16,6 @@ public class RenderStationNameWall extends RenderStationNameBase<BlockStationNam
 
 	@Override
 	protected void drawStationName(BlockStationNameBase.TileEntityStationNameBase entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, String stationName, int color, int light) {
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, immediate, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 60, color, false, light, null);
+		IDrawing.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, immediate, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, 0, 60, color, false, light, null);
 	}
 }

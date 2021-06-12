@@ -4,7 +4,8 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.BlockStationNameEntrance;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
-import mtr.gui.IGui;
+import mtr.data.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
@@ -35,9 +36,9 @@ public class RenderStationNameEntrance extends RenderStationNameBase<BlockStatio
 		final int propagateProperty = IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY);
 		final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
 		final int length = getLength(world, pos);
-		IGui.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, immediate, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
+		IDrawing.drawStringWithFont(matrices, MinecraftClient.getInstance().textRenderer, immediate, IGui.addToStationName(stationName, "", "", "站", " Station"), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier("mtr:textures/sign/logo.png")));
-			IGui.drawTexture(matrices, vertexConsumer, x1 - logoSize, -logoSize / 2, logoSize, logoSize, facing, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(matrices, vertexConsumer, x1 - logoSize, -logoSize / 2, logoSize, logoSize, facing, MAX_LIGHT_GLOWING);
 		}));
 	}
 

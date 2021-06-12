@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.gui.IGui;
 import net.minecraft.block.MaterialColor;
 
 public enum RailType implements IGui {

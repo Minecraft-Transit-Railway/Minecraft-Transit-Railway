@@ -2,7 +2,8 @@ package mtr.render;
 
 import mtr.block.BlockClock;
 import mtr.block.IBlock;
-import mtr.gui.IGui;
+import mtr.data.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -55,7 +56,7 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.TileEntityClock>
 		matrices.push();
 		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(rotation));
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png")));
-		IGui.drawTexture(matrices, vertexConsumer, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
+		IDrawing.drawTexture(matrices, vertexConsumer, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
 		matrices.pop();
 	}
 }

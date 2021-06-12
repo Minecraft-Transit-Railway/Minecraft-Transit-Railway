@@ -4,12 +4,9 @@ import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.config.CustomResources;
-import mtr.data.NameColorDataBase;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Tessellator;
@@ -27,7 +24,7 @@ import net.minecraft.world.WorldAccess;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> extends BlockEntityRenderer<T> implements IBlock, IGui {
+public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> extends BlockEntityRenderer<T> implements IBlock, IGui, IDrawing {
 
 	public RenderRailwaySign(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -75,13 +72,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 		if (renderBackground) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png")));
-			IGui.drawTexture(matrices, vertexConsumer, 0, 0, SMALL_OFFSET * 2, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(matrices, vertexConsumer, 0, 0, SMALL_OFFSET * 2, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, MAX_LIGHT_GLOWING);
 		}
 		for (int i = 0; i < signIds.length; i++) {
 			if (signIds[i] != null) {
 				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> {
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier(textureId.toString())));
-					IGui.drawTexture(matrices, vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+					IDrawing.drawTexture(matrices, vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				});
 			}
 		}
@@ -127,7 +124,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);
 				final List<Float> textWidths = new ArrayList<>();
 				for (final ClientData.ColorNamePair route : selectedIdsSorted) {
-					IGui.drawStringWithFont(matrices, textRenderer, immediate, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, 1, 0, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> textWidths.add(x2));
+					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, 1, 0, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> textWidths.add(x2));
 				}
 
 				matrices.push();
@@ -141,9 +138,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				float xOffset = margin * 0.5F;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
 					final ClientData.ColorNamePair route = selectedIdsSorted.get(i);
-					IGui.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipCustomText ? -xOffset : xOffset, y + margin * 1.5F, -1, size - margin * 3, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> {
+					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, flipCustomText ? -xOffset : xOffset, y + margin * 1.5F, -1, size - margin * 3, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> {
 						final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png")));
-						IGui.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y1 - margin / 2, SMALL_OFFSET, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, facing, route.color + ARGB_BLACK, MAX_LIGHT_GLOWING);
+						IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y1 - margin / 2, SMALL_OFFSET, x2 + margin / 2, y2 + margin / 2, SMALL_OFFSET, facing, route.color + ARGB_BLACK, MAX_LIGHT_GLOWING);
 					});
 					xOffset += textWidths.get(i) + margin * 1.5F;
 				}
@@ -178,7 +175,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				final boolean isSmall = sign.small;
 				final float maxWidth = Math.max(0, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
 				final float start = flipCustomText ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
-				IGui.drawStringWithFont(matrices, textRenderer, immediate, sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null);
 			}
 		}
 

@@ -5,7 +5,7 @@ import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.*;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
+import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
 import mtr.model.*;
 import net.minecraft.client.MinecraftClient;
@@ -200,8 +200,8 @@ public class RenderTrains implements IGui {
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 				final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
 
-				IGui.drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-				IGui.drawTexture(matrices, vertexConsumer, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IDrawing.drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IDrawing.drawTexture(matrices, vertexConsumer, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 			});
 		}));
 	}
@@ -251,7 +251,7 @@ public class RenderTrains implements IGui {
 	}
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumer vertexConsumer, Pos3f pos1, Pos3f pos2, Pos3f pos3, Pos3f pos4, int light) {
-		IGui.drawTexture(matrices, vertexConsumer, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
+		IDrawing.drawTexture(matrices, vertexConsumer, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
 	}
 
 	private static boolean isReplayMod(PlayerEntity playerEntity) {

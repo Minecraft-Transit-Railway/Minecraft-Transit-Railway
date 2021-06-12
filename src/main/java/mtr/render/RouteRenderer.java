@@ -1,8 +1,9 @@
 package mtr.render;
 
+import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -62,7 +63,7 @@ public class RouteRenderer implements IGui {
 		final float lineHeightSmall = (y2 - y1) / routeCount;
 		for (int i = 0; i < routeCount; i++) {
 			final int routeColor = routeData.get(i).routeColor + ARGB_BLACK;
-			IGui.drawTexture(matrices, vertexConsumer, x1, y1 + lineHeightSmall * i, z1, x2, y1 + lineHeightSmall * (i + 1), z2, facing, routeColor, newLight);
+			IDrawing.drawTexture(matrices, vertexConsumer, x1, y1 + lineHeightSmall * i, z1, x2, y1 + lineHeightSmall * (i + 1), z2, facing, routeColor, newLight);
 		}
 		matrices.pop();
 	}
@@ -93,12 +94,12 @@ public class RouteRenderer implements IGui {
 			float thisStationPosition = getStationPosition(currentStationIndex, routeLength, startScaled, endScaled);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight));
 			if (vertical) {
-				IGui.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(thisStationPosition, endScaled), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), smallOffset, facing, PASSED_STATION_COLOR, newLight);
-				IGui.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(startScaled, thisStationPosition), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), smallOffset, facing, routeColor, newLight);
-				IGui.drawStringWithFont(matrices, textRenderer, immediate, routeData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
+				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(thisStationPosition, endScaled), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), smallOffset, facing, PASSED_STATION_COLOR, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(startScaled, thisStationPosition), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), smallOffset, facing, routeColor, newLight);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, routeData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
 			} else {
-				IGui.drawTexture(matrices, vertexConsumer, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, PASSED_STATION_COLOR, newLight);
-				IGui.drawTexture(matrices, vertexConsumer, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, routeColor, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, PASSED_STATION_COLOR, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, routeColor, newLight);
 			}
 
 			for (int j = 0; j < routeLength; j++) {
@@ -112,19 +113,19 @@ public class RouteRenderer implements IGui {
 
 				final VertexConsumer vertexConsumerStationCircle = vertexConsumers.getBuffer(getRenderLayer(onOrAfterStation ? "mtr:textures/block/station_circle.png" : "mtr:textures/block/station_circle_passed.png", newLight));
 				if (interchangeCount <= 1 || onStation) {
-					IGui.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y - STATION_CIRCLE_SIZE / 2F, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE, facing, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y - STATION_CIRCLE_SIZE / 2F, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE, facing, newLight);
 
 					if (!onStation && interchangeCount == 1) {
 						final VertexConsumer vertexConsumerInterchange = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/interchange.png", newLight));
 						if (vertical) {
-							IGui.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, y - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
-							IGui.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, y, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, y - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+							IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, y, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						} else {
 							final VerticalAlignment verticalAlignment = bottomText ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP;
 							final float yLine = y + (bottomText ? -STATION_CIRCLE_SIZE / 2F - INTERCHANGE_LINE_SIZE : STATION_CIRCLE_SIZE / 2F);
 							final float yText = yLine + (bottomText ? 0 : INTERCHANGE_LINE_SIZE);
-							IGui.drawTexture(matrices, vertexConsumerInterchange, x - INTERCHANGE_LINE_SIZE / 2F, yLine, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.3125F, bottomText ? 0 : 0.625F, 0.6875F, bottomText ? 0.375F : 1, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
-							IGui.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.CENTER, verticalAlignment, x, yText, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x - INTERCHANGE_LINE_SIZE / 2F, yLine, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.3125F, bottomText ? 0 : 0.625F, 0.6875F, bottomText ? 0.375F : 1, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+							IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.CENTER, verticalAlignment, x, yText, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						}
 					}
 				} else {
@@ -132,24 +133,24 @@ public class RouteRenderer implements IGui {
 					final float y2 = vertical ? y - totalHeight / 2F : bottomText ? y - totalHeight : y;
 					final float y1 = y2 - STATION_CIRCLE_SIZE / 2F;
 					final float y3 = y2 + totalHeight;
-					IGui.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y1, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE / 2F, 0, 0, 1, 0.5F, facing, -1, newLight);
-					IGui.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y2, STATION_CIRCLE_SIZE, totalHeight, 0, 0.49F, 1, 0.51F, facing, -1, newLight);
-					IGui.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y3, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE / 2F, 0, 0.5F, 1, 1, facing, -1, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y1, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE / 2F, 0, 0, 1, 0.5F, facing, -1, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y2, STATION_CIRCLE_SIZE, totalHeight, 0, 0.49F, 1, 0.51F, facing, -1, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerStationCircle, x - STATION_CIRCLE_SIZE / 2F, y3, STATION_CIRCLE_SIZE, STATION_CIRCLE_SIZE / 2F, 0, 0.5F, 1, 1, facing, -1, newLight);
 
 					final VertexConsumer vertexConsumerInterchange = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/interchange.png", newLight));
 					for (int k = 0; k < interchangeCount; k++) {
 						final float yLine = y2 + (k + (vertical ? 0 : bottomText ? 0 : 1)) * INTERCHANGE_HALF_HEIGHT * 2;
-						IGui.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(k).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, yLine, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
-						IGui.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, yLine - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(k).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+						IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(k).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, yLine, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+						IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, yLine - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(k).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
 					}
 				}
 
 				final HorizontalAlignment horizontalAlignment = vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER;
 				final VerticalAlignment verticalAlignment = vertical ? VerticalAlignment.CENTER : bottomText ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM;
-				IGui.drawStringWithFont(matrices, textRenderer, immediate, IGui.textOrUntitled(stationDetails.get(j).stationName), horizontalAlignment, verticalAlignment, x - (vertical ? STATION_TEXT_PADDING : 0), y + (vertical ? 0 : bottomText ? STATION_TEXT_PADDING : -STATION_TEXT_PADDING), 1, onStation ? ARGB_WHITE : onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, (x1, y1, x2, y2) -> {
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, IGui.textOrUntitled(stationDetails.get(j).stationName), horizontalAlignment, verticalAlignment, x - (vertical ? STATION_TEXT_PADDING : 0), y + (vertical ? 0 : bottomText ? STATION_TEXT_PADDING : -STATION_TEXT_PADDING), 1, onStation ? ARGB_WHITE : onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, (x1, y1, x2, y2) -> {
 					if (onStation) {
 						matrices.push();
-						IGui.drawTexture(matrices, vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight)), x1 - STATION_NAME_BACKGROUND_PADDING, y1 - STATION_NAME_BACKGROUND_PADDING, smallOffset, x2 + STATION_NAME_BACKGROUND_PADDING, y2 + STATION_NAME_BACKGROUND_PADDING, smallOffset, facing, ARGB_BLACK, newLight);
+						IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight)), x1 - STATION_NAME_BACKGROUND_PADDING, y1 - STATION_NAME_BACKGROUND_PADDING, smallOffset, x2 + STATION_NAME_BACKGROUND_PADDING, y2 + STATION_NAME_BACKGROUND_PADDING, smallOffset, facing, ARGB_BLACK, newLight);
 						matrices.pop();
 					}
 				});
@@ -188,12 +189,12 @@ public class RouteRenderer implements IGui {
 			final float chunkHeight = arrowSize / routeCount;
 			final VertexConsumer vertexConsumerCircle = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/circle.png", newLight));
 			for (int i = 0; i < routeCount; i++) {
-				IGui.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
 			}
 
 			matrices.push();
 			matrices.translate(0, 0, -SMALL_OFFSET);
-			IGui.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, centerX, top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
+			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, centerX, top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
 			matrices.pop();
 		} else {
 			final HorizontalAlignment horizontalAlignment1 = leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
@@ -210,25 +211,25 @@ public class RouteRenderer implements IGui {
 
 			final int textColor = vertical ? ARGB_WHITE : ARGB_BLACK;
 			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft && visibleArrow ? 1 : 0) + (hasRight && visibleArrow ? 1 : 0));
-			IGui.drawStringWithFont(matrices, textRenderer, immediate, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, newLight, ((x1, y1, x2, y2) -> {
+			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, newLight, ((x1, y1, x2, y2) -> {
 				final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/arrow.png", newLight));
 				if (hasLeft && visibleArrow) {
-					IGui.drawTexture(matrices, vertexConsumerArrow, x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, facing, textColor, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerArrow, x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, facing, textColor, newLight);
 				}
 				if (hasRight && visibleArrow) {
-					IGui.drawTexture(matrices, vertexConsumerArrow, x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, facing, textColor, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerArrow, x2 + arrowPadding + (leftToRight ? 0 : arrowSize + arrowPadding), top, arrowSize, arrowSize, 1, 0, 0, 1, facing, textColor, newLight);
 				}
 
 				final VertexConsumer vertexConsumerCircle = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/circle.png", newLight));
 				final float chunkHeight = arrowSize / routeCount;
 				final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
 				for (int i = 0; i < routeCount; i++) {
-					IGui.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
 				}
 
 				matrices.push();
 				matrices.translate(0, 0, -SMALL_OFFSET);
-				IGui.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
 				matrices.pop();
 			}));
 		}

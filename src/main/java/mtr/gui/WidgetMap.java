@@ -88,7 +88,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i += increment) {
 			for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j += increment) {
 				if (world != null) {
-					final int color = IGui.divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color, 2);
+					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color, 2);
 					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
 				}
 			}
@@ -170,7 +170,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 					final BlockPos pos = station.getCenter();
 					if (pos != null) {
 						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
 			}
@@ -178,7 +178,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				for (final Depot depot : ClientData.depots) {
 					final BlockPos pos = depot.getCenter();
 					if (pos != null) {
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
 			}
@@ -357,7 +357,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final double x2 = Math.max(xA, xB);
 		final double y2 = Math.max(yA, yB);
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			IGui.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
+			IDrawing.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
 		}
 	}
 
@@ -367,6 +367,13 @@ public class WidgetMap implements Drawable, Element, IGui {
 			final int index = i;
 			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
 		}
+	}
+
+	private static int divideColorRGB(int color, int amount) {
+		final int r = ((color >> 16) & 0xFF) / amount;
+		final int g = ((color >> 8) & 0xFF) / amount;
+		final int b = (color & 0xFF) / amount;
+		return (r << 16) + (g << 8) + b;
 	}
 
 	@FunctionalInterface

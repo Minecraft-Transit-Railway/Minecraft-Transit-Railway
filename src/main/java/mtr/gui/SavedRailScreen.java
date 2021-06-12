@@ -65,7 +65,7 @@ public class SavedRailScreen extends Screen implements IGui, IPacket {
 		super.init();
 		setIsSelectingTrain(false);
 
-		IGui.setPositionAndWidth(textFieldPlatformNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldPlatformNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
 		textFieldPlatformNumber.setText(savedRailBase.name);
 		textFieldPlatformNumber.setMaxLength(MAX_PLATFORM_NAME_LENGTH);
 		textFieldPlatformNumber.setChangedListener(text -> {
@@ -81,7 +81,7 @@ public class SavedRailScreen extends Screen implements IGui, IPacket {
 			sliderDwellTime.setValue(((Platform) savedRailBase).getDwellTime() - 1);
 			addButton(sliderDwellTime);
 		} else if (savedRailBase instanceof Siding) {
-			IGui.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
+			IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 			addButton(buttonSelectTrain);
 		}
 

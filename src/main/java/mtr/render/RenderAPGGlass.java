@@ -2,7 +2,8 @@ package mtr.render;
 
 import mtr.block.BlockAPGGlass;
 import mtr.block.IBlock;
-import mtr.gui.IGui;
+import mtr.data.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.VertexConsumer;
@@ -77,8 +78,8 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 			routeRenderer.renderColorStrip(isLeft ? getSidePadding() : 0, COLOR_STRIP_START, 0, isRight ? getSidePadding() : 1, COLOR_STRIP_END, 0, facing, light);
 			routeRenderer.renderColorStrip(isRight ? getSidePadding() : 1, COLOR_STRIP_START, 0.125F, isLeft ? getSidePadding() : 0, COLOR_STRIP_END, 0.125F, facing, light);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/white.png")));
-			IGui.drawTexture(matrices, vertexConsumer, isLeft ? getSidePadding() : 0, getTopPadding(), SMALL_OFFSET * 2, isRight ? getSidePadding() : 1, COLOR_STRIP_START, SMALL_OFFSET * 2, facing, ARGB_WHITE, light);
-			IGui.drawTexture(matrices, vertexConsumer, isRight ? getSidePadding() : 1, getTopPadding(), 0.125F - SMALL_OFFSET * 2, isLeft ? getSidePadding() : 0, COLOR_STRIP_START, 0.125F - SMALL_OFFSET * 2, facing, ARGB_WHITE, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, isLeft ? getSidePadding() : 0, getTopPadding(), SMALL_OFFSET * 2, isRight ? getSidePadding() : 1, COLOR_STRIP_START, SMALL_OFFSET * 2, facing, ARGB_WHITE, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, isRight ? getSidePadding() : 1, getTopPadding(), 0.125F - SMALL_OFFSET * 2, isLeft ? getSidePadding() : 0, COLOR_STRIP_START, 0.125F - SMALL_OFFSET * 2, facing, ARGB_WHITE, light);
 		}
 	}
 }

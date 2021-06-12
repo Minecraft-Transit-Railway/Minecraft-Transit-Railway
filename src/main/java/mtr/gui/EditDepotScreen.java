@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.data.Depot;
+import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -77,8 +78,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	protected void init() {
 		super.init();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IGui.setPositionAndWidth(textFieldName, rightPanelsX + TEXT_FIELD_PADDING / 2, yStart, width / 4 * 3 - TEXT_FIELD_PADDING - rightPanelsX);
-		IGui.setPositionAndWidth(textFieldColor, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldName, rightPanelsX + TEXT_FIELD_PADDING / 2, yStart, width / 4 * 3 - TEXT_FIELD_PADDING - rightPanelsX);
+		IDrawing.setPositionAndWidth(textFieldColor, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
 
 		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 		textFieldName.setText(depot.name);
@@ -91,8 +92,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 			}
 		});
 
-		IGui.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX);
-		IGui.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX);
+		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
 		addNewList.y = SQUARE_SIZE * 2;
 		addNewList.height = height - SQUARE_SIZE * 5;

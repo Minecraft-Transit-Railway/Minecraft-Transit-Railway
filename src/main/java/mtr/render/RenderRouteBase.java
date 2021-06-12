@@ -2,9 +2,9 @@ package mtr.render;
 
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;

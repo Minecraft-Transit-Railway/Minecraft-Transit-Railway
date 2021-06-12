@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.gui.IGui;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -47,7 +46,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		builder.add(FACING, HALF, PROPAGATE_PROPERTY);
 	}
 
-	public static abstract class TileEntityRouteSignBase extends BlockEntity implements BlockEntityClientSerializable, IGui {
+	public static abstract class TileEntityRouteSignBase extends BlockEntity implements BlockEntityClientSerializable {
 
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
