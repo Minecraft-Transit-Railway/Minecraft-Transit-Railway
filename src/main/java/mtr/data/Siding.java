@@ -4,7 +4,6 @@ import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
 import mtr.config.CustomResources;
-import mtr.entity.EntitySeat;
 import mtr.gui.IGui;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
@@ -13,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
@@ -24,10 +24,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Siding extends SavedRailBase implements IGui, IPacket {
@@ -47,6 +44,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
+	private final Map<UUID, RidingDetails> ridingEntities = new HashMap<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
 	private static final String KEY_TRAIN_TYPE = "train_type";
@@ -56,6 +54,8 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	private static final String KEY_STOP_COUNTER = "stop_counter";
 	private static final String KEY_NEXT_STOPPING_INDEX = "next_stopping_index";
 	private static final String KEY_IS_ON_ROUTE = "is_on_route";
+	private static final String KEY_RIDING_ENTITIES = "riding_entities";
+	private static final String KEY_RIDING_ENTITY_UUID = "riding_entity_uuid";
 
 	public static final float ACCELERATION = 0.01F;
 	private static final int TICK_DURATION_NANOS = 50000000;
@@ -99,6 +99,14 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		nextStoppingIndex = tag.getInt(KEY_NEXT_STOPPING_INDEX);
 		isOnRoute = tag.getBoolean(KEY_IS_ON_ROUTE);
 
+		final CompoundTag tagRidingEntities = tag.getCompound(KEY_RIDING_ENTITIES);
+		tagRidingEntities.getKeys().forEach(key -> {
+			final CompoundTag tagRidingEntity = tagRidingEntities.getCompound(key);
+			final UUID uuid = tagRidingEntity.getUuid(KEY_RIDING_ENTITY_UUID);
+			final RidingDetails ridingDetails = new RidingDetails(tagRidingEntity);
+			ridingEntities.put(uuid, ridingDetails);
+		});
+
 		lastNanos = System.nanoTime();
 	}
 
@@ -112,6 +120,13 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		stopCounter = packet.readFloat();
 		nextStoppingIndex = packet.readInt();
 		isOnRoute = packet.readBoolean();
+
+		final int ridingEntitiesCount = packet.readInt();
+		for (int i = 0; i < ridingEntitiesCount; i++) {
+			final UUID uuid = packet.readUuid();
+			final RidingDetails ridingDetails = new RidingDetails(packet);
+			ridingEntities.put(uuid, ridingDetails);
+		}
 
 		lastNanos = System.nanoTime();
 	}
@@ -129,6 +144,14 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		tag.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
 		tag.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
 
+		final CompoundTag tagRidingEntities = new CompoundTag();
+		ridingEntities.forEach((uuid, ridingDetails) -> {
+			final CompoundTag tagRidingEntity = ridingDetails.toCompoundTag();
+			tagRidingEntity.putUuid(KEY_RIDING_ENTITY_UUID, uuid);
+			tagRidingEntities.put(KEY_RIDING_ENTITIES + uuid, tagRidingEntity);
+		});
+		tag.put(KEY_RIDING_ENTITIES, tagRidingEntities);
+
 		return tag;
 	}
 
@@ -144,6 +167,12 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		packet.writeFloat(stopCounter);
 		packet.writeInt(nextStoppingIndex);
 		packet.writeBoolean(isOnRoute);
+
+		packet.writeInt(ridingEntities.size());
+		ridingEntities.forEach((uuid, ridingDetails) -> {
+			packet.writeUuid(uuid);
+			ridingDetails.writePacket(packet);
+		});
 	}
 
 	@Override
@@ -223,18 +252,18 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		}
 	}
 
-	public void simulateTrain(float tickDelta, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public void simulateTrain(PlayerEntity clientPlayer, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		if (world == null) {
 			return;
 		}
 
 		try {
 			final long currentNanos = System.nanoTime();
+			final float ticksElapsed = world.isClient() ? (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS : 1;
 			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
-			final boolean reversed;
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainLength * getTrainSpacing()) / 2;
@@ -246,42 +275,35 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 					if (!world.isClient()) {
 						isOnRoute = true;
 						nextStoppingIndex = 0;
-						reversed = startUp();
-					} else {
-						reversed = false;
+						startUp();
 					}
 					syncTrainToClient();
-				} else {
-					reversed = false;
 				}
 			} else {
 				oldDoorValue = nextStoppingIndex < path.size() ? Math.abs(getDoorValue()) : 0;
-
-				final float ticksElapsed = world.isClient() ? (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS : 1;
 				final float newAcceleration = ACCELERATION * ticksElapsed;
 				if (path.isEmpty()) {
 					doorValueRaw = 0;
-					reversed = false;
 				} else {
 					if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * getTrainSpacing()) / 2) {
 						isOnRoute = false;
 						syncTrainToClient();
+						ridingEntities.clear();
 						doorValueRaw = 0;
-						reversed = false;
 					} else {
 						if (speed <= 0) {
 							speed = 0;
 							final float stopCounterOld = stopCounter;
 							stopCounter += ticksElapsed;
 							doorValueRaw = getDoorValue();
-
 							final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 							if (stopCounterOld < dwellTicks / 2F && stopCounter >= dwellTicks / 2F) {
 								syncTrainToClient();
 							}
-
-							reversed = stopCounter > dwellTicks && startUp();
+							if (stopCounter > dwellTicks) {
+								startUp();
+							}
 						} else {
 							if (distances.get(nextStoppingIndex) - railProgress < 0.5 * speed * speed / ACCELERATION) {
 								speed -= newAcceleration;
@@ -296,7 +318,6 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 							}
 
 							doorValueRaw = 0;
-							reversed = false;
 						}
 
 						railProgress += speed * ticksElapsed;
@@ -305,7 +326,7 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			}
 
 			if (!path.isEmpty()) {
-				render(doorValueRaw, oldRailProgress, oldSpeed, oldDoorValue, tickDelta, reversed, clientSeat, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback);
+				render(doorValueRaw, oldRailProgress, oldSpeed, oldDoorValue, ticksElapsed, clientPlayer, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback);
 			}
 			lastNanos = currentNanos;
 		} catch (Exception e) {
@@ -313,68 +334,29 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		}
 	}
 
-	private boolean startUp() {
+	private void startUp() {
 		stopCounter = 0;
 		speed = ACCELERATION;
-		final boolean reversed = path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
-		if (reversed) {
+		if (path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1))) {
 			railProgress += trainLength * getTrainSpacing();
+			ridingEntities.values().forEach(ridingDetails -> {
+				ridingDetails.ridingPercentageX = 1 - ridingDetails.ridingPercentageX;
+				ridingDetails.ridingPercentageZ = trainLength - ridingDetails.ridingPercentageZ;
+			});
 		}
 		nextStoppingIndex = getNextStoppingIndex();
-		return reversed;
 	}
 
-	private void render(float doorValueRaw, float oldRailProgress, float oldSpeed, float oldDoorValue, float tickDelta, boolean reversed, EntitySeat clientSeat, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback) {
+	private void render(float doorValueRaw, float oldRailProgress, float oldSpeed, float oldDoorValue, float ticksElapsed, PlayerEntity clientPlayer, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback) {
 		final Pos3f[] positions = new Pos3f[trainLength + 1];
 		for (int i = 0; i < trainLength + 1; i++) {
 			positions[i] = getRoutePosition(i);
 		}
 		final TrainType trainType = trainTypeMapping.trainType;
 
-		float renderOffsetX = 0, renderOffsetY = 0, renderOffsetZ = 0;
-		boolean shouldOffsetRender = false;
-		if (world.isClient() && clientSeat != null && clientSeat.hasPassengers() && clientSeat.isSidingId(id)) {
-			final float ridingPercentageZ = clientSeat.getRidingPercentageZ(tickDelta);
-			final int ridingCar = (int) Math.floor(ridingPercentageZ);
-			if (ridingCar < trainLength) {
-				final Pos3f pos1 = positions[ridingCar];
-				final Pos3f pos2 = positions[ridingCar + 1];
-				if (pos1 != null && pos2 != null) {
-					final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
-					final float pitch = (float) Math.asin((pos2.y - pos1.y) / pos2.getDistanceTo(pos1));
-					final Vec3d ridingOffset = new Vec3d(getValueFromPercentage(clientSeat.getRidingPercentageX(tickDelta), trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(ridingPercentageZ), pos2.getDistanceTo(pos1))).rotateX(pitch).rotateY(yaw);
-					final float absoluteX = getAverage(pos1.x, pos2.x);
-					final float absoluteY = getAverage(pos1.y, pos2.y);
-					final float absoluteZ = getAverage(pos1.z, pos2.z);
-
-					if (speed > 0) {
-						renderOffsetX = absoluteX + (float) ridingOffset.x;
-						renderOffsetY = absoluteY + (float) ridingOffset.y + 1;
-						renderOffsetZ = absoluteZ + (float) ridingOffset.z;
-						shouldOffsetRender = true;
-						clientSeat.getPlayer().yaw -= Math.toDegrees(yaw - clientSeat.prevTrainYaw);
-					}
-
-					clientSeat.prevTrainYaw = yaw;
-
-					if (speedCallback != null) {
-						speedCallback.speedCallback(speed * 20, (int) absoluteX, (int) absoluteY, (int) absoluteZ, path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
-					}
-
-					if (announcementCallback != null) {
-						float targetProgress = distances.get(getPreviousStoppingIndex()) + trainLength * trainType.getSpacing();
-						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
-							announcementCallback.announcementCallback(path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
-						}
-					}
-				}
-			}
-		}
-
 		final float doorValue = Math.abs(doorValueRaw);
 		final boolean opening = doorValueRaw > 0;
 
-		final List<EntitySeat> reversedSeats = new ArrayList<>();
 		float prevCarX = 0, prevCarY = 0, prevCarZ = 0, prevCarYaw = 0, prevCarPitch = 0;
 		int previousRendered = 0;
 		for (int i = 0; i < trainLength; i++) {
@@ -382,25 +364,21 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 			final Pos3f pos2 = positions[i + 1];
 
 			if (pos1 != null && pos2 != null) {
-				final float absoluteX = getAverage(pos1.x, pos2.x);
-				final float absoluteY = getAverage(pos1.y, pos2.y);
-				final float absoluteZ = getAverage(pos1.z, pos2.z);
-				final float x = absoluteX - renderOffsetX;
-				final float y = absoluteY - renderOffsetY + 1;
-				final float z = absoluteZ - renderOffsetZ;
+				final float x = getAverage(pos1.x, pos2.x);
+				final float y = getAverage(pos1.y, pos2.y) + 1;
+				final float z = getAverage(pos1.z, pos2.z);
 
 				final float realSpacing = pos2.getDistanceTo(pos1);
 				final float halfSpacing = realSpacing / 2;
 				final float halfWidth = trainType.width / 2F;
 				final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
 				final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
+				final boolean doorLeftOpen = openDoors(x, y, z, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
+				final boolean doorRightOpen = openDoors(x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
 
 				if (world.isClient()) {
-					final boolean doorLeftOpen = openDoors(absoluteX, absoluteY, absoluteZ, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
-					final boolean doorRightOpen = openDoors(absoluteX, absoluteY, absoluteZ, yaw, halfSpacing, doorValue) && doorValue > 0;
-
 					if (renderTrainCallback != null) {
-						renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, shouldOffsetRender);
+						renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute);
 					}
 
 					previousRendered--;
@@ -418,7 +396,20 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 						final Pos3f thisPos3 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
 						final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(x, y, z);
 
-						renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, isOnRoute, shouldOffsetRender);
+						renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, isOnRoute);
+					}
+
+					if (clientPlayer != null && ridingEntities.containsKey(clientPlayer.getUuid()) && i == Math.floor(ridingEntities.get(clientPlayer.getUuid()).ridingPercentageZ)) {
+						if (speedCallback != null) {
+							speedCallback.speedCallback(speed * 20, path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
+						}
+
+						if (announcementCallback != null) {
+							float targetProgress = distances.get(getPreviousStoppingIndex()) + trainLength * trainType.getSpacing();
+							if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
+								announcementCallback.announcementCallback(path.get(getIndex(0)).stopIndex - 1, depot.routeIds);
+							}
+						}
 					}
 
 					prevCarX = x;
@@ -428,63 +419,56 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 					prevCarPitch = pitch;
 					previousRendered = 2;
 				} else {
-					final PlayerEntity closestPlayer = world.getClosestPlayer(x, y, z, EntitySeat.DETAIL_RADIUS, false);
-					if (closestPlayer != null) {
-						final boolean doorLeftOpen = openDoors(x, y, z, (float) Math.PI + yaw, halfSpacing, doorValue) && doorValue > 0;
-						final boolean doorRightOpen = openDoors(x, y, z, yaw, halfSpacing, doorValue) && doorValue > 0;
+					final BlockPos soundPos = new BlockPos(x, y, z);
+					trainType.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
 
-						final int ridingCar = i;
-						final float margin = halfSpacing + BOX_PADDING + speed * 4;
-						world.getEntitiesByClass(EntitySeat.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), entitySeat -> true).forEach(entitySeat -> {
-							final PlayerEntity serverPlayer = entitySeat.getPlayer();
-							if (serverPlayer == null) {
-								return;
-							}
-							final Vec3d positionRotated = entitySeat.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
-
-							if (reversed && !reversedSeats.contains(entitySeat)) {
-								entitySeat.ridingPercentageZ = trainLength - entitySeat.ridingPercentageZ;
-								reversedSeats.add(entitySeat);
-							}
-
-							if (Math.abs(positionRotated.x) <= halfWidth + INNER_PADDING && Math.abs(positionRotated.y) <= 1.5) {
-								if ((doorLeftOpen || doorRightOpen) && !entitySeat.getIsRiding() && Math.abs(positionRotated.z) <= halfSpacing) {
-									entitySeat.resetSeatCoolDown();
-									serverPlayer.startRiding(entitySeat);
-									entitySeat.setSidingId(id);
-									entitySeat.ridingPercentageX = (float) (positionRotated.x / trainType.width + 0.5);
-									entitySeat.ridingPercentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
-								}
-
-								if (entitySeat.getIsRiding() && ridingCar == Math.floor(entitySeat.ridingPercentageZ) && entitySeat.isSidingId(id)) {
-									final Vec3d velocity = new Vec3d(getValueFromPercentage(entitySeat.ridingPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(entitySeat.ridingPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
-									entitySeat.updatePositionAndAngles(velocity.x, velocity.y, velocity.z, 0, 0);
-									entitySeat.fallDistance = 0;
-									entitySeat.resetSeatCoolDown();
-
-									final Vec3d movement = new Vec3d(serverPlayer.sidewaysSpeed / 3, 0, serverPlayer.forwardSpeed / 3).rotateY((float) -Math.toRadians(serverPlayer.yaw) - yaw);
-									entitySeat.ridingPercentageX += movement.x / trainType.width;
-									entitySeat.ridingPercentageZ += movement.z / realSpacing;
-									entitySeat.ridingPercentageX = MathHelper.clamp(entitySeat.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
-									entitySeat.ridingPercentageZ = MathHelper.clamp(entitySeat.ridingPercentageZ, 0, trainLength - 0.01F);
-									entitySeat.updateRidingPercentage();
-									entitySeat.setSidingId(id);
-								}
-							}
-						});
-
-						final BlockPos soundPos = new BlockPos(x, y, z);
-						trainType.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
-
-						if (doorLeftOpen || doorRightOpen) {
-							if (oldDoorValue <= 0 && doorValue > 0 && trainType.doorOpenSoundEvent != null) {
-								world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
-							} else if (oldDoorValue >= trainType.doorCloseSoundTime && doorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
-								world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
-							}
+					if (doorLeftOpen || doorRightOpen) {
+						if (oldDoorValue <= 0 && doorValue > 0 && trainType.doorOpenSoundEvent != null) {
+							world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
+						} else if (oldDoorValue >= trainType.doorCloseSoundTime && doorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
+							world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
 						}
 					}
 				}
+
+				final int ridingCar = i;
+				final float margin = halfSpacing + BOX_PADDING;
+				world.getEntitiesByClass(LivingEntity.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), player -> true).forEach(livingEntity -> {
+					final Vec3d positionRotated = livingEntity.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
+					if ((doorLeftOpen || doorRightOpen) && !ridingEntities.containsKey(livingEntity.getUuid()) && Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
+						ridingEntities.put(livingEntity.getUuid(), new RidingDetails((float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar));
+						livingEntity.setNoGravity(true);
+					}
+				});
+
+				final Set<UUID> entitiesToRemove = new HashSet<>();
+				ridingEntities.forEach((uuid, ridingDetails) -> {
+					final PlayerEntity player = world.getPlayerByUuid(uuid);
+					if (player != null) {
+						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
+
+						if (ridingCar == Math.floor(ridingDetails.ridingPercentageZ)) {
+							player.fallDistance = 0;
+
+							final Vec3d movement = new Vec3d(player.sidewaysSpeed * ticksElapsed / 4, 0, player.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(player.yaw) - yaw);
+							ridingDetails.ridingPercentageX += movement.x / trainType.width;
+							ridingDetails.ridingPercentageZ += movement.z / realSpacing;
+							ridingDetails.ridingPercentageX = MathHelper.clamp(ridingDetails.ridingPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
+							ridingDetails.ridingPercentageZ = MathHelper.clamp(ridingDetails.ridingPercentageZ, 0, trainLength - 0.01F);
+
+							final Vec3d newPosition = new Vec3d(getValueFromPercentage(ridingDetails.ridingPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(ridingDetails.ridingPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
+							player.setVelocity(0, 0, 0);
+							player.updatePosition(newPosition.x, newPosition.y, newPosition.z);
+						}
+
+						if ((doorLeftOpen || doorRightOpen) && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING * 2 || Math.abs(positionRotated.y) > 1.5)) {
+							player.fallDistance = 0;
+							player.setNoGravity(false);
+							entitiesToRemove.add(uuid);
+						}
+					}
+				});
+				entitiesToRemove.forEach(ridingEntities::remove);
 			}
 		}
 	}
@@ -575,6 +559,10 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 	}
 
 	private boolean openDoors(float trainX, float trainY, float trainZ, float checkYaw, float halfSpacing, float doorValue) {
+		if (!world.isClient() && !world.isChunkLoaded((int) trainX / 16, (int) trainZ / 16)) {
+			return false;
+		}
+
 		boolean hasPlatform = false;
 		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw);
 		final Vec3d traverseVec = new Vec3d(0, 0, 1).rotateY(checkYaw);
@@ -614,19 +602,57 @@ public class Siding extends SavedRailBase implements IGui, IPacket {
 		return (percentage - 0.5F) * total;
 	}
 
+	private static class RidingDetails extends SerializedDataBase {
+
+		private float ridingPercentageX;
+		private float ridingPercentageZ;
+
+		private static final String KEY_RIDING_PERCENTAGE_X = "riding_percentage_x";
+		private static final String KEY_RIDING_PERCENTAGE_Z = "riding_percentage_z";
+
+		public RidingDetails(float ridingPercentageX, float ridingPercentageZ) {
+			this.ridingPercentageX = ridingPercentageX;
+			this.ridingPercentageZ = ridingPercentageZ;
+		}
+
+		public RidingDetails(CompoundTag tag) {
+			ridingPercentageX = tag.getFloat(KEY_RIDING_PERCENTAGE_X);
+			ridingPercentageZ = tag.getFloat(KEY_RIDING_PERCENTAGE_Z);
+		}
+
+		public RidingDetails(PacketByteBuf packet) {
+			ridingPercentageX = packet.readFloat();
+			ridingPercentageZ = packet.readFloat();
+		}
+
+		@Override
+		public CompoundTag toCompoundTag() {
+			final CompoundTag tag = new CompoundTag();
+			tag.putFloat(KEY_RIDING_PERCENTAGE_X, ridingPercentageX);
+			tag.putFloat(KEY_RIDING_PERCENTAGE_Z, ridingPercentageZ);
+			return tag;
+		}
+
+		@Override
+		public void writePacket(PacketByteBuf packet) {
+			packet.writeFloat(ridingPercentageX);
+			packet.writeFloat(ridingPercentageZ);
+		}
+	}
+
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean shouldOffsetRender);
+		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, TrainType trainType, boolean lightsOn, boolean shouldOffsetRender);
+		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, TrainType trainType, boolean lightsOn);
 	}
 
 	@FunctionalInterface
 	public interface SpeedCallback {
-		void speedCallback(float speed, int x, int y, int z, int stopIndex, List<Long> routeIds);
+		void speedCallback(float speed, int stopIndex, List<Long> routeIds);
 	}
 
 	@FunctionalInterface

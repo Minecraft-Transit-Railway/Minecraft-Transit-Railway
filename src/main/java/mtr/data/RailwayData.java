@@ -166,7 +166,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(0, null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
+		sidings.forEach(siding -> siding.simulateTrain(null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {

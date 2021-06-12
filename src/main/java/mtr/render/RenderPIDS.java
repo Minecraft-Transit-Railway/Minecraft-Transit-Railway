@@ -68,7 +68,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
 			return;
 		}
 

@@ -2,21 +2,15 @@ package mtr;
 
 import mtr.block.*;
 import mtr.data.RailwayData;
-import mtr.entity.EntitySeat;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -32,8 +26,6 @@ import java.util.stream.IntStream;
 public class MTR implements ModInitializer, IPacket {
 
 	public static final String MOD_ID = "mtr";
-
-	public static final EntityType<EntitySeat> SEAT = registerEntity("seat", EntitySeat::new);
 
 	public static final BlockEntityType<BlockArrivalProjector1Small.TileEntityArrivalProjector1Small> ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY = registerTileEntity("arrival_projector_1_small", BlockArrivalProjector1Small.TileEntityArrivalProjector1Small::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL);
 	public static final BlockEntityType<BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium> ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY = registerTileEntity("arrival_projector_1_medium", BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM);
@@ -234,19 +226,6 @@ public class MTR implements ModInitializer, IPacket {
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
-				serverWorld.getEntitiesByType(SEAT, checkEntity -> {
-					if (checkEntity instanceof EntitySeat) {
-						final PlayerEntity checkPlayer = ((EntitySeat) checkEntity).getPlayer();
-						return checkPlayer == null || entity.getUuid().equals(checkPlayer.getUuid());
-					} else {
-						return false;
-					}
-				}).forEach(Entity::kill);
-
-				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
-				seat.setPlayerId(entity.getUuid());
-				serverWorld.spawnEntity(seat);
-
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 				if (railwayData != null) {
 					railwayData.addPlayerToBroadcast((PlayerEntity) entity);
@@ -270,10 +249,6 @@ public class MTR implements ModInitializer, IPacket {
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
-	}
-
-	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory) {
-		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(0.125F, 0.125F)).build());
 	}
 
 	private static SoundEvent registerSoundEvent(String path) {

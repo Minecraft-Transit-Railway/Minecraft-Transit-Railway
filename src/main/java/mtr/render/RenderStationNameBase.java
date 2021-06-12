@@ -35,7 +35,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
 			return;
 		}
 
