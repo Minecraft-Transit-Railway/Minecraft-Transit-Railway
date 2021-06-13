@@ -29,7 +29,6 @@ import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 public class MTRClient implements ClientModInitializer, IPacket {
 
@@ -170,10 +169,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		});
 		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 			final MatrixStack matrices = context.matrixStack();
-			final Vec3d cameraPos = context.camera().getPos();
 			matrices.push();
-			matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-			RenderTrains.render(context.world(), matrices, context.consumers());
+			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera().getPos());
 			matrices.pop();
 		});
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());

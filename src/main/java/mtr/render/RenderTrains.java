@@ -26,6 +26,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
@@ -57,7 +58,7 @@ public class RenderTrains implements IGui {
 	private static final ModelATrainMini MODEL_A_TRAIN_AEL_MINI = new ModelATrainMini(true);
 	private static final ModelLightRail1 MODEL_LIGHT_RAIL_1 = new ModelLightRail1();
 
-	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
+	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
 		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
 		if (player == null) {
@@ -77,16 +78,15 @@ public class RenderTrains implements IGui {
 
 		final long worldTime = world.getLunarTime();
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn) -> {
-			final BlockPos posAverage = new BlockPos(x, y, z);
-			if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
-				return;
-			}
-			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos, player, offsetRender, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
-			matrices.translate(x, y, z);
+			if (offsetRender) {
+				matrices.translate(x, y, z);
+			} else {
+				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
+			}
 			matrices.multiply(Vector3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
 			matrices.multiply(Vector3f.POSITIVE_X.getRadialQuaternion((float) Math.PI + pitch));
 
@@ -97,23 +97,20 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, lightsOn, player.getPos().squaredDistanceTo(x, y, z) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, lightsOn, posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
-		}, (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, lightsOn) -> {
-			final BlockPos posAverage = new BlockPos(x, y, z);
-			if (shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
-				return;
-			}
-			final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage));
-
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos, player, offsetRender, (light, posAverage) -> {
 			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainType.id, "exterior"))));
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			final VertexConsumer vertexConsumerRoof = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof"))));
 			final VertexConsumer vertexConsumerFloor = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor"))));
 
 			matrices.push();
+			if (!offsetRender) {
+				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+			}
 
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
@@ -125,8 +122,9 @@ public class RenderTrains implements IGui {
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerRoof, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
 			drawTexture(matrices, vertexConsumerFloor, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+
 			matrices.pop();
-		}, (speed, stopIndex, routeIds) -> {
+		}), (speed, stopIndex, routeIds) -> {
 			if (!(speed <= 5 && useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Text text;
 				switch ((int) ((worldTime / 20) % 3)) {
@@ -183,7 +181,7 @@ public class RenderTrains implements IGui {
 		}, () -> siding.generateRoute(world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
 
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
-		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
+		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxTrainRenderDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxTrainRenderDistance)) {
@@ -240,6 +238,13 @@ public class RenderTrains implements IGui {
 			}
 		}
 		return false;
+	}
+
+	private static void renderWithLight(World world, float x, float y, float z, Vec3d cameraPos, PlayerEntity player, boolean offsetRender, RenderCallback renderCallback) {
+		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).add(x, y, z) : new BlockPos(x, y, z);
+		if (!shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
+			renderCallback.renderCallback(LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage)), posAverage);
+		}
 	}
 
 	private static Text getStationText(Station station, String textKey) {
@@ -301,6 +306,11 @@ public class RenderTrains implements IGui {
 			default:
 				return null;
 		}
+	}
+
+	@FunctionalInterface
+	private interface RenderCallback {
+		void renderCallback(int light, BlockPos posAverage);
 	}
 
 	@FunctionalInterface
