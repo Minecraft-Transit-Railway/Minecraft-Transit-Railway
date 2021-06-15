@@ -4,6 +4,7 @@ import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
 import mtr.config.CustomResources;
+import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
@@ -37,7 +38,6 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 	private float railProgress;
 	private float stopCounter;
 	private int nextStoppingIndex;
-	private long lastNanos;
 	private boolean reversed;
 	private boolean isOnRoute = false;
 
@@ -61,7 +61,6 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 
 	public static final float ACCELERATION = 0.01F;
-	private static final int TICK_DURATION_NANOS = 50000000;
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
 
@@ -76,14 +75,12 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 		super(id, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", TrainType.values()[0]);
-		lastNanos = System.nanoTime();
 	}
 
 	public Siding(BlockPos pos1, BlockPos pos2, float railLength) {
 		super(pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", TrainType.values()[0]);
-		lastNanos = System.nanoTime();
 	}
 
 	public Siding(CompoundTag tag) {
@@ -105,8 +102,6 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 
 		final CompoundTag tagRidingEntities = tag.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUuid(key)));
-
-		lastNanos = System.nanoTime();
 	}
 
 	public Siding(PacketByteBuf packet) {
@@ -125,8 +120,6 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 		for (int i = 0; i < ridingEntitiesCount; i++) {
 			ridingEntities.add(packet.readUuid());
 		}
-
-		lastNanos = System.nanoTime();
 	}
 
 	@Override
@@ -176,10 +169,7 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 				break;
 			case KEY_RAIL_PROGRESS:
 				speed = packet.readFloat();
-				float tempRailProgress = packet.readFloat();
-				if (Math.abs(tempRailProgress - railProgress) > 0.5) {
-					railProgress = tempRailProgress;
-				}
+				railProgress = packet.readFloat();
 				stopCounter = packet.readFloat();
 				nextStoppingIndex = packet.readInt();
 				reversed = packet.readBoolean();
@@ -219,12 +209,11 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 		return trainTypeMapping;
 	}
 
-	public void generateRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots) {
+	public int generateRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots) {
 		this.world = world;
 		final BlockPos midPos = getMidPos();
 		depot = depots.stream().filter(depot1 -> depot1.inArea(midPos.getX(), midPos.getZ())).findFirst().orElse(null);
 
-		path.clear();
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 		platformsInRoute.add(this);
 		if (depot != null) {
@@ -242,7 +231,7 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 		}
 		platformsInRoute.add(this);
 
-		path.addAll(PathFinder.findPath(rails, platformsInRoute));
+		final int successfulSegments = PathFinder.findPath(path, rails, platformsInRoute);
 		if (path.isEmpty()) {
 			final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
 			final BlockPos pos1 = orderedPositions.get(0);
@@ -258,16 +247,16 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 			sum += pathData.rail.getLength();
 			distances.add(sum);
 		}
+
+		return successfulSegments;
 	}
 
-	public void simulateTrain(PlayerEntity clientPlayer, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		if (world == null) {
 			return;
 		}
 
 		try {
-			final long currentNanos = System.nanoTime();
-			final float ticksElapsed = world.isClient() ? (float) (currentNanos - lastNanos) / TICK_DURATION_NANOS : 1;
 			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
@@ -277,6 +266,7 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 				railProgress = (railLength + trainLength * getTrainSpacing()) / 2;
 				oldDoorValue = 0;
 				doorValueRaw = 0;
+				speed = 0;
 
 				if (path.size() > 1 && depot != null && depot.deployTrain(world)) {
 					generateRoute.run();
@@ -313,14 +303,14 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 							}
 						} else {
 							if (distances.get(nextStoppingIndex) - railProgress < 0.5 * speed * speed / ACCELERATION) {
-								speed -= newAcceleration;
+								speed = Math.max(speed - newAcceleration, ACCELERATION);
 							} else {
 								final int headIndex = getIndex(0);
 								final float railSpeed = path.get(headIndex).rail.railType.maxBlocksPerTick;
 								if (speed < railSpeed && (speed < RailType.WOODEN.maxBlocksPerTick || headIndex < nextStoppingIndex)) {
-									speed += newAcceleration;
-								} else if (speed >= railSpeed + ACCELERATION) {
-									speed -= newAcceleration;
+									speed = Math.min(speed + newAcceleration, railSpeed);
+								} else if (speed > railSpeed) {
+									speed = Math.max(speed - newAcceleration, railSpeed);
 								}
 							}
 
@@ -328,6 +318,10 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 						}
 
 						railProgress += speed * ticksElapsed;
+						if (railProgress > distances.get(nextStoppingIndex)) {
+							railProgress = distances.get(nextStoppingIndex);
+							speed = 0;
+						}
 					}
 				}
 			}
@@ -372,10 +366,9 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 
 				render(positions, doorValueRaw, oldSpeed, oldDoorValue, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
 			}
-
-			lastNanos = currentNanos;
 		} catch (Exception e) {
 			e.printStackTrace();
+			generateRoute.run();
 		}
 	}
 
@@ -438,7 +431,7 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 				final float newZ = z - (offset == null ? 0 : (float) offset.z);
 
 				if (renderTrainCallback != null) {
-					renderTrainCallback.renderTrainCallback(newX, newY, newZ, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, offset != null);
+					renderTrainCallback.renderTrainCallback(newX, newY, newZ, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, offset != null);
 				}
 
 				if (renderConnectionCallback != null && i > 0 && trainType.shouldRenderConnection) {
@@ -480,6 +473,8 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 						if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 							ridingEntities.add(player.getUuid());
 							player.fallDistance = 0;
+							((PlayerTeleportationStateAccessor) player).setInTeleportationState(true);
+							player.noClip = true;
 							syncTrainToClient(player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 						}
 					});
@@ -492,6 +487,8 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 						if (player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
 							player.fallDistance = 0;
+							((PlayerTeleportationStateAccessor) player).setInTeleportationState(false);
+							player.noClip = false;
 							entitiesToRemove.add(uuid);
 						}
 					}
@@ -671,7 +668,7 @@ public class Siding extends SavedRailBase implements IPacket, IGui {
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean offsetRender);
+		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean offsetRender);
 	}
 
 	@FunctionalInterface

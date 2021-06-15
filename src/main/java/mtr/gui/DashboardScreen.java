@@ -220,6 +220,12 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	}
 
 	@Override
+	public void onClose() {
+		super.onClose();
+		ClientData.updateSidings();
+	}
+
+	@Override
 	public boolean isPauseScreen() {
 		return false;
 	}

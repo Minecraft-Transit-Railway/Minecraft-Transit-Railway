@@ -130,7 +130,7 @@ public class SavedRailScreen extends Screen implements IGui, IPacket {
 	@Override
 	public void onClose() {
 		super.onClose();
-		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
+		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(savedRailBase instanceof Platform ? PACKET_UPDATE_PLATFORM : PACKET_UPDATE_SIDING, packet));
 		if (client != null) {
 			client.openScreen(dashboardScreen);
 		}

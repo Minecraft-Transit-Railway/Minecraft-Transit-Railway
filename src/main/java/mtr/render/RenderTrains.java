@@ -77,13 +77,14 @@ public class RenderTrains implements IGui {
 		}
 
 		final long worldTime = world.getLunarTime();
+		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos, player, offsetRender, (light, posAverage) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
 			if (offsetRender) {
-				matrices.translate(x, y, z);
+				matrices.translate(x + cameraOffset.x, y + cameraOffset.y, z + cameraOffset.z);
 			} else {
 				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
 			}
@@ -97,31 +98,30 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, true, lightsOn, posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos, player, offsetRender, (light, posAverage) -> {
-			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainType.id, "exterior"))));
-			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
-			final VertexConsumer vertexConsumerRoof = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof"))));
-			final VertexConsumer vertexConsumerFloor = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor"))));
-
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
 			matrices.push();
-			if (!offsetRender) {
+			if (offsetRender) {
+				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+			} else {
 				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 			}
 
+			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainType.id, "exterior"))));
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
 			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
+			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumerRoof, prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumerFloor, prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -178,7 +178,7 @@ public class RenderTrains implements IGui {
 					}
 				});
 			}
-		}, () -> siding.generateRoute(world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots)));
+		}, ClientData::updateSidings));
 
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
@@ -213,15 +213,15 @@ public class RenderTrains implements IGui {
 		return shouldNotRender(player, pos, maxDistance);
 	}
 
-	private static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RouteAndStationsCallback routeAndStationsCallback) {
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;
 		}
 
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
-			final Route thisRoute = RailwayData.getDataById(ClientData.routes, routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? RailwayData.getDataById(ClientData.routes, routeIds.get(i + 1)) : null;
+			final Route thisRoute = ClientData.routeIdMap.get(routeIds.get(i));
+			final Route nextRoute = i < routeIds.size() - 1 ? ClientData.routeIdMap.get(routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
@@ -309,12 +309,12 @@ public class RenderTrains implements IGui {
 	}
 
 	@FunctionalInterface
-	private interface RenderCallback {
-		void renderCallback(int light, BlockPos posAverage);
+	public interface RouteAndStationsCallback {
+		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
 	}
 
 	@FunctionalInterface
-	private interface RouteAndStationsCallback {
-		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
+	private interface RenderCallback {
+		void renderCallback(int light, BlockPos posAverage);
 	}
 }

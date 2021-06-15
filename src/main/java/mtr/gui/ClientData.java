@@ -29,6 +29,7 @@ public final class ClientData {
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	public static Map<Long, Integer> successfulSegmentsForSiding = new HashMap<>();
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
@@ -51,7 +52,7 @@ public final class ClientData {
 		}
 
 		updateReferences();
-		sidings.forEach(siding -> siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots));
+		updateSidings();
 	}
 
 	public static void updateReferences() {
@@ -115,6 +116,10 @@ public final class ClientData {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static void updateSidings() {
+		sidings.forEach(siding -> successfulSegmentsForSiding.put(siding.id, siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots)));
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {

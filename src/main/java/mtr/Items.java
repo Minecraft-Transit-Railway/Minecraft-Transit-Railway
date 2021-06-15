@@ -30,5 +30,6 @@ public interface Items {
 	Item RAIL_CONNECTOR_6_DIAMOND = new ItemRailModifier(true, RailType.DIAMOND);
 	Item RAIL_CONNECTOR_PLATFORM = new ItemRailModifier(true, RailType.PLATFORM);
 	Item RAIL_CONNECTOR_SIDING = new ItemRailModifier(true, RailType.SIDING);
+	Item RAIL_CONNECTOR_TURN_BACK = new ItemRailModifier(true, RailType.TURN_BACK);
 	Item RAIL_REMOVER = new ItemRailModifier(false, null);
 }

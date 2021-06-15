@@ -1,10 +1,9 @@
 package mtr.gui;
 
-import mtr.data.Depot;
-import mtr.data.IGui;
-import mtr.data.NameColorDataBase;
+import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
+import mtr.render.RenderTrains;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -15,7 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EditDepotScreen extends Screen implements IGui, IPacket {
@@ -27,7 +26,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private final int sliderX;
 	private final int sliderWidthWithText;
 	private final int rightPanelsX;
-	private final int trainCount;
+	private final Map<Long, Siding> sidingsInDepot;
 
 	private final Text depotNameText = new TranslatableText("gui.mtr.depot_name");
 	private final Text depotColorText = new TranslatableText("gui.mtr.depot_color");
@@ -51,7 +50,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		super(new LiteralText(""));
 		this.depot = depot;
 		this.dashboardScreen = dashboardScreen;
-		trainCount = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id).size() : 0;
+		sidingsInDepot = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id) : new HashMap<>();
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -151,7 +150,12 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3 + rightPanelsX / 2, TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, depotColorText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
 
-				textRenderer.draw(matrices, new TranslatableText("gui.mtr.trains_in_depot", trainCount), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				textRenderer.draw(matrices, new TranslatableText("gui.mtr.trains_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+
+				final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
+				for (int i = 0; i < stringSplit.length; i++) {
+					textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+				}
 
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
@@ -191,10 +195,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		depot.name = textFieldName.getText();
 		depot.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
 		depot.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
-
-		if (client.world != null) {
-			ClientData.sidings.forEach(siding -> siding.generateRoute(client.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots));
-		}
 	}
 
 	@Override
@@ -226,6 +226,62 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private void onRemove(NameColorDataBase data, int index) {
 		depot.routeIds.remove(index);
 		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+	}
+
+	private Text getSuccessfulSegmentsText() {
+		final int successfulSegments = sidingsInDepot.keySet().stream().map(sidingId -> ClientData.successfulSegmentsForSiding.get(sidingId)).min(Integer::compareTo).orElse(-1);
+
+		if (successfulSegments < 0) {
+			return new TranslatableText("gui.mtr.no_path_to_generate");
+		} else if (successfulSegments == 0) {
+			return new TranslatableText("gui.mtr.path_not_generated");
+		} else {
+			final List<String> stationNames = new ArrayList<>();
+			final List<String> routeNames = new ArrayList<>();
+			final String depotName = IGui.textOrUntitled(IGui.formatStationName(depot.name));
+
+			if (successfulSegments == 1) {
+				RenderTrains.useRoutesAndStationsFromIndex(0, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
+					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
+				});
+				stationNames.add("-");
+				routeNames.add("-");
+
+				return new TranslatableText("gui.mtr.path_not_found_between", routeNames.get(0), depotName, stationNames.get(0));
+			} else {
+				int sum = 0;
+				for (int i = 0; i < depot.routeIds.size(); i++) {
+					final Route thisRoute = ClientData.routeIdMap.get(depot.routeIds.get(i));
+					final Route nextRoute = i < depot.routeIds.size() - 1 ? ClientData.routeIdMap.get(depot.routeIds.get(i + 1)) : null;
+					if (thisRoute != null) {
+						sum += thisRoute.platformIds.size();
+						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
+							sum--;
+						}
+					}
+				}
+
+				if (successfulSegments >= sum + 2) {
+					return new TranslatableText("gui.mtr.path_found");
+				} else {
+					RenderTrains.useRoutesAndStationsFromIndex(successfulSegments - 2, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
+						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
+						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
+					});
+					stationNames.add("-");
+					stationNames.add("-");
+					routeNames.add("-");
+
+					if (successfulSegments < sum + 1) {
+						return new TranslatableText("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), stationNames.get(1));
+					} else {
+						return new TranslatableText("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), depotName);
+					}
+				}
+			}
+		}
 	}
 
 	private static String getSliderString(int value) {

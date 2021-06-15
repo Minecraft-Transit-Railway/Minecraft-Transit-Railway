@@ -111,6 +111,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerItem("rail_connector_6_diamond", Items.RAIL_CONNECTOR_6_DIAMOND);
 		registerItem("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
+		registerItem("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
 		registerItem("rail_remover", Items.RAIL_REMOVER);
 
 		registerBlock("apg_door", Blocks.APG_DOOR);

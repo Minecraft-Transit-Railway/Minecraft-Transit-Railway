@@ -9,8 +9,9 @@ public enum RailType implements IGui {
 	OBSIDIAN(120, MaterialColor.PURPLE, false),
 	BLAZE(160, MaterialColor.ORANGE, false),
 	DIAMOND(300, MaterialColor.DIAMOND, false),
-	PLATFORM(100, MaterialColor.RED, true),
-	SIDING(40, MaterialColor.YELLOW, true);
+	PLATFORM(80, MaterialColor.RED, true),
+	SIDING(40, MaterialColor.YELLOW, true),
+	TURN_BACK(80, MaterialColor.BLUE, false);
 
 	public final int speedLimit;
 	public final float maxBlocksPerTick;
