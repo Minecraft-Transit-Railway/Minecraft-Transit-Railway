@@ -150,7 +150,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3 + rightPanelsX / 2, TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, depotColorText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
 
-				textRenderer.draw(matrices, new TranslatableText("gui.mtr.trains_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 
 				final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 				for (int i = 0; i < stringSplit.length; i++) {

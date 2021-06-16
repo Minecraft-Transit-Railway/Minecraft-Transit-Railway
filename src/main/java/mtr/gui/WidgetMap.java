@@ -38,7 +38,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private Pair<Integer, Integer> drawArea1, drawArea2;
 	private MapState mapState;
 	private boolean showStations;
-	private boolean showDepots;
 
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
@@ -70,7 +69,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			centerY = player.getZ();
 		}
 		scale = 1;
-		setShowItems(true, false);
+		setShowStations(true);
 	}
 
 	@Override
@@ -99,30 +98,19 @@ public class WidgetMap implements Drawable, Element, IGui {
 		try {
 			if (showStations) {
 				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
-			}
-			if (showDepots) {
-				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
-			}
-
-			if (showStations) {
 				for (final Station station : ClientData.stations) {
 					if (AreaBase.nonNullCorners(station)) {
 						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 					}
 				}
-			}
-			if (showDepots) {
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
+			} else {
+				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
 				for (final Depot depot : ClientData.depots) {
 					if (AreaBase.nonNullCorners(depot)) {
 						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
 					}
 				}
-			}
-
-			if (showStations) {
-				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
-			}
-			if (showDepots) {
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), false);
 			}
 		} catch (Exception e) {
@@ -155,8 +143,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			try {
 				if (showStations) {
 					ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
-				}
-				if (showDepots) {
+				} else {
 					ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
 				}
 			} catch (Exception e) {
@@ -173,8 +160,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
-			}
-			if (showDepots) {
+			} else {
 				for (final Depot depot : ClientData.depots) {
 					final BlockPos pos = depot.getCenter();
 					if (pos != null) {
@@ -226,12 +212,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				if (showStations) {
-					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), true);
-				}
-				if (showDepots) {
-					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), false);
-				}
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
 			}
 			return true;
 		} else {
@@ -297,9 +278,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		mapState = MapState.DEFAULT;
 	}
 
-	public void setShowItems(boolean showStations, boolean showDepots) {
+	public void setShowStations(boolean showStations) {
 		this.showStations = showStations;
-		this.showDepots = showDepots;
 	}
 
 	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
