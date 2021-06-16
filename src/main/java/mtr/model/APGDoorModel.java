@@ -3,7 +3,7 @@ package mtr.model;
 import com.mojang.datafixers.util.Pair;
 import mtr.block.BlockAPGDoor;
 import mtr.block.IBlock;
-import mtr.gui.IGui;
+import mtr.data.IGui;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.MaterialFinder;

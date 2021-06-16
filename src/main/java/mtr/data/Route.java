@@ -2,7 +2,6 @@ package mtr.data;
 
 import mtr.block.BlockRail;
 import mtr.config.CustomResources;
-import mtr.gui.IGui;
 import mtr.path.PathDataDeleteThisLater;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.entity.BlockEntity;

@@ -2,13 +2,16 @@ package mtr.render;
 
 import mtr.block.BlockClock;
 import mtr.block.IBlock;
-import mtr.gui.IGui;
+import mtr.data.IGui;
+import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -52,7 +55,8 @@ public class RenderClock extends BlockEntityRenderer<BlockClock.TileEntityClock>
 	private static void drawHand(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float rotation, boolean isHourHand) {
 		matrices.push();
 		matrices.multiply(Vector3f.NEGATIVE_Z.getDegreesQuaternion(rotation));
-		IGui.drawRectangle(matrices, vertexConsumers, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, -1);
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png")));
+		IDrawing.drawTexture(matrices, vertexConsumer, -0.01F, isHourHand ? 0.15F : 0.24F, isHourHand ? 0.1F : 0.105F, 0.01F, -0.03F, isHourHand ? 0.1F : 0.105F, Direction.UP, ARGB_LIGHT_GRAY, MAX_LIGHT_INTERIOR);
 		matrices.pop();
 	}
 }

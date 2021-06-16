@@ -166,7 +166,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(0, null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
+		sidings.forEach(siding -> siding.simulateTrain(null, 1, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
@@ -202,6 +202,8 @@ public class RailwayData extends PersistentState implements IPacket {
 				} else {
 					id = 0;
 				}
+
+				updateSidings();
 				return id;
 			}
 		} catch (Exception e) {
@@ -215,6 +217,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData(rails, platforms, sidings, routes);
 		}
+		updateSidings();
 		markDirty();
 	}
 
@@ -223,6 +226,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData(rails, platforms, sidings, routes);
 		}
+		updateSidings();
 		markDirty();
 	}
 

@@ -89,21 +89,21 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		widgetMap.setPositionAndSize(PANEL_WIDTH, 0, width - PANEL_WIDTH, height);
 
-		IGui.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonTabDepots, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
-		IGui.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonAddDepot, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonDoneEditingDepot, 0, bottomRowY, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
-		IGui.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
-		IGui.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonTabStations, 0, 0, PANEL_WIDTH / tabCount);
+		IDrawing.setPositionAndWidth(buttonTabRoutes, PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
+		IDrawing.setPositionAndWidth(buttonTabDepots, 2 * PANEL_WIDTH / tabCount, 0, PANEL_WIDTH / tabCount);
+		IDrawing.setPositionAndWidth(buttonAddStation, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonAddRoute, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonAddDepot, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDoneEditingStation, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDoneEditingRoute, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDoneEditingDepot, 0, bottomRowY, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
 
-		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
@@ -220,6 +220,12 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	}
 
 	@Override
+	public void onClose() {
+		super.onClose();
+		ClientData.updateSidings();
+	}
+
+	@Override
 	public boolean isPauseScreen() {
 		return false;
 	}
@@ -230,7 +236,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		buttonTabRoutes.active = tab != SelectedTab.ROUTES;
 		buttonTabDepots.active = tab != SelectedTab.DEPOTS;
 		stopEditing();
-		widgetMap.setShowItems(selectedTab != SelectedTab.DEPOTS, selectedTab != SelectedTab.STATIONS);
+		widgetMap.setShowStations(selectedTab != SelectedTab.DEPOTS);
 	}
 
 	private void onFind(NameColorDataBase data, int index) {
@@ -263,7 +269,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 						}
 					} else {
 						if (data instanceof Platform) {
-							client.openScreen(new SavedRailScreen((Platform) data, this));
+							client.openScreen(new PlatformScreen((Platform) data, this));
 						}
 					}
 				}
@@ -279,7 +285,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 						}
 					} else {
 						if (data instanceof Siding) {
-							client.openScreen(new SavedRailScreen((Siding) data, this));
+							client.openScreen(new SidingScreen((Siding) data, this));
 						}
 					}
 				}
@@ -366,7 +372,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	}
 
 	private void onClickEditSavedRail(SavedRailBase savedRail) {
-		MinecraftClient.getInstance().openScreen(new SavedRailScreen(savedRail, this));
+		if (savedRail instanceof Platform) {
+			MinecraftClient.getInstance().openScreen(new PlatformScreen((Platform) savedRail, this));
+		} else if (savedRail instanceof Siding) {
+			MinecraftClient.getInstance().openScreen(new SidingScreen((Siding) savedRail, this));
+		}
 	}
 
 	private void onDoneEditingArea(boolean isStation) {

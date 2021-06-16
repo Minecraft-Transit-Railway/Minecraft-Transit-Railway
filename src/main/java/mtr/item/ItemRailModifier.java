@@ -64,7 +64,7 @@ public class ItemRailModifier extends Item {
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
 								if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 									if (player != null) {
-										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
+										player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 									}
 								} else {
 									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, railType);

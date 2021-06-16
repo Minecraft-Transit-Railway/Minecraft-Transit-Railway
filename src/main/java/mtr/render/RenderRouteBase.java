@@ -2,12 +2,13 @@ package mtr.render;
 
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -34,7 +35,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
 			return;
 		}
 
@@ -43,7 +44,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
 		final Platform platform = ClientData.getClosePlatform(pos);
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, false);
+		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
 		matrices.push();
 		matrices.translate(0.5, 1, 0.5);
@@ -60,7 +62,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 						break;
 					case ROUTE:
 						final boolean flipLine = arrowDirection == 1;
-						if (!RenderSeat.shouldNotRender(pos, RenderSeat.maxTrainRenderDistance / 2)) {
+						if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2)) {
 							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
 						}
 						break;
@@ -71,6 +73,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
 
 		matrices.pop();
+		immediate.draw();
 	}
 
 	protected abstract float getZ();
