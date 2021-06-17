@@ -36,6 +36,8 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Set<Depot> depots;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 
+	private final List<Set<Rail>> trainPositions = new ArrayList<>(2);
+
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 
 	public RailwayData(World world) {
@@ -47,6 +49,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
+
+		trainPositions.add(new HashSet<>());
+		trainPositions.add(new HashSet<>());
+
 		// TODO temporary code start
 		generated = true;
 		// TODO temporary code end
@@ -120,7 +126,6 @@ public class RailwayData extends PersistentState implements IPacket {
 			// TODO temporary code start
 			tag.putBoolean("generated", generated);
 			// TODO temporary code end
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -166,7 +171,12 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(null, 1, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
+		trainPositions.remove(0);
+		trainPositions.add(new HashSet<>());
+		sidings.forEach(siding -> {
+			siding.simulateTrain(null, 1, trainPositions.get(0), null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots));
+			siding.writeTrainPositions(trainPositions.get(1), rails);
+		});
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
@@ -176,7 +186,10 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public void updateSidings() {
-		sidings.forEach(siding -> siding.generateRoute(world, rails, platforms, routes, depots));
+		sidings.forEach(siding -> {
+			siding.generateRoute(world, rails, platforms, routes, depots);
+			siding.writeTrainPositions(trainPositions.get(1), rails);
+		});
 	}
 
 	// writing data

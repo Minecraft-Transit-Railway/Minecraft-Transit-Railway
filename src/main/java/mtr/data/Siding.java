@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.config.CustomResources;
+import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -10,13 +11,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class Siding extends SavedRailBase {
+public class Siding extends SavedRailBase implements IPacket {
 
 	private World world;
 	private Depot depot;
@@ -27,7 +25,7 @@ public class Siding extends SavedRailBase {
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
-	private final List<Train> trains = new ArrayList<>();
+	private final Set<Train> trains = new HashSet<>();
 
 	public static final String KEY_TRAINS = "trains";
 	private static final String KEY_RAIL_LENGTH = "rail_length";
@@ -86,8 +84,10 @@ public class Siding extends SavedRailBase {
 		tag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
 
 		final CompoundTag tagTrains = new CompoundTag();
-		for (int i = 0; i < trains.size(); i++) {
-			tagTrains.put(KEY_TRAINS + i, trains.get(i).toCompoundTag());
+		int i = 0;
+		for (final Train train : trains) {
+			tagTrains.put(KEY_TRAINS + i, train.toCompoundTag());
+			i++;
 		}
 		tag.put(KEY_TRAINS, tagTrains);
 
@@ -117,11 +117,19 @@ public class Siding extends SavedRailBase {
 				unlimitedTrains = packet.readBoolean();
 				break;
 			case KEY_TRAINS:
-				final int index = packet.readInt();
-				if (trains.size() <= index) {
-					trains.add(new Train(id, railLength, path, distances, packet));
-				} else {
-					trains.get(index).update(packet);
+				final long trainId = packet.readLong();
+				boolean updated = false;
+				for (final Train train : trains) {
+					if (train.id == trainId) {
+						train.update(KEY_TRAINS, packet);
+						updated = true;
+						break;
+					}
+				}
+				if (!updated) {
+					final Train newTrain = new Train(trainId, id, railLength, path, distances);
+					trains.add(newTrain);
+					newTrain.update(KEY_TRAINS, packet);
 				}
 				break;
 			default:
@@ -195,26 +203,37 @@ public class Siding extends SavedRailBase {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Runnable generateRoute) {
-		if (trains.isEmpty()) {
-			trains.add(new Train(id, railLength, path, distances));
-		}
+	public void writeTrainPositions(Set<Rail> trainPositions, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		trains.forEach(train -> train.writeTrainPositions(trainPositions, rails, trainTypeMapping, trainLength));
+	}
 
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Rail> trainPositions, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		int trainsAtDepot = 0;
+		boolean spawnTrain = true;
+
+		final Set<Float> railProgressSet = new HashSet<>();
 		final List<Train> trainsToRemove = new ArrayList<>();
-		for (int i = 0; i < trains.size(); i++) {
-			final Train train = trains.get(i);
-			train.simulateTrain(world, i, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, generateRoute);
+		for (final Train train : trains) {
+			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, generateRoute);
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
+				spawnTrain = false;
+			}
+			if (train.atDepot()) {
 				trainsAtDepot++;
 				if (trainsAtDepot > 1) {
 					trainsToRemove.add(train);
 				}
 			}
+			if (railProgressSet.contains(train.getRailProgress())) {
+				trainsToRemove.add(train);
+				System.out.println("Removed stacked train");
+			}
+			railProgressSet.add(train.getRailProgress());
 		}
 
-		if (unlimitedTrains && trainsAtDepot == 0) {
-			trains.add(new Train(id, railLength, path, distances));
+		if (!world.isClient() && unlimitedTrains && spawnTrain) {
+			final long trainId = new Random().nextLong();
+			trains.add(new Train(trainId, id, railLength, path, distances));
 		}
 
 		trainsToRemove.forEach(trains::remove);

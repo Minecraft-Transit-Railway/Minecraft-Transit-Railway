@@ -25,7 +25,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public class Train extends SerializedDataBase implements IPacket, IGui {
+public class Train extends NameColorDataBase implements IPacket, IGui {
 
 	private float speed;
 	private float railProgress;
@@ -62,7 +62,8 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
 	private static final float CONNECTION_X_OFFSET = 0.25F;
 
-	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances) {
+	public Train(long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
+		super(id);
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
@@ -70,6 +71,8 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, CompoundTag tag) {
+		super(tag);
+
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
@@ -86,6 +89,8 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, PacketByteBuf packet) {
+		super(packet);
+
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
@@ -106,7 +111,7 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 
 	@Override
 	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
+		final CompoundTag tag = super.toCompoundTag();
 
 		tag.putFloat(KEY_SPEED, speed);
 		tag.putFloat(KEY_RAIL_PROGRESS, railProgress);
@@ -124,6 +129,8 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
+		super.writePacket(packet);
+
 		packet.writeFloat(speed);
 		packet.writeFloat(railProgress);
 		packet.writeFloat(stopCounter);
@@ -135,25 +142,30 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 		ridingEntities.forEach(packet::writeUuid);
 	}
 
-	public void update(PacketByteBuf packet) {
-		speed = packet.readFloat();
-		railProgress = packet.readFloat();
-		stopCounter = packet.readFloat();
-		nextStoppingIndex = packet.readInt();
-		reversed = packet.readBoolean();
-		isOnRoute = packet.readBoolean();
+	@Override
+	public void update(String key, PacketByteBuf packet) {
+		if (key.equals(Siding.KEY_TRAINS)) {
+			speed = packet.readFloat();
+			railProgress = packet.readFloat();
+			stopCounter = packet.readFloat();
+			nextStoppingIndex = packet.readInt();
+			reversed = packet.readBoolean();
+			isOnRoute = packet.readBoolean();
 
-		final float percentageX = packet.readFloat();
-		final float percentageZ = packet.readFloat();
-		if (percentageX != 0) {
-			clientPercentageX = percentageX;
-			clientPercentageZ = percentageZ;
-		}
+			final float percentageX = packet.readFloat();
+			final float percentageZ = packet.readFloat();
+			if (percentageX != 0) {
+				clientPercentageX = percentageX;
+				clientPercentageZ = percentageZ;
+			}
 
-		ridingEntities.clear();
-		final int ridingEntitiesCount = packet.readInt();
-		for (int i = 0; i < ridingEntitiesCount; i++) {
-			ridingEntities.add(packet.readUuid());
+			ridingEntities.clear();
+			final int ridingEntitiesCount = packet.readInt();
+			for (int i = 0; i < ridingEntitiesCount; i++) {
+				ridingEntities.add(packet.readUuid());
+			}
+		} else {
+			super.update(key, packet);
 		}
 	}
 
@@ -161,9 +173,35 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 		return !isOnRoute || railProgress < trainDistance + railLength;
 	}
 
-	public void simulateTrain(World world, int indexInSiding, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public boolean atDepot() {
+		return !isOnRoute;
+	}
+
+	public float getRailProgress() {
+		return railProgress;
+	}
+
+	public void writeTrainPositions(Set<Rail> trainPositions, Map<BlockPos, Map<BlockPos, Rail>> rails, CustomResources.TrainMapping trainTypeMapping, int trainLength) {
+		if (!path.isEmpty()) {
+			final int trainSpacing = trainTypeMapping.trainType.getSpacing();
+			final int headIndex = getIndex(0, trainSpacing, true);
+			final int tailIndex = getIndex(trainLength, trainSpacing, false);
+			for (int i = tailIndex; i <= headIndex; i++) {
+				if (i > 0) {
+					final PathData pathData = path.get(i);
+					trainPositions.add(pathData.rail);
+					trainPositions.add(pathData.getOppositeRail(rails));
+				}
+			}
+		}
+	}
+
+	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		if (world == null) {
 			return;
+		}
+		if (path.isEmpty()) {
+			generateRoute.run();
 		}
 
 		try {
@@ -184,62 +222,78 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 					if (!world.isClient()) {
 						isOnRoute = true;
 						nextStoppingIndex = 0;
-						startUp(trainLength, trainSpacing);
+						startUpAndSync(world, trainLength, trainSpacing);
 					}
-					syncTrainToClient(world, indexInSiding);
 				}
 			} else {
 				oldDoorValue = nextStoppingIndex < path.size() ? Math.abs(getDoorValue()) : 0;
 				final float newAcceleration = ACCELERATION * ticksElapsed;
-				if (path.isEmpty()) {
+
+				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * trainSpacing) / 2) {
+					isOnRoute = false;
+					ridingEntities.forEach(uuid -> {
+						final PlayerEntity player = world.getPlayerByUuid(uuid);
+						if (player != null) {
+							player.fallDistance = 0;
+							((PlayerTeleportationStateAccessor) player).setInTeleportationState(false);
+						}
+					});
+					ridingEntities.clear();
+					syncTrainToClient(world);
 					doorValueRaw = 0;
 				} else {
-					if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * trainSpacing) / 2) {
-						isOnRoute = false;
-						ridingEntities.clear();
-						syncTrainToClient(world, indexInSiding);
-						doorValueRaw = 0;
-					} else {
-						if (speed <= 0) {
-							speed = 0;
-							final float stopCounterOld = stopCounter;
+					if (speed <= 0) {
+						speed = 0;
+						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+
+						if (dwellTicks == 0) {
+							doorValueRaw = 0;
+						} else {
 							stopCounter += ticksElapsed;
 							doorValueRaw = getDoorValue();
-							final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+						}
 
-							if (stopCounterOld < dwellTicks / 2F && stopCounter >= dwellTicks / 2F) {
-								syncTrainToClient(world, indexInSiding);
-							}
-							if (stopCounter > dwellTicks) {
-								startUp(trainLength, trainSpacing);
-							}
-						} else {
-							if (distances.get(nextStoppingIndex) - railProgress < 0.5 * speed * speed / ACCELERATION) {
-								speed = Math.max(speed - newAcceleration, ACCELERATION);
-							} else {
-								final int headIndex = getIndex(0, trainSpacing);
-								final float railSpeed = path.get(headIndex).rail.railType.maxBlocksPerTick;
-								if (speed < railSpeed && (speed < RailType.WOODEN.maxBlocksPerTick || headIndex < nextStoppingIndex)) {
-									speed = Math.min(speed + newAcceleration, railSpeed);
-								} else if (speed > railSpeed) {
-									speed = Math.max(speed - newAcceleration, railSpeed);
+						if (stopCounter >= dwellTicks && !railBlocked(trainPositions, getIndex(0, trainSpacing, true) + (isOppositeRail() ? 2 : 1))) {
+							startUpAndSync(world, trainLength, trainSpacing);
+						}
+					} else {
+						if (!world.isClient()) {
+							final int checkIndex = getIndex(0, trainSpacing, true) + 1;
+							if (railBlocked(trainPositions, checkIndex)) {
+								final int oldStoppingIndex = nextStoppingIndex;
+								nextStoppingIndex = checkIndex - 1;
+								if (oldStoppingIndex != nextStoppingIndex) {
+									syncTrainToClient(world);
 								}
 							}
-
-							doorValueRaw = 0;
 						}
 
-						railProgress += speed * ticksElapsed;
-						if (railProgress > distances.get(nextStoppingIndex)) {
-							railProgress = distances.get(nextStoppingIndex);
-							speed = 0;
+						final float stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
+						if (stoppingDistance < 0.5F * speed * speed / ACCELERATION) {
+							speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
+						} else {
+							final float railSpeed = path.get(getIndex(0, trainSpacing, false)).rail.railType.maxBlocksPerTick;
+							if (speed < railSpeed) {
+								speed = Math.min(speed + newAcceleration, railSpeed);
+							} else if (speed > railSpeed) {
+								speed = Math.max(speed - newAcceleration, railSpeed);
+							}
 						}
+
+						doorValueRaw = 0;
+					}
+
+					railProgress += speed * ticksElapsed;
+					if (railProgress > distances.get(nextStoppingIndex)) {
+						railProgress = distances.get(nextStoppingIndex);
+						speed = 0;
+						syncTrainToClient(world);
 					}
 				}
 			}
 
 			final Pos3f[] positions = new Pos3f[trainLength + 1];
-			for (int i = 0; i < trainLength + 1; i++) {
+			for (int i = 0; i <= trainLength; i++) {
 				positions[i] = getRoutePosition(reversed ? trainLength - i : i, trainSpacing);
 			}
 
@@ -248,13 +302,13 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 
 				if (clientPlayer != null && ridingEntities.contains(clientPlayer.getUuid())) {
 					if (speedCallback != null) {
-						speedCallback.speedCallback(speed * 20, path.get(getIndex(0, trainSpacing)).stopIndex - 1, depot.routeIds);
+						speedCallback.speedCallback(speed * 20, path.get(getIndex(0, trainSpacing, false)).stopIndex - 1, depot.routeIds);
 					}
 
 					if (announcementCallback != null) {
 						float targetProgress = distances.get(getPreviousStoppingIndex(trainSpacing)) + trainLength * trainSpacing;
 						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
-							announcementCallback.announcementCallback(path.get(getIndex(0, trainSpacing)).stopIndex - 1, depot.routeIds);
+							announcementCallback.announcementCallback(path.get(getIndex(0, trainSpacing, false)).stopIndex - 1, depot.routeIds);
 						}
 					}
 
@@ -276,25 +330,27 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 					});
 				}
 
-				render(world, indexInSiding, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
+				render(world, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
 			generateRoute.run();
 		}
 	}
 
-	private void startUp(int trainLength, int trainSpacing) {
-		stopCounter = 0;
-		speed = ACCELERATION;
-		if (path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1))) {
-			railProgress += trainLength * trainSpacing;
-			reversed = !reversed;
+	private void startUpAndSync(World world, int trainLength, int trainSpacing) {
+		if (!world.isClient()) {
+			stopCounter = 0;
+			speed = ACCELERATION;
+			if (isOppositeRail()) {
+				railProgress += trainLength * trainSpacing;
+				reversed = !reversed;
+			}
+			nextStoppingIndex = getNextStoppingIndex(trainSpacing);
+			syncTrainToClient(world);
 		}
-		nextStoppingIndex = getNextStoppingIndex(trainSpacing);
 	}
 
-	private void render(World world, int indexInSiding, Pos3f[] positions, float doorValueRaw, float oldSpeed, float oldDoorValue, CustomResources.TrainMapping trainTypeMapping, int trainLength, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, Vec3d offset) {
+	private void render(World world, Pos3f[] positions, float doorValueRaw, float oldSpeed, float oldDoorValue, CustomResources.TrainMapping trainTypeMapping, int trainLength, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, Vec3d offset) {
 		final TrainType trainType = trainTypeMapping.trainType;
 		final float doorValue = Math.abs(doorValueRaw);
 		final boolean opening = doorValueRaw > 0;
@@ -379,14 +435,13 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 					}
 
 					final float margin = halfSpacing + BOX_PADDING;
-					world.getEntitiesByClass(PlayerEntity.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), player -> !ridingEntities.contains(player.getUuid())).forEach(player -> {
+					world.getEntitiesByClass(PlayerEntity.class, new Box(x + margin, y + margin, z + margin, x - margin, y - margin, z - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUuid())).forEach(player -> {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 						if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 							ridingEntities.add(player.getUuid());
 							player.fallDistance = 0;
 							((PlayerTeleportationStateAccessor) player).setInTeleportationState(true);
-							player.noClip = true;
-							syncTrainToClient(world, indexInSiding, player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
+							syncTrainToClient(world, player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 						}
 					});
 				}
@@ -396,17 +451,16 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 					final PlayerEntity player = world.getPlayerByUuid(uuid);
 					if (player != null) {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
-						if (player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
+						if (player.isSpectator() || player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
 							player.fallDistance = 0;
 							((PlayerTeleportationStateAccessor) player).setInTeleportationState(false);
-							player.noClip = false;
 							entitiesToRemove.add(uuid);
 						}
 					}
 				});
 				if (!entitiesToRemove.isEmpty()) {
 					entitiesToRemove.forEach(ridingEntities::remove);
-					syncTrainToClient(world, indexInSiding);
+					syncTrainToClient(world);
 				}
 			}
 		}
@@ -431,13 +485,27 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 		}
 	}
 
+	private boolean railBlocked(Set<Rail> trainPositions, int checkIndex) {
+		if (trainPositions != null && checkIndex < path.size()) {
+			return trainPositions.contains(path.get(checkIndex).rail);
+		} else {
+			return false;
+		}
+	}
+
+	private boolean isOppositeRail() {
+		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
+	}
+
 	private float getRailProgress(int car, int trainSpacing) {
 		return railProgress - car * trainSpacing;
 	}
 
-	private int getIndex(int car, int trainSpacing) {
+	private int getIndex(int car, int trainSpacing, boolean roundDown) {
 		for (int i = 0; i < path.size(); i++) {
-			if (getRailProgress(car, trainSpacing) < distances.get(i)) {
+			final float tempRailProgress = getRailProgress(car, trainSpacing);
+			final float tempDistance = distances.get(i);
+			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
 				return i;
 			}
 		}
@@ -445,12 +513,12 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 	}
 
 	private Pos3f getRoutePosition(int car, int trainSpacing) {
-		final int index = getIndex(car, trainSpacing);
+		final int index = getIndex(car, trainSpacing, false);
 		return path.get(index).rail.getPosition(getRailProgress(car, trainSpacing) - (index == 0 ? 0 : distances.get(index - 1)));
 	}
 
 	private int getNextStoppingIndex(int trainSpacing) {
-		final int headIndex = getIndex(0, trainSpacing);
+		final int headIndex = getIndex(0, trainSpacing, false);
 		for (int i = headIndex; i < path.size(); i++) {
 			if (path.get(i).dwellTime > 0) {
 				return i;
@@ -460,7 +528,7 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 	}
 
 	private int getPreviousStoppingIndex(int trainSpacing) {
-		final int headIndex = getIndex(0, trainSpacing);
+		final int headIndex = getIndex(0, trainSpacing, false);
 		for (int i = headIndex; i >= 0; i--) {
 			if (path.get(i).dwellTime > 0) {
 				return i;
@@ -469,16 +537,16 @@ public class Train extends SerializedDataBase implements IPacket, IGui {
 		return 0;
 	}
 
-	private void syncTrainToClient(World world, int indexInSiding) {
-		syncTrainToClient(world, indexInSiding, null, 0, 0);
+	private void syncTrainToClient(World world) {
+		syncTrainToClient(world, null, 0, 0);
 	}
 
-	private void syncTrainToClient(World world, int indexInSiding, PlayerEntity player, float percentageX, float percentageZ) {
+	private void syncTrainToClient(World world, PlayerEntity player, float percentageX, float percentageZ) {
 		if (world != null && !world.isClient()) {
 			final PacketByteBuf packet = PacketByteBufs.create();
 			packet.writeLong(sidingId);
 			packet.writeString(Siding.KEY_TRAINS);
-			packet.writeInt(indexInSiding);
+			packet.writeLong(id);
 			packet.writeFloat(speed);
 			packet.writeFloat(railProgress);
 			packet.writeFloat(stopCounter);

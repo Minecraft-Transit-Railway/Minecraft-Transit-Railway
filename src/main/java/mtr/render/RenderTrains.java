@@ -79,7 +79,7 @@ public class RenderTrains implements IGui {
 		final long worldTime = world.getLunarTime();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
@@ -183,13 +183,14 @@ public class RenderTrains implements IGui {
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
+		final int maxRailDistance = client.options.viewDistance * 16;
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxTrainRenderDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxTrainRenderDistance)) {
+			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
 
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxTrainRenderDistance)) {
+				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxRailDistance)) {
 					return;
 				}
 

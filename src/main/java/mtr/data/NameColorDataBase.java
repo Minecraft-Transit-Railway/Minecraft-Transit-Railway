@@ -61,7 +61,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		}
 	}
 
-	public PacketByteBuf setNameColor(Consumer<PacketByteBuf> sendPacket) {
+	public void setNameColor(Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_NAME);
@@ -70,7 +70,6 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		if (sendPacket != null) {
 			sendPacket.accept(packet);
 		}
-		return packet;
 	}
 
 	@Override

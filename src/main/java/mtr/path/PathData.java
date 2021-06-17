@@ -1,7 +1,10 @@
 package mtr.path;
 
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.Map;
 
 public class PathData {
 
@@ -26,5 +29,9 @@ public class PathData {
 
 	public boolean isOppositeRail(PathData pathData) {
 		return startingPos.equals(pathData.endingPos) && endingPos.equals(pathData.startingPos);
+	}
+
+	public Rail getOppositeRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		return RailwayData.containsRail(rails, endingPos, startingPos) ? rails.get(endingPos).get(startingPos) : null;
 	}
 }
