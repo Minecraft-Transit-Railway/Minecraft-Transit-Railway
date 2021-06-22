@@ -9,7 +9,7 @@ import net.minecraft.util.math.Direction;
 public abstract class BlockArrivalProjectorBase extends HorizontalFacingBlock implements BlockEntityProvider {
 
 	public BlockArrivalProjectorBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5));
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5));
 	}
 
 	@Override

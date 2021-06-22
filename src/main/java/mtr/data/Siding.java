@@ -6,7 +6,7 @@ import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -45,19 +45,19 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails("", TrainType.values()[0]);
 	}
 
-	public Siding(CompoundTag tag) {
-		super(tag);
+	public Siding(NbtCompound nbtCompound) {
+		super(nbtCompound);
 
-		railLength = tag.getFloat(KEY_RAIL_LENGTH);
+		railLength = nbtCompound.getFloat(KEY_RAIL_LENGTH);
 		TrainType trainType = TrainType.values()[0];
 		try {
-			trainType = TrainType.valueOf(tag.getString(KEY_TRAIN_TYPE));
+			trainType = TrainType.valueOf(nbtCompound.getString(KEY_TRAIN_TYPE));
 		} catch (Exception ignored) {
 		}
-		setTrainDetails(tag.getString(KEY_TRAIN_CUSTOM_ID), trainType);
-		unlimitedTrains = tag.getBoolean(KEY_UNLIMITED_TRAINS);
+		setTrainDetails(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), trainType);
+		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
 
-		final CompoundTag tagTrains = tag.getCompound(KEY_TRAINS);
+		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
 		tagTrains.getKeys().forEach(key -> trains.add(new Train(id, railLength, path, distances, tagTrains.getCompound(key))));
 	}
 
@@ -75,23 +75,23 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
 
-		tag.putFloat(KEY_RAIL_LENGTH, railLength);
-		tag.putString(KEY_TRAIN_CUSTOM_ID, trainTypeMapping.customId);
-		tag.putString(KEY_TRAIN_TYPE, trainTypeMapping.trainType.toString());
-		tag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
+		nbtCompound.putFloat(KEY_RAIL_LENGTH, railLength);
+		nbtCompound.putString(KEY_TRAIN_CUSTOM_ID, trainTypeMapping.customId);
+		nbtCompound.putString(KEY_TRAIN_TYPE, trainTypeMapping.trainType.toString());
+		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
 
-		final CompoundTag tagTrains = new CompoundTag();
+		final NbtCompound tagTrains = new NbtCompound();
 		int i = 0;
 		for (final Train train : trains) {
 			tagTrains.put(KEY_TRAINS + i, train.toCompoundTag());
 			i++;
 		}
-		tag.put(KEY_TRAINS, tagTrains);
+		nbtCompound.put(KEY_TRAINS, tagTrains);
 
-		return tag;
+		return nbtCompound;
 	}
 
 	@Override
@@ -231,7 +231,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			railProgressSet.add(train.getRailProgress());
 		}
 
-		if (!world.isClient() && unlimitedTrains && spawnTrain) {
+		if (!world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
 			final long trainId = new Random().nextLong();
 			trains.add(new Train(trainId, id, railLength, path, distances));
 		}

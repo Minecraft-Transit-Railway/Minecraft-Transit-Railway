@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.ArrayList;
@@ -32,15 +32,15 @@ public final class Station extends AreaBase {
 		exits = new HashMap<>();
 	}
 
-	public Station(CompoundTag tag) {
-		super(tag);
-		zone = tag.getInt(KEY_ZONE);
+	public Station(NbtCompound nbtCompound) {
+		super(nbtCompound);
+		zone = nbtCompound.getInt(KEY_ZONE);
 
 		exits = new HashMap<>();
-		final CompoundTag tagExits = tag.getCompound(KEY_EXITS);
+		final NbtCompound tagExits = nbtCompound.getCompound(KEY_EXITS);
 		for (final String keyParent : tagExits.getKeys()) {
 			final List<String> destinations = new ArrayList<>();
-			final CompoundTag tagDestinations = tagExits.getCompound(keyParent);
+			final NbtCompound tagDestinations = tagExits.getCompound(keyParent);
 			for (final String keyDestination : tagDestinations.getKeys()) {
 				destinations.add(tagDestinations.getString(keyDestination));
 			}
@@ -65,20 +65,20 @@ public final class Station extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putInt(KEY_ZONE, zone);
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putInt(KEY_ZONE, zone);
 
-		final CompoundTag tagExits = new CompoundTag();
+		final NbtCompound tagExits = new NbtCompound();
 		exits.forEach((parent, destinations) -> {
-			final CompoundTag tagDestinations = new CompoundTag();
+			final NbtCompound tagDestinations = new NbtCompound();
 			for (int i = 0; i < destinations.size(); i++) {
 				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
 			}
 			tagExits.put(parent, tagDestinations);
 		});
-		tag.put(KEY_EXITS, tagExits);
-		return tag;
+		nbtCompound.put(KEY_EXITS, tagExits);
+		return nbtCompound;
 	}
 
 	@Override

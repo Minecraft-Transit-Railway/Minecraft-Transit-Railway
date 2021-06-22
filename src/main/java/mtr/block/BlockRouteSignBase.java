@@ -8,7 +8,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider, IPropagateBlock, IBlock {
 
 	public BlockRouteSignBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(15).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(15).nonOpaque());
 	}
 
 	@Override
@@ -56,27 +56,27 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		}
 
 		@Override
-		public void fromTag(BlockState state, CompoundTag tag) {
-			super.fromTag(state, tag);
-			fromClientTag(tag);
+		public void fromTag(BlockState state, NbtCompound nbtCompound) {
+			super.fromTag(state, nbtCompound);
+			fromClientTag(nbtCompound);
 		}
 
 		@Override
-		public CompoundTag toTag(CompoundTag tag) {
-			super.toTag(tag);
-			toClientTag(tag);
-			return tag;
+		public NbtCompound writeNbt(NbtCompound nbtCompound) {
+			super.writeNbt(nbtCompound);
+			toClientTag(nbtCompound);
+			return nbtCompound;
 		}
 
 		@Override
-		public void fromClientTag(CompoundTag tag) {
-			platformId = tag.getLong(KEY_PLATFORM_ID);
+		public void fromClientTag(NbtCompound nbtCompound) {
+			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putLong(KEY_PLATFORM_ID, platformId);
-			return tag;
+		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+			nbtCompound.putLong(KEY_PLATFORM_ID, platformId);
+			return nbtCompound;
 		}
 
 		public void setPlatformId(long platformId) {

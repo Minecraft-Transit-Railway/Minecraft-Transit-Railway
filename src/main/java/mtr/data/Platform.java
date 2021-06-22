@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
@@ -25,9 +25,9 @@ public final class Platform extends SavedRailBase {
 		dwellTime = DEFAULT_DWELL_TIME;
 	}
 
-	public Platform(CompoundTag tag) {
-		super(tag);
-		dwellTime = tag.getInt(KEY_DWELL_TIME);
+	public Platform(NbtCompound nbtCompound) {
+		super(nbtCompound);
+		dwellTime = nbtCompound.getInt(KEY_DWELL_TIME);
 	}
 
 	public Platform(PacketByteBuf packet) {
@@ -36,10 +36,10 @@ public final class Platform extends SavedRailBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putInt(KEY_DWELL_TIME, dwellTime);
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putInt(KEY_DWELL_TIME, dwellTime);
+		return nbtCompound;
 	}
 
 	@Override

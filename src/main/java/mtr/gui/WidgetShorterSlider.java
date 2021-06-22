@@ -24,7 +24,7 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 	@Override
 	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final MinecraftClient client = MinecraftClient.getInstance();
-		client.getTextureManager().bindTexture(WIDGETS_LOCATION);
+		client.getTextureManager().bindTexture(WIDGETS_TEXTURE);
 
 		drawTexture(matrices, x, y, 0, 46, width / 2, height / 2);
 		drawTexture(matrices, x, y + height / 2, 0, 66 - height / 2, width / 2, height / 2);

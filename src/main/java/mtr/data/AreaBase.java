@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -26,9 +26,9 @@ public abstract class AreaBase extends NameColorDataBase {
 		super(id);
 	}
 
-	public AreaBase(CompoundTag tag) {
-		super(tag);
-		setCorners(tag.getInt(KEY_X_MIN), tag.getInt(KEY_Z_MIN), tag.getInt(KEY_X_MAX), tag.getInt(KEY_Z_MAX));
+	public AreaBase(NbtCompound nbtCompound) {
+		super(nbtCompound);
+		setCorners(nbtCompound.getInt(KEY_X_MIN), nbtCompound.getInt(KEY_Z_MIN), nbtCompound.getInt(KEY_X_MAX), nbtCompound.getInt(KEY_Z_MAX));
 	}
 
 	public AreaBase(PacketByteBuf packet) {
@@ -37,13 +37,13 @@ public abstract class AreaBase extends NameColorDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putInt(KEY_X_MIN, corner1 == null ? 0 : corner1.getLeft());
-		tag.putInt(KEY_Z_MIN, corner1 == null ? 0 : corner1.getRight());
-		tag.putInt(KEY_X_MAX, corner2 == null ? 0 : corner2.getLeft());
-		tag.putInt(KEY_Z_MAX, corner2 == null ? 0 : corner2.getRight());
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putInt(KEY_X_MIN, corner1 == null ? 0 : corner1.getLeft());
+		nbtCompound.putInt(KEY_Z_MIN, corner1 == null ? 0 : corner1.getRight());
+		nbtCompound.putInt(KEY_X_MAX, corner2 == null ? 0 : corner2.getLeft());
+		nbtCompound.putInt(KEY_Z_MAX, corner2 == null ? 0 : corner2.getRight());
+		return nbtCompound;
 	}
 
 	@Override

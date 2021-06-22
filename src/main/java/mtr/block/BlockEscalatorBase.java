@@ -21,7 +21,7 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
 	protected BlockEscalatorBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override

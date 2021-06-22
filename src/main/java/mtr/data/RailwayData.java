@@ -4,7 +4,7 @@ import mtr.block.BlockRail;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -59,41 +59,41 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
+	public void fromTag(NbtCompound nbtCompound) {
 		try {
-			final CompoundTag tagStations = tag.getCompound(KEY_STATIONS);
+			final NbtCompound tagStations = nbtCompound.getCompound(KEY_STATIONS);
 			for (final String key : tagStations.getKeys()) {
 				stations.add(new Station(tagStations.getCompound(key)));
 			}
 
-			final CompoundTag tagNewPlatforms = tag.getCompound(KEY_PLATFORMS);
+			final NbtCompound tagNewPlatforms = nbtCompound.getCompound(KEY_PLATFORMS);
 			for (final String key : tagNewPlatforms.getKeys()) {
 				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
 			}
 
-			final CompoundTag tagNewSidings = tag.getCompound(KEY_SIDINGS);
+			final NbtCompound tagNewSidings = nbtCompound.getCompound(KEY_SIDINGS);
 			for (final String key : tagNewSidings.getKeys()) {
 				sidings.add(new Siding(tagNewSidings.getCompound(key)));
 			}
 
-			final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
+			final NbtCompound tagNewRoutes = nbtCompound.getCompound(KEY_ROUTES);
 			for (final String key : tagNewRoutes.getKeys()) {
 				routes.add(new Route(tagNewRoutes.getCompound(key)));
 			}
 
-			final CompoundTag tagNewDepots = tag.getCompound(KEY_DEPOTS);
+			final NbtCompound tagNewDepots = nbtCompound.getCompound(KEY_DEPOTS);
 			for (final String key : tagNewDepots.getKeys()) {
 				depots.add(new Depot(tagNewDepots.getCompound(key)));
 			}
 
-			final CompoundTag tagNewRails = tag.getCompound(KEY_RAILS);
+			final NbtCompound tagNewRails = nbtCompound.getCompound(KEY_RAILS);
 			for (final String key : tagNewRails.getKeys()) {
 				final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
 				rails.put(railEntry.pos, railEntry.connections);
 			}
 
 			// TODO temporary code start
-			generated = tag.getBoolean("generated");
+			generated = nbtCompound.getBoolean("generated");
 			// TODO temporary code end
 
 			if (generated) {
@@ -107,30 +107,30 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public NbtCompound writeNbt(NbtCompound nbtCompound) {
 		try {
 			if (generated) {
 				validateData(rails, platforms, sidings, routes);
 			}
 			markDirty();
-			writeTag(tag, stations, KEY_STATIONS);
-			writeTag(tag, platforms, KEY_PLATFORMS);
-			writeTag(tag, sidings, KEY_SIDINGS);
-			writeTag(tag, routes, KEY_ROUTES);
-			writeTag(tag, depots, KEY_DEPOTS);
+			writeTag(nbtCompound, stations, KEY_STATIONS);
+			writeTag(nbtCompound, platforms, KEY_PLATFORMS);
+			writeTag(nbtCompound, sidings, KEY_SIDINGS);
+			writeTag(nbtCompound, routes, KEY_ROUTES);
+			writeTag(nbtCompound, depots, KEY_DEPOTS);
 
 			final Set<RailEntry> railSet = new HashSet<>();
 			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
-			writeTag(tag, railSet, KEY_RAILS);
+			writeTag(nbtCompound, railSet, KEY_RAILS);
 
 			// TODO temporary code start
-			tag.putBoolean("generated", generated);
+			nbtCompound.putBoolean("generated", generated);
 			// TODO temporary code end
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return tag;
+		return nbtCompound;
 	}
 
 	public Set<Station> getStations() {
@@ -371,14 +371,14 @@ public class RailwayData extends PersistentState implements IPacket {
 		railsToRemove.forEach(rails::remove);
 	}
 
-	private static void writeTag(CompoundTag tag, Set<? extends SerializedDataBase> dataSet, String key) {
-		final CompoundTag tagSet = new CompoundTag();
+	private static void writeTag(NbtCompound nbtCompound, Set<? extends SerializedDataBase> dataSet, String key) {
+		final NbtCompound tagSet = new NbtCompound();
 		int i = 0;
 		for (final SerializedDataBase data : dataSet) {
 			tagSet.put(key + i, data.toCompoundTag());
 			i++;
 		}
-		tag.put(key, tagSet);
+		nbtCompound.put(key, tagSet);
 	}
 
 	private static class RailEntry extends SerializedDataBase {
@@ -394,24 +394,24 @@ public class RailwayData extends PersistentState implements IPacket {
 			this.connections = connections;
 		}
 
-		public RailEntry(CompoundTag tag) {
-			pos = BlockPos.fromLong(tag.getLong(KEY_NODE_POS));
+		public RailEntry(NbtCompound nbtCompound) {
+			pos = BlockPos.fromLong(nbtCompound.getLong(KEY_NODE_POS));
 			connections = new HashMap<>();
 
-			final CompoundTag tagConnections = tag.getCompound(KEY_RAIL_CONNECTIONS);
+			final NbtCompound tagConnections = nbtCompound.getCompound(KEY_RAIL_CONNECTIONS);
 			for (final String keyConnection : tagConnections.getKeys()) {
 				connections.put(BlockPos.fromLong(tagConnections.getCompound(keyConnection).getLong(KEY_NODE_POS)), new Rail(tagConnections.getCompound(keyConnection)));
 			}
 		}
 
 		@Override
-		public CompoundTag toCompoundTag() {
-			final CompoundTag tagRail = new CompoundTag();
+		public NbtCompound toCompoundTag() {
+			final NbtCompound tagRail = new NbtCompound();
 			tagRail.putLong(KEY_NODE_POS, pos.asLong());
 
-			final CompoundTag tagConnections = new CompoundTag();
+			final NbtCompound tagConnections = new NbtCompound();
 			connections.forEach((endNodePos, rail) -> {
-				final CompoundTag tagConnection = rail.toCompoundTag();
+				final NbtCompound tagConnection = rail.toCompoundTag();
 				tagConnection.putLong(KEY_NODE_POS, endNodePos.asLong());
 				tagConnections.put(KEY_RAIL_CONNECTIONS + endNodePos.asLong(), tagConnection);
 			});

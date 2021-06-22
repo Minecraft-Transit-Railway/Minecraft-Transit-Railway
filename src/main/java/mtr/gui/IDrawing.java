@@ -4,7 +4,7 @@ import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
@@ -160,7 +160,7 @@ public interface IDrawing {
 		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
-	static void setPositionAndWidth(AbstractButtonWidget widget, int x, int y, int widgetWidth) {
+	static void setPositionAndWidth(ClickableWidget widget, int x, int y, int widgetWidth) {
 		widget.x = x;
 		widget.y = y;
 		widget.setWidth(widgetWidth);

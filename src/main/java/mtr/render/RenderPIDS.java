@@ -14,10 +14,10 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
@@ -142,8 +142,8 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
-				matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
+				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
 

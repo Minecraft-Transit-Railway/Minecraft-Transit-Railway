@@ -45,7 +45,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 	}
 
 	@Override
-	public void apply(ResourceManager manager) {
+	public void reload(ResourceManager manager) {
 		customTrains.clear();
 		customSigns.clear();
 
