@@ -13,7 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -70,21 +70,21 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		this.distances = distances;
 	}
 
-	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, CompoundTag tag) {
-		super(tag);
+	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
+		super(nbtCompound);
 
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
 
-		speed = tag.getFloat(KEY_SPEED);
-		railProgress = tag.getFloat(KEY_RAIL_PROGRESS);
-		stopCounter = tag.getFloat(KEY_STOP_COUNTER);
-		nextStoppingIndex = tag.getInt(KEY_NEXT_STOPPING_INDEX);
-		reversed = tag.getBoolean(KEY_REVERSED);
-		isOnRoute = tag.getBoolean(KEY_IS_ON_ROUTE);
-		final CompoundTag tagRidingEntities = tag.getCompound(KEY_RIDING_ENTITIES);
+		speed = nbtCompound.getFloat(KEY_SPEED);
+		railProgress = nbtCompound.getFloat(KEY_RAIL_PROGRESS);
+		stopCounter = nbtCompound.getFloat(KEY_STOP_COUNTER);
+		nextStoppingIndex = nbtCompound.getInt(KEY_NEXT_STOPPING_INDEX);
+		reversed = nbtCompound.getBoolean(KEY_REVERSED);
+		isOnRoute = nbtCompound.getBoolean(KEY_IS_ON_ROUTE);
+		final NbtCompound tagRidingEntities = nbtCompound.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUuid(key)));
 	}
 
@@ -110,21 +110,21 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
 
-		tag.putFloat(KEY_SPEED, speed);
-		tag.putFloat(KEY_RAIL_PROGRESS, railProgress);
-		tag.putFloat(KEY_STOP_COUNTER, stopCounter);
-		tag.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
-		tag.putBoolean(KEY_REVERSED, reversed);
-		tag.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
+		nbtCompound.putFloat(KEY_SPEED, speed);
+		nbtCompound.putFloat(KEY_RAIL_PROGRESS, railProgress);
+		nbtCompound.putFloat(KEY_STOP_COUNTER, stopCounter);
+		nbtCompound.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
+		nbtCompound.putBoolean(KEY_REVERSED, reversed);
+		nbtCompound.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
 
-		final CompoundTag tagRidingEntities = new CompoundTag();
+		final NbtCompound tagRidingEntities = new NbtCompound();
 		ridingEntities.forEach(uuid -> tagRidingEntities.putUuid(KEY_RIDING_ENTITIES + uuid, uuid));
-		tag.put(KEY_RIDING_ENTITIES, tagRidingEntities);
+		nbtCompound.put(KEY_RIDING_ENTITIES, tagRidingEntities);
 
-		return tag;
+		return nbtCompound;
 	}
 
 	@Override

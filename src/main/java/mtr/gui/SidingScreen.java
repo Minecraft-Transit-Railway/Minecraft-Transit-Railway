@@ -60,16 +60,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		if (isSelectingTrain) {
-			try {
-				renderBackground(matrices);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			super.render(matrices, mouseX, mouseY, delta);
+		try {
+			renderBackground(matrices);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		super.render(matrices, mouseX, mouseY, delta);
 	}
 
 	@Override

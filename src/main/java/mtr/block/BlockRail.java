@@ -11,7 +11,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
@@ -89,37 +89,37 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		}
 
 		@Override
-		public void fromTag(BlockState state, CompoundTag tag) {
-			super.fromTag(state, tag);
-			fromClientTag(tag);
+		public void fromTag(BlockState state, NbtCompound nbtCompound) {
+			super.fromTag(state, nbtCompound);
+			fromClientTag(nbtCompound);
 		}
 
 		@Override
-		public CompoundTag toTag(CompoundTag tag) {
-			super.toTag(tag);
-			toClientTag(tag);
-			return tag;
+		public NbtCompound writeNbt(NbtCompound nbtCompound) {
+			super.writeNbt(nbtCompound);
+			toClientTag(nbtCompound);
+			return nbtCompound;
 		}
 
 		@Override
-		public void fromClientTag(CompoundTag tag) {
+		public void fromClientTag(NbtCompound nbtCompound) {
 			railMap.clear();
-			final int listLength = tag.getInt(KEY_LIST_LENGTH);
+			final int listLength = nbtCompound.getInt(KEY_LIST_LENGTH);
 			for (int i = 0; i < listLength; i++) {
-				final BlockPos newPos = BlockPos.fromLong(tag.getLong(KEY_BLOCK_POS + i));
-				railMap.put(newPos, new Rail(tag.getCompound(KEY_LIST_LENGTH + i)));
+				final BlockPos newPos = BlockPos.fromLong(nbtCompound.getLong(KEY_BLOCK_POS + i));
+				railMap.put(newPos, new Rail(nbtCompound.getCompound(KEY_LIST_LENGTH + i)));
 			}
 		}
 
 		@Override
-		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putInt(KEY_LIST_LENGTH, railMap.size());
+		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+			nbtCompound.putInt(KEY_LIST_LENGTH, railMap.size());
 			final List<BlockPos> keys = new ArrayList<>(railMap.keySet());
 			for (int i = 0; i < railMap.size(); i++) {
-				tag.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
-				tag.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
+				nbtCompound.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
+				nbtCompound.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
 			}
-			return tag;
+			return nbtCompound;
 		}
 
 		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, RailType railType) {

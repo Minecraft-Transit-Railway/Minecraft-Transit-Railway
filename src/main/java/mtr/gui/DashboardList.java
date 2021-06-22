@@ -7,7 +7,7 @@ import mtr.data.NameColorDataBase;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
@@ -142,7 +142,7 @@ public class DashboardList implements IGui {
 	}
 
 	public void render(MatrixStack matrices, TextRenderer textRenderer, int mouseX, int mouseY, float delta) {
-		DrawableHelper.drawCenteredString(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+		DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		textFieldSearch.render(matrices, mouseX, mouseY, delta);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
@@ -266,7 +266,7 @@ public class DashboardList implements IGui {
 
 	@FunctionalInterface
 	public interface RegisterButton {
-		void registerButton(AbstractButtonWidget button);
+		void registerButton(ClickableWidget button);
 	}
 
 	@FunctionalInterface

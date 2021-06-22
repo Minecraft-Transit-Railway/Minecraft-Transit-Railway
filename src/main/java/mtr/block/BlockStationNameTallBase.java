@@ -24,7 +24,7 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 	public static final BooleanProperty METAL = BooleanProperty.of("metal");
 
 	public BlockStationNameTallBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override

@@ -17,7 +17,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.text.LiteralText;
@@ -27,6 +26,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
@@ -88,12 +88,12 @@ public class RenderTrains implements IGui {
 			} else {
 				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
 			}
-			matrices.multiply(Vector3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
-			matrices.multiply(Vector3f.POSITIVE_X.getRadialQuaternion((float) Math.PI + pitch));
+			matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
+			matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) Math.PI + pitch));
 
 			if (model == null) {
 				matrices.translate(0, 0.5, 0);
-				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);

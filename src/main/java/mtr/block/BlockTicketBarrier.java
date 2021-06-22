@@ -24,7 +24,7 @@ public class BlockTicketBarrier extends HorizontalFacingBlock {
 	public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", TicketSystem.EnumTicketBarrierOpen.class);
 
 	public BlockTicketBarrier(boolean isEntrance) {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
 		this.isEntrance = isEntrance;
 	}
 

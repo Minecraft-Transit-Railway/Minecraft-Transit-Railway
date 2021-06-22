@@ -12,7 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.text.Style;
@@ -41,7 +41,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	public static final float SMALL_SIGN_PERCENTAGE = 0.75F;
 
 	public BlockRailwaySign(int length, boolean isOdd) {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(15));
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(15));
 		this.length = length;
 		this.isOdd = isOdd;
 	}
@@ -193,35 +193,35 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 
 		@Override
-		public void fromTag(BlockState state, CompoundTag tag) {
-			super.fromTag(state, tag);
-			fromClientTag(tag);
+		public void fromTag(BlockState state, NbtCompound nbtCompound) {
+			super.fromTag(state, nbtCompound);
+			fromClientTag(nbtCompound);
 		}
 
 		@Override
-		public CompoundTag toTag(CompoundTag tag) {
-			super.toTag(tag);
-			toClientTag(tag);
-			return tag;
+		public NbtCompound writeNbt(NbtCompound nbtCompound) {
+			super.writeNbt(nbtCompound);
+			toClientTag(nbtCompound);
+			return nbtCompound;
 		}
 
 		@Override
-		public void fromClientTag(CompoundTag tag) {
+		public void fromClientTag(NbtCompound nbtCompound) {
 			selectedIds.clear();
-			Arrays.stream(tag.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
+			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signIds.length; i++) {
-				final String signId = tag.getString(KEY_SIGN_LENGTH + i);
+				final String signId = nbtCompound.getString(KEY_SIGN_LENGTH + i);
 				signIds[i] = signId.isEmpty() ? null : signId;
 			}
 		}
 
 		@Override
-		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
+		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+			nbtCompound.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
 			for (int i = 0; i < signIds.length; i++) {
-				tag.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
+				nbtCompound.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
-			return tag;
+			return nbtCompound;
 		}
 
 		public void setData(Set<Long> selectedIds, String[] signTypes) {
