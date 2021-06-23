@@ -17,6 +17,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -43,6 +44,8 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	private final List<Float> distances;
 	private final Set<UUID> ridingEntities = new HashSet<>();
 
+	public static final float ACCELERATION = 0.01F;
+
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
 	private static final String KEY_STOP_COUNTER = "stop_counter";
@@ -51,7 +54,6 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_IS_ON_ROUTE = "is_on_route";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 
-	public static final float ACCELERATION = 0.01F;
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
 
@@ -196,7 +198,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
 		if (world == null) {
 			return;
 		}
@@ -306,6 +308,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 					}
 
 					if (announcementCallback != null) {
+						// TODO announcements don't work when train is stuck
 						float targetProgress = distances.get(getPreviousStoppingIndex(trainSpacing)) + trainLength * trainSpacing;
 						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
 							announcementCallback.announcementCallback(path.get(getIndex(0, trainSpacing, false)).stopIndex - 1, depot.routeIds);
@@ -331,6 +334,10 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				}
 
 				render(world, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
+			}
+
+			if (world.isClient()) {
+				writeArrivalTimes(schedulesForPlatform, trainTypeMapping, trainSpacing);
 			}
 		} catch (Exception ignored) {
 			generateRoute.run();
@@ -629,12 +636,82 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		return hasPlatform;
 	}
 
+	private void writeArrivalTimes(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, CustomResources.TrainMapping trainTypeMapping, int trainSpacing) {
+		final int index = getIndex(0, trainSpacing, true);
+		final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(schedulesForPlatform, trainTypeMapping, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
+
+		float currentTicks = firstTimeAndSpeed.getLeft();
+		float currentSpeed = firstTimeAndSpeed.getRight();
+		for (int i = index + 1; i < path.size(); i++) {
+			final Pair<Float, Float> timeAndSpeed = writeArrivalTime(schedulesForPlatform, trainTypeMapping, i, 0, currentTicks, currentSpeed);
+			currentTicks += timeAndSpeed.getLeft();
+			currentSpeed = timeAndSpeed.getRight();
+		}
+	}
+
+	private Pair<Float, Float> writeArrivalTime(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, CustomResources.TrainMapping trainTypeMapping, int index, float progress, float currentTicks, float currentSpeed) {
+		final PathData pathData = path.get(index);
+		final Pair<Float, Float> timeAndSpeed = calculateTicksAndSpeed(pathData.rail, progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
+
+		if (pathData.dwellTime > 0) {
+			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (index == nextStoppingIndex ? stopCounter : 0), 0);
+
+			if (pathData.savedRailBaseId > 0) {
+				if (!schedulesForPlatform.containsKey(pathData.savedRailBaseId)) {
+					schedulesForPlatform.put(pathData.savedRailBaseId, new HashSet<>());
+				}
+
+				final float arrivalTime = (currentTicks + timeAndSpeed.getLeft()) * 50;
+				// TODO destination name
+				schedulesForPlatform.get(pathData.savedRailBaseId).add(new Route.ScheduleEntry(arrivalTime, arrivalTime + stopTicksRemaining * 50, trainTypeMapping.trainType, pathData.savedRailBaseId, pathData.savedRailBaseId));
+			}
+			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
+		} else {
+			return timeAndSpeed;
+		}
+	}
+
 	public static float getAverage(float a, float b) {
 		return (a + b) / 2;
 	}
 
 	public static float getValueFromPercentage(float percentage, float total) {
 		return (percentage - 0.5F) * total;
+	}
+
+	private static Pair<Float, Float> calculateTicksAndSpeed(Rail rail, float progress, float initialSpeed, boolean shouldStop) {
+		final float distance = rail.getLength() - progress;
+
+		if (distance <= 0) {
+			return new Pair<>(0F, initialSpeed);
+		}
+
+		if (shouldStop) {
+			if (initialSpeed * initialSpeed / (2 * distance) >= ACCELERATION) {
+				return new Pair<>(2 * distance / initialSpeed, 0F);
+			}
+
+			final float maxSpeed = Math.min(rail.railType.maxBlocksPerTick, (float) Math.sqrt(ACCELERATION * distance + initialSpeed * initialSpeed / 2));
+			final float ticks = (2 * ACCELERATION * distance + initialSpeed * initialSpeed - 2 * initialSpeed * maxSpeed + 2 * maxSpeed * maxSpeed) / (2 * ACCELERATION * maxSpeed);
+			return new Pair<>(ticks, 0F);
+		} else {
+			final float railSpeed = rail.railType.maxBlocksPerTick;
+
+			if (initialSpeed == railSpeed) {
+				return new Pair<>(distance / initialSpeed, initialSpeed);
+			} else {
+				final float accelerationDistance = (railSpeed * railSpeed - initialSpeed * initialSpeed) / (2 * ACCELERATION);
+
+				if (accelerationDistance > distance) {
+					final float finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance + initialSpeed * initialSpeed);
+					return new Pair<>((finalSpeed - initialSpeed) / ACCELERATION, finalSpeed);
+				} else {
+					final float accelerationTicks = (railSpeed - initialSpeed) / ACCELERATION;
+					final float coastingTicks = (distance - accelerationDistance) / railSpeed;
+					return new Pair<>(accelerationTicks + coastingTicks, railSpeed);
+				}
+			}
+		}
 	}
 
 	@FunctionalInterface

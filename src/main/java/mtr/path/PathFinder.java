@@ -70,7 +70,7 @@ public class PathFinder {
 							if (RailwayData.containsRail(rails, pos1, pos2)) {
 								final Rail rail = rails.get(pos1).get(pos2);
 								final boolean turningBack = rail.railType == RailType.TURN_BACK && j < path.size() - 2 && path.get(j + 2).pos.equals(pos1);
-								railPath.add(new PathData(rail, turningBack ? 1 : 0, pos1, pos2, index));
+								railPath.add(new PathData(rail, j == 0 ? savedRailBaseStart.id : 0, turningBack ? 1 : 0, pos1, pos2, index));
 							} else {
 								return new ArrayList<>();
 							}
@@ -78,7 +78,7 @@ public class PathFinder {
 
 						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
 						if (RailwayData.containsRail(rails, newPos, endPos)) {
-							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, index + 1));
+							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd.id, savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, index + 1));
 							return railPath;
 						} else {
 							return new ArrayList<>();
