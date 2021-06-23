@@ -9,14 +9,16 @@ import java.util.Map;
 public class PathData {
 
 	public final Rail rail;
+	public final long savedRailBaseId;
 	public final int dwellTime;
 	public final int stopIndex;
 
 	private final BlockPos startingPos;
 	private final BlockPos endingPos;
 
-	public PathData(Rail rail, int dwellTime, BlockPos startingPos, BlockPos endingPos, int stopIndex) {
+	public PathData(Rail rail, long savedRailBaseId, int dwellTime, BlockPos startingPos, BlockPos endingPos, int stopIndex) {
 		this.rail = rail;
+		this.savedRailBaseId = savedRailBaseId;
 		this.dwellTime = dwellTime;
 		this.startingPos = startingPos;
 		this.endingPos = endingPos;

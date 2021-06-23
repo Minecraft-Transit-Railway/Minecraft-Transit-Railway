@@ -64,24 +64,15 @@ public final class ClientData {
 			writeSavedRailMaps(depots, sidings, sidingsWithOffset, sidingsInDepot);
 
 			routesInStation.clear();
-			schedulesForPlatform.clear();
-			routes.forEach(route -> {
-				route.platformIds.forEach(platformId -> {
-					final Station station = platformIdToStation.get(platformId);
-					if (station != null) {
-						if (!routesInStation.containsKey(station.id)) {
-							routesInStation.put(station.id, new HashMap<>());
-						}
-						routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+			routes.forEach(route -> route.platformIds.forEach(platformId -> {
+				final Station station = platformIdToStation.get(platformId);
+				if (station != null) {
+					if (!routesInStation.containsKey(station.id)) {
+						routesInStation.put(station.id, new HashMap<>());
 					}
-				});
-				route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
-					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashSet<>());
-					}
-					schedulesForPlatform.get(platformId).addAll(scheduleEntry);
-				});
-			});
+					routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+				}
+			}));
 
 			stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 			platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {

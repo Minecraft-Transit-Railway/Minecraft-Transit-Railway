@@ -10,7 +10,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
@@ -277,29 +280,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		return shuffleTrains;
 	}
 
-	public Map<Long, Set<ScheduleEntry>> getTimeOffsets(Set<Platform> platforms) {
-		final Map<Long, Set<ScheduleEntry>> timeOffsets = new HashMap<>();
-
-		int platformIdIndex = 0, pathIndex = 0;
-		while (platformIdIndex < platformIds.size() && pathIndex < path.size()) {
-			final PathDataDeleteThisLater pathDataDeleteThisLater = path.get(pathIndex);
-			final long platformId = platformIds.get(platformIdIndex);
-
-			if (pathDataDeleteThisLater.isPlatform(platformId, platforms)) {
-				final float arrivalTime = pathDataDeleteThisLater.tOffset + pathDataDeleteThisLater.tEnd;
-				final float departureTime = pathDataDeleteThisLater.tOffset + pathDataDeleteThisLater.getTime();
-				timeOffsets.put(platformId, new HashSet<>());
-
-				schedule.forEach((scheduleTime, trainMapping) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainMapping.trainType, platformIds.get(platformIds.size() - 1), platformId)));
-				platformIdIndex++;
-			}
-
-			pathIndex++;
-		}
-
-		return timeOffsets;
-	}
-
 	public static float wrapTime(float time1, float time2) {
 		return (time1 - time2 + Route.TICKS_PER_DAY) % Route.TICKS_PER_DAY;
 	}
@@ -354,15 +334,15 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public static class ScheduleEntry {
 
-		public final float arrivalTime;
-		public final float departureTime;
+		public final float arrivalMillis;
+		public final float departureMillis;
 		public final TrainType trainType;
 		public final long lastPlatformId;
 		public final long platformId;
 
-		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastPlatformId, long platformId) {
-			this.arrivalTime = arrivalTime % TICKS_PER_DAY;
-			this.departureTime = departureTime % TICKS_PER_DAY;
+		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long lastPlatformId, long platformId) {
+			this.arrivalMillis = arrivalMillis;
+			this.departureMillis = departureMillis;
 			this.trainType = trainType;
 			this.lastPlatformId = lastPlatformId;
 			this.platformId = platformId;
