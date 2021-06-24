@@ -337,15 +337,17 @@ public final class Route extends NameColorDataBase implements IGui {
 		public final float arrivalMillis;
 		public final float departureMillis;
 		public final TrainType trainType;
-		public final long lastPlatformId;
 		public final long platformId;
+		public final String destination;
+		public final boolean isTerminating;
 
-		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long lastPlatformId, long platformId) {
+		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long platformId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.departureMillis = departureMillis;
 			this.trainType = trainType;
-			this.lastPlatformId = lastPlatformId;
 			this.platformId = platformId;
+			this.destination = destination;
+			this.isTerminating = isTerminating;
 		}
 	}
 }

@@ -207,14 +207,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		trains.forEach(train -> train.writeTrainPositions(trainPositions, rails, trainTypeMapping, trainLength));
 	}
 
-	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Rail> trainPositions, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Rail> trainPositions, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Train.WriteScheduleCallback writeScheduleCallback, Runnable generateRoute) {
 		int trainsAtDepot = 0;
 		boolean spawnTrain = true;
 
 		final Set<Float> railProgressSet = new HashSet<>();
 		final List<Train> trainsToRemove = new ArrayList<>();
 		for (final Train train : trains) {
-			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, schedulesForPlatform, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, generateRoute);
+			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback, generateRoute);
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
 				spawnTrain = false;
 			}

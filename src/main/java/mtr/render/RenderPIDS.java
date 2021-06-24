@@ -87,7 +87,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.schedulesForPlatform.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {
-							if (scheduleEntry.lastPlatformId != platform.id) {
+							if (!scheduleEntry.isTerminating) {
 								schedules.add(scheduleEntry);
 								platformIdToName.put(platform.id, platform.name);
 							}
@@ -108,17 +108,18 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
 			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-			scheduleList.sort(Comparator.comparing(schedule -> schedule.arrivalMillis));
+			scheduleList.sort((a, b) -> {
+				if (a.arrivalMillis == b.arrivalMillis) {
+					return a.destination.compareTo(b.destination);
+				} else {
+					return a.arrivalMillis > b.arrivalMillis ? 1 : -1;
+				}
+			});
 
 			for (int i = 0; i < Math.min(maxArrivals, scheduleList.size()); i++) {
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
-				final Station destinationStation = ClientData.platformIdToStation.get(currentSchedule.lastPlatformId);
-				if (destinationStation == null) {
-					return;
-				}
-
-				final String[] destinationSplit = destinationStation.name.split("\\|");
+				final String[] destinationSplit = currentSchedule.destination.split("\\|");
 				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
 				final Text arrivalText;

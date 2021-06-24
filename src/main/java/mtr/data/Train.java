@@ -198,7 +198,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, Runnable generateRoute) {
+	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback, Runnable generateRoute) {
 		if (world == null) {
 			return;
 		}
@@ -303,15 +303,16 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				final List<Vec3d> offset = new ArrayList<>();
 
 				if (clientPlayer != null && ridingEntities.contains(clientPlayer.getUuid())) {
+					final int headIndex = getIndex(0, trainSpacing, false);
+
 					if (speedCallback != null) {
-						speedCallback.speedCallback(speed * 20, path.get(getIndex(0, trainSpacing, false)).stopIndex - 1, depot.routeIds);
+						speedCallback.speedCallback(speed * 20, path.get(headIndex).stopIndex - 1, depot.routeIds);
 					}
 
 					if (announcementCallback != null) {
-						// TODO announcements don't work when train is stuck
-						float targetProgress = distances.get(getPreviousStoppingIndex(trainSpacing)) + trainLength * trainSpacing;
+						float targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainLength + 1) * trainSpacing;
 						if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
-							announcementCallback.announcementCallback(path.get(getIndex(0, trainSpacing, false)).stopIndex - 1, depot.routeIds);
+							announcementCallback.announcementCallback(path.get(headIndex).stopIndex - 1, depot.routeIds);
 						}
 					}
 
@@ -336,8 +337,8 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				render(world, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
 			}
 
-			if (world.isClient()) {
-				writeArrivalTimes(schedulesForPlatform, trainTypeMapping, trainSpacing);
+			if (world.isClient() && depot != null && writeScheduleCallback != null) {
+				writeArrivalTimes(writeScheduleCallback, depot.routeIds, trainTypeMapping, trainSpacing);
 			}
 		} catch (Exception ignored) {
 			generateRoute.run();
@@ -534,10 +535,9 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		return path.size() - 1;
 	}
 
-	private int getPreviousStoppingIndex(int trainSpacing) {
-		final int headIndex = getIndex(0, trainSpacing, false);
+	private int getPreviousStoppingIndex(int headIndex) {
 		for (int i = headIndex; i >= 0; i--) {
-			if (path.get(i).dwellTime > 0) {
+			if (path.get(i).dwellTime > 0 && path.get(i).rail.railType == RailType.PLATFORM) {
 				return i;
 			}
 		}
@@ -636,20 +636,20 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		return hasPlatform;
 	}
 
-	private void writeArrivalTimes(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, CustomResources.TrainMapping trainTypeMapping, int trainSpacing) {
+	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainSpacing) {
 		final int index = getIndex(0, trainSpacing, true);
-		final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(schedulesForPlatform, trainTypeMapping, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
+		final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
 
 		float currentTicks = firstTimeAndSpeed.getLeft();
 		float currentSpeed = firstTimeAndSpeed.getRight();
 		for (int i = index + 1; i < path.size(); i++) {
-			final Pair<Float, Float> timeAndSpeed = writeArrivalTime(schedulesForPlatform, trainTypeMapping, i, 0, currentTicks, currentSpeed);
+			final Pair<Float, Float> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, i, 0, currentTicks, currentSpeed);
 			currentTicks += timeAndSpeed.getLeft();
 			currentSpeed = timeAndSpeed.getRight();
 		}
 	}
 
-	private Pair<Float, Float> writeArrivalTime(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, CustomResources.TrainMapping trainTypeMapping, int index, float progress, float currentTicks, float currentSpeed) {
+	private Pair<Float, Float> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int index, float progress, float currentTicks, float currentSpeed) {
 		final PathData pathData = path.get(index);
 		final Pair<Float, Float> timeAndSpeed = calculateTicksAndSpeed(pathData.rail, progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
 
@@ -657,13 +657,8 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (index == nextStoppingIndex ? stopCounter : 0), 0);
 
 			if (pathData.savedRailBaseId > 0) {
-				if (!schedulesForPlatform.containsKey(pathData.savedRailBaseId)) {
-					schedulesForPlatform.put(pathData.savedRailBaseId, new HashSet<>());
-				}
-
-				final float arrivalTime = (currentTicks + timeAndSpeed.getLeft()) * 50;
-				// TODO destination name
-				schedulesForPlatform.get(pathData.savedRailBaseId).add(new Route.ScheduleEntry(arrivalTime, arrivalTime + stopTicksRemaining * 50, trainTypeMapping.trainType, pathData.savedRailBaseId, pathData.savedRailBaseId));
+				final float arrivalTicks = currentTicks + timeAndSpeed.getLeft();
+				writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalTicks * 50, (arrivalTicks + stopTicksRemaining) * 50, trainTypeMapping.trainType, pathData.stopIndex - 1, routeIds);
 			}
 			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
 		} else {
@@ -732,6 +727,11 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	@FunctionalInterface
 	public interface AnnouncementCallback {
 		void announcementCallback(int stopIndex, List<Long> routeIds);
+	}
+
+	@FunctionalInterface
+	public interface WriteScheduleCallback {
+		void writeScheduleCallback(long platformId, float arrivalMillis, float departureMillis, TrainType trainType, int stopIndex, List<Long> routeIds);
 	}
 
 	@FunctionalInterface

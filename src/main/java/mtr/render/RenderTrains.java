@@ -31,6 +31,7 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,11 +77,10 @@ public class RenderTrains implements IGui {
 			maxTrainRenderDistance = client.options.viewDistance * 8;
 		}
 
-		final long worldTime = world.getLunarTime();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
 		ClientData.schedulesForPlatform.clear();
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), null, ClientData.schedulesForPlatform, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
@@ -128,7 +128,7 @@ public class RenderTrains implements IGui {
 		}), (speed, stopIndex, routeIds) -> {
 			if (!(speed <= 5 && useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Text text;
-				switch ((int) ((worldTime / 20) % 3)) {
+				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
 						text = getStationText(thisStation, "this");
 						break;
@@ -179,7 +179,14 @@ public class RenderTrains implements IGui {
 					}
 				});
 			}
-		}, ClientData::updateSidings));
+		}, (platformId, arrivalMillis, departureMillis, trainType, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (lastStation != null) {
+				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
+					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
+				}
+				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
+			}
+		}), ClientData::updateSidings));
 
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
