@@ -1,10 +1,7 @@
 package mtr.gui;
 
 import mtr.config.CustomResources;
-import mtr.data.DataConverter;
-import mtr.data.NameColorDataBase;
-import mtr.data.Route;
-import mtr.data.TrainType;
+import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
@@ -77,10 +74,10 @@ public class ScheduleScreen extends Screen implements IGui, IPacket {
 	protected void init() {
 		super.init();
 
-		IGui.setPositionAndWidth(buttonAddTrains, rightPanelsX, height - SQUARE_SIZE, width - rightPanelsX);
-		IGui.setPositionAndWidth(buttonCancel, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		IGui.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - rightPanelsX);
-		IGui.setPositionAndWidth(textFieldCustomDestination, rightPanelsX + CUSTOM_DESTINATION_X_OFFSET, SQUARE_SIZE, width - rightPanelsX - CUSTOM_DESTINATION_X_OFFSET - TEXT_FIELD_PADDING - TEXT_PADDING);
+		IDrawing.setPositionAndWidth(buttonAddTrains, rightPanelsX, height - SQUARE_SIZE, width - rightPanelsX);
+		IDrawing.setPositionAndWidth(buttonCancel, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonShuffleTrains, rightPanelsX + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING, width - rightPanelsX);
+		IDrawing.setPositionAndWidth(textFieldCustomDestination, rightPanelsX + CUSTOM_DESTINATION_X_OFFSET, SQUARE_SIZE, width - rightPanelsX - CUSTOM_DESTINATION_X_OFFSET - TEXT_FIELD_PADDING - TEXT_PADDING);
 
 		addNewList.y = SQUARE_SIZE * 2;
 		addNewList.height = height - SQUARE_SIZE * 4;

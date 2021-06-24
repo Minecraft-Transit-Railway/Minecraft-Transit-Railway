@@ -2,8 +2,8 @@ package mtr.block;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.MapColor;
 import net.minecraft.block.Material;
-import net.minecraft.block.MaterialColor;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.item.ItemStack;
@@ -14,7 +14,7 @@ import net.minecraft.world.BlockView;
 public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
 
 	public BlockPSDAPGBase() {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -37,7 +38,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private Pair<Integer, Integer> drawArea1, drawArea2;
 	private MapState mapState;
 	private boolean showStations;
-	private boolean showDepots;
 
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
@@ -69,7 +69,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			centerY = player.getZ();
 		}
 		scale = 1;
-		setShowItems(true, false);
+		setShowStations(true);
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i += increment) {
 			for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j += increment) {
 				if (world != null) {
-					final int color = IGui.divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color, 2);
+					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMapColor().color, 2);
 					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
 				}
 			}
@@ -98,30 +98,19 @@ public class WidgetMap implements Drawable, Element, IGui {
 		try {
 			if (showStations) {
 				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
-			}
-			if (showDepots) {
-				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
-			}
-
-			if (showStations) {
 				for (final Station station : ClientData.stations) {
 					if (AreaBase.nonNullCorners(station)) {
 						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 					}
 				}
-			}
-			if (showDepots) {
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
+			} else {
+				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
 				for (final Depot depot : ClientData.depots) {
 					if (AreaBase.nonNullCorners(depot)) {
 						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
 					}
 				}
-			}
-
-			if (showStations) {
-				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
-			}
-			if (showDepots) {
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), false);
 			}
 		} catch (Exception e) {
@@ -154,8 +143,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			try {
 				if (showStations) {
 					ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
-				}
-				if (showDepots) {
+				} else {
 					ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
 				}
 			} catch (Exception e) {
@@ -163,23 +151,24 @@ public class WidgetMap implements Drawable, Element, IGui {
 			}
 		}
 		if (scale >= 2) {
+			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 			if (showStations) {
 				for (final Station station : ClientData.stations) {
 					final BlockPos pos = station.getCenter();
 					if (pos != null) {
 						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
-			}
-			if (showDepots) {
+			} else {
 				for (final Depot depot : ClientData.depots) {
 					final BlockPos pos = depot.getCenter();
 					if (pos != null) {
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, depot.name, x + (float) x1, y + (float) y1));
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
 			}
+			immediate.draw();
 		}
 
 		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getLeft() * 10) / 10F, Math.round(mouseWorldPos.getRight() * 10) / 10F);
@@ -223,12 +212,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				if (showStations) {
-					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), true);
-				}
-				if (showDepots) {
-					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), false);
-				}
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
 			}
 			return true;
 		} else {
@@ -294,9 +278,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		mapState = MapState.DEFAULT;
 	}
 
-	public void setShowItems(boolean showStations, boolean showDepots) {
+	public void setShowStations(boolean showStations) {
 		this.showStations = showStations;
-		this.showDepots = showDepots;
 	}
 
 	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
@@ -354,7 +337,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final double x2 = Math.max(xA, xB);
 		final double y2 = Math.max(yA, yB);
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			IGui.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
+			IDrawing.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
 		}
 	}
 
@@ -362,8 +345,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final int savedRailCount = savedRails.size();
 		for (int i = 0; i < savedRailCount; i++) {
 			final int index = i;
-			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredText(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
 		}
+	}
+
+	private static int divideColorRGB(int color, int amount) {
+		final int r = ((color >> 16) & 0xFF) / amount;
+		final int g = ((color >> 8) & 0xFF) / amount;
+		final int b = (color & 0xFF) / amount;
+		return (r << 16) + (g << 8) + b;
 	}
 
 	@FunctionalInterface

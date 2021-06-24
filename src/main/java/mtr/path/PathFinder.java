@@ -1,33 +1,28 @@
 package mtr.path;
 
-import mtr.data.Platform;
-import mtr.data.Rail;
-import mtr.data.RailwayData;
-import mtr.data.SavedRailBase;
+import mtr.data.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class PathFinder {
 
-	public static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
+	public static int findPath(List<PathData> path, Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases) {
+		path.clear();
 		if (savedRailBases.size() < 2) {
-			return new ArrayList<>();
+			return -1;
 		}
 
-		final List<PathData> path = new ArrayList<>();
 		for (int i = 0; i < savedRailBases.size() - 1; i++) {
 			final SavedRailBase savedRailBaseStart = savedRailBases.get(i);
 			final SavedRailBase savedRailBaseEnd = savedRailBases.get(i + 1);
 
 			final List<PathData> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd, i);
 			if (partialPath.isEmpty()) {
-				return new ArrayList<>();
+				path.clear();
+				return i + 1;
 			} else {
 				final boolean sameFirstRail = !path.isEmpty() && path.get(path.size() - 1).isSameRail(partialPath.get(0));
 				for (int j = 0; j < partialPath.size(); j++) {
@@ -38,7 +33,7 @@ public class PathFinder {
 			}
 		}
 
-		return path;
+		return savedRailBases.size();
 	}
 
 	private static List<PathData> findPath(Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase savedRailBaseStart, SavedRailBase savedRailBaseEnd, int index) {
@@ -53,9 +48,10 @@ public class PathFinder {
 
 		for (int i = 0; i < 2; i++) {
 			final List<PathPart> path = new ArrayList<>();
+			final Set<BlockPos> turnBacks = new HashSet<>();
 			final List<BlockPos> startPositions = savedRailBaseStart.getOrderedPositions(savedRailBaseEndMidPos, i == 0);
 			path.add(new PathPart(Direction.UP, startPositions.get(0), new ArrayList<>()));
-			addPathPart(rails, startPositions.get(1), startPositions.get(0), path, comparator);
+			addPathPart(rails, startPositions.get(1), startPositions.get(0), path, turnBacks, comparator);
 
 			while (path.size() >= 2) {
 				final PathPart lastPathPart = path.get(path.size() - 1);
@@ -64,7 +60,7 @@ public class PathFinder {
 					path.remove(lastPathPart);
 				} else {
 					final BlockPos newPos = lastPathPart.otherOptions.remove(0);
-					addPathPart(rails, newPos, lastPathPart.pos, path, comparator);
+					addPathPart(rails, newPos, lastPathPart.pos, path, turnBacks, comparator);
 
 					if (savedRailBaseEnd.containsPos(newPos)) {
 						final List<PathData> railPath = new ArrayList<>();
@@ -72,7 +68,9 @@ public class PathFinder {
 							final BlockPos pos1 = path.get(j).pos;
 							final BlockPos pos2 = path.get(j + 1).pos;
 							if (RailwayData.containsRail(rails, pos1, pos2)) {
-								railPath.add(new PathData(rails.get(pos1).get(pos2), 0, pos1, pos2, index));
+								final Rail rail = rails.get(pos1).get(pos2);
+								final boolean turningBack = rail.railType == RailType.TURN_BACK && j < path.size() - 2 && path.get(j + 2).pos.equals(pos1);
+								railPath.add(new PathData(rail, j == 0 ? savedRailBaseStart.id : 0, turningBack ? 1 : 0, pos1, pos2, index));
 							} else {
 								return new ArrayList<>();
 							}
@@ -80,7 +78,7 @@ public class PathFinder {
 
 						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
 						if (RailwayData.containsRail(rails, newPos, endPos)) {
-							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, index + 1));
+							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd.id, savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, index + 1));
 							return railPath;
 						} else {
 							return new ArrayList<>();
@@ -93,16 +91,23 @@ public class PathFinder {
 		return new ArrayList<>();
 	}
 
-	private static void addPathPart(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos newPos, BlockPos lastPos, List<PathPart> path, Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator) {
+	private static void addPathPart(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos newPos, BlockPos lastPos, List<PathPart> path, Set<BlockPos> turnBacks, Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator) {
 		final Map<BlockPos, Rail> newConnections = rails.get(newPos);
-		final Direction newDirection = rails.get(lastPos).get(newPos).facingEnd.getOpposite();
+		final Rail oldRail = rails.get(lastPos).get(newPos);
+		final Direction newDirection = oldRail.facingEnd.getOpposite();
 		final List<BlockPos> otherOptions = new ArrayList<>();
 
-		newConnections.forEach((connectedPos, rail) -> {
-			if (rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
-				otherOptions.add(connectedPos);
-			}
-		});
+		if (newConnections != null) {
+			final boolean canTurnBack = oldRail.railType == RailType.TURN_BACK && !turnBacks.contains(newPos);
+			newConnections.forEach((connectedPos, rail) -> {
+				if (canTurnBack || rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
+					otherOptions.add(connectedPos);
+					if (canTurnBack) {
+						turnBacks.add(newPos);
+					}
+				}
+			});
+		}
 
 		if (!otherOptions.isEmpty()) {
 			otherOptions.sort(comparator.apply(newConnections));

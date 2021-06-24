@@ -1,9 +1,10 @@
 package mtr.data;
 
 import mtr.block.BlockRail;
+import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public class RailwayData extends PersistentState {
+public class RailwayData extends PersistentState implements IPacket {
 
 	// TODO temporary code start
 	private boolean generated;
@@ -35,6 +36,8 @@ public class RailwayData extends PersistentState {
 	private final Set<Depot> depots;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 
+	private final List<Set<Rail>> trainPositions = new ArrayList<>(2);
+
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 
 	public RailwayData(World world) {
@@ -46,79 +49,88 @@ public class RailwayData extends PersistentState {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
+
+		trainPositions.add(new HashSet<>());
+		trainPositions.add(new HashSet<>());
+
 		// TODO temporary code start
 		generated = true;
 		// TODO temporary code end
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
+	public void fromTag(NbtCompound nbtCompound) {
 		try {
-			final CompoundTag tagStations = tag.getCompound(KEY_STATIONS);
+			final NbtCompound tagStations = nbtCompound.getCompound(KEY_STATIONS);
 			for (final String key : tagStations.getKeys()) {
 				stations.add(new Station(tagStations.getCompound(key)));
 			}
 
-			final CompoundTag tagNewPlatforms = tag.getCompound(KEY_PLATFORMS);
+			final NbtCompound tagNewPlatforms = nbtCompound.getCompound(KEY_PLATFORMS);
 			for (final String key : tagNewPlatforms.getKeys()) {
 				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
 			}
 
-			final CompoundTag tagNewSidings = tag.getCompound(KEY_SIDINGS);
+			final NbtCompound tagNewSidings = nbtCompound.getCompound(KEY_SIDINGS);
 			for (final String key : tagNewSidings.getKeys()) {
 				sidings.add(new Siding(tagNewSidings.getCompound(key)));
 			}
 
-			final CompoundTag tagNewRoutes = tag.getCompound(KEY_ROUTES);
+			final NbtCompound tagNewRoutes = nbtCompound.getCompound(KEY_ROUTES);
 			for (final String key : tagNewRoutes.getKeys()) {
 				routes.add(new Route(tagNewRoutes.getCompound(key)));
 			}
 
-			final CompoundTag tagNewDepots = tag.getCompound(KEY_DEPOTS);
+			final NbtCompound tagNewDepots = nbtCompound.getCompound(KEY_DEPOTS);
 			for (final String key : tagNewDepots.getKeys()) {
 				depots.add(new Depot(tagNewDepots.getCompound(key)));
 			}
 
-			final CompoundTag tagNewRails = tag.getCompound(KEY_RAILS);
+			final NbtCompound tagNewRails = nbtCompound.getCompound(KEY_RAILS);
 			for (final String key : tagNewRails.getKeys()) {
 				final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
 				rails.put(railEntry.pos, railEntry.connections);
 			}
 
 			// TODO temporary code start
-			generated = tag.getBoolean("generated");
+			generated = nbtCompound.getBoolean("generated");
 			// TODO temporary code end
 
-			validateData();
-			sidings.forEach(siding -> siding.generateRoute(world, rails, platforms, routes, depots));
+			if (generated) {
+				validateData(rails, platforms, sidings, routes);
+			}
+			updateSidings();
+			markDirty();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public NbtCompound writeNbt(NbtCompound nbtCompound) {
 		try {
-			validateData();
-			writeTag(tag, stations, KEY_STATIONS);
-			writeTag(tag, platforms, KEY_PLATFORMS);
-			writeTag(tag, sidings, KEY_SIDINGS);
-			writeTag(tag, routes, KEY_ROUTES);
-			writeTag(tag, depots, KEY_DEPOTS);
+			if (generated) {
+				validateData(rails, platforms, sidings, routes);
+			}
+			markDirty();
+			writeTag(nbtCompound, stations, KEY_STATIONS);
+			writeTag(nbtCompound, platforms, KEY_PLATFORMS);
+			writeTag(nbtCompound, sidings, KEY_SIDINGS);
+			writeTag(nbtCompound, routes, KEY_ROUTES);
+			writeTag(nbtCompound, depots, KEY_DEPOTS);
 
 			final Set<RailEntry> railSet = new HashSet<>();
 			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
-			writeTag(tag, railSet, KEY_RAILS);
+			writeTag(nbtCompound, railSet, KEY_RAILS);
 
 			// TODO temporary code start
-			tag.putBoolean("generated", generated);
+			nbtCompound.putBoolean("generated", generated);
 			// TODO temporary code end
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return tag;
+		return nbtCompound;
 	}
 
 	public Set<Station> getStations() {
@@ -159,7 +171,12 @@ public class RailwayData extends PersistentState {
 			}
 		}
 
-		sidings.forEach(siding -> siding.simulateTrain(0, null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots)));
+		trainPositions.remove(0);
+		trainPositions.add(new HashSet<>());
+		sidings.forEach(siding -> {
+			siding.simulateTrain(null, 1, trainPositions.get(0), null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots));
+			siding.writeTrainPositions(trainPositions.get(1), rails);
+		});
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
@@ -168,9 +185,16 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
+	public void updateSidings() {
+		sidings.forEach(siding -> {
+			siding.generateRoute(world, rails, platforms, routes, depots);
+			siding.writeTrainPositions(trainPositions.get(1), rails);
+		});
+	}
+
 	// writing data
 
-	public void addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
+	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		try {
 			if (!rails.containsKey(posStart)) {
 				rails.put(posStart, new HashMap<>());
@@ -178,69 +202,49 @@ public class RailwayData extends PersistentState {
 			rails.get(posStart).put(posEnd, rail);
 
 			if (validate) {
+				final long id;
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					platforms.add(new Platform(posStart, posEnd));
+					final Platform platform = new Platform(posStart, posEnd);
+					platforms.add(platform);
+					id = platform.id;
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(depotRail -> depotRail.containsPos(posStart) || depotRail.containsPos(posEnd))) {
-					sidings.add(new Siding(posStart, posEnd, (int) Math.floor(rail.getLength())));
+					final Siding siding = new Siding(posStart, posEnd, (int) Math.floor(rail.getLength()));
+					sidings.add(siding);
+					siding.generateRoute(world, rails, platforms, routes, depots);
+					id = siding.id;
+				} else {
+					id = 0;
 				}
-				validateRails();
+
+				updateSidings();
+				return id;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	public void removeNode(BlockPos pos) {
 		removeNode(world, rails, pos);
-		validateRails();
+		if (generated) {
+			validateData(rails, platforms, sidings, routes);
+		}
+		updateSidings();
+		markDirty();
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
 		removeRailConnection(world, rails, pos1, pos2);
-		validateRails();
+		if (generated) {
+			validateData(rails, platforms, sidings, routes);
+		}
+		updateSidings();
+		markDirty();
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
-	}
-
-	// validation
-
-	private void validateRails() {
-		final Set<BlockPos> railsToRemove = new HashSet<>();
-		rails.forEach((startPos, railMap) -> {
-			final boolean loadedChunk = world.isChunkLoaded(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
-				removeNode(null, rails, startPos);
-			}
-
-			if (railMap.isEmpty()) {
-				railsToRemove.add(startPos);
-			}
-		});
-		railsToRemove.forEach(rails::remove);
-		validateData();
-	}
-
-	private void validateData() {
-		if (generated) {
-			platforms.removeIf(platform -> !platform.isValidSavedRail(rails));
-			sidings.removeIf(siding -> !siding.isValidSavedRail(rails));
-
-			final List<BlockPos> railsToRemove = new ArrayList<>();
-			rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-				if (rail.railType.hasSavedRail && !SavedRailBase.isValidSavedRail(rails, endPos, startPos)) {
-					railsToRemove.add(startPos);
-					railsToRemove.add(endPos);
-				}
-			}));
-			for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
-				removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
-			}
-
-			routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
-			markDirty();
-		}
 	}
 
 	// static finders
@@ -284,6 +288,9 @@ public class RailwayData extends PersistentState {
 					BlockRail.resetRailNode(world, startPos);
 				}
 			});
+			if (world != null) {
+				validateRails(world, rails);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -303,6 +310,9 @@ public class RailwayData extends PersistentState {
 					BlockRail.resetRailNode(world, pos2);
 				}
 			}
+			if (world != null) {
+				validateRails(world, rails);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -310,6 +320,24 @@ public class RailwayData extends PersistentState {
 
 	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
+	public static void validateData(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
+		platforms.removeIf(platform -> platform.isInvalidSavedRail(rails));
+		sidings.removeIf(siding -> siding.isInvalidSavedRail(rails));
+
+		final List<BlockPos> railsToRemove = new ArrayList<>();
+		rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+			if (rail.railType.hasSavedRail && SavedRailBase.isInvalidSavedRail(rails, endPos, startPos)) {
+				railsToRemove.add(startPos);
+				railsToRemove.add(endPos);
+			}
+		}));
+		for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
+			removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
+		}
+
+		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
 	}
 
 	public static boolean isBetween(double value, double value1, double value2) {
@@ -328,14 +356,29 @@ public class RailwayData extends PersistentState {
 		}
 	}
 
-	private static void writeTag(CompoundTag tag, Set<? extends SerializedDataBase> dataSet, String key) {
-		final CompoundTag tagSet = new CompoundTag();
+	private static void validateRails(World world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		final Set<BlockPos> railsToRemove = new HashSet<>();
+		rails.forEach((startPos, railMap) -> {
+			final boolean loadedChunk = world.isChunkLoaded(startPos.getX() / 16, startPos.getZ() / 16);
+			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
+				removeNode(null, rails, startPos);
+			}
+
+			if (railMap.isEmpty()) {
+				railsToRemove.add(startPos);
+			}
+		});
+		railsToRemove.forEach(rails::remove);
+	}
+
+	private static void writeTag(NbtCompound nbtCompound, Set<? extends SerializedDataBase> dataSet, String key) {
+		final NbtCompound tagSet = new NbtCompound();
 		int i = 0;
 		for (final SerializedDataBase data : dataSet) {
 			tagSet.put(key + i, data.toCompoundTag());
 			i++;
 		}
-		tag.put(key, tagSet);
+		nbtCompound.put(key, tagSet);
 	}
 
 	private static class RailEntry extends SerializedDataBase {
@@ -351,24 +394,24 @@ public class RailwayData extends PersistentState {
 			this.connections = connections;
 		}
 
-		public RailEntry(CompoundTag tag) {
-			pos = BlockPos.fromLong(tag.getLong(KEY_NODE_POS));
+		public RailEntry(NbtCompound nbtCompound) {
+			pos = BlockPos.fromLong(nbtCompound.getLong(KEY_NODE_POS));
 			connections = new HashMap<>();
 
-			final CompoundTag tagConnections = tag.getCompound(KEY_RAIL_CONNECTIONS);
+			final NbtCompound tagConnections = nbtCompound.getCompound(KEY_RAIL_CONNECTIONS);
 			for (final String keyConnection : tagConnections.getKeys()) {
 				connections.put(BlockPos.fromLong(tagConnections.getCompound(keyConnection).getLong(KEY_NODE_POS)), new Rail(tagConnections.getCompound(keyConnection)));
 			}
 		}
 
 		@Override
-		public CompoundTag toCompoundTag() {
-			final CompoundTag tagRail = new CompoundTag();
+		public NbtCompound toCompoundTag() {
+			final NbtCompound tagRail = new NbtCompound();
 			tagRail.putLong(KEY_NODE_POS, pos.asLong());
 
-			final CompoundTag tagConnections = new CompoundTag();
+			final NbtCompound tagConnections = new NbtCompound();
 			connections.forEach((endNodePos, rail) -> {
-				final CompoundTag tagConnection = rail.toCompoundTag();
+				final NbtCompound tagConnection = rail.toCompoundTag();
 				tagConnection.putLong(KEY_NODE_POS, endNodePos.asLong());
 				tagConnections.put(KEY_RAIL_CONNECTIONS + endNodePos.asLong(), tagConnection);
 			});

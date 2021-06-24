@@ -29,6 +29,7 @@ public final class ClientData {
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	public static Map<Long, Integer> successfulSegmentsForSiding = new HashMap<>();
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
@@ -51,7 +52,7 @@ public final class ClientData {
 		}
 
 		updateReferences();
-		sidings.forEach(siding -> siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots));
+		updateSidings();
 	}
 
 	public static void updateReferences() {
@@ -63,24 +64,15 @@ public final class ClientData {
 			writeSavedRailMaps(depots, sidings, sidingsWithOffset, sidingsInDepot);
 
 			routesInStation.clear();
-			schedulesForPlatform.clear();
-			routes.forEach(route -> {
-				route.platformIds.forEach(platformId -> {
-					final Station station = platformIdToStation.get(platformId);
-					if (station != null) {
-						if (!routesInStation.containsKey(station.id)) {
-							routesInStation.put(station.id, new HashMap<>());
-						}
-						routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+			routes.forEach(route -> route.platformIds.forEach(platformId -> {
+				final Station station = platformIdToStation.get(platformId);
+				if (station != null) {
+					if (!routesInStation.containsKey(station.id)) {
+						routesInStation.put(station.id, new HashMap<>());
 					}
-				});
-				route.getTimeOffsets(platforms).forEach((platformId, scheduleEntry) -> {
-					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashSet<>());
-					}
-					schedulesForPlatform.get(platformId).addAll(scheduleEntry);
-				});
-			});
+					routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+				}
+			}));
 
 			stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 			platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
@@ -117,6 +109,10 @@ public final class ClientData {
 		}
 	}
 
+	public static void updateSidings() {
+		sidings.forEach(siding -> successfulSegmentsForSiding.put(siding.id, siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots)));
+	}
+
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();
@@ -127,6 +123,7 @@ public final class ClientData {
 	}
 
 	private static <T extends AreaBase, U extends SavedRailBase> void writeSavedRailMaps(Set<T> areas, Set<U> savedRails, Map<BlockPos, List<U>> savedRailsWithOffset, Map<Long, Map<Long, U>> savedRailsInAreaMap) {
+		savedRailsWithOffset.clear();
 		savedRailsInAreaMap.clear();
 		savedRails.forEach(savedRail -> {
 			final T area = RailwayData.getAreaBySavedRail(areas, savedRail);

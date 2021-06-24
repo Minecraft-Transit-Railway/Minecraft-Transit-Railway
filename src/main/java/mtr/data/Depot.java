@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.world.WorldAccess;
 
@@ -35,20 +35,20 @@ public class Depot extends AreaBase {
 		routeIds = new ArrayList<>();
 	}
 
-	public Depot(CompoundTag tag) {
-		super(tag);
+	public Depot(NbtCompound nbtCompound) {
+		super(nbtCompound);
 
 		routeIds = new ArrayList<>();
-		final long[] routeIdsArray = tag.getLongArray(KEY_ROUTE_IDS);
+		final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
 		for (final long routeId : routeIdsArray) {
 			routeIds.add(routeId);
 		}
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			frequencies[i] = tag.getInt(KEY_FREQUENCIES + i);
+			frequencies[i] = nbtCompound.getInt(KEY_FREQUENCIES + i);
 		}
 
-		lastDeployedMillis = System.currentTimeMillis() - tag.getLong(KEY_LAST_DEPLOYED);
+		lastDeployedMillis = System.currentTimeMillis() - nbtCompound.getLong(KEY_LAST_DEPLOYED);
 	}
 
 	public Depot(PacketByteBuf packet) {
@@ -68,18 +68,18 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
 
-		tag.putLongArray(KEY_ROUTE_IDS, routeIds);
+		nbtCompound.putLongArray(KEY_ROUTE_IDS, routeIds);
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			tag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
+			nbtCompound.putInt(KEY_FREQUENCIES + i, frequencies[i]);
 		}
 
-		tag.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
+		nbtCompound.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
 
-		return tag;
+		return nbtCompound;
 	}
 
 	@Override

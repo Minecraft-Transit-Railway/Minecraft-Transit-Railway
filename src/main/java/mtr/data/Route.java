@@ -2,16 +2,18 @@ package mtr.data;
 
 import mtr.block.BlockRail;
 import mtr.config.CustomResources;
-import mtr.gui.IGui;
 import mtr.path.PathDataDeleteThisLater;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
@@ -54,34 +56,34 @@ public final class Route extends NameColorDataBase implements IGui {
 		shuffleTrains = true;
 	}
 
-	public Route(CompoundTag tag) {
-		super(tag);
+	public Route(NbtCompound nbtCompound) {
+		super(nbtCompound);
 
 		platformIds = new ArrayList<>();
-		final long[] platformIdsArray = tag.getLongArray(KEY_PLATFORM_IDS);
+		final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS);
 		for (final long platformId : platformIdsArray) {
 			platformIds.add(platformId);
 		}
 
 		trainTypeMappings = new ArrayList<>();
-		final int trainTypesLength = tag.getInt(KEY_TRAIN_TYPES);
+		final int trainTypesLength = nbtCompound.getInt(KEY_TRAIN_TYPES);
 		for (int i = 0; i < trainTypesLength; i++) {
 			try {
-				trainTypeMappings.add(new CustomResources.TrainMapping(tag.getString(KEY_TRAIN_CUSTOM_ID + i), TrainType.valueOf(tag.getString(KEY_TRAIN_TYPES + i))));
+				trainTypeMappings.add(new CustomResources.TrainMapping(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID + i), TrainType.valueOf(nbtCompound.getString(KEY_TRAIN_TYPES + i))));
 			} catch (Exception ignored) {
 			}
 		}
 
 		frequencies = new int[HOURS_IN_DAY];
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			frequencies[i] = tag.getInt(KEY_FREQUENCIES + i);
+			frequencies[i] = nbtCompound.getInt(KEY_FREQUENCIES + i);
 		}
 
-		customDestination = tag.getString(KEY_CUSTOM_DESTINATION);
-		shuffleTrains = tag.getBoolean(KEY_SHUFFLE_TRAINS);
+		customDestination = nbtCompound.getString(KEY_CUSTOM_DESTINATION);
+		shuffleTrains = nbtCompound.getBoolean(KEY_SHUFFLE_TRAINS);
 
 		path = new ArrayList<>();
-		final CompoundTag tagPath = tag.getCompound(KEY_PATH);
+		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
 		for (int i = 0; i < tagPath.getKeys().size(); i++) {
 			path.add(new PathDataDeleteThisLater(tagPath.getCompound(KEY_PATH + i)));
 		}
@@ -124,30 +126,30 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putLongArray(KEY_PLATFORM_IDS, platformIds);
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putLongArray(KEY_PLATFORM_IDS, platformIds);
 
-		tag.putInt(KEY_TRAIN_TYPES, trainTypeMappings.size());
+		nbtCompound.putInt(KEY_TRAIN_TYPES, trainTypeMappings.size());
 		for (int i = 0; i < trainTypeMappings.size(); i++) {
-			tag.putString(KEY_TRAIN_CUSTOM_ID + i, trainTypeMappings.get(i).customId);
-			tag.putString(KEY_TRAIN_TYPES + i, trainTypeMappings.get(i).trainType.toString());
+			nbtCompound.putString(KEY_TRAIN_CUSTOM_ID + i, trainTypeMappings.get(i).customId);
+			nbtCompound.putString(KEY_TRAIN_TYPES + i, trainTypeMappings.get(i).trainType.toString());
 		}
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			tag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
+			nbtCompound.putInt(KEY_FREQUENCIES + i, frequencies[i]);
 		}
 
-		tag.putString(KEY_CUSTOM_DESTINATION, customDestination);
-		tag.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
+		nbtCompound.putString(KEY_CUSTOM_DESTINATION, customDestination);
+		nbtCompound.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
 
-		final CompoundTag tagPath = new CompoundTag();
+		final NbtCompound tagPath = new NbtCompound();
 		for (int i = 0; i < path.size(); i++) {
 			tagPath.put(KEY_PATH + i, path.get(i).toCompoundTag());
 		}
-		tag.put(KEY_PATH, tagPath);
+		nbtCompound.put(KEY_PATH, tagPath);
 
-		return tag;
+		return nbtCompound;
 	}
 
 	@Override
@@ -278,29 +280,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		return shuffleTrains;
 	}
 
-	public Map<Long, Set<ScheduleEntry>> getTimeOffsets(Set<Platform> platforms) {
-		final Map<Long, Set<ScheduleEntry>> timeOffsets = new HashMap<>();
-
-		int platformIdIndex = 0, pathIndex = 0;
-		while (platformIdIndex < platformIds.size() && pathIndex < path.size()) {
-			final PathDataDeleteThisLater pathDataDeleteThisLater = path.get(pathIndex);
-			final long platformId = platformIds.get(platformIdIndex);
-
-			if (pathDataDeleteThisLater.isPlatform(platformId, platforms)) {
-				final float arrivalTime = pathDataDeleteThisLater.tOffset + pathDataDeleteThisLater.tEnd;
-				final float departureTime = pathDataDeleteThisLater.tOffset + pathDataDeleteThisLater.getTime();
-				timeOffsets.put(platformId, new HashSet<>());
-
-				schedule.forEach((scheduleTime, trainMapping) -> timeOffsets.get(platformId).add(new ScheduleEntry(arrivalTime + scheduleTime, departureTime + scheduleTime, trainMapping.trainType, platformIds.get(platformIds.size() - 1), platformId)));
-				platformIdIndex++;
-			}
-
-			pathIndex++;
-		}
-
-		return timeOffsets;
-	}
-
 	public static float wrapTime(float time1, float time2) {
 		return (time1 - time2 + Route.TICKS_PER_DAY) % Route.TICKS_PER_DAY;
 	}
@@ -355,18 +334,20 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public static class ScheduleEntry {
 
-		public final float arrivalTime;
-		public final float departureTime;
+		public final float arrivalMillis;
+		public final float departureMillis;
 		public final TrainType trainType;
-		public final long lastPlatformId;
 		public final long platformId;
+		public final String destination;
+		public final boolean isTerminating;
 
-		public ScheduleEntry(float arrivalTime, float departureTime, TrainType trainType, long lastPlatformId, long platformId) {
-			this.arrivalTime = arrivalTime % TICKS_PER_DAY;
-			this.departureTime = departureTime % TICKS_PER_DAY;
+		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long platformId, String destination, boolean isTerminating) {
+			this.arrivalMillis = arrivalMillis;
+			this.departureMillis = departureMillis;
 			this.trainType = trainType;
-			this.lastPlatformId = lastPlatformId;
 			this.platformId = platformId;
+			this.destination = destination;
+			this.isTerminating = isTerminating;
 		}
 	}
 }

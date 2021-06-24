@@ -52,6 +52,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos2 = packet.readBlockPos();
 		final Rail rail1 = new Rail(packet);
 		final Rail rail2 = new Rail(packet);
+		final long savedRailId = packet.readLong();
 		minecraftClient.execute(() -> {
 			if (!ClientData.rails.containsKey(pos1)) {
 				ClientData.rails.put(pos1, new HashMap<>());
@@ -61,18 +62,35 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 				ClientData.rails.put(pos2, new HashMap<>());
 			}
 			ClientData.rails.get(pos2).put(pos1, rail2);
+
+			if (rail1.railType == RailType.PLATFORM && rail2.railType == RailType.PLATFORM) {
+				ClientData.platforms.add(new Platform(savedRailId, pos1, pos2));
+			} else if (rail1.railType == RailType.SIDING && rail2.railType == RailType.SIDING) {
+				final Siding siding = new Siding(savedRailId, pos1, pos2, rail1.getLength());
+				ClientData.sidings.add(siding);
+				siding.generateRoute(minecraftClient.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots);
+			}
+			ClientData.updateReferences();
 		});
 	}
 
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.rails, pos));
+		minecraftClient.execute(() -> {
+			RailwayData.removeNode(null, ClientData.rails, pos);
+			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
+			ClientData.updateReferences();
+		});
 	}
 
 	public static void removeRailConnectionS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2));
+		minecraftClient.execute(() -> {
+			RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2);
+			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
+			ClientData.updateReferences();
+		});
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {

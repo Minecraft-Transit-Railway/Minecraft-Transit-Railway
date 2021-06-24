@@ -1,5 +1,6 @@
 package mtr.gui;
 
+import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -40,7 +41,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 		super.init();
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
-			IGui.setPositionAndWidth(buttons[i], width - BUTTON_WIDTH, SQUARE_SIZE * (i + 1), BUTTON_WIDTH - TEXT_FIELD_PADDING);
+			IDrawing.setPositionAndWidth(buttons[i], width - BUTTON_WIDTH, SQUARE_SIZE * (i + 1), BUTTON_WIDTH - TEXT_FIELD_PADDING);
 		}
 
 		for (final ButtonWidget button : buttons) {

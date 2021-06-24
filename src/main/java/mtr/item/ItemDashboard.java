@@ -1,6 +1,5 @@
 package mtr.item;
 
-import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -20,10 +19,6 @@ public class ItemDashboard extends Item {
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		if (!world.isClient()) {
 			PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayerEntity) user);
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null) {
-				railwayData.addPlayerToBroadcast(user);
-			}
 		}
 		return super.use(world, user, hand);
 	}

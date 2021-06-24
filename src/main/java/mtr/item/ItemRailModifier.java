@@ -13,7 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -47,10 +47,10 @@ public class ItemRailModifier extends Item {
 			final BlockState stateStart = world.getBlockState(posStart);
 
 			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
-				final CompoundTag tag = context.getStack().getOrCreateTag();
+				final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
 
-				if (tag.contains(TAG_POS)) {
-					final BlockPos posEnd = BlockPos.fromLong(tag.getLong(TAG_POS));
+				if (nbtCompound.contains(TAG_POS)) {
+					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
 					if (stateEnd.getBlock() instanceof BlockRail) {
@@ -64,16 +64,16 @@ public class ItemRailModifier extends Item {
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
 								if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 									if (player != null) {
-										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
+										player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 									}
 								} else {
 									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, railType);
 									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
 									railwayData.addRail(posStart, posEnd, rail1, false);
-									railwayData.addRail(posEnd, posStart, rail2, true);
+									final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
 									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
 									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
-									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2);
+									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
 								}
 							} else {
 								if (player != null) {
@@ -86,9 +86,9 @@ public class ItemRailModifier extends Item {
 						}
 					}
 
-					tag.remove(TAG_POS);
+					nbtCompound.remove(TAG_POS);
 				} else {
-					tag.putLong(TAG_POS, posStart.asLong());
+					nbtCompound.putLong(TAG_POS, posStart.asLong());
 				}
 
 				return ActionResult.SUCCESS;
@@ -106,8 +106,8 @@ public class ItemRailModifier extends Item {
 			tooltip.add(new TranslatableText("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 
-		final CompoundTag tag = stack.getOrCreateTag();
-		final long posLong = tag.getLong(TAG_POS);
+		final NbtCompound nbtCompound = stack.getOrCreateTag();
+		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 		}

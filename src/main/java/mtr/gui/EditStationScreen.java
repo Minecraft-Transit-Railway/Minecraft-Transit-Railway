@@ -1,6 +1,7 @@
 package mtr.gui;
 
 import mtr.data.DataConverter;
+import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Station;
 import mtr.packet.IPacket;
@@ -75,19 +76,19 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	protected void init() {
 		super.init();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IGui.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, yStart, width - width / 2 - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldColor, width / 2 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldZone, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, yStart, width - width / 2 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldColor, width / 2 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldZone, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
 
 		final int yExitText = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING / 2;
-		IGui.setPositionAndWidth(textFieldExitParentLetter, TEXT_FIELD_PADDING / 2, yExitText, width / 4 - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldExitParentNumber, TEXT_FIELD_PADDING / 2 + width / 4, yExitText, width / 4 - TEXT_FIELD_PADDING);
-		IGui.setPositionAndWidth(textFieldExitDestination, width / 2 + TEXT_FIELD_PADDING / 2, yExitText, width / 2 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldExitParentLetter, TEXT_FIELD_PADDING / 2, yExitText, width / 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldExitParentNumber, TEXT_FIELD_PADDING / 2 + width / 4, yExitText, width / 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldExitDestination, width / 2 + TEXT_FIELD_PADDING / 2, yExitText, width / 2 - TEXT_FIELD_PADDING);
 
-		IGui.setPositionAndWidth(buttonAddExitParent, 0, height - SQUARE_SIZE, width / 2);
-		IGui.setPositionAndWidth(buttonDoneExitParent, 0, height - SQUARE_SIZE, width / 2);
-		IGui.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
-		IGui.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
+		IDrawing.setPositionAndWidth(buttonAddExitParent, 0, height - SQUARE_SIZE, width / 2);
+		IDrawing.setPositionAndWidth(buttonDoneExitParent, 0, height - SQUARE_SIZE, width / 2);
+		IDrawing.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
+		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
 		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 		textFieldName.setText(station.name);

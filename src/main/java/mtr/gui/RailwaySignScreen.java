@@ -3,10 +3,7 @@ package mtr.gui;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.config.CustomResources;
-import mtr.data.DataConverter;
-import mtr.data.NameColorDataBase;
-import mtr.data.Platform;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderRailwaySign;
 import net.minecraft.block.entity.BlockEntity;
@@ -148,7 +145,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		setIsSelecting(!isRailwaySign, false);
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
-			IGui.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
+			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
 			addButton(buttonsEdit[i]);
 		}
 
@@ -158,7 +155,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
 			final int columns = sign != null && sign.hasCustomText() ? 3 : 1;
 
-			IGui.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
+			IDrawing.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
 			buttonsSelection[i].visible = false;
 			addButton(buttonsSelection[i]);
 
@@ -177,11 +174,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 		selectedList.height = height - SQUARE_SIZE * 5;
 		selectedList.width = PANEL_WIDTH;
 
-		IGui.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
+		IDrawing.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
 		buttonClear.visible = false;
 		addButton(buttonClear);
 
-		IGui.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 		addButton(buttonDone);
 
 		availableList.init();

@@ -1,6 +1,6 @@
 package mtr.data;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -14,6 +14,14 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
+	public SavedRailBase(long id, BlockPos pos1, BlockPos pos2) {
+		super(id);
+		name = "1";
+		positions = new HashSet<>();
+		positions.add(pos1);
+		positions.add(pos2);
+	}
+
 	public SavedRailBase(BlockPos pos1, BlockPos pos2) {
 		super();
 		name = "1";
@@ -22,11 +30,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(CompoundTag tag) {
-		super(tag);
+	public SavedRailBase(NbtCompound nbtCompound) {
+		super(nbtCompound);
 		positions = new HashSet<>();
-		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_1)));
-		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_2)));
+		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_1)));
+		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_2)));
 	}
 
 	public SavedRailBase(PacketByteBuf packet) {
@@ -37,11 +45,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putLong(KEY_POS_1, getPosition(0).asLong());
-		tag.putLong(KEY_POS_2, getPosition(1).asLong());
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putLong(KEY_POS_1, getPosition(0).asLong());
+		nbtCompound.putLong(KEY_POS_2, getPosition(1).asLong());
+		return nbtCompound;
 	}
 
 	@Override
@@ -64,10 +72,10 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
-	public boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		return isValidSavedRail(rails, pos1, pos2) && isValidSavedRail(rails, pos2, pos1);
+		return isInvalidSavedRail(rails, pos1, pos2) || isInvalidSavedRail(rails, pos2, pos1);
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos) {
@@ -100,7 +108,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return positions.size() > index ? new ArrayList<>(positions).get(index) : new BlockPos(0, 0, 0);
 	}
 
-	public static boolean isValidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
-		return RailwayData.containsRail(rails, pos1, pos2) && rails.get(pos1).get(pos2).railType.hasSavedRail;
+	public static boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
+		return !RailwayData.containsRail(rails, pos1, pos2) || !rails.get(pos1).get(pos2).railType.hasSavedRail;
 	}
 }

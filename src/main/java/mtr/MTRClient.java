@@ -19,13 +19,14 @@ import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
@@ -75,11 +76,10 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_4_OBSIDIAN, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_5_BLAZE, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_6_DIAMOND, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
-		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_SIDING, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_PLATFORM, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_SIDING, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_TURN_BACK, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_REMOVER, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
-
-		EntityRendererRegistry.INSTANCE.register(MTR.SEAT, (dispatcher, context) -> new RenderSeat(dispatcher));
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 15, 16, 14, 14, false, false, true));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, -15, 15, 16, 30, 46, false, false, true));
@@ -170,6 +170,12 @@ public class MTRClient implements ClientModInitializer, IPacket {
 			if (entity == MinecraftClient.getInstance().player) {
 				Config.refreshProperties();
 			}
+		});
+		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+			final MatrixStack matrices = context.matrixStack();
+			matrices.push();
+			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera().getPos());
+			matrices.pop();
 		});
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
 	}
