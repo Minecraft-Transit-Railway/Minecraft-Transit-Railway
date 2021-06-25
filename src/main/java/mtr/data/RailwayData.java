@@ -195,34 +195,18 @@ public class RailwayData extends PersistentState implements IPacket {
 	// writing data
 
 	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
-		try {
-			if (!rails.containsKey(posStart)) {
-				rails.put(posStart, new HashMap<>());
-			}
-			rails.get(posStart).put(posEnd, rail);
+		final long newId = validate ? new Random().nextLong() : 0;
+		addRail(rails, platforms, sidings, posStart, posEnd, rail, newId);
 
-			if (validate) {
-				final long id;
-				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					final Platform platform = new Platform(posStart, posEnd);
-					platforms.add(platform);
-					id = platform.id;
-				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(depotRail -> depotRail.containsPos(posStart) || depotRail.containsPos(posEnd))) {
-					final Siding siding = new Siding(posStart, posEnd, (int) Math.floor(rail.getLength()));
-					sidings.add(siding);
-					siding.generateRoute(world, rails, platforms, routes, depots);
-					id = siding.id;
-				} else {
-					id = 0;
-				}
-
-				updateSidings();
-				return id;
+		if (validate) {
+			if (generated) {
+				validateData(rails, platforms, sidings, routes);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			updateSidings();
+			markDirty();
 		}
-		return 0;
+
+		return newId;
 	}
 
 	public void removeNode(BlockPos pos) {
@@ -278,6 +262,25 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	// other
+
+	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
+		try {
+			if (!rails.containsKey(posStart)) {
+				rails.put(posStart, new HashMap<>());
+			}
+			rails.get(posStart).put(posEnd, rail);
+
+			if (savedRailId != 0) {
+				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
+					platforms.add(new Platform(savedRailId, posStart, posEnd));
+				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(siding -> siding.containsPos(posStart) || siding.containsPos(posEnd))) {
+					sidings.add(new Siding(savedRailId, posStart, posEnd, (int) Math.floor(rail.getLength())));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void removeNode(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos) {
 		try {

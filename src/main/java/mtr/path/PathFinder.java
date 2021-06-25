@@ -94,6 +94,11 @@ public class PathFinder {
 	private static void addPathPart(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos newPos, BlockPos lastPos, List<PathPart> path, Set<BlockPos> turnBacks, Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator) {
 		final Map<BlockPos, Rail> newConnections = rails.get(newPos);
 		final Rail oldRail = rails.get(lastPos).get(newPos);
+
+		if (oldRail == null) {
+			return;
+		}
+
 		final Direction newDirection = oldRail.facingEnd.getOpposite();
 		final List<BlockPos> otherOptions = new ArrayList<>();
 
