@@ -5,16 +5,12 @@ import mtr.config.CustomResources;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
-import mtr.model.PSDTopModel;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.client.model.ModelProviderContext;
-import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -23,7 +19,6 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -62,8 +57,6 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_BARRIER_EXIT_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_MACHINE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR, RenderLayer.getCutout());
-
-		ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ModelProvider());
 
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_1_WOODEN, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_2_STONE, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
@@ -184,19 +177,5 @@ public class MTRClient implements ClientModInitializer, IPacket {
 				return defaultColor;
 			}
 		}, block);
-	}
-
-	private static class ModelProvider implements ModelResourceProvider {
-
-		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
-
-		@Override
-		public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) {
-			if (identifier.equals(PSD_TOP_MODEL)) {
-				return new PSDTopModel();
-			} else {
-				return null;
-			}
-		}
 	}
 }
