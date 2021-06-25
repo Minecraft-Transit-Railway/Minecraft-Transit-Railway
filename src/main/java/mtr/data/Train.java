@@ -486,8 +486,8 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float realSpacing = pos2.getDistanceTo(pos1);
 			final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
-			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, realSpacing / 2, doorValue) && doorValue > 0;
+			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
+			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
@@ -600,14 +600,14 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	private boolean openDoors(World world, float trainX, float trainY, float trainZ, float checkYaw, float halfSpacing, float doorValue) {
+	private boolean openDoors(World world, float trainX, float trainY, float trainZ, float checkYaw, float pitch, float halfSpacing, float doorValue) {
 		if (!world.isClient() && !world.isChunkLoaded((int) trainX / 16, (int) trainZ / 16)) {
 			return false;
 		}
 
 		boolean hasPlatform = false;
-		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw);
-		final Vec3d traverseVec = new Vec3d(0, 0, 1).rotateY(checkYaw);
+		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw).rotateX(pitch);
+		final Vec3d traverseVec = new Vec3d(0, 0, 1).rotateY(checkYaw).rotateX(pitch);
 
 		for (int checkX = 1; checkX <= 3; checkX++) {
 			for (int checkY = -1; checkY <= 0; checkY++) {
@@ -656,7 +656,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		if (pathData.dwellTime > 0) {
 			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (index == nextStoppingIndex ? stopCounter : 0), 0);
 
-			if (pathData.savedRailBaseId > 0) {
+			if (pathData.savedRailBaseId != 0) {
 				final float arrivalTicks = currentTicks + timeAndSpeed.getLeft();
 				writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalTicks * 50, (arrivalTicks + stopTicksRemaining) * 50, trainTypeMapping.trainType, pathData.stopIndex - 1, routeIds);
 			}

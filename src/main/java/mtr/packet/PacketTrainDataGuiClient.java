@@ -54,22 +54,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final Rail rail2 = new Rail(packet);
 		final long savedRailId = packet.readLong();
 		minecraftClient.execute(() -> {
-			if (!ClientData.rails.containsKey(pos1)) {
-				ClientData.rails.put(pos1, new HashMap<>());
-			}
-			ClientData.rails.get(pos1).put(pos2, rail1);
-			if (!ClientData.rails.containsKey(pos2)) {
-				ClientData.rails.put(pos2, new HashMap<>());
-			}
-			ClientData.rails.get(pos2).put(pos1, rail2);
-
-			if (rail1.railType == RailType.PLATFORM && rail2.railType == RailType.PLATFORM) {
-				ClientData.platforms.add(new Platform(savedRailId, pos1, pos2));
-			} else if (rail1.railType == RailType.SIDING && rail2.railType == RailType.SIDING) {
-				final Siding siding = new Siding(savedRailId, pos1, pos2, rail1.getLength());
-				ClientData.sidings.add(siding);
-				siding.generateRoute(minecraftClient.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots);
-			}
+			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos1, pos2, rail1, 0);
+			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos2, pos1, rail2, savedRailId);
+			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
 			ClientData.updateReferences();
 		});
 	}

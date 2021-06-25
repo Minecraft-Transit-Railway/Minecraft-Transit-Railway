@@ -183,7 +183,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 		platformsInRoute.add(this);
 
-		final int successfulSegments = PathFinder.findPath(path, rails, platformsInRoute);
+		final int successfulSegments = platformsInRoute.size() == 2 ? 0 : PathFinder.findPath(path, rails, platformsInRoute);
 		if (path.isEmpty()) {
 			final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
 			final BlockPos pos1 = orderedPositions.get(0);
@@ -231,7 +231,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			railProgressSet.add(train.getRailProgress());
 		}
 
-		if (!world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
+		if (world != null && !world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
 			final long trainId = new Random().nextLong();
 			trains.add(new Train(trainId, id, railLength, path, distances));
 		}
