@@ -5,7 +5,6 @@ import mtr.config.CustomResources;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
-import mtr.model.APGDoorModel;
 import mtr.model.PSDTopModel;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -189,14 +188,11 @@ public class MTRClient implements ClientModInitializer, IPacket {
 
 	private static class ModelProvider implements ModelResourceProvider {
 
-		private static final Identifier APG_DOOR_MODEL = new Identifier("mtr:block/apg_door");
 		private static final Identifier PSD_TOP_MODEL = new Identifier("mtr:block/psd_top");
 
 		@Override
 		public UnbakedModel loadModelResource(Identifier identifier, ModelProviderContext modelProviderContext) {
-			if (identifier.equals(APG_DOOR_MODEL)) {
-				return new APGDoorModel();
-			} else if (identifier.equals(PSD_TOP_MODEL)) {
+			if (identifier.equals(PSD_TOP_MODEL)) {
 				return new PSDTopModel();
 			} else {
 				return null;
