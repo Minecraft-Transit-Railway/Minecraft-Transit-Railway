@@ -620,9 +620,17 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 							return true;
 						} else if (block instanceof BlockPSDAPGDoorBase) {
 							for (int i = -1; i <= 1; i++) {
-								final BlockState state = world.getBlockState(checkPos.up(i));
-								if (state.getBlock() instanceof BlockPSDAPGDoorBase) {
-									world.setBlockState(checkPos.up(i), state.with(BlockPSDAPGDoorBase.OPEN, (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE)));
+								final BlockPos doorPos = checkPos.up(i);
+								final BlockState state = world.getBlockState(doorPos);
+								final Block doorBlock = state.getBlock();
+
+								if (doorBlock instanceof BlockPSDAPGDoorBase) {
+									final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
+									world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
+
+									if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(checkPos.up(), doorBlock)) {
+										world.getBlockTickScheduler().schedule(new BlockPos(doorPos), doorBlock, 20);
+									}
 								}
 							}
 						}
