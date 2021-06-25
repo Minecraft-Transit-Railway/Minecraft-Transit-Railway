@@ -65,7 +65,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent TICKET_PROCESSOR_EXIT_CONCESSIONARY = registerSoundEvent("ticket_processor_exit_concessionary");
 	public static final SoundEvent TICKET_PROCESSOR_FAIL = registerSoundEvent("ticket_processor_fail");
 
-	private static final int SP1900_SPEED_COUNT = 120;
+    private static final int SP1900_SPEED_COUNT = 120;
 	private static final int C1141A_SPEED_COUNT = 96;
 	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
 	public static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
@@ -204,6 +204,9 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_barrier_exit_1", Blocks.TICKET_BARRIER_EXIT_1, ItemGroup.DECORATIONS);
 		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
 		registerBlock("ticket_processor", Blocks.TICKET_PROCESSOR, ItemGroup.DECORATIONS);
+		registerBlock("ticket_processor_enter", Blocks.TICKET_PROCESSOR_ENTER, ItemGroup.DECORATIONS);
+		registerBlock("ticket_processor_exit", Blocks.TICKET_PROCESSOR_EXIT, ItemGroup.DECORATIONS);
+		registerBlock("ticket_processor_check", Blocks.TICKET_PROCESSOR_CHECK, ItemGroup.DECORATIONS);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));
