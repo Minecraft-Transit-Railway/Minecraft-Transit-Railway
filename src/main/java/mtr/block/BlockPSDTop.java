@@ -33,7 +33,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
 
 	public BlockPSDTop() {
-		super(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(15).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override

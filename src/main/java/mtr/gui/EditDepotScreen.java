@@ -71,6 +71,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
 		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
+
+		ClientData.updateSidings();
 	}
 
 	@Override
@@ -212,6 +214,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
 		buttonEditInstructions.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
+
+		ClientData.updateSidings();
 	}
 
 	private void onAdded(NameColorDataBase data, int index) {

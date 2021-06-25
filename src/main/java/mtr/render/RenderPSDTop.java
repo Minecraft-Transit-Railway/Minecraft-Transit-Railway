@@ -4,17 +4,18 @@ import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
-import mtr.model.PSDTopModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldAccess;
 
 public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
 
+	private static final float END_FRONT_OFFSET = 1 / (MathHelper.SQUARE_ROOT_OF_TWO * 16);
 	private static final float COLOR_STRIP_START = 0.90625F;
 	private static final float COLOR_STRIP_END = 0.9375F;
 
@@ -74,10 +75,10 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
 		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, light);
 		if (airLeft) {
-			routeRenderer.renderColorStrip(PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - PSDTopModel.END_FRONT_OFFSET, 0.75F + PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - PSDTopModel.END_FRONT_OFFSET, facing, light);
+			routeRenderer.renderColorStrip(END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - END_FRONT_OFFSET, facing, light);
 		}
 		if (airRight) {
-			routeRenderer.renderColorStrip(0.25F - PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - PSDTopModel.END_FRONT_OFFSET, 1 - PSDTopModel.END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - PSDTopModel.END_FRONT_OFFSET, facing, light);
+			routeRenderer.renderColorStrip(0.25F - END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - END_FRONT_OFFSET, 1 - END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - END_FRONT_OFFSET, facing, light);
 		}
 	}
 }
