@@ -1,0 +1,124 @@
+{
+	"variants": {
+		"facing=north,half=lower,lights=none": {
+			"model": "mtr:block/ticket_processor_bottom"
+		},
+		"facing=east,half=lower,lights=none": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 90
+		},
+		"facing=south,half=lower,lights=none": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 180
+		},
+		"facing=west,half=lower,lights=none": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 270
+		},
+		"facing=north,half=lower,lights=red": {
+			"model": "mtr:block/ticket_processor_bottom"
+		},
+		"facing=east,half=lower,lights=red": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 90
+		},
+		"facing=south,half=lower,lights=red": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 180
+		},
+		"facing=west,half=lower,lights=red": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 270
+		},
+		"facing=north,half=lower,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_bottom"
+		},
+		"facing=east,half=lower,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 90
+		},
+		"facing=south,half=lower,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 180
+		},
+		"facing=west,half=lower,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 270
+		},
+		"facing=north,half=lower,lights=green": {
+			"model": "mtr:block/ticket_processor_bottom"
+		},
+		"facing=east,half=lower,lights=green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 90
+		},
+		"facing=south,half=lower,lights=green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 180
+		},
+		"facing=west,half=lower,lights=green": {
+			"model": "mtr:block/ticket_processor_bottom",
+			"y": 270
+		},
+		"facing=north,half=upper,lights=none": {
+			"model": "mtr:block/ticket_processor_top_entrance_none"
+		},
+		"facing=east,half=upper,lights=none": {
+			"model": "mtr:block/ticket_processor_top_entrance_none",
+			"y": 90
+		},
+		"facing=south,half=upper,lights=none": {
+			"model": "mtr:block/ticket_processor_top_entrance_none",
+			"y": 180
+		},
+		"facing=west,half=upper,lights=none": {
+			"model": "mtr:block/ticket_processor_top_entrance_none",
+			"y": 270
+		},
+		"facing=north,half=upper,lights=red": {
+			"model": "mtr:block/ticket_processor_top_entrance_red"
+		},
+		"facing=east,half=upper,lights=red": {
+			"model": "mtr:block/ticket_processor_top_entrance_red",
+			"y": 90
+		},
+		"facing=south,half=upper,lights=red": {
+			"model": "mtr:block/ticket_processor_top_entrance_red",
+			"y": 180
+		},
+		"facing=west,half=upper,lights=red": {
+			"model": "mtr:block/ticket_processor_top_entrance_red",
+			"y": 270
+		},
+		"facing=north,half=upper,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_top_entrance_yellow_green"
+		},
+		"facing=east,half=upper,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_top_entrance_yellow_green",
+			"y": 90
+		},
+		"facing=south,half=upper,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_top_entrance_yellow_green",
+			"y": 180
+		},
+		"facing=west,half=upper,lights=yellow_green": {
+			"model": "mtr:block/ticket_processor_top_entrance_yellow_green",
+			"y": 270
+		},
+		"facing=north,half=upper,lights=green": {
+			"model": "mtr:block/ticket_processor_top_entrance_green"
+		},
+		"facing=east,half=upper,lights=green": {
+			"model": "mtr:block/ticket_processor_top_entrance_green",
+			"y": 90
+		},
+		"facing=south,half=upper,lights=green": {
+			"model": "mtr:block/ticket_processor_top_entrance_green",
+			"y": 180
+		},
+		"facing=west,half=upper,lights=green": {
+			"model": "mtr:block/ticket_processor_top_entrance_green",
+			"y": 270
+		}
+	}
+}

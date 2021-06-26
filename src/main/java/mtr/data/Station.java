@@ -166,6 +166,24 @@ public final class Station extends AreaBase {
 		}
 	}
 
+	public Map<String, List<String>> getGeneratedExits() {
+		final List<String> exitParents = new ArrayList<>(exits.keySet());
+		exitParents.sort(String::compareTo);
+
+		final Map<String, List<String>> generatedExits = new HashMap<>();
+		exitParents.forEach(parent -> {
+			final String exitLetter = parent.substring(0, 1);
+			if (!generatedExits.containsKey(exitLetter)) {
+				generatedExits.put(exitLetter, new ArrayList<>());
+			}
+
+			generatedExits.get(exitLetter).addAll(exits.get(parent));
+			generatedExits.put(parent, exits.get(parent));
+		});
+
+		return generatedExits;
+	}
+
 	private void setExitParent(String oldParent, String newParent) {
 		if (parentExists(oldParent)) {
 			final List<String> existingDestinations = exits.get(oldParent);
@@ -178,5 +196,25 @@ public final class Station extends AreaBase {
 
 	private boolean parentExists(String parent) {
 		return parent != null && exits.containsKey(parent);
+	}
+
+	public static long serializeExit(String exit) {
+		final char[] characters = exit.toCharArray();
+		long code = 0;
+		for (final char character : characters) {
+			code = code << 8;
+			code += character;
+		}
+		return code;
+	}
+
+	public static String deserializeExit(long code) {
+		StringBuilder exit = new StringBuilder();
+		long charCodes = code;
+		while (charCodes > 0) {
+			exit.insert(0, (char) (charCodes & 0xFF));
+			charCodes = charCodes >> 8;
+		}
+		return exit.toString();
 	}
 }

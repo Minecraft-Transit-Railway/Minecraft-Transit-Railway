@@ -57,6 +57,9 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_BARRIER_EXIT_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_MACHINE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENTRANCE, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_EXIT, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENQUIRY, RenderLayer.getCutout());
 
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_1_WOODEN, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 		ModelPredicateRegisterInvoker.invokeRegister(Items.RAIL_CONNECTOR_2_STONE, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
