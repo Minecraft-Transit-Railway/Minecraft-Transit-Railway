@@ -98,5 +98,8 @@ public interface Blocks {
 	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
 	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);
 	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
-	Block TICKET_PROCESSOR = new BlockTicketProcessor(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
+	Block TICKET_PROCESSOR = new BlockTicketProcessor(true, true, true);
+	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
+	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
+	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
 }
