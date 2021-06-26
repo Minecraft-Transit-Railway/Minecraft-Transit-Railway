@@ -31,7 +31,6 @@ public class RouteRenderer implements IGui {
 	private final boolean glowing;
 
 	private static final int PASSED_STATION_COLOR = 0xFF999999;
-	private static final int HEIGHT_TO_SCALE = 27;
 	private static final int STATION_CIRCLE_SIZE = 16;
 	private static final int STATION_TEXT_PADDING = 14;
 	private static final int STATION_NAME_BACKGROUND_PADDING = 3;
@@ -194,7 +193,7 @@ public class RouteRenderer implements IGui {
 
 			matrices.push();
 			matrices.translate(0, 0, -SMALL_OFFSET);
-			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, centerX, top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
+			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, centerX, top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, RenderRailwaySign.HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
 			matrices.pop();
 		} else {
 			final HorizontalAlignment horizontalAlignment1 = leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
@@ -211,7 +210,7 @@ public class RouteRenderer implements IGui {
 
 			final int textColor = vertical ? ARGB_WHITE : ARGB_BLACK;
 			final float maxDestinationWidth = right - left - (arrowSize + arrowPadding) * (1 + (hasLeft && visibleArrow ? 1 : 0) + (hasRight && visibleArrow ? 1 : 0));
-			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, HEIGHT_TO_SCALE / arrowSize, textColor, false, newLight, ((x1, y1, x2, y2) -> {
+			IDrawing.drawStringWithFont(matrices, textRenderer, immediate, destinationString, horizontalAlignment1, VerticalAlignment.CENTER, horizontalAlignment2, textX, (top + bottom) / 2, maxDestinationWidth, arrowSize + arrowPadding, RenderRailwaySign.HEIGHT_TO_SCALE / arrowSize, textColor, false, newLight, ((x1, y1, x2, y2) -> {
 				final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/arrow.png", newLight));
 				if (hasLeft && visibleArrow) {
 					IDrawing.drawTexture(matrices, vertexConsumerArrow, x1 - arrowSize * 2 - arrowPadding * 2, top, arrowSize, arrowSize, 0, 0, 1, 1, facing, textColor, newLight);
@@ -229,7 +228,7 @@ public class RouteRenderer implements IGui {
 
 				matrices.push();
 				matrices.translate(0, 0, -SMALL_OFFSET);
-				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, platformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, (circleX + arrowSize / 2), top + arrowSize * PLATFORM_NUMBER_OFFSET_TOP, RenderRailwaySign.HEIGHT_TO_SCALE / arrowSize / 2.2F, ARGB_WHITE, false, newLight, null);
 				matrices.pop();
 			}));
 		}
