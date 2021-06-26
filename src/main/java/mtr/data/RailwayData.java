@@ -185,6 +185,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		}
 	}
 
+	// TODO split over multiple ticks for performance
 	public void updateSidings() {
 		sidings.forEach(siding -> {
 			siding.generateRoute(world, rails, platforms, routes, depots);
