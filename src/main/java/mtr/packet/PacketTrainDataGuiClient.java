@@ -148,15 +148,22 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void receiveUpdateOrDeleteDepot(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
 		if (isDelete) {
-			deleteData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
+			deleteData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> {
+				ClientData.updateReferences();
+				ClientData.updateSidings();
+			});
 		} else {
-			updateData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), Depot::new);
+			updateData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> {
+				ClientData.updateReferences();
+				ClientData.updateSidings();
+			}, Depot::new);
 		}
 	}
 
 	public static void sendUpdate(Identifier packetId, PacketByteBuf packet) {
 		ClientPlayNetworking.send(packetId, packet);
 		ClientData.updateReferences();
+		ClientData.updateSidings();
 	}
 
 	public static void sendDeleteData(Identifier packetId, long id) {
