@@ -195,6 +195,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_ROUTE, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			});
 		} else {
@@ -204,6 +205,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_ROUTE, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			}, Route::new);
 		}
@@ -223,6 +225,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_DEPOT, fullPacket);
 					}
 				});
+				railwayData.updateSidings();
 				railwayData.markDirty();
 			});
 		} else {
