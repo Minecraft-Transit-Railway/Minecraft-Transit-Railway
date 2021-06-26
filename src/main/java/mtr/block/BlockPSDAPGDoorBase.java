@@ -58,7 +58,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 	@Override
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		world.setBlockState(pos, state.with(OPEN, 0));
-		System.out.println("tick");
 	}
 
 	@Override

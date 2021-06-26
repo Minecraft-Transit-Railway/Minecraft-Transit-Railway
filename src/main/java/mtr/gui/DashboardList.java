@@ -232,9 +232,13 @@ public class DashboardList implements IGui {
 		textFieldSearch.setText("");
 		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
-		final int index = sortedKeys.get(hoverIndex + itemsToShow() * page);
-		if (index >= 0 && index < dataSorted.size()) {
-			onClick.onClick(dataSorted.get(index), index);
+
+		final int sortedIndex = hoverIndex + itemsToShow() * page;
+		if (sortedIndex >= 0 && sortedIndex < sortedKeys.size()) {
+			final int index = sortedKeys.get(sortedIndex);
+			if (index >= 0 && index < dataSorted.size()) {
+				onClick.onClick(dataSorted.get(index), index);
+			}
 		}
 	}
 

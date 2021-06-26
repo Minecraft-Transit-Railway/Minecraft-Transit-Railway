@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class RailwaySignScreen extends Screen implements IGui {
 
 	private int editingIndex;
+	private boolean isSelectingExitLetter;
 	private boolean isSelectingPlatform;
 	private boolean isSelectingRoute;
 
@@ -31,8 +32,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final int length;
 	private final String[] signIds;
 	private final Set<Long> selectedIds;
+	private final List<Long> exitIds;
 	private final List<Long> platformIds;
 	private final List<Integer> routeColors;
+	private final List<NameColorDataBase> exitsForList;
 	private final List<NameColorDataBase> platformsForList;
 	private final List<NameColorDataBase> routesForList;
 	private final List<Integer> availableIndices;
@@ -64,6 +67,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		selectedData = new ArrayList<>();
 		final ClientWorld world = MinecraftClient.getInstance().world;
 
+		exitsForList = new ArrayList<>();
+		exitIds = new ArrayList<>();
 		platformsForList = new ArrayList<>();
 		platformIds = new ArrayList<>();
 		routesForList = new ArrayList<>();
@@ -79,6 +84,15 @@ public class RailwaySignScreen extends Screen implements IGui {
 		try {
 			final Station station = ClientData.getStation(signPos);
 			if (station != null) {
+				final Map<String, List<String>> exits = station.getGeneratedExits();
+				final List<String> exitParents = new ArrayList<>(exits.keySet());
+				exitParents.sort(String::compareTo);
+				exitParents.forEach(exitParent -> {
+					exitIds.add(Station.serializeExit(exitParent));
+					final List<String> destinations = exits.get(exitParent);
+					exitsForList.add(new DataConverter(exitParent + " " + (destinations.size() > 0 ? destinations.get(0) : ""), 0));
+				});
+
 				final List<Platform> platforms = new ArrayList<>(ClientData.platformsInStation.get(station.id).values());
 				Collections.sort(platforms);
 				platforms.stream().map(platform -> platform.id).forEach(platformIds::add);
@@ -133,7 +147,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		}
 
 		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
-		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false));
+		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false, false));
 
 		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
 		selectedList = new DashboardList(this::addButton, this::addChild, null, null, null, null, null, this::onDelete, null);
@@ -142,7 +156,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	@Override
 	protected void init() {
 		super.init();
-		setIsSelecting(!isRailwaySign, false);
+		setIsSelecting(false, !isRailwaySign, false);
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
@@ -196,7 +210,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		try {
 			renderBackground(matrices);
 
-			if (isSelectingPlatform || isSelectingRoute) {
+			if (isSelectingExitLetter || isSelectingPlatform || isSelectingRoute) {
 				availableList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				selectedList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
@@ -296,9 +310,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private void setNewSignId(String newSignId) {
 		if (editingIndex >= 0 && editingIndex < signIds.length) {
+			final boolean isExitLetter = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString()));
 			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
 			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
-			setIsSelecting(isPlatform, isLine);
+			setIsSelecting(isExitLetter, isPlatform, isLine);
 			final CustomResources.CustomSign newSign = RenderRailwaySign.getSign(newSignId);
 
 			if (newSign != null && newSign.hasCustomText()) {
@@ -324,10 +339,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 		}
 	}
 
-	private void setIsSelecting(boolean isSelectingPlatform, boolean isSelectingRoute) {
+	private void setIsSelecting(boolean isSelectingExitLetter, boolean isSelectingPlatform, boolean isSelectingRoute) {
+		this.isSelectingExitLetter = isSelectingExitLetter;
 		this.isSelectingPlatform = isSelectingPlatform;
 		this.isSelectingRoute = isSelectingRoute;
-		final boolean isSelecting = isSelectingPlatform || isSelectingRoute;
+		final boolean isSelecting = isSelectingExitLetter || isSelectingPlatform || isSelectingRoute;
 		for (final ButtonWidget button : buttonsEdit) {
 			button.visible = !isSelecting;
 		}
@@ -346,8 +362,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		selectedIndices.clear();
 		availableData.clear();
 		selectedData.clear();
-		final List<NameColorDataBase> initialData = isSelectingPlatform ? platformsForList : routesForList;
-		final List<? extends Number> idList = isSelectingPlatform ? platformIds : routeColors;
+		final List<NameColorDataBase> initialData = isSelectingExitLetter ? exitsForList : isSelectingPlatform ? platformsForList : routesForList;
+		final List<? extends Number> idList = isSelectingExitLetter ? exitIds : isSelectingPlatform ? platformIds : routeColors;
 
 		for (int i = 0; i < initialData.size(); i++) {
 			if (selectedIds.contains(idList.get(i).longValue())) {
@@ -369,7 +385,9 @@ public class RailwaySignScreen extends Screen implements IGui {
 			if (!isRailwaySign) {
 				selectedIds.clear();
 			}
-			if (isSelectingPlatform) {
+			if (isSelectingExitLetter) {
+				selectedIds.add(exitIds.get(finalIndex));
+			} else if (isSelectingPlatform) {
 				selectedIds.add(platformIds.get(finalIndex));
 			} else if (isSelectingRoute) {
 				selectedIds.add((long) routeColors.get(finalIndex));
@@ -382,7 +400,9 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private void onDelete(NameColorDataBase data, int index) {
 		final int finalIndex = selectedIndices.get(selectedData.indexOf(data));
-		if (isSelectingPlatform) {
+		if (isSelectingExitLetter) {
+			selectedIds.remove(exitIds.get(finalIndex));
+		} else if (isSelectingPlatform) {
 			selectedIds.remove(platformIds.get(finalIndex));
 		} else if (isSelectingRoute) {
 			selectedIds.remove((long) routeColors.get(finalIndex));
