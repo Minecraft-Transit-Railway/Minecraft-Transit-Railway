@@ -16,18 +16,18 @@
 			"y": 270
 		},
 		"facing=north,half=upper": {
-			"model": "mtr:block/ticket_processor_top_check"
+			"model": "mtr:block/ticket_processor_top_enquiry"
 		},
 		"facing=east,half=upper": {
-			"model": "mtr:block/ticket_processor_top_check",
+			"model": "mtr:block/ticket_processor_top_enquiry",
 			"y": 90
 		},
 		"facing=south,half=upper": {
-			"model": "mtr:block/ticket_processor_top_check",
+			"model": "mtr:block/ticket_processor_top_enquiry",
 			"y": 180
 		},
 		"facing=west,half=upper": {
-			"model": "mtr:block/ticket_processor_top_check",
+			"model": "mtr:block/ticket_processor_top_enquiry",
 			"y": 270
 		}
 	}

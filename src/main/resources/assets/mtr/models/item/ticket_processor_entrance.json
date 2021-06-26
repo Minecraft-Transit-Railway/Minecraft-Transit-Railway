@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "mtr:item/ticket_processor_check"
+		"layer0": "mtr:item/ticket_processor_entrance"
 	}
 }

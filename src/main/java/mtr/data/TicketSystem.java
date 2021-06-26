@@ -18,11 +18,9 @@ public class TicketSystem {
 	private static final int BASE_FARE = 2;
 	private static final int ZONE_FARE = 1;
 	private static final int EVASION_FINE = 500;
-	private static boolean remindIfNoRecord;
 
-	public static EnumTicketBarrierOpen passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, SoundEvent failSound, boolean remindNoRecord) {
+	public static EnumTicketBarrierOpen passThrough(World world, BlockPos pos, PlayerEntity player, boolean isEntrance, boolean isExit, SoundEvent entrySound, SoundEvent entrySoundConcessionary, SoundEvent exitSound, SoundEvent exitSoundConcessionary, SoundEvent failSound, boolean remindIfNoRecord) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
-		remindIfNoRecord = remindNoRecord;
 		if (railwayData == null) {
 			return EnumTicketBarrierOpen.CLOSED;
 		}
@@ -46,9 +44,9 @@ public class TicketSystem {
 
 		final boolean canOpen;
 		if (isEntering) {
-			canOpen = onEnter(station, player, balanceScore, entryZoneScore);
+			canOpen = onEnter(station, player, balanceScore, entryZoneScore, remindIfNoRecord);
 		} else {
-			canOpen = onExit(station, player, balanceScore, entryZoneScore);
+			canOpen = onExit(station, player, balanceScore, entryZoneScore, remindIfNoRecord);
 		}
 
 		if (canOpen) {
@@ -75,16 +73,16 @@ public class TicketSystem {
 		return world.getScoreboard().getPlayerScore(player.getGameProfile().getName(), world.getScoreboard().getObjective(objectiveName));
 	}
 
-	private static boolean onEnter(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore) {
+	private static boolean onEnter(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore, boolean remindIfNoRecord) {
 		final int entryZone = entryZoneScore.getScore();
 
 		if (entryZone != 0) {
-			if(!remindIfNoRecord) {
-				entryZoneScore.setScore(0);
-				balanceScore.incrementScore(-EVASION_FINE);
-			} else {
+			if (remindIfNoRecord) {
 				player.sendMessage(new TranslatableText("gui.mtr.already_entered"), true);
 				return false;
+			} else {
+				entryZoneScore.setScore(0);
+				balanceScore.incrementScore(-EVASION_FINE);
 			}
 		}
 
@@ -98,18 +96,17 @@ public class TicketSystem {
 		}
 	}
 
-	private static boolean onExit(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore) {
+	private static boolean onExit(Station station, PlayerEntity player, ScoreboardPlayerScore balanceScore, ScoreboardPlayerScore entryZoneScore, boolean remindIfNoRecord) {
 		final int entryZone = entryZoneScore.getScore();
 		final int fare = BASE_FARE + ZONE_FARE * Math.abs(station.zone - decodeZone(entryZone));
 		final int finalFare = entryZone != 0 ? isConcessionary(player) ? (int) Math.ceil(fare / 2F) : fare : EVASION_FINE;
 
-		if(entryZone == 0 && remindIfNoRecord) {
+		if (entryZone == 0 && remindIfNoRecord) {
 			player.sendMessage(new TranslatableText("gui.mtr.already_exited"), true);
 			return false;
 		} else {
 			entryZoneScore.setScore(0);
 			balanceScore.incrementScore(-finalFare);
-
 			player.sendMessage(new TranslatableText("gui.mtr.exit_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), finalFare, balanceScore.getScore()), true);
 			return true;
 		}

@@ -13,20 +13,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 
-public class BlockTicketProcessorCheck extends BlockTicketProcessorBase {
+public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 
-	public static final String BALANCE_OBJECTIVE = "mtr_balance";
-
-	public BlockTicketProcessorCheck(boolean haveLight) {
-		super(haveLight);
+	public BlockTicketProcessorEnquiry() {
+		super(false, false, false);
 	}
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		int playerScore = TicketSystem.getPlayerScore(world, player, BALANCE_OBJECTIVE).getScore();
-
-		player.sendMessage(new TranslatableText("gui.mtr.balance", String.valueOf(playerScore)), true);
-		world.playSound(null, pos, MTR.TICKET_PROCESSOR_ENTRY, SoundCategory.BLOCKS, 1, 1);
+		if (!world.isClient) {
+			final int playerScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore();
+			player.sendMessage(new TranslatableText("gui.mtr.balance", String.valueOf(playerScore)), true);
+			world.playSound(null, pos, MTR.TICKET_PROCESSOR_ENTRY, SoundCategory.BLOCKS, 1, 1);
+		}
 		return ActionResult.SUCCESS;
 	}
 }

@@ -97,9 +97,9 @@ public interface Blocks {
 	Block STATION_POLE = new BlockStationPole(FabricBlockSettings.of(Material.STONE, MapColor.STONE_GRAY).requiresTool().hardness(2).nonOpaque());
 	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
 	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);
-	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
-	Block TICKET_PROCESSOR = new BlockTicketProcessor(true, true, true, true);
-	Block TICKET_PROCESSOR_ENTER = new BlockTicketProcessorEnter(true, false, true, true);
-	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessorExit(false, true, true, true);
-	Block TICKET_PROCESSOR_CHECK = new BlockTicketProcessorCheck(false);
+	Block TICKET_MACHINE = new BlockTicketMachine(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
+	Block TICKET_PROCESSOR = new BlockTicketProcessor(true, true, true);
+	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
+	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
+	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
 }
