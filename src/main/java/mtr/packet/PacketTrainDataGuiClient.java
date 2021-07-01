@@ -60,7 +60,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos1, pos2, rail1, 0);
 			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos2, pos1, rail2, savedRailId);
 			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
-			ClientData.updateReferences();
 		});
 	}
 
@@ -69,7 +68,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			RailwayData.removeNode(null, ClientData.rails, pos);
 			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
-			ClientData.updateReferences();
 		});
 	}
 
@@ -79,7 +77,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2);
 			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
-			ClientData.updateReferences();
 		});
 	}
 
@@ -118,10 +115,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
-			ClientData.updateReferences();
-			ClientData.updateSidings();
-		};
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.updateSidings();
 		if (isDelete) {
 			deleteData(dataSet, minecraftClient, packet, packetCallback);
 		} else {
@@ -131,7 +125,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void sendUpdate(Identifier packetId, PacketByteBuf packet) {
 		ClientPlayNetworking.send(packetId, packet);
-		ClientData.updateReferences();
 		ClientData.updateSidings();
 	}
 

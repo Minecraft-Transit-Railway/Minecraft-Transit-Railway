@@ -56,6 +56,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
+	private static final int DOOR_MAX_DISTANCE = 32;
 
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
@@ -598,7 +599,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private boolean openDoors(World world, float trainX, float trainY, float trainZ, float checkYaw, float pitch, float halfSpacing, float doorValue) {
-		if (!world.isClient() && !world.isChunkLoaded((int) trainX / 16, (int) trainZ / 16)) {
+		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, DOOR_MAX_DISTANCE, entity -> true) == null) {
 			return false;
 		}
 
