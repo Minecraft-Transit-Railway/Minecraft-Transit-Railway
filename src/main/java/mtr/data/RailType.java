@@ -11,17 +11,18 @@ public enum RailType implements IGui {
 	DIAMOND(300, MapColor.DIAMOND_BLUE, false),
 	PLATFORM(80, MapColor.RED, true),
 	SIDING(40, MapColor.YELLOW, true),
-	TURN_BACK(80, MapColor.BLUE, false);
+	TURN_BACK(80, MapColor.BLUE, false),
+	NONE(20, MapColor.BLACK, false);
 
 	public final int speedLimit;
 	public final float maxBlocksPerTick;
 	public final int color;
 	public final boolean hasSavedRail;
 
-	RailType(int speedLimit, MapColor materialColor, boolean hasSavedRail) {
+	RailType(int speedLimit, MapColor mapColor, boolean hasSavedRail) {
 		this.speedLimit = speedLimit;
 		maxBlocksPerTick = speedLimit / 3.6F / 20;
-		color = materialColor.color + ARGB_BLACK_TRANSLUCENT;
+		color = mapColor.color + ARGB_BLACK_TRANSLUCENT;
 		this.hasSavedRail = hasSavedRail;
 	}
 }

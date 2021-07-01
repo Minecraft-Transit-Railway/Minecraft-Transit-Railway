@@ -188,7 +188,6 @@ public class RenderTrains implements IGui {
 			}
 		}), ClientData::updateSidings));
 
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
 		final int maxRailDistance = client.options.viewDistance * 16;
@@ -202,13 +201,23 @@ public class RenderTrains implements IGui {
 					return;
 				}
 
-				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
 				final BlockPos pos2 = new BlockPos(x1, y1, z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
-				final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
 
-				IDrawing.drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-				IDrawing.drawTexture(matrices, vertexConsumer, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				if (rail.railType == RailType.NONE) {
+					if (renderColors) {
+						final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
+						IDrawing.drawTexture(matrices, vertexConsumerArrow, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+						IDrawing.drawTexture(matrices, vertexConsumerArrow, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+					}
+				} else {
+					final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
+					final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
+
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
+					IDrawing.drawTexture(matrices, vertexConsumer, x1, y1, z1, x2, y1 + SMALL_OFFSET, z2, x3, y2, z3, x4, y2 + SMALL_OFFSET, z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+					IDrawing.drawTexture(matrices, vertexConsumer, x4, y2 + SMALL_OFFSET, z4, x3, y2, z3, x2, y1 + SMALL_OFFSET, z2, x1, y1, z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				}
 			});
 		}));
 	}

@@ -28,13 +28,22 @@ import java.util.List;
 public class ItemRailModifier extends Item {
 
 	private final boolean isConnector;
+	private final boolean isOneWay;
 	private final RailType railType;
 
 	public static final String TAG_POS = "pos";
 
-	public ItemRailModifier(boolean isConnector, RailType railType) {
+	public ItemRailModifier() {
 		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
-		this.isConnector = isConnector;
+		isConnector = false;
+		isOneWay = false;
+		railType = null;
+	}
+
+	public ItemRailModifier(boolean isOneWay, RailType railType) {
+		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
+		isConnector = true;
+		this.isOneWay = isOneWay;
 		this.railType = railType;
 	}
 
@@ -67,7 +76,7 @@ public class ItemRailModifier extends Item {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 									}
 								} else {
-									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, railType);
+									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
 									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
 									railwayData.addRail(posStart, posEnd, rail1, false);
 									final long newId = railwayData.addRail(posEnd, posStart, rail2, true);

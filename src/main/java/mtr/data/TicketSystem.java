@@ -25,7 +25,7 @@ public class TicketSystem {
 			return EnumTicketBarrierOpen.CLOSED;
 		}
 
-		final Station station = railwayData.getStations().stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
+		final Station station = railwayData.stations.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		if (station == null) {
 			return EnumTicketBarrierOpen.CLOSED;
 		}

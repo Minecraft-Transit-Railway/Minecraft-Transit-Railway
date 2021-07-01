@@ -14,10 +14,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
@@ -88,156 +90,36 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		sendChunk(player, tempPacketId, 0);
 	}
 
-	public static void receiveUpdateOrDeleteStation(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
-
-		if (isDelete) {
-			deleteData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_STATION, fullPacket);
-					}
-				});
-				railwayData.markDirty();
-			});
-		} else {
-			updateData(railwayData.getStations(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_STATION, fullPacket);
-					}
-				});
-				railwayData.markDirty();
-			}, Station::new);
-		}
-
-		try {
-			UpdateBlueMap.updateBlueMap(player.world);
-		} catch (NoClassDefFoundError ignored) {
-			System.out.println("BlueMap is not loaded");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void receiveUpdateOrDeletePlatform(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
-
-		if (isDelete) {
-			deleteData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_PLATFORM, fullPacket);
-					}
-				});
-				railwayData.markDirty();
-			});
-		} else {
-			updateData(railwayData.getPlatforms(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_PLATFORM, fullPacket);
-					}
-				});
-				railwayData.markDirty();
-			}, null);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteSiding(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
-
-		if (isDelete) {
-			deleteData(railwayData.getSidings(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_SIDING, fullPacket);
-					}
-				});
-				railwayData.markDirty();
-			});
-		} else {
-			updateData(railwayData.getSidings(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_SIDING, fullPacket);
-					}
-				});
-				railwayData.updateSidings();
-				railwayData.markDirty();
-			}, null);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteRoute(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, Identifier packetId, Function<RailwayData, Set<T>> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
 			return;
 		}
 
-		if (isDelete) {
-			deleteData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_ROUTE, fullPacket);
-					}
-				});
-				railwayData.updateSidings();
-				railwayData.markDirty();
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+			world.getPlayers().forEach(worldPlayer -> {
+				if (!worldPlayer.getUuid().equals(player.getUuid())) {
+					ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, packetId, fullPacket);
+				}
 			});
-		} else {
-			updateData(railwayData.getRoutes(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_ROUTE, fullPacket);
-					}
-				});
-				railwayData.updateSidings();
-				railwayData.markDirty();
-			}, Route::new);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteDepot(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, boolean isDelete) {
-		final World world = player.world;
-		final RailwayData railwayData = RailwayData.getInstance(player.world);
-		if (railwayData == null) {
-			return;
-		}
+			railwayData.updateSidings();
+		};
 
 		if (isDelete) {
-			deleteData(railwayData.getDepots(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_DELETE_DEPOT, fullPacket);
-					}
-				});
-				railwayData.updateSidings();
-				railwayData.markDirty();
-			});
+			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);
 		} else {
-			updateData(railwayData.getDepots(), minecraftServer, packet, (updatePacket, fullPacket) -> {
-				world.getPlayers().forEach(worldPlayer -> {
-					if (!worldPlayer.getUuid().equals(player.getUuid())) {
-						ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_UPDATE_DEPOT, fullPacket);
-					}
-				});
-				railwayData.updateSidings();
-				railwayData.markDirty();
-			}, Depot::new);
+			updateData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
+		}
+
+		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION)) {
+			try {
+				UpdateBlueMap.updateBlueMap(world);
+			} catch (NoClassDefFoundError ignored) {
+				System.out.println("BlueMap is not loaded");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

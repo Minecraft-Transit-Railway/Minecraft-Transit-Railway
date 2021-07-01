@@ -1,7 +1,9 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
-import mtr.data.*;
+import mtr.data.NameColorDataBase;
+import mtr.data.Rail;
+import mtr.data.RailwayData;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
@@ -16,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
@@ -114,49 +117,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static void receiveUpdateOrDeleteStation(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+			ClientData.updateReferences();
+			ClientData.updateSidings();
+		};
 		if (isDelete) {
-			deleteData(ClientData.stations, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
+			deleteData(dataSet, minecraftClient, packet, packetCallback);
 		} else {
-			updateData(ClientData.stations, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), Station::new);
-		}
-	}
-
-	public static void receiveUpdateOrDeletePlatform(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
-		if (isDelete) {
-			deleteData(ClientData.platforms, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
-		} else {
-			updateData(ClientData.platforms, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), null);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteSiding(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
-		if (isDelete) {
-			deleteData(ClientData.sidings, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
-		} else {
-			updateData(ClientData.sidings, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), null);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteRoute(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
-		if (isDelete) {
-			deleteData(ClientData.routes, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences());
-		} else {
-			updateData(ClientData.routes, minecraftClient, packet, (updatePacket, fullPacket) -> ClientData.updateReferences(), Route::new);
-		}
-	}
-
-	public static void receiveUpdateOrDeleteDepot(MinecraftClient minecraftClient, PacketByteBuf packet, boolean isDelete) {
-		if (isDelete) {
-			deleteData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> {
-				ClientData.updateReferences();
-				ClientData.updateSidings();
-			});
-		} else {
-			updateData(ClientData.depots, minecraftClient, packet, (updatePacket, fullPacket) -> {
-				ClientData.updateReferences();
-				ClientData.updateSidings();
-			}, Depot::new);
+			updateData(dataSet, minecraftClient, packet, packetCallback, createDataWithId);
 		}
 	}
 

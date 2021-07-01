@@ -105,7 +105,7 @@ public class PathFinder {
 		if (newConnections != null) {
 			final boolean canTurnBack = oldRail.railType == RailType.TURN_BACK && !turnBacks.contains(newPos);
 			newConnections.forEach((connectedPos, rail) -> {
-				if (canTurnBack || rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
+				if (canTurnBack || rail.railType != RailType.NONE && rail.facingStart != newDirection.getOpposite() && path.stream().noneMatch(pathPart -> pathPart.isSame(newPos, newDirection))) {
 					otherOptions.add(connectedPos);
 					if (canTurnBack) {
 						turnBacks.add(newPos);

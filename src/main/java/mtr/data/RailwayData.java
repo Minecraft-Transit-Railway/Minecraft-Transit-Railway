@@ -28,12 +28,12 @@ public class RailwayData extends PersistentState implements IPacket {
 	private static final String KEY_DEPOTS = "depots";
 	private static final String KEY_RAILS = "rails";
 
+	public final Set<Station> stations;
+	public final Set<Platform> platforms;
+	public final Set<Siding> sidings;
+	public final Set<Route> routes;
+	public final Set<Depot> depots;
 	private final World world;
-	private final Set<Station> stations;
-	private final Set<Platform> platforms;
-	private final Set<Siding> sidings;
-	private final Set<Route> routes;
-	private final Set<Depot> depots;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 
 	private final List<Set<Rail>> trainPositions = new ArrayList<>(2);
@@ -100,7 +100,6 @@ public class RailwayData extends PersistentState implements IPacket {
 				validateData(rails, platforms, sidings, routes);
 			}
 			updateSidings();
-			markDirty();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -131,26 +130,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		}
 
 		return nbtCompound;
-	}
-
-	public Set<Station> getStations() {
-		return stations;
-	}
-
-	public Set<Platform> getPlatforms() {
-		return platforms;
-	}
-
-	public Set<Siding> getSidings() {
-		return sidings;
-	}
-
-	public Set<Route> getRoutes() {
-		return routes;
-	}
-
-	public Set<Depot> getDepots() {
-		return depots;
 	}
 
 	public void simulateTrains() {
@@ -191,6 +170,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			siding.generateRoute(world, rails, platforms, routes, depots);
 			siding.writeTrainPositions(trainPositions.get(1), rails);
 		});
+		markDirty();
 	}
 
 	// writing data
@@ -204,7 +184,6 @@ public class RailwayData extends PersistentState implements IPacket {
 				validateData(rails, platforms, sidings, routes);
 			}
 			updateSidings();
-			markDirty();
 		}
 
 		return newId;
@@ -216,7 +195,6 @@ public class RailwayData extends PersistentState implements IPacket {
 			validateData(rails, platforms, sidings, routes);
 		}
 		updateSidings();
-		markDirty();
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
@@ -225,7 +203,6 @@ public class RailwayData extends PersistentState implements IPacket {
 			validateData(rails, platforms, sidings, routes);
 		}
 		updateSidings();
-		markDirty();
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
