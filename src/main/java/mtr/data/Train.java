@@ -236,8 +236,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 					ridingEntities.forEach(uuid -> {
 						final PlayerEntity player = world.getPlayerByUuid(uuid);
 						if (player != null) {
-							player.fallDistance = 0;
-							((PlayerTeleportationStateAccessor) player).setInTeleportationState(false);
+							updatePlayerRiding(player, false);
 						}
 					});
 					ridingEntities.clear();
@@ -447,8 +446,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 						if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 							ridingEntities.add(player.getUuid());
-							player.fallDistance = 0;
-							((PlayerTeleportationStateAccessor) player).setInTeleportationState(true);
+							updatePlayerRiding(player, true);
 							syncTrainToClient(world, player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 						}
 					});
@@ -460,8 +458,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 					if (player != null) {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 						if (player.isSpectator() || player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
-							player.fallDistance = 0;
-							((PlayerTeleportationStateAccessor) player).setInTeleportationState(false);
+							updatePlayerRiding(player, false);
 							entitiesToRemove.add(uuid);
 						}
 					}
@@ -715,6 +712,13 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				}
 			}
 		}
+	}
+
+	private static void updatePlayerRiding(PlayerEntity player, boolean isRiding) {
+		player.fallDistance = 0;
+		player.setNoGravity(isRiding);
+		player.noClip = isRiding;
+		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 
 	@FunctionalInterface
