@@ -49,7 +49,7 @@
 	"block.mtr.station_pole": "Poste de Estación",
 	"block.mtr.ticket_barrier_entrance_1": "Barrera de Tickets (Entrada)",
 	"block.mtr.ticket_barrier_exit_1": "Barrera de Tickets (Salida)",
-	"block.mtr.ticket_machine": "Ticket Machine",
+	"block.mtr.ticket_machine": "Máquina de ticket",
 	"block.mtr.ticket_processor": "Ticket Processor",
 	"gui.mtr.add_balance_for_emeralds": "Add $%s for %s emerald(s)",
 	"gui.mtr.add_route": "Add Route",
