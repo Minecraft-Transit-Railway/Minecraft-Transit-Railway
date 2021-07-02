@@ -97,14 +97,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			return;
 		}
 
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
-			world.getPlayers().forEach(worldPlayer -> {
-				if (!worldPlayer.getUuid().equals(player.getUuid())) {
-					ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, packetId, fullPacket);
-				}
-			});
-			railwayData.updateSidings();
-		};
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> world.getPlayers().forEach(worldPlayer -> {
+			if (!worldPlayer.getUuid().equals(player.getUuid())) {
+				ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, packetId, fullPacket);
+			}
+		});
 
 		if (isDelete) {
 			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);

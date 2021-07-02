@@ -2,7 +2,9 @@ package mtr.gui;
 
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
@@ -32,6 +34,7 @@ public final class ClientData {
 	public static Map<Long, Integer> successfulSegmentsForSiding = new HashMap<>();
 
 	private static long lastUpdatedIndex;
+	private static final List<Siding> sidingsToGenerate = new ArrayList<>();
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
@@ -53,12 +56,19 @@ public final class ClientData {
 			rails.put(startPos, railMap);
 		}
 
-		updateSidings();
+		sidingsToGenerate.clear();
+		RailwayData.generateRoutes(MinecraftClient.getInstance().world, rails, platforms, sidings, routes, depots, sidingsToGenerate, -1, (siding, result) -> successfulSegmentsForSiding.put(siding.id, result));
+
+		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		if (player != null) {
+			player.sendMessage(new TranslatableText("gui.mtr.railway_loading_complete"), true);
+		}
 	}
 
 	public static void updateReferences() {
 		final int index = (int) (System.currentTimeMillis() / 1000) % 3;
 		if (lastUpdatedIndex == index) {
+			RailwayData.generateRoutes(MinecraftClient.getInstance().world, rails, platforms, sidings, routes, depots, sidingsToGenerate, 10, (siding, result) -> successfulSegmentsForSiding.put(siding.id, result));
 			return;
 		}
 
@@ -122,10 +132,6 @@ public final class ClientData {
 			e.printStackTrace();
 			return null;
 		}
-	}
-
-	public static void updateSidings() {
-		sidings.forEach(siding -> successfulSegmentsForSiding.put(siding.id, siding.generateRoute(MinecraftClient.getInstance().world, rails, platforms, routes, depots)));
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {

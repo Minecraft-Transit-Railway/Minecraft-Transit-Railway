@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -107,7 +108,12 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packetResponse.writeInt(chunk + 1);
 
 			try {
-				minecraftClient.execute(() -> ClientPlayNetworking.send(PACKET_CHUNK_S2C, packetResponse));
+				minecraftClient.execute(() -> {
+					ClientPlayNetworking.send(PACKET_CHUNK_S2C, packetResponse);
+					if (minecraftClient.player != null) {
+						minecraftClient.player.sendMessage(new TranslatableText("gui.mtr.railway_loading"), true);
+					}
+				});
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -115,17 +121,17 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.updateSidings();
 		if (isDelete) {
-			deleteData(dataSet, minecraftClient, packet, packetCallback);
+			deleteData(dataSet, minecraftClient, packet, (updatePacket, fullPacket) -> {
+			});
 		} else {
-			updateData(dataSet, minecraftClient, packet, packetCallback, createDataWithId);
+			updateData(dataSet, minecraftClient, packet, (updatePacket, fullPacket) -> {
+			}, createDataWithId);
 		}
 	}
 
 	public static void sendUpdate(Identifier packetId, PacketByteBuf packet) {
 		ClientPlayNetworking.send(packetId, packet);
-		ClientData.updateSidings();
 	}
 
 	public static void sendDeleteData(Identifier packetId, long id) {

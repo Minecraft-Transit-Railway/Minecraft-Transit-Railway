@@ -78,7 +78,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null) {
+				if (station == null || !ClientData.platformsInStation.containsKey(station.id)) {
 					return;
 				}
 

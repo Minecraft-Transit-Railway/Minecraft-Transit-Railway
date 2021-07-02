@@ -71,8 +71,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
 		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
-
-		ClientData.updateSidings();
 	}
 
 	@Override
@@ -214,8 +212,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
 		buttonEditInstructions.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
-
-		ClientData.updateSidings();
 	}
 
 	private void onAdded(NameColorDataBase data, int index) {
@@ -235,9 +231,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private Text getSuccessfulSegmentsText() {
 		final int successfulSegments = sidingsInDepot.keySet().stream().map(sidingId -> ClientData.successfulSegmentsForSiding.get(sidingId)).min(Integer::compareTo).orElse(-1);
 
-		if (successfulSegments < 0) {
-			return new TranslatableText("gui.mtr.no_path_to_generate");
-		} else if (successfulSegments == 0) {
+		if (successfulSegments <= 0) {
 			return new TranslatableText("gui.mtr.path_not_generated");
 		} else {
 			final List<String> stationNames = new ArrayList<>();

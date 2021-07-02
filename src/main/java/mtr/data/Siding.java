@@ -21,9 +21,11 @@ public class Siding extends SavedRailBase implements IPacket {
 	private CustomResources.TrainMapping trainTypeMapping;
 	private int trainLength;
 	private boolean unlimitedTrains;
+	private PathFinder pathFinder;
 
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
+	private final List<PathData> temporaryPath = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
 	private final Set<Train> trains = new HashSet<>();
 
@@ -162,59 +164,73 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	public int generateRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes, Set<Depot> depots) {
-		this.world = world;
-		final BlockPos midPos = getMidPos();
-		depot = depots.stream().filter(depot1 -> depot1.inArea(midPos.getX(), midPos.getZ())).findFirst().orElse(null);
+		if (pathFinder == null) {
+			this.world = world;
+			final BlockPos midPos = getMidPos();
+			depot = depots.stream().filter(depot1 -> depot1.inArea(midPos.getX(), midPos.getZ())).findFirst().orElse(null);
 
-		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
-		platformsInRoute.add(this);
-		if (depot != null) {
-			depot.routeIds.forEach(routeId -> {
-				final Route route = RailwayData.getDataById(routes, routeId);
-				if (route != null) {
-					route.platformIds.forEach(platformId -> {
-						final Platform platform = RailwayData.getDataById(platforms, platformId);
-						if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
-							platformsInRoute.add(platform);
-						}
-					});
-				}
-			});
-		}
-		platformsInRoute.add(this);
-
-		final int successfulSegments = PathFinder.findPath(path, rails, platformsInRoute);
-		if (path.isEmpty()) {
-			final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
-			final BlockPos pos1 = orderedPositions.get(0);
-			final BlockPos pos2 = orderedPositions.get(1);
-			if (RailwayData.containsRail(rails, pos1, pos2)) {
-				path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
+			final List<SavedRailBase> platformsInRoute = new ArrayList<>();
+			platformsInRoute.add(this);
+			if (depot != null) {
+				depot.routeIds.forEach(routeId -> {
+					final Route route = RailwayData.getDataById(routes, routeId);
+					if (route != null) {
+						route.platformIds.forEach(platformId -> {
+							final Platform platform = RailwayData.getDataById(platforms, platformId);
+							if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
+								platformsInRoute.add(platform);
+							}
+						});
+					}
+				});
 			}
-		}
+			platformsInRoute.add(this);
 
-		distances.clear();
-		float sum = 0;
-		for (final PathData pathData : path) {
-			sum += pathData.rail.getLength();
-			distances.add(sum);
-		}
+			pathFinder = new PathFinder(temporaryPath, rails, platformsInRoute);
+			return -1;
+		} else {
+			final int successfulSegments = pathFinder.findPath();
 
-		return platformsInRoute.size() == 2 ? 0 : successfulSegments;
+			if (successfulSegments >= 0) {
+				path.clear();
+
+				if (temporaryPath.isEmpty()) {
+					final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
+					final BlockPos pos1 = orderedPositions.get(0);
+					final BlockPos pos2 = orderedPositions.get(1);
+					if (RailwayData.containsRail(rails, pos1, pos2)) {
+						path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
+					}
+				} else {
+					path.addAll(temporaryPath);
+				}
+
+				distances.clear();
+				float sum = 0;
+				for (final PathData pathData : path) {
+					sum += pathData.rail.getLength();
+					distances.add(sum);
+				}
+
+				pathFinder = null;
+			}
+
+			return successfulSegments;
+		}
 	}
 
 	public void writeTrainPositions(Set<Rail> trainPositions, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		trains.forEach(train -> train.writeTrainPositions(trainPositions, rails, trainTypeMapping, trainLength));
 	}
 
-	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Rail> trainPositions, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Train.WriteScheduleCallback writeScheduleCallback, Runnable generateRoute) {
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Rail> trainPositions, Train.RenderTrainCallback renderTrainCallback, Train.RenderConnectionCallback renderConnectionCallback, Train.SpeedCallback speedCallback, Train.AnnouncementCallback announcementCallback, Train.WriteScheduleCallback writeScheduleCallback) {
 		int trainsAtDepot = 0;
 		boolean spawnTrain = true;
 
 		final Set<Float> railProgressSet = new HashSet<>();
 		final List<Train> trainsToRemove = new ArrayList<>();
 		for (final Train train : trains) {
-			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback, generateRoute);
+			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
 				spawnTrain = false;
 			}
@@ -226,7 +242,6 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 			if (railProgressSet.contains(train.getRailProgress())) {
 				trainsToRemove.add(train);
-				System.out.println("Removed stacked train");
 			}
 			railProgressSet.add(train.getRailProgress());
 		}

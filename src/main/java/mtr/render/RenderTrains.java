@@ -187,7 +187,7 @@ public class RenderTrains implements IGui {
 				}
 				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
 			}
-		}), ClientData::updateSidings));
+		})));
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);

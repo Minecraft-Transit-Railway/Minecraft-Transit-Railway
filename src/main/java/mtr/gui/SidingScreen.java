@@ -147,9 +147,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 			if (trainType != null) {
 				savedRailBase.setTrainTypeMapping(customId, trainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
-				if (client != null && client.world != null) {
-					savedRailBase.generateRoute(client.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots);
-				}
 			}
 		}
 		setIsSelectingTrain(false);

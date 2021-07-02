@@ -8,8 +8,8 @@
 			"from": [ 0, 0, 4 ],
 			"to": [ 2, 16, 20 ],
 			"faces": {
-				"down": { "texture": "#bottom", "cullface": "down" },
-				"up": { "texture": "#top", "cullface": "up" },
+				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#top", "cullface": "up" },
 				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#particle" },
 				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#back", "cullface": "back" },
 				"north": { "texture": "#black" },

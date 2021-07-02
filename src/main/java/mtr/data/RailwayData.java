@@ -33,8 +33,10 @@ public class RailwayData extends PersistentState implements IPacket {
 	public final Set<Siding> sidings;
 	public final Set<Route> routes;
 	public final Set<Depot> depots;
+
 	private final World world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
+	private final List<Siding> sidingsToGenerate = new ArrayList<>();
 
 	private final List<Set<Rail>> trainPositions = new ArrayList<>(2);
 
@@ -99,7 +101,8 @@ public class RailwayData extends PersistentState implements IPacket {
 			if (generated) {
 				validateData(rails, platforms, sidings, routes);
 			}
-			updateSidings();
+			sidingsToGenerate.clear();
+			generateRoutes(world, rails, platforms, sidings, routes, depots, sidingsToGenerate, -1, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -153,9 +156,12 @@ public class RailwayData extends PersistentState implements IPacket {
 		trainPositions.remove(0);
 		trainPositions.add(new HashSet<>());
 		sidings.forEach(siding -> {
-			siding.simulateTrain(null, 1, trainPositions.get(0), null, null, null, null, null, () -> siding.generateRoute(world, rails, platforms, routes, depots));
+			siding.simulateTrain(null, 1, trainPositions.get(0), null, null, null, null, null);
 			siding.writeTrainPositions(trainPositions.get(1), rails);
 		});
+
+		generateRoutes(world, rails, platforms, sidings, routes, depots, sidingsToGenerate, 5, null);
+		markDirty();
 	}
 
 	public void addPlayerToBroadcast(PlayerEntity player) {
@@ -164,26 +170,14 @@ public class RailwayData extends PersistentState implements IPacket {
 		}
 	}
 
-	// TODO split over multiple ticks for performance
-	public void updateSidings() {
-		sidings.forEach(siding -> {
-			siding.generateRoute(world, rails, platforms, routes, depots);
-			siding.writeTrainPositions(trainPositions.get(1), rails);
-		});
-		markDirty();
-	}
-
 	// writing data
 
 	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		final long newId = validate ? new Random().nextLong() : 0;
 		addRail(rails, platforms, sidings, posStart, posEnd, rail, newId);
 
-		if (validate) {
-			if (generated) {
-				validateData(rails, platforms, sidings, routes);
-			}
-			updateSidings();
+		if (validate && generated) {
+			validateData(rails, platforms, sidings, routes);
 		}
 
 		return newId;
@@ -194,7 +188,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData(rails, platforms, sidings, routes);
 		}
-		updateSidings();
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
@@ -202,7 +195,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData(rails, platforms, sidings, routes);
 		}
-		updateSidings();
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
@@ -301,6 +293,29 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
+	public static void generateRoutes(World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, List<Siding> sidingsToGenerate, int maxMillis, GenerateRouteCallback generateRouteCallback) {
+		if (sidingsToGenerate.isEmpty()) {
+			sidingsToGenerate.addAll(sidings);
+		}
+
+		final long startMillis = System.currentTimeMillis();
+		while (maxMillis < 0 || System.currentTimeMillis() - startMillis < maxMillis) {
+			if (sidingsToGenerate.isEmpty()) {
+				break;
+			} else {
+				final Siding siding = sidingsToGenerate.get(0);
+				final int result = siding.generateRoute(world, rails, platforms, routes, depots);
+
+				if (result >= 0) {
+					sidingsToGenerate.remove(siding);
+					if (generateRouteCallback != null) {
+						generateRouteCallback.generateRouteCallback(siding, result);
+					}
+				}
+			}
+		}
 	}
 
 	public static void validateData(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
@@ -404,5 +419,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		@Override
 		public void writePacket(PacketByteBuf packet) {
 		}
+	}
+
+	@FunctionalInterface
+	public interface GenerateRouteCallback {
+		void generateRouteCallback(Siding siding, int result);
 	}
 }

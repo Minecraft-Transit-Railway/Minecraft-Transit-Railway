@@ -199,12 +199,9 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback, Runnable generateRoute) {
+	public void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Rail> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
 		if (world == null) {
 			return;
-		}
-		if (path.isEmpty()) {
-			generateRoute.run();
 		}
 
 		try {
@@ -221,7 +218,6 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				speed = 0;
 
 				if (path.size() > 1 && depot != null && depot.deployTrain(world)) {
-					generateRoute.run();
 					if (!world.isClient()) {
 						isOnRoute = true;
 						nextStoppingIndex = 0;
@@ -341,7 +337,6 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				writeArrivalTimes(writeScheduleCallback, depot.routeIds, trainTypeMapping, trainSpacing);
 			}
 		} catch (Exception ignored) {
-			generateRoute.run();
 		}
 	}
 
