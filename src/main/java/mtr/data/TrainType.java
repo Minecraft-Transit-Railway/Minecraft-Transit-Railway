@@ -23,6 +23,8 @@ public enum TrainType {
 	A_TRAIN_AEL(0x008D8D, 24, 2, true, MTR.A_TRAIN_ACCELERATION, MTR.A_TRAIN_DECELERATION, MTR.A_TRAIN_DOOR_OPEN, MTR.A_TRAIN_DOOR_CLOSE, 0.5F, "a_train_ael"),
 	A_TRAIN_AEL_MINI(0x008D8D, 14, 2, true, MTR.A_TRAIN_ACCELERATION, MTR.A_TRAIN_DECELERATION, MTR.A_TRAIN_DOOR_OPEN, MTR.A_TRAIN_DOOR_CLOSE, 0.5F, "a_train_ael"),
 	LIGHT_RAIL_1(0xD2A825, 22, 2, false, null, null, null, null, 0.5F, "light_rail_1"),
+	LIGHT_RAIL_3(0xD2A825, 22, 2, false, null, null, null, null, 0.5F, "light_rail_3"),
+	LIGHT_RAIL_4(0xD2A825, 22, 2, false, null, null, null, null, 0.5F, "light_rail_4"),
 	MINECART(0x666666, 1, 1, false, null, null, null, null, 0.5F, "minecart");
 
 	public final int color;
