@@ -28,7 +28,7 @@ Crowdin is a cloud-based platform for translators to contribute to a project. Wi
 
 ## License
 
-This project is licensed with the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed with the [Open Font License](http://scripts.sil.org/OFL).
+This project is licensed with the [MIT License](https://opensource.org/licenses/MIT). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed with the [Open Font License](http://scripts.sil.org/OFL).
 
 ## Questions? Comments? Complaints?
 
