@@ -13,6 +13,7 @@ public interface IPacket {
 	Identifier PACKET_REMOVE_NODE = new Identifier(MTR.MOD_ID, "packet_remove_node");
 	Identifier PACKET_REMOVE_RAIL = new Identifier(MTR.MOD_ID, "packet_remove_rail");
 
+	Identifier PACKET_GENERATE_PATH = new Identifier(MTR.MOD_ID, "packet_generate_path");
 	Identifier PACKET_SIGN_TYPES = new Identifier(MTR.MOD_ID, "packet_sign_types");
 	Identifier PACKET_ADD_BALANCE = new Identifier(MTR.MOD_ID, "packet_add_balance");
 	Identifier PACKET_CHUNK_S2C = new Identifier(MTR.MOD_ID, "packet_chunk_s2c");
@@ -28,4 +29,8 @@ public interface IPacket {
 	Identifier PACKET_DELETE_SIDING = new Identifier(MTR.MOD_ID, "packet_delete_siding");
 	Identifier PACKET_DELETE_ROUTE = new Identifier(MTR.MOD_ID, "packet_delete_route");
 	Identifier PACKET_DELETE_DEPOT = new Identifier(MTR.MOD_ID, "packet_delete_depot");
+
+	Identifier PACKET_WRITE_RAILS = new Identifier(MTR.MOD_ID, "write_rails");
+
+	int MAX_PACKET_BYTES = 1048576;
 }

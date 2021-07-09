@@ -10,6 +10,7 @@ import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -218,6 +219,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroup.DECORATIONS);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_ADD_BALANCE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveAddBalanceC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, Station::new, false));
@@ -243,6 +245,12 @@ public class MTR implements ModInitializer, IPacket {
 				if (railwayData != null) {
 					railwayData.addPlayerToBroadcast((PlayerEntity) entity);
 				}
+			}
+		});
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			final RailwayData railwayData = RailwayData.getInstance(handler.player.world);
+			if (railwayData != null) {
+				railwayData.disconnectPlayer(handler.player);
 			}
 		});
 	}

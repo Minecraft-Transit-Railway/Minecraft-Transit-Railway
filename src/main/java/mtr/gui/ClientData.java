@@ -31,10 +31,25 @@ public final class ClientData {
 	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
-	public static Map<Long, Integer> successfulSegmentsForSiding = new HashMap<>();
 
 	private static long lastUpdatedIndex;
-	private static final List<Siding> sidingsToGenerate = new ArrayList<>();
+
+	public static void writeRails(MinecraftClient client, PacketByteBuf packet) {
+		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
+
+		final int railsCount = packet.readInt();
+		for (int i = 0; i < railsCount; i++) {
+			final BlockPos startPos = packet.readBlockPos();
+			final Map<BlockPos, Rail> railMap = new HashMap<>();
+			final int railCount = packet.readInt();
+			for (int j = 0; j < railCount; j++) {
+				railMap.put(packet.readBlockPos(), new Rail(packet));
+			}
+			railsTemp.put(startPos, railMap);
+		}
+
+		client.execute(() -> rails = railsTemp);
+	}
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
@@ -43,21 +58,6 @@ public final class ClientData {
 		sidings = deserializeData(packetCopy, Siding::new);
 		routes = deserializeData(packetCopy, Route::new);
 		depots = deserializeData(packetCopy, Depot::new);
-
-		rails.clear();
-		final int railsCount = packetCopy.readInt();
-		for (int i = 0; i < railsCount; i++) {
-			final BlockPos startPos = packetCopy.readBlockPos();
-			final Map<BlockPos, Rail> railMap = new HashMap<>();
-			final int railCount = packetCopy.readInt();
-			for (int j = 0; j < railCount; j++) {
-				railMap.put(packetCopy.readBlockPos(), new Rail(packetCopy));
-			}
-			rails.put(startPos, railMap);
-		}
-
-		sidingsToGenerate.clear();
-		RailwayData.generateRoutes(MinecraftClient.getInstance().world, rails, platforms, sidings, routes, depots, sidingsToGenerate, -1, (siding, result) -> successfulSegmentsForSiding.put(siding.id, result));
 
 		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if (player != null) {
@@ -68,7 +68,6 @@ public final class ClientData {
 	public static void updateReferences() {
 		final int index = (int) (System.currentTimeMillis() / 1000) % 3;
 		if (lastUpdatedIndex == index) {
-			RailwayData.generateRoutes(MinecraftClient.getInstance().world, rails, platforms, sidings, routes, depots, sidingsToGenerate, 10, (siding, result) -> successfulSegmentsForSiding.put(siding.id, result));
 			return;
 		}
 
@@ -101,6 +100,12 @@ public final class ClientData {
 						}).collect(Collectors.toList());
 						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
 					}).collect(Collectors.toList())));
+
+					depots.forEach(depot -> {
+						if (sidingsInDepot.containsKey(depot.id)) {
+							sidingsInDepot.get(depot.id).forEach((id, siding) -> siding.setSidingData(MinecraftClient.getInstance().world, depot));
+						}
+					});
 					break;
 				case 1:
 					writeSavedRailMaps(stations, platforms, platformsWithOffset, platformsInStation);

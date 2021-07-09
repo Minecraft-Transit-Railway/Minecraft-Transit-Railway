@@ -1,6 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import mtr.data.Depot;
 import mtr.data.NameColorDataBase;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
@@ -138,6 +139,23 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		sendUpdate(packetId, packet);
+	}
+
+	public static void generatePathS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final long depotId = packet.readLong();
+		final int successfulSegments = packet.readInt();
+		minecraftClient.execute(() -> {
+			final Depot depot = RailwayData.getDataById(ClientData.depots, depotId);
+			if (depot != null) {
+				depot.clientPathGenerationSuccessfulSegments = successfulSegments;
+			}
+		});
+	}
+
+	public static void generatePathC2S(long sidingId) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(sidingId);
+		ClientPlayNetworking.send(PACKET_GENERATE_PATH, packet);
 	}
 
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
