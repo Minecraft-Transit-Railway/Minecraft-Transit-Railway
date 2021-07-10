@@ -61,7 +61,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos1, pos2, rail1, 0);
 			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos2, pos1, rail2, savedRailId);
-			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
 		});
 	}
 
@@ -69,7 +68,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {
 			RailwayData.removeNode(null, ClientData.rails, pos);
-			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
 		});
 	}
 
@@ -78,7 +76,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos2 = packet.readBlockPos();
 		minecraftClient.execute(() -> {
 			RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2);
-			RailwayData.validateData(ClientData.rails, ClientData.platforms, ClientData.sidings, ClientData.routes);
 		});
 	}
 

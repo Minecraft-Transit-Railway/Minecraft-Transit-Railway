@@ -197,12 +197,21 @@ public class Siding extends SavedRailBase implements IPacket {
 		return trainTypeMapping;
 	}
 
-	public void setSidingData(World world, Depot depot) {
+	public void setSidingData(World world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		this.world = world;
 		this.depot = depot;
+
+		if (depot == null) {
+			trains.clear();
+			path.clear();
+			distances.clear();
+		} else if (path.isEmpty()) {
+			generateDefaultPath(rails);
+			generateDistances();
+		}
 	}
 
-	public int generateRoute(List<PathData> mainPath, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
+	public int generateRoute(List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
 		final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
 		depotAndFirstPlatform.add(this);
 		depotAndFirstPlatform.add(firstPlatform);
@@ -211,6 +220,9 @@ public class Siding extends SavedRailBase implements IPacket {
 		final int successfulSegments;
 		if (path.isEmpty()) {
 			successfulSegments = 1;
+		} else if (mainPath.isEmpty()) {
+			path.clear();
+			successfulSegments = successfulSegmentsMain + 1;
 		} else {
 			PathFinder.appendPath(path, mainPath);
 
@@ -218,24 +230,19 @@ public class Siding extends SavedRailBase implements IPacket {
 			lastPlatformAndDepot.add(lastPlatform);
 			lastPlatformAndDepot.add(this);
 			final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
-			PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, path.size());
+			PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
 
 			if (pathLastPlatformToDepot.isEmpty()) {
-				successfulSegments = path.size();
+				successfulSegments = successfulSegmentsMain + 1;
 				path.clear();
 			} else {
 				PathFinder.appendPath(path, pathLastPlatformToDepot);
-				successfulSegments = path.size();
+				successfulSegments = successfulSegmentsMain + 2;
 			}
 		}
 
 		if (path.isEmpty()) {
-			final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
-			final BlockPos pos1 = orderedPositions.get(0);
-			final BlockPos pos2 = orderedPositions.get(1);
-			if (RailwayData.containsRail(rails, pos1, pos2)) {
-				path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
-			}
+			generateDefaultPath(rails);
 		}
 
 		generateDistances();
@@ -252,31 +259,35 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void writeTrainPositions(Set<Long> trainPositions, Map<BlockPos, Map<BlockPos, Rail>> rails) {
-		trains.forEach(train -> train.writeTrainPositions(trainPositions, rails, trainTypeMapping, trainLength));
+	public void writeTrainPositions(Set<UUID> trainPositions) {
+		trains.forEach(train -> train.writeTrainPositions(trainPositions, trainTypeMapping, trainLength));
 	}
 
-	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<Long> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<UUID> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
 		int trainsAtDepot = 0;
 		boolean spawnTrain = true;
 
-		final Set<Float> railProgressSet = new HashSet<>();
+		final Set<Integer> railProgressSet = new HashSet<>();
 		final List<Train> trainsToRemove = new ArrayList<>();
 		for (final Train train : trains) {
 			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
+
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
 				spawnTrain = false;
 			}
+
 			if (!train.isOnRoute) {
 				trainsAtDepot++;
 				if (trainsAtDepot > 1) {
 					trainsToRemove.add(train);
 				}
 			}
-			if (railProgressSet.contains(train.railProgress)) {
+
+			final int roundedRailProgress = Math.round(train.railProgress * 10);
+			if (railProgressSet.contains(roundedRailProgress)) {
 				trainsToRemove.add(train);
 			}
-			railProgressSet.add(train.railProgress);
+			railProgressSet.add(roundedRailProgress);
 		}
 
 		if (world != null && !world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
@@ -296,12 +307,31 @@ public class Siding extends SavedRailBase implements IPacket {
 		trainLength = (int) Math.floor(railLength / trainTypeMapping.trainType.getSpacing());
 	}
 
+	private void generateDefaultPath(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		trains.clear();
+
+		final List<BlockPos> orderedPositions = getOrderedPositions(new BlockPos(0, 0, 0), false);
+		final BlockPos pos1 = orderedPositions.get(0);
+		final BlockPos pos2 = orderedPositions.get(1);
+		if (RailwayData.containsRail(rails, pos1, pos2)) {
+			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
+		}
+
+		if (depot != null) {
+			depot.clientPathGenerationSuccessfulSegments = 0;
+		}
+		trains.add(new Train(0, id, railLength, path, distances));
+	}
+
 	private void generateDistances() {
 		distances.clear();
 		float sum = 0;
 		for (final PathData pathData : path) {
 			sum += pathData.rail.getLength();
 			distances.add(sum);
+		}
+		if (path.size() != 1) {
+			trains.removeIf(train -> (train.id == 0) == unlimitedTrains);
 		}
 	}
 
@@ -453,7 +483,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			return !isOnRoute || railProgress < trainDistance + railLength;
 		}
 
-		private void writeTrainPositions(Set<Long> trainPositions, Map<BlockPos, Map<BlockPos, Rail>> rails, CustomResources.TrainMapping trainTypeMapping, int trainLength) {
+		private void writeTrainPositions(Set<UUID> trainPositions, CustomResources.TrainMapping trainTypeMapping, int trainLength) {
 			if (!path.isEmpty()) {
 				final int trainSpacing = trainTypeMapping.trainType.getSpacing();
 				final int headIndex = getIndex(0, trainSpacing, true);
@@ -466,7 +496,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		private void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<Long> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
+		private void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<UUID> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
 			if (world == null) {
 				return;
 			}
@@ -753,7 +783,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		private boolean railBlocked(Set<Long> trainPositions, int checkIndex) {
+		private boolean railBlocked(Set<UUID> trainPositions, int checkIndex) {
 			if (trainPositions != null && checkIndex < path.size()) {
 				return trainPositions.contains(path.get(checkIndex).getRailProduct());
 			} else {

@@ -8,6 +8,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class PathData extends SerializedDataBase {
 
@@ -83,8 +84,10 @@ public class PathData extends SerializedDataBase {
 		return startingPos.equals(pathData.endingPos) && endingPos.equals(pathData.startingPos);
 	}
 
-	public long getRailProduct() {
-		return startingPos.asLong() * endingPos.asLong();
+	public UUID getRailProduct() {
+		final long startingPosLong = startingPos.asLong();
+		final long endingPosLong = endingPos.asLong();
+		return new UUID(Math.min(startingPosLong, endingPosLong), Math.max(startingPosLong, endingPosLong));
 	}
 
 	public Rail getOppositeRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {

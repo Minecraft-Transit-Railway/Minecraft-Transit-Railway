@@ -101,11 +101,10 @@ public final class ClientData {
 						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
 					}).collect(Collectors.toList())));
 
-					depots.forEach(depot -> {
-						if (sidingsInDepot.containsKey(depot.id)) {
-							sidingsInDepot.get(depot.id).forEach((id, siding) -> siding.setSidingData(MinecraftClient.getInstance().world, depot));
-						}
-					});
+					sidings.forEach(siding -> siding.setSidingData(MinecraftClient.getInstance().world, depots.stream().filter(depot -> {
+						final BlockPos sidingMidPos = siding.getMidPos();
+						return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
+					}).findFirst().orElse(null), rails));
 					break;
 				case 1:
 					writeSavedRailMaps(stations, platforms, platformsWithOffset, platformsInStation);

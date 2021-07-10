@@ -12,7 +12,7 @@ public class PathFinder {
 	public static int findPath(List<PathData> path, Map<BlockPos, Map<BlockPos, Rail>> rails, List<SavedRailBase> savedRailBases, int stopIndexOffset) {
 		path.clear();
 		if (savedRailBases.size() < 2) {
-			return -1;
+			return 0;
 		}
 
 		for (int i = 0; i < savedRailBases.size() - 1; i++) {
@@ -21,9 +21,8 @@ public class PathFinder {
 
 			final List<PathData> partialPath = findPath(rails, savedRailBaseStart, savedRailBaseEnd, i + stopIndexOffset);
 			if (partialPath.isEmpty()) {
-				final int oldPathSize = path.size();
 				path.clear();
-				return oldPathSize;
+				return i + 1;
 			}
 
 			appendPath(path, partialPath);
@@ -32,11 +31,9 @@ public class PathFinder {
 		return savedRailBases.size();
 	}
 
-	public static int appendPath(List<PathData> path, List<PathData> partialPath) {
+	public static void appendPath(List<PathData> path, List<PathData> partialPath) {
 		if (partialPath.isEmpty()) {
-			final int oldPathSize = path.size();
 			path.clear();
-			return oldPathSize;
 		} else {
 			final boolean sameFirstRail = !path.isEmpty() && path.get(path.size() - 1).isSameRail(partialPath.get(0));
 			for (int j = 0; j < partialPath.size(); j++) {
@@ -44,7 +41,6 @@ public class PathFinder {
 					path.add(partialPath.get(j));
 				}
 			}
-			return path.size();
 		}
 	}
 
