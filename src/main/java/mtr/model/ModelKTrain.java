@@ -519,7 +519,7 @@ public class ModelKTrain extends ModelTrainBase {
 
 		head = new ModelPart(this);
 		head.setPivot(0.0F, 24.0F, 0.0F);
-		head.setTextureOffset(214, 35).addCuboid(-20.0F, 0.0F, 4.0F, 40.0F, 1.0F, 4.0F, 0.0F, false);
+		head.setTextureOffset(184, 73).addCuboid(-20.0F, 0.0F, 4.0F, 40.0F, 1.0F, 4.0F, 0.0F, false);
 		head.setTextureOffset(70, 143).addCuboid(-21.0F, -14.0F, 4.0F, 4.0F, 14.0F, 7.0F, 0.0F, false);
 		head.setTextureOffset(190, 223).addCuboid(-18.0F, -35.0F, 4.0F, 36.0F, 35.0F, 0.0F, 0.0F, false);
 
@@ -548,7 +548,7 @@ public class ModelKTrain extends ModelTrainBase {
 		head_exterior.setTextureOffset(176, 0).addCuboid(-21.0F, 0.0F, 4.0F, 1.0F, 4.0F, 4.0F, 0.0F, false);
 		head_exterior.setTextureOffset(120, 202).addCuboid(18.0F, -14.0F, -22.0F, 3.0F, 14.0F, 32.0F, 0.0F, true);
 		head_exterior.setTextureOffset(120, 202).addCuboid(-21.0F, -14.0F, -22.0F, 3.0F, 14.0F, 32.0F, 0.0F, false);
-		head_exterior.setTextureOffset(214, 0).addCuboid(-18.0F, -35.0F, 3.0F, 36.0F, 35.0F, 0.0F, 0.0F, false);
+		head_exterior.setTextureOffset(214, 0).addCuboid(-18.0F, -41.0F, 3.0F, 36.0F, 41.0F, 0.0F, 0.0F, false);
 
 		upper_wall_2_r5 = new ModelPart(this);
 		upper_wall_2_r5.setPivot(-21.0F, -14.0F, 0.0F);
