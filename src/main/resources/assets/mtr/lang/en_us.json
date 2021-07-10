@@ -108,6 +108,7 @@
 	"gui.mtr.platform_or_siding_exists": "Each rail node can only be connected to one platform or siding",
 	"gui.mtr.railway_loading": "Railway Loading",
 	"gui.mtr.railway_loading_complete": "Railway Loading Complete",
+	"gui.mtr.refresh_path": "Refresh Path",
 	"gui.mtr.reset_sign": "Reset",
 	"gui.mtr.routes": "Routes",
 	"gui.mtr.s": "s",

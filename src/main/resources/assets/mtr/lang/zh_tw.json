@@ -108,6 +108,7 @@
 	"gui.mtr.platform_or_siding_exists": "每個鐵軌節點只能連接到一個月台或側線",
 	"gui.mtr.railway_loading": "鐵路加載中",
 	"gui.mtr.railway_loading_complete": "鐵路已加載",
+	"gui.mtr.refresh_path": "刷新路綫",
 	"gui.mtr.reset_sign": "重設",
 	"gui.mtr.routes": "路綫",
 	"gui.mtr.s": "秒",
