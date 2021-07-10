@@ -36,6 +36,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final ButtonWidget buttonEditInstructions;
+	private final ButtonWidget buttonGenerateRoute;
 	private final ButtonWidget buttonDone;
 
 	private final DashboardList addNewList;
@@ -43,6 +44,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
+	private static final int FIND_PATH_WIDTH = 80;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = 50;
 
@@ -67,6 +69,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		}
 
 		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
+		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> PacketTrainDataGuiClient.generatePathC2S(depot.id));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
@@ -91,7 +94,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 			}
 		});
 
-		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX);
+		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
+		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
 		addNewList.y = SQUARE_SIZE * 2;
@@ -116,6 +120,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		addChild(textFieldName);
 		addChild(textFieldColor);
 		addButton(buttonEditInstructions);
+		addButton(buttonGenerateRoute);
 		addButton(buttonDone);
 	}
 
@@ -145,6 +150,12 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				textFieldName.render(matrices, mouseX, mouseY, delta);
 				textFieldColor.render(matrices, mouseX, mouseY, delta);
 
+				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
+				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
+					sliders[i].y = SQUARE_SIZE + lineHeight * i;
+					sliders[i].setHeight(lineHeight);
+				}
 				super.render(matrices, mouseX, mouseY, delta);
 
 				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3 + rightPanelsX / 2, TEXT_PADDING, ARGB_WHITE);
@@ -159,13 +170,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-
-				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
-				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
-					sliders[i].y = SQUARE_SIZE + lineHeight * i;
-					sliders[i].setHeight(lineHeight);
-				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -211,6 +215,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		addNewList.x = addingTrain ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
 		buttonEditInstructions.visible = !addingTrain;
+		buttonGenerateRoute.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
 	}
 
@@ -229,7 +234,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	}
 
 	private Text getSuccessfulSegmentsText() {
-		final int successfulSegments = sidingsInDepot.keySet().stream().map(sidingId -> ClientData.successfulSegmentsForSiding.get(sidingId)).min(Integer::compareTo).orElse(-1);
+		final int successfulSegments = depot.clientPathGenerationSuccessfulSegments;
 
 		if (successfulSegments <= 0) {
 			return new TranslatableText("gui.mtr.path_not_generated");

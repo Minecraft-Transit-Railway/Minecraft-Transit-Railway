@@ -34,8 +34,6 @@ public class PathDataDeleteThisLater extends SerializedDataBase {
 
 	// distance = aT^2 + bT
 
-	public static final float ACCELERATION = 0.01F;
-
 	public PathDataDeleteThisLater(NbtCompound nbtCompound) {
 		rail = new Rail(nbtCompound.getCompound(KEY_RAIL));
 		length = nbtCompound.getFloat(KEY_LENGTH);

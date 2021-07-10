@@ -1,19 +1,25 @@
 package mtr.data;
 
+import mtr.path.PathData;
+import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class Depot extends AreaBase {
 
+	public int clientPathGenerationSuccessfulSegments;
 	private long lastDeployedMillis;
 
-	public final List<Long> routeIds;
+	public final List<Long> routeIds = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 
@@ -27,18 +33,15 @@ public class Depot extends AreaBase {
 
 	public Depot() {
 		super();
-		routeIds = new ArrayList<>();
 	}
 
 	public Depot(long id) {
 		super(id);
-		routeIds = new ArrayList<>();
 	}
 
 	public Depot(NbtCompound nbtCompound) {
 		super(nbtCompound);
 
-		routeIds = new ArrayList<>();
 		final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
 		for (final long routeId : routeIdsArray) {
 			routeIds.add(routeId);
@@ -54,7 +57,6 @@ public class Depot extends AreaBase {
 	public Depot(PacketByteBuf packet) {
 		super(packet);
 
-		routeIds = new ArrayList<>();
 		final int routeIdCount = packet.readInt();
 		for (int i = 0; i < routeIdCount; i++) {
 			routeIds.add(packet.readLong());
@@ -144,6 +146,22 @@ public class Depot extends AreaBase {
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
 		sendPacket.accept(packet);
+	}
+
+	public int generateMainRoute(List<PathData> tempPath, List<SavedRailBase> platformsInRoute, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes) {
+		routeIds.forEach(routeId -> {
+			final Route route = RailwayData.getDataById(routes, routeId);
+			if (route != null) {
+				route.platformIds.forEach(platformId -> {
+					final Platform platform = RailwayData.getDataById(platforms, platformId);
+					if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
+						platformsInRoute.add(platform);
+					}
+				});
+			}
+		});
+
+		return PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
 	}
 
 	public boolean deployTrain(WorldAccess world) {

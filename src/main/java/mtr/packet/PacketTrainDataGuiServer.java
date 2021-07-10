@@ -76,16 +76,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, routes);
 		serializeData(packet, depots);
 
-		packet.writeInt(rails.size());
-		rails.forEach((posStart, railMap) -> {
-			packet.writeBlockPos(posStart);
-			packet.writeInt(railMap.size());
-			railMap.forEach((posEnd, rail) -> {
-				packet.writeBlockPos(posEnd);
-				rail.writePacket(packet);
-			});
-		});
-
 		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
 		sendChunk(player, tempPacketId, 0);
 	}
@@ -117,6 +107,22 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	public static void generatePathS2C(World world, long depotId, int successfulSegments) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(depotId);
+		packet.writeInt(successfulSegments);
+		world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_GENERATE_PATH, packet));
+	}
+
+	public static void generatePathC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final World world = player.world;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final long depotId = packet.readLong();
+			minecraftServer.execute(() -> railwayData.generatePath(depotId));
 		}
 	}
 
