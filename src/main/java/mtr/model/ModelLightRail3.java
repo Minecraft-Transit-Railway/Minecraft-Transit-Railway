@@ -136,6 +136,18 @@ public class ModelLightRail3 extends ModelTrainBase {
 		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 
 		handrail_9_r1 = new ModelPart(this);
 		handrail_9_r1.setPivot(0.0F, 0.0F, 0.0F);
@@ -372,7 +384,7 @@ public class ModelLightRail3 extends ModelTrainBase {
 		headlights.setTextureOffset(12, 12).addCuboid(3.0F, -6.0F, -46.1F, 4.0F, 3.0F, 0.0F, 0.0F, true);
 
 		tail_lights = new ModelPart(this);
-		tail_lights.setPivot(0.0F, 23.5F, 0.0F);
+		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
 		tail_lights.setTextureOffset(20, 12).addCuboid(-7.75F, -6.5F, 46.1F, 4.0F, 3.0F, 0.0F, 0.0F, false);
 		tail_lights.setTextureOffset(20, 12).addCuboid(3.75F, -6.5F, 46.1F, 4.0F, 3.0F, 0.0F, 0.0F, true);
 	}
@@ -451,7 +463,6 @@ public class ModelLightRail3 extends ModelTrainBase {
 				renderOnce(head, matrices, vertices, light, position);
 				for (int z = position - 8; z <= position + 8; z += 16) {
 					renderOnce(seat, matrices, vertices, light, 15, z);
-					renderOnce(seat, matrices, vertices, light, -8.5F, z);
 					renderOnce(seat, matrices, vertices, light, -15, z);
 				}
 				renderMirror(roof, matrices, vertices, light, position);
