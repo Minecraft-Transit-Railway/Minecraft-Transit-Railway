@@ -211,32 +211,36 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	public int generateRoute(List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
-		final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
-		depotAndFirstPlatform.add(this);
-		depotAndFirstPlatform.add(firstPlatform);
-		PathFinder.findPath(path, rails, depotAndFirstPlatform, 0);
-
 		final int successfulSegments;
-		if (path.isEmpty()) {
-			successfulSegments = 1;
-		} else if (mainPath.isEmpty()) {
-			path.clear();
-			successfulSegments = successfulSegmentsMain + 1;
+		if (firstPlatform == null || lastPlatform == null) {
+			successfulSegments = 0;
 		} else {
-			PathFinder.appendPath(path, mainPath);
+			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
+			depotAndFirstPlatform.add(this);
+			depotAndFirstPlatform.add(firstPlatform);
+			PathFinder.findPath(path, rails, depotAndFirstPlatform, 0);
 
-			final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
-			lastPlatformAndDepot.add(lastPlatform);
-			lastPlatformAndDepot.add(this);
-			final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
-			PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
-
-			if (pathLastPlatformToDepot.isEmpty()) {
-				successfulSegments = successfulSegmentsMain + 1;
+			if (path.isEmpty()) {
+				successfulSegments = 1;
+			} else if (mainPath.isEmpty()) {
 				path.clear();
+				successfulSegments = successfulSegmentsMain + 1;
 			} else {
-				PathFinder.appendPath(path, pathLastPlatformToDepot);
-				successfulSegments = successfulSegmentsMain + 2;
+				PathFinder.appendPath(path, mainPath);
+
+				final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
+				lastPlatformAndDepot.add(lastPlatform);
+				lastPlatformAndDepot.add(this);
+				final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
+				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
+
+				if (pathLastPlatformToDepot.isEmpty()) {
+					successfulSegments = successfulSegmentsMain + 1;
+					path.clear();
+				} else {
+					PathFinder.appendPath(path, pathLastPlatformToDepot);
+					successfulSegments = successfulSegmentsMain + 2;
+				}
 			}
 		}
 

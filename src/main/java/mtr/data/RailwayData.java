@@ -270,13 +270,16 @@ public class RailwayData extends PersistentState implements IPacket {
 			final List<PathData> tempPath = new ArrayList<>();
 			final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 			final int[] successfulSegments = new int[1];
+			successfulSegments[0] = Integer.MAX_VALUE;
 			final int successfulSegmentsMain = depot.generateMainRoute(tempPath, platformsInRoute, rails, platforms, routes);
 
 			sidings.forEach(siding -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				if (depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
-					final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, platformsInRoute.get(0), platformsInRoute.get(platformsInRoute.size() - 1));
-					if (successfulSegments[0] == 0 || result < successfulSegments[0]) {
+					final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
+					final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
+					final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+					if (result < successfulSegments[0]) {
 						successfulSegments[0] = result;
 					}
 				}
