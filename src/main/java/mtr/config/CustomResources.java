@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -124,6 +125,12 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 					} catch (Exception ignored) {
 					}
 				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				try {
+					resource.close();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			});

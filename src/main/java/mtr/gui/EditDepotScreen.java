@@ -69,7 +69,10 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		}
 
 		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
-		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> PacketTrainDataGuiClient.generatePathC2S(depot.id));
+		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> {
+			depot.clientPathGenerationSuccessfulSegments = -1;
+			PacketTrainDataGuiClient.generatePathC2S(depot.id);
+		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
@@ -133,6 +136,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 		addNewList.setData(ClientData.routes, false, false, false, false, true, false);
 		trainList.setData(depot.routeIds.stream().map(ClientData.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
+
+		buttonGenerateRoute.active = depot.clientPathGenerationSuccessfulSegments >= 0;
 	}
 
 	@Override
@@ -236,7 +241,9 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private Text getSuccessfulSegmentsText() {
 		final int successfulSegments = depot.clientPathGenerationSuccessfulSegments;
 
-		if (successfulSegments <= 0) {
+		if (successfulSegments < 0) {
+			return new TranslatableText("gui.mtr.generating_path");
+		} else if (successfulSegments == 0) {
 			return new TranslatableText("gui.mtr.path_not_generated");
 		} else {
 			final List<String> stationNames = new ArrayList<>();

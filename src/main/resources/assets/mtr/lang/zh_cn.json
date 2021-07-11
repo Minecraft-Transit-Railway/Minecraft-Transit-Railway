@@ -88,6 +88,7 @@
 	"gui.mtr.fullstop_cjk": "。",
 	"gui.mtr.game_time": "游戏时间",
 	"gui.mtr.generate_map": "创建路线图",
+	"gui.mtr.generating_path": "正在刷新路线",
 	"gui.mtr.insufficient_balance": "余额不足（$%s）",
 	"gui.mtr.interchange_announcement": "Interchange station for the ",
 	"gui.mtr.interchange_announcement_cjk": "乘客可以换乘",

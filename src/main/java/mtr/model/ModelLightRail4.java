@@ -17,7 +17,9 @@ public class ModelLightRail4 extends ModelTrainBase {
     private final ModelPart door_left_exterior;
     private final ModelPart door_right_exterior;
     private final ModelPart door_window;
+    private final ModelPart handrail_12_r1;
     private final ModelPart handrail_9_r1;
+    private final ModelPart handrail_7_r1;
     private final ModelPart door_window_exterior;
     private final ModelPart roof;
     private final ModelPart inner_roof_2_r1;
@@ -74,9 +76,9 @@ public class ModelLightRail4 extends ModelTrainBase {
         door = new ModelPart(this);
         door.setPivot(0.0F, 24.0F, 0.0F);
         door.setTextureOffset(206, 65).addCuboid(-20.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
-        door.setTextureOffset(4, 5).addCuboid(-15.8F, -15.75F, -15.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
-        door.setTextureOffset(4, 5).addCuboid(-15.8F, -15.75F, 15.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
-        door.setTextureOffset(4, 0).addCuboid(-3.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+        door.setTextureOffset(4, 6).addCuboid(-15.8F, -15.75F, -15.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
+        door.setTextureOffset(4, 6).addCuboid(-15.8F, -15.75F, 15.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
+        door.setTextureOffset(0, 0).addCuboid(-3.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
         door.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
         door.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, -4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
         door.setTextureOffset(0, 75).addCuboid(-5.0F, -32.0F, 4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
@@ -96,15 +98,15 @@ public class ModelLightRail4 extends ModelTrainBase {
         handrail_6_r1.setPivot(0.0F, 0.0F, 0.0F);
         door.addChild(handrail_6_r1);
         setRotationAngle(handrail_6_r1, 0.0F, 0.0F, -0.2618F);
-        handrail_6_r1.setTextureOffset(4, 5).addCuboid(-11.16F, -24.5F, 15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
-        handrail_6_r1.setTextureOffset(4, 5).addCuboid(-11.16F, -24.5F, -15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        handrail_6_r1.setTextureOffset(4, 6).addCuboid(-11.16F, -24.5F, 15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        handrail_6_r1.setTextureOffset(4, 6).addCuboid(-11.16F, -24.5F, -15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
 
         handrail_5_r1 = new ModelPart(this);
         handrail_5_r1.setPivot(0.0F, 0.0F, 0.0F);
         door.addChild(handrail_5_r1);
         setRotationAngle(handrail_5_r1, 0.0F, 0.0F, 0.2618F);
-        handrail_5_r1.setTextureOffset(4, 5).addCuboid(-18.25F, -7.0F, 15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
-        handrail_5_r1.setTextureOffset(4, 5).addCuboid(-18.25F, -7.0F, -15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        handrail_5_r1.setTextureOffset(4, 6).addCuboid(-18.25F, -7.0F, 15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        handrail_5_r1.setTextureOffset(4, 6).addCuboid(-18.25F, -7.0F, -15.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
 
         door_left = new ModelPart(this);
         door_left.setPivot(0.0F, 0.0F, 0.0F);
@@ -135,22 +137,36 @@ public class ModelLightRail4 extends ModelTrainBase {
         door_window.setPivot(0.0F, 24.0F, 0.0F);
         door_window.setTextureOffset(202, 28).addCuboid(0.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
         door_window.setTextureOffset(0, 98).addCuboid(18.0F, -32.0F, -14.0F, 2.0F, 32.0F, 28.0F, 0.0F, true);
-        door_window.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, 16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
-        door_window.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, -16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
-        door_window.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, 16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-        door_window.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, -16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-        door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 8.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-        door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 0.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-        door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -8.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window.setTextureOffset(0, 98).addCuboid(5.0F, -13.0F, 16.0F, 13.0F, 11.0F, 0.0F, 0.0F, false);
+        door_window.setTextureOffset(0, 98).addCuboid(5.0F, -13.0F, -16.0F, 13.0F, 11.0F, 0.0F, 0.0F, false);
+        door_window.setTextureOffset(0, 9).addCuboid(5.6F, -27.25F, -16.0F, 0.0F, 15.0F, 0.0F, 0.2F, false);
+        door_window.setTextureOffset(0, 9).addCuboid(5.6F, -27.25F, 16.0F, 0.0F, 15.0F, 0.0F, 0.2F, false);
+        door_window.setTextureOffset(0, 75).addCuboid(4.4F, -32.0F, 8.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window.setTextureOffset(0, 75).addCuboid(4.4F, -32.0F, 0.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window.setTextureOffset(0, 75).addCuboid(4.4F, -32.0F, -8.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+
+        handrail_12_r1 = new ModelPart(this);
+        handrail_12_r1.setPivot(0.0F, 0.0F, 0.0F);
+        door_window.addChild(handrail_12_r1);
+        setRotationAngle(handrail_12_r1, -1.5708F, 0.0F, 0.0F);
+        handrail_12_r1.setTextureOffset(8, 0).addCuboid(-3.0F, -48.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+        handrail_12_r1.setTextureOffset(8, 0).addCuboid(-3.0F, -16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+        handrail_12_r1.setTextureOffset(8, 0).addCuboid(-3.0F, 16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+        handrail_12_r1.setTextureOffset(8, 0).addCuboid(6.4F, -16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
 
         handrail_9_r1 = new ModelPart(this);
-        handrail_9_r1.setPivot(0.0F, 0.0F, 0.0F);
+        handrail_9_r1.setPivot(6.0F, -28.25F, -16.0F);
         door_window.addChild(handrail_9_r1);
-        setRotationAngle(handrail_9_r1, -1.5708F, 0.0F, 0.0F);
-        handrail_9_r1.setTextureOffset(8, 0).addCuboid(-3.0F, -48.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
-        handrail_9_r1.setTextureOffset(8, 0).addCuboid(-3.0F, -16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
-        handrail_9_r1.setTextureOffset(8, 0).addCuboid(-3.0F, 16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
-        handrail_9_r1.setTextureOffset(8, 0).addCuboid(7.0F, -16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+        setRotationAngle(handrail_9_r1, 0.0F, 0.0F, 0.1745F);
+        handrail_9_r1.setTextureOffset(0, 30).addCuboid(-0.25F, -8.25F, 32.0F, 0.0F, 9.0F, 0.0F, 0.2F, false);
+        handrail_9_r1.setTextureOffset(0, 30).addCuboid(-0.25F, -8.25F, 0.0F, 0.0F, 9.0F, 0.0F, 0.2F, false);
+
+        handrail_7_r1 = new ModelPart(this);
+        handrail_7_r1.setPivot(6.0F, -3.5F, -16.0F);
+        door_window.addChild(handrail_7_r1);
+        setRotationAngle(handrail_7_r1, 0.0F, 0.0F, -0.2182F);
+        handrail_7_r1.setTextureOffset(0, 30).addCuboid(1.5F, -8.25F, 32.0F, 0.0F, 12.0F, 0.0F, 0.2F, false);
+        handrail_7_r1.setTextureOffset(0, 30).addCuboid(1.5F, -8.25F, 0.0F, 0.0F, 12.0F, 0.0F, 0.2F, false);
 
         door_window_exterior = new ModelPart(this);
         door_window_exterior.setPivot(0.0F, 24.0F, 0.0F);

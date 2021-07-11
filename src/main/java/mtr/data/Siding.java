@@ -4,7 +4,6 @@ import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
 import mtr.config.CustomResources;
-import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
@@ -212,32 +211,36 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	public int generateRoute(List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
-		final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
-		depotAndFirstPlatform.add(this);
-		depotAndFirstPlatform.add(firstPlatform);
-		PathFinder.findPath(path, rails, depotAndFirstPlatform, 0);
-
 		final int successfulSegments;
-		if (path.isEmpty()) {
-			successfulSegments = 1;
-		} else if (mainPath.isEmpty()) {
-			path.clear();
-			successfulSegments = successfulSegmentsMain + 1;
+		if (firstPlatform == null || lastPlatform == null) {
+			successfulSegments = 0;
 		} else {
-			PathFinder.appendPath(path, mainPath);
+			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
+			depotAndFirstPlatform.add(this);
+			depotAndFirstPlatform.add(firstPlatform);
+			PathFinder.findPath(path, rails, depotAndFirstPlatform, 0);
 
-			final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
-			lastPlatformAndDepot.add(lastPlatform);
-			lastPlatformAndDepot.add(this);
-			final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
-			PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
-
-			if (pathLastPlatformToDepot.isEmpty()) {
-				successfulSegments = successfulSegmentsMain + 1;
+			if (path.isEmpty()) {
+				successfulSegments = 1;
+			} else if (mainPath.isEmpty()) {
 				path.clear();
+				successfulSegments = successfulSegmentsMain + 1;
 			} else {
-				PathFinder.appendPath(path, pathLastPlatformToDepot);
-				successfulSegments = successfulSegmentsMain + 2;
+				PathFinder.appendPath(path, mainPath);
+
+				final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
+				lastPlatformAndDepot.add(lastPlatform);
+				lastPlatformAndDepot.add(this);
+				final List<PathData> pathLastPlatformToDepot = new ArrayList<>();
+				PathFinder.findPath(pathLastPlatformToDepot, rails, lastPlatformAndDepot, successfulSegmentsMain);
+
+				if (pathLastPlatformToDepot.isEmpty()) {
+					successfulSegments = successfulSegmentsMain + 1;
+					path.clear();
+				} else {
+					PathFinder.appendPath(path, pathLastPlatformToDepot);
+					successfulSegments = successfulSegmentsMain + 2;
+				}
 			}
 		}
 
@@ -527,12 +530,6 @@ public class Siding extends SavedRailBase implements IPacket {
 
 					if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * trainSpacing) / 2) {
 						isOnRoute = false;
-						ridingEntities.forEach(uuid -> {
-							final PlayerEntity player = world.getPlayerByUuid(uuid);
-							if (player != null) {
-								updatePlayerRiding(player, false);
-							}
-						});
 						ridingEntities.clear();
 						syncTrainToClient(world);
 						doorValueRaw = 0;
@@ -739,20 +736,22 @@ public class Siding extends SavedRailBase implements IPacket {
 							final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 							if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 								ridingEntities.add(player.getUuid());
-								updatePlayerRiding(player, true);
 								syncTrainToClient(world, player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 							}
 						});
 					}
 
+					final RailwayData railwayData = RailwayData.getInstance(world);
 					final Set<UUID> entitiesToRemove = new HashSet<>();
 					ridingEntities.forEach(uuid -> {
 						final PlayerEntity player = world.getPlayerByUuid(uuid);
 						if (player != null) {
 							final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 							if (player.isSpectator() || player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
-								updatePlayerRiding(player, false);
 								entitiesToRemove.add(uuid);
+							}
+							if (railwayData != null) {
+								railwayData.updatePlayerRiding(player);
 							}
 						}
 					});
@@ -1005,13 +1004,6 @@ public class Siding extends SavedRailBase implements IPacket {
 					}
 				}
 			}
-		}
-
-		private static void updatePlayerRiding(PlayerEntity player, boolean isRiding) {
-			player.fallDistance = 0;
-			player.setNoGravity(isRiding);
-			player.noClip = isRiding;
-			((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 		}
 	}
 
