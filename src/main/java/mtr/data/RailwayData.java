@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockRail;
+import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -36,6 +37,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
+	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 
@@ -203,6 +205,16 @@ public class RailwayData extends PersistentState implements IPacket {
 			siding.writeTrainPositions(trainPositions.get(1));
 		});
 
+		final Set<PlayerEntity> playersToRemove = new HashSet<>();
+		playerRidingCoolDown.forEach((player, coolDown) -> {
+			if (coolDown <= 0) {
+				updatePlayerRiding(player, false);
+				playersToRemove.add(player);
+			}
+			playerRidingCoolDown.put(player, coolDown - 1);
+		});
+		playersToRemove.forEach(playerRidingCoolDown::remove);
+
 		markDirty();
 	}
 
@@ -210,6 +222,11 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (!scheduleBroadcast.contains(player)) {
 			scheduleBroadcast.add(player);
 		}
+	}
+
+	public void updatePlayerRiding(PlayerEntity player) {
+		updatePlayerRiding(player, true);
+		playerRidingCoolDown.put(player, 2);
 	}
 
 	// writing data
@@ -253,13 +270,16 @@ public class RailwayData extends PersistentState implements IPacket {
 			final List<PathData> tempPath = new ArrayList<>();
 			final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 			final int[] successfulSegments = new int[1];
+			successfulSegments[0] = Integer.MAX_VALUE;
 			final int successfulSegmentsMain = depot.generateMainRoute(tempPath, platformsInRoute, rails, platforms, routes);
 
 			sidings.forEach(siding -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				if (depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
-					final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, platformsInRoute.get(0), platformsInRoute.get(platformsInRoute.size() - 1));
-					if (successfulSegments[0] == 0 || result < successfulSegments[0]) {
+					final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
+					final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
+					final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+					if (result < successfulSegments[0]) {
 						successfulSegments[0] = result;
 					}
 				}
@@ -432,6 +452,13 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 			return delete;
 		});
+	}
+
+	private static void updatePlayerRiding(PlayerEntity player, boolean isRiding) {
+		player.fallDistance = 0;
+		player.setNoGravity(isRiding);
+		player.noClip = isRiding;
+		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {
