@@ -1,6 +1,7 @@
 package mtr.item;
 
 import mtr.Blocks;
+import mtr.ItemGroups;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
@@ -9,7 +10,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.text.Style;
@@ -30,7 +30,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	private final EnumPSDAPGType type;
 
 	public ItemPSDAPGBase(EnumPSDAPGItem item, EnumPSDAPGType type) {
-		super(new Item.Settings().group(ItemGroup.DECORATIONS));
+		super(new Item.Settings().group(ItemGroups.RAILWAY_FACILITIES));
 		this.item = item;
 		this.type = type;
 	}

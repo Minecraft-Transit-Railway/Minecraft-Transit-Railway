@@ -6,16 +6,15 @@ import mtr.item.ItemEscalator;
 import mtr.item.ItemPSDAPGBase;
 import mtr.item.ItemRailModifier;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 
 public interface Items {
 
 	Item APG_DOOR = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item APG_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item APG_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG);
-	Item BRUSH = new Item(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
-	Item DASHBOARD = new ItemDashboard(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
-	Item ESCALATOR = new ItemEscalator(new Item.Settings().group(ItemGroup.TRANSPORTATION));
+	Item BRUSH = new Item(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
+	Item DASHBOARD = new ItemDashboard(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
+	Item ESCALATOR = new ItemEscalator(new Item.Settings().group(ItemGroups.RAILWAY_FACILITIES));
 	Item PSD_DOOR_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
 	Item PSD_GLASS_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
 	Item PSD_GLASS_END_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
