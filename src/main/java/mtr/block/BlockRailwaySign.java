@@ -52,7 +52,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			final Direction hitSide = hit.getSide();
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
-				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), hitSide.getOpposite());
+				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), false);
 				if (checkPos != null) {
 					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, checkPos);
 				}
@@ -80,16 +80,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final boolean isNorthOrSouth = facing == Direction.NORTH || facing == Direction.SOUTH;
 
-		final BlockPos checkPos = findEndWithDirection(world, pos, facing, isNorthOrSouth ? Direction.NORTH : Direction.EAST);
+		final BlockPos checkPos = findEndWithDirection(world, pos, facing, true);
 		if (checkPos != null) {
 			IBlock.onBreakCreative(world, player, checkPos);
-		} else {
-			final BlockPos checkPos2 = findEndWithDirection(world, pos, facing.getOpposite(), isNorthOrSouth ? Direction.NORTH : Direction.EAST);
-			if (checkPos2 != null) {
-				IBlock.onBreakCreative(world, player, checkPos2);
-			}
 		}
 
 		super.onBreak(world, pos, state, player);
@@ -163,13 +157,14 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		return (length - (4 - getXStart() / 4)) / 2;
 	}
 
-	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction startDirection, Direction endDirection) {
+	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction direction, boolean allowOpposite) {
 		int i = 0;
 		while (true) {
-			final BlockPos checkPos = startPos.offset(startDirection.rotateYCounterclockwise(), i);
+			final BlockPos checkPos = startPos.offset(direction.rotateYCounterclockwise(), i);
 			final BlockState checkState = world.getBlockState(checkPos);
 			if (checkState.getBlock() instanceof BlockRailwaySign) {
-				if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && IBlock.getStatePropertySafe(checkState, FACING) == endDirection) {
+				final Direction facing = IBlock.getStatePropertySafe(checkState, FACING);
+				if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && (facing == direction || allowOpposite && facing == direction.getOpposite())) {
 					return checkPos;
 				}
 			} else {
