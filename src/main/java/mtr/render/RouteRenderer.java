@@ -43,7 +43,10 @@ public class RouteRenderer implements IGui {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
 		this.immediate = immediate;
-		routeData = platform == null ? new ArrayList<>() : ClientData.platformToRoute.get(platform);
+
+		final List<ClientData.PlatformRouteDetails> platformRouteDetails = ClientData.platformToRoute.get(platform);
+		routeData = platform == null || platformRouteDetails == null ? new ArrayList<>() : platformRouteDetails;
+
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		this.glowing = glowing;
@@ -51,7 +54,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderColorStrip(float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int light) {
-		final int routeCount = getRouteCount();
+		final int routeCount = routeData.size();
 		if (routeCount <= 0) {
 			return;
 		}
@@ -68,7 +71,8 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light) {
-		final int routeCount = getRouteCount();
+		final List<ClientData.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).collect(Collectors.toList());
+		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
 		}
@@ -81,9 +85,9 @@ public class RouteRenderer implements IGui {
 		final int newLight = convertLight(light);
 
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).routeColor + ARGB_BLACK;
-			final int currentStationIndex = routeData.get(i).currentStationIndex;
-			final List<ClientData.PlatformRouteDetails.StationDetails> stationDetails = routeData.get(i).stationDetails;
+			final int routeColor = filteredRouteData.get(i).routeColor + ARGB_BLACK;
+			final int currentStationIndex = filteredRouteData.get(i).currentStationIndex;
+			final List<ClientData.PlatformRouteDetails.StationDetails> stationDetails = filteredRouteData.get(i).stationDetails;
 			final int routeLength = stationDetails.size();
 			final float routePosition = routeHeight * (i + 0.5F) + side1 * scaleSmaller;
 
@@ -95,7 +99,7 @@ public class RouteRenderer implements IGui {
 			if (vertical) {
 				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(thisStationPosition, endScaled), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), smallOffset, facing, PASSED_STATION_COLOR, newLight);
 				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(startScaled, thisStationPosition), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), smallOffset, facing, routeColor, newLight);
-				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, routeData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, filteredRouteData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
 			} else {
 				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, PASSED_STATION_COLOR, newLight);
 				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, routeColor, newLight);
@@ -164,7 +168,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, Direction facing, int light, boolean visibleArrow) {
-		final int routeCount = getRouteCount();
+		final int routeCount = routeData.size();
 		if (routeCount <= 0) {
 			return;
 		}
@@ -234,10 +238,6 @@ public class RouteRenderer implements IGui {
 		}
 
 		matrices.pop();
-	}
-
-	private int getRouteCount() {
-		return routeData == null ? -1 : routeData.size();
 	}
 
 	private float getStationPosition(int stationIndex, int routeLength, float startScaled, float endScaled) {

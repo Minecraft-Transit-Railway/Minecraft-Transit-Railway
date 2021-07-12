@@ -9,13 +9,15 @@ public class ModelLightRail1 extends ModelTrainBase {
 	private final ModelPart window;
 	private final ModelPart window_exterior;
 	private final ModelPart door;
-	private final ModelPart handrail_6_r1;
 	private final ModelPart door_left;
 	private final ModelPart door_right;
+	private final ModelPart door_handrails;
+	private final ModelPart handrail_6_r1;
 	private final ModelPart door_exterior;
 	private final ModelPart door_left_exterior;
 	private final ModelPart door_right_exterior;
 	private final ModelPart door_window;
+	private final ModelPart door_window_handrails;
 	private final ModelPart handrail_6_r2;
 	private final ModelPart door_window_exterior;
 	private final ModelPart roof;
@@ -71,26 +73,6 @@ public class ModelLightRail1 extends ModelTrainBase {
 		door = new ModelPart(this);
 		door.setPivot(0.0F, 24.0F, 0.0F);
 		door.setTextureOffset(206, 65).addCuboid(-20.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
-		door.setTextureOffset(120, 0).addCuboid(-18.0F, -15.0F, 16.0F, 5.0F, 13.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(120, 0).addCuboid(-18.0F, -15.0F, -16.0F, 5.0F, 13.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 0).addCuboid(-13.0F, -36.0F, 16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door.setTextureOffset(0, 0).addCuboid(-13.0F, -36.0F, -16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door.setTextureOffset(4, 0).addCuboid(-9.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-
-		handrail_6_r1 = new ModelPart(this);
-		handrail_6_r1.setPivot(0.0F, 0.0F, 0.0F);
-		door.addChild(handrail_6_r1);
-		setRotationAngle(handrail_6_r1, -1.5708F, 0.0F, 0.0F);
-		handrail_6_r1.setTextureOffset(8, 0).addCuboid(-13.0F, 16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
-		handrail_6_r1.setTextureOffset(8, 0).addCuboid(-13.0F, -48.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
 
 		door_left = new ModelPart(this);
 		door_left.setPivot(0.0F, 0.0F, 0.0F);
@@ -101,6 +83,29 @@ public class ModelLightRail1 extends ModelTrainBase {
 		door_right.setPivot(0.0F, 0.0F, 0.0F);
 		door.addChild(door_right);
 		door_right.setTextureOffset(206, 116).addCuboid(-20.0F, -32.0F, -15.0F, 0.0F, 32.0F, 15.0F, 0.0F, false);
+
+		door_handrails = new ModelPart(this);
+		door_handrails.setPivot(0.0F, 24.0F, 0.0F);
+		door_handrails.setTextureOffset(120, 0).addCuboid(-18.0F, -15.0F, 16.0F, 5.0F, 13.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(120, 0).addCuboid(-18.0F, -15.0F, -16.0F, 5.0F, 13.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 0).addCuboid(-13.0F, -36.0F, 16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_handrails.setTextureOffset(0, 0).addCuboid(-13.0F, -36.0F, -16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_handrails.setTextureOffset(4, 0).addCuboid(-9.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, 44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_handrails.setTextureOffset(0, 75).addCuboid(-15.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+
+		handrail_6_r1 = new ModelPart(this);
+		handrail_6_r1.setPivot(0.0F, 0.0F, 0.0F);
+		door_handrails.addChild(handrail_6_r1);
+		setRotationAngle(handrail_6_r1, -1.5708F, 0.0F, 0.0F);
+		handrail_6_r1.setTextureOffset(8, 0).addCuboid(-13.0F, 16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+		handrail_6_r1.setTextureOffset(8, 0).addCuboid(-13.0F, -48.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
 
 		door_exterior = new ModelPart(this);
 		door_exterior.setPivot(0.0F, 24.0F, 0.0F);
@@ -121,27 +126,30 @@ public class ModelLightRail1 extends ModelTrainBase {
 		door_window.setPivot(0.0F, 24.0F, 0.0F);
 		door_window.setTextureOffset(202, 28).addCuboid(0.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
 		door_window.setTextureOffset(0, 98).addCuboid(18.0F, -32.0F, -14.0F, 2.0F, 32.0F, 28.0F, 0.0F, true);
-		door_window.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, 16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, -16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, 16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door_window.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, -16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door_window.setTextureOffset(4, 0).addCuboid(7.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-		door_window.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+
+		door_window_handrails = new ModelPart(this);
+		door_window_handrails.setPivot(0.0F, 24.0F, 0.0F);
+		door_window_handrails.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, 16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(32, 98).addCuboid(7.0F, -15.0F, -16.0F, 11.0F, 13.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, 16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_window_handrails.setTextureOffset(0, 0).addCuboid(7.0F, -36.0F, -16.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_window_handrails.setTextureOffset(4, 0).addCuboid(7.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -4.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -12.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, 44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -44.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -36.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -28.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+		door_window_handrails.setTextureOffset(0, 75).addCuboid(5.0F, -32.0F, -20.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 
 		handrail_6_r2 = new ModelPart(this);
 		handrail_6_r2.setPivot(0.0F, 0.0F, 0.0F);
-		door_window.addChild(handrail_6_r2);
+		door_window_handrails.addChild(handrail_6_r2);
 		setRotationAngle(handrail_6_r2, -1.5708F, 0.0F, 0.0F);
 		handrail_6_r2.setTextureOffset(8, 0).addCuboid(7.0F, 16.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
 		handrail_6_r2.setTextureOffset(8, 0).addCuboid(7.0F, -48.0F, -32.0F, 0.0F, 32.0F, 0.0F, 0.2F, false);
@@ -380,14 +388,16 @@ public class ModelLightRail1 extends ModelTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", true, false);
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
-				for (int z = position - 24; z <= position + 24; z += 16) {
-					renderOnce(seat, matrices, vertices, light, 15, z);
-					renderOnce(seat, matrices, vertices, light, -8.5F, z);
-					renderOnce(seat, matrices, vertices, light, -15, z);
+				if (renderDetails) {
+					for (int z = position - 24; z <= position + 24; z += 16) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
 				}
 				break;
 			case EXTERIOR:
@@ -402,7 +412,9 @@ public class ModelLightRail1 extends ModelTrainBase {
 					renderMirror(roof_light, matrices, vertices, light, roofPosition);
 					break;
 				case INTERIOR:
-					renderMirror(roof, matrices, vertices, light, roofPosition);
+					if (renderDetails) {
+						renderMirror(roof, matrices, vertices, light, roofPosition);
+					}
 					break;
 				case EXTERIOR:
 					renderMirror(roof_exterior, matrices, vertices, light, roofPosition);
@@ -412,7 +424,7 @@ public class ModelLightRail1 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
@@ -422,7 +434,11 @@ public class ModelLightRail1 extends ModelTrainBase {
 				door_right.setPivot(0, 0, -doorLeftZ);
 				renderOnceFlipped(door, matrices, vertices, light, position);
 				renderOnceFlipped(door_window, matrices, vertices, light, position);
-				renderMirror(roof, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnceFlipped(door_handrails, matrices, vertices, light, position);
+					renderOnceFlipped(door_window_handrails, matrices, vertices, light, position);
+					renderMirror(roof, matrices, vertices, light, position);
+				}
 				break;
 			case EXTERIOR:
 				door_left_exterior.setPivot(0, 0, doorLeftZ);
@@ -438,7 +454,7 @@ public class ModelLightRail1 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
@@ -448,12 +464,14 @@ public class ModelLightRail1 extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
-				for (int z = position - 8; z <= position + 8; z += 16) {
-					renderOnce(seat, matrices, vertices, light, 15, z);
-					renderOnce(seat, matrices, vertices, light, -8.5F, z);
-					renderOnce(seat, matrices, vertices, light, -15, z);
+				if (renderDetails) {
+					for (int z = position - 8; z <= position + 8; z += 16) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
+					renderMirror(roof, matrices, vertices, light, position);
 				}
-				renderMirror(roof, matrices, vertices, light, position);
 				break;
 			case EXTERIOR:
 				renderOnce(head_exterior, matrices, vertices, light, position);
@@ -464,7 +482,7 @@ public class ModelLightRail1 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
@@ -474,12 +492,14 @@ public class ModelLightRail1 extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
-				for (int z = position - 8; z <= position + 8; z += 16) {
-					renderOnce(seat, matrices, vertices, light, 15, z);
-					renderOnce(seat, matrices, vertices, light, -8.5F, z);
-					renderOnce(seat, matrices, vertices, light, -15, z);
+				if (renderDetails) {
+					for (int z = position - 8; z <= position + 8; z += 16) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
+					renderMirror(roof, matrices, vertices, light, position);
 				}
-				renderMirror(roof, matrices, vertices, light, position);
 				break;
 			case EXTERIOR:
 				renderOnce(end_exterior, matrices, vertices, light, position);
@@ -490,13 +510,13 @@ public class ModelLightRail1 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
-		renderHeadPosition1(matrices, vertices, renderStage, light, position, true);
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+		renderHeadPosition1(matrices, vertices, renderStage, light, position, renderDetails, true);
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
-		renderHeadPosition2(matrices, vertices, renderStage, light, position, false);
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+		renderHeadPosition2(matrices, vertices, renderStage, light, position, renderDetails, false);
 	}
 
 	@Override

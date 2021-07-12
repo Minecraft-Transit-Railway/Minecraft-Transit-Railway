@@ -1405,15 +1405,17 @@ public class ModelSP1900 extends ModelTrainBase {
 	private static final ModelDoorOverlayTop MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTop();
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
-				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
-				renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+					renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
@@ -1438,7 +1440,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
@@ -1448,7 +1450,7 @@ public class ModelSP1900 extends ModelTrainBase {
 				if (isC1141A) {
 					renderMirror(door_light_c1141a, matrices, vertices, light, position);
 				}
-				if (middleDoor && doorOpen) {
+				if (middleDoor && doorOpen && renderDetails) {
 					renderMirror(door_light_on, matrices, vertices, light, position - 32);
 				}
 				break;
@@ -1459,12 +1461,15 @@ public class ModelSP1900 extends ModelTrainBase {
 				door_left.setPivot(0, 0, doorLeftZ);
 				door_right.setPivot(0, 0, -doorLeftZ);
 				renderOnceFlipped(door, matrices, vertices, light, position);
-				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
-						renderOnce(bb_main, matrices, vertices, light, position);
-					} else {
-						renderOnce(tv_pole, matrices, vertices, light, position);
+
+				if (renderDetails) {
+					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
+							renderOnce(bb_main, matrices, vertices, light, position);
+						} else {
+							renderOnce(tv_pole, matrices, vertices, light, position);
+						}
 					}
 				}
 
@@ -1486,7 +1491,7 @@ public class ModelSP1900 extends ModelTrainBase {
 					renderOnce(door_exterior_2, matrices, vertices, light, position);
 				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
-				if (middleDoor && !doorOpen) {
+				if (middleDoor && !doorOpen && renderDetails) {
 					renderMirror(door_light_off, matrices, vertices, light, position - 32);
 				}
 				break;
@@ -1494,7 +1499,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
@@ -1504,9 +1509,11 @@ public class ModelSP1900 extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnceFlipped(head, matrices, vertices, light, position);
-				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+				if (renderDetails) {
+					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1524,7 +1531,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
@@ -1534,9 +1541,11 @@ public class ModelSP1900 extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
-				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+				if (renderDetails) {
+					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1554,18 +1563,20 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
-				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (isC1141A) {
-					renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
-				} else {
-					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (isC1141A) {
+						renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
+					} else {
+						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1583,18 +1594,20 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(end, matrices, vertices, light, position);
-				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (isC1141A) {
-					renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
-				} else {
-					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (isC1141A) {
+						renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
+					} else {
+						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:

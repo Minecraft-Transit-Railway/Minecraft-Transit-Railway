@@ -20,7 +20,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -86,10 +85,13 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		if (IBlock.getStatePropertySafe(state, AIR_LEFT) || IBlock.getStatePropertySafe(state, AIR_RIGHT)) {
-			return VoxelShapes.fullCube();
+		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
+		final boolean airLeft = IBlock.getStatePropertySafe(state, AIR_LEFT);
+		final boolean airRight = IBlock.getStatePropertySafe(state, AIR_RIGHT);
+		if (airLeft || airRight) {
+			return BlockPSDAPGGlassEndBase.getEndOutlineShape(baseShape, state, 16, 6, airLeft, airRight);
 		} else {
-			return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
+			return baseShape;
 		}
 	}
 

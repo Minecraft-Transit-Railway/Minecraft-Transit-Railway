@@ -1,37 +1,9 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"light": "mtr:block/light_off",
-		"particle": "mtr:block/psd_top_edge"
+		"light": "mtr:block/light_off"
 	},
 	"elements": [
-		{
-			"__comment": "Main particle",
-			"from": [ 11, 1, 0 ],
-			"to": [ 17, 16, 16 ],
-			"rotation": { "origin": [ 16, 0, 0 ], "axis": "y", "angle": -45 },
-			"faces": {
-				"down": { "uv": [ 2, 3, 2, 3 ], "texture": "#particle" },
-				"up": { "uv": [ 2, 3, 2, 3 ], "texture": "#particle", "cullface": "up" },
-				"east": { "uv": [ 16, 1, 0, 16 ], "texture": "#particle" },
-				"west": { "uv": [ 0, 1, 16, 16 ], "texture": "#particle" },
-				"north": { "uv": [ 2, 1, 8, 16 ], "texture": "#particle" },
-				"south": { "uv": [ 2, 1, 8, 16 ], "texture": "#particle" }
-			}
-		},
-		{
-			"__comment": "Bottom part",
-			"from": [ 11, 0, 0 ],
-			"to": [ 16, 1, 16 ],
-			"rotation": { "origin": [ 16, 0, 0 ], "axis": "y", "angle": -45 },
-			"faces": {
-				"down": { "uv": [ 2, 3, 2, 3 ], "texture": "#particle" },
-				"east": { "uv": [ 16, 0, 0, 1 ], "texture": "#particle" },
-				"west": { "uv": [ 0, 0, 16, 1 ], "texture": "#particle" },
-				"north": { "uv": [ 2, 0, 7, 1 ], "texture": "#particle" },
-				"south": { "uv": [ 2, 0, 7, 1 ], "texture": "#particle" }
-			}
-		},
 		{
 			"__comment": "Light",
 			"from": [ 16, 0, 6 ],
