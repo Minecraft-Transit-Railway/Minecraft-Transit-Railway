@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
 import mtr.data.Rail;
@@ -10,7 +11,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
@@ -34,14 +34,14 @@ public class ItemRailModifier extends Item {
 	public static final String TAG_POS = "pos";
 
 	public ItemRailModifier() {
-		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
+		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
 		isConnector = false;
 		isOneWay = false;
 		railType = null;
 	}
 
 	public ItemRailModifier(boolean isOneWay, RailType railType) {
-		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
+		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
 		isConnector = true;
 		this.isOneWay = isOneWay;
 		this.railType = railType;
