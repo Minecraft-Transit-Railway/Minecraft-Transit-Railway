@@ -154,7 +154,7 @@ public class Siding extends SavedRailBase implements IPacket {
 					}
 				}
 				if (!updated) {
-					final Train newTrain = new Train(trainId, id, railLength, path, distances);
+					final Train newTrain = new Train(null, trainId, id, railLength, path, distances);
 					trains.add(newTrain);
 					newTrain.update(KEY_TRAINS, packet);
 				}
@@ -262,18 +262,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void writeTrainPositions(Set<UUID> trainPositions) {
-		trains.forEach(train -> train.writeTrainPositions(trainPositions, trainTypeMapping, trainLength));
-	}
-
-	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, Set<UUID> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
+	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, List<Set<UUID>> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
 		int trainsAtDepot = 0;
 		boolean spawnTrain = true;
 
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final List<Train> trainsToRemove = new ArrayList<>();
 		for (final Train train : trains) {
-			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions, renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
+			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions == null ? null : trainPositions.get(0), renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
 
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
 				spawnTrain = false;
@@ -291,11 +287,15 @@ public class Siding extends SavedRailBase implements IPacket {
 				trainsToRemove.add(train);
 			}
 			railProgressSet.add(roundedRailProgress);
+
+			if (trainPositions != null) {
+				train.writeTrainPositions(trainPositions.get(1), trainTypeMapping, trainLength);
+			}
 		}
 
 		if (world != null && !world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
 			final long trainId = new Random().nextLong();
-			trains.add(new Train(trainId, id, railLength, path, distances));
+			trains.add(new Train(world, trainId, id, railLength, path, distances));
 		}
 
 		trainsToRemove.forEach(trains::remove);
@@ -323,7 +323,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		if (depot != null) {
 			depot.clientPathGenerationSuccessfulSegments = 0;
 		}
-		trains.add(new Train(0, id, railLength, path, distances));
+		trains.add(new Train(null, 0, id, railLength, path, distances));
 	}
 
 	private void generateDistances() {
@@ -349,6 +349,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		private float clientPercentageX;
 		private float clientPercentageZ;
+		private float clientPrevYaw;
 
 		private final long sidingId;
 		private final float railLength;
@@ -375,12 +376,13 @@ public class Siding extends SavedRailBase implements IPacket {
 		private static final float CONNECTION_Z_OFFSET = 0.5F;
 		private static final float CONNECTION_X_OFFSET = 0.25F;
 
-		private Train(long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
+		private Train(World world, long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
 			super(id);
 			this.sidingId = sidingId;
 			this.railLength = railLength;
 			this.path = path;
 			this.distances = distances;
+			syncTrainToClient(world);
 		}
 
 		private Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -492,7 +494,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				final int headIndex = getIndex(0, trainSpacing, true);
 				final int tailIndex = getIndex(trainLength, trainSpacing, false);
 				for (int i = tailIndex; i <= headIndex; i++) {
-					if (i > 0) {
+					if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 						trainPositions.add(path.get(i).getRailProduct());
 					}
 				}
@@ -619,8 +621,11 @@ public class Siding extends SavedRailBase implements IPacket {
 							clientPlayer.move(MovementType.SELF, playerOffset.subtract(clientPlayer.getPos()));
 
 							if (speed > 0) {
+								clientPlayer.yaw -= Math.toDegrees(yaw - clientPrevYaw);
 								offset.add(playerOffset.add(0, clientPlayer.getStandingEyeHeight(), 0));
 							}
+
+							clientPrevYaw = yaw;
 						});
 					}
 

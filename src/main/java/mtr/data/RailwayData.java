@@ -201,8 +201,7 @@ public class RailwayData extends PersistentState implements IPacket {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(null, 1, trainPositions.get(0), null, null, null, null, null);
-			siding.writeTrainPositions(trainPositions.get(1));
+			siding.simulateTrain(null, 1, trainPositions, null, null, null, null, null);
 		});
 
 		final Set<PlayerEntity> playersToRemove = new HashSet<>();
@@ -258,6 +257,14 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public boolean hasSavedRail(BlockPos pos) {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
+	}
+
+	public boolean noTrainsInDepot(Depot depot) {
+		return trainPositions.get(0).stream().noneMatch(uuid -> {
+			final BlockPos pos1 = BlockPos.fromLong(uuid.getLeastSignificantBits());
+			final BlockPos pos2 = BlockPos.fromLong(uuid.getMostSignificantBits());
+			return depot.inArea(pos1.getX(), pos1.getZ()) || depot.inArea(pos2.getX(), pos2.getZ());
+		});
 	}
 
 	public void disconnectPlayer(PlayerEntity player) {
