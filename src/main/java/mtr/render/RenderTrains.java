@@ -68,15 +68,17 @@ public class RenderTrains implements IGui {
 			return;
 		}
 
+		final int renderDistanceChunks = client.options.viewDistance;
+
 		if (Config.useDynamicFPS()) {
 			final float lastFrameDuration = client.getLastFrameDuration();
 			if (lastFrameDuration > 0.8) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.5) {
-				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, MAX_RADIUS_REPLAY_MOD);
+				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * 8);
 			}
 		} else {
-			maxTrainRenderDistance = client.options.viewDistance * 8;
+			maxTrainRenderDistance = renderDistanceChunks * 8;
 		}
 
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
@@ -193,7 +195,7 @@ public class RenderTrains implements IGui {
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
-		final int maxRailDistance = client.options.viewDistance * 16;
+		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
@@ -263,7 +265,7 @@ public class RenderTrains implements IGui {
 
 	private static void renderWithLight(World world, float x, float y, float z, Vec3d cameraPos, PlayerEntity player, boolean offsetRender, RenderCallback renderCallback) {
 		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).add(x, y, z) : new BlockPos(x, y, z);
-		if (!shouldNotRender(player, posAverage, maxTrainRenderDistance)) {
+		if (!shouldNotRender(player, posAverage, MinecraftClient.getInstance().options.viewDistance * 8)) {
 			renderCallback.renderCallback(LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage)), posAverage);
 		}
 	}

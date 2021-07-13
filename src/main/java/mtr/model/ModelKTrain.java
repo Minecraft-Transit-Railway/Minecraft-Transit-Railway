@@ -7,6 +7,8 @@ import net.minecraft.client.util.math.MatrixStack;
 public class ModelKTrain extends ModelTrainBase {
 
 	private final ModelPart window;
+	private final ModelPart upper_wall_r1;
+	private final ModelPart window_handrail;
 	private final ModelPart handrail_8_r1;
 	private final ModelPart top_handrail_6_r1;
 	private final ModelPart top_handrail_5_r1;
@@ -19,7 +21,7 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelPart seat;
 	private final ModelPart seat_back_r1;
 	private final ModelPart window_exterior;
-	private final ModelPart upper_wall_r1;
+	private final ModelPart upper_wall_r2;
 	private final ModelPart side_panel;
 	private final ModelPart roof_window;
 	private final ModelPart inner_roof_4_r1;
@@ -37,8 +39,9 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelPart door_left_top_r1;
 	private final ModelPart door_right;
 	private final ModelPart door_right_top_r1;
+	private final ModelPart door_handrail;
 	private final ModelPart door_exterior;
-	private final ModelPart upper_wall_r2;
+	private final ModelPart upper_wall_r3;
 	private final ModelPart door_left_exterior;
 	private final ModelPart door_left_top_r2;
 	private final ModelPart door_right_exterior;
@@ -117,62 +120,71 @@ public class ModelKTrain extends ModelTrainBase {
 		window = new ModelPart(this);
 		window.setPivot(0.0F, 24.0F, 0.0F);
 		window.setTextureOffset(0, 42).addCuboid(-20.0F, 0.0F, -24.0F, 20.0F, 1.0F, 48.0F, 0.0F, false);
-		window.setTextureOffset(148, 169).addCuboid(-21.0F, -14.0F, 21.0F, 4.0F, 14.0F, 6.0F, 0.0F, false);
-		window.setTextureOffset(168, 52).addCuboid(-21.0F, -14.0F, -27.0F, 4.0F, 14.0F, 6.0F, 0.0F, false);
-		window.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, -9.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
-		window.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, 9.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 21.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 15.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -15.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		window.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -21.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
+		upper_wall_r1 = new ModelPart(this);
+		upper_wall_r1.setPivot(-21.0F, -14.0F, 0.0F);
+		window.addChild(upper_wall_r1);
+		setRotationAngle(upper_wall_r1, 0.0F, 0.0F, 0.1107F);
+		upper_wall_r1.setTextureOffset(0, 129).addCuboid(1.0F, -19.0F, -22.0F, 2.0F, 19.0F, 44.0F, 0.0F, false);
+
+		window_handrail = new ModelPart(this);
+		window_handrail.setPivot(0.0F, 24.0F, 0.0F);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -21.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrail.setTextureOffset(148, 169).addCuboid(-21.0F, -14.0F, 21.0F, 4.0F, 14.0F, 6.0F, 0.0F, false);
+		window_handrail.setTextureOffset(168, 52).addCuboid(-21.0F, -14.0F, -27.0F, 4.0F, 14.0F, 6.0F, 0.0F, false);
+		window_handrail.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, -9.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
+		window_handrail.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, 9.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 21.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 15.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, 3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -3.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrail.setTextureOffset(29, 0).addCuboid(-1.0F, -32.0F, -15.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 
 		handrail_8_r1 = new ModelPart(this);
 		handrail_8_r1.setPivot(0.0F, 0.0F, 0.0F);
-		window.addChild(handrail_8_r1);
+		window_handrail.addChild(handrail_8_r1);
 		setRotationAngle(handrail_8_r1, -1.5708F, 0.0F, 0.0F);
 		handrail_8_r1.setTextureOffset(0, 0).addCuboid(0.0F, -24.0F, -31.5F, 0.0F, 48.0F, 0.0F, 0.2F, false);
 
 		top_handrail_6_r1 = new ModelPart(this);
 		top_handrail_6_r1.setPivot(-12.0518F, -29.0895F, 9.5876F);
-		window.addChild(top_handrail_6_r1);
+		window_handrail.addChild(top_handrail_6_r1);
 		setRotationAngle(top_handrail_6_r1, 1.5708F, 0.0F, -0.0436F);
 		top_handrail_6_r1.setTextureOffset(0, 0).addCuboid(0.0F, -9.5F, 0.0F, 0.0F, 20.0F, 0.0F, 0.2F, false);
 
 		top_handrail_5_r1 = new ModelPart(this);
 		top_handrail_5_r1.setPivot(-12.0377F, -28.7666F, 20.7938F);
-		window.addChild(top_handrail_5_r1);
+		window_handrail.addChild(top_handrail_5_r1);
 		setRotationAngle(top_handrail_5_r1, 1.0472F, 0.0F, -0.0436F);
 		top_handrail_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_4_r1 = new ModelPart(this);
 		top_handrail_4_r1.setPivot(-11.9992F, -27.8844F, 21.6768F);
-		window.addChild(top_handrail_4_r1);
+		window_handrail.addChild(top_handrail_4_r1);
 		setRotationAngle(top_handrail_4_r1, 0.5236F, 0.0F, -0.0436F);
 		top_handrail_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_3_r1 = new ModelPart(this);
 		top_handrail_3_r1.setPivot(-12.0518F, -29.0895F, -9.5876F);
-		window.addChild(top_handrail_3_r1);
+		window_handrail.addChild(top_handrail_3_r1);
 		setRotationAngle(top_handrail_3_r1, -1.5708F, 0.0F, -0.0436F);
 		top_handrail_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, -9.5F, 0.0F, 0.0F, 20.0F, 0.0F, 0.2F, false);
 
 		top_handrail_2_r1 = new ModelPart(this);
 		top_handrail_2_r1.setPivot(-12.0377F, -28.7666F, -20.7938F);
-		window.addChild(top_handrail_2_r1);
+		window_handrail.addChild(top_handrail_2_r1);
 		setRotationAngle(top_handrail_2_r1, -1.0472F, 0.0F, -0.0436F);
 		top_handrail_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		top_handrail_1_r1 = new ModelPart(this);
 		top_handrail_1_r1.setPivot(-11.9992F, -27.8844F, -21.6768F);
-		window.addChild(top_handrail_1_r1);
+		window_handrail.addChild(top_handrail_1_r1);
 		setRotationAngle(top_handrail_1_r1, -0.5236F, 0.0F, -0.0436F);
 		top_handrail_1_r1.setTextureOffset(0, 0).addCuboid(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		handrail_5_r1 = new ModelPart(this);
 		handrail_5_r1.setPivot(-11.0F, -5.0F, 0.0F);
-		window.addChild(handrail_5_r1);
+		window_handrail.addChild(handrail_5_r1);
 		setRotationAngle(handrail_5_r1, 0.0F, 0.0F, -0.0436F);
 		handrail_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -28.2F, -14.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
 		handrail_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, -28.2F, 14.0F, 0.0F, 4.0F, 0.0F, 0.2F, false);
@@ -181,15 +193,14 @@ public class ModelKTrain extends ModelTrainBase {
 
 		upper_wall_2_r1 = new ModelPart(this);
 		upper_wall_2_r1.setPivot(-21.0F, -14.0F, 0.0F);
-		window.addChild(upper_wall_2_r1);
+		window_handrail.addChild(upper_wall_2_r1);
 		setRotationAngle(upper_wall_2_r1, 0.0F, 0.0F, 0.1107F);
 		upper_wall_2_r1.setTextureOffset(120, 166).addCuboid(0.0F, -19.0F, -27.0F, 4.0F, 19.0F, 5.0F, 0.0F, false);
 		upper_wall_2_r1.setTextureOffset(211, 91).addCuboid(0.0F, -19.0F, 22.0F, 4.0F, 19.0F, 5.0F, 0.0F, false);
-		upper_wall_2_r1.setTextureOffset(0, 129).addCuboid(1.0F, -19.0F, -22.0F, 2.0F, 19.0F, 44.0F, 0.0F, false);
 
 		seat = new ModelPart(this);
 		seat.setPivot(0.0F, 0.0F, 0.0F);
-		window.addChild(seat);
+		window_handrail.addChild(seat);
 		seat.setTextureOffset(148, 145).addCuboid(-18.0F, -6.0F, -22.0F, 7.0F, 1.0F, 44.0F, 0.0F, false);
 		seat.setTextureOffset(188, 73).addCuboid(-18.0F, -5.0F, -21.0F, 5.0F, 5.0F, 42.0F, 0.0F, false);
 
@@ -204,11 +215,11 @@ public class ModelKTrain extends ModelTrainBase {
 		window_exterior.setTextureOffset(98, 145).addCuboid(-21.0F, 0.0F, -24.0F, 1.0F, 4.0F, 48.0F, 0.0F, false);
 		window_exterior.setTextureOffset(0, 63).addCuboid(-21.0F, -14.0F, -26.0F, 0.0F, 14.0F, 52.0F, 0.0F, false);
 
-		upper_wall_r1 = new ModelPart(this);
-		upper_wall_r1.setPivot(-21.0F, -14.0F, 0.0F);
-		window_exterior.addChild(upper_wall_r1);
-		setRotationAngle(upper_wall_r1, 0.0F, 0.0F, 0.1107F);
-		upper_wall_r1.setTextureOffset(0, 41).addCuboid(0.0F, -22.0F, -26.0F, 0.0F, 22.0F, 52.0F, 0.0F, false);
+		upper_wall_r2 = new ModelPart(this);
+		upper_wall_r2.setPivot(-21.0F, -14.0F, 0.0F);
+		window_exterior.addChild(upper_wall_r2);
+		setRotationAngle(upper_wall_r2, 0.0F, 0.0F, 0.1107F);
+		upper_wall_r2.setTextureOffset(0, 41).addCuboid(0.0F, -22.0F, -26.0F, 0.0F, 22.0F, 52.0F, 0.0F, false);
 
 		side_panel = new ModelPart(this);
 		side_panel.setPivot(0.0F, 24.0F, 0.0F);
@@ -279,7 +290,6 @@ public class ModelKTrain extends ModelTrainBase {
 		door = new ModelPart(this);
 		door.setPivot(0.0F, 24.0F, 0.0F);
 		door.setTextureOffset(164, 190).addCuboid(-20.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
-		door.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, 0.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
 
 		door_left = new ModelPart(this);
 		door_left.setPivot(0.0F, 0.0F, 0.0F);
@@ -303,15 +313,19 @@ public class ModelKTrain extends ModelTrainBase {
 		setRotationAngle(door_right_top_r1, 0.0F, 0.0F, 0.1107F);
 		door_right_top_r1.setTextureOffset(178, 0).addCuboid(0.0F, -19.0F, -14.0F, 1.0F, 19.0F, 14.0F, 0.0F, false);
 
+		door_handrail = new ModelPart(this);
+		door_handrail.setPivot(0.0F, 24.0F, 0.0F);
+		door_handrail.setTextureOffset(8, 0).addCuboid(0.0F, -35.0F, 0.0F, 0.0F, 35.0F, 0.0F, 0.2F, false);
+
 		door_exterior = new ModelPart(this);
 		door_exterior.setPivot(0.0F, 24.0F, 0.0F);
 		door_exterior.setTextureOffset(114, 161).addCuboid(-21.0F, 0.0F, -16.0F, 1.0F, 4.0F, 32.0F, 0.0F, false);
 
-		upper_wall_r2 = new ModelPart(this);
-		upper_wall_r2.setPivot(-21.0F, -14.0F, 0.0F);
-		door_exterior.addChild(upper_wall_r2);
-		setRotationAngle(upper_wall_r2, 0.0F, 0.0F, 0.1107F);
-		upper_wall_r2.setTextureOffset(77, 259).addCuboid(0.0F, -22.0F, -14.0F, 1.0F, 3.0F, 28.0F, 0.0F, false);
+		upper_wall_r3 = new ModelPart(this);
+		upper_wall_r3.setPivot(-21.0F, -14.0F, 0.0F);
+		door_exterior.addChild(upper_wall_r3);
+		setRotationAngle(upper_wall_r3, 0.0F, 0.0F, 0.1107F);
+		upper_wall_r3.setTextureOffset(77, 259).addCuboid(0.0F, -22.0F, -14.0F, 1.0F, 3.0F, 28.0F, 0.0F, false);
 
 		door_left_exterior = new ModelPart(this);
 		door_left_exterior.setPivot(0.0F, 0.0F, 0.0F);
@@ -731,14 +745,17 @@ public class ModelKTrain extends ModelTrainBase {
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_k_train_left.png", "door_overlay_k_train_right.png");
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_light, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
-				renderMirror(roof_window, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderMirror(window_handrail, matrices, vertices, light, position);
+					renderMirror(roof_window, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				renderMirror(side_panel, matrices, vertices, light, position - 22.1F);
@@ -752,7 +769,7 @@ public class ModelKTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean firstDoor = isIndex(0, position, getDoorPositions());
 		final boolean notLastDoor = !firstDoor && !isIndex(-1, position, getDoorPositions());
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
@@ -773,8 +790,12 @@ public class ModelKTrain extends ModelTrainBase {
 				door_left.setPivot(doorLeftX, 0, doorLeftZ);
 				door_right.setPivot(doorLeftX, 0, -doorLeftZ);
 				renderOnceFlipped(door, matrices, vertices, light, position);
-				if (notLastDoor) {
-					renderMirror(roof_door, matrices, vertices, light, position);
+
+				if (renderDetails) {
+					renderOnce(door_handrail, matrices, vertices, light, position);
+					if (notLastDoor) {
+						renderMirror(roof_door, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case EXTERIOR:
@@ -785,7 +806,7 @@ public class ModelKTrain extends ModelTrainBase {
 				door_right_exterior.setPivot(doorLeftX, 0, -doorLeftZ);
 				renderOnceFlipped(door_exterior, matrices, vertices, light, position);
 				renderMirror(roof_exterior, matrices, vertices, light, position);
-				if (firstDoor) {
+				if (firstDoor && renderDetails) {
 					renderMirror(door_light, matrices, vertices, light, 0);
 					if (!doorOpen) {
 						renderMirror(door_light_off, matrices, vertices, light, 0);
@@ -796,7 +817,7 @@ public class ModelKTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
@@ -806,7 +827,9 @@ public class ModelKTrain extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
-				renderOnce(roof_end, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnce(roof_end, matrices, vertices, light, position);
+				}
 				break;
 			case EXTERIOR:
 				renderOnce(head_exterior, matrices, vertices, light, position);
@@ -816,7 +839,7 @@ public class ModelKTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
@@ -826,7 +849,9 @@ public class ModelKTrain extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				renderOnceFlipped(head, matrices, vertices, light, position);
-				renderOnceFlipped(roof_end, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnceFlipped(roof_end, matrices, vertices, light, position);
+				}
 				break;
 			case EXTERIOR:
 				renderOnceFlipped(head_exterior, matrices, vertices, light, position);
@@ -836,14 +861,16 @@ public class ModelKTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
-				renderOnce(roof_end, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnce(roof_end, matrices, vertices, light, position);
+				}
 				break;
 			case EXTERIOR:
 				renderOnce(end_exterior, matrices, vertices, light, position);
@@ -853,14 +880,16 @@ public class ModelKTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(end, matrices, vertices, light, position);
-				renderOnceFlipped(roof_end, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnceFlipped(roof_end, matrices, vertices, light, position);
+				}
 				break;
 			case EXTERIOR:
 				renderOnceFlipped(end_exterior, matrices, vertices, light, position);
