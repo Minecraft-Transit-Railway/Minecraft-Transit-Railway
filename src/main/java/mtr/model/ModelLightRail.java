@@ -4,7 +4,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class ModelLightRail1 extends ModelTrainBase {
+public class ModelLightRail extends ModelTrainBase {
 
 	private final ModelPart window;
 	private final ModelPart window_exterior;
@@ -79,7 +79,7 @@ public class ModelLightRail1 extends ModelTrainBase {
 
 	private final int phase;
 
-	public ModelLightRail1(int phase) {
+	public ModelLightRail(int phase) {
 		this.phase = phase;
 
 		textureWidth = 368;
