@@ -48,6 +48,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
 	private static final String KEY_PATH = "path";
+	private static final String KEY_REMOVE_TRAINS = "remove_trains";
 
 	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, pos1, pos2);
@@ -167,6 +168,14 @@ public class Siding extends SavedRailBase implements IPacket {
 				}
 				generateDistances();
 				break;
+			case KEY_REMOVE_TRAINS:
+				final int trainCount = packet.readInt();
+				final Set<Long> trainIdsToRemove = new HashSet<>();
+				for (int i = 0; i < trainCount; i++) {
+					trainIdsToRemove.add(packet.readLong());
+				}
+				trains.removeIf(train -> trainIdsToRemove.contains(train.id));
+				break;
 			default:
 				super.update(key, packet);
 				break;
@@ -267,7 +276,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		boolean spawnTrain = true;
 
 		final Set<Integer> railProgressSet = new HashSet<>();
-		final List<Train> trainsToRemove = new ArrayList<>();
+		final Set<Train> trainsToRemove = new HashSet<>();
 		for (final Train train : trains) {
 			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions == null ? null : trainPositions.get(0), renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
 
@@ -293,12 +302,23 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (world != null && !world.isClient() && (trains.isEmpty() || unlimitedTrains && spawnTrain)) {
-			final long trainId = new Random().nextLong();
-			trains.add(new Train(world, trainId, id, railLength, path, distances));
-		}
+		if (world != null && !world.isClient()) {
+			if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
+				trains.add(new Train(world, new Random().nextLong(), id, railLength, path, distances));
+			}
 
-		trainsToRemove.forEach(trains::remove);
+			final PacketByteBuf packet = PacketByteBufs.create();
+			packet.writeLong(id);
+			packet.writeString(KEY_REMOVE_TRAINS);
+			packet.writeInt(trainsToRemove.size());
+			trainsToRemove.forEach(train -> {
+				trains.remove(train);
+				packet.writeLong(train.id);
+			});
+			if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+				world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+			}
+		}
 	}
 
 	public boolean getUnlimitedTrains() {

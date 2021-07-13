@@ -1,9 +1,18 @@
 {
 	"parent": "block/block",
 	"textures": {
+		"main": "mtr:block/psd_top",
 		"light": "mtr:block/light_off"
 	},
 	"elements": [
+		{
+			"__comment": "Main body",
+			"from": [ 10, 0, 16 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"south": { "texture": "#main" }
+			}
+		},
 		{
 			"__comment": "Light",
 			"from": [ 16, 0, 8 ],

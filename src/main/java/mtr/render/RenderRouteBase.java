@@ -48,8 +48,12 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
 		matrices.push();
-		matrices.translate(0.5, 1, 0.5);
+		matrices.translate(0.5, 0, 0.5);
 		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+
+		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
+
+		matrices.translate(0, 1, 0);
 		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
 
@@ -74,6 +78,9 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 		matrices.pop();
 		immediate.draw();
+	}
+
+	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
 	protected abstract float getZ();
