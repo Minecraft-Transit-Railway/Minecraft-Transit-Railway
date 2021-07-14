@@ -541,8 +541,8 @@ public class ModelLightRail extends ModelTrainBase {
 
 		tail_lights = new ModelPart(this);
 		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
-		tail_lights.setTextureOffset(20, 12).addCuboid(-7.0F, -6.0F, 46.1F, 4.0F, 3.0F, 0.0F, 0.0F, false);
-		tail_lights.setTextureOffset(20, 12).addCuboid(3.0F, -6.0F, 46.1F, 4.0F, 3.0F, 0.0F, 0.0F, true);
+		tail_lights.setTextureOffset(20, 12).addCuboid(-8.0F, -7.0F, 46.1F, 5.0F, 4.0F, 0.0F, 0.0F, false);
+		tail_lights.setTextureOffset(20, 12).addCuboid(3.0F, -7.0F, 46.1F, 5.0F, 4.0F, 0.0F, 0.0F, true);
 	}
 
 	private static final int DOOR_MAX = 14;
