@@ -11,7 +11,7 @@
 		"homepage": "https://www.curseforge.com/minecraft/mc-mods/minecraft-transit-railway",
 		"sources": "https://github.com/jonafanho/Minecraft-Transit-Railway"
 	},
-	"license": "GNU GPL",
+	"license": "MIT",
 	"icon": "assets/mtr/icon.png",
 	"environment": "*",
 	"entrypoints": {
