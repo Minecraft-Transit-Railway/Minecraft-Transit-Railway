@@ -4,7 +4,6 @@ import mtr.block.BlockRail;
 import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,6 +39,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
+	private final List<Depot> depotsToGenerate = new ArrayList<>();
 
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int RAIL_UPDATE_DISTANCE = 64;
@@ -161,6 +161,16 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		}
 
+		if (!depotsToGenerate.isEmpty()) {
+			final Depot depot = depotsToGenerate.get(0);
+			if (depot != null) {
+				final boolean success = depot.generateSidingRoute(world, rails);
+				if (success) {
+					depotsToGenerate.remove(depot);
+				}
+			}
+		}
+
 		world.getPlayers().forEach(player -> {
 			final BlockPos playerPos = player.getBlockPos();
 
@@ -277,25 +287,8 @@ public class RailwayData extends PersistentState implements IPacket {
 	public void generatePath(long depotId) {
 		final Depot depot = getDataById(depots, depotId);
 		if (depot != null) {
-			final List<PathData> tempPath = new ArrayList<>();
-			final List<SavedRailBase> platformsInRoute = new ArrayList<>();
-			final int[] successfulSegments = new int[1];
-			successfulSegments[0] = Integer.MAX_VALUE;
-			final int successfulSegmentsMain = depot.generateMainRoute(tempPath, platformsInRoute, rails, platforms, routes);
-
-			sidings.forEach(siding -> {
-				final BlockPos sidingMidPos = siding.getMidPos();
-				if (depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
-					final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
-					final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
-					final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
-					if (result < successfulSegments[0]) {
-						successfulSegments[0] = result;
-					}
-				}
-			});
-
-			PacketTrainDataGuiServer.generatePathS2C(world, depotId, successfulSegments[0]);
+			depot.generateMainRoute(rails, platforms, sidings, routes);
+			depotsToGenerate.add(depot);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -22,6 +23,12 @@ public class Depot extends AreaBase {
 	public final List<Long> routeIds = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
+
+	private final List<Siding> sidingsToGenerate = new ArrayList<>();
+	private final List<SavedRailBase> platformsInRoute = new ArrayList<>();
+	private final List<PathData> tempPath = new ArrayList<>();
+	private int successfulSegmentsMain;
+	private int successfulSegments;
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TICKS_PER_HOUR = 1000;
@@ -149,7 +156,34 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public int generateMainRoute(List<PathData> tempPath, List<SavedRailBase> platformsInRoute, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Route> routes) {
+	public boolean generateSidingRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		if (sidingsToGenerate.isEmpty()) {
+			return true;
+		}
+
+		final Siding siding = sidingsToGenerate.remove(0);
+		final BlockPos sidingMidPos = siding.getMidPos();
+		if (inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
+			final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
+			final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
+			final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+			if (result < successfulSegments) {
+				successfulSegments = result;
+			}
+		}
+
+		final boolean complete = sidingsToGenerate.isEmpty();
+		if (complete) {
+			PacketTrainDataGuiServer.generatePathS2C(world, id, successfulSegments);
+		}
+		return complete;
+	}
+
+	public void generateMainRoute(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
+		platformsInRoute.clear();
+		sidingsToGenerate.clear();
+		sidingsToGenerate.addAll(sidings);
+
 		routeIds.forEach(routeId -> {
 			final Route route = RailwayData.getDataById(routes, routeId);
 			if (route != null) {
@@ -162,7 +196,8 @@ public class Depot extends AreaBase {
 			}
 		});
 
-		return PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
+		successfulSegments = Integer.MAX_VALUE;
+		successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
 	}
 
 	public boolean deployTrain(World world) {
