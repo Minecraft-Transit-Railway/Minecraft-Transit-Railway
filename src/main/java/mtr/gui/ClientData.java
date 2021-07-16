@@ -78,15 +78,20 @@ public final class ClientData {
 					platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getAreaBySavedRail(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
 					routesInStation.clear();
-					routes.forEach(route -> route.platformIds.forEach(platformId -> {
-						final Station station = platformIdToStation.get(platformId);
-						if (station != null) {
-							if (!routesInStation.containsKey(station.id)) {
-								routesInStation.put(station.id, new HashMap<>());
+					routes.forEach(route -> {
+						route.platformIds.forEach(platformId -> {
+							final Station station = platformIdToStation.get(platformId);
+							if (station != null) {
+								if (!routesInStation.containsKey(station.id)) {
+									routesInStation.put(station.id, new HashMap<>());
+								}
+								routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
 							}
-							routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
-						}
-					}));
+						});
+						route.platformIds.removeIf(platformId -> RailwayData.getDataById(platforms, platformId) == null);
+					});
+
+					depots.forEach(depot -> depot.routeIds.removeIf(routeId -> RailwayData.getDataById(routes, routeId) == null));
 
 					stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 					platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {

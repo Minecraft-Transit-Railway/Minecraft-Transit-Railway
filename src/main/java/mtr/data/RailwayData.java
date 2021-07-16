@@ -194,6 +194,9 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		});
 
+		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
+		depots.forEach(depot -> depot.routeIds.removeIf(routeId -> RailwayData.getDataById(routes, routeId) == null));
+
 		trainPositions.remove(0);
 		trainPositions.add(new HashSet<>());
 		sidings.forEach(siding -> {
@@ -310,8 +313,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
 			removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
 		}
-
-		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
 	}
 
 	// static finders

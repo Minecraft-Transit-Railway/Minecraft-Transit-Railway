@@ -66,17 +66,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> {
-			RailwayData.removeNode(null, ClientData.rails, pos);
-		});
+		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.rails, pos));
 	}
 
 	public static void removeRailConnectionS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> {
-			RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2);
-		});
+		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2));
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {
