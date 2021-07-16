@@ -71,6 +71,7 @@
 	"gui.mtr.balance": "余额：$%s",
 	"gui.mtr.color": "颜色",
 	"gui.mtr.custom_destination": "覆写列车电牌",
+	"gui.mtr.delete_confirmation": "确定要删除%s吗？",
 	"gui.mtr.depot_color": "车厂颜色",
 	"gui.mtr.depot_name": "车厂名称",
 	"gui.mtr.depots": "车厂",

@@ -71,6 +71,7 @@
 	"gui.mtr.balance": "Balance: $%s",
 	"gui.mtr.color": "Colour",
 	"gui.mtr.custom_destination": "Headsign Override",
+	"gui.mtr.delete_confirmation": "Are you sure you want to delete %s?",
 	"gui.mtr.depot_color": "Depot Colour",
 	"gui.mtr.depot_name": "Depot Name",
 	"gui.mtr.depots": "Depots",
