@@ -297,24 +297,36 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		try {
 			switch (selectedTab) {
 				case STATIONS:
-					final Station station = (Station) data;
-					PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
-					ClientData.stations.remove(station);
+					if (client != null) {
+						final Station station = (Station) data;
+						client.openScreen(new DeleteConfirmationScreen(() -> {
+							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
+							ClientData.stations.remove(station);
+						}, IGui.formatStationName(station.name), this));
+					}
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						final Route route = (Route) data;
-						PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
-						ClientData.routes.remove(route);
+						if (client != null) {
+							final Route route = (Route) data;
+							client.openScreen(new DeleteConfirmationScreen(() -> {
+								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
+								ClientData.routes.remove(route);
+							}, IGui.formatStationName(route.name), this));
+						}
 					} else {
 						editingRoute.platformIds.remove(index);
 						editingRoute.setPlatformIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 					}
 					break;
 				case DEPOTS:
-					final Depot depot = (Depot) data;
-					PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
-					ClientData.depots.remove(depot);
+					if (client != null) {
+						final Depot depot = (Depot) data;
+						client.openScreen(new DeleteConfirmationScreen(() -> {
+							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
+							ClientData.depots.remove(depot);
+						}, IGui.formatStationName(depot.name), this));
+					}
 					break;
 			}
 		} catch (Exception e) {
