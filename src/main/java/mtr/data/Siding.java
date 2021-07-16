@@ -170,11 +170,11 @@ public class Siding extends SavedRailBase implements IPacket {
 				break;
 			case KEY_REMOVE_TRAINS:
 				final int trainCount = packet.readInt();
-				final Set<Long> trainIdsToRemove = new HashSet<>();
+				final Set<Long> trainIds = new HashSet<>();
 				for (int i = 0; i < trainCount; i++) {
-					trainIdsToRemove.add(packet.readLong());
+					trainIds.add(packet.readLong());
 				}
-				trains.removeIf(train -> trainIdsToRemove.contains(train.id));
+				trains.removeIf(train -> !trainIds.contains(train.id));
 				break;
 			default:
 				super.update(key, packet);
@@ -307,14 +307,13 @@ public class Siding extends SavedRailBase implements IPacket {
 				trains.add(new Train(world, new Random().nextLong(), id, railLength, path, distances));
 			}
 
+			trainsToRemove.forEach(trains::remove);
+
 			final PacketByteBuf packet = PacketByteBufs.create();
 			packet.writeLong(id);
 			packet.writeString(KEY_REMOVE_TRAINS);
-			packet.writeInt(trainsToRemove.size());
-			trainsToRemove.forEach(train -> {
-				trains.remove(train);
-				packet.writeLong(train.id);
-			});
+			packet.writeInt(trains.size());
+			trains.forEach(train -> packet.writeLong(train.id));
 			if (packet.readableBytes() <= MAX_PACKET_BYTES) {
 				world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
 			}

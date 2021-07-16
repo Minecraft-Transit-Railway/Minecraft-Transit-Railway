@@ -554,10 +554,12 @@ public class ModelLightRail extends ModelTrainBase {
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
 				if (renderDetails) {
+					boolean flipSeat = false;
 					for (int z = position - 24; z <= position + 24; z += 16) {
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, 15, z);
-						renderOnce(phase == 4 ? seat_purple : seat, matrices, vertices, light, -8.5F, z);
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, -15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, 15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_green : seat_purple : seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, -15, z);
+						flipSeat = !flipSeat;
 					}
 				}
 				break;
@@ -626,10 +628,12 @@ public class ModelLightRail extends ModelTrainBase {
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
 				if (renderDetails) {
+					boolean flipSeat = false;
 					for (int z = position - 8; z <= position + 8; z += 16) {
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, 15, z);
-						renderOnce(phase == 4 ? seat_purple : seat, matrices, vertices, light, -8.5F, z);
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, -15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, 15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_green : seat_purple : seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, -15, z);
+						flipSeat = !flipSeat;
 					}
 					renderMirror(roof, matrices, vertices, light, position);
 				}
@@ -665,10 +669,12 @@ public class ModelLightRail extends ModelTrainBase {
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
 				if (renderDetails) {
+					boolean flipSeat = false;
 					for (int z = position - 8; z <= position + 8; z += 16) {
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, 15, z);
-						renderOnce(phase == 4 ? seat_purple : seat, matrices, vertices, light, -8.5F, z);
-						renderOnce(phase == 4 ? seat_green : seat, matrices, vertices, light, -15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, 15, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_green : seat_purple : seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(phase == 4 ? flipSeat ? seat_purple : seat_green : seat, matrices, vertices, light, -15, z);
+						flipSeat = !flipSeat;
 					}
 					renderMirror(roof, matrices, vertices, light, position);
 				}
