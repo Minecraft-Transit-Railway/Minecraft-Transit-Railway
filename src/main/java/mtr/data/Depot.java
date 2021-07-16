@@ -8,6 +8,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +32,9 @@ public class Depot extends AreaBase {
 	private int successfulSegments;
 
 	public static final int HOURS_IN_DAY = 24;
+	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 	public static final int TICKS_PER_HOUR = 1000;
 	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-	private static final int FAILED_DEPLOY_COOL_DOWN = 2000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_FREQUENCIES = "frequencies";
@@ -200,23 +201,14 @@ public class Depot extends AreaBase {
 		successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
 	}
 
-	public boolean deployTrain(World world) {
+	public boolean deployTrain(WorldAccess world) {
 		final long currentMillis = System.currentTimeMillis();
 		final int hour = (int) wrapTime(world.getLunarTime(), -6000) / TICKS_PER_HOUR;
-		final int deployInterval = 50 * TICKS_PER_HOUR / frequencies[hour];
-		final boolean isSpawnTime = frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= deployInterval;
-
-		if (isSpawnTime) {
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null && railwayData.noTrainsInDepot(this)) {
-				lastDeployedMillis = currentMillis;
-				return true;
-			} else {
-				lastDeployedMillis = currentMillis - deployInterval + FAILED_DEPLOY_COOL_DOWN;
-			}
+		final boolean success = frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR * TRAIN_FREQUENCY_MULTIPLIER / frequencies[hour];
+		if (success) {
+			lastDeployedMillis = currentMillis;
 		}
-
-		return false;
+		return success;
 	}
 
 	public static float wrapTime(float time1, float time2) {

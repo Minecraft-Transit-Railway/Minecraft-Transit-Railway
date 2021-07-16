@@ -272,14 +272,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
 	}
 
-	public boolean noTrainsInDepot(Depot depot) {
-		return trainPositions.get(0).stream().noneMatch(uuid -> {
-			final BlockPos pos1 = BlockPos.fromLong(uuid.getLeastSignificantBits());
-			final BlockPos pos2 = BlockPos.fromLong(uuid.getMostSignificantBits());
-			return depot.inArea(pos1.getX(), pos1.getZ()) || depot.inArea(pos2.getX(), pos2.getZ());
-		});
-	}
-
 	public void disconnectPlayer(PlayerEntity player) {
 		playerLastUpdatedPositions.remove(player);
 	}

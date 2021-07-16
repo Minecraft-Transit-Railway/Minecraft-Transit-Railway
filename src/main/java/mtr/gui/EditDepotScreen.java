@@ -46,7 +46,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private static final int SLIDER_WIDTH = 64;
 	private static final int FIND_PATH_WIDTH = 80;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
-	private static final int SECONDS_PER_MC_HOUR = 50;
+	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
 		super(new LiteralText(""));
@@ -299,9 +299,9 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + (Math.round(20F * SECONDS_PER_MC_HOUR / value) / 10F) + new TranslatableText("gui.mtr.s").getString() + ")";
+			headwayText = " (" + (Math.round(Depot.TRAIN_FREQUENCY_MULTIPLIER * 10F * SECONDS_PER_MC_HOUR / value) / 10F) + new TranslatableText("gui.mtr.s").getString() + ")";
 		}
-		return value / 2F + new TranslatableText("gui.mtr.tph").getString() + headwayText;
+		return value / (float) Depot.TRAIN_FREQUENCY_MULTIPLIER + new TranslatableText("gui.mtr.tph").getString() + headwayText;
 	}
 
 	private static String getTimeString(int hour) {
