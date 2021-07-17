@@ -632,10 +632,11 @@ public class Siding extends SavedRailBase implements IPacket {
 
 						calculateRender(world, positions, (int) Math.floor(clientPercentageZ), Math.abs(doorValueRaw), (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
 							final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
+							final boolean shouldRenderConnection = trainTypeMapping.trainType.shouldRenderConnection;
 							clientPercentageX += movement.x / trainTypeMapping.trainType.width;
 							clientPercentageZ += movement.z / realSpacing;
 							clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpen ? -1 : 0, doorRightOpen ? 2 : 1);
-							clientPercentageZ = MathHelper.clamp(clientPercentageZ, 0.01F, trainLength - 0.01F);
+							clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : (int) Math.floor(clientPercentageZ) + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : (int) Math.floor(clientPercentageZ) + 0.95F) - 0.01F);
 
 							clientPlayer.fallDistance = 0;
 							clientPlayer.setVelocity(0, 0, 0);
