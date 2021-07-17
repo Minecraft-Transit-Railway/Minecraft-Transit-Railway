@@ -18,13 +18,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
-	private static final Map<Long, PacketByteBuf> TEMP_PACKETS_SENDER = new HashMap<>();
 
 	public static void openDashboardScreenS2C(ServerPlayerEntity player) {
 		final PacketByteBuf packet = PacketByteBufs.create();
@@ -76,8 +78,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, routes);
 		serializeData(packet, depots);
 
-		TEMP_PACKETS_SENDER.put(tempPacketId, packet);
-		sendChunk(player, tempPacketId, 0);
+		int i = 0;
+		while (!sendChunk(player, packet, tempPacketId, i)) {
+			i++;
+		}
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, Identifier packetId, Function<RailwayData, Set<T>> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
@@ -166,29 +170,20 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
-	public static void handleResponseFromReceiver(ServerPlayerEntity player, PacketByteBuf packet) {
-		final long tempPacketId = packet.readLong();
-		final int chunk = packet.readInt();
-		sendChunk(player, tempPacketId, chunk);
-	}
-
 	private static <T extends SerializedDataBase> void serializeData(PacketByteBuf packet, Set<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));
 	}
 
-	private static void sendChunk(ServerPlayerEntity player, long tempPacketId, int chunk) {
+	private static boolean sendChunk(ServerPlayerEntity player, PacketByteBuf packet, long tempPacketId, int chunk) {
 		final PacketByteBuf packetChunk = PacketByteBufs.create();
 		packetChunk.writeLong(tempPacketId);
 		packetChunk.writeInt(chunk);
 
-		final PacketByteBuf tempPacket = TEMP_PACKETS_SENDER.get(tempPacketId);
-		if (chunk * PACKET_CHUNK_SIZE > tempPacket.readableBytes()) {
-			TEMP_PACKETS_SENDER.remove(tempPacketId);
-			packetChunk.writeBoolean(true);
-		} else {
-			packetChunk.writeBoolean(false);
-			packetChunk.writeBytes(tempPacket.copy(chunk * PACKET_CHUNK_SIZE, Math.min(PACKET_CHUNK_SIZE, tempPacket.readableBytes() - chunk * PACKET_CHUNK_SIZE)));
+		final boolean success = chunk * PACKET_CHUNK_SIZE > packet.readableBytes();
+		packetChunk.writeBoolean(success);
+		if (!success) {
+			packetChunk.writeBytes(packet.copy(chunk * PACKET_CHUNK_SIZE, Math.min(PACKET_CHUNK_SIZE, packet.readableBytes() - chunk * PACKET_CHUNK_SIZE)));
 		}
 
 		try {
@@ -196,5 +191,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		return success;
 	}
 }

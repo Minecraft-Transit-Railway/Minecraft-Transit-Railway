@@ -38,7 +38,6 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
-	private final List<PlayerEntity> scheduleBroadcast = new ArrayList<>();
 	private final List<Depot> depotsToGenerate = new ArrayList<>();
 
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
@@ -147,19 +146,11 @@ public class RailwayData extends PersistentState implements IPacket {
 		// TODO temporary code start
 		if (!generated) {
 			routes.forEach(route -> route.generateRails(world, this));
-			scheduleBroadcast.addAll(world.getPlayers());
 			generated = true;
 			markDirty();
 			System.out.println("Generated rails (this should only happen once!)");
 		}
 		// TODO temporary code end
-
-		if (!scheduleBroadcast.isEmpty()) {
-			final PlayerEntity player = scheduleBroadcast.remove(0);
-			if (player != null) {
-				PacketTrainDataGuiServer.sendAllInChunks((ServerPlayerEntity) player, stations, platforms, sidings, routes, depots, rails);
-			}
-		}
 
 		if (!depotsToGenerate.isEmpty()) {
 			final Depot depot = depotsToGenerate.get(0);
@@ -230,10 +221,8 @@ public class RailwayData extends PersistentState implements IPacket {
 		markDirty();
 	}
 
-	public void addPlayerToBroadcast(PlayerEntity player) {
-		if (!scheduleBroadcast.contains(player)) {
-			scheduleBroadcast.add(player);
-		}
+	public void broadcastToPlayer(ServerPlayerEntity serverPlayerEntity) {
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots, rails);
 	}
 
 	public void updatePlayerRiding(PlayerEntity player) {
@@ -496,10 +485,5 @@ public class RailwayData extends PersistentState implements IPacket {
 		@Override
 		public void writePacket(PacketByteBuf packet) {
 		}
-	}
-
-	@FunctionalInterface
-	public interface GenerateRouteCallback {
-		void generateRouteCallback(Siding siding, int result);
 	}
 }

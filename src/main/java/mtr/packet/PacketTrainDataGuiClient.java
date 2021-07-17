@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -24,7 +23,9 @@ import java.util.function.Function;
 
 public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
-	private static final Map<Long, PacketByteBuf> TEMP_PACKETS_RECEIVER = new HashMap<>();
+	private static final Map<Integer, ByteBuf> TEMP_PACKETS_RECEIVER = new HashMap<>();
+	private static long tempPacketId = 0;
+	private static int expectedSize = 0;
 
 	public static void openDashboardScreenS2C(MinecraftClient minecraftClient) {
 		minecraftClient.execute(() -> {
@@ -76,38 +77,31 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		final long tempPacketId = packet.readLong();
+		final long id = packet.readLong();
 		final int chunk = packet.readInt();
 		final boolean complete = packet.readBoolean();
 
-		if (complete) {
-			if (TEMP_PACKETS_RECEIVER.containsKey(tempPacketId)) {
-				try {
-					minecraftClient.execute(() -> {
-						ClientData.receivePacket(TEMP_PACKETS_RECEIVER.get(tempPacketId));
-						TEMP_PACKETS_RECEIVER.remove(tempPacketId);
-					});
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			final ByteBuf packetChunk = packet.readBytes(packet.readableBytes());
-			final PacketByteBuf packetExisting = TEMP_PACKETS_RECEIVER.containsKey(tempPacketId) ? TEMP_PACKETS_RECEIVER.get(tempPacketId) : PacketByteBufs.create();
-			packetExisting.writeBytes(packetChunk);
-			TEMP_PACKETS_RECEIVER.put(tempPacketId, packetExisting);
+		if (tempPacketId != id) {
+			TEMP_PACKETS_RECEIVER.clear();
+			tempPacketId = id;
+			expectedSize = Integer.MAX_VALUE;
+		}
 
-			final PacketByteBuf packetResponse = PacketByteBufs.create();
-			packetResponse.writeLong(tempPacketId);
-			packetResponse.writeInt(chunk + 1);
+		if (complete) {
+			expectedSize = chunk + 1;
+		}
+
+		TEMP_PACKETS_RECEIVER.put(chunk, packet.readBytes(packet.readableBytes()));
+
+		if (TEMP_PACKETS_RECEIVER.size() == expectedSize) {
+			final PacketByteBuf newPacket = PacketByteBufs.create();
+			for (int i = 0; i < expectedSize; i++) {
+				newPacket.writeBytes(TEMP_PACKETS_RECEIVER.get(i));
+			}
+			TEMP_PACKETS_RECEIVER.clear();
 
 			try {
-				minecraftClient.execute(() -> {
-					ClientPlayNetworking.send(PACKET_CHUNK_S2C, packetResponse);
-					if (minecraftClient.player != null) {
-						minecraftClient.player.sendMessage(new TranslatableText("gui.mtr.railway_loading"), true);
-					}
-				});
+				minecraftClient.execute(() -> ClientData.receivePacket(newPacket));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

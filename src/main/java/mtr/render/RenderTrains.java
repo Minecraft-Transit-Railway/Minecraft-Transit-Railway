@@ -69,9 +69,10 @@ public class RenderTrains implements IGui {
 		}
 
 		final int renderDistanceChunks = client.options.viewDistance;
+		final boolean isReplayMod = isReplayMod(player);
+		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 
 		if (Config.useDynamicFPS()) {
-			final float lastFrameDuration = client.getLastFrameDuration();
 			if (lastFrameDuration > 0.8) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.5) {
@@ -85,7 +86,7 @@ public class RenderTrains implements IGui {
 
 		ClientData.updateReferences();
 		ClientData.schedulesForPlatform.clear();
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : client.getLastFrameDuration(), null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : lastFrameDuration, null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
@@ -104,7 +105,7 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isReplayMod || posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();

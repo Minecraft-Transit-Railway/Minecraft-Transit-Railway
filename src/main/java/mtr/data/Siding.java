@@ -307,15 +307,18 @@ public class Siding extends SavedRailBase implements IPacket {
 				trains.add(new Train(world, new Random().nextLong(), id, railLength, path, distances));
 			}
 
-			trainsToRemove.forEach(trains::remove);
+			if (!trainsToRemove.isEmpty()) {
+				trainsToRemove.forEach(trains::remove);
 
-			final PacketByteBuf packet = PacketByteBufs.create();
-			packet.writeLong(id);
-			packet.writeString(KEY_REMOVE_TRAINS);
-			packet.writeInt(trains.size());
-			trains.forEach(train -> packet.writeLong(train.id));
-			if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-				world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeLong(id);
+				packet.writeString(KEY_REMOVE_TRAINS);
+				packet.writeInt(trains.size());
+				trains.forEach(train -> packet.writeLong(train.id));
+
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+				}
 			}
 		}
 	}
