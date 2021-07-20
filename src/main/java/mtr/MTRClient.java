@@ -1,5 +1,6 @@
 package mtr;
 
+import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
 import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.Depot;
@@ -168,6 +169,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_WRITE_RAILS, (minecraftClient, handler, packet, sender) -> ClientData.writeRails(minecraftClient, packet));
 
 		Config.refreshProperties();
+		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
 			if (entity == MinecraftClient.getInstance().player) {
