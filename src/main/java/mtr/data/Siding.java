@@ -48,7 +48,6 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
 	private static final String KEY_PATH = "path";
-	private static final String KEY_REMOVE_TRAINS = "remove_trains";
 
 	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, pos1, pos2);
@@ -145,20 +144,30 @@ public class Siding extends SavedRailBase implements IPacket {
 				unlimitedTrains = packet.readBoolean();
 				break;
 			case KEY_TRAINS:
-				final long trainId = packet.readLong();
-				boolean updated = false;
-				for (final Train train : trains) {
-					if (train.id == trainId) {
-						train.update(KEY_TRAINS, packet);
-						updated = true;
-						break;
+				final int trainCount = packet.readInt();
+				final int newTrainCount = trainCount < 0 ? 1 : trainCount;
+
+				final Set<Long> updatedTrainIds = new HashSet<>();
+				for (int i = 0; i < newTrainCount; i++) {
+					final long trainId = packet.readLong();
+					final Train train = trains.stream().filter(train1 -> train1.id == trainId).findFirst().orElse(null);
+
+					final Train updateTrain;
+					if (train == null) {
+						updateTrain = new Train(trainId, id, railLength, path, distances);
+						trains.add(updateTrain);
+					} else {
+						updateTrain = train;
 					}
+
+					updateTrain.update(KEY_TRAINS, packet);
+					updatedTrainIds.add(trainId);
 				}
-				if (!updated) {
-					final Train newTrain = new Train(null, trainId, id, railLength, path, distances);
-					trains.add(newTrain);
-					newTrain.update(KEY_TRAINS, packet);
+
+				if (trainCount >= 0) {
+					trains.removeIf(train -> !updatedTrainIds.contains(train.id));
 				}
+
 				break;
 			case KEY_PATH:
 				final int pathSize = packet.readInt();
@@ -167,14 +176,6 @@ public class Siding extends SavedRailBase implements IPacket {
 					path.add(new PathData(packet));
 				}
 				generateDistances();
-				break;
-			case KEY_REMOVE_TRAINS:
-				final int trainCount = packet.readInt();
-				final Set<Long> trainIds = new HashSet<>();
-				for (int i = 0; i < trainCount; i++) {
-					trainIds.add(packet.readLong());
-				}
-				trains.removeIf(train -> !trainIds.contains(train.id));
 				break;
 			default:
 				super.update(key, packet);
@@ -304,21 +305,23 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		if (world != null && !world.isClient()) {
 			if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-				trains.add(new Train(world, new Random().nextLong(), id, railLength, path, distances));
+				trains.add(new Train(new Random().nextLong(), id, railLength, path, distances));
 			}
 
-			if (!trainsToRemove.isEmpty()) {
-				trainsToRemove.forEach(trains::remove);
+			trainsToRemove.forEach(trains::remove);
 
-				final PacketByteBuf packet = PacketByteBufs.create();
-				packet.writeLong(id);
-				packet.writeString(KEY_REMOVE_TRAINS);
-				packet.writeInt(trains.size());
-				trains.forEach(train -> packet.writeLong(train.id));
-
-				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
-				}
+			final PacketByteBuf packet = PacketByteBufs.create();
+			packet.writeLong(id);
+			packet.writeString(KEY_TRAINS);
+			packet.writeInt(trains.size());
+			trains.forEach(train -> {
+				packet.writeLong(train.id);
+				train.writeMainPacket(packet);
+				packet.writeFloat(0);
+				packet.writeFloat(0);
+			});
+			if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+				world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
 			}
 		}
 	}
@@ -345,7 +348,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		if (depot != null) {
 			depot.clientPathGenerationSuccessfulSegments = 0;
 		}
-		trains.add(new Train(null, 0, id, railLength, path, distances));
+		trains.add(new Train(0, id, railLength, path, distances));
 	}
 
 	private void generateDistances() {
@@ -398,13 +401,12 @@ public class Siding extends SavedRailBase implements IPacket {
 		private static final float CONNECTION_Z_OFFSET = 0.5F;
 		private static final float CONNECTION_X_OFFSET = 0.25F;
 
-		private Train(World world, long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
+		private Train(long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
 			super(id);
 			this.sidingId = sidingId;
 			this.railLength = railLength;
 			this.path = path;
 			this.distances = distances;
-			syncTrainToClient(world);
 		}
 
 		private Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -467,39 +469,35 @@ public class Siding extends SavedRailBase implements IPacket {
 		@Override
 		public void writePacket(PacketByteBuf packet) {
 			super.writePacket(packet);
-
-			packet.writeFloat(speed);
-			packet.writeFloat(railProgress);
-			packet.writeFloat(stopCounter);
-			packet.writeInt(nextStoppingIndex);
-			packet.writeBoolean(reversed);
-			packet.writeBoolean(isOnRoute);
-
-			packet.writeInt(ridingEntities.size());
-			ridingEntities.forEach(packet::writeUuid);
+			writeMainPacket(packet);
 		}
 
 		@Override
 		public void update(String key, PacketByteBuf packet) {
 			if (key.equals(Siding.KEY_TRAINS)) {
 				speed = packet.readFloat();
-				railProgress = packet.readFloat();
+
+				final float tempRailProgress = packet.readFloat();
+				if (Math.abs(railProgress - tempRailProgress) > Math.max(speed * 2, 0.5)) {
+					railProgress = tempRailProgress;
+				}
+
 				stopCounter = packet.readFloat();
 				nextStoppingIndex = packet.readInt();
 				reversed = packet.readBoolean();
 				isOnRoute = packet.readBoolean();
+
+				ridingEntities.clear();
+				final int ridingEntitiesCount = packet.readInt();
+				for (int i = 0; i < ridingEntitiesCount; i++) {
+					ridingEntities.add(packet.readUuid());
+				}
 
 				final float percentageX = packet.readFloat();
 				final float percentageZ = packet.readFloat();
 				if (percentageX != 0) {
 					clientPercentageX = percentageX;
 					clientPercentageZ = percentageZ;
-				}
-
-				ridingEntities.clear();
-				final int ridingEntitiesCount = packet.readInt();
-				for (int i = 0; i < ridingEntitiesCount; i++) {
-					ridingEntities.add(packet.readUuid());
 				}
 			} else {
 				super.update(key, packet);
@@ -545,7 +543,7 @@ public class Siding extends SavedRailBase implements IPacket {
 						if (!world.isClient()) {
 							isOnRoute = true;
 							nextStoppingIndex = 0;
-							startUpAndSync(world, trainLength, trainSpacing);
+							startUp(world, trainLength, trainSpacing);
 						}
 					}
 				} else {
@@ -555,7 +553,6 @@ public class Siding extends SavedRailBase implements IPacket {
 					if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * trainSpacing) / 2) {
 						isOnRoute = false;
 						ridingEntities.clear();
-						syncTrainToClient(world);
 						doorValueRaw = 0;
 					} else {
 						if (speed <= 0) {
@@ -570,17 +567,13 @@ public class Siding extends SavedRailBase implements IPacket {
 							}
 
 							if (stopCounter >= dwellTicks && !railBlocked(trainPositions, getIndex(0, trainSpacing, true) + (isOppositeRail() ? 2 : 1))) {
-								startUpAndSync(world, trainLength, trainSpacing);
+								startUp(world, trainLength, trainSpacing);
 							}
 						} else {
 							if (!world.isClient()) {
 								final int checkIndex = getIndex(0, trainSpacing, true) + 1;
 								if (railBlocked(trainPositions, checkIndex)) {
-									final int oldStoppingIndex = nextStoppingIndex;
 									nextStoppingIndex = checkIndex - 1;
-									if (oldStoppingIndex != nextStoppingIndex) {
-										syncTrainToClient(world);
-									}
 								}
 							}
 
@@ -603,7 +596,6 @@ public class Siding extends SavedRailBase implements IPacket {
 						if (railProgress > distances.get(nextStoppingIndex)) {
 							railProgress = distances.get(nextStoppingIndex);
 							speed = 0;
-							syncTrainToClient(world);
 						}
 					}
 				}
@@ -662,7 +654,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		private void startUpAndSync(World world, int trainLength, int trainSpacing) {
+		private void startUp(World world, int trainLength, int trainSpacing) {
 			if (!world.isClient()) {
 				stopCounter = 0;
 				speed = ACCELERATION;
@@ -671,7 +663,6 @@ public class Siding extends SavedRailBase implements IPacket {
 					reversed = !reversed;
 				}
 				nextStoppingIndex = getNextStoppingIndex(trainSpacing);
-				syncTrainToClient(world);
 			}
 		}
 
@@ -785,7 +776,6 @@ public class Siding extends SavedRailBase implements IPacket {
 					});
 					if (!entitiesToRemove.isEmpty()) {
 						entitiesToRemove.forEach(ridingEntities::remove);
-						syncTrainToClient(world);
 					}
 				}
 			}
@@ -861,40 +851,31 @@ public class Siding extends SavedRailBase implements IPacket {
 			return 0;
 		}
 
-		private void syncTrainToClient(World world) {
-			syncTrainToClient(world, null, 0, 0);
-		}
-
 		private void syncTrainToClient(World world, PlayerEntity player, float percentageX, float percentageZ) {
 			if (world != null && !world.isClient()) {
 				final PacketByteBuf packet = PacketByteBufs.create();
 				packet.writeLong(sidingId);
 				packet.writeString(Siding.KEY_TRAINS);
+				packet.writeInt(-1);
 				packet.writeLong(id);
-				packet.writeFloat(speed);
-				packet.writeFloat(railProgress);
-				packet.writeFloat(stopCounter);
-				packet.writeInt(nextStoppingIndex);
-				packet.writeBoolean(reversed);
-				packet.writeBoolean(isOnRoute);
-
+				writeMainPacket(packet);
 				packet.writeFloat(percentageX);
 				packet.writeFloat(percentageZ);
-
-				packet.writeInt(ridingEntities.size());
-				ridingEntities.forEach(packet::writeUuid);
-
-				final RailwayData railwayData = RailwayData.getInstance(world);
-				if (railwayData != null) {
-					railwayData.markDirty();
-				}
-
-				if (player == null) {
-					world.getPlayers().forEach(serverPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) serverPlayer, PACKET_UPDATE_SIDING, packet));
-				} else {
+				if (player != null) {
 					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet);
 				}
 			}
+		}
+
+		private void writeMainPacket(PacketByteBuf packet) {
+			packet.writeFloat(speed);
+			packet.writeFloat(railProgress);
+			packet.writeFloat(stopCounter);
+			packet.writeInt(nextStoppingIndex);
+			packet.writeBoolean(reversed);
+			packet.writeBoolean(isOnRoute);
+			packet.writeInt(ridingEntities.size());
+			ridingEntities.forEach(packet::writeUuid);
 		}
 
 		private float getDoorValue() {
