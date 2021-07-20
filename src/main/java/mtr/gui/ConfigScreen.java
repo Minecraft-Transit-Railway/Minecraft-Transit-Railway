@@ -61,10 +61,10 @@ public class ConfigScreen extends Screen implements IGui {
 		buttonUseTTSAnnouncements.setMessage(new LiteralText(String.valueOf(useTTSAnnouncements)));
 		buttonUseDynamicFPS.setMessage(new LiteralText(String.valueOf(useDynamicFPS)));
 
-		addButton(buttonUseMTRFont);
-		addButton(buttonShowAnnouncementMessages);
-		addButton(buttonUseTTSAnnouncements);
-		addButton(buttonUseDynamicFPS);
+		addDrawableChild(buttonUseMTRFont);
+		addDrawableChild(buttonShowAnnouncementMessages);
+		addDrawableChild(buttonUseTTSAnnouncements);
+		addDrawableChild(buttonUseDynamicFPS);
 	}
 
 	@Override

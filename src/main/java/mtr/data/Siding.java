@@ -623,7 +623,7 @@ public class Siding extends SavedRailBase implements IPacket {
 						}
 
 						calculateRender(world, positions, (int) Math.floor(clientPercentageZ), Math.abs(doorValueRaw), (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
-							final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
+							final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.getYaw()) - yaw);
 							final boolean shouldRenderConnection = trainTypeMapping.trainType.shouldRenderConnection;
 							clientPercentageX += movement.x / trainTypeMapping.trainType.width;
 							clientPercentageZ += movement.z / realSpacing;
@@ -636,7 +636,7 @@ public class Siding extends SavedRailBase implements IPacket {
 							clientPlayer.move(MovementType.SELF, playerOffset.subtract(clientPlayer.getPos()));
 
 							if (speed > 0) {
-								clientPlayer.yaw -= Math.toDegrees(yaw - clientPrevYaw);
+								clientPlayer.setYaw(clientPlayer.getYaw() - (float) Math.toDegrees(yaw - clientPrevYaw));
 								offset.add(playerOffset.add(0, clientPlayer.getStandingEyeHeight(), 0));
 							}
 

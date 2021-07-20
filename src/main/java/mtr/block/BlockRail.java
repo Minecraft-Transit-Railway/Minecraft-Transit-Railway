@@ -70,8 +70,8 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRail();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityRail(pos, state);
 	}
 
 	public static void resetRailNode(World world, BlockPos pos) {
@@ -84,13 +84,13 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		private static final String KEY_LIST_LENGTH = "list_length";
 		private static final String KEY_BLOCK_POS = "block_pos";
 
-		public TileEntityRail() {
-			super(MTR.RAIL_TILE_ENTITY);
+		public TileEntityRail(BlockPos pos, BlockState state) {
+			super(MTR.RAIL_TILE_ENTITY, pos, state);
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
+		public void readNbt(NbtCompound nbtCompound) {
+			super.readNbt(nbtCompound);
 			fromClientTag(nbtCompound);
 		}
 

@@ -30,7 +30,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void openDashboardScreenS2C(MinecraftClient minecraftClient) {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof DashboardScreen)) {
-				minecraftClient.openScreen(new DashboardScreen());
+				minecraftClient.setScreen(new DashboardScreen());
 			}
 		});
 	}
@@ -39,7 +39,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
-				minecraftClient.openScreen(new RailwaySignScreen(pos));
+				minecraftClient.setScreen(new RailwaySignScreen(pos));
 			}
 		});
 	}
@@ -48,7 +48,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof TicketMachineScreen)) {
-				minecraftClient.openScreen(new TicketMachineScreen(balance));
+				minecraftClient.setScreen(new TicketMachineScreen(balance));
 			}
 		});
 	}

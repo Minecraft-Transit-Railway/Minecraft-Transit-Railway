@@ -52,7 +52,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private static final String KEY_RAILS = "rails";
 
 	public RailwayData(World world) {
-		super(NAME);
+		super();
 		this.world = world;
 		stations = new HashSet<>();
 		platforms = new HashSet<>();
@@ -70,7 +70,33 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	@Override
-	public void fromTag(NbtCompound nbtCompound) {
+	public NbtCompound writeNbt(NbtCompound nbtCompound) {
+		try {
+			if (generated) {
+				validateData();
+			}
+			markDirty();
+			writeTag(nbtCompound, stations, KEY_STATIONS);
+			writeTag(nbtCompound, platforms, KEY_PLATFORMS);
+			writeTag(nbtCompound, sidings, KEY_SIDINGS);
+			writeTag(nbtCompound, routes, KEY_ROUTES);
+			writeTag(nbtCompound, depots, KEY_DEPOTS);
+
+			final Set<RailEntry> railSet = new HashSet<>();
+			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
+			writeTag(nbtCompound, railSet, KEY_RAILS);
+
+			// TODO temporary code start
+			nbtCompound.putBoolean("generated", generated);
+			// TODO temporary code end
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return nbtCompound;
+	}
+
+	public void fromNbt(NbtCompound nbtCompound) {
 		try {
 			final NbtCompound tagStations = nbtCompound.getCompound(KEY_STATIONS);
 			for (final String key : tagStations.getKeys()) {
@@ -113,33 +139,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public NbtCompound writeNbt(NbtCompound nbtCompound) {
-		try {
-			if (generated) {
-				validateData();
-			}
-			markDirty();
-			writeTag(nbtCompound, stations, KEY_STATIONS);
-			writeTag(nbtCompound, platforms, KEY_PLATFORMS);
-			writeTag(nbtCompound, sidings, KEY_SIDINGS);
-			writeTag(nbtCompound, routes, KEY_ROUTES);
-			writeTag(nbtCompound, depots, KEY_DEPOTS);
-
-			final Set<RailEntry> railSet = new HashSet<>();
-			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
-			writeTag(nbtCompound, railSet, KEY_RAILS);
-
-			// TODO temporary code start
-			nbtCompound.putBoolean("generated", generated);
-			// TODO temporary code end
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return nbtCompound;
 	}
 
 	public void simulateTrains() {
@@ -403,7 +402,11 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public static RailwayData getInstance(World world) {
 		if (world instanceof ServerWorld) {
-			return ((ServerWorld) world).getPersistentStateManager().getOrCreate(() -> new RailwayData(world), NAME);
+			return ((ServerWorld) world).getPersistentStateManager().getOrCreate(nbtCompound -> {
+				final RailwayData railwayData = new RailwayData(world);
+				railwayData.fromNbt(nbtCompound);
+				return railwayData;
+			}, () -> new RailwayData(world), NAME);
 		} else {
 			return null;
 		}

@@ -106,8 +106,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityPSDTop();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityPSDTop(pos, state);
 	}
 
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
@@ -143,8 +143,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	public static class TileEntityPSDTop extends BlockEntity {
 
-		public TileEntityPSDTop() {
-			super(MTR.PSD_TOP_TILE_ENTITY);
+		public TileEntityPSDTop(BlockPos pos, BlockState state) {
+			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
 		}
 	}
 

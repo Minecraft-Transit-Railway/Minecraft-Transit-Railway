@@ -29,7 +29,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public SidingScreen(Siding siding, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen);
 		buttonSelectTrain = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> onSelectingTrain());
-		availableTrainsList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
+		availableTrainsList = new DashboardList(this::addDrawableChild, null, null, null, null, this::onAdd, null, null);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.unlimited_trains"), checked -> savedRailBase.setUnlimitedTrains(checked, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_SIDING, packet)));
 	}
 
@@ -41,8 +41,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX, height / 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH + textWidth);
 
-		addButton(buttonSelectTrain);
-		addButton(buttonUnlimitedTrains);
+		addDrawableChild(buttonSelectTrain);
+		addDrawableChild(buttonUnlimitedTrains);
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;

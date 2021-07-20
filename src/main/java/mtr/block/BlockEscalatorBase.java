@@ -70,11 +70,11 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
 
-		final boolean isAhead = is(world.getBlockState(posAhead).getBlock());
-		final boolean isAheadUp = is(world.getBlockState(posAhead.up()).getBlock());
+		final boolean isAhead = state.isOf(world.getBlockState(posAhead).getBlock());
+		final boolean isAheadUp = state.isOf(world.getBlockState(posAhead.up()).getBlock());
 
-		final boolean isBehind = is(world.getBlockState(posBehind).getBlock());
-		final boolean isBehindDown = is(world.getBlockState(posBehind.down()).getBlock());
+		final boolean isBehind = state.isOf(world.getBlockState(posBehind).getBlock());
+		final boolean isBehindDown = state.isOf(world.getBlockState(posBehind.down()).getBlock());
 
 		if (isAhead && isBehind) {
 			return EnumEscalatorOrientation.FLAT;

@@ -28,14 +28,14 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements Block
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignWallLight();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityRouteSignWallLight(pos, state);
 	}
 
 	public static class TileEntityRouteSignWallLight extends TileEntityRouteSignBase {
 
-		public TileEntityRouteSignWallLight() {
-			super(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY);
+		public TileEntityRouteSignWallLight(BlockPos pos, BlockState state) {
+			super(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, pos, state);
 		}
 	}
 }

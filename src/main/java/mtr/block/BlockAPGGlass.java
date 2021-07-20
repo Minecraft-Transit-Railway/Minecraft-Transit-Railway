@@ -14,7 +14,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityProvider, IPropagateBlock {
@@ -39,8 +38,8 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityAPGGlass();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityAPGGlass(pos, state);
 	}
 
 	@Override
@@ -50,8 +49,8 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 
 	public static class TileEntityAPGGlass extends BlockEntity {
 
-		public TileEntityAPGGlass() {
-			super(MTR.APG_GLASS_TILE_ENTITY);
+		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
+			super(MTR.APG_GLASS_TILE_ENTITY, pos, state);
 		}
 	}
 }

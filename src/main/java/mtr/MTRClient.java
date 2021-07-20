@@ -83,34 +83,34 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		registerRailPredicate(Items.RAIL_CONNECTOR_TURN_BACK);
 		registerRailPredicate(Items.RAIL_REMOVER);
 
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 15, 16, 14, 14, false, false, true));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, -15, 15, 16, 30, 46, false, false, true));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 16, -15, 15, 16, 46, 46, false, false, true));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.CLOCK_TILE_ENTITY, RenderClock::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_1_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 1, 1, 3.25F, 6, 2.5F, 30, true, false, false));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_2_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 3, 1.5F, 7.5F, 6, 6.5F, 29, true, true, false));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_4_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_4_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_5_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_5_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_6_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_6_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_7_EVEN_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_7_ODD_TILE_ENTITY, RenderRailwaySign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY, RenderRouteSign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, RenderRouteSign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, RenderRouteSign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, RenderRouteSign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, RenderStationNameEntrance::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, RenderStationNameTall::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_WALL_TILE_ENTITY, RenderStationNameWall::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, context -> new RenderPIDS<>(12, 1, 15, 16, 14, 14, false, false, true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, context -> new RenderPIDS<>(12, -15, 15, 16, 30, 46, false, false, true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY, context -> new RenderPIDS<>(16, -15, 15, 16, 46, 46, false, false, true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.CLOCK_TILE_ENTITY, context -> new RenderClock());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, context -> new RenderPSDTop());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, context -> new RenderAPGGlass());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_1_TILE_ENTITY, context -> new RenderPIDS<>(1, 1, 3.25F, 6, 2.5F, 30, true, false, false));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_2_TILE_ENTITY, context -> new RenderPIDS<>(3, 1.5F, 7.5F, 6, 6.5F, 29, true, true, false));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_4_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_4_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_5_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_5_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_6_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_6_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_7_EVEN_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_7_ODD_TILE_ENTITY, context -> new RenderRailwaySign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY, context -> new RenderRouteSign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, context -> new RenderRouteSign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, context -> new RenderRouteSign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, context -> new RenderRouteSign<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, context -> new RenderStationNameEntrance());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, context -> new RenderStationNameTall<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, context -> new RenderStationNameTall<>());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_WALL_TILE_ENTITY, context -> new RenderStationNameWall());
 
 		registerStationColor(Blocks.STATION_COLOR_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_BEDROCK);
@@ -186,7 +186,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 	}
 
 	private static void registerRailPredicate(Item item) {
-		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity, i) -> itemStack.getOrCreateNbt().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
 	}
 
 	private static void registerStationColor(Block block) {

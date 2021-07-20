@@ -8,7 +8,6 @@ import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -24,10 +23,6 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	private static final float BOTTOM_END_DIAGONAL_OFFSET = END_FRONT_OFFSET - BOTTOM_DIAGONAL_OFFSET / MathHelper.SQUARE_ROOT_OF_TWO;
 	private static final float COLOR_STRIP_START = 0.90625F;
 	private static final float COLOR_STRIP_END = 0.9375F;
-
-	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
 
 	@Override
 	protected float getZ() {

@@ -1,8 +1,10 @@
 package mtr.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.IGui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
@@ -24,7 +26,8 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 	@Override
 	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final MinecraftClient client = MinecraftClient.getInstance();
-		client.getTextureManager().bindTexture(WIDGETS_TEXTURE);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, WIDGETS_TEXTURE);
 
 		drawTexture(matrices, x, y, 0, 46, width / 2, height / 2);
 		drawTexture(matrices, x, y + height / 2, 0, 66 - height / 2, width / 2, height / 2);

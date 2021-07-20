@@ -1,5 +1,6 @@
 package mtr.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.config.CustomResources;
@@ -10,6 +11,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.LiteralText;
@@ -149,8 +151,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false, false));
 
-		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
-		selectedList = new DashboardList(this::addButton, this::addChild, null, null, null, null, null, this::onDelete, null);
+		availableList = new DashboardList(this::addDrawableChild, null, null, null, null, this::onAdd, null, null);
+		selectedList = new DashboardList(this::addDrawableChild, null, null, null, null, null, this::onDelete, null);
 	}
 
 	@Override
@@ -160,7 +162,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
-			addButton(buttonsEdit[i]);
+			addDrawableChild(buttonsEdit[i]);
 		}
 
 		int column = 0;
@@ -171,7 +173,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 			IDrawing.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
 			buttonsSelection[i].visible = false;
-			addButton(buttonsSelection[i]);
+			addDrawableChild(buttonsSelection[i]);
 
 			column += columns;
 			if (column >= COLUMNS) {
@@ -190,10 +192,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		IDrawing.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
 		buttonClear.visible = false;
-		addButton(buttonClear);
+		addDrawableChild(buttonClear);
 
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		addButton(buttonDone);
+		addDrawableChild(buttonDone);
 
 		availableList.init();
 		selectedList.init();
@@ -225,7 +227,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 				for (int i = 0; i < signIds.length; i++) {
 					if (signIds[i] != null) {
 						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
-							client.getTextureManager().bindTexture(textureId);
+							RenderSystem.setShader(GameRenderer::getPositionTexShader);
+							RenderSystem.setShaderTexture(0, textureId);
 							drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 						});
 					}
@@ -241,7 +244,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 						if (sign != null) {
 							final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 
-							client.getTextureManager().bindTexture(sign.textureId);
+							RenderSystem.setShader(GameRenderer::getPositionTexShader);
+							RenderSystem.setShaderTexture(0, sign.textureId);
 							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT, 2, 2, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 						}
 

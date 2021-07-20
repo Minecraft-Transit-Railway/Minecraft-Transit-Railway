@@ -1,6 +1,5 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
@@ -8,11 +7,10 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.TranslatableText;
@@ -26,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class WidgetMap implements Drawable, Element, IGui {
+public class WidgetMap implements Drawable, Selectable, Element, IGui {
 
 	private int x;
 	private int y;
@@ -76,10 +74,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final Tessellator tessellator = Tessellator.getInstance();
 		final BufferBuilder buffer = tessellator.getBuffer();
+		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-		buffer.begin(7, VertexFormats.POSITION_COLOR);
+		buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
 		final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
 		final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
@@ -130,8 +127,6 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 
 		tessellator.draw();
-		RenderSystem.enableTexture();
-		RenderSystem.disableBlend();
 
 
 		if (mapState == MapState.EDITING_AREA) {
@@ -238,6 +233,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 5 && mouseY >= y + height - SQUARE_SIZE);
+	}
+
+	@Override
+	public SelectionType getType() {
+		return Selectable.SelectionType.NONE;
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {
@@ -354,6 +354,10 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final int g = ((color >> 8) & 0xFF) / amount;
 		final int b = (color & 0xFF) / amount;
 		return (r << 16) + (g << 8) + b;
+	}
+
+	@Override
+	public void appendNarrations(NarrationMessageBuilder builder) {
 	}
 
 	@FunctionalInterface

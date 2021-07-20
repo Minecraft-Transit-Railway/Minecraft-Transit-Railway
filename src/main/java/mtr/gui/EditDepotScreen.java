@@ -75,8 +75,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
+		addNewList = new DashboardList(this::addDrawableChild, null, null, null, null, this::onAdded, null, null);
+		trainList = new DashboardList(this::addDrawableChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		trainList.width = PANEL_WIDTH;
 
 		for (WidgetShorterSlider slider : sliders) {
-			addButton(slider);
+			addDrawableChild(slider);
 		}
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			sliders[i].setValue(depot.getFrequency(i));
@@ -120,11 +120,11 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		trainList.init();
 		setIsSelecting(false);
 
-		addChild(textFieldName);
-		addChild(textFieldColor);
-		addButton(buttonEditInstructions);
-		addButton(buttonGenerateRoute);
-		addButton(buttonDone);
+		addDrawableChild(textFieldName);
+		addDrawableChild(textFieldColor);
+		addDrawableChild(buttonEditInstructions);
+		addDrawableChild(buttonGenerateRoute);
+		addDrawableChild(buttonDone);
 	}
 
 	@Override
@@ -152,8 +152,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 			} else {
 				renderBackground(matrices);
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				textFieldName.render(matrices, mouseX, mouseY, delta);
-				textFieldColor.render(matrices, mouseX, mouseY, delta);
 
 				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
 				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
@@ -198,7 +196,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			client.setScreen(dashboardScreen);
 		}
 
 		depot.name = textFieldName.getText();

@@ -11,7 +11,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -22,7 +21,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 
-public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> implements IGui {
+public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRenderer<T> {
 
 	private final float scale;
 	private final float totalScaledWidth;
@@ -42,8 +41,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int TEXT_COLOR = 0xFF9900;
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms) {
-		super(dispatcher);
+	public RenderPIDS(int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms) {
 		scale = 160 * maxArrivals / maxHeight;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;

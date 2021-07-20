@@ -18,14 +18,14 @@ public class BlockArrivalProjector1Small extends BlockArrivalProjectorBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityArrivalProjector1Small();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityArrivalProjector1Small(pos, state);
 	}
 
 	public static class TileEntityArrivalProjector1Small extends BlockEntity {
 
-		public TileEntityArrivalProjector1Small() {
-			super(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY);
+		public TileEntityArrivalProjector1Small(BlockPos pos, BlockState state) {
+			super(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, pos, state);
 		}
 	}
 }

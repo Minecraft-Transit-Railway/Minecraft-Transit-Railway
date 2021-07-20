@@ -34,8 +34,8 @@ public class DeleteConfirmationScreen extends Screen implements IGui {
 		super.init();
 		IDrawing.setPositionAndWidth(buttonYes, width / 2 - BUTTON_WIDTH - BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonNo, width / 2 + BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
-		addButton(buttonYes);
-		addButton(buttonNo);
+		addDrawableChild(buttonYes);
+		addDrawableChild(buttonNo);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class DeleteConfirmationScreen extends Screen implements IGui {
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			client.setScreen(dashboardScreen);
 		}
 	}
 

@@ -53,7 +53,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 			savedRailBase.name = textFieldSavedRailNumber.getText();
 		});
 
-		addChild(textFieldSavedRailNumber);
+		addDrawableChild(textFieldSavedRailNumber);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		super.onClose();
 		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			client.setScreen(dashboardScreen);
 		}
 	}
 

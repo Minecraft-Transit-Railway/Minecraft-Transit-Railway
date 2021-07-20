@@ -10,7 +10,6 @@ import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -19,13 +18,9 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntityRenderer<T> implements IGui {
+public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, BlockEntityRenderer<T> {
 
 	private static final float EXTRA_PADDING = 0.0625F;
-
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
 
 	@Override
 	public final void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

@@ -63,7 +63,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final boolean isNext = direction == facing.rotateYClockwise() || is(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && direction == facing.rotateYCounterclockwise();
+		final boolean isNext = direction == facing.rotateYClockwise() || state.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && direction == facing.rotateYCounterclockwise();
 		if (isNext && !(newState.getBlock() instanceof BlockRailwaySign)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
@@ -105,7 +105,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		if (is(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
+		if (state.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 12, 9, facing);
 		} else {
 			final int xStart = getXStart();
@@ -127,11 +127,11 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		if (is(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		if (state.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
 			return null;
 		} else {
-			return new TileEntityRailwaySign(length, isOdd);
+			return new TileEntityRailwaySign(length, isOdd, pos, state);
 		}
 	}
 
@@ -181,15 +181,15 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
 
-		public TileEntityRailwaySign(int length, boolean isOdd) {
-			super(getType(length, isOdd));
+		public TileEntityRailwaySign(int length, boolean isOdd, BlockPos pos, BlockState state) {
+			super(getType(length, isOdd), pos, state);
 			signIds = new String[length];
 			selectedIds = new HashSet<>();
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
+		public void readNbt(NbtCompound nbtCompound) {
+			super.readNbt(nbtCompound);
 			fromClientTag(nbtCompound);
 		}
 

@@ -7,7 +7,6 @@ import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -16,11 +15,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 
-public class RenderClock extends BlockEntityRenderer<BlockClock.TileEntityClock> implements IGui, IBlock {
-
-	public RenderClock(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
+public class RenderClock implements IGui, IBlock, BlockEntityRenderer<BlockClock.TileEntityClock> {
 
 	@Override
 	public void render(BlockClock.TileEntityClock entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

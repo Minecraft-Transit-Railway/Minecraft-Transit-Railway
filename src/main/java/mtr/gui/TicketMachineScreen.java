@@ -28,7 +28,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 			buttons[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> {
 				PacketTrainDataGuiClient.addBalanceC2S(getAddAmount(index), (int) Math.pow(2, index));
 				if (client != null) {
-					client.openScreen(null);
+					client.setScreen(null);
 				}
 			});
 		}
@@ -45,7 +45,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 		}
 
 		for (final ButtonWidget button : buttons) {
-			addButton(button);
+			addDrawableChild(button);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 
 	private int getEmeraldCount() {
 		if (client != null && client.player != null) {
-			return client.player.inventory.count(Items.EMERALD);
+			return client.player.getInventory().count(Items.EMERALD);
 		} else {
 			return 0;
 		}

@@ -51,13 +51,13 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
 
-		public TileEntityRouteSignBase(BlockEntityType<?> type) {
-			super(type);
+		public TileEntityRouteSignBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
+		public void readNbt(NbtCompound nbtCompound) {
+			super.readNbt(nbtCompound);
 			fromClientTag(nbtCompound);
 		}
 

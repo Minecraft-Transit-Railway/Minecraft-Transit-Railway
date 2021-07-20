@@ -30,14 +30,14 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements B
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignStandingLight();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityRouteSignStandingLight(pos, state);
 	}
 
 	public static class TileEntityRouteSignStandingLight extends TileEntityRouteSignBase {
 
-		public TileEntityRouteSignStandingLight() {
-			super(MTR.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY);
+		public TileEntityRouteSignStandingLight(BlockPos pos, BlockState state) {
+			super(MTR.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY, pos, state);
 		}
 	}
 }

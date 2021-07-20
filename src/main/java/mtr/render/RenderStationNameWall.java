@@ -5,14 +5,9 @@ import mtr.block.BlockStationNameWall;
 import mtr.gui.IDrawing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class RenderStationNameWall extends RenderStationNameBase<BlockStationNameWall.TileEntityStationNameWall> {
-
-	public RenderStationNameWall(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
 
 	@Override
 	protected void drawStationName(BlockStationNameBase.TileEntityStationNameBase entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, String stationName, int color, int light) {

@@ -68,8 +68,8 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		buttonAddExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
 		buttonDoneExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitDestination());
 
-		exitParentList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null);
-		exitDestinationList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList);
+		exitParentList = new DashboardList(this::addDrawableChild, null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null);
+		exitDestinationList = new DashboardList(this::addDrawableChild, null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList);
 	}
 
 	@Override
@@ -140,16 +140,16 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		exitParentList.init();
 		exitDestinationList.init();
 
-		addChild(textFieldName);
-		addChild(textFieldColor);
-		addChild(textFieldZone);
-		addChild(textFieldExitParentLetter);
-		addChild(textFieldExitParentNumber);
-		addChild(textFieldExitDestination);
-		addButton(buttonAddExitParent);
-		addButton(buttonDoneExitParent);
-		addButton(buttonAddExitDestination);
-		addButton(buttonDoneExitDestination);
+		addDrawableChild(textFieldName);
+		addDrawableChild(textFieldColor);
+		addDrawableChild(textFieldZone);
+		addDrawableChild(textFieldExitParentLetter);
+		addDrawableChild(textFieldExitParentNumber);
+		addDrawableChild(textFieldExitDestination);
+		addDrawableChild(buttonAddExitParent);
+		addDrawableChild(buttonDoneExitParent);
+		addDrawableChild(buttonAddExitDestination);
+		addDrawableChild(buttonDoneExitDestination);
 
 		changeEditingExit(null, -1);
 	}
@@ -181,13 +181,6 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			textFieldName.render(matrices, mouseX, mouseY, delta);
-			textFieldColor.render(matrices, mouseX, mouseY, delta);
-			textFieldZone.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentLetter.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentNumber.render(matrices, mouseX, mouseY, delta);
-			textFieldExitDestination.render(matrices, mouseX, mouseY, delta);
-
 			drawVerticalLine(matrices, width / 2, EXIT_PANELS_START - SQUARE_SIZE, height, ARGB_WHITE_TRANSLUCENT);
 
 			exitParentList.render(matrices, textRenderer, mouseX, mouseY, delta);
@@ -224,7 +217,7 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			client.setScreen(dashboardScreen);
 		}
 
 		station.name = textFieldName.getText();

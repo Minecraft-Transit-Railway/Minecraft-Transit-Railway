@@ -36,8 +36,8 @@ public class BlockClock extends Block implements BlockEntityProvider {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityClock();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityClock(pos, state);
 	}
 
 	@Override
@@ -47,8 +47,8 @@ public class BlockClock extends Block implements BlockEntityProvider {
 
 	public static class TileEntityClock extends BlockEntity {
 
-		public TileEntityClock() {
-			super(MTR.CLOCK_TILE_ENTITY);
+		public TileEntityClock(BlockPos pos, BlockState state) {
+			super(MTR.CLOCK_TILE_ENTITY, pos, state);
 		}
 	}
 }

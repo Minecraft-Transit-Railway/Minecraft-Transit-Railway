@@ -56,7 +56,7 @@ public class ItemRailModifier extends Item {
 			final BlockState stateStart = world.getBlockState(posStart);
 
 			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
-				final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
+				final NbtCompound nbtCompound = context.getStack().getOrCreateNbt();
 
 				if (nbtCompound.contains(TAG_POS)) {
 					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
@@ -115,7 +115,7 @@ public class ItemRailModifier extends Item {
 			tooltip.add(new TranslatableText("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 
-		final NbtCompound nbtCompound = stack.getOrCreateTag();
+		final NbtCompound nbtCompound = stack.getOrCreateNbt();
 		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));

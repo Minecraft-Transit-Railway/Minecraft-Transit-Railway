@@ -71,11 +71,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
 		buttonOptions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("menu.options"), button -> {
 			if (client != null) {
-				client.openScreen(new ConfigScreen());
+				client.setScreen(new ConfigScreen());
 			}
 		});
 
-		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addDrawableChild, this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList);
 
 		onSelectTab(SelectedTab.STATIONS);
 	}
@@ -129,35 +129,32 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		dashboardList.init();
 
-		addChild(widgetMap);
+		addDrawableChild(widgetMap);
 
-		addButton(buttonTabStations);
-		addButton(buttonTabRoutes);
-		addButton(buttonTabDepots);
-		addButton(buttonAddStation);
-		addButton(buttonAddRoute);
-		addButton(buttonAddDepot);
-		addButton(buttonDoneEditingStation);
-		addButton(buttonDoneEditingRoute);
-		addButton(buttonDoneEditingDepot);
-		addButton(buttonZoomIn);
-		addButton(buttonZoomOut);
-		addButton(buttonOptions);
+		addDrawableChild(buttonTabStations);
+		addDrawableChild(buttonTabRoutes);
+		addDrawableChild(buttonTabDepots);
+		addDrawableChild(buttonAddStation);
+		addDrawableChild(buttonAddRoute);
+		addDrawableChild(buttonAddDepot);
+		addDrawableChild(buttonDoneEditingStation);
+		addDrawableChild(buttonDoneEditingRoute);
+		addDrawableChild(buttonDoneEditingDepot);
+		addDrawableChild(buttonZoomIn);
+		addDrawableChild(buttonZoomOut);
+		addDrawableChild(buttonOptions);
 
-		addChild(textFieldName);
-		addChild(textFieldColor);
+		addDrawableChild(textFieldName);
+		addDrawableChild(textFieldColor);
 	}
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			widgetMap.render(matrices, mouseX, mouseY, delta);
 			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
 			dashboardList.render(matrices, textRenderer, mouseX, mouseY, delta);
 			super.render(matrices, mouseX, mouseY, delta);
-			textFieldName.render(matrices, mouseX, mouseY, delta);
-			textFieldColor.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -259,11 +256,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				if (client != null) {
 					if (editingArea == null) {
 						if (data instanceof Station) {
-							client.openScreen(new EditStationScreen((Station) data, this));
+							client.setScreen(new EditStationScreen((Station) data, this));
 						}
 					} else {
 						if (data instanceof Platform) {
-							client.openScreen(new PlatformScreen((Platform) data, this));
+							client.setScreen(new PlatformScreen((Platform) data, this));
 						}
 					}
 				}
@@ -275,11 +272,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				if (client != null) {
 					if (editingArea == null) {
 						if (data instanceof Depot) {
-							client.openScreen(new EditDepotScreen((Depot) data, this));
+							client.setScreen(new EditDepotScreen((Depot) data, this));
 						}
 					} else {
 						if (data instanceof Siding) {
-							client.openScreen(new SidingScreen((Siding) data, this));
+							client.setScreen(new SidingScreen((Siding) data, this));
 						}
 					}
 				}
@@ -299,7 +296,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				case STATIONS:
 					if (client != null) {
 						final Station station = (Station) data;
-						client.openScreen(new DeleteConfirmationScreen(() -> {
+						client.setScreen(new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
 							ClientData.stations.remove(station);
 						}, IGui.formatStationName(station.name), this));
@@ -309,7 +306,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					if (editingRoute == null) {
 						if (client != null) {
 							final Route route = (Route) data;
-							client.openScreen(new DeleteConfirmationScreen(() -> {
+							client.setScreen(new DeleteConfirmationScreen(() -> {
 								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
 								ClientData.routes.remove(route);
 							}, IGui.formatStationName(route.name), this));
@@ -322,7 +319,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				case DEPOTS:
 					if (client != null) {
 						final Depot depot = (Depot) data;
-						client.openScreen(new DeleteConfirmationScreen(() -> {
+						client.setScreen(new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
 							ClientData.depots.remove(depot);
 						}, IGui.formatStationName(depot.name), this));
@@ -379,9 +376,9 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 	private void onClickEditSavedRail(SavedRailBase savedRail) {
 		if (savedRail instanceof Platform) {
-			MinecraftClient.getInstance().openScreen(new PlatformScreen((Platform) savedRail, this));
+			MinecraftClient.getInstance().setScreen(new PlatformScreen((Platform) savedRail, this));
 		} else if (savedRail instanceof Siding) {
-			MinecraftClient.getInstance().openScreen(new SidingScreen((Siding) savedRail, this));
+			MinecraftClient.getInstance().setScreen(new SidingScreen((Siding) savedRail, this));
 		}
 	}
 

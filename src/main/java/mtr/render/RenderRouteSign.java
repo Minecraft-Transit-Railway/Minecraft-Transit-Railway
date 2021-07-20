@@ -12,7 +12,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -22,13 +21,9 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.Map;
 
-public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
+public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> implements IBlock, IGui, BlockEntityRenderer<T> {
 
 	private static final int SCALE = 480;
-
-	public RenderRouteSign(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
 
 	@Override
 	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

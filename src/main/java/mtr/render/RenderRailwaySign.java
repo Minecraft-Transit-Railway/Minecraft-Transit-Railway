@@ -8,11 +8,11 @@ import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
@@ -24,13 +24,9 @@ import net.minecraft.world.WorldAccess;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> extends BlockEntityRenderer<T> implements IBlock, IGui, IDrawing {
+public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> implements IBlock, IGui, IDrawing, BlockEntityRenderer<T> {
 
 	public static final int HEIGHT_TO_SCALE = 27;
-
-	public RenderRailwaySign(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
 
 	@Override
 	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
@@ -78,7 +74,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		}
 		for (int i = 0; i < signIds.length; i++) {
 			if (signIds[i] != null) {
-				drawSign(matrices, vertexConsumers, dispatcher.getTextRenderer(), pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> {
+				drawSign(matrices, vertexConsumers, MinecraftClient.getInstance().textRenderer, pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> {
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier(textureId.toString())));
 					IDrawing.drawTexture(matrices, vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				});

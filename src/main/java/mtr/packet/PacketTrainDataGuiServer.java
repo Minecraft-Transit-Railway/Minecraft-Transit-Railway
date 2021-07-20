@@ -165,7 +165,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			ScoreboardPlayerScore balanceScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE);
 			balanceScore.setScore(balanceScore.getScore() + addAmount);
 
-			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
+			Inventories.remove(player.getInventory(), itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
 		});
 	}

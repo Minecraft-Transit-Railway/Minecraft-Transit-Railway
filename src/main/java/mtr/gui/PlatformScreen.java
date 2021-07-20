@@ -19,7 +19,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 		sliderDwellTime.y = height / 2 + TEXT_FIELD_PADDING / 2;
 		sliderDwellTime.setHeight(SQUARE_SIZE);
 		sliderDwellTime.setValue(savedRailBase.getDwellTime() - 1);
-		addButton(sliderDwellTime);
+		addDrawableChild(sliderDwellTime);
 	}
 
 	@Override

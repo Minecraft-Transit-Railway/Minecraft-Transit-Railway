@@ -1,18 +1,17 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -41,7 +40,6 @@ public class DashboardList implements IGui {
 	private final TexturedButtonWidget buttonAdd;
 	private final TexturedButtonWidget buttonDelete;
 
-	private final RegisterButton registerButton;
 	private final AddChild addChild;
 
 	private List<NameColorDataBase> dataSorted = new ArrayList<>();
@@ -57,8 +55,7 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
-		this.registerButton = registerButton;
+	public <T> DashboardList(AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.addChild = addChild;
 		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
@@ -91,16 +88,16 @@ public class DashboardList implements IGui {
 		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
-		registerButton.registerButton(buttonPrevPage);
-		registerButton.registerButton(buttonNextPage);
+		addChild.addChild(buttonPrevPage);
+		addChild.addChild(buttonNextPage);
 
-		registerButton.registerButton(buttonFind);
-		registerButton.registerButton(buttonDrawArea);
-		registerButton.registerButton(buttonEdit);
-		registerButton.registerButton(buttonUp);
-		registerButton.registerButton(buttonDown);
-		registerButton.registerButton(buttonAdd);
-		registerButton.registerButton(buttonDelete);
+		addChild.addChild(buttonFind);
+		addChild.addChild(buttonDrawArea);
+		addChild.addChild(buttonEdit);
+		addChild.addChild(buttonUp);
+		addChild.addChild(buttonDown);
+		addChild.addChild(buttonAdd);
+		addChild.addChild(buttonDelete);
 
 		addChild.addChild(textFieldSearch);
 	}
@@ -154,14 +151,10 @@ public class DashboardList implements IGui {
 
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
-				RenderSystem.enableBlend();
-				RenderSystem.disableTexture();
-				RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-				buffer.begin(7, VertexFormats.POSITION_COLOR);
+				RenderSystem.setShader(GameRenderer::getPositionColorShader);
+				buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
 				tessellator.draw();
-				RenderSystem.enableTexture();
-				RenderSystem.disableBlend();
 
 				final String drawString = IGui.formatStationName(data.name);
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
@@ -269,13 +262,8 @@ public class DashboardList implements IGui {
 	}
 
 	@FunctionalInterface
-	public interface RegisterButton {
-		void registerButton(ClickableWidget button);
-	}
-
-	@FunctionalInterface
 	public interface AddChild {
-		void addChild(TextFieldWidget textField);
+		<T extends Element & Drawable & Selectable> void addChild(T textField);
 	}
 
 	@FunctionalInterface
