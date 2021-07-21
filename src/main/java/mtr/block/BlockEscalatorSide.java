@@ -32,6 +32,11 @@ public class BlockEscalatorSide extends BlockEscalatorBase {
 	}
 
 	@Override
+	public VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
+	}
+
+	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		BlockPos offsetPos = pos.down();
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {

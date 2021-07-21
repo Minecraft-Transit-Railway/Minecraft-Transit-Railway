@@ -18,8 +18,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected final T savedRailBase;
 	protected final int textWidth, startX;
 
+	protected final TextFieldWidget textFieldSavedRailNumber;
 	private final DashboardScreen dashboardScreen;
-	private final TextFieldWidget textFieldSavedRailNumber;
 
 	private final Text savedRailNumberText;
 	private final Text secondText;

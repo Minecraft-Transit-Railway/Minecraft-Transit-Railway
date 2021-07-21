@@ -1,7 +1,10 @@
 package mtr.model;
 
 import mtr.render.MoreRenderLayers;
+import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -12,19 +15,19 @@ import net.minecraft.util.Identifier;
 
 public class ModelDoorOverlay extends EntityModel<Entity> {
 
-	private final ModelPart door_left_overlay_interior;
-	private final ModelPart door_left_top_r1;
-	private final ModelPart door_right_overlay_interior;
-	private final ModelPart door_right_top_r1;
-	private final ModelPart door_right_bottom_r1;
-	private final ModelPart door_left_overlay_exterior;
-	private final ModelPart door_left_top_r2;
-	private final ModelPart door_right_overlay_exterior;
-	private final ModelPart door_right_top_r2;
-	private final ModelPart wall_1;
-	private final ModelPart upper_wall_1_r1;
-	private final ModelPart wall_2;
-	private final ModelPart upper_wall_2_r1;
+	private final ModelMapper door_left_overlay_interior;
+	private final ModelMapper door_left_top_r1;
+	private final ModelMapper door_right_overlay_interior;
+	private final ModelMapper door_right_top_r1;
+	private final ModelMapper door_right_bottom_r1;
+	private final ModelMapper door_left_overlay_exterior;
+	private final ModelMapper door_left_top_r2;
+	private final ModelMapper door_right_overlay_exterior;
+	private final ModelMapper door_right_top_r2;
+	private final ModelMapper wall_1;
+	private final ModelMapper upper_wall_1_r1;
+	private final ModelMapper wall_2;
+	private final ModelMapper upper_wall_2_r1;
 
 	private final Identifier doorOverlayTextureLeft;
 	private final Identifier doorOverlayTextureRight;
@@ -42,73 +45,85 @@ public class ModelDoorOverlay extends EntityModel<Entity> {
 		this.renderLeft = renderLeft;
 		this.renderRight = renderRight;
 
-		textureWidth = 38;
-		textureHeight = 32;
-		door_left_overlay_interior = new ModelPart(this);
-		door_left_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
-		door_left_overlay_interior.setTextureOffset(3, 3).addCuboid(-19.7F, -14.0F, 0.0F, 0.0F, 13.0F, 16.0F, 0.0F, false);
+		final int textureWidth = 38;
+		final int textureHeight = 32;
 
-		door_left_top_r1 = new ModelPart(this);
-		door_left_top_r1.setPivot(-19.7F, -14.0F, 0.0F);
+		final ModelData modelData = new ModelData();
+		final ModelPartData modelPartData = modelData.getRoot();
+
+		door_left_overlay_interior = new ModelMapper(modelPartData);
+		door_left_overlay_interior.setPivot(0, 24, 0);
+		door_left_overlay_interior.setTextureOffset(3, 3).addCuboid(-19.7F, -14, 0, 0, 13, 16, 0, false);
+
+		door_left_top_r1 = new ModelMapper(modelPartData);
+		door_left_top_r1.setPivot(-19.7F, -14, 0);
 		door_left_overlay_interior.addChild(door_left_top_r1);
-		ModelTrainBase.setRotationAngle(door_left_top_r1, 0.0F, 0.0F, angleRadians);
-		door_left_top_r1.setTextureOffset(3, -16).addCuboid(0.0F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(door_left_top_r1, 0, 0, angleRadians);
+		door_left_top_r1.setTextureOffset(3, -16).addCuboid(0, -19, 0, 0, 19, 16, 0, false);
 
-		door_right_overlay_interior = new ModelPart(this);
-		door_right_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
+		door_right_overlay_interior = new ModelMapper(modelPartData);
+		door_right_overlay_interior.setPivot(0, 24, 0);
 
 
-		door_right_top_r1 = new ModelPart(this);
-		door_right_top_r1.setPivot(-19.7F, -14.0F, 0.0F);
+		door_right_top_r1 = new ModelMapper(modelPartData);
+		door_right_top_r1.setPivot(-19.7F, -14, 0);
 		door_right_overlay_interior.addChild(door_right_top_r1);
-		ModelTrainBase.setRotationAngle(door_right_top_r1, 0.0F, 3.1416F, angleRadians);
-		door_right_top_r1.setTextureOffset(3, -16).addCuboid(0.0F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(door_right_top_r1, 0, 3.1416F, angleRadians);
+		door_right_top_r1.setTextureOffset(3, -16).addCuboid(0, -19, 0, 0, 19, 16, 0, false);
 
-		door_right_bottom_r1 = new ModelPart(this);
-		door_right_bottom_r1.setPivot(0.0F, 0.0F, 0.0F);
+		door_right_bottom_r1 = new ModelMapper(modelPartData);
+		door_right_bottom_r1.setPivot(0, 0, 0);
 		door_right_overlay_interior.addChild(door_right_bottom_r1);
-		ModelTrainBase.setRotationAngle(door_right_bottom_r1, 0.0F, 3.1416F, 0.0F);
-		door_right_bottom_r1.setTextureOffset(3, 3).addCuboid(19.7F, -14.0F, 0.0F, 0.0F, 13.0F, 16.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(door_right_bottom_r1, 0, 3.1416F, 0);
+		door_right_bottom_r1.setTextureOffset(3, 3).addCuboid(19.7F, -14, 0, 0, 13, 16, 0, false);
 
-		door_left_overlay_exterior = new ModelPart(this);
-		door_left_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
+		door_left_overlay_exterior = new ModelMapper(modelPartData);
+		door_left_overlay_exterior.setPivot(0, 24, 0);
 
 
-		door_left_top_r2 = new ModelPart(this);
-		door_left_top_r2.setPivot(-20.7F, -14.0F, 0.0F);
+		door_left_top_r2 = new ModelMapper(modelPartData);
+		door_left_top_r2.setPivot(-20.7F, -14, 0);
 		door_left_overlay_exterior.addChild(door_left_top_r2);
-		ModelTrainBase.setRotationAngle(door_left_top_r2, 0.0F, 0.0F, angleRadians);
-		door_left_top_r2.setTextureOffset(3, -16).addCuboid(0.0F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(door_left_top_r2, 0, 0, angleRadians);
+		door_left_top_r2.setTextureOffset(3, -16).addCuboid(0, -19, 0, 0, 19, 16, 0, false);
 
-		door_right_overlay_exterior = new ModelPart(this);
-		door_right_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
+		door_right_overlay_exterior = new ModelMapper(modelPartData);
+		door_right_overlay_exterior.setPivot(0, 24, 0);
 
 
-		door_right_top_r2 = new ModelPart(this);
-		door_right_top_r2.setPivot(-20.7F, -14.0F, 0.0F);
+		door_right_top_r2 = new ModelMapper(modelPartData);
+		door_right_top_r2.setPivot(-20.7F, -14, 0);
 		door_right_overlay_exterior.addChild(door_right_top_r2);
-		ModelTrainBase.setRotationAngle(door_right_top_r2, 0.0F, 3.1416F, angleRadians);
-		door_right_top_r2.setTextureOffset(3, -16).addCuboid(0.0F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(door_right_top_r2, 0, 3.1416F, angleRadians);
+		door_right_top_r2.setTextureOffset(3, -16).addCuboid(0, -19, 0, 0, 19, 16, 0, false);
 
-		wall_1 = new ModelPart(this);
-		wall_1.setPivot(0.0F, 24.0F, 0.0F);
-		wall_1.setTextureOffset(32, 19).addCuboid(-20.0F, -14.0F, -doorMax + 0.1F, 3.0F, 13.0F, 0.0F, 0.0F, false);
+		wall_1 = new ModelMapper(modelPartData);
+		wall_1.setPivot(0, 24, 0);
+		wall_1.setTextureOffset(32, 19).addCuboid(-20, -14, -doorMax + 0.1F, 3, 13, 0, 0, false);
 
-		upper_wall_1_r1 = new ModelPart(this);
-		upper_wall_1_r1.setPivot(-20.0F, -14.0F, 0.0F);
+		upper_wall_1_r1 = new ModelMapper(modelPartData);
+		upper_wall_1_r1.setPivot(-20, -14, 0);
 		wall_1.addChild(upper_wall_1_r1);
-		ModelTrainBase.setRotationAngle(upper_wall_1_r1, 0.0F, 0.0F, angleRadians);
-		upper_wall_1_r1.setTextureOffset(32, 0).addCuboid(0.0F, -19.0F, -doorMax + 0.1F, 3.0F, 19.0F, 0.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(upper_wall_1_r1, 0, 0, angleRadians);
+		upper_wall_1_r1.setTextureOffset(32, 0).addCuboid(0, -19, -doorMax + 0.1F, 3, 19, 0, 0, false);
 
-		wall_2 = new ModelPart(this);
-		wall_2.setPivot(0.0F, 24.0F, 0.0F);
-		wall_2.setTextureOffset(0, 19).addCuboid(-20.0F, -14.0F, doorMax - 0.1F, 3.0F, 13.0F, 0.0F, 0.0F, false);
+		wall_2 = new ModelMapper(modelPartData);
+		wall_2.setPivot(0, 24, 0);
+		wall_2.setTextureOffset(0, 19).addCuboid(-20, -14, doorMax - 0.1F, 3, 13, 0, 0, false);
 
-		upper_wall_2_r1 = new ModelPart(this);
-		upper_wall_2_r1.setPivot(-20.0F, -14.0F, 0.0F);
+		upper_wall_2_r1 = new ModelMapper(modelPartData);
+		upper_wall_2_r1.setPivot(-20, -14, 0);
 		wall_2.addChild(upper_wall_2_r1);
-		ModelTrainBase.setRotationAngle(upper_wall_2_r1, 0.0F, 0.0F, angleRadians);
-		upper_wall_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, -19.0F, doorMax - 0.1F, 3.0F, 19.0F, 0.0F, 0.0F, false);
+		ModelTrainBase.setRotationAngle(upper_wall_2_r1, 0, 0, angleRadians);
+		upper_wall_2_r1.setTextureOffset(0, 0).addCuboid(0, -19, doorMax - 0.1F, 3, 19, 0, 0, false);
+
+		final ModelPart modelPart = TexturedModelData.of(modelData, textureWidth, textureHeight).createModel();
+		door_left_overlay_interior.setModelPart(modelPart);
+		door_right_overlay_interior.setModelPart(modelPart);
+		door_left_overlay_exterior.setModelPart(modelPart);
+		door_right_overlay_exterior.setModelPart(modelPart);
+		wall_1.setModelPart(modelPart);
+		wall_2.setModelPart(modelPart);
 	}
 
 	@Override

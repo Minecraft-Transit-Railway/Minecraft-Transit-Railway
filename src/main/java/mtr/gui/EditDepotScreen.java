@@ -220,6 +220,8 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		buttonEditInstructions.visible = !addingTrain;
 		buttonGenerateRoute.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
+		textFieldName.visible = !addingTrain;
+		textFieldColor.visible = !addingTrain;
 	}
 
 	private void onAdded(NameColorDataBase data, int index) {

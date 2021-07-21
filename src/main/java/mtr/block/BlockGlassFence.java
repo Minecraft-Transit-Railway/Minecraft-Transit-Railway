@@ -44,6 +44,11 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 	}
 
 	@Override
+	public VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
+	}
+
+	@Override
 	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
 		tooltip.add(new TranslatableText("tooltip." + stack.getItem().getTranslationKey()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 	}

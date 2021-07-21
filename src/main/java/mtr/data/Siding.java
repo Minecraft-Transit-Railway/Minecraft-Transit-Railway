@@ -557,7 +557,7 @@ public class Siding extends SavedRailBase implements IPacket {
 					} else {
 						if (speed <= 0) {
 							speed = 0;
-							final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+							final int dwellTicks = getDwellTicks();
 
 							if (dwellTicks == 0) {
 								doorValueRaw = 0;
@@ -879,7 +879,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		private float getDoorValue() {
-			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+			final int dwellTicks = getDwellTicks();
 			final float maxDoorMoveTime = Math.min(DOOR_MOVE_TIME, dwellTicks / 2 - DOOR_DELAY);
 			final float stage1 = DOOR_DELAY;
 			final float stage2 = DOOR_DELAY + maxDoorMoveTime;
@@ -896,6 +896,10 @@ public class Siding extends SavedRailBase implements IPacket {
 			} else {
 				return 0;
 			}
+		}
+
+		private int getDwellTicks() {
+			return path.get(nextStoppingIndex).dwellTime * 10;
 		}
 
 		private boolean openDoors(World world, float trainX, float trainY, float trainZ, float checkYaw, float pitch, float halfSpacing, float doorValue) {
@@ -926,8 +930,8 @@ public class Siding extends SavedRailBase implements IPacket {
 										final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 										world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
-										if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(checkPos.up(), doorBlock)) {
-											world.getBlockTickScheduler().schedule(new BlockPos(doorPos), doorBlock, 20);
+										if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(doorPos, doorBlock)) {
+											world.getBlockTickScheduler().schedule(doorPos, doorBlock, getDwellTicks());
 										}
 									}
 								}

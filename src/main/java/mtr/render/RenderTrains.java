@@ -45,7 +45,7 @@ public class RenderTrains implements IGui {
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 
-	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
+	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>(MinecartEntityModel.getTexturedModelData().createModel());
 	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900(false);
 	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini(false);
 	private static final ModelSP1900 MODEL_C1141A = new ModelSP1900(true);
@@ -197,7 +197,7 @@ public class RenderTrains implements IGui {
 		})));
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
+		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemRailModifier);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {

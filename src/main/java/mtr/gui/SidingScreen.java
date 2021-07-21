@@ -123,6 +123,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		this.isSelectingTrain = isSelectingTrain;
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
+		textFieldSavedRailNumber.visible = !isSelectingTrain;
 		final CustomResources.TrainMapping trainTypeMapping = savedRailBase.getTrainTypeMapping();
 		buttonSelectTrain.setMessage(CustomResources.customTrains.containsKey(trainTypeMapping.customId) ? new LiteralText(CustomResources.customTrains.get(trainTypeMapping.customId).name) : new TranslatableText("train.mtr." + trainTypeMapping.trainType));
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;

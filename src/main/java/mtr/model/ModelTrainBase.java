@@ -1,8 +1,8 @@
 package mtr.model;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mtr.data.IGui;
 import mtr.render.MoreRenderLayers;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -34,8 +34,8 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		final RenderLayer renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
 		final RenderLayer renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
 
-		render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		matrices.push();
+		RenderSystem.enableBlend();
 		render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 
 		if (renderDetails) {
@@ -54,6 +54,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 
 		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		matrices.pop();
 	}
 
 	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
@@ -103,39 +106,29 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected abstract float getDoorAnimationZ(float value, boolean opening);
 
-	protected static void setRotationAngle(ModelPart bone, float x, float y, float z) {
-		bone.pitch = x;
-		bone.yaw = y;
-		bone.roll = z;
+	protected static void setRotationAngle(ModelMapper bone, float x, float y, float z) {
+		bone.setRotationAngle(x, y, z);
 	}
 
-	protected static void renderMirror(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+	protected static void renderMirror(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
 		renderOnce(bone, matrices, vertices, light, position);
 		renderOnceFlipped(bone, matrices, vertices, light, position);
 	}
 
-	protected static void renderOnce(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.setPivot(0, 0, position);
-		setRotationAngle(bone, 0, 0, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnce(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.setPivot(positionX, 0, positionZ);
-		setRotationAngle(bone, 0, 0, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.setPivot(0, 0, position);
-		setRotationAngle(bone, 0, (float) Math.PI, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.setPivot(-positionX, 0, positionZ);
-		setRotationAngle(bone, 0, (float) Math.PI, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
 	protected static boolean isIndex(int index, int value, int[] array) {
