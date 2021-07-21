@@ -107,7 +107,7 @@
 	"gui.mtr.this_station": "This station is ",
 	"gui.mtr.this_station_cjk": "この駅は",
 	"gui.mtr.to": "to ",
-	"gui.mtr.to_cjk": "行き",
+	"gui.mtr.to_cjk": "往",
 	"gui.mtr.tph": "/時",
 	"gui.mtr.train_schedule": "このホームの時刻表",
 	"gui.mtr.train_speed": "速度：%s m/s (%s km/h)",
