@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.ArrayList;
@@ -32,15 +32,15 @@ public final class Station extends AreaBase {
 		exits = new HashMap<>();
 	}
 
-	public Station(CompoundTag tag) {
-		super(tag);
-		zone = tag.getInt(KEY_ZONE);
+	public Station(NbtCompound nbtCompound) {
+		super(nbtCompound);
+		zone = nbtCompound.getInt(KEY_ZONE);
 
 		exits = new HashMap<>();
-		final CompoundTag tagExits = tag.getCompound(KEY_EXITS);
+		final NbtCompound tagExits = nbtCompound.getCompound(KEY_EXITS);
 		for (final String keyParent : tagExits.getKeys()) {
 			final List<String> destinations = new ArrayList<>();
-			final CompoundTag tagDestinations = tagExits.getCompound(keyParent);
+			final NbtCompound tagDestinations = tagExits.getCompound(keyParent);
 			for (final String keyDestination : tagDestinations.getKeys()) {
 				destinations.add(tagDestinations.getString(keyDestination));
 			}
@@ -65,20 +65,20 @@ public final class Station extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putInt(KEY_ZONE, zone);
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putInt(KEY_ZONE, zone);
 
-		final CompoundTag tagExits = new CompoundTag();
+		final NbtCompound tagExits = new NbtCompound();
 		exits.forEach((parent, destinations) -> {
-			final CompoundTag tagDestinations = new CompoundTag();
+			final NbtCompound tagDestinations = new NbtCompound();
 			for (int i = 0; i < destinations.size(); i++) {
 				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
 			}
 			tagExits.put(parent, tagDestinations);
 		});
-		tag.put(KEY_EXITS, tagExits);
-		return tag;
+		nbtCompound.put(KEY_EXITS, tagExits);
+		return nbtCompound;
 	}
 
 	@Override
@@ -166,6 +166,24 @@ public final class Station extends AreaBase {
 		}
 	}
 
+	public Map<String, List<String>> getGeneratedExits() {
+		final List<String> exitParents = new ArrayList<>(exits.keySet());
+		exitParents.sort(String::compareTo);
+
+		final Map<String, List<String>> generatedExits = new HashMap<>();
+		exitParents.forEach(parent -> {
+			final String exitLetter = parent.substring(0, 1);
+			if (!generatedExits.containsKey(exitLetter)) {
+				generatedExits.put(exitLetter, new ArrayList<>());
+			}
+
+			generatedExits.get(exitLetter).addAll(exits.get(parent));
+			generatedExits.put(parent, exits.get(parent));
+		});
+
+		return generatedExits;
+	}
+
 	private void setExitParent(String oldParent, String newParent) {
 		if (parentExists(oldParent)) {
 			final List<String> existingDestinations = exits.get(oldParent);
@@ -178,5 +196,25 @@ public final class Station extends AreaBase {
 
 	private boolean parentExists(String parent) {
 		return parent != null && exits.containsKey(parent);
+	}
+
+	public static long serializeExit(String exit) {
+		final char[] characters = exit.toCharArray();
+		long code = 0;
+		for (final char character : characters) {
+			code = code << 8;
+			code += character;
+		}
+		return code;
+	}
+
+	public static String deserializeExit(long code) {
+		StringBuilder exit = new StringBuilder();
+		long charCodes = code;
+		while (charCodes > 0) {
+			exit.insert(0, (char) (charCodes & 0xFF));
+			charCodes = charCodes >> 8;
+		}
+		return exit.toString();
 	}
 }

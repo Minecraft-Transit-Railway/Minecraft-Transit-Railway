@@ -1,0 +1,46 @@
+{
+	"textures": {
+		"light": "mtr:block/light_on",
+		"lighttriangle": "mtr:block/apg_light_on_triangle"
+	},
+	"elements": [
+		{
+			"from": [ 0.785, 8.8, 15.95 ],
+			"to": [ 3, 9.05, 16.5 ],
+			"shade": false,
+			"rotation": { "origin": [ 3, 9.05, 8 ], "axis": "z", "angle": 22.5 },
+			"faces": {
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#light" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#light", "cullface": "north" }
+			}
+		},
+		{
+			"from": [ 0.95, 7.95, 15.95 ],
+			"to": [ 4.05, 8.232, 16.5 ],
+			"shade": false,
+			"faces": {
+				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#light" },
+				"west": { "uv": [ 0, 0, 16, 16 ], "texture": "#light" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#light" }
+			}
+		},
+		{
+			"from": [ 3, 7.95, 15.95 ],
+			"to": [ 4.05, 9.05, 16.5 ],
+			"shade": false,
+			"faces": {
+				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#light" },
+				"east": { "uv": [ 0, 7, 16, 8 ], "texture": "#light" },
+				"north": { "uv": [ 0, 0, 16, 16 ], "texture": "#light", "cullface": "north" }
+			}
+		},
+		{
+			"from": [ 0.95, 7.95, 15.95 ],
+			"to": [ 3, 9.05, 16.5 ],
+			"shade": false,
+			"faces": {
+				"north": { "uv": [ 0, 0, 16, 8 ], "texture": "#lighttriangle", "cullface": "north" }
+			}
+		}
+	]
+}

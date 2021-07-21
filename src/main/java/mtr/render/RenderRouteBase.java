@@ -13,9 +13,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
@@ -48,9 +48,13 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
 		matrices.push();
-		matrices.translate(0.5, 1, 0.5);
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+		matrices.translate(0.5, 0, 0.5);
+		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+
+		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
+
+		matrices.translate(0, 1, 0);
+		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
 
 		if (isLeft(state)) {
@@ -62,7 +66,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 						break;
 					case ROUTE:
 						final boolean flipLine = arrowDirection == 1;
-						if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2)) {
+						if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4)) {
 							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
 						}
 						break;
@@ -74,6 +78,9 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 		matrices.pop();
 		immediate.draw();
+	}
+
+	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
 	protected abstract float getZ();

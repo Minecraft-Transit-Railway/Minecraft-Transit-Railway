@@ -1,0 +1,29 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"main": "mtr:block/psd_top",
+		"light": "mtr:block/light_off"
+	},
+	"elements": [
+		{
+			"__comment": "Main body",
+			"from": [ 10, 0, 16 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"south": { "texture": "#main" }
+			}
+		},
+		{
+			"__comment": "Light",
+			"from": [ 16, 0, 8 ],
+			"to": [ 17, 1, 10 ],
+			"rotation": { "origin": [ 16, 0, 16 ], "axis": "y", "angle": 45 },
+			"faces": {
+				"down": { "uv": [ 0, 0, 1, 1 ], "texture": "#light" },
+				"east": { "uv": [ 0, 0, 1, 1 ], "texture": "#light" },
+				"north": { "uv": [ 0, 0, 1, 1 ], "texture": "#light" },
+				"south": { "uv": [ 0, 0, 1, 1 ], "texture": "#light" }
+			}
+		}
+	]
+}

@@ -12,7 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.text.Style;
@@ -41,7 +41,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	public static final float SMALL_SIGN_PERCENTAGE = 0.75F;
 
 	public BlockRailwaySign(int length, boolean isOdd) {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(15));
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(15));
 		this.length = length;
 		this.isOdd = isOdd;
 	}
@@ -52,7 +52,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 			final Direction hitSide = hit.getSide();
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
-				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), hitSide.getOpposite());
+				final BlockPos checkPos = findEndWithDirection(world, pos, hitSide.getOpposite(), false);
 				if (checkPos != null) {
 					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, checkPos);
 				}
@@ -80,16 +80,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final boolean isNorthOrSouth = facing == Direction.NORTH || facing == Direction.SOUTH;
 
-		final BlockPos checkPos = findEndWithDirection(world, pos, facing, isNorthOrSouth ? Direction.NORTH : Direction.EAST);
+		final BlockPos checkPos = findEndWithDirection(world, pos, facing, true);
 		if (checkPos != null) {
 			IBlock.onBreakCreative(world, player, checkPos);
-		} else {
-			final BlockPos checkPos2 = findEndWithDirection(world, pos, facing.getOpposite(), isNorthOrSouth ? Direction.NORTH : Direction.EAST);
-			if (checkPos2 != null) {
-				IBlock.onBreakCreative(world, player, checkPos2);
-			}
 		}
 
 		super.onBreak(world, pos, state, player);
@@ -163,13 +157,14 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		return (length - (4 - getXStart() / 4)) / 2;
 	}
 
-	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction startDirection, Direction endDirection) {
+	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction direction, boolean allowOpposite) {
 		int i = 0;
 		while (true) {
-			final BlockPos checkPos = startPos.offset(startDirection.rotateYCounterclockwise(), i);
+			final BlockPos checkPos = startPos.offset(direction.rotateYCounterclockwise(), i);
 			final BlockState checkState = world.getBlockState(checkPos);
 			if (checkState.getBlock() instanceof BlockRailwaySign) {
-				if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && IBlock.getStatePropertySafe(checkState, FACING) == endDirection) {
+				final Direction facing = IBlock.getStatePropertySafe(checkState, FACING);
+				if (!checkState.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && (facing == direction || allowOpposite && facing == direction.getOpposite())) {
 					return checkPos;
 				}
 			} else {
@@ -193,35 +188,35 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 
 		@Override
-		public void fromTag(BlockState state, CompoundTag tag) {
-			super.fromTag(state, tag);
-			fromClientTag(tag);
+		public void fromTag(BlockState state, NbtCompound nbtCompound) {
+			super.fromTag(state, nbtCompound);
+			fromClientTag(nbtCompound);
 		}
 
 		@Override
-		public CompoundTag toTag(CompoundTag tag) {
-			super.toTag(tag);
-			toClientTag(tag);
-			return tag;
+		public NbtCompound writeNbt(NbtCompound nbtCompound) {
+			super.writeNbt(nbtCompound);
+			toClientTag(nbtCompound);
+			return nbtCompound;
 		}
 
 		@Override
-		public void fromClientTag(CompoundTag tag) {
+		public void fromClientTag(NbtCompound nbtCompound) {
 			selectedIds.clear();
-			Arrays.stream(tag.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
+			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signIds.length; i++) {
-				final String signId = tag.getString(KEY_SIGN_LENGTH + i);
+				final String signId = nbtCompound.getString(KEY_SIGN_LENGTH + i);
 				signIds[i] = signId.isEmpty() ? null : signId;
 			}
 		}
 
 		@Override
-		public CompoundTag toClientTag(CompoundTag tag) {
-			tag.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
+		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+			nbtCompound.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
 			for (int i = 0; i < signIds.length; i++) {
-				tag.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
+				nbtCompound.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
-			return tag;
+			return nbtCompound;
 		}
 
 		public void setData(Set<Long> selectedIds, String[] signTypes) {
@@ -302,6 +297,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		YELLOW_HEAD_2("yellow_head_2", false, false),
 		CROSS("cross", true, false),
 		LOGO("logo", false, false),
+		EXIT_LETTER("exit_letter", true, false, true),
+		EXIT_LETTER_FLIPPED("exit_letter", true, true, true),
 		PLATFORM("platform", true, false, true),
 		PLATFORM_FLIPPED("platform", true, true, true),
 		LINE("line", true, false, true),

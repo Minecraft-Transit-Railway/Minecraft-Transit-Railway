@@ -22,7 +22,10 @@ public enum TrainType {
 	A_TRAIN_TCL_MINI(0xF69447, 9, 2, true, MTR.A_TRAIN_ACCELERATION, MTR.A_TRAIN_DECELERATION, MTR.A_TRAIN_DOOR_OPEN, MTR.A_TRAIN_DOOR_CLOSE, 0.5F, "a_train_tcl"),
 	A_TRAIN_AEL(0x008D8D, 24, 2, true, MTR.A_TRAIN_ACCELERATION, MTR.A_TRAIN_DECELERATION, MTR.A_TRAIN_DOOR_OPEN, MTR.A_TRAIN_DOOR_CLOSE, 0.5F, "a_train_ael"),
 	A_TRAIN_AEL_MINI(0x008D8D, 14, 2, true, MTR.A_TRAIN_ACCELERATION, MTR.A_TRAIN_DECELERATION, MTR.A_TRAIN_DOOR_OPEN, MTR.A_TRAIN_DOOR_CLOSE, 0.5F, "a_train_ael"),
-	LIGHT_RAIL_1(0xD2A825, 22, 2, false, null, null, null, null, 0.5F, "light_rail_1"),
+	LIGHT_RAIL_1(0xD2A825, 22, 2, false, MTR.LIGHT_RAIL_ACCELERATION, MTR.LIGHT_RAIL_DECELERATION, MTR.LIGHT_RAIL_1_DOOR_OPEN, MTR.LIGHT_RAIL_1_DOOR_CLOSE, 1, "light_rail_1"),
+	LIGHT_RAIL_1R(0xD2A825, 22, 2, false, MTR.LIGHT_RAIL_ACCELERATION, MTR.LIGHT_RAIL_DECELERATION, MTR.LIGHT_RAIL_1_DOOR_OPEN, MTR.LIGHT_RAIL_1_DOOR_CLOSE, 1, "light_rail_1r"),
+	LIGHT_RAIL_3(0xD2A825, 22, 2, false, MTR.LIGHT_RAIL_ACCELERATION, MTR.LIGHT_RAIL_DECELERATION, MTR.LIGHT_RAIL_3_DOOR_OPEN, MTR.LIGHT_RAIL_3_DOOR_CLOSE, 1, "light_rail_3"),
+	LIGHT_RAIL_4(0xD2A825, 22, 2, false, MTR.LIGHT_RAIL_ACCELERATION, MTR.LIGHT_RAIL_DECELERATION, MTR.LIGHT_RAIL_4_DOOR_OPEN, MTR.LIGHT_RAIL_4_DOOR_CLOSE, 1, "light_rail_4"),
 	MINECART(0x666666, 1, 1, false, null, null, null, null, 0.5F, "minecart");
 
 	public final int color;
@@ -64,7 +67,7 @@ public enum TrainType {
 
 	public void playSpeedSoundEffect(WorldAccess world, BlockPos pos, float oldSpeed, float speed) {
 		if (world.getLunarTime() % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
-			final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / TICKS_PER_SPEED_SOUND);
+			final int floorSpeed = (int) Math.floor(speed / Siding.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
 				final boolean isAccelerating = speed == oldSpeed ? new Random().nextBoolean() : speed > oldSpeed;

@@ -36,7 +36,7 @@ public class UpdateBlueMap {
 			return;
 		}
 
-		final Set<Station> stations = railwayData.getStations();
+		final Set<Station> stations = railwayData.stations;
 		final MarkerAPI markerApi = api.getMarkerAPI();
 
 		final MarkerSet markerSetStations = markerApi.createMarkerSet(BLUE_MAP_MARKER_SET_STATIONS_ID);

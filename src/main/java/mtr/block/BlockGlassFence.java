@@ -24,7 +24,7 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 	public static final IntProperty NUMBER = IntProperty.of("number", 1, 7);
 
 	public BlockGlassFence() {
-		super(FabricBlockSettings.of(Material.STONE, MaterialColor.IRON).requiresTool().hardness(2).nonOpaque());
+		super(FabricBlockSettings.of(Material.STONE, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
 	}
 
 	@Override

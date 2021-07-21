@@ -14,10 +14,10 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
 import java.util.*;
@@ -78,7 +78,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null) {
+				if (station == null || !ClientData.platformsInStation.containsKey(station.id)) {
 					return;
 				}
 
@@ -87,7 +87,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.schedulesForPlatform.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {
-							if (scheduleEntry.lastPlatformId != platform.id) {
+							if (!scheduleEntry.isTerminating) {
 								schedules.add(scheduleEntry);
 								platformIdToName.put(platform.id, platform.name);
 							}
@@ -107,43 +107,34 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			}
 
 			final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
-			final ArrayList<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-			scheduleList.sort(Comparator.comparingInt(schedule -> (int) Route.wrapTime(schedule.departureTime, worldTime)));
+			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+			scheduleList.sort((a, b) -> {
+				if (a.arrivalMillis == b.arrivalMillis) {
+					return a.destination.compareTo(b.destination);
+				} else {
+					return a.arrivalMillis > b.arrivalMillis ? 1 : -1;
+				}
+			});
 
 			for (int i = 0; i < Math.min(maxArrivals, scheduleList.size()); i++) {
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
-				final Station destinationStation = ClientData.platformIdToStation.get(currentSchedule.lastPlatformId);
-				if (destinationStation == null) {
-					return;
-				}
-
-				final float departureTime = Route.wrapTime(currentSchedule.departureTime, worldTime);
-				if (departureTime > Route.TICKS_PER_DAY / 2F) {
-					return;
-				}
-
-				final String[] destinationSplit = destinationStation.name.split("\\|");
+				final String[] destinationSplit = currentSchedule.destination.split("\\|");
 				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
-				final float arrivalTime = Route.wrapTime(currentSchedule.arrivalTime, worldTime);
 				final Text arrivalText;
-				if (arrivalTime < Route.TICKS_PER_DAY / 2F) {
-					final int seconds = (int) Math.ceil(arrivalTime / 20);
-					final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
-					if (seconds >= 60) {
-						arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
-					} else {
-						arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
-					}
+				final int seconds = (int) Math.ceil(currentSchedule.arrivalMillis / 1000);
+				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
+				if (seconds >= 60) {
+					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
 				} else {
-					arrivalText = null;
+					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
 				}
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
-				matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
+				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
 

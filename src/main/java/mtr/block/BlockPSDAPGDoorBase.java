@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -16,6 +17,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+
+import java.util.Random;
 
 public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 
@@ -50,6 +53,11 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
 		super.onBreak(world, pos, state, player);
+	}
+
+	@Override
+	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+		world.setBlockState(pos, state.with(OPEN, 0));
 	}
 
 	@Override

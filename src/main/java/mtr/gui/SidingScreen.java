@@ -60,16 +60,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		if (isSelectingTrain) {
-			try {
-				renderBackground(matrices);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			super.render(matrices, mouseX, mouseY, delta);
+		try {
+			renderBackground(matrices);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		super.render(matrices, mouseX, mouseY, delta);
 	}
 
 	@Override
@@ -151,9 +147,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 			if (trainType != null) {
 				savedRailBase.setTrainTypeMapping(customId, trainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
-				if (client != null && client.world != null) {
-					savedRailBase.generateRoute(client.world, ClientData.rails, ClientData.platforms, ClientData.routes, ClientData.depots);
-				}
 			}
 		}
 		setIsSelectingTrain(false);

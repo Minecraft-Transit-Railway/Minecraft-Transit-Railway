@@ -1,6 +1,6 @@
 package mtr.data;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -30,11 +30,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(CompoundTag tag) {
-		super(tag);
+	public SavedRailBase(NbtCompound nbtCompound) {
+		super(nbtCompound);
 		positions = new HashSet<>();
-		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_1)));
-		positions.add(BlockPos.fromLong(tag.getLong(KEY_POS_2)));
+		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_1)));
+		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_2)));
 	}
 
 	public SavedRailBase(PacketByteBuf packet) {
@@ -45,11 +45,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = super.toCompoundTag();
-		tag.putLong(KEY_POS_1, getPosition(0).asLong());
-		tag.putLong(KEY_POS_2, getPosition(1).asLong());
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = super.toCompoundTag();
+		nbtCompound.putLong(KEY_POS_1, getPosition(0).asLong());
+		nbtCompound.putLong(KEY_POS_2, getPosition(1).asLong());
+		return nbtCompound;
 	}
 
 	@Override

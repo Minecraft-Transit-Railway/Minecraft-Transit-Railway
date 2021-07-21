@@ -1,7 +1,7 @@
 package mtr.path;
 
 import mtr.data.*;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
@@ -34,20 +34,18 @@ public class PathDataDeleteThisLater extends SerializedDataBase {
 
 	// distance = aT^2 + bT
 
-	public static final float ACCELERATION = 0.01F;
-
-	public PathDataDeleteThisLater(CompoundTag tag) {
-		rail = new Rail(tag.getCompound(KEY_RAIL));
-		length = tag.getFloat(KEY_LENGTH);
-		tOffset = tag.getFloat(KEY_T_OFFSET);
-		finalSpeed = tag.getFloat(KEY_FINAL_SPEED);
-		a1 = tag.getFloat(KEY_A_1);
-		b1 = tag.getFloat(KEY_B_1);
-		a2 = tag.getFloat(KEY_A_2);
-		b2 = tag.getFloat(KEY_B_2);
-		tSwitch = tag.getFloat(KEY_T_SWITCH);
-		tEnd = tag.getFloat(KEY_T_END);
-		delay = tag.getInt(KEY_DELAY);
+	public PathDataDeleteThisLater(NbtCompound nbtCompound) {
+		rail = new Rail(nbtCompound.getCompound(KEY_RAIL));
+		length = nbtCompound.getFloat(KEY_LENGTH);
+		tOffset = nbtCompound.getFloat(KEY_T_OFFSET);
+		finalSpeed = nbtCompound.getFloat(KEY_FINAL_SPEED);
+		a1 = nbtCompound.getFloat(KEY_A_1);
+		b1 = nbtCompound.getFloat(KEY_B_1);
+		a2 = nbtCompound.getFloat(KEY_A_2);
+		b2 = nbtCompound.getFloat(KEY_B_2);
+		tSwitch = nbtCompound.getFloat(KEY_T_SWITCH);
+		tEnd = nbtCompound.getFloat(KEY_T_END);
+		delay = nbtCompound.getInt(KEY_DELAY);
 	}
 
 	public PathDataDeleteThisLater(PacketByteBuf packet) {
@@ -65,20 +63,20 @@ public class PathDataDeleteThisLater extends SerializedDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
-		tag.put(KEY_RAIL, rail.toCompoundTag());
-		tag.putFloat(KEY_LENGTH, length);
-		tag.putFloat(KEY_T_OFFSET, tOffset);
-		tag.putFloat(KEY_FINAL_SPEED, finalSpeed);
-		tag.putFloat(KEY_A_1, a1);
-		tag.putFloat(KEY_B_1, b1);
-		tag.putFloat(KEY_A_2, a2);
-		tag.putFloat(KEY_B_2, b2);
-		tag.putFloat(KEY_T_SWITCH, tSwitch);
-		tag.putFloat(KEY_T_END, tEnd);
-		tag.putInt(KEY_DELAY, delay);
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = new NbtCompound();
+		nbtCompound.put(KEY_RAIL, rail.toCompoundTag());
+		nbtCompound.putFloat(KEY_LENGTH, length);
+		nbtCompound.putFloat(KEY_T_OFFSET, tOffset);
+		nbtCompound.putFloat(KEY_FINAL_SPEED, finalSpeed);
+		nbtCompound.putFloat(KEY_A_1, a1);
+		nbtCompound.putFloat(KEY_B_1, b1);
+		nbtCompound.putFloat(KEY_A_2, a2);
+		nbtCompound.putFloat(KEY_B_2, b2);
+		nbtCompound.putFloat(KEY_T_SWITCH, tSwitch);
+		nbtCompound.putFloat(KEY_T_END, tEnd);
+		nbtCompound.putInt(KEY_DELAY, delay);
+		return nbtCompound;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package mtr.data;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -198,24 +198,24 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	public Rail(CompoundTag tag) {
-		h1 = tag.getFloat(KEY_H_1);
-		k1 = tag.getFloat(KEY_K_1);
-		h2 = tag.getFloat(KEY_H_2);
-		k2 = tag.getFloat(KEY_K_2);
-		r1 = tag.getFloat(KEY_R_1);
-		r2 = tag.getFloat(KEY_R_2);
-		tStart1 = tag.getFloat(KEY_T_START_1);
-		tEnd1 = tag.getFloat(KEY_T_END_1);
-		tStart2 = tag.getFloat(KEY_T_START_2);
-		tEnd2 = tag.getFloat(KEY_T_END_2);
-		yStart = tag.getInt(KEY_Y_START);
-		yEnd = tag.getInt(KEY_Y_END);
-		reverseT1 = tag.getBoolean(KEY_REVERSE_T_1);
-		isStraight1 = tag.getBoolean(KEY_IS_STRAIGHT_1);
-		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
-		isStraight2 = tag.getBoolean(KEY_IS_STRAIGHT_2);
-		railType = RailType.valueOf(tag.getString(KEY_RAIL_TYPE));
+	public Rail(NbtCompound nbtCompound) {
+		h1 = nbtCompound.getFloat(KEY_H_1);
+		k1 = nbtCompound.getFloat(KEY_K_1);
+		h2 = nbtCompound.getFloat(KEY_H_2);
+		k2 = nbtCompound.getFloat(KEY_K_2);
+		r1 = nbtCompound.getFloat(KEY_R_1);
+		r2 = nbtCompound.getFloat(KEY_R_2);
+		tStart1 = nbtCompound.getFloat(KEY_T_START_1);
+		tEnd1 = nbtCompound.getFloat(KEY_T_END_1);
+		tStart2 = nbtCompound.getFloat(KEY_T_START_2);
+		tEnd2 = nbtCompound.getFloat(KEY_T_END_2);
+		yStart = nbtCompound.getInt(KEY_Y_START);
+		yEnd = nbtCompound.getInt(KEY_Y_END);
+		reverseT1 = nbtCompound.getBoolean(KEY_REVERSE_T_1);
+		isStraight1 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_1);
+		reverseT2 = nbtCompound.getBoolean(KEY_REVERSE_T_2);
+		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
+		railType = RailType.valueOf(nbtCompound.getString(KEY_RAIL_TYPE));
 
 		facingStart = getDirection(0, 0.1F);
 		final float length = getLength();
@@ -247,26 +247,26 @@ public class Rail extends SerializedDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
-		tag.putFloat(KEY_H_1, h1);
-		tag.putFloat(KEY_K_1, k1);
-		tag.putFloat(KEY_H_2, h2);
-		tag.putFloat(KEY_K_2, k2);
-		tag.putFloat(KEY_R_1, r1);
-		tag.putFloat(KEY_R_2, r2);
-		tag.putFloat(KEY_T_START_1, tStart1);
-		tag.putFloat(KEY_T_END_1, tEnd1);
-		tag.putFloat(KEY_T_START_2, tStart2);
-		tag.putFloat(KEY_T_END_2, tEnd2);
-		tag.putInt(KEY_Y_START, yStart);
-		tag.putInt(KEY_Y_END, yEnd);
-		tag.putBoolean(KEY_REVERSE_T_1, reverseT1);
-		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
-		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
-		tag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
-		tag.putString(KEY_RAIL_TYPE, railType.toString());
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = new NbtCompound();
+		nbtCompound.putFloat(KEY_H_1, h1);
+		nbtCompound.putFloat(KEY_K_1, k1);
+		nbtCompound.putFloat(KEY_H_2, h2);
+		nbtCompound.putFloat(KEY_K_2, k2);
+		nbtCompound.putFloat(KEY_R_1, r1);
+		nbtCompound.putFloat(KEY_R_2, r2);
+		nbtCompound.putFloat(KEY_T_START_1, tStart1);
+		nbtCompound.putFloat(KEY_T_END_1, tEnd1);
+		nbtCompound.putFloat(KEY_T_START_2, tStart2);
+		nbtCompound.putFloat(KEY_T_END_2, tEnd2);
+		nbtCompound.putInt(KEY_Y_START, yStart);
+		nbtCompound.putInt(KEY_Y_END, yEnd);
+		nbtCompound.putBoolean(KEY_REVERSE_T_1, reverseT1);
+		nbtCompound.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
+		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
+		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
+		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
+		return nbtCompound;
 	}
 
 	@Override
