@@ -62,6 +62,7 @@ public class RenderTrains implements IGui {
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_3 = new ModelLightRail(3);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_4 = new ModelLightRail(4);
+	private static final ModelLightRail5 MODEL_LIGHT_RAIL_5 = new ModelLightRail5();
 
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
 		final MinecraftClient client = MinecraftClient.getInstance();
@@ -340,6 +341,8 @@ public class RenderTrains implements IGui {
 				return MODEL_LIGHT_RAIL_3;
 			case LIGHT_RAIL_4:
 				return MODEL_LIGHT_RAIL_4;
+			case LIGHT_RAIL_5:
+				return MODEL_LIGHT_RAIL_5;
 			default:
 				return null;
 		}
