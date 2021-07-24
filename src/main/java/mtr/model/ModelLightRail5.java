@@ -12,9 +12,8 @@ public class ModelLightRail5 extends ModelTrainBase {
     private final ModelPart door_left;
     private final ModelPart door_right;
     private final ModelPart door_handrails_5;
-    private final ModelPart door_edge_10_r1;
-    private final ModelPart door_edge_9_r1;
     private final ModelPart door_edge_8_r1;
+    private final ModelPart door_edge_7_r1;
     private final ModelPart door_exterior_5;
     private final ModelPart door_left_exterior;
     private final ModelPart door_right_exterior;
@@ -40,9 +39,7 @@ public class ModelLightRail5 extends ModelTrainBase {
     private final ModelPart outer_roof_5_r1;
     private final ModelPart outer_roof_3_r2;
     private final ModelPart outer_roof_2_r2;
-    private final ModelPart roof_light;
-    private final ModelPart light_3_r1;
-    private final ModelPart light_1_r1;
+    private final ModelPart roof_light_5;
     private final ModelPart end;
     private final ModelPart inner_roof_4_r1;
     private final ModelPart inner_roof_2_r2;
@@ -115,25 +112,18 @@ public class ModelLightRail5 extends ModelTrainBase {
         door_handrails_5.setTextureOffset(363, 64).addCuboid(-18.25F, -26.0F, -15.25F, 2.0F, 19.0F, 0.0F, 0.0F, false);
         door_handrails_5.setTextureOffset(361, 38).addCuboid(-19.0F, -7.0F, 13.25F, 2.0F, 0.0F, 2.0F, 0.0F, false);
 
-        door_edge_10_r1 = new ModelPart(this);
-        door_edge_10_r1.setPivot(0.0F, 0.0F, 0.0F);
-        door_handrails_5.addChild(door_edge_10_r1);
-        setRotationAngle(door_edge_10_r1, 0.0F, 3.1416F, 0.0F);
-        door_edge_10_r1.setTextureOffset(363, 64).addCuboid(17.0F, -26.0F, -15.25F, 2.0F, 19.0F, 0.0F, 0.0F, false);
-
-        door_edge_9_r1 = new ModelPart(this);
-        door_edge_9_r1.setPivot(0.0F, 0.0F, 0.0F);
-        door_handrails_5.addChild(door_edge_9_r1);
-        setRotationAngle(door_edge_9_r1, 0.0F, 1.5708F, 0.0F);
-        door_edge_9_r1.setTextureOffset(363, 64).addCuboid(-15.25F, -26.0F, -18.25F, 2.0F, 19.0F, 0.0F, 0.0F, false);
-        door_edge_9_r1.setTextureOffset(363, 64).addCuboid(14.0F, -26.0F, -18.25F, 2.0F, 19.0F, 0.0F, 0.0F, false);
-
         door_edge_8_r1 = new ModelPart(this);
         door_edge_8_r1.setPivot(0.0F, 0.0F, 0.0F);
         door_handrails_5.addChild(door_edge_8_r1);
-        setRotationAngle(door_edge_8_r1, 0.0F, 0.0F, -3.1416F);
-        door_edge_8_r1.setTextureOffset(361, 38).addCuboid(16.25F, 26.0F, 13.25F, 2.0F, 0.0F, 2.0F, 0.0F, false);
-        door_edge_8_r1.setTextureOffset(361, 38).addCuboid(16.25F, 26.0F, -16.0F, 2.0F, 0.0F, 2.0F, 0.0F, false);
+        setRotationAngle(door_edge_8_r1, 0.0F, 3.1416F, 0.0F);
+        door_edge_8_r1.setTextureOffset(363, 64).addCuboid(16.75F, -26.0F, -15.25F, 2.0F, 19.0F, 0.0F, 0.0F, false);
+
+        door_edge_7_r1 = new ModelPart(this);
+        door_edge_7_r1.setPivot(0.0F, 0.0F, 0.0F);
+        door_handrails_5.addChild(door_edge_7_r1);
+        setRotationAngle(door_edge_7_r1, 0.0F, 0.0F, -3.1416F);
+        door_edge_7_r1.setTextureOffset(361, 38).addCuboid(16.0F, 26.0F, 13.25F, 2.0F, 0.0F, 2.0F, 0.0F, false);
+        door_edge_7_r1.setTextureOffset(361, 38).addCuboid(16.0F, 26.0F, -16.0F, 2.0F, 0.0F, 2.0F, 0.0F, false);
 
         door_exterior_5 = new ModelPart(this);
         door_exterior_5.setPivot(0.0F, 24.0F, 0.0F);
@@ -187,7 +177,7 @@ public class ModelLightRail5 extends ModelTrainBase {
         handrail_7_r1.setPivot(8.5226F, -29.7676F, 16.0F);
         door_window_handrails_5.addChild(handrail_7_r1);
         setRotationAngle(handrail_7_r1, 0.0F, 0.0F, 0.3491F);
-        handrail_7_r1.setTextureOffset(0, 30).addCuboid(0.0F, -1.5F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+        handrail_7_r1.setTextureOffset(0, 3).addCuboid(0.0F, -1.5F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
 
         handrail_6_r1 = new ModelPart(this);
         handrail_6_r1.setPivot(7.0994F, -24.3136F, 16.0F);
@@ -199,7 +189,7 @@ public class ModelLightRail5 extends ModelTrainBase {
         handrail_3_r1.setPivot(8.5935F, -30.2738F, -16.0F);
         door_window_handrails_5.addChild(handrail_3_r1);
         setRotationAngle(handrail_3_r1, 0.0F, 0.0F, 0.3491F);
-        handrail_3_r1.setTextureOffset(0, 30).addCuboid(0.1065F, -1.0F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
+        handrail_3_r1.setTextureOffset(0, 3).addCuboid(0.1065F, -1.0F, 0.0F, 0.0F, 3.0F, 0.0F, 0.2F, false);
 
         handrail_2_r1 = new ModelPart(this);
         handrail_2_r1.setPivot(5.6F, -18.75F, -16.0F);
@@ -289,21 +279,9 @@ public class ModelLightRail5 extends ModelTrainBase {
         setRotationAngle(outer_roof_2_r2, -0.2967F, 0.0F, -1.0472F);
         outer_roof_2_r2.setTextureOffset(69, 65).addCuboid(0.0F, 0.0F, 0.0F, 7.0F, 0.0F, 29.0F, 0.0F, false);
 
-        roof_light = new ModelPart(this);
-        roof_light.setPivot(0.0F, 24.0F, 0.0F);
-        roof_light.setTextureOffset(122, 32).addCuboid(-12.0F, -35.5F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
-
-        light_3_r1 = new ModelPart(this);
-        light_3_r1.setPivot(-10.0F, -35.5F, 0.0F);
-        roof_light.addChild(light_3_r1);
-        setRotationAngle(light_3_r1, 0.0F, 0.0F, -1.0472F);
-        light_3_r1.setTextureOffset(126, 32).addCuboid(0.0F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
-
-        light_1_r1 = new ModelPart(this);
-        light_1_r1.setPivot(-12.0F, -35.5F, 0.0F);
-        roof_light.addChild(light_1_r1);
-        setRotationAngle(light_1_r1, 0.0F, 0.0F, 1.0472F);
-        light_1_r1.setTextureOffset(127, 98).addCuboid(-1.0F, 0.0F, -16.0F, 1.0F, 0.0F, 32.0F, 0.0F, false);
+        roof_light_5 = new ModelPart(this);
+        roof_light_5.setPivot(0.0F, 24.0F, 0.0F);
+        roof_light_5.setTextureOffset(122, 32).addCuboid(-12.0F, -36.0F, -16.0F, 2.0F, 0.0F, 32.0F, 0.0F, false);
 
         end = new ModelPart(this);
         end.setPivot(0.0F, 24.0F, 0.0F);
@@ -479,7 +457,7 @@ public class ModelLightRail5 extends ModelTrainBase {
             final int roofPosition = position + i * 32 - 16;
             switch (renderStage) {
                 case LIGHTS:
-                    renderMirror(roof_light, matrices, vertices, light, roofPosition);
+                    renderMirror(roof_light_5, matrices, vertices, light, roofPosition);
                     break;
                 case INTERIOR:
                     if (renderDetails) {
@@ -497,7 +475,7 @@ public class ModelLightRail5 extends ModelTrainBase {
     protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
         switch (renderStage) {
             case LIGHTS:
-                renderMirror(roof_light, matrices, vertices, light, position);
+                renderMirror(roof_light_5, matrices, vertices, light, position);
                 break;
             case INTERIOR:
                 door_left.setPivot(0, 0, doorLeftZ);
@@ -527,7 +505,7 @@ public class ModelLightRail5 extends ModelTrainBase {
     protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
         switch (renderStage) {
             case LIGHTS:
-                renderMirror(roof_light, matrices, vertices, light, position);
+                renderMirror(roof_light_5, matrices, vertices, light, position);
                 break;
             case ALWAYS_ON_LIGHTS:
                 renderOnce(headlights, matrices, vertices, light, position);
@@ -556,7 +534,7 @@ public class ModelLightRail5 extends ModelTrainBase {
     protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
         switch (renderStage) {
             case LIGHTS:
-                renderMirror(roof_light, matrices, vertices, light, position);
+                renderMirror(roof_light_5, matrices, vertices, light, position);
                 break;
             case ALWAYS_ON_LIGHTS:
                 renderOnce(tail_lights, matrices, vertices, light, position);
