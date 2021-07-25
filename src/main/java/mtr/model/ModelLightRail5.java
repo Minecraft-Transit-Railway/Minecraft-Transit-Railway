@@ -146,16 +146,18 @@ public class ModelLightRail5 extends ModelTrainBase {
 
         door_window_handrails_5 = new ModelPart(this);
         door_window_handrails_5.setPivot(0.0F, 24.0F, 0.0F);
-        door_window_handrails_5.setTextureOffset(0, 98).addCuboid(5.0F, -12.75F, 16.0F, 13.0F, 11.0F, 0.0F, 0.0F, false);
-        door_window_handrails_5.setTextureOffset(0, 98).addCuboid(5.0F, -12.75F, -16.0F, 13.0F, 11.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 98).addCuboid(5.0F, -12.75F, 16.0F, 13.0F, 13.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 98).addCuboid(5.0F, -12.75F, -16.0F, 13.0F, 13.0F, 0.0F, 0.0F, false);
         door_window_handrails_5.setTextureOffset(0, 30).addCuboid(5.6F, -13.0F, -16.0F, 0.0F, 11.0F, 0.0F, 0.2F, false);
         door_window_handrails_5.setTextureOffset(0, 30).addCuboid(5.6F, -13.0F, 16.0F, 0.0F, 11.0F, 0.0F, 0.2F, false);
-        door_window_handrails_5.setTextureOffset(0, 30).addCuboid(9.2F, -36.2738F, -13.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
-        door_window_handrails_5.setTextureOffset(0, 30).addCuboid(9.2F, -36.2738F, 13.0F, 0.0F, 5.0F, 0.0F, 0.2F, false);
-        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(6.9F, -31.75F, 9.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, 3.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, -3.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
-        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, -9.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 30).addCuboid(9.2F, -36.2738F, -11.5F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        door_window_handrails_5.setTextureOffset(0, 30).addCuboid(9.2F, -36.2738F, 11.5F, 0.0F, 5.0F, 0.0F, 0.2F, false);
+        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(6.9F, -31.75F, 10.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, 3.5F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, -3.5F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(0, 75).addCuboid(7.15F, -31.75F, -10.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(32, 94).addCuboid(17.99F, -31.5F, -18.0F, 0.0F, 18.0F, 4.0F, 0.0F, false);
+        door_window_handrails_5.setTextureOffset(32, 94).addCuboid(17.99F, -31.5F, 14.0F, 0.0F, 18.0F, 4.0F, 0.0F, false);
 
         handrail_14_r1 = new ModelPart(this);
         handrail_14_r1.setPivot(0.0F, 0.0F, 0.0F);
