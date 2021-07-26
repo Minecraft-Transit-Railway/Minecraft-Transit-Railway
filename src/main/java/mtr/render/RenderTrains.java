@@ -10,7 +10,6 @@ import mtr.item.ItemRailModifier;
 import mtr.model.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
@@ -62,7 +61,7 @@ public class RenderTrains implements IGui {
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_3 = new ModelLightRail(3);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_4 = new ModelLightRail(4);
-	private static final ModelLightRail5 MODEL_LIGHT_RAIL_5 = new ModelLightRail5();
+	private static final ModelLightRail MODEL_LIGHT_RAIL_5 = new ModelLightRail(5);
 
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
 		final MinecraftClient client = MinecraftClient.getInstance();
@@ -72,7 +71,7 @@ public class RenderTrains implements IGui {
 		}
 
 		final int renderDistanceChunks = client.options.viewDistance;
-		final boolean isReplayMod = isReplayMod();
+		final boolean isReplayMod = isReplayMod(player);
 		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 
 		if (Config.useDynamicFPS()) {
@@ -232,7 +231,7 @@ public class RenderTrains implements IGui {
 	}
 
 	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance) {
-		return player == null || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return player == null || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance) {
@@ -286,12 +285,11 @@ public class RenderTrains implements IGui {
 		IDrawing.drawTexture(matrices, vertexConsumer, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, pos3.x, pos3.y, pos3.z, pos4.x, pos4.y, pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
 	}
 
-	private static boolean isReplayMod() {
-		final MinecraftClient client = MinecraftClient.getInstance();
-		if (client.player == null || client.cameraEntity == null) {
+	private static boolean isReplayMod(PlayerEntity player) {
+		if (player == null) {
 			return false;
 		} else {
-			return client.player.getClass().toGenericString().toLowerCase().contains("replaymod") && client.cameraEntity instanceof OtherClientPlayerEntity;
+			return player.getClass().toGenericString().toLowerCase().contains("replaymod");
 		}
 	}
 
