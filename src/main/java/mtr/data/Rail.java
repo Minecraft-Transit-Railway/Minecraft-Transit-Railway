@@ -305,9 +305,9 @@ public class Rail extends SerializedDataBase {
 		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
-	public void render(RenderRail callback) {
-		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, reverseT1, isStraight1, callback);
-		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, callback);
+	public void render(RenderRail railCallback) {
+		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, reverseT1, isStraight1, railCallback);
+		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, railCallback);
 	}
 
 	private float getPositionY(float value) {
@@ -327,7 +327,7 @@ public class Rail extends SerializedDataBase {
 		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 	}
 
-	private static Pos3f getPositionXZ(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {
+	public static Pos3f getPositionXZ(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {
 		if (isStraight) {
 			return new Pos3f(h * t + k * (r + radiusOffset) + 0.5F, 0, k * t + h * (r + radiusOffset) + 0.5F);
 		} else {
@@ -339,19 +339,43 @@ public class Rail extends SerializedDataBase {
 		final float count = Math.abs(tEnd - tStart);
 		final float increment = count / Math.round(count);
 
-		for (float i = 0; i < count - 0.1; i += increment) {
-			final float t1 = (reverseT ? -1 : 1) * i + tStart;
-			final float t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Pos3f corner1 = getPositionXZ(h, k, r, t1, -1, isStraight);
-			final Pos3f corner2 = getPositionXZ(h, k, r, t1, 1, isStraight);
-			final Pos3f corner3 = getPositionXZ(h, k, r, t2, 1, isStraight);
-			final Pos3f corner4 = getPositionXZ(h, k, r, t2, -1, isStraight);
-
-			final float y1 = getPositionY(i + rawValueOffset);
-			final float y2 = getPositionY(i + increment + rawValueOffset);
-
-			callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
+		// This is to make sure rail rendering are all aligned to block edges,
+		// so that ballast rendering can produce meaningful results.
+		float i = 0;
+		// First segment, 0.5 block long
+		renderSingleSegment(
+			h, k, r,
+			(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment / 2) + tStart,
+			i + rawValueOffset, i + increment / 2 + rawValueOffset,
+			isStraight, true, callback
+		);
+		// Middle segments, 1 block long
+		// TODO: Find a way to let the beginning and end of middle segment to be at least level with the block
+		//       the rail node is placed on, to prevent the block under the rail node from "clipping" through
+		//       the rendered ballast.
+		for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
+			renderSingleSegment(
+				h, k, r,
+				(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment) + tStart,
+				i + rawValueOffset, i + increment + rawValueOffset,
+				isStraight, false, callback
+			);
 		}
+		// Last segment, 0.5 block long
+		renderSingleSegment(
+			h, k, r,
+			(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment / 2) + tStart,
+			i + rawValueOffset, i + increment / 2 + rawValueOffset,
+			isStraight, true, callback
+		);
+	}
+
+	private void renderSingleSegment(float h, float k, float r, float t1, float t2, float v1, float v2, boolean isStraight, boolean isEnd, RenderRail callback) {
+
+		final float y1 = getPositionY(v1);
+		final float y2 = getPositionY(v2);
+
+		callback.renderRail(h, k, r, t1, t2, y1, y2, isStraight, isEnd);
 	}
 
 	private static float getTBounds(float x, float h, float z, float k, float r) {
@@ -391,6 +415,6 @@ public class Rail extends SerializedDataBase {
 
 	@FunctionalInterface
 	public interface RenderRail {
-		void renderRail(float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float y1, float y2);
+		void renderRail(float h, float k, float r, float t1, float t2, float y1, float y2, boolean isStraight, boolean isEnd);
 	}
 }
