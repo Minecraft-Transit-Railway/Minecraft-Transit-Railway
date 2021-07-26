@@ -721,6 +721,9 @@ public class ModelLightRail extends ModelTrainBase {
 		door_exterior.setModelPart(modelPart);
 		door_left_exterior.setModelPart(modelPart.getChild(door_exterior.name));
 		door_right_exterior.setModelPart(modelPart.getChild(door_exterior.name));
+		door_exterior_5.setModelPart(modelPart);
+		door_left_exterior_5.setModelPart(modelPart.getChild(door_exterior_5.name));
+		door_right_exterior_5.setModelPart(modelPart.getChild(door_exterior_5.name));
 		door_window.setModelPart(modelPart);
 		door_window_handrails.setModelPart(modelPart);
 		door_window_handrails_4.setModelPart(modelPart);
@@ -794,8 +797,8 @@ public class ModelLightRail extends ModelTrainBase {
 				renderMirror(phase == 5 ? roof_light_5 : roof_light, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
-				(phase == 5 ? door_left_5 : door_left).setPivot(0, 0, doorLeftZ);
-				(phase == 5 ? door_right_5 : door_right).setPivot(0, 0, -doorLeftZ);
+				(phase == 5 ? door_left_5 : door_left).setOffset(0, 0, doorLeftZ);
+				(phase == 5 ? door_right_5 : door_right).setOffset(0, 0, -doorLeftZ);
 				renderOnceFlipped(phase == 5 ? door_5 : door, matrices, vertices, light, position);
 				renderOnceFlipped(door_window, matrices, vertices, light, position);
 				if (renderDetails) {
@@ -805,8 +808,8 @@ public class ModelLightRail extends ModelTrainBase {
 				}
 				break;
 			case EXTERIOR:
-				(phase == 5 ? door_left_exterior_5 : door_left_exterior).setPivot(0, 0, doorLeftZ);
-				(phase == 5 ? door_right_exterior_5 : door_right_exterior).setPivot(0, 0, -doorLeftZ);
+				(phase == 5 ? door_left_exterior_5 : door_left_exterior).setOffset(0, 0, doorLeftZ);
+				(phase == 5 ? door_right_exterior_5 : door_right_exterior).setOffset(0, 0, -doorLeftZ);
 				renderOnceFlipped(phase == 5 ? door_exterior_5 : door_exterior, matrices, vertices, light, position);
 				renderOnceFlipped(door_window_exterior, matrices, vertices, light, position);
 				renderMirror(roof_exterior, matrices, vertices, light, position);
