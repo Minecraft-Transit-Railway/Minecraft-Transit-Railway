@@ -1,8 +1,6 @@
 package mtr.data;
 
-import mtr.gui.IGui;
-import net.minecraft.block.MaterialColor;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -11,14 +9,14 @@ import net.minecraft.util.math.MathHelper;
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
-	public final Direction facing;
+	public final Direction facingStart;
+	public final Direction facingEnd;
 	private final float h1, k1, r1, tStart1, tEnd1;
 	private final float h2, k2, r2, tStart2, tEnd2;
 	private final int yStart, yEnd;
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
 
 	private static final float TWO_PI = (float) (2 * Math.PI);
-	private static final String KEY_FACING = "facing";
 	private static final String KEY_H_1 = "h_1";
 	private static final String KEY_K_1 = "k_1";
 	private static final String KEY_H_2 = "h_2";
@@ -45,7 +43,8 @@ public class Rail extends SerializedDataBase {
 	// z = k*T + h*r
 
 	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType) {
-		facing = facingStart;
+		this.facingStart = facingStart;
+		this.facingEnd = facingEnd;
 		this.railType = railType;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
@@ -199,29 +198,31 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	public Rail(CompoundTag tag) {
-		facing = Direction.fromHorizontal(tag.getInt(KEY_FACING));
-		h1 = tag.getFloat(KEY_H_1);
-		k1 = tag.getFloat(KEY_K_1);
-		h2 = tag.getFloat(KEY_H_2);
-		k2 = tag.getFloat(KEY_K_2);
-		r1 = tag.getFloat(KEY_R_1);
-		r2 = tag.getFloat(KEY_R_2);
-		tStart1 = tag.getFloat(KEY_T_START_1);
-		tEnd1 = tag.getFloat(KEY_T_END_1);
-		tStart2 = tag.getFloat(KEY_T_START_2);
-		tEnd2 = tag.getFloat(KEY_T_END_2);
-		yStart = tag.getInt(KEY_Y_START);
-		yEnd = tag.getInt(KEY_Y_END);
-		reverseT1 = tag.getBoolean(KEY_REVERSE_T_1);
-		isStraight1 = tag.getBoolean(KEY_IS_STRAIGHT_1);
-		reverseT2 = tag.getBoolean(KEY_REVERSE_T_2);
-		isStraight2 = tag.getBoolean(KEY_IS_STRAIGHT_2);
-		railType = RailType.valueOf(tag.getString(KEY_RAIL_TYPE));
+	public Rail(NbtCompound nbtCompound) {
+		h1 = nbtCompound.getFloat(KEY_H_1);
+		k1 = nbtCompound.getFloat(KEY_K_1);
+		h2 = nbtCompound.getFloat(KEY_H_2);
+		k2 = nbtCompound.getFloat(KEY_K_2);
+		r1 = nbtCompound.getFloat(KEY_R_1);
+		r2 = nbtCompound.getFloat(KEY_R_2);
+		tStart1 = nbtCompound.getFloat(KEY_T_START_1);
+		tEnd1 = nbtCompound.getFloat(KEY_T_END_1);
+		tStart2 = nbtCompound.getFloat(KEY_T_START_2);
+		tEnd2 = nbtCompound.getFloat(KEY_T_END_2);
+		yStart = nbtCompound.getInt(KEY_Y_START);
+		yEnd = nbtCompound.getInt(KEY_Y_END);
+		reverseT1 = nbtCompound.getBoolean(KEY_REVERSE_T_1);
+		isStraight1 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_1);
+		reverseT2 = nbtCompound.getBoolean(KEY_REVERSE_T_2);
+		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
+		railType = RailType.valueOf(nbtCompound.getString(KEY_RAIL_TYPE));
+
+		facingStart = getDirection(0, 0.1F);
+		final float length = getLength();
+		facingEnd = getDirection(length, length - 0.1F);
 	}
 
 	public Rail(PacketByteBuf packet) {
-		facing = Direction.fromHorizontal(packet.readInt());
 		h1 = packet.readFloat();
 		k1 = packet.readFloat();
 		h2 = packet.readFloat();
@@ -239,35 +240,37 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = RailType.valueOf(packet.readString(PACKET_STRING_READ_LENGTH));
+
+		facingStart = getDirection(0, 0.1F);
+		final float length = getLength();
+		facingEnd = getDirection(length, length - 0.1F);
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
-		tag.putInt(KEY_FACING, facing.getHorizontal());
-		tag.putFloat(KEY_H_1, h1);
-		tag.putFloat(KEY_K_1, k1);
-		tag.putFloat(KEY_H_2, h2);
-		tag.putFloat(KEY_K_2, k2);
-		tag.putFloat(KEY_R_1, r1);
-		tag.putFloat(KEY_R_2, r2);
-		tag.putFloat(KEY_T_START_1, tStart1);
-		tag.putFloat(KEY_T_END_1, tEnd1);
-		tag.putFloat(KEY_T_START_2, tStart2);
-		tag.putFloat(KEY_T_END_2, tEnd2);
-		tag.putInt(KEY_Y_START, yStart);
-		tag.putInt(KEY_Y_END, yEnd);
-		tag.putBoolean(KEY_REVERSE_T_1, reverseT1);
-		tag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
-		tag.putBoolean(KEY_REVERSE_T_2, reverseT2);
-		tag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
-		tag.putString(KEY_RAIL_TYPE, railType.toString());
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = new NbtCompound();
+		nbtCompound.putFloat(KEY_H_1, h1);
+		nbtCompound.putFloat(KEY_K_1, k1);
+		nbtCompound.putFloat(KEY_H_2, h2);
+		nbtCompound.putFloat(KEY_K_2, k2);
+		nbtCompound.putFloat(KEY_R_1, r1);
+		nbtCompound.putFloat(KEY_R_2, r2);
+		nbtCompound.putFloat(KEY_T_START_1, tStart1);
+		nbtCompound.putFloat(KEY_T_END_1, tEnd1);
+		nbtCompound.putFloat(KEY_T_START_2, tStart2);
+		nbtCompound.putFloat(KEY_T_END_2, tEnd2);
+		nbtCompound.putInt(KEY_Y_START, yStart);
+		nbtCompound.putInt(KEY_Y_END, yEnd);
+		nbtCompound.putBoolean(KEY_REVERSE_T_1, reverseT1);
+		nbtCompound.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
+		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
+		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
+		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
+		return nbtCompound;
 	}
 
 	@Override
 	public void writePacket(PacketByteBuf packet) {
-		packet.writeInt(facing.getHorizontal());
 		packet.writeFloat(h1);
 		packet.writeFloat(k1);
 		packet.writeFloat(h2);
@@ -287,17 +290,16 @@ public class Rail extends SerializedDataBase {
 		packet.writeString(railType.toString());
 	}
 
-	public Pos3f getPosition(float value) {
+	public Pos3f getPosition(float rawValue) {
 		final float count1 = Math.abs(tEnd1 - tStart1);
 		final float count2 = Math.abs(tEnd2 - tStart2);
+		final float value = MathHelper.clamp(rawValue, 0, count1 + count2);
 		final float y = getPositionY(value);
 
-		if (value >= 0 && value <= count1) {
+		if (value <= count1) {
 			return getPositionXZ(h1, k1, r1, (reverseT1 ? -1 : 1) * value + tStart1, 0, isStraight1).add(0, y, 0);
-		} else if (value <= count1 + count2) {
-			return getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2).add(0, y, 0);
 		} else {
-			return null;
+			return getPositionXZ(h2, k2, r2, (reverseT2 ? -1 : 1) * (value - count1) + tStart2, 0, isStraight2).add(0, y, 0);
 		}
 	}
 
@@ -354,6 +356,12 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
+	private Direction getDirection(float start, float end) {
+		final Pos3f pos1 = getPosition(start);
+		final Pos3f pos2 = getPosition(end);
+		return Direction.fromRotation(Math.toDegrees(Math.atan2(pos2.x - pos1.x, pos1.z - pos2.z)) + 180);
+	}
+
 	private static float getTBounds(float x, float h, float z, float k, float r) {
 		return (float) (MathHelper.atan2(z - k, x - h) * r);
 	}
@@ -366,26 +374,6 @@ public class Rail extends SerializedDataBase {
 			return t - TWO_PI * r;
 		} else {
 			return t;
-		}
-	}
-
-	public enum RailType implements IGui {
-		WOODEN(20, MaterialColor.WOOD),
-		STONE(40, MaterialColor.STONE),
-		IRON(80, MaterialColor.WHITE),
-		OBSIDIAN(120, MaterialColor.PURPLE),
-		BLAZE(160, MaterialColor.ORANGE),
-		DIAMOND(300, MaterialColor.DIAMOND),
-		PLATFORM(100, MaterialColor.RED);
-
-		public final int speedLimit;
-		public final float maxBlocksPerTick;
-		public final int color;
-
-		RailType(int speedLimit, MaterialColor materialColor) {
-			this.speedLimit = speedLimit;
-			maxBlocksPerTick = speedLimit / 3.6F / 20;
-			color = materialColor.color + ARGB_BLACK_TRANSLUCENT;
 		}
 	}
 

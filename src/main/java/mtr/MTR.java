@@ -1,23 +1,20 @@
 package mtr;
 
 import mtr.block.*;
+import mtr.data.Depot;
 import mtr.data.RailwayData;
-import mtr.entity.EntitySeat;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -33,16 +30,14 @@ public class MTR implements ModInitializer, IPacket {
 
 	public static final String MOD_ID = "mtr";
 
-	public static final EntityType<EntitySeat> SEAT = registerEntity("seat", EntitySeat::new);
-
 	public static final BlockEntityType<BlockArrivalProjector1Small.TileEntityArrivalProjector1Small> ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY = registerTileEntity("arrival_projector_1_small", BlockArrivalProjector1Small.TileEntityArrivalProjector1Small::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL);
 	public static final BlockEntityType<BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium> ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY = registerTileEntity("arrival_projector_1_medium", BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM);
 	public static final BlockEntityType<BlockArrivalProjector1Large.TileEntityArrivalProjector1Large> ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY = registerTileEntity("arrival_projector_1_large", BlockArrivalProjector1Large.TileEntityArrivalProjector1Large::new, Blocks.ARRIVAL_PROJECTOR_1_LARGE);
 	public static final BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = registerTileEntity("clock", BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	public static final BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = registerTileEntity("psd_top", BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	public static final BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = registerTileEntity("apg_glass", BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);
-	public static final BlockEntityType<BlockPIDS.TileEntityBlockPIDS> PIDS_1_TILE_ENTITY = registerTileEntity("pids_1", () -> new BlockPIDS.TileEntityBlockPIDS(0), Blocks.PIDS_1);
-	public static final BlockEntityType<BlockPIDS.TileEntityBlockPIDS> PIDS_2_TILE_ENTITY = registerTileEntity("pids_2", () -> new BlockPIDS.TileEntityBlockPIDS(1), Blocks.PIDS_2);
+	public static final BlockEntityType<BlockPIDS1.TileEntityBlockPIDS1> PIDS_1_TILE_ENTITY = registerTileEntity("pids_1", BlockPIDS1.TileEntityBlockPIDS1::new, Blocks.PIDS_1);
+	public static final BlockEntityType<BlockPIDS2.TileEntityBlockPIDS2> PIDS_2_TILE_ENTITY = registerTileEntity("pids_2", BlockPIDS2.TileEntityBlockPIDS2::new, Blocks.PIDS_2);
 	public static final BlockEntityType<BlockRail.TileEntityRail> RAIL_TILE_ENTITY = registerTileEntity("rail", BlockRail.TileEntityRail::new, Blocks.RAIL);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_EVEN_TILE_ENTITY = registerTileEntity("railway_sign_2_even", () -> new BlockRailwaySign.TileEntityRailwaySign(2, false), Blocks.RAILWAY_SIGN_2_EVEN);
 	public static final BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_ODD_TILE_ENTITY = registerTileEntity("railway_sign_2_odd", () -> new BlockRailwaySign.TileEntityRailwaySign(2, true), Blocks.RAILWAY_SIGN_2_ODD);
@@ -86,11 +81,26 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
 	public static final SoundEvent M_TRAIN_DOOR_OPEN = registerSoundEvent("m_train_door_open");
 	public static final SoundEvent M_TRAIN_DOOR_CLOSE = registerSoundEvent("m_train_door_close");
+	private static final int K_TRAIN_SPEED_COUNT = 66;
+	public static final SoundEvent[] K_TRAIN_ACCELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_acceleration_");
+	public static final SoundEvent[] K_TRAIN_DECELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_deceleration_");
+	public static final SoundEvent K_TRAIN_DOOR_OPEN = registerSoundEvent("k_train_door_open");
+	public static final SoundEvent K_TRAIN_DOOR_CLOSE = registerSoundEvent("k_train_door_close");
 	private static final int A_TRAIN_SPEED_COUNT = 78;
 	public static final SoundEvent[] A_TRAIN_ACCELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_acceleration_");
 	public static final SoundEvent[] A_TRAIN_DECELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_deceleration_");
 	public static final SoundEvent A_TRAIN_DOOR_OPEN = registerSoundEvent("a_train_door_open");
 	public static final SoundEvent A_TRAIN_DOOR_CLOSE = registerSoundEvent("a_train_door_close");
+	private static final int LIGHT_RAIL_1_SPEED_COUNT = 48;
+	public static final SoundEvent[] LIGHT_RAIL_ACCELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_acceleration_");
+	public static final SoundEvent[] LIGHT_RAIL_DECELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_deceleration_");
+	public static final SoundEvent LIGHT_RAIL_1_DOOR_OPEN = registerSoundEvent("light_rail_1_door_open");
+	public static final SoundEvent LIGHT_RAIL_1_DOOR_CLOSE = registerSoundEvent("light_rail_1_door_close");
+	public static final SoundEvent LIGHT_RAIL_3_DOOR_OPEN = registerSoundEvent("light_rail_3_door_open");
+	public static final SoundEvent LIGHT_RAIL_3_DOOR_CLOSE = registerSoundEvent("light_rail_3_door_close");
+	public static final SoundEvent LIGHT_RAIL_4_DOOR_OPEN = registerSoundEvent("light_rail_4_door_open");
+	public static final SoundEvent LIGHT_RAIL_4_DOOR_CLOSE = registerSoundEvent("light_rail_4_door_close");
+	// TODO phase 4 door sounds
 
 	@Override
 	public void onInitialize() {
@@ -107,38 +117,46 @@ public class MTR implements ModInitializer, IPacket {
 		registerItem("psd_glass_2", Items.PSD_GLASS_2);
 		registerItem("psd_glass_end_2", Items.PSD_GLASS_END_2);
 		registerItem("rail_connector_1_wooden", Items.RAIL_CONNECTOR_1_WOODEN);
+		registerItem("rail_connector_1_wooden_one_way", Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
 		registerItem("rail_connector_2_stone", Items.RAIL_CONNECTOR_2_STONE);
+		registerItem("rail_connector_2_stone_one_way", Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
 		registerItem("rail_connector_3_iron", Items.RAIL_CONNECTOR_3_IRON);
+		registerItem("rail_connector_3_iron_one_way", Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
 		registerItem("rail_connector_4_obsidian", Items.RAIL_CONNECTOR_4_OBSIDIAN);
+		registerItem("rail_connector_4_obsidian_one_way", Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
 		registerItem("rail_connector_5_blaze", Items.RAIL_CONNECTOR_5_BLAZE);
+		registerItem("rail_connector_5_blaze_one_way", Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
 		registerItem("rail_connector_6_diamond", Items.RAIL_CONNECTOR_6_DIAMOND);
+		registerItem("rail_connector_6_diamond_one_way", Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
 		registerItem("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
+		registerItem("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
+		registerItem("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
 		registerItem("rail_remover", Items.RAIL_REMOVER);
 
 		registerBlock("apg_door", Blocks.APG_DOOR);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
 		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
-		registerBlock("arrival_projector_1_small", Blocks.ARRIVAL_PROJECTOR_1_SMALL, ItemGroup.DECORATIONS);
-		registerBlock("arrival_projector_1_medium", Blocks.ARRIVAL_PROJECTOR_1_MEDIUM, ItemGroup.DECORATIONS);
-		registerBlock("arrival_projector_1_large", Blocks.ARRIVAL_PROJECTOR_1_LARGE, ItemGroup.DECORATIONS);
-		registerBlock("ceiling", Blocks.CEILING, ItemGroup.DECORATIONS);
-		registerBlock("clock", Blocks.CLOCK, ItemGroup.DECORATIONS);
+		registerBlock("arrival_projector_1_small", Blocks.ARRIVAL_PROJECTOR_1_SMALL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("arrival_projector_1_medium", Blocks.ARRIVAL_PROJECTOR_1_MEDIUM, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("arrival_projector_1_large", Blocks.ARRIVAL_PROJECTOR_1_LARGE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ceiling", Blocks.CEILING, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("clock", Blocks.CLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
-		registerBlock("glass_fence_cio", Blocks.GLASS_FENCE_CIO, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_ckt", Blocks.GLASS_FENCE_CKT, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_heo", Blocks.GLASS_FENCE_HEO, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_mos", Blocks.GLASS_FENCE_MOS, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_plain", Blocks.GLASS_FENCE_PLAIN, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_shm", Blocks.GLASS_FENCE_SHM, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_stained", Blocks.GLASS_FENCE_STAINED, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_stw", Blocks.GLASS_FENCE_STW, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroup.DECORATIONS);
-		registerBlock("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroup.DECORATIONS);
-		registerBlock("logo", Blocks.LOGO, ItemGroup.BUILDING_BLOCKS);
-		registerBlock("pids_1", Blocks.PIDS_1, ItemGroup.DECORATIONS);
-		registerBlock("pids_2", Blocks.PIDS_2, ItemGroup.DECORATIONS);
-		registerBlock("platform", Blocks.PLATFORM, ItemGroup.BUILDING_BLOCKS);
+		registerBlock("glass_fence_cio", Blocks.GLASS_FENCE_CIO, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_ckt", Blocks.GLASS_FENCE_CKT, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_heo", Blocks.GLASS_FENCE_HEO, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_mos", Blocks.GLASS_FENCE_MOS, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_plain", Blocks.GLASS_FENCE_PLAIN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_shm", Blocks.GLASS_FENCE_SHM, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_stained", Blocks.GLASS_FENCE_STAINED, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_stw", Blocks.GLASS_FENCE_STW, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("pids_1", Blocks.PIDS_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("platform", Blocks.PLATFORM, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR_1);
 		registerBlock("psd_glass", Blocks.PSD_GLASS_1);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END_1);
@@ -146,103 +164,101 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock("psd_top", Blocks.PSD_TOP);
-		registerBlock("rail", Blocks.RAIL, ItemGroup.TRANSPORTATION);
-		registerBlock("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_3_odd", Blocks.RAILWAY_SIGN_3_ODD, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_4_even", Blocks.RAILWAY_SIGN_4_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_4_odd", Blocks.RAILWAY_SIGN_4_ODD, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_5_even", Blocks.RAILWAY_SIGN_5_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_5_odd", Blocks.RAILWAY_SIGN_5_ODD, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_6_even", Blocks.RAILWAY_SIGN_6_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_6_odd", Blocks.RAILWAY_SIGN_6_ODD, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_7_even", Blocks.RAILWAY_SIGN_7_EVEN, ItemGroup.DECORATIONS);
-		registerBlock("railway_sign_7_odd", Blocks.RAILWAY_SIGN_7_ODD, ItemGroup.DECORATIONS);
+		registerBlock("rail", Blocks.RAIL, ItemGroups.CORE);
+		registerBlock("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_3_odd", Blocks.RAILWAY_SIGN_3_ODD, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_4_even", Blocks.RAILWAY_SIGN_4_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_4_odd", Blocks.RAILWAY_SIGN_4_ODD, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_5_even", Blocks.RAILWAY_SIGN_5_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_5_odd", Blocks.RAILWAY_SIGN_5_ODD, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_6_even", Blocks.RAILWAY_SIGN_6_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_6_odd", Blocks.RAILWAY_SIGN_6_ODD, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_7_even", Blocks.RAILWAY_SIGN_7_EVEN, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("railway_sign_7_odd", Blocks.RAILWAY_SIGN_7_ODD, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("railway_sign_middle", Blocks.RAILWAY_SIGN_MIDDLE);
-		registerBlock("route_sign_standing_light", Blocks.ROUTE_SIGN_STANDING_LIGHT, ItemGroup.DECORATIONS);
-		registerBlock("route_sign_standing_metal", Blocks.ROUTE_SIGN_STANDING_METAL, ItemGroup.DECORATIONS);
-		registerBlock("route_sign_wall_light", Blocks.ROUTE_SIGN_WALL_LIGHT, ItemGroup.DECORATIONS);
-		registerBlock("route_sign_wall_metal", Blocks.ROUTE_SIGN_WALL_METAL, ItemGroup.DECORATIONS);
-		registerBlock("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroup.DECORATIONS);
-		registerBlock("station_color_bone_block", Blocks.STATION_COLOR_BONE_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_chiseled_quartz_block", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_chiseled_stone_bricks", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_clay", Blocks.STATION_COLOR_CLAY, ItemGroup.DECORATIONS);
-		registerBlock("station_color_coal_ore", Blocks.STATION_COLOR_COAL_ORE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_cobblestone", Blocks.STATION_COLOR_COBBLESTONE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_concrete", Blocks.STATION_COLOR_CONCRETE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_concrete_powder", Blocks.STATION_COLOR_CONCRETE_POWDER, ItemGroup.DECORATIONS);
-		registerBlock("station_color_cracked_stone_bricks", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_dark_prismarine", Blocks.STATION_COLOR_DARK_PRISMARINE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_diorite", Blocks.STATION_COLOR_DIORITE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_gravel", Blocks.STATION_COLOR_GRAVEL, ItemGroup.DECORATIONS);
-		registerBlock("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_metal", Blocks.STATION_COLOR_METAL, ItemGroup.DECORATIONS);
-		registerBlock("station_color_planks", Blocks.STATION_COLOR_PLANKS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_polished_andesite", Blocks.STATION_COLOR_POLISHED_ANDESITE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_purpur_block", Blocks.STATION_COLOR_PURPUR_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_purpur_pillar", Blocks.STATION_COLOR_PURPUR_PILLAR, ItemGroup.DECORATIONS);
-		registerBlock("station_color_quartz_block", Blocks.STATION_COLOR_QUARTZ_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_quartz_bricks", Blocks.STATION_COLOR_QUARTZ_BRICKS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_quartz_pillar", Blocks.STATION_COLOR_QUARTZ_PILLAR, ItemGroup.DECORATIONS);
-		registerBlock("station_color_smooth_quartz", Blocks.STATION_COLOR_SMOOTH_QUARTZ, ItemGroup.DECORATIONS);
-		registerBlock("station_color_smooth_stone", Blocks.STATION_COLOR_SMOOTH_STONE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_snow_block", Blocks.STATION_COLOR_SNOW_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_color_stained_glass", Blocks.STATION_COLOR_STAINED_GLASS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroup.DECORATIONS);
-		registerBlock("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroup.DECORATIONS);
-		registerBlock("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroup.DECORATIONS);
-		registerBlock("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroup.DECORATIONS);
-		registerBlock("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroup.DECORATIONS);
-		registerBlock("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroup.DECORATIONS);
-		registerBlock("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroup.DECORATIONS);
-		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroup.DECORATIONS);
-		registerBlock("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroup.DECORATIONS);
-		registerBlock("ticket_barrier_exit_1", Blocks.TICKET_BARRIER_EXIT_1, ItemGroup.DECORATIONS);
-		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroup.DECORATIONS);
-		registerBlock("ticket_processor", Blocks.TICKET_PROCESSOR, ItemGroup.DECORATIONS);
+		registerBlock("route_sign_standing_light", Blocks.ROUTE_SIGN_STANDING_LIGHT, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("route_sign_standing_metal", Blocks.ROUTE_SIGN_STANDING_METAL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("route_sign_wall_light", Blocks.ROUTE_SIGN_WALL_LIGHT, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("route_sign_wall_metal", Blocks.ROUTE_SIGN_WALL_METAL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_bone_block", Blocks.STATION_COLOR_BONE_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_chiseled_quartz_block", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_chiseled_stone_bricks", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_clay", Blocks.STATION_COLOR_CLAY, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_coal_ore", Blocks.STATION_COLOR_COAL_ORE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_cobblestone", Blocks.STATION_COLOR_COBBLESTONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_concrete", Blocks.STATION_COLOR_CONCRETE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_concrete_powder", Blocks.STATION_COLOR_CONCRETE_POWDER, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_cracked_stone_bricks", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_dark_prismarine", Blocks.STATION_COLOR_DARK_PRISMARINE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_diorite", Blocks.STATION_COLOR_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_gravel", Blocks.STATION_COLOR_GRAVEL, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_metal", Blocks.STATION_COLOR_METAL, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_planks", Blocks.STATION_COLOR_PLANKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_polished_andesite", Blocks.STATION_COLOR_POLISHED_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_purpur_block", Blocks.STATION_COLOR_PURPUR_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_purpur_pillar", Blocks.STATION_COLOR_PURPUR_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_quartz_block", Blocks.STATION_COLOR_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_quartz_bricks", Blocks.STATION_COLOR_QUARTZ_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_quartz_pillar", Blocks.STATION_COLOR_QUARTZ_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_smooth_quartz", Blocks.STATION_COLOR_SMOOTH_QUARTZ, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_smooth_stone", Blocks.STATION_COLOR_SMOOTH_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_snow_block", Blocks.STATION_COLOR_SNOW_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_stained_glass", Blocks.STATION_COLOR_STAINED_GLASS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_barrier_exit_1", Blocks.TICKET_BARRIER_EXIT_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_machine", Blocks.TICKET_MACHINE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_processor", Blocks.TICKET_PROCESSOR, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_processor_entrance", Blocks.TICKET_PROCESSOR_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_processor_exit", Blocks.TICKET_PROCESSOR_EXIT, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroups.RAILWAY_FACILITIES);
 
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.handleResponseFromReceiver(player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignTypesC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_ADD_BALANCE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveAddBalanceC2S(minecraftServer, player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteStation(minecraftServer, player, packet, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeletePlatform(minecraftServer, player, packet, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteStation(minecraftServer, player, packet, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeletePlatform(minecraftServer, player, packet, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteRoute(minecraftServer, player, packet, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateRoute(minecraftServer, player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_ALL_ROUTES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveGenerateAllRoutes(minecraftServer, player));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, Station::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, null, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, null, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, Route::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_DEPOT, railwayData -> railwayData.depots, Depot::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_STATION, railwayData -> railwayData.stations, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_PLATFORM, railwayData -> railwayData.platforms, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, null, true));
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
-			RailwayData railwayData = RailwayData.getInstance(serverWorld);
+			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 			if (railwayData != null) {
-				railwayData.simulateTrains(serverWorld);
+				railwayData.simulateTrains();
 			}
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
-				serverWorld.getEntitiesByType(SEAT, checkEntity -> {
-					if (checkEntity instanceof EntitySeat) {
-						final PlayerEntity checkPlayer = ((EntitySeat) checkEntity).getPlayer();
-						return checkPlayer == null || entity.getUuid().equals(checkPlayer.getUuid());
-					} else {
-						return false;
-					}
-				}).forEach(Entity::kill);
-
-				final EntitySeat seat = new EntitySeat(serverWorld, entity.getX(), entity.getY(), entity.getZ());
-				seat.setPlayerId(entity.getUuid());
-				serverWorld.spawnEntity(seat);
-
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 				if (railwayData != null) {
-					railwayData.addPlayerToBroadcast((PlayerEntity) entity);
+					railwayData.broadcastToPlayer((ServerPlayerEntity) entity);
 				}
+			}
+		});
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			final RailwayData railwayData = RailwayData.getInstance(handler.player.world);
+			if (railwayData != null) {
+				railwayData.disconnectPlayer(handler.player);
 			}
 		});
 	}
@@ -262,10 +278,6 @@ public class MTR implements ModInitializer, IPacket {
 
 	private static <T extends BlockEntity> BlockEntityType<T> registerTileEntity(String path, Supplier<T> supplier, Block block) {
 		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MOD_ID + ":" + path, BlockEntityType.Builder.create(supplier, block).build(null));
-	}
-
-	private static <T extends Entity> EntityType<T> registerEntity(String path, EntityType.EntityFactory<T> factory) {
-		return Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, path), FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.fixed(0.125F, 0.125F)).build());
 	}
 
 	private static SoundEvent registerSoundEvent(String path) {

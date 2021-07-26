@@ -2,9 +2,8 @@ package mtr.block;
 
 import mtr.MTR;
 import mtr.data.TicketSystem;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.*;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -25,16 +24,23 @@ import java.util.Random;
 
 public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 
+	public boolean hasLight;
+	public boolean canEnter;
+	public boolean canExit;
+
 	public static final EnumProperty<EnumTicketProcessorLights> LIGHTS = EnumProperty.of("lights", EnumTicketProcessorLights.class);
 
-	public BlockTicketProcessor(Settings settings) {
-		super(settings);
+	public BlockTicketProcessor(boolean hasLight, boolean canEnter, boolean canExit) {
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
+		this.hasLight = hasLight;
+		this.canEnter = canEnter;
+		this.canExit = canExit;
 	}
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!world.isClient && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-			final TicketSystem.EnumTicketBarrierOpen open = TicketSystem.passThrough(world, pos, player, true, true, MTR.TICKET_PROCESSOR_ENTRY, MTR.TICKET_PROCESSOR_ENTRY_CONCESSIONARY, MTR.TICKET_PROCESSOR_EXIT, MTR.TICKET_PROCESSOR_EXIT_CONCESSIONARY, MTR.TICKET_PROCESSOR_FAIL);
+			final TicketSystem.EnumTicketBarrierOpen open = TicketSystem.passThrough(world, pos, player, canEnter, canExit, MTR.TICKET_PROCESSOR_ENTRY, MTR.TICKET_PROCESSOR_ENTRY_CONCESSIONARY, MTR.TICKET_PROCESSOR_EXIT, MTR.TICKET_PROCESSOR_EXIT_CONCESSIONARY, MTR.TICKET_PROCESSOR_FAIL, true);
 			world.setBlockState(pos, state.with(LIGHTS, open.isOpen() ? EnumTicketProcessorLights.GREEN : EnumTicketProcessorLights.RED));
 			world.getBlockTickScheduler().schedule(pos, this, 20);
 		}
@@ -43,7 +49,9 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 
 	@Override
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		world.setBlockState(pos, state.with(LIGHTS, EnumTicketProcessorLights.NONE));
+		if (hasLight) {
+			world.setBlockState(pos, state.with(LIGHTS, EnumTicketProcessorLights.NONE));
+		}
 	}
 
 	@Override

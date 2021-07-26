@@ -1,0 +1,10 @@
+{
+	"parent": "mtr:block/ticket_processor_top_base",
+	"textures": {
+		"overlay": "mtr:block/ticket_processor_enquiry",
+		"color": "block/light_blue_concrete",
+		"red_light": "mtr:block/transparent",
+		"yellow_light": "mtr:block/transparent",
+		"green_light": "mtr:block/transparent"
+	}
+}

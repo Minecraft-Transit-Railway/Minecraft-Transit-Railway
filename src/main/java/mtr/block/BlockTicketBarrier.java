@@ -24,7 +24,7 @@ public class BlockTicketBarrier extends HorizontalFacingBlock {
 	public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", TicketSystem.EnumTicketBarrierOpen.class);
 
 	public BlockTicketBarrier(boolean isEntrance) {
-		super(FabricBlockSettings.of(Material.METAL, MaterialColor.IRON).requiresTool().hardness(2).luminance(5).nonOpaque());
+		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5).nonOpaque());
 		this.isEntrance = isEntrance;
 	}
 
@@ -38,7 +38,7 @@ public class BlockTicketBarrier extends HorizontalFacingBlock {
 			if (open.isOpen() && playerPosRotated.z > 0) {
 				world.setBlockState(pos, state.with(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
 			} else if (!open.isOpen() && playerPosRotated.z < 0) {
-				world.setBlockState(pos, state.with(OPEN, TicketSystem.passThrough(world, pos, (PlayerEntity) entity, isEntrance, !isEntrance, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, null)));
+				world.setBlockState(pos, state.with(OPEN, TicketSystem.passThrough(world, pos, (PlayerEntity) entity, isEntrance, !isEntrance, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, MTR.TICKET_BARRIER, MTR.TICKET_BARRIER_CONCESSIONARY, null, false)));
 			}
 		}
 	}

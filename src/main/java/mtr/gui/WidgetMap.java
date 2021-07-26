@@ -2,9 +2,7 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -13,6 +11,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.function.Consumer;
 
 
@@ -35,12 +35,14 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private double scale;
 	private double centerX;
 	private double centerY;
-	private Pair<Integer, Integer> drawStation1, drawStation2;
-	private int mapState;
+	private Pair<Integer, Integer> drawArea1, drawArea2;
+	private MapState mapState;
+	private boolean showStations;
 
 	private final OnDrawCorners onDrawCorners;
 	private final Runnable onDrawCornersMouseRelease;
-	private final Consumer<Long> onClickPlatform;
+	private final Consumer<Long> onClickAddPlatformToRoute;
+	private final Consumer<SavedRailBase> onClickEditSavedRail;
 	private final ClientWorld world;
 	private final ClientPlayerEntity player;
 	private final TextRenderer textRenderer;
@@ -49,10 +51,11 @@ public class WidgetMap implements Drawable, Element, IGui {
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickPlatform) {
+	public WidgetMap(OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase> onClickEditSavedRail) {
 		this.onDrawCorners = onDrawCorners;
 		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
-		this.onClickPlatform = onClickPlatform;
+		this.onClickAddPlatformToRoute = onClickAddPlatformToRoute;
+		this.onClickEditSavedRail = onClickEditSavedRail;
 
 		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		world = minecraftClient.world;
@@ -66,6 +69,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 			centerY = player.getZ();
 		}
 		scale = 1;
+		setShowStations(true);
 	}
 
 	@Override
@@ -83,7 +87,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i += increment) {
 			for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j += increment) {
 				if (world != null) {
-					final int color = IGui.divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMaterialColor().color, 2);
+					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMapColor().color, 2);
 					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
 				}
 			}
@@ -92,20 +96,29 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final Pair<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
 
 		try {
-			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
-			for (Station station : ClientData.stations) {
-				if (Station.nonNullCorners(station)) {
-					drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+			if (showStations) {
+				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+				for (final Station station : ClientData.stations) {
+					if (AreaBase.nonNullCorners(station)) {
+						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
+					}
 				}
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
+			} else {
+				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
+				for (final Depot depot : ClientData.depots) {
+					if (AreaBase.nonNullCorners(depot)) {
+						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
+					}
+				}
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), false);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE));
-
-		if (mapState == 1 && drawStation1 != null && drawStation2 != null) {
-			drawRectangleFromWorldCoords(buffer, drawStation1, drawStation2, ARGB_WHITE_TRANSLUCENT);
+		if (mapState == MapState.EDITING_AREA && drawArea1 != null && drawArea2 != null) {
+			drawRectangleFromWorldCoords(buffer, drawArea1, drawArea2, ARGB_WHITE_TRANSLUCENT);
 		}
 
 		if (player != null) {
@@ -121,32 +134,41 @@ public class WidgetMap implements Drawable, Element, IGui {
 		RenderSystem.disableBlend();
 
 
-		if (mapState == 1) {
-			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_station").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
-		} else if (mapState == 2) {
+		if (mapState == MapState.EDITING_AREA) {
+			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+		} else if (mapState == MapState.EDITING_ROUTE) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 		if (scale >= 8) {
 			try {
-				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-					final int platformCount = platforms.size();
-					for (int i = 0; i < platformCount; i++) {
-						final int index = i;
-						drawFromWorldCoords(platformPos.getX() + 0.5, platformPos.getZ() + (i + 0.5) / platformCount, (x1, y1) -> DrawableHelper.drawCenteredString(matrices, textRenderer, platforms.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
-					}
-				});
+				if (showStations) {
+					ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+				} else {
+					ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		if (scale >= 2) {
-			for (Station station : ClientData.stations) {
-				final BlockPos pos = station.getCenter();
-				if (pos != null) {
-					final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
-					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IGui.drawStringWithFont(matrices, textRenderer, stationString, x + (float) x1, y + (float) y1));
+			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+			if (showStations) {
+				for (final Station station : ClientData.stations) {
+					final BlockPos pos = station.getCenter();
+					if (pos != null) {
+						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+					}
+				}
+			} else {
+				for (final Depot depot : ClientData.depots) {
+					final BlockPos pos = depot.getCenter();
+					if (pos != null) {
+						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+					}
 				}
 			}
+			immediate.draw();
 		}
 
 		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getLeft() * 10) / 10F, Math.round(mouseWorldPos.getRight() * 10) / 10F);
@@ -155,15 +177,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		if (mapState == 1) {
-			drawStation2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
-			if (drawStation1.getLeft().equals(drawStation2.getLeft())) {
-				drawStation2 = new Pair<>(drawStation2.getLeft() + 1, drawStation2.getRight());
+		if (mapState == MapState.EDITING_AREA) {
+			drawArea2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
+			if (drawArea1.getLeft().equals(drawArea2.getLeft())) {
+				drawArea2 = new Pair<>(drawArea2.getLeft() + 1, drawArea2.getRight());
 			}
-			if (drawStation1.getRight().equals(drawStation2.getRight())) {
-				drawStation2 = new Pair<>(drawStation2.getLeft(), drawStation2.getRight() + 1);
+			if (drawArea1.getRight().equals(drawArea2.getRight())) {
+				drawArea2 = new Pair<>(drawArea2.getLeft(), drawArea2.getRight() + 1);
 			}
-			onDrawCorners.onDrawCorners(drawStation1, drawStation2);
+			onDrawCorners.onDrawCorners(drawArea1, drawArea2);
 		} else {
 			centerX -= deltaX / scale;
 			centerY -= deltaY / scale;
@@ -173,7 +195,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (mapState == 1) {
+		if (mapState == MapState.EDITING_AREA) {
 			onDrawCornersMouseRelease.run();
 		}
 		return true;
@@ -182,15 +204,15 @@ public class WidgetMap implements Drawable, Element, IGui {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
-			if (mapState == 1) {
-				drawStation1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				drawStation2 = null;
-			} else if (mapState == 2) {
+			if (mapState == MapState.EDITING_AREA) {
+				drawArea1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
+				drawArea2 = null;
+			} else if (mapState == MapState.EDITING_ROUTE) {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> onClickPlatform.accept(platform.id));
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
 			} else {
 				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnPlatform(mouseWorldPos, (platform, x1, z1, x2, z2) -> MinecraftClient.getInstance().openScreen(new ScheduleScreen(platform)));
+				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
 			}
 			return true;
 		} else {
@@ -215,7 +237,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE && mouseY >= y + height - SQUARE_SIZE * 2);
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 5 && mouseY >= y + height - SQUARE_SIZE);
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {
@@ -242,31 +264,35 @@ public class WidgetMap implements Drawable, Element, IGui {
 		scale = Math.max(8, scale);
 	}
 
-	public void startEditingStation(Station editingStation) {
-		mapState = 1;
-		drawStation1 = editingStation.corner1;
-		drawStation2 = editingStation.corner2;
+	public void startEditingArea(AreaBase editingArea) {
+		mapState = MapState.EDITING_AREA;
+		drawArea1 = editingArea.corner1;
+		drawArea2 = editingArea.corner2;
 	}
 
 	public void startEditingRoute() {
-		mapState = 2;
+		mapState = MapState.EDITING_ROUTE;
 	}
 
 	public void stopEditing() {
-		mapState = 0;
+		mapState = MapState.DEFAULT;
 	}
 
-	private void mouseOnPlatform(Pair<Double, Double> mouseWorldPos, MouseOnPlatformCallback mouseOnPlatformCallback) {
+	public void setShowStations(boolean showStations) {
+		this.showStations = showStations;
+	}
+
+	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		try {
-			ClientData.platformsWithOffset.forEach((platformPos, platforms) -> {
-				final int platformCount = platforms.size();
-				for (int i = 0; i < platformCount; i++) {
-					final float left = platformPos.getX();
-					final float right = platformPos.getX() + 1;
-					final float top = platformPos.getZ() + (float) i / platformCount;
-					final float bottom = platformPos.getZ() + (i + 1F) / platformCount;
+			(isPlatform ? ClientData.platformsWithOffset : ClientData.sidingsWithOffset).forEach((savedRailPos, savedRails) -> {
+				final int savedRailCount = savedRails.size();
+				for (int i = 0; i < savedRailCount; i++) {
+					final float left = savedRailPos.getX();
+					final float right = savedRailPos.getX() + 1;
+					final float top = savedRailPos.getZ() + (float) i / savedRailCount;
+					final float bottom = savedRailPos.getZ() + (i + 1F) / savedRailCount;
 					if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
-						mouseOnPlatformCallback.mouseOnPlatformCallback(platforms.get(i), left, top, right, bottom);
+						mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 					}
 				}
 			});
@@ -311,8 +337,23 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final double x2 = Math.max(xA, xB);
 		final double y2 = Math.max(yA, yB);
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			IGui.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
+			IDrawing.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
 		}
+	}
+
+	private void drawSavedRail(MatrixStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
+		final int savedRailCount = savedRails.size();
+		for (int i = 0; i < savedRailCount; i++) {
+			final int index = i;
+			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredText(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+		}
+	}
+
+	private static int divideColorRGB(int color, int amount) {
+		final int r = ((color >> 16) & 0xFF) / amount;
+		final int g = ((color >> 8) & 0xFF) / amount;
+		final int b = (color & 0xFF) / amount;
+		return (r << 16) + (g << 8) + b;
 	}
 
 	@FunctionalInterface
@@ -326,7 +367,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 	}
 
 	@FunctionalInterface
-	private interface MouseOnPlatformCallback {
-		void mouseOnPlatformCallback(Platform platform, double x1, double z1, double x2, double z2);
+	private interface MouseOnSavedRailCallback {
+		void mouseOnSavedRailCallback(SavedRailBase savedRail, double x1, double z1, double x2, double z2);
 	}
+
+	private enum MapState {DEFAULT, EDITING_AREA, EDITING_ROUTE}
 }

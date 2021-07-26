@@ -2,11 +2,12 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
@@ -18,11 +19,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class DashboardList implements IGui {
 
@@ -37,7 +34,7 @@ public class DashboardList implements IGui {
 	private final TexturedButtonWidget buttonNextPage;
 
 	private final TexturedButtonWidget buttonFind;
-	private final TexturedButtonWidget buttonSchedule;
+	private final TexturedButtonWidget buttonDrawArea;
 	private final TexturedButtonWidget buttonEdit;
 	private final TexturedButtonWidget buttonUp;
 	private final TexturedButtonWidget buttonDown;
@@ -48,11 +45,11 @@ public class DashboardList implements IGui {
 	private final AddChild addChild;
 
 	private List<NameColorDataBase> dataSorted = new ArrayList<>();
-	private List<NameColorDataBase> dataFiltered = new ArrayList<>();
+	private final Map<Integer, NameColorDataBase> dataFiltered = new HashMap<>();
 	private int hoverIndex, page, totalPages;
 
 	private boolean hasFind;
-	private boolean hasSchedule;
+	private boolean hasDrawArea;
 	private boolean hasEdit;
 	private boolean hasSort;
 	private boolean hasAdd;
@@ -60,14 +57,14 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onSchedule, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
+	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
 		this.registerButton = registerButton;
 		this.addChild = addChild;
 		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
-		buttonSchedule = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_schedule.png"), 20, 40, button -> onClick(onSchedule));
+		buttonDrawArea = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
 		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
 		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
 			onUp(getList);
@@ -82,12 +79,12 @@ public class DashboardList implements IGui {
 	}
 
 	public void init() {
-		IGui.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
-		IGui.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
-		IGui.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
 
 		buttonFind.visible = false;
-		buttonSchedule.visible = false;
+		buttonDrawArea.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -98,7 +95,7 @@ public class DashboardList implements IGui {
 		registerButton.registerButton(buttonNextPage);
 
 		registerButton.registerButton(buttonFind);
-		registerButton.registerButton(buttonSchedule);
+		registerButton.registerButton(buttonDrawArea);
 		registerButton.registerButton(buttonEdit);
 		registerButton.registerButton(buttonUp);
 		registerButton.registerButton(buttonDown);
@@ -116,23 +113,28 @@ public class DashboardList implements IGui {
 
 		final String text = textFieldSearch.getText();
 		textFieldSearch.setSuggestion(text.isEmpty() ? new TranslatableText("gui.mtr.search").getString() : "");
-		dataFiltered = dataSorted.stream().filter(data -> data.name.toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList());
+		dataFiltered.clear();
+		for (int i = 0; i < dataSorted.size(); i++) {
+			if (dataSorted.get(i).name.toLowerCase().contains(text.toLowerCase())) {
+				dataFiltered.put(i, dataSorted.get(i));
+			}
+		}
 
 		final int dataSize = dataFiltered.size();
 		totalPages = dataSize == 0 ? 1 : (int) Math.ceil((double) dataSize / itemsToShow());
 		setPage(page);
 	}
 
-	public void setData(Set<? extends NameColorDataBase> dataSet, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(Set<? extends NameColorDataBase> dataSet, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		List<? extends NameColorDataBase> dataList = new ArrayList<>(dataSet);
 		Collections.sort(dataList);
-		setData(dataList, hasFind, hasSchedule, hasEdit, hasSort, hasAdd, hasDelete);
+		setData(dataList, hasFind, hasDrawArea, hasEdit, hasSort, hasAdd, hasDelete);
 	}
 
-	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasSchedule, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
+	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
-		this.hasSchedule = hasSchedule;
+		this.hasDrawArea = hasDrawArea;
 		this.hasEdit = hasEdit;
 		this.hasSort = hasSort;
 		this.hasAdd = hasAdd;
@@ -140,13 +142,15 @@ public class DashboardList implements IGui {
 	}
 
 	public void render(MatrixStack matrices, TextRenderer textRenderer, int mouseX, int mouseY, float delta) {
-		DrawableHelper.drawCenteredString(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+		DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		textFieldSearch.render(matrices, mouseX, mouseY, delta);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
 				final int drawY = SQUARE_SIZE * i + TEXT_PADDING + TOP_OFFSET;
-				final NameColorDataBase data = dataFiltered.get(i + itemsToShow * page);
+				final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
+				Collections.sort(sortedKeys);
+				final NameColorDataBase data = dataFiltered.get(sortedKeys.get(i + itemsToShow * page));
 
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
@@ -154,7 +158,7 @@ public class DashboardList implements IGui {
 				RenderSystem.disableTexture();
 				RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
 				buffer.begin(7, VertexFormats.POSITION_COLOR);
-				IGui.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
+				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
 				tessellator.draw();
 				RenderSystem.enableTexture();
 				RenderSystem.disableBlend();
@@ -176,7 +180,7 @@ public class DashboardList implements IGui {
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		buttonFind.visible = false;
-		buttonSchedule.visible = false;
+		buttonDrawArea.visible = false;
 		buttonEdit.visible = false;
 		buttonUp.visible = false;
 		buttonDown.visible = false;
@@ -187,12 +191,13 @@ public class DashboardList implements IGui {
 			hoverIndex = ((int) mouseY - y - TOP_OFFSET) / SQUARE_SIZE;
 			final int dataSize = dataFiltered.size();
 			final int itemsToShow = itemsToShow();
+			final boolean hasSortFiltered = hasSort && dataSize == dataSorted.size();
 			if (hoverIndex >= 0 && hoverIndex + page * itemsToShow < dataSize) {
 				buttonFind.visible = hasFind;
-				buttonSchedule.visible = hasSchedule;
+				buttonDrawArea.visible = hasDrawArea;
 				buttonEdit.visible = hasEdit;
-				buttonUp.visible = hasSort;
-				buttonDown.visible = hasSort;
+				buttonUp.visible = hasSortFiltered;
+				buttonDown.visible = hasSortFiltered;
 				buttonAdd.visible = hasAdd;
 				buttonDelete.visible = hasDelete;
 
@@ -200,13 +205,13 @@ public class DashboardList implements IGui {
 				buttonDown.active = hoverIndex + itemsToShow * page < dataSize - 1;
 
 				final int renderOffset = y + hoverIndex * SQUARE_SIZE + TOP_OFFSET;
-				IGui.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0) + (hasSchedule ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonSchedule, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0) + (hasEdit ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSort ? 2 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * (2 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonAdd, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0)), renderOffset, SQUARE_SIZE);
-				IGui.setPositionAndWidth(buttonDelete, x + width - SQUARE_SIZE, renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonFind, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSortFiltered ? 2 : 0) + (hasEdit ? 1 : 0) + (hasDrawArea ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonDrawArea, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSortFiltered ? 2 : 0) + (hasEdit ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonEdit, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0) + (hasSortFiltered ? 2 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonUp, x + width - SQUARE_SIZE * (2 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonDown, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0) + (hasAdd ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonAdd, x + width - SQUARE_SIZE * (1 + (hasDelete ? 1 : 0)), renderOffset, SQUARE_SIZE);
+				IDrawing.setPositionAndWidth(buttonDelete, x + width - SQUARE_SIZE, renderOffset, SQUARE_SIZE);
 			}
 		}
 	}
@@ -225,9 +230,15 @@ public class DashboardList implements IGui {
 
 	private void onClick(OnClick onClick) {
 		textFieldSearch.setText("");
-		final int index = hoverIndex + itemsToShow() * page;
-		if (index >= 0 && index < dataFiltered.size()) {
-			onClick.onClick(dataFiltered.get(index), index);
+		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
+		Collections.sort(sortedKeys);
+
+		final int sortedIndex = hoverIndex + itemsToShow() * page;
+		if (sortedIndex >= 0 && sortedIndex < sortedKeys.size()) {
+			final int index = sortedKeys.get(sortedIndex);
+			if (index >= 0 && index < dataSorted.size()) {
+				onClick.onClick(dataSorted.get(index), index);
+			}
 		}
 	}
 
@@ -259,7 +270,7 @@ public class DashboardList implements IGui {
 
 	@FunctionalInterface
 	public interface RegisterButton {
-		void registerButton(AbstractButtonWidget button);
+		void registerButton(ClickableWidget button);
 	}
 
 	@FunctionalInterface

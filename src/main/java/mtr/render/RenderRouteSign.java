@@ -4,20 +4,20 @@ import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Station;
-import mtr.entity.EntitySeat;
 import mtr.gui.ClientData;
-import mtr.gui.IGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
 			return;
 		}
 
@@ -64,19 +64,21 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, platform, true);
+		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, true, false);
 
 		matrices.push();
 		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
 
 		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		if (!RenderSeat.shouldNotRender(pos, EntitySeat.DETAIL_RADIUS / 4)) {
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2)) {
 			routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
 		}
 		matrices.pop();
+		immediate.draw();
 	}
 
 	@Override

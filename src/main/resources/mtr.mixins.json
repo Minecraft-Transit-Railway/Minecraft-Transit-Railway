@@ -2,11 +2,13 @@
 	"required": true,
 	"minVersion": "0.8",
 	"package": "mtr.mixin",
-	"compatibilityLevel": "JAVA_8",
-	"mixins": [],
+	"compatibilityLevel": "JAVA_16",
+	"mixins": [
+		"PlayerTeleportationStateAccessor"
+	],
 	"client": [
-		"EntitySpawnMixin",
-		"ModelPredicateRegisterInvoker"
+		"ModelPredicateRegisterInvoker",
+		"UnknownPacketMixin"
 	],
 	"server": [],
 	"injectors": {

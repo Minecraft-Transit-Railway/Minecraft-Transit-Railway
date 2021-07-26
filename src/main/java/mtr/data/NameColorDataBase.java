@@ -1,7 +1,7 @@
 package mtr.data;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 import java.util.Random;
@@ -26,10 +26,10 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		name = "";
 	}
 
-	public NameColorDataBase(CompoundTag tag) {
-		id = tag.getLong(KEY_ID);
-		name = tag.getString(KEY_NAME);
-		color = tag.getInt(KEY_COLOR);
+	public NameColorDataBase(NbtCompound nbtCompound) {
+		id = nbtCompound.getLong(KEY_ID);
+		name = nbtCompound.getString(KEY_NAME);
+		color = nbtCompound.getInt(KEY_COLOR);
 	}
 
 	public NameColorDataBase(PacketByteBuf packet) {
@@ -39,12 +39,12 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag tag = new CompoundTag();
-		tag.putLong(KEY_ID, id);
-		tag.putString(KEY_NAME, name);
-		tag.putInt(KEY_COLOR, color);
-		return tag;
+	public NbtCompound toCompoundTag() {
+		final NbtCompound nbtCompound = new NbtCompound();
+		nbtCompound.putLong(KEY_ID, id);
+		nbtCompound.putString(KEY_NAME, name);
+		nbtCompound.putInt(KEY_COLOR, color);
+		return nbtCompound;
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		}
 	}
 
-	public PacketByteBuf setNameColor(Consumer<PacketByteBuf> sendPacket) {
+	public void setNameColor(Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_NAME);
@@ -70,7 +70,6 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		if (sendPacket != null) {
 			sendPacket.accept(packet);
 		}
-		return packet;
 	}
 
 	@Override

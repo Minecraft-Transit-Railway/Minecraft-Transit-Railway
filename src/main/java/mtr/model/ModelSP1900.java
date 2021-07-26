@@ -1,9 +1,7 @@
 package mtr.model;
 
-import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class ModelSP1900 extends ModelTrainBase {
@@ -200,6 +198,10 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart tail_light_4_r1_r1;
 	private final ModelPart tail_light_3_r1_r1;
 	private final ModelPart tail_light_1_r1_r1;
+	private final ModelPart door_light_on;
+	private final ModelPart light_r1;
+	private final ModelPart door_light_off;
+	private final ModelPart light_r2;
 	private final ModelPart bb_main;
 
 	private final boolean isC1141A;
@@ -1373,24 +1375,47 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(tail_light_1_r1_r1, 0.3491F, 0.5236F, 0.0873F);
 		tail_light_1_r1_r1.setTextureOffset(16, 40).addCuboid(8.0F, -15.5F, 43.4F, 4.0F, 6.0F, 0.0F, 0.0F, false);
 
+		door_light_on = new ModelPart(this);
+		door_light_on.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r1 = new ModelPart(this);
+		light_r1.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_on.addChild(light_r1);
+		setRotationAngle(light_r1, 0.0F, 0.0F, 0.1107F);
+		light_r1.setTextureOffset(82, 0).addCuboid(-1.0F, -21.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.5F, false);
+
+		door_light_off = new ModelPart(this);
+		door_light_off.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r2 = new ModelPart(this);
+		light_r2.setPivot(-20.0F, -14.0F, 0.0F);
+		door_light_off.addChild(light_r2);
+		setRotationAngle(light_r2, 0.0F, 0.0F, 0.1107F);
+		light_r2.setTextureOffset(86, 0).addCuboid(-1.0F, -21.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.5F, false);
+
 		bb_main = new ModelPart(this);
 		bb_main.setPivot(0.0F, 24.0F, 0.0F);
 		bb_main.setTextureOffset(4, 0).addCuboid(0.0F, -36.0F, 0.0F, 0.0F, 36.0F, 0.0F, 0.2F, false);
 	}
 
 	private static final int DOOR_MAX = 14;
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay();
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_sp1900_left.png", "door_overlay_sp1900_right.png");
+	private static final ModelDoorOverlayTop MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTop();
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(isC1141A ? roof_light_c1141a : roof_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderMirror(window, matrices, vertices, light, position);
-				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
-				renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+					renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
+				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
@@ -1415,9 +1440,9 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head) {
-		final float doorLeft = doorLeftValue * DOOR_MAX;
-		final float doorRight = doorRightValue * DOOR_MAX;
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
+		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
 			case LIGHTS:
@@ -1425,57 +1450,70 @@ public class ModelSP1900 extends ModelTrainBase {
 				if (isC1141A) {
 					renderMirror(door_light_c1141a, matrices, vertices, light, position);
 				}
+				if (middleDoor && doorOpen && renderDetails) {
+					renderMirror(door_light_on, matrices, vertices, light, position - 32);
+				}
 				break;
 			case INTERIOR:
-				door_left.setPivot(0, 0, doorRight);
-				door_right.setPivot(0, 0, -doorRight);
+				door_left.setPivot(0, 0, doorRightZ);
+				door_right.setPivot(0, 0, -doorRightZ);
 				renderOnce(door, matrices, vertices, light, position);
-				door_left.setPivot(0, 0, doorLeft);
-				door_right.setPivot(0, 0, -doorLeft);
+				door_left.setPivot(0, 0, doorLeftZ);
+				door_right.setPivot(0, 0, -doorLeftZ);
 				renderOnceFlipped(door, matrices, vertices, light, position);
-				renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
-						renderOnce(bb_main, matrices, vertices, light, position);
-					} else {
-						renderOnce(tv_pole, matrices, vertices, light, position);
+
+				if (renderDetails) {
+					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
+							renderOnce(bb_main, matrices, vertices, light, position);
+						} else {
+							renderOnce(tv_pole, matrices, vertices, light, position);
+						}
 					}
 				}
 
 				break;
 			case EXTERIOR:
 				if (isEnd2Head) {
-					door_left_exterior_2.setPivot(0, 0, doorLeft);
-					door_right_exterior_2.setPivot(0, 0, -doorLeft);
+					door_left_exterior_2.setPivot(0, 0, doorLeftZ);
+					door_right_exterior_2.setPivot(0, 0, -doorLeftZ);
 					renderOnceFlipped(door_exterior_2, matrices, vertices, light, position);
-					door_left_exterior_1.setPivot(0, 0, -doorRight);
-					door_right_exterior_1.setPivot(0, 0, doorRight);
+					door_left_exterior_1.setPivot(0, 0, -doorRightZ);
+					door_right_exterior_1.setPivot(0, 0, doorRightZ);
 					renderOnceFlipped(door_exterior_1, matrices, vertices, light, position);
 				} else {
-					door_left_exterior_1.setPivot(0, 0, -doorLeft);
-					door_right_exterior_1.setPivot(0, 0, doorLeft);
+					door_left_exterior_1.setPivot(0, 0, -doorLeftZ);
+					door_right_exterior_1.setPivot(0, 0, doorLeftZ);
 					renderOnce(door_exterior_1, matrices, vertices, light, position);
-					door_left_exterior_2.setPivot(0, 0, doorRight);
-					door_right_exterior_2.setPivot(0, 0, -doorRight);
+					door_left_exterior_2.setPivot(0, 0, doorRightZ);
+					door_right_exterior_2.setPivot(0, 0, -doorRightZ);
 					renderOnce(door_exterior_2, matrices, vertices, light, position);
 				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
+				if (middleDoor && !doorOpen && renderDetails) {
+					renderMirror(door_light_off, matrices, vertices, light, position - 32);
+				}
 				break;
 		}
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(head, matrices, vertices, light, position);
-				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+				if (renderDetails) {
+					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1493,17 +1531,21 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
+				break;
+			case ALWAYS_ON_LIGHTS:
 				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(head, matrices, vertices, light, position);
-				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (!isC1141A) {
-					renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+				if (renderDetails) {
+					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (!isC1141A) {
+						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1521,18 +1563,20 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnce(end, matrices, vertices, light, position);
-				renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (isC1141A) {
-					renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
-				} else {
-					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (isC1141A) {
+						renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
+					} else {
+						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1550,18 +1594,20 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(isC1141A ? roof_end_light_c1141a : roof_end_light_sp1900, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
 				renderOnceFlipped(end, matrices, vertices, light, position);
-				renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-				if (isC1141A) {
-					renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
-				} else {
-					renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+				if (renderDetails) {
+					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
+					if (isC1141A) {
+						renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
+					} else {
+						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1579,8 +1625,13 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayBase getModelDoorOverlay() {
+	protected ModelDoorOverlay getModelDoorOverlay() {
 		return MODEL_DOOR_OVERLAY;
+	}
+
+	@Override
+	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+		return MODEL_DOOR_OVERLAY_TOP;
 	}
 
 	@Override
@@ -1598,138 +1649,13 @@ public class ModelSP1900 extends ModelTrainBase {
 		return new int[]{-160, 160};
 	}
 
-	private static class ModelDoorOverlay extends ModelDoorOverlayBase {
+	@Override
+	protected float getDoorAnimationX(float value, boolean opening) {
+		return 0;
+	}
 
-		private final ModelPart door_left_overlay_interior;
-		private final ModelPart door_left_top_r1;
-		private final ModelPart door_right_overlay_interior;
-		private final ModelPart door_right_top_r1;
-		private final ModelPart door_right_bottom_r1;
-		private final ModelPart door_left_overlay_exterior;
-		private final ModelPart door_left_top_r2;
-		private final ModelPart door_right_overlay_exterior;
-		private final ModelPart door_right_top_r2;
-		private final ModelPart outer_roof_1;
-		private final ModelPart outer_roof_1_r1;
-		private final ModelPart outer_roof_2;
-		private final ModelPart outer_roof_2_r1;
-		private final ModelPart wall_1;
-		private final ModelPart upper_wall_1_r1;
-		private final ModelPart wall_2;
-		private final ModelPart upper_wall_2_r1;
-
-		public ModelDoorOverlay() {
-			textureWidth = 32;
-			textureHeight = 32;
-			door_left_overlay_interior = new ModelPart(this);
-			door_left_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
-			door_left_overlay_interior.setTextureOffset(0, 3).addCuboid(-19.7F, -14.0F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
-
-			door_left_top_r1 = new ModelPart(this);
-			door_left_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_left_overlay_interior.addChild(door_left_top_r1);
-			setRotationAngle(door_left_top_r1, 0.0F, 0.0F, 0.1107F);
-			door_left_top_r1.setTextureOffset(0, -16).addCuboid(1.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
-
-			door_right_overlay_interior = new ModelPart(this);
-			door_right_overlay_interior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_right_top_r1 = new ModelPart(this);
-			door_right_top_r1.setPivot(-20.8F, -14.0F, 0.0F);
-			door_right_overlay_interior.addChild(door_right_top_r1);
-			setRotationAngle(door_right_top_r1, 0.0F, 3.1416F, 0.1107F);
-			door_right_top_r1.setTextureOffset(0, -16).addCuboid(-1.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
-
-			door_right_bottom_r1 = new ModelPart(this);
-			door_right_bottom_r1.setPivot(0.0F, 0.0F, 0.0F);
-			door_right_overlay_interior.addChild(door_right_bottom_r1);
-			setRotationAngle(door_right_bottom_r1, 0.0F, 3.1416F, 0.0F);
-			door_right_bottom_r1.setTextureOffset(0, 3).addCuboid(19.7F, -14.0F, 0.0F, 0.0F, 12.0F, 16.0F, 0.0F, false);
-
-			door_left_overlay_exterior = new ModelPart(this);
-			door_left_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_left_top_r2 = new ModelPart(this);
-			door_left_top_r2.setPivot(-20.8F, -14.0F, 0.0F);
-			door_left_overlay_exterior.addChild(door_left_top_r2);
-			setRotationAngle(door_left_top_r2, 0.0F, 0.0F, 0.1107F);
-			door_left_top_r2.setTextureOffset(0, -16).addCuboid(0.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
-
-			door_right_overlay_exterior = new ModelPart(this);
-			door_right_overlay_exterior.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			door_right_top_r2 = new ModelPart(this);
-			door_right_top_r2.setPivot(-20.8F, -14.0F, 0.0F);
-			door_right_overlay_exterior.addChild(door_right_top_r2);
-			setRotationAngle(door_right_top_r2, 0.0F, 3.1416F, 0.1107F);
-			door_right_top_r2.setTextureOffset(0, -16).addCuboid(-0.1F, -19.0F, 0.0F, 0.0F, 19.0F, 16.0F, 0.0F, false);
-
-			outer_roof_1 = new ModelPart(this);
-			outer_roof_1.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			outer_roof_1_r1 = new ModelPart(this);
-			outer_roof_1_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			outer_roof_1.addChild(outer_roof_1_r1);
-			setRotationAngle(outer_roof_1_r1, 0.0F, 0.0F, 0.1107F);
-			outer_roof_1_r1.setTextureOffset(4, -12).addCuboid(-1.1F, -20.5F, 0.0F, 0.0F, 3.0F, 12.0F, 0.0F, false);
-
-			outer_roof_2 = new ModelPart(this);
-			outer_roof_2.setPivot(0.0F, 24.0F, 0.0F);
-
-
-			outer_roof_2_r1 = new ModelPart(this);
-			outer_roof_2_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			outer_roof_2.addChild(outer_roof_2_r1);
-			setRotationAngle(outer_roof_2_r1, 0.0F, 3.1416F, 0.1107F);
-			outer_roof_2_r1.setTextureOffset(4, -12).addCuboid(1.1F, -20.5F, 0.0F, 0.0F, 3.0F, 12.0F, 0.0F, false);
-
-			wall_1 = new ModelPart(this);
-			wall_1.setPivot(0.0F, 24.0F, 0.0F);
-			wall_1.setTextureOffset(27, 18).addCuboid(-20.25F, -14.0F, -13.9F, 2.0F, 12.0F, 0.0F, 0.0F, false);
-
-			upper_wall_1_r1 = new ModelPart(this);
-			upper_wall_1_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			wall_1.addChild(upper_wall_1_r1);
-			setRotationAngle(upper_wall_1_r1, 0.0F, 0.0F, 0.1107F);
-			upper_wall_1_r1.setTextureOffset(27, 18).addCuboid(-0.25F, -1.0F, -13.89F, 2.0F, 1.0F, 0.0F, 0.0F, false);
-
-			wall_2 = new ModelPart(this);
-			wall_2.setPivot(0.0F, 24.0F, 0.0F);
-			wall_2.setTextureOffset(1, 18).addCuboid(-20.25F, -14.0F, 13.9F, 2.0F, 12.0F, 0.0F, 0.0F, false);
-
-			upper_wall_2_r1 = new ModelPart(this);
-			upper_wall_2_r1.setPivot(-20.0F, -14.0F, 0.0F);
-			wall_2.addChild(upper_wall_2_r1);
-			setRotationAngle(upper_wall_2_r1, 0.0F, 0.0F, 0.1107F);
-			upper_wall_2_r1.setTextureOffset(1, 18).addCuboid(-0.25F, -1.0F, 13.89F, 2.0F, 1.0F, 0.0F, 0.0F, false);
-		}
-
-		@Override
-		protected void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ModelTrainBase.RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue) {
-			final float doorLeft = doorLeftValue * DOOR_MAX;
-			final float doorRight = doorRightValue * DOOR_MAX;
-			switch (renderStage) {
-				case INTERIOR:
-					ModelTrainBase.renderOnce(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position + doorRight);
-					ModelTrainBase.renderOnce(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position - doorRight);
-					ModelTrainBase.renderOnceFlipped(door_left_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position - doorLeft);
-					ModelTrainBase.renderOnceFlipped(door_right_overlay_interior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position + doorLeft);
-					ModelTrainBase.renderMirror(wall_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position);
-					ModelTrainBase.renderMirror(wall_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position);
-					break;
-				case EXTERIOR:
-					ModelTrainBase.renderOnce(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, position + doorRight);
-					ModelTrainBase.renderOnce(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, position - doorRight);
-					ModelTrainBase.renderOnceFlipped(door_left_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light / 4 * 3, position - doorLeft);
-					ModelTrainBase.renderOnceFlipped(door_right_overlay_exterior, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light / 4 * 3, position + doorLeft);
-					ModelTrainBase.renderMirror(outer_roof_1, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_LEFT)), light, position);
-					ModelTrainBase.renderMirror(outer_roof_2, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(DOOR_OVERLAY_TEXTURE_RIGHT)), light, position);
-					break;
-			}
-		}
+	@Override
+	protected float getDoorAnimationZ(float value, boolean opening) {
+		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
 	}
 }

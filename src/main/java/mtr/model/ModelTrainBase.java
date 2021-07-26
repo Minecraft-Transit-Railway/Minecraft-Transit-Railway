@@ -1,9 +1,10 @@
 package mtr.model;
 
-import mtr.gui.IGui;
+import mtr.data.IGui;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -21,64 +22,86 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 	public final void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.LIGHTS, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(texture)), RenderStage.INTERIOR, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+	public final void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean lightsOn, boolean renderDetails) {
+		final float doorLeftX = getDoorAnimationX(doorLeftValue, opening);
+		final float doorRightX = getDoorAnimationX(doorRightValue, opening);
+		final float doorLeftZ = getDoorAnimationZ(doorLeftValue, opening);
+		final float doorRightZ = getDoorAnimationZ(doorRightValue, opening);
+
+		final int lightOnInteriorLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
+		final int lightOnGlowingLevel = lightsOn ? MAX_LIGHT_GLOWING : light;
+		final RenderLayer renderLayerLight = lightsOn ? MoreRenderLayers.getLight(texture) : MoreRenderLayers.getExterior(texture);
+		final RenderLayer renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
+		final RenderLayer renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
+
+		render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
+		render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 
 		if (renderDetails) {
 			for (int position : getDoorPositions()) {
-				final ModelDoorOverlayBase modelDoorOverlay = getModelDoorOverlay();
+				final ModelDoorOverlay modelDoorOverlay = getModelDoorOverlay();
 				if (modelDoorOverlay != null) {
-					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, MAX_LIGHT, position, doorLeftValue, doorRightValue);
-					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftValue, doorRightValue);
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
+					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
+				}
+				final ModelDoorOverlayTop modelDoorOverlayTop = getModelDoorOverlayTop();
+				if (modelDoorOverlayTop != null) {
+					modelDoorOverlayTop.render(matrices, vertexConsumers, light, position);
 				}
 			}
-			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInteriorTranslucent(texture)), RenderStage.INTERIOR_TRANSLUCENT, MAX_LIGHT, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+			render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 		}
 
-		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head, head1IsFront);
+		render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 	}
 
-	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront) {
+	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
 		for (int position : getWindowPositions()) {
-			renderWindowPositions(matrices, vertices, renderStage, light, position, isEnd1Head, isEnd2Head);
+			renderWindowPositions(matrices, vertices, renderStage, light, position, renderDetails, isEnd1Head, isEnd2Head);
 		}
 		for (int position : getDoorPositions()) {
-			renderDoorPositions(matrices, vertices, renderStage, light, position, doorLeftValue, doorRightValue, isEnd1Head, isEnd2Head);
+			renderDoorPositions(matrices, vertices, renderStage, light, position, renderDetails, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head);
 		}
 
 		if (isEnd1Head) {
-			renderHeadPosition1(matrices, vertices, renderStage, light, getEndPositions()[0], head1IsFront);
+			renderHeadPosition1(matrices, vertices, renderStage, light, getEndPositions()[0], renderDetails, head1IsFront);
 		} else {
-			renderEndPosition1(matrices, vertices, renderStage, light, getEndPositions()[0]);
+			renderEndPosition1(matrices, vertices, renderStage, light, getEndPositions()[0], renderDetails);
 		}
 
 		if (isEnd2Head) {
-			renderHeadPosition2(matrices, vertices, renderStage, light, getEndPositions()[1], !head1IsFront);
+			renderHeadPosition2(matrices, vertices, renderStage, light, getEndPositions()[1], renderDetails, !head1IsFront);
 		} else {
-			renderEndPosition2(matrices, vertices, renderStage, light, getEndPositions()[1]);
+			renderEndPosition2(matrices, vertices, renderStage, light, getEndPositions()[1], renderDetails);
 		}
 	}
 
-	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean isEnd1Head, boolean isEnd2Head);
+	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, float doorLeftValue, float doorRightValue, boolean isEnd1Head, boolean isEnd2Head);
+	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights);
+	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights);
 
-	protected abstract void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean useHeadlights);
+	protected abstract void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights);
 
-	protected abstract void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position);
+	protected abstract void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails);
 
-	protected abstract void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position);
+	protected abstract void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails);
 
-	protected abstract ModelDoorOverlayBase getModelDoorOverlay();
+	protected abstract ModelDoorOverlay getModelDoorOverlay();
+
+	protected abstract ModelDoorOverlayTop getModelDoorOverlayTop();
 
 	protected abstract int[] getWindowPositions();
 
 	protected abstract int[] getDoorPositions();
 
 	protected abstract int[] getEndPositions();
+
+	protected abstract float getDoorAnimationX(float value, boolean opening);
+
+	protected abstract float getDoorAnimationZ(float value, boolean opening);
 
 	protected static void setRotationAngle(ModelPart bone, float x, float y, float z) {
 		bone.pitch = x;
@@ -120,5 +143,18 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		return finalIndex < array.length && finalIndex >= 0 && array[finalIndex] == value;
 	}
 
-	protected enum RenderStage {LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
+	protected static float smoothEnds(float startValue, float endValue, float startTime, float endTime, float time) {
+		if (time < startTime) {
+			return startValue;
+		}
+		if (time > endTime) {
+			return endValue;
+		}
+
+		final float timeChange = endTime - startTime;
+		final float valueChange = endValue - startValue;
+		return valueChange * (float) (1 - Math.cos(Math.PI * (time - startTime) / timeChange)) / 2 + startValue;
+	}
+
+	protected enum RenderStage {LIGHTS, ALWAYS_ON_LIGHTS, INTERIOR, INTERIOR_TRANSLUCENT, EXTERIOR}
 }

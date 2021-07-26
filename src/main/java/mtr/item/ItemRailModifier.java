@@ -1,18 +1,19 @@
 package mtr.item;
 
+import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
-import mtr.data.Platform;
 import mtr.data.Rail;
+import mtr.data.RailType;
 import mtr.data.RailwayData;
-import net.minecraft.block.entity.BlockEntity;
+import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -27,13 +28,22 @@ import java.util.List;
 public class ItemRailModifier extends Item {
 
 	private final boolean isConnector;
-	private final Rail.RailType railType;
+	private final boolean isOneWay;
+	private final RailType railType;
 
 	public static final String TAG_POS = "pos";
 
-	public ItemRailModifier(boolean isConnector, Rail.RailType railType) {
-		super(new Item.Settings().group(ItemGroup.TOOLS).maxCount(1));
-		this.isConnector = isConnector;
+	public ItemRailModifier() {
+		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
+		isConnector = false;
+		isOneWay = false;
+		railType = null;
+	}
+
+	public ItemRailModifier(boolean isOneWay, RailType railType) {
+		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
+		isConnector = true;
+		this.isOneWay = isOneWay;
 		this.railType = railType;
 	}
 
@@ -41,57 +51,53 @@ public class ItemRailModifier extends Item {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final World world = context.getWorld();
 		if (!world.isClient) {
+			final RailwayData railwayData = RailwayData.getInstance(world);
 			final BlockPos posStart = context.getBlockPos();
-			final BlockEntity entity = world.getBlockEntity(posStart);
+			final BlockState stateStart = world.getBlockState(posStart);
 
-			if (entity instanceof BlockRail.TileEntityRail) {
-				final CompoundTag tag = context.getStack().getOrCreateTag();
+			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
+				final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
 
-				if (tag.contains(TAG_POS)) {
-					final BlockPos posEnd = BlockPos.fromLong(tag.getLong(TAG_POS));
-					final BlockEntity entity2 = world.getBlockEntity(posEnd);
+				if (nbtCompound.contains(TAG_POS)) {
+					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
+					final BlockState stateEnd = world.getBlockState(posEnd);
 
-					if (entity2 instanceof BlockRail.TileEntityRail) {
+					if (stateEnd.getBlock() instanceof BlockRail) {
+						final PlayerEntity player = context.getPlayer();
 						if (isConnector) {
 							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
 							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
 							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
 							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
-							final PlayerEntity player = context.getPlayer();
 
 							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								final boolean isPlatform = railType == Rail.RailType.PLATFORM;
-
-								if (isPlatform && (((BlockRail.TileEntityRail) entity).hasPlatform() || ((BlockRail.TileEntityRail) entity2).hasPlatform())) {
+								if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 									if (player != null) {
-										player.sendMessage(new TranslatableText("gui.mtr.platform_exists"), true);
+										player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 									}
 								} else {
-									((BlockRail.TileEntityRail) entity).addRail(facingStart, posEnd, facingEnd, railType);
-									((BlockRail.TileEntityRail) entity2).addRail(facingEnd, posStart, facingStart, railType);
-
-									if (isPlatform) {
-										final RailwayData railwayData = RailwayData.getInstance(world);
-										if (railwayData != null) {
-											railwayData.setData(new Platform(posStart, posEnd));
-										}
-									}
+									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
+									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
+									railwayData.addRail(posStart, posEnd, rail1, false);
+									final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
+									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
+									world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
+									PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
 								}
-
 							} else {
 								if (player != null) {
 									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
 								}
 							}
 						} else {
-							((BlockRail.TileEntityRail) entity).removeRail(posEnd);
-							((BlockRail.TileEntityRail) entity2).removeRail(posStart);
+							railwayData.removeRailConnection(posStart, posEnd);
+							PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 						}
 					}
 
-					tag.remove(TAG_POS);
+					nbtCompound.remove(TAG_POS);
 				} else {
-					tag.putLong(TAG_POS, posStart.asLong());
+					nbtCompound.putLong(TAG_POS, posStart.asLong());
 				}
 
 				return ActionResult.SUCCESS;
@@ -109,8 +115,8 @@ public class ItemRailModifier extends Item {
 			tooltip.add(new TranslatableText("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 
-		final CompoundTag tag = stack.getOrCreateTag();
-		final long posLong = tag.getLong(TAG_POS);
+		final NbtCompound nbtCompound = stack.getOrCreateTag();
+		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 		}

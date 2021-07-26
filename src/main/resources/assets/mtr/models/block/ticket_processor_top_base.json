@@ -3,7 +3,6 @@
 	"textures": {
 		"particle": "mtr:block/metal",
 		"cover": "block/gray_concrete",
-		"color": "block/yellow_concrete",
 		"overlay": "mtr:block/ticket_processor"
 	},
 	"elements": [
