@@ -294,6 +294,21 @@ public interface IGui {
 		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
+	static void drawTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4, Direction facing,int light) {
+		if (vertexConsumers == null) {
+			return;
+		}
+		final Vec3i vec3i = facing.getVector();
+		final Matrix4f matrix4f = matrices.peek().getModel();
+		final Matrix3f matrix3f = matrices.peek().getNormal();
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier(texture)));
+		final int newLight = light == -1 ? MAX_LIGHT : light;
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(0xFF, 0xFF, 0xFF, 0xFF).texture(u1, v1).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(0xFF, 0xFF, 0xFF, 0xFF).texture(u2, v2).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(0xFF, 0xFF, 0xFF, 0xFF).texture(u3, v3).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(0xFF, 0xFF, 0xFF, 0xFF).texture(u4, v4).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+	}
+
 	@FunctionalInterface
 	interface DrawingCallback {
 		void drawingCallback(float x1, float y1, float x2, float y2);
