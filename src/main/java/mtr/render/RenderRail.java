@@ -12,11 +12,11 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
-import org.apache.http.cookie.SM;
 
 import java.util.Collection;
 
@@ -100,8 +100,8 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 							Direction.UP, color, light2
 					);*/
 					// TODO: Maybe there are unnecessary draw calls
-					// Draw 3D ballast below a slope rail.
-					if (y1 != yf || y2 != yf) {
+					// Draw 3D ballast below a straight slope rail.
+					if ((y1 != yf || y2 != yf) && isAxisAligned(bc1, bc2, bc3, bc4)) {
 						// Bottom of ballast.
 						IGui.drawTexture(
 								matrices, vertexConsumers, "textures/block/gravel.png",
@@ -112,34 +112,42 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 						);
 						// Left-Right sides of ballast.
 						// TODO: Calculate normal correctly
-						IGui.drawTexture(
-								matrices, vertexConsumers, "textures/block/gravel.png",
-								bc1.x, yb1, bc1.z, bc4.x, yb2, bc4.z,
-								bc4.x, yf, bc4.z, bc1.x, yf, bc1.z,
-								0, 0, 1, 1,
-								Direction.UP, color, light2
-						);
-						IGui.drawTexture(
-								matrices, vertexConsumers, "textures/block/gravel.png",
-								bc2.x, yf, bc2.z, bc3.x, yf, bc3.z,
-								bc3.x, yb2, bc3.z, bc2.x, yb1, bc2.z,
-								0, 0, 1, 1,
-								Direction.UP, color, light2
-						);
+						final BlockPos pos14 = new BlockPos((rc1.x + rc4.x) / 2, (yb1 + yb2) / 2, (rc1.z + rc4.z) / 2);
+						final int light14 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos14), world.getLightLevel(LightType.SKY, pos14));
+						final BlockPos pos23 = new BlockPos((rc2.x + rc3.x) / 2, (yb1 + yb2) / 2, (rc2.z + rc3.z) / 2);
+						final int light23 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos23), world.getLightLevel(LightType.SKY, pos23));
+						if (world.getBlockState(pos14).isAir()) {
+							drawTextureAutoDir(
+									matrices, vertexConsumers, "textures/block/gravel.png",
+									bc1.x, yb1, bc1.z, bc4.x, yb2, bc4.z,
+									bc4.x, yf, bc4.z, bc1.x, yf, bc1.z,
+									0, 0, 1, 1,
+									color, light14
+							);
+						}
+						if (world.getBlockState(pos23).isAir()) {
+							drawTextureAutoDir(
+									matrices, vertexConsumers, "textures/block/gravel.png",
+									bc2.x, yf, bc2.z, bc3.x, yf, bc3.z,
+									bc3.x, yb2, bc3.z, bc2.x, yb1, bc2.z,
+									0, 0, 1, 1,
+									color, light23
+							);
+						}
 						// Front-back sides of ballast.
-						IGui.drawTexture(
+						drawTextureAutoDir(
 								matrices, vertexConsumers, "textures/block/gravel.png",
 								bc1.x, yb1, bc1.z, bc2.x, yb1, bc2.z,
 								bc2.x, yf, bc2.z, bc1.x, yf, bc1.z,
 								0, 0, 3, 1,
-								Direction.UP, color, light2
+								color, light2
 						);
-						IGui.drawTexture(
+						drawTextureAutoDir(
 								matrices, vertexConsumers, "textures/block/gravel.png",
 								bc3.x, yb2, bc3.z, bc4.x, yb2, bc4.z,
 								bc4.x, yf, bc4.z, bc3.x, yf, bc3.z,
 								0, 0, 3, 1,
-								Direction.UP, color, light2
+								color, light2
 						);
 					}
 				}
@@ -147,6 +155,28 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 		}
 
 		matrices.pop();
+	}
+
+	private void drawTextureAutoDir(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, int color, int light) {
+		Direction facing;
+		if (x1 == x2 && x2 == x3 && x3 == x4) {
+			facing = z1 > z2 ? Direction.WEST : Direction.EAST;
+		} else if (z1 == z2 && z2 == z3 && z3 == z4) {
+			facing = x1 > x2 ? Direction.SOUTH : Direction.NORTH;
+		} else {
+			facing = Direction.UP;
+		}
+		IGui.drawTexture(matrices, vertexConsumers, texture, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, u1, v1, u2, v2, facing, color, light);
+	}
+
+	private boolean isAxisAligned(Pos3f c1, Pos3f c2, Pos3f c3, Pos3f c4) {
+		if (c1.x == c2.x) {
+			return c3.x == c4.x && c1.z == c4.z && c2.z == c3.z;
+		} else if (c1.z == c2.z) {
+			return c3.z == c4.z && c1.x == c4.x && c2.x == c3.x;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
