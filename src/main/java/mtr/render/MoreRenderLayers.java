@@ -33,8 +33,8 @@ public class MoreRenderLayers extends RenderPhase {
 	}
 
 	public static RenderLayer getSolid(Identifier texture) {
-		final RenderLayer.MultiPhaseParameters multiPhaseParameters = getParameters(texture).diffuseLighting(ENABLE_DIFFUSE_LIGHTING).lightmap(ENABLE_LIGHTMAP).build(true);
-		return RenderLayer.of("solid", POSITION_COLOR_TEXTURE_LIGHT_NORMAL, 7, 256, true, false, multiPhaseParameters);
+		final RenderLayer.MultiPhaseParameters multiPhaseParameters = getParameters(texture).shadeModel(SMOOTH_SHADE_MODEL).lightmap(ENABLE_LIGHTMAP).build(true);
+		return RenderLayer.of("solid", POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, 7, 256, true, false, multiPhaseParameters);
 	}
 
 	private static RenderLayer.MultiPhaseParameters.Builder getParameters(Identifier texture) {

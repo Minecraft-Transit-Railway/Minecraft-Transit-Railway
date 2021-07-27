@@ -5,6 +5,7 @@ import mtr.data.Pos3f;
 import mtr.data.Rail;
 import mtr.gui.IGui;
 import mtr.item.ItemRailModifier;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -13,12 +14,14 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
 import java.util.Collection;
+import java.util.Random;
 
 public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> implements IGui {
 
@@ -83,7 +86,7 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 						final float ym = bc1.z < bc3.z ? y2 : y1;
 						for (int i = 0; i < 3; i++) {
 							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
-									new BlockPos(xmin + i, yf, zmin), yl, ym, ym, yl);
+									pos, new BlockPos(xmin + i, yf, zmin), yl, ym, ym, yl);
 						}
 					} else if (alignment == 2) {
 						final int zmin = Math.min((int) bc1.z, (int) bc2.z);
@@ -92,7 +95,7 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 						final float ym = bc1.x < bc3.x ? y2 : y1;
 						for (int i = 0; i < 3; i++) {
 							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
-									new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
+									pos, new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
 						}
 					}
 				}
@@ -102,75 +105,54 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 		matrices.pop();
 	}
 
-	private void drawSlopeBlock(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, World world, BlockPos pos, float yll, float ylm, float ymm, float yml) {
+	private void drawSlopeBlock(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, World world, BlockPos entityPos, BlockPos pos, float yll, float ylm, float ymm, float yml) {
 		if (!world.getBlockState(pos).isAir()) return;
+		//final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
 		final int light = WorldRenderer.getLightmapCoordinates(world, pos);
 		float yf = pos.getY();
-		final float dY = 1F / 16; // TODO: Why?
+		final float dY = 0.0625F + SMALL_OFFSET;
 		yll -= dY; ylm -= dY; ymm -= dY; yml -= dY; yf -= dY;
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX(), yll, pos.getZ(), pos.getX(), ylm, pos.getZ() + 1,
 				pos.getX() + 1, ymm, pos.getZ() + 1, pos.getX() + 1, yml, pos.getZ(),
 				0, 0, 0, 1, 1, 1, 1, 0,
-				Direction.UP, light
+				Direction.UP, pos, world
 		);
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX(), yf, pos.getZ(), pos.getX() + 1, yf, pos.getZ(),
 				pos.getX() + 1, yf, pos.getZ() + 1, pos.getX(), yf, pos.getZ() + 1,
 				0, 0, 0, 1, 1, 1, 1, 0,
-				Direction.DOWN, light
+				Direction.DOWN, pos, world
 		);
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX(), yll, pos.getZ(), pos.getX(), yf, pos.getZ(),
 				pos.getX(), yf, pos.getZ() + 1, pos.getX(), ylm, pos.getZ() + 1,
 				0, 1 - (yll - yf), 0, 1, 1, 1, 1, 1 - (ylm - yf),
-				Direction.WEST, light
+				Direction.WEST, pos, world
 		);
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX(), ylm, pos.getZ() + 1, pos.getX(), yf, pos.getZ() + 1,
 				pos.getX() + 1, yf, pos.getZ() + 1, pos.getX() + 1, ymm, pos.getZ() + 1,
 				0, 1 - (ylm - yf), 0, 1, 1, 1, 1, 1 - (ymm - yf),
-				Direction.SOUTH, light
+				Direction.SOUTH, pos, world
 		);
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX() + 1, ymm, pos.getZ() + 1, pos.getX() + 1, yf, pos.getZ() + 1,
 				pos.getX() + 1, yf, pos.getZ(), pos.getX() + 1, yml, pos.getZ(),
 				0, 1 - (ymm - yf), 0, 1, 1, 1, 1, 1 - (yml - yf),
-				Direction.EAST, light
+				Direction.EAST, pos, world
 		);
-		IGui.drawTexture(
+		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
 				pos.getX() + 1, yml, pos.getZ(), pos.getX() + 1, yf, pos.getZ(),
 				pos.getX(), yf, pos.getZ(), pos.getX(), yll, pos.getZ(),
 				0, 1 - (yml - yf), 0, 1, 1, 1, 1, 1 - (yll - yf),
-				Direction.NORTH, light
-		);
-	}
-
-	private void drawTextureAutoDir(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, int color, World world) {
-		Direction facing;
-		final BlockPos pos = new BlockPos((x1 + x2 + x3 + x4) / 4, (y1 + y2 + y3 + y4) / 4, (z1 + z2 + z3 + z4) / 4);
-		if (!world.getBlockState(pos).isAir()) return;
-		final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-		if (x1 == x2 && x2 == x3 && x3 == x4) {
-			facing = z1 > z2 ? Direction.EAST : Direction.WEST;
-		} else if (z1 == z2 && z2 == z3 && z3 == z4) {
-			facing = x1 > x2 ? Direction.NORTH : Direction.SOUTH;
-		} else {
-			facing = Direction.UP;
-		}
-		IGui.drawTexture(matrices, vertexConsumers, texture,
-				Math.round(x1), y1, Math.round(z1),
-				Math.round(x2), y2, Math.round(z2),
-				Math.round(x3), y3, Math.round(z3),
-				Math.round(x4), y4, Math.round(z4),
-				u1, v1, u2, v2,
-				facing, color, light
+				Direction.NORTH, pos, world
 		);
 	}
 
