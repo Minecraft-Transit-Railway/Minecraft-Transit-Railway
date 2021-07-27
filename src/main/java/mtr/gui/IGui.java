@@ -295,38 +295,23 @@ public interface IGui {
 		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(newLight).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
-	BlockModelRenderer blockModelRenderer = new BlockModelRenderer(null);
-	BlockModelRenderer.AmbientOcclusionCalculator aoCalculator = blockModelRenderer.new AmbientOcclusionCalculator();
-
 	static void drawBlockFace(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4,
 							  Direction facing, BlockPos pos, World world) {
 		final int light = WorldRenderer.getLightmapCoordinates(world, pos.offset(facing));
-		final float br = world.getBrightness(facing, true);
+		final float brightness = world.getBrightness(facing, true);
 		final Vec3i vec3i = facing.getVector();
 		final Matrix4f matrix4f = matrices.peek().getModel();
 		final Matrix3f matrix3f = matrices.peek().getNormal();
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier(texture)));
 
-		final BlockState bs = world.getBlockState(pos);
-		BitSet flags = new BitSet(3);
-		float[] box = new float[Direction.values().length * 2];
-		int[] vertexData = new int[] {
-				Float.floatToIntBits(x1), Float.floatToIntBits(y1), Float.floatToIntBits(z1), 0, 0, 0, 0, 0,
-				Float.floatToIntBits(x2), Float.floatToIntBits(y2), Float.floatToIntBits(z2), 0, 0, 0, 0, 0,
-				Float.floatToIntBits(x3), Float.floatToIntBits(y3), Float.floatToIntBits(z3), 0, 0, 0, 0, 0,
-				Float.floatToIntBits(x4), Float.floatToIntBits(y4), Float.floatToIntBits(z4), 0, 0, 0, 0, 0,
-		};
-		blockModelRenderer.getQuadDimensions(world, bs, pos.offset(facing), vertexData, facing, box, flags);
-		aoCalculator.apply(world, bs, pos.offset(facing), facing, box, flags, true);
-
-		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(aoCalculator.brightness[0], aoCalculator.brightness[0], aoCalculator.brightness[0], 1.0F)
-				.texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(aoCalculator.light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(aoCalculator.brightness[1], aoCalculator.brightness[1], aoCalculator.brightness[1], 1.0F)
-				.texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(aoCalculator.light[1]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(aoCalculator.brightness[2], aoCalculator.brightness[2], aoCalculator.brightness[2], 1.0F)
-				.texture(u3, v3).overlay(OverlayTexture.DEFAULT_UV).light(aoCalculator.light[2]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(aoCalculator.brightness[3], aoCalculator.brightness[3], aoCalculator.brightness[3], 1.0F)
-				.texture(u4, v4).overlay(OverlayTexture.DEFAULT_UV).light(aoCalculator.light[3]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(brightness, brightness, brightness, 1.0F)
+				.texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(brightness, brightness, brightness, 1.0F)
+				.texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(brightness, brightness, brightness, 1.0F)
+				.texture(u3, v3).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(brightness, brightness, brightness, 1.0F)
+				.texture(u4, v4).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 	}
 
 	@FunctionalInterface
