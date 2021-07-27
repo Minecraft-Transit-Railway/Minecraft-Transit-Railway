@@ -110,50 +110,54 @@ public class RenderRail extends BlockEntityRenderer<BlockRail.TileEntityRail> im
 		//final int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
 		final int light = WorldRenderer.getLightmapCoordinates(world, pos);
 		float yf = pos.getY();
+
+		matrices.push();
 		final float dY = 0.0625F + SMALL_OFFSET;
-		yll -= dY; ylm -= dY; ymm -= dY; yml -= dY; yf -= dY;
+		matrices.translate(pos.getX(), pos.getY() - dY, pos.getZ());
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX(), yll, pos.getZ(), pos.getX(), ylm, pos.getZ() + 1,
-				pos.getX() + 1, ymm, pos.getZ() + 1, pos.getX() + 1, yml, pos.getZ(),
+				0, yll - yf, 0, 0, ylm - yf, 1,
+				1, ymm - yf, 1, 1, yml - yf, 0,
 				0, 0, 0, 1, 1, 1, 1, 0,
 				Direction.UP, pos, world
 		);
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX(), yf, pos.getZ(), pos.getX() + 1, yf, pos.getZ(),
-				pos.getX() + 1, yf, pos.getZ() + 1, pos.getX(), yf, pos.getZ() + 1,
+				0, 0, 0, 1, 0, 0,
+				1, 0, 1, 0, 0, 1,
 				0, 0, 0, 1, 1, 1, 1, 0,
 				Direction.DOWN, pos, world
 		);
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX(), yll, pos.getZ(), pos.getX(), yf, pos.getZ(),
-				pos.getX(), yf, pos.getZ() + 1, pos.getX(), ylm, pos.getZ() + 1,
+				0, yll - yf, 0, 0, 0, 0,
+				0, 0, 1, 0, ylm - yf, 1,
 				0, 1 - (yll - yf), 0, 1, 1, 1, 1, 1 - (ylm - yf),
 				Direction.WEST, pos, world
 		);
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX(), ylm, pos.getZ() + 1, pos.getX(), yf, pos.getZ() + 1,
-				pos.getX() + 1, yf, pos.getZ() + 1, pos.getX() + 1, ymm, pos.getZ() + 1,
+				0, ylm - yf, 1, 0, 0, 1,
+				1, 0, 1, 1, ymm - yf, 1,
 				0, 1 - (ylm - yf), 0, 1, 1, 1, 1, 1 - (ymm - yf),
 				Direction.SOUTH, pos, world
 		);
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX() + 1, ymm, pos.getZ() + 1, pos.getX() + 1, yf, pos.getZ() + 1,
-				pos.getX() + 1, yf, pos.getZ(), pos.getX() + 1, yml, pos.getZ(),
+				1, ymm - yf, 1, 1, 0, 1,
+				1, 0, 0, 1, yml - yf, 0,
 				0, 1 - (ymm - yf), 0, 1, 1, 1, 1, 1 - (yml - yf),
 				Direction.EAST, pos, world
 		);
 		IGui.drawBlockFace(
 				matrices, vertexConsumers, texture,
-				pos.getX() + 1, yml, pos.getZ(), pos.getX() + 1, yf, pos.getZ(),
-				pos.getX(), yf, pos.getZ(), pos.getX(), yll, pos.getZ(),
+				1, yml - yf, 0, 1, 0, 0,
+				0, 0, 0, 0, yll - yf, 0,
 				0, 1 - (yml - yf), 0, 1, 1, 1, 1, 1 - (yll - yf),
 				Direction.NORTH, pos, world
 		);
+
+		matrices.pop();
 	}
 
 	private int getAxisAlignment(Pos3f c1, Pos3f c2, Pos3f c3, Pos3f c4) {
