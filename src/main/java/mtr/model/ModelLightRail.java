@@ -146,7 +146,7 @@ public class ModelLightRail extends ModelTrainBase {
 		door_right_5 = new ModelMapper(modelPartData);
 		door_right_5.setPivot(0, 0, 0);
 		door_5.addChild(door_right_5);
-		door_right_5.setTextureOffset(205, 114).addCuboid(-20, -32, -16, 0, 32, 16, 0, false);
+		door_right_5.setTextureOffset(205, 115).addCuboid(-20, -32, -16, 0, 32, 16, 0, false);
 
 		door_handrails = new ModelMapper(modelPartData);
 		door_handrails.setPivot(0, 24, 0);
