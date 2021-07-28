@@ -245,16 +245,20 @@ public class RenderTrains implements IGui {
 				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
 				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
 				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
+				final float dY = 0.0625F + SMALL_OFFSET;
+				final float y1d = y1 - dY, y2d = y2 - dY;
 				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
-				if (!isEnd && (y1 != yf || y2 != yf)) {
-					// Straight slope
+				final float dV = Math.abs(t2 - t1);
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier("textures/block/gravel.png")));
+				if ((y1 != yf || y2 != yf) && !isEnd) {
+					// Straight slope, middle
 					if (alignment == 1) {
 						final int xmin = Math.min((int) bc1.x, (int) bc2.x);
 						final int zmin = Math.min((int) bc1.z, (int) bc3.z);
 						final float yl = bc1.z < bc3.z ? y1 : y2;
 						final float ym = bc1.z < bc3.z ? y2 : y1;
 						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
+							drawSlopeBlock(matrices, vertexConsumer, world,
 									new BlockPos(xmin + i, yf, zmin), yl, ym, ym, yl);
 						}
 					} else if (alignment == 2) {
@@ -263,16 +267,14 @@ public class RenderTrains implements IGui {
 						final float yl = bc1.x < bc3.x ? y1 : y2;
 						final float ym = bc1.x < bc3.x ? y2 : y1;
 						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
+							drawSlopeBlock(matrices, vertexConsumer, world,
 									new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
 						}
 					}
-				} else if (!isEnd && (y1 == yf && y2 == yf)) {
+				} else if (y1 == yf && y2 == yf) {
 					// Flat rail parts
-					final float dV = Math.abs(t2 - t1);
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier("textures/block/gravel.png")));
-					IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1, bc1.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc3.x, y2, bc3.z, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
-					IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, bc3.x, y2, bc3.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc1.x, y1, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
+					IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z, bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
+					IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, bc3.x, y2d, bc3.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z, bc1.x, y1d, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
 				}
 			});
 		}));
@@ -395,7 +397,7 @@ public class RenderTrains implements IGui {
 	}
 
 
-	private static void drawSlopeBlock(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, World world, BlockPos pos, float yll, float ylm, float ymm, float yml) {
+	private static void drawSlopeBlock(MatrixStack matrices, VertexConsumer vertexConsumer, World world, BlockPos pos, float yll, float ylm, float ymm, float yml) {
 		if (!world.getBlockState(pos).isAir()) return;
 		float yf = pos.getY();
 
@@ -403,42 +405,42 @@ public class RenderTrains implements IGui {
 		final float dY = 0.0625F + SMALL_OFFSET;
 		matrices.translate(pos.getX(), pos.getY() - dY, pos.getZ());
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				0, yll - yf, 0, 0, ylm - yf, 1,
 				1, ymm - yf, 1, 1, yml - yf, 0,
 				0, 0, 0, 1, 1, 1, 1, 0,
 				Direction.UP, pos, world
 		);
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				0, 0, 0, 1, 0, 0,
 				1, 0, 1, 0, 0, 1,
 				0, 0, 0, 1, 1, 1, 1, 0,
 				Direction.DOWN, pos, world
 		);
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				0, yll - yf, 0, 0, 0, 0,
 				0, 0, 1, 0, ylm - yf, 1,
 				0, 1 - (yll - yf), 0, 1, 1, 1, 1, 1 - (ylm - yf),
 				Direction.WEST, pos, world
 		);
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				0, ylm - yf, 1, 0, 0, 1,
 				1, 0, 1, 1, ymm - yf, 1,
 				0, 1 - (ylm - yf), 0, 1, 1, 1, 1, 1 - (ymm - yf),
 				Direction.SOUTH, pos, world
 		);
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				1, ymm - yf, 1, 1, 0, 1,
 				1, 0, 0, 1, yml - yf, 0,
 				0, 1 - (ymm - yf), 0, 1, 1, 1, 1, 1 - (yml - yf),
 				Direction.EAST, pos, world
 		);
 		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
+				matrices, vertexConsumer,
 				1, yml - yf, 0, 1, 0, 0,
 				0, 0, 0, 0, yll - yf, 0,
 				0, 1 - (yml - yf), 0, 1, 1, 1, 1, 1 - (yll - yf),
