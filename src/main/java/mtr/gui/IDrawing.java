@@ -3,23 +3,24 @@ package mtr.gui;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
+import mtr.render.MoreRenderLayers;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.BlockModelRenderer;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public interface IDrawing {
@@ -158,6 +159,71 @@ public interface IDrawing {
 		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u2, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
 		vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+	}
+
+	BlockModelRenderer blockModelRenderer = new BlockModelRenderer(null);
+	BlockModelRenderer.AmbientOcclusionCalculator aoCalculator = blockModelRenderer.new AmbientOcclusionCalculator();
+
+	static void drawBlockFace(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4,
+							  Direction facing, BlockPos pos, World world) {
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier(texture)));
+
+		final BlockState bs = world.getBlockState(pos);
+		final float yMax = Math.max(Math.max(y1, y2), Math.max(y3, y4));
+		BlockPos lightRefPos;
+		if (facing.getAxis() != Direction.Axis.Y) {
+			lightRefPos = pos.offset(facing);
+			// Sometimes on very steep slopes, a segment can cover multiple blocks horizontally.
+			// This is to check an upper part when lower part is blocked, to prevent black faces from being shown.
+			// Because such a steep slope is rarely used, I consider it unnecessary to divide it into multiple faces.
+			while (!world.getBlockState(lightRefPos).isAir()) {
+				if (lightRefPos.getY() <= pos.getY() + yMax) {
+					lightRefPos = lightRefPos.up();
+				} else {
+					break;
+				}
+			}
+
+			// Update the positions to reject the invisible parts, making the lighting area correct.
+			final float yRefOffset = lightRefPos.getY() - pos.getY();
+			if (yRefOffset > 0) {
+				// This assumes y2 and y3 is at the bottom.
+				y2 = Math.min(y2, yRefOffset);
+				y3 = Math.min(y3, yRefOffset);
+			}
+		} else {
+			lightRefPos = pos;
+		}
+
+		int[] vertexData = new int[] {
+				Float.floatToIntBits(x1), Float.floatToIntBits(y1), Float.floatToIntBits(z1), 0, Float.floatToIntBits(u1), Float.floatToIntBits(v1), 0, 0,
+				Float.floatToIntBits(x2), Float.floatToIntBits(y2), Float.floatToIntBits(z2), 0, Float.floatToIntBits(u2), Float.floatToIntBits(v2), 0, 0,
+				Float.floatToIntBits(x3), Float.floatToIntBits(y3), Float.floatToIntBits(z3), 0, Float.floatToIntBits(u3), Float.floatToIntBits(v3), 0, 0,
+				Float.floatToIntBits(x4), Float.floatToIntBits(y4), Float.floatToIntBits(z4), 0, Float.floatToIntBits(u4), Float.floatToIntBits(v4), 0, 0,
+		};
+		BakedQuad quad = new BakedQuad(vertexData, 0, facing, null, true);
+
+		if (MinecraftClient.isAmbientOcclusionEnabled() && (facing.getAxis() != Direction.Axis.Y)) {
+			BitSet flags = new BitSet(3);
+			float[] box = new float[Direction.values().length * 2];
+			blockModelRenderer.getQuadDimensions(world, bs, lightRefPos.offset(facing.getOpposite()), vertexData, facing, box, flags);
+			aoCalculator.apply(world, bs, lightRefPos.offset(facing.getOpposite()), facing, box, flags, true);
+			vertexConsumer.quad(matrices.peek(), quad,
+					new float[]{aoCalculator.brightness[0], aoCalculator.brightness[1], aoCalculator.brightness[2], aoCalculator.brightness[3]},
+					1.0F, 1.0F, 1.0F,
+					new int[]{aoCalculator.light[0], aoCalculator.light[1], aoCalculator.light[2], aoCalculator.light[3]},
+					0, false
+			);
+		} else {
+			final int light = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
+			final float brightness = world.getBrightness(facing, true);
+			vertexConsumer.quad(matrices.peek(), quad,
+					new float[]{brightness, brightness, brightness, brightness},
+					1.0F, 1.0F, 1.0F,
+					new int[]{light, light, light, light},
+					0, false
+			);
+		}
 	}
 
 	static void setPositionAndWidth(ClickableWidget widget, int x, int y, int widgetWidth) {
