@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "0.8-SNAPSHOT"
+    id "fabric-loom" version "0.9-SNAPSHOT"
     id "maven-publish"
 }
 
@@ -10,8 +10,8 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-minecraft {
-    accessWidener = file("src/main/resources/mtr.accesswidener")
+loom {
+    accessWidenerPath = file("src/main/resources/mtr.accesswidener")
 }
 
 dependencies {

@@ -202,6 +202,8 @@ public class RenderTrains implements IGui {
 			}
 
 			rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
+				final int yf = (int)Math.floor(Math.min(y1, y2));
+
 				final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
 				final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
 				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
@@ -211,32 +213,41 @@ public class RenderTrains implements IGui {
 					return;
 				}
 
-				final BlockPos pos2 = new BlockPos(rc1.x, y1, rc1.z);
-				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+				BlockPos lightRefPos = new BlockPos(rc1.x, yf, rc1.z);
+				// Prevent rail from appearing black in slopes. Might need more investigation for better code.
+				while (!world.getBlockState(lightRefPos).isAir()) {
+					if (lightRefPos.getY() <= yf + 2) {
+						lightRefPos = lightRefPos.up();
+					} else {
+						break;
+					}
+				}
+
+				final int lightRail = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
 
 				if (rail.railType == RailType.NONE) {
 					if (renderColors) {
 						final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
+						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
 					}
 				} else {
 					final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
 					final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
 
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
-					IDrawing.drawTexture(matrices, vertexConsumer, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-					IDrawing.drawTexture(matrices, vertexConsumer, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+					IDrawing.drawTexture(matrices, vertexConsumer, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRail);
+					IDrawing.drawTexture(matrices, vertexConsumer, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRail);
 				}
 
 				// Render ballast
-				final int yf = (int)Math.floor(Math.min(y1, y2));
+				final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
+				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
+				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
+				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
+				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
 				if (!isEnd && (y1 != yf || y2 != yf)) {
-					final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
-					final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
-					final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
-					final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
-					int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
+					// Straight slope
 					if (alignment == 1) {
 						final int xmin = Math.min((int) bc1.x, (int) bc2.x);
 						final int zmin = Math.min((int) bc1.z, (int) bc3.z);
@@ -256,6 +267,12 @@ public class RenderTrains implements IGui {
 									new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
 						}
 					}
+				} else if (!isEnd && (y1 == yf && y2 == yf)) {
+					// Flat rail parts
+					final float dV = Math.abs(t2 - t1);
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier("textures/block/gravel.png")));
+					IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1, bc1.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc3.x, y2, bc3.z, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
+					IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, bc3.x, y2, bc3.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc1.x, y1, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
 				}
 			});
 		}));
