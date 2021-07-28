@@ -5,6 +5,8 @@ import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 
+import static net.minecraft.client.render.VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL;
+
 public class MoreRenderLayers extends RenderPhase {
 
 	public MoreRenderLayers(String name, Runnable beginAction, Runnable endAction) {
@@ -34,6 +36,11 @@ public class MoreRenderLayers extends RenderPhase {
 	public static RenderLayer getExteriorTranslucent(Identifier texture) {
 		final RenderLayer.MultiPhaseParameters multiPhaseParameters = getParameters(texture).transparency(TRANSLUCENT_TRANSPARENCY).diffuseLighting(ENABLE_DIFFUSE_LIGHTING).alpha(ONE_TENTH_ALPHA).lightmap(ENABLE_LIGHTMAP).overlay(ENABLE_OVERLAY_COLOR).build(true);
 		return RenderLayer.of("train_exterior_translucent", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, 7, 256, true, true, multiPhaseParameters);
+	}
+
+	public static RenderLayer getSolid(Identifier texture) {
+		final RenderLayer.MultiPhaseParameters multiPhaseParameters = getParameters(texture).shadeModel(SMOOTH_SHADE_MODEL).lightmap(ENABLE_LIGHTMAP).build(true);
+		return RenderLayer.of("solid", POSITION_COLOR_TEXTURE_LIGHT_NORMAL, 7, 256, true, false, multiPhaseParameters);
 	}
 
 	private static RenderLayer.MultiPhaseParameters.Builder getParameters(Identifier texture) {
