@@ -44,11 +44,11 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float multiplier, boolean appendDotAfterMin) {
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
-		scale = (160 * maxArrivals / maxHeight) * multiplier;
+		scale = 160 * maxArrivals / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
-		destinationStart = renderArrivalNumber ? scale * 2 / 16 * multiplier : 0;
+		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.6F;
 		platformMaxWidth = showAllPlatforms ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
@@ -65,14 +65,8 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		this.appendDotAfterMin = appendDotAfterMin;
 	}
 
-
-
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor) {
 		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, textColor, firstTrainColor, 1, false);
-	}
-
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float multiplier) {
-		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, textColor, firstTrainColor, multiplier, false);
 	}
 
 	@Override
@@ -87,7 +81,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			return;
 		}
 
-			try {
+		try {
 			final Set<Route.ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
@@ -138,12 +132,12 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
 				final Text arrivalText;
-				final int seconds = (int) Math.ceil(currentSchedule.arrivalMillis / 1000);
+				final int seconds = (int) Math.floor(currentSchedule.arrivalMillis / 1000);
 				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 				if (seconds >= 60) {
-					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin ? !isCJK ? "." : "" : "");
+					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 				} else {
-					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin ? !isCJK ? "." : "" : "") : null;
+					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 				}
 
 				matrices.push();
