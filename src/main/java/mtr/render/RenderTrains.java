@@ -164,26 +164,43 @@ public class RenderTrains implements IGui {
 					final List<String> messages = new ArrayList<>();
 					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
 					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
+					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 					if (nextStation != null) {
 						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
 
 						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
 						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
+							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
 							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
 							if (!mergedStations.isEmpty()) {
 								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
 							}
 						}
+
+						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
+							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							if (nextFinalStation != null) {
+								final List<String> nextRouteMessage = new ArrayList<>();
+								nextRouteMessage.add(IGui.addToStationName(nextRouteSplit, new TranslatableText("gui.mtr.next_route_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_route_announcement").getString(), "", ""));
+								nextRouteMessage.add(IGui.addToStationName(nextFinalStation.name.split("\\|\\|")[0], new TranslatableText("gui.mtr.next_final_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_final_station_announcement").getString(), "", ""));
+								messages.add(IGui.addToStationName(IGui.mergeStations(nextRouteMessage), "", "", fullstopCJK, fullstop));
+							}
+						}
 					}
 
 					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-					if (useTTSAnnouncements) {
-						Narrator.getNarrator().say(message, false);
-					}
-					if (showAnnouncementMessages) {
-						player.sendMessage(Text.of(message), false);
+					if (!message.isEmpty()) {
+						if (useTTSAnnouncements) {
+							Narrator.getNarrator().say(message, false);
+						}
+						if (showAnnouncementMessages) {
+							player.sendMessage(Text.of(message), false);
+						}
 					}
 				});
 			}
