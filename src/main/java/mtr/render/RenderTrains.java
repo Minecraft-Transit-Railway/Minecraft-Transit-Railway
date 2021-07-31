@@ -57,6 +57,7 @@ public class RenderTrains implements IGui {
 	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
 	private static final ModelATrainMini MODEL_A_TRAIN_AEL_MINI = new ModelATrainMini(true);
+	private static final ModelR179Alpha5 MODEL_R179_ALPHA_5 = new ModelR179Alpha5();
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1 = new ModelLightRail(1);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_3 = new ModelLightRail(3);
@@ -129,10 +130,8 @@ public class RenderTrains implements IGui {
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			final Identifier roofTextureId = new Identifier(getConnectorTextureString(trainType.id, "roof"));
-			final Identifier floorTextureId = new Identifier(getConnectorTextureString(trainType.id, "floor"));
-			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(roofTextureId) : MoreRenderLayers.getExterior(roofTextureId)), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(floorTextureId) : MoreRenderLayers.getExterior(floorTextureId)), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -166,43 +165,26 @@ public class RenderTrains implements IGui {
 					final List<String> messages = new ArrayList<>();
 					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
 					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
-					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
-					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 					if (nextStation != null) {
 						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
 
 						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
 						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
-								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
-								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
-							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
 							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
 							if (!mergedStations.isEmpty()) {
 								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
 							}
 						}
-
-						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
-							if (nextFinalStation != null) {
-								final List<String> nextRouteMessage = new ArrayList<>();
-								nextRouteMessage.add(IGui.addToStationName(nextRouteSplit, new TranslatableText("gui.mtr.next_route_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_route_announcement").getString(), "", ""));
-								nextRouteMessage.add(IGui.addToStationName(nextFinalStation.name.split("\\|\\|")[0], new TranslatableText("gui.mtr.next_final_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_final_station_announcement").getString(), "", ""));
-								messages.add(IGui.addToStationName(IGui.mergeStations(nextRouteMessage), "", "", fullstopCJK, fullstop));
-							}
-						}
 					}
 
 					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-					if (!message.isEmpty()) {
-						if (useTTSAnnouncements) {
-							Narrator.getNarrator().say(message, false);
-						}
-						if (showAnnouncementMessages) {
-							player.sendMessage(Text.of(message), false);
-						}
+					if (useTTSAnnouncements) {
+						Narrator.getNarrator().say(message, false);
+					}
+					if (showAnnouncementMessages) {
+						player.sendMessage(Text.of(message), false);
 					}
 				});
 			}
@@ -350,6 +332,8 @@ public class RenderTrains implements IGui {
 				return MODEL_A_TRAIN_AEL;
 			case A_TRAIN_AEL_MINI:
 				return MODEL_A_TRAIN_AEL_MINI;
+			case R179_TRAIN_ALPHA_5:
+				return MODEL_R179_ALPHA_5;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			case LIGHT_RAIL_1R:
