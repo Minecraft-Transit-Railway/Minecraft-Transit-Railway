@@ -65,6 +65,8 @@
 	"gui.mtr.add_value": "增值",
 	"gui.mtr.already_entered": "车站已进入",
 	"gui.mtr.already_exited": "没有入闸记录",
+	"gui.mtr.arrival_car": "%s-car",
+	"gui.mtr.arrival_car_cjk": "%s 卡",
 	"gui.mtr.arrival_min": "%s min",
 	"gui.mtr.arrival_min_cjk": "%s 分钟",
 	"gui.mtr.arrival_sec": "%s sec",

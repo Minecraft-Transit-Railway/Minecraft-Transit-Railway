@@ -65,6 +65,8 @@
 	"gui.mtr.add_value": "Add Value",
 	"gui.mtr.already_entered": "Station already entered",
 	"gui.mtr.already_exited": "No entry record found",
+	"gui.mtr.arrival_car": "%s-car",
+	"gui.mtr.arrival_car_cjk": "%s 卡",
 	"gui.mtr.arrival_min": "%s min",
 	"gui.mtr.arrival_min_cjk": "%s 分鐘",
 	"gui.mtr.arrival_sec": "%s sec",

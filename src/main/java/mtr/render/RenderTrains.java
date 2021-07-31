@@ -206,12 +206,14 @@ public class RenderTrains implements IGui {
 					}
 				});
 			}
-		}, (platformId, arrivalMillis, departureMillis, trainType, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+		}, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (lastStation != null) {
 				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
 					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
 				}
-				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
+				final String lightRailRouteNumber = thisRoute != null && thisRoute.isLightRailRoute ? thisRoute.lightRailRouteNumber : "";
+				final String destination = (lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ") + lastStation.name;
+				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destination, nextStation == null));
 			}
 		})));
 

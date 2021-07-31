@@ -650,7 +650,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				}
 
 				if (world.isClient() && depot != null && writeScheduleCallback != null) {
-					writeArrivalTimes(writeScheduleCallback, depot.routeIds, trainTypeMapping, trainSpacing);
+					writeArrivalTimes(writeScheduleCallback, depot.routeIds, trainTypeMapping, trainLength, trainSpacing);
 				}
 			} catch (Exception ignored) {
 			}
@@ -950,20 +950,20 @@ public class Siding extends SavedRailBase implements IPacket {
 			return hasPlatform;
 		}
 
-		private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainSpacing) {
+		private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainLength, int trainSpacing) {
 			final int index = getIndex(0, trainSpacing, true);
-			final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
+			final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
 
 			float currentTicks = firstTimeAndSpeed.getLeft();
 			float currentSpeed = firstTimeAndSpeed.getRight();
 			for (int i = index + 1; i < path.size(); i++) {
-				final Pair<Float, Float> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, i, 0, currentTicks, currentSpeed);
+				final Pair<Float, Float> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, i, 0, currentTicks, currentSpeed);
 				currentTicks += timeAndSpeed.getLeft();
 				currentSpeed = timeAndSpeed.getRight();
 			}
 		}
 
-		private Pair<Float, Float> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int index, float progress, float currentTicks, float currentSpeed) {
+		private Pair<Float, Float> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainLength, int index, float progress, float currentTicks, float currentSpeed) {
 			final PathData pathData = path.get(index);
 			final Pair<Float, Float> timeAndSpeed = calculateTicksAndSpeed(pathData.rail, progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
 
@@ -972,7 +972,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 				if (pathData.savedRailBaseId != 0) {
 					final float arrivalTicks = currentTicks + timeAndSpeed.getLeft();
-					writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalTicks * 50, (arrivalTicks + stopTicksRemaining) * 50, trainTypeMapping.trainType, pathData.stopIndex - 1, routeIds);
+					writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalTicks * 50, (arrivalTicks + stopTicksRemaining) * 50, trainTypeMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
 				}
 				return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
 			} else {
@@ -1046,7 +1046,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	@FunctionalInterface
 	public interface WriteScheduleCallback {
-		void writeScheduleCallback(long platformId, float arrivalMillis, float departureMillis, TrainType trainType, int stopIndex, List<Long> routeIds);
+		void writeScheduleCallback(long platformId, float arrivalMillis, float departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
 	}
 
 	@FunctionalInterface
