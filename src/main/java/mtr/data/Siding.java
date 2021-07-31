@@ -273,13 +273,21 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	public void simulateTrain(PlayerEntity clientPlayer, float ticksElapsed, List<Set<UUID>> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
+		if (depot == null) {
+			return;
+		}
+
 		int trainsAtDepot = 0;
 		boolean spawnTrain = true;
+		boolean dirty = false;
 
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<Train> trainsToRemove = new HashSet<>();
 		for (final Train train : trains) {
-			train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions == null ? null : trainPositions.get(0), renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
+			final boolean dirtyTrain = train.simulateTrain(world, clientPlayer, ticksElapsed, depot, trainTypeMapping, trainLength, trainPositions == null ? null : trainPositions.get(0), renderTrainCallback, renderConnectionCallback, speedCallback, announcementCallback, writeScheduleCallback);
+			if (dirtyTrain) {
+				dirty = true;
+			}
 
 			if (train.closeToDepot(trainTypeMapping.trainType.getSpacing() * trainLength)) {
 				spawnTrain = false;
@@ -310,18 +318,20 @@ public class Siding extends SavedRailBase implements IPacket {
 
 			trainsToRemove.forEach(trains::remove);
 
-			final PacketByteBuf packet = PacketByteBufs.create();
-			packet.writeLong(id);
-			packet.writeString(KEY_TRAINS);
-			packet.writeInt(trains.size());
-			trains.forEach(train -> {
-				packet.writeLong(train.id);
-				train.writeMainPacket(packet);
-				packet.writeFloat(0);
-				packet.writeFloat(0);
-			});
-			if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-				world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+			if (spawnTrain || !trainsToRemove.isEmpty() || dirty) {
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeLong(id);
+				packet.writeString(KEY_TRAINS);
+				packet.writeInt(trains.size());
+				trains.forEach(train -> {
+					packet.writeLong(train.id);
+					train.writeMainPacket(packet);
+					packet.writeFloat(0);
+					packet.writeFloat(0);
+				});
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+				}
 			}
 		}
 	}
@@ -478,7 +488,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				speed = packet.readFloat();
 
 				final float tempRailProgress = packet.readFloat();
-				if (Math.abs(railProgress - tempRailProgress) > Math.max(speed * 2, 0.5)) {
+				if (speed == 0) {
 					railProgress = tempRailProgress;
 				}
 
@@ -521,11 +531,13 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		private void simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<UUID> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
+		private boolean simulateTrain(World world, PlayerEntity clientPlayer, float ticksElapsed, Depot depot, CustomResources.TrainMapping trainTypeMapping, int trainLength, Set<UUID> trainPositions, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, WriteScheduleCallback writeScheduleCallback) {
 			if (world == null) {
-				return;
+				return false;
 			}
 
+			final int oldStoppingIndex = nextStoppingIndex;
+			final int oldPassengerCount = ridingEntities.size();
 			try {
 				final int trainSpacing = trainTypeMapping.trainType.getSpacing();
 				final float oldRailProgress = railProgress;
@@ -652,6 +664,8 @@ public class Siding extends SavedRailBase implements IPacket {
 				}
 			} catch (Exception ignored) {
 			}
+
+			return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 		}
 
 		private void startUp(World world, int trainLength, int trainSpacing) {

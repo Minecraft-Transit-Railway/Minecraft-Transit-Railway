@@ -38,13 +38,15 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 	private final boolean rotate90;
 	private final boolean renderArrivalNumber;
 	private final boolean showAllPlatforms;
+	private final int textColor;
+	private final int firstTrainColor;
+	private final boolean appendDotAfterMin;
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
-	private static final int TEXT_COLOR = 0xFF9900;
 
-	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms) {
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
-		scale = 160 * maxArrivals / maxHeight;
+		scale = 160 * maxArrivals / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.6F;
@@ -58,6 +60,13 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		this.rotate90 = rotate90;
 		this.renderArrivalNumber = renderArrivalNumber;
 		this.showAllPlatforms = showAllPlatforms;
+		this.textColor = textColor;
+		this.firstTrainColor = firstTrainColor;
+		this.appendDotAfterMin = appendDotAfterMin;
+	}
+
+	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor) {
+		this(dispatcher, maxArrivals, startX, startY, startZ, maxHeight, maxWidth, rotate90, renderArrivalNumber, showAllPlatforms, textColor, firstTrainColor, 1, false);
 	}
 
 	@Override
@@ -123,12 +132,12 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
 				final Text arrivalText;
-				final int seconds = (int) Math.ceil(currentSchedule.arrivalMillis / 1000);
+				final int seconds = (int) Math.floor(currentSchedule.arrivalMillis / 1000);
 				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 				if (seconds >= 60) {
-					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60);
+					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 				} else {
-					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds) : null;
+					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 				}
 
 				matrices.push();
@@ -141,13 +150,13 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
 				if (renderArrivalNumber) {
-					textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, TEXT_COLOR);
+					textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
 				}
 
 				if (showAllPlatforms) {
 					final String platformName = platformIdToName.get(currentSchedule.platformId);
 					if (platformName != null) {
-						textRenderer.draw(matrices, platformName, destinationStart + destinationMaxWidth, 0, TEXT_COLOR);
+						textRenderer.draw(matrices, platformName, destinationStart + destinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
 					}
 				}
 
@@ -157,7 +166,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				if (destinationWidth > destinationMaxWidth) {
 					matrices.scale(destinationMaxWidth / destinationWidth, 1, 1);
 				}
-				textRenderer.draw(matrices, destinationString, 0, 0, TEXT_COLOR);
+				textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 				matrices.pop();
 
 				if (arrivalText != null) {
@@ -169,7 +178,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					} else {
 						matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 					}
-					textRenderer.draw(matrices, arrivalText, 0, 0, TEXT_COLOR);
+					textRenderer.draw(matrices, arrivalText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 					matrices.pop();
 				}
 
