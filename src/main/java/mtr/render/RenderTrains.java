@@ -212,7 +212,21 @@ public class RenderTrains implements IGui {
 				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
 					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
 				}
-				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
+
+				final String destinationString;
+				if (thisRoute != null && thisRoute.isLightRailRoute) {
+					final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+					final String[] lastStationSplit = lastStation.name.split("\\|");
+					final StringBuilder destination = new StringBuilder();
+					for (final String lastStationSplitPart : lastStationSplit) {
+						destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+					}
+					destinationString = destination.length() > 0 ? destination.substring(1) : "";
+				} else {
+					destinationString = lastStation.name;
+				}
+
+				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
 			}
 		})));
 
