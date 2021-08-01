@@ -152,12 +152,6 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		try {
 			renderBackground(matrices);
 			renderTextFields(matrices, mouseX, mouseY, delta);
-
-			textFieldZone.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentLetter.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentNumber.render(matrices, mouseX, mouseY, delta);
-			textFieldExitDestination.render(matrices, mouseX, mouseY, delta);
-
 			drawVerticalLine(matrices, width / 2, EXIT_PANELS_START - SQUARE_SIZE, height, ARGB_WHITE_TRANSLUCENT);
 
 			exitParentList.render(matrices, textRenderer, mouseX, mouseY, delta);

@@ -85,8 +85,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	}
 
 	protected void renderTextFields(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		textFieldName.render(matrices, mouseX, mouseY, delta);
-		textFieldColor.render(matrices, mouseX, mouseY, delta);
 		drawCenteredText(matrices, textRenderer, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
 		drawCenteredText(matrices, textRenderer, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
 	}

@@ -51,7 +51,6 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 			renderBackground(matrices);
 			renderTextFields(matrices, mouseX, mouseY, delta);
 
-			textFieldLightRailRouteNumber.render(matrices, mouseX, mouseY, delta);
 			if (textFieldLightRailRouteNumber.visible) {
 				drawTextWithShadow(matrices, textRenderer, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
 			}
