@@ -1,15 +1,11 @@
 package mtr.gui;
 
 import mtr.data.*;
-import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderTrains;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.apache.commons.lang3.StringUtils;
@@ -17,22 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EditDepotScreen extends Screen implements IGui, IPacket {
+public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private boolean addingTrain;
 
-	private final Depot depot;
-	private final DashboardScreen dashboardScreen;
 	private final int sliderX;
 	private final int sliderWidthWithText;
 	private final int rightPanelsX;
 	private final Map<Long, Siding> sidingsInDepot;
-
-	private final Text depotNameText = new TranslatableText("gui.mtr.depot_name");
-	private final Text depotColorText = new TranslatableText("gui.mtr.depot_color");
-
-	private final TextFieldWidget textFieldName;
-	private final TextFieldWidget textFieldColor;
 
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final ButtonWidget buttonEditInstructions;
@@ -49,19 +37,14 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
-		super(new LiteralText(""));
-		this.depot = depot;
-		this.dashboardScreen = dashboardScreen;
+		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
+
 		sidingsInDepot = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id) : new HashMap<>();
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-
-		client = MinecraftClient.getInstance();
-		sliderX = client.textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
-		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + client.textRenderer.getWidth(getSliderString(0));
-		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + client.textRenderer.getWidth(getSliderString(1));
+		sliderX = textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
+		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + textRenderer.getWidth(getSliderString(0));
+		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + textRenderer.getWidth(getSliderString(1));
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			final int index = i;
@@ -81,47 +64,27 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 	@Override
 	protected void init() {
-		super.init();
-		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IDrawing.setPositionAndWidth(textFieldName, rightPanelsX + TEXT_FIELD_PADDING / 2, yStart, width / 4 * 3 - TEXT_FIELD_PADDING - rightPanelsX);
-		IDrawing.setPositionAndWidth(textFieldColor, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
-
-		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
-		textFieldName.setText(depot.name);
-		textFieldColor.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
-		textFieldColor.setText(DashboardScreen.colorIntToString(depot.color));
-		textFieldColor.setChangedListener(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
-			if (!newText.equals(text)) {
-				textFieldColor.setText(newText);
-			}
-		});
+		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
-		addNewList.y = SQUARE_SIZE * 2;
-		addNewList.height = height - SQUARE_SIZE * 5;
-		addNewList.width = PANEL_WIDTH;
-
-		trainList.y = SQUARE_SIZE * 2;
-		trainList.height = height - SQUARE_SIZE * 5;
-		trainList.width = PANEL_WIDTH;
+		addNewList.y = trainList.y = SQUARE_SIZE * 2;
+		addNewList.height = trainList.height = height - SQUARE_SIZE * 5;
+		addNewList.width = trainList.width = PANEL_WIDTH;
 
 		for (WidgetShorterSlider slider : sliders) {
 			addDrawableChild(slider);
 		}
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(depot.getFrequency(i));
+			sliders[i].setValue(data.getFrequency(i));
 		}
 
 		addNewList.init();
 		trainList.init();
 		setIsSelecting(false);
 
-		addDrawableChild(textFieldName);
-		addDrawableChild(textFieldColor);
 		addDrawableChild(buttonEditInstructions);
 		addDrawableChild(buttonGenerateRoute);
 		addDrawableChild(buttonDone);
@@ -129,15 +92,14 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 
 	@Override
 	public void tick() {
-		textFieldName.tick();
-		textFieldColor.tick();
+		super.tick();
 		addNewList.tick();
 		trainList.tick();
 
 		addNewList.setData(ClientData.routes, false, false, false, false, true, false);
-		trainList.setData(depot.routeIds.stream().map(ClientData.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
+		trainList.setData(data.routeIds.stream().map(ClientData.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
 
-		buttonGenerateRoute.active = depot.clientPathGenerationSuccessfulSegments >= 0;
+		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 	}
 
 	@Override
@@ -152,6 +114,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 			} else {
 				renderBackground(matrices);
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
+				renderTextFields(matrices, mouseX, mouseY, delta);
 
 				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
 				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
@@ -160,9 +123,6 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 					sliders[i].setHeight(lineHeight);
 				}
 				super.render(matrices, mouseX, mouseY, delta);
-
-				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3 + rightPanelsX / 2, TEXT_PADDING, ARGB_WHITE);
-				drawCenteredText(matrices, textRenderer, depotColorText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
 
 				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 
@@ -195,18 +155,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			client.setScreen(dashboardScreen);
-		}
-
-		depot.name = textFieldName.getText();
-		depot.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
-		depot.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
-	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return false;
+		data.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 
 	private void setIsSelecting(boolean isSelecting) {
@@ -224,22 +173,22 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		textFieldColor.visible = !addingTrain;
 	}
 
-	private void onAdded(NameColorDataBase data, int index) {
-		depot.routeIds.add(data.id);
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+	private void onAdded(NameColorDataBase listData, int index) {
+		data.routeIds.add(listData.id);
+		data.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 
 	private void onSort() {
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+		data.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 
-	private void onRemove(NameColorDataBase data, int index) {
-		depot.routeIds.remove(index);
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+	private void onRemove(NameColorDataBase listData, int index) {
+		data.routeIds.remove(index);
+		data.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 
 	private Text getSuccessfulSegmentsText() {
-		final int successfulSegments = depot.clientPathGenerationSuccessfulSegments;
+		final int successfulSegments = data.clientPathGenerationSuccessfulSegments;
 
 		if (successfulSegments < 0) {
 			return new TranslatableText("gui.mtr.generating_path");
@@ -248,10 +197,10 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		} else {
 			final List<String> stationNames = new ArrayList<>();
 			final List<String> routeNames = new ArrayList<>();
-			final String depotName = IGui.textOrUntitled(IGui.formatStationName(depot.name));
+			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RenderTrains.useRoutesAndStationsFromIndex(0, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RenderTrains.useRoutesAndStationsFromIndex(0, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -261,9 +210,9 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				return new TranslatableText("gui.mtr.path_not_found_between", routeNames.get(0), depotName, stationNames.get(0));
 			} else {
 				int sum = 0;
-				for (int i = 0; i < depot.routeIds.size(); i++) {
-					final Route thisRoute = ClientData.routeIdMap.get(depot.routeIds.get(i));
-					final Route nextRoute = i < depot.routeIds.size() - 1 ? ClientData.routeIdMap.get(depot.routeIds.get(i + 1)) : null;
+				for (int i = 0; i < data.routeIds.size(); i++) {
+					final Route thisRoute = ClientData.routeIdMap.get(data.routeIds.get(i));
+					final Route nextRoute = i < data.routeIds.size() - 1 ? ClientData.routeIdMap.get(data.routeIds.get(i + 1)) : null;
 					if (thisRoute != null) {
 						sum += thisRoute.platformIds.size();
 						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
@@ -275,7 +224,7 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableText("gui.mtr.path_found");
 				} else {
-					RenderTrains.useRoutesAndStationsFromIndex(successfulSegments - 2, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RenderTrains.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));

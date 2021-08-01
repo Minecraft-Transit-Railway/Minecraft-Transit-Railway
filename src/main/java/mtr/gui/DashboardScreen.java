@@ -189,7 +189,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.routes, false, false, true, false, false, true);
+						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
 					} else {
 						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
 							final Station station = ClientData.platformIdToStation.get(platform.id);
@@ -245,15 +245,23 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	}
 
 	private void onDrawArea(NameColorDataBase data, int index) {
-		if ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea == null) {
-			startEditingArea((AreaBase) data, false);
+		switch (selectedTab) {
+			case STATIONS:
+			case DEPOTS:
+				if (editingArea == null) {
+					startEditingArea((AreaBase) data, false);
+				}
+				break;
+			case ROUTES:
+				startEditingRoute((Route) data, false);
+				break;
 		}
 	}
 
 	private void onEdit(NameColorDataBase data, int index) {
-		switch (selectedTab) {
-			case STATIONS:
-				if (client != null) {
+		if (client != null) {
+			switch (selectedTab) {
+				case STATIONS:
 					if (editingArea == null) {
 						if (data instanceof Station) {
 							client.setScreen(new EditStationScreen((Station) data, this));
@@ -263,13 +271,11 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 							client.setScreen(new PlatformScreen((Platform) data, this));
 						}
 					}
-				}
-				break;
-			case ROUTES:
-				startEditingRoute((Route) data, false);
-				break;
-			case DEPOTS:
-				if (client != null) {
+					break;
+				case ROUTES:
+					client.setScreen(new EditRouteScreen((Route) data, this));
+					break;
+				case DEPOTS:
 					if (editingArea == null) {
 						if (data instanceof Depot) {
 							client.setScreen(new EditDepotScreen((Depot) data, this));
@@ -279,8 +285,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 							client.setScreen(new SidingScreen((Siding) data, this));
 						}
 					}
-				}
-				break;
+					break;
+			}
 		}
 	}
 
