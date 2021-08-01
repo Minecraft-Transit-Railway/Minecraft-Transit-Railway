@@ -111,7 +111,8 @@ public class ItemRailModifier extends Item {
 				return ActionResult.SUCCESS;
 			} else {
 				BlockState state = world.getBlockState(context.getBlockPos());
-				nbtCompound.putString(TAG_BALLAST_TEXTURE, Registry.BLOCK.getId(state.getBlock()).toString());
+				// FIXME: Disabled for benchmark
+				// nbtCompound.putString(TAG_BALLAST_TEXTURE, Registry.BLOCK.getId(state.getBlock()).toString());
 				return ActionResult.SUCCESS;
 			}
 		} else {

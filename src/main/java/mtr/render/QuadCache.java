@@ -153,11 +153,18 @@ public class QuadCache {
             cacheList.add(item);
         }
 
-        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, boolean performLightUpdate) {
+        private int lightUpdateIndex = 0;
+        private static final int updatesPerFrame = 2;
+
+        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world) {
             final VertexConsumer vc = vertexConsumers.getBuffer(isSolid ? MoreRenderLayers.getSolid(texture) : MoreRenderLayers.getExterior(texture));
-            for (QuadCacheItem item : cacheList) {
-                item.apply(vc, matrices, world, performLightUpdate);
+
+            // Caching light data - how much impact does it have?
+            for (int i = 0; i < cacheList.size(); i++) {
+                cacheList.get(i).apply(vc, matrices, world, i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame);
             }
+            lightUpdateIndex += updatesPerFrame;
+            if (lightUpdateIndex > cacheList.size()) lightUpdateIndex = 0;
         }
     }
 
@@ -176,22 +183,12 @@ public class QuadCache {
         return item;
     }
 
-    private long lastLightUpdate = 0;
-
     public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, RenderCallback callback) {
         if (cacheMap == null) {
             cacheMap = new HashMap<>();
             callback.renderCallback(this);
         }
-        // Caching light data - how much impact does it have?
-        boolean performLightUpdate = false;
-        final long updateMinInterval = 40;
-        if (world.getTimeOfDay() - lastLightUpdate > updateMinInterval || world.getTimeOfDay() < lastLightUpdate) {
-            lastLightUpdate = world.getTimeOfDay();
-            performLightUpdate = true;
-        }
-        boolean finalPerformLightUpdate = performLightUpdate;
-        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world, finalPerformLightUpdate));
+        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world));
     }
 
     @FunctionalInterface
