@@ -787,6 +787,7 @@ public class ModelLightRail extends ModelTrainBase {
 			case EXTERIOR:
 				switch (phase) {
 					case 1:
+					case 2:
 						renderOnce(head_exterior_1, matrices, vertices, light, position);
 						break;
 					case 3:
@@ -893,6 +894,7 @@ public class ModelLightRail extends ModelTrainBase {
 						return smoothEnds(-3, 3, -0.1F, 0.1F, value);
 					}
 				}
+			case 2:
 			case 3:
 			case 5:
 				return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
