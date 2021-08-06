@@ -8219,6 +8219,22 @@
 			}
 		]
 	},
+	"r179_alpha_7_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:r179_alpha_7/door_open",
+				"pitch": 1
+			}
+		]
+	},
+	"r179_alpha_7_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:r179_alpha_7/door_close",
+				"pitch": 1
+			}
+		]
+	},
 	"light_rail_1_door_open": {
 		"sounds": [
 			{
