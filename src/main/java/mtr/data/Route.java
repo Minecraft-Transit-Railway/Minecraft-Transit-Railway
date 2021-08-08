@@ -150,7 +150,8 @@ public final class Route extends NameColorDataBase implements IGui {
 			if (entity instanceof BlockRail.TileEntityRail) {
 				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
 					railwayData.addRail(entity.getPos(), blockPos, rail, false);
-					railwayData.addRail(blockPos, entity.getPos(), new Rail(blockPos, rail.facingEnd, entity.getPos(), rail.facingStart, rail.railType), false);
+					railwayData.addRail(blockPos, entity.getPos(), new Rail(blockPos, rail.facingEnd, entity.getPos(),
+							rail.facingStart, rail.railType, rail.ballastTexture), false);
 				});
 			}
 		});

@@ -9,6 +9,7 @@ import net.minecraft.util.math.MathHelper;
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
+	public final String ballastTexture;
 	public final Direction facingStart;
 	public final Direction facingEnd;
 	private final float h1, k1, r1, tStart1, tEnd1;
@@ -34,6 +35,7 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
+	private static final String KEY_BALLAST_TEXTURE = "ballast_texture";
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -42,10 +44,11 @@ public class Rail extends SerializedDataBase {
 	// x = h*T + k*r
 	// z = k*T + h*r
 
-	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType) {
+	public Rail(BlockPos posStart, Direction facingStart, BlockPos posEnd, Direction facingEnd, RailType railType, String ballastTexture) {
 		this.facingStart = facingStart;
 		this.facingEnd = facingEnd;
 		this.railType = railType;
+		this.ballastTexture = ballastTexture;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
 
@@ -216,6 +219,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = nbtCompound.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = RailType.valueOf(nbtCompound.getString(KEY_RAIL_TYPE));
+		ballastTexture = nbtCompound.getString(KEY_BALLAST_TEXTURE);
 
 		facingStart = getDirection(0, 0.1F);
 		final float length = getLength();
@@ -240,6 +244,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = RailType.valueOf(packet.readString(PACKET_STRING_READ_LENGTH));
+		ballastTexture = packet.readString(PACKET_STRING_READ_LENGTH);
 
 		facingStart = getDirection(0, 0.1F);
 		final float length = getLength();
@@ -266,6 +271,7 @@ public class Rail extends SerializedDataBase {
 		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
 		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
+		nbtCompound.putString(KEY_BALLAST_TEXTURE, ballastTexture);
 		return nbtCompound;
 	}
 
@@ -288,6 +294,7 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
 		packet.writeString(railType.toString());
+		packet.writeString(ballastTexture.toString());
 	}
 
 	public Pos3f getPosition(float rawValue) {

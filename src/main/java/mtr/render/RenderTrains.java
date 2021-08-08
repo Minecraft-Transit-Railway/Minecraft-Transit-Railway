@@ -8,6 +8,7 @@ import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
 import mtr.model.*;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -240,41 +241,47 @@ public class RenderTrains implements IGui {
 					IDrawing.drawTexture(matrices, vertexConsumer, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRail);
 				}
 
-				// Render ballast
-				final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
-				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
-				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
-				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
-				final float dY = 0.0625F + SMALL_OFFSET;
-				final float y1d = y1 - dY, y2d = y2 - dY;
-				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
-				final float dV = Math.abs(t2 - t1);
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier("textures/block/gravel.png")));
-				if ((y1 != yf || y2 != yf) && !isEnd) {
-					// Straight slope, middle
-					if (alignment == 1) {
-						final int xmin = Math.min((int) bc1.x, (int) bc2.x);
-						final int zmin = Math.min((int) bc1.z, (int) bc3.z);
-						final float yl = bc1.z < bc3.z ? y1 : y2;
-						final float ym = bc1.z < bc3.z ? y2 : y1;
-						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumer, world,
-									new BlockPos(xmin + i, yf, zmin), yl, ym, ym, yl);
+				if (!rail.ballastTexture.isEmpty()) {
+					// Render ballast
+					final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
+					final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
+					final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
+					final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
+					final float dY = 0.0625F + SMALL_OFFSET;
+					final float y1d = y1 - dY, y2d = y2 - dY;
+					int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
+					final float dV = Math.abs(t2 - t1);
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier(rail.ballastTexture)));
+					if ((y1 != yf || y2 != yf) && alignment != 0) {
+						// Straight slope, middle
+						final float xmin = Math.min(Math.min(bc1.x, bc2.x), bc3.x);
+						final float zmin = Math.min(Math.min(bc1.z, bc2.z), bc3.z);
+						final float xmax = Math.max(Math.max(bc1.x, bc2.x), bc3.x);
+						final float zmax = Math.max(Math.max(bc1.z, bc2.z), bc3.z);
+						final int xblock = (int) Math.floor(xmin);
+						final int zblock = (int) Math.floor(zmin);
+						final float dxmin = xmin - xblock, dxmax = xmax - xblock, dzmin = zmin - zblock, dzmax = zmax - zblock;
+						if (alignment == 1) {
+							final float yl = bc1.z < bc3.z ? y1 : y2;
+							final float ym = bc1.z < bc3.z ? y2 : y1;
+							for (int i = 0; i < 3; i++) {
+								drawSlopeBlock(matrices, vertexConsumer, world, new BlockPos(xblock + i, yf, zblock),
+										yl, ym, ym, yl, 0, dzmin, 1, dzmax, alignment, isEnd, i);
+							}
+						} else if (alignment == 2) {
+							final float yl = bc1.x < bc3.x ? y1 : y2;
+							final float ym = bc1.x < bc3.x ? y2 : y1;
+							for (int i = 0; i < 3; i++) {
+								drawSlopeBlock(matrices, vertexConsumer, world, new BlockPos(xblock, yf, zblock + i),
+										yl, yl, ym, ym, dxmin, 0, dxmax, 1, alignment, isEnd, i);
+							}
 						}
-					} else if (alignment == 2) {
-						final int zmin = Math.min((int) bc1.z, (int) bc2.z);
-						final int xmin = Math.min((int) bc1.x, (int) bc3.x);
-						final float yl = bc1.x < bc3.x ? y1 : y2;
-						final float ym = bc1.x < bc3.x ? y2 : y1;
-						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumer, world,
-									new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
-						}
+					} else {
+						IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z,
+								bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
+						IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, bc3.x, y2d, bc3.z,
+								bc2.x, y1d + SMALL_OFFSET / 3, bc2.z, bc1.x, y1d, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
 					}
-				} else if (y1 == yf && y2 == yf) {
-					// Flat rail parts
-					IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z, bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
-					IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, bc3.x, y2d, bc3.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z, bc1.x, y1d, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
 				}
 			});
 		}));
@@ -396,9 +403,12 @@ public class RenderTrains implements IGui {
 		}
 	}
 
+	// l: less, m: more, lm: the corner of a block where x is minimum and z is maximum (i.e. southwest)
 
-	private static void drawSlopeBlock(MatrixStack matrices, VertexConsumer vertexConsumer, World world, BlockPos pos, float yll, float ylm, float ymm, float yml) {
-		if (!world.getBlockState(pos).isAir()) return;
+	private static void drawSlopeBlock(MatrixStack matrices, VertexConsumer vertexConsumer, World world, BlockPos pos,
+	   	float yll, float ylm, float ymm, float yml, float dxl, float dzl, float dxm, float dzm, int alignment, boolean isEnd, int step) {
+		// final BlockState blockState = world.getBlockState(pos);
+		// if (!blockState.isAir() && !(blockState.getBlock() instanceof mtr.block.BlockRail)) return;
 		float yf = pos.getY();
 
 		matrices.push();
@@ -406,47 +416,56 @@ public class RenderTrains implements IGui {
 		matrices.translate(pos.getX(), pos.getY() - dY, pos.getZ());
 		IDrawing.drawBlockFace(
 				matrices, vertexConsumer,
-				0, yll - yf, 0, 0, ylm - yf, 1,
-				1, ymm - yf, 1, 1, yml - yf, 0,
-				0, 0, 0, 1, 1, 1, 1, 0,
+				dxl, yll - yf, dzl, dxl, ylm - yf, dzm,
+				dxm, ymm - yf, dzm, dxm, yml - yf, dzl,
+				dxl, dzl, dxl, dzm, dxm, dzm, dxm, dzl,
 				Direction.UP, pos, world
 		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumer,
-				0, 0, 0, 1, 0, 0,
-				1, 0, 1, 0, 0, 1,
-				0, 0, 0, 1, 1, 1, 1, 0,
-				Direction.DOWN, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumer,
-				0, yll - yf, 0, 0, 0, 0,
-				0, 0, 1, 0, ylm - yf, 1,
-				0, 1 - (yll - yf), 0, 1, 1, 1, 1, 1 - (ylm - yf),
-				Direction.WEST, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumer,
-				0, ylm - yf, 1, 0, 0, 1,
-				1, 0, 1, 1, ymm - yf, 1,
-				0, 1 - (ylm - yf), 0, 1, 1, 1, 1, 1 - (ymm - yf),
-				Direction.SOUTH, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumer,
-				1, ymm - yf, 1, 1, 0, 1,
-				1, 0, 0, 1, yml - yf, 0,
-				0, 1 - (ymm - yf), 0, 1, 1, 1, 1, 1 - (yml - yf),
-				Direction.EAST, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumer,
-				1, yml - yf, 0, 1, 0, 0,
-				0, 0, 0, 0, yll - yf, 0,
-				0, 1 - (yml - yf), 0, 1, 1, 1, 1, 1 - (yll - yf),
-				Direction.NORTH, pos, world
-		);
-
+		if (isEnd) {
+			IDrawing.drawBlockFace(
+					matrices, vertexConsumer,
+					dxl, 0, dzl, dxm, 0, dzl,
+					dxm, 0, dzm, dxl, 0, dzm,
+					dxl, dzl, dxm, dzl, dxm, dzm, dxl, dzm,
+					Direction.DOWN, pos, world
+			);
+		}
+		if ((alignment == 1 && step == 0) || isEnd) {
+			IDrawing.drawBlockFace(
+					matrices, vertexConsumer,
+					dxl, yll - yf, dzl, dxl, 0, dzl,
+					dxl, 0, dzm, dxl, ylm - yf, dzm,
+					dzl, 1 - (yll - yf), dzl, 1, dzm, 1, dzm, 1 - (ylm - yf),
+					Direction.WEST, pos, world
+			);
+		}
+		if ((alignment == 1 && step == 2) || isEnd) {
+			IDrawing.drawBlockFace(
+					matrices, vertexConsumer,
+					dxm, ymm - yf, dzm, dxm, 0, dzm,
+					dxm, 0, dzl, dxm, yml - yf, dzl,
+					dzm, 1 - (ymm - yf), dzm, 1, dzl, 1, dzl, 1 - (yml - yf),
+					Direction.EAST, pos, world
+			);
+		}
+		if ((alignment == 2 && step == 0) || isEnd) {
+			IDrawing.drawBlockFace(
+					matrices, vertexConsumer,
+					dxl, ylm - yf, dzm, dxl, 0, dzm,
+					dxm, 0, dzm, dxm, ymm - yf, dzm,
+					dxl, 1 - (ylm - yf), dxl, 1, dxm, 1, dxm, 1 - (ymm - yf),
+					Direction.SOUTH, pos, world
+			);
+		}
+		if ((alignment == 2 && step == 2) || isEnd) {
+			IDrawing.drawBlockFace(
+					matrices, vertexConsumer,
+					dxm, yml - yf, dzl, dxm, 0, dzl,
+					dxl, 0, dzl, dxl, yll - yf, dzl,
+					dxm, 1 - (yml - yf), dxm, 1, dxl, 1, dxl, 1 - (yll - yf),
+					Direction.NORTH, pos, world
+			);
+		}
 		matrices.pop();
 	}
 

@@ -8,12 +8,15 @@ import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -24,6 +27,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Random;
 
 public class ItemRailModifier extends Item {
 
@@ -32,6 +36,7 @@ public class ItemRailModifier extends Item {
 	private final RailType railType;
 
 	public static final String TAG_POS = "pos";
+	public static final String TAG_BALLAST_TEXTURE = "ballast_texture";
 
 	public ItemRailModifier() {
 		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
@@ -52,14 +57,16 @@ public class ItemRailModifier extends Item {
 		final World world = context.getWorld();
 		if (!world.isClient) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
+			if (railwayData == null) return ActionResult.FAIL;
+
 			final BlockPos posStart = context.getBlockPos();
 			final BlockState stateStart = world.getBlockState(posStart);
+			final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
 
-			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
-				final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
-
+			if (stateStart.getBlock() instanceof BlockRail) {
 				if (nbtCompound.contains(TAG_POS)) {
 					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
+					final String ballastTexture = nbtCompound.getString(TAG_BALLAST_TEXTURE);
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
 					if (stateEnd.getBlock() instanceof BlockRail) {
@@ -76,8 +83,8 @@ public class ItemRailModifier extends Item {
 										player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 									}
 								} else {
-									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
-									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
+									final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType, ballastTexture);
+									final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType, ballastTexture);
 									railwayData.addRail(posStart, posEnd, rail1, false);
 									final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
 									world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
@@ -102,7 +109,14 @@ public class ItemRailModifier extends Item {
 
 				return ActionResult.SUCCESS;
 			} else {
-				return ActionResult.FAIL;
+				// TODO: Cannot support dedicated server
+				BlockState state = world.getBlockState(context.getBlockPos());
+				List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state)
+						.getQuads(state, context.getSide(), new Random(0));
+				if (quads.size() == 0) return ActionResult.FAIL;
+				String texture = quads.get(0).sprite.getId().getPath();
+				nbtCompound.putString(TAG_BALLAST_TEXTURE, "textures/" + texture + ".png");
+				return ActionResult.SUCCESS;
 			}
 		} else {
 			return super.useOnBlock(context);
@@ -119,6 +133,11 @@ public class ItemRailModifier extends Item {
 		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));
+		}
+
+		final String ballastTexture = nbtCompound.getString(TAG_BALLAST_TEXTURE);
+		if (!ballastTexture.isBlank()) {
+			tooltip.add(new LiteralText(ballastTexture).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 	}
 
