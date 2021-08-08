@@ -319,21 +319,56 @@ public class Rail extends SerializedDataBase {
 		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, callback);
 	}
 
+	private double transitionLength = 2;
+	private double yTheta = -1;
+
 	private float getPositionY(float value) {
-		final float intercept = getLength() / 2;
-		final float yChange;
-		final float yInitial;
-		final float offsetValue;
-		if (value < intercept) {
-			yChange = (yEnd - yStart) / 2F;
-			yInitial = yStart;
-			offsetValue = value;
+		if (getLength() < 5) {
+			final float intercept = getLength() / 2;
+			final float yChange;
+			final float yInitial;
+			final float offsetValue;
+			if (value < intercept) {
+				yChange = (yEnd - yStart) / 2F;
+				yInitial = yStart;
+				offsetValue = value;
+			} else {
+				yChange = (yStart - yEnd) / 2F;
+				yInitial = yEnd;
+				offsetValue = getLength() - value;
+			}
+			return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 		} else {
-			yChange = (yStart - yEnd) / 2F;
-			yInitial = yEnd;
-			offsetValue = getLength() - value;
+			if (yTheta == -1) {
+				transitionLength = Math.min(Math.max(2, getLength() / 5), 6);
+				double deltaKMin = Double.MAX_VALUE;
+				for (double a = 0; a < Math.PI / 2; a += Math.PI / 180) {
+					double r = transitionLength / Math.sin(a);
+					double h = Math.abs(yStart - yEnd) - 2 * r * (1 - Math.cos(a));
+					double l = getLength() - 2 * r * Math.sin(a);
+					double deltaK = Math.abs(Math.tan(a) - h / l);
+					if (deltaK < deltaKMin) {
+						deltaKMin = deltaK;
+						yTheta = a;
+					}
+				}
+			}
+			double r = transitionLength / Math.sin(yTheta);
+			double h = Math.abs(yStart - yEnd) - 2 * r * (1 - Math.cos(yTheta));
+			double l = getLength() - 2 * r * Math.sin(yTheta);
+			double yLow = Math.min(yStart, yEnd);
+			double yHigh = Math.max(yStart, yEnd);
+			double valueLow = yStart < yEnd ? value : getLength() - value;
+			if (valueLow < transitionLength) {
+				double cosA = Math.sqrt(1 - Math.pow(valueLow / r, 2));
+				return (float) (r - r * cosA + yLow);
+			} else if (valueLow > getLength() - transitionLength) {
+				double cosA = Math.sqrt(1 - Math.pow((getLength() - valueLow) / r, 2));
+				return (float) (yHigh - r + r * cosA);
+			} else {
+				return (float) (yLow + r * (1 - Math.cos(yTheta)) + (valueLow - transitionLength) * (h / l));
+			}
 		}
-		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 	}
 
 	public static Pos3f getPositionXZ(float h, float k, float r, float t, float radiusOffset, boolean isStraight) {

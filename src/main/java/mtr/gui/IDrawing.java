@@ -167,7 +167,7 @@ public interface IDrawing {
 	static void drawBlockFace(MatrixStack matrices, VertexConsumer vertexConsumer,
 		  float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4,
 		  float u1, float v1, float u2, float v2, float u3, float v3, float u4, float v4,
-		  Direction facing, BlockPos pos, World world) {
+		  Direction facing, BlockPos pos, World world, int color) {
 
 		final BlockState bs = world.getBlockState(pos);
 		final float yMax = Math.max(Math.max(y1, y2), Math.max(y3, y4));
@@ -204,6 +204,10 @@ public interface IDrawing {
 		};
 		BakedQuad quad = new BakedQuad(vertexData, 0, facing, null, true);
 
+		final float r = ((color >> 16) & 0xFF) / 255F;
+		final float g = ((color >> 8) & 0xFF) / 255F;
+		final float b = (color & 0xFF) / 255F;
+
 		if (MinecraftClient.isAmbientOcclusionEnabled() && (facing.getAxis() != Direction.Axis.Y)) {
 			BitSet flags = new BitSet(3);
 			float[] box = new float[Direction.values().length * 2];
@@ -211,7 +215,7 @@ public interface IDrawing {
 			aoCalculator.apply(world, bs, lightRefPos.offset(facing.getOpposite()), facing, box, flags, true);
 			vertexConsumer.quad(matrices.peek(), quad,
 					new float[]{aoCalculator.brightness[0], aoCalculator.brightness[1], aoCalculator.brightness[2], aoCalculator.brightness[3]},
-					1.0F, 1.0F, 1.0F,
+					r, g, b,
 					new int[]{aoCalculator.light[0], aoCalculator.light[1], aoCalculator.light[2], aoCalculator.light[3]},
 					0, false
 			);
@@ -220,7 +224,7 @@ public interface IDrawing {
 			final float brightness = world.getBrightness(facing, true);
 			vertexConsumer.quad(matrices.peek(), quad,
 					new float[]{brightness, brightness, brightness, brightness},
-					1.0F, 1.0F, 1.0F,
+					r, g, b,
 					new int[]{light, light, light, light},
 					0, false
 			);

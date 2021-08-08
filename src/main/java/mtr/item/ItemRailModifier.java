@@ -24,6 +24,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -109,13 +110,8 @@ public class ItemRailModifier extends Item {
 
 				return ActionResult.SUCCESS;
 			} else {
-				// TODO: Cannot support dedicated server
 				BlockState state = world.getBlockState(context.getBlockPos());
-				List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state)
-						.getQuads(state, context.getSide(), new Random(0));
-				if (quads.size() == 0) return ActionResult.FAIL;
-				String texture = quads.get(0).sprite.getId().getPath();
-				nbtCompound.putString(TAG_BALLAST_TEXTURE, "textures/" + texture + ".png");
+				nbtCompound.putString(TAG_BALLAST_TEXTURE, Registry.BLOCK.getId(state.getBlock()).toString());
 				return ActionResult.SUCCESS;
 			}
 		} else {
