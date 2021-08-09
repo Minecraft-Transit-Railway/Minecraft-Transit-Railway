@@ -176,7 +176,7 @@ public interface IDrawing {
 			lightRefPos = pos.offset(facing);
 			// Sometimes on very steep slopes, a segment can cover multiple blocks horizontally.
 			// This is to check an upper part when lower part is blocked, to prevent black faces from being shown.
-			// Because such a steep slope is rarely used, I consider it unnecessary to divide it into multiple faces.
+			// Because such a steep slope is rarely used, it's not that necessary to divide it into multiple faces.
 			while (!world.getBlockState(lightRefPos).isAir()) {
 				if (lightRefPos.getY() <= pos.getY() + yMax) {
 					lightRefPos = lightRefPos.up();

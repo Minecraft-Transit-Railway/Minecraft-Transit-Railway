@@ -319,54 +319,73 @@ public class Rail extends SerializedDataBase {
 		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, callback);
 	}
 
-	private double transitionLength = 2;
-	private double yTheta = -1;
+	private static class pitchCurve {
+		public float a, r, k; // Pitch angle, Transition radius, Pitch slope
+		public float L, lC, lT; // Length, Constant part, Transition part
+		public float H, hC, hT; // Height, Constant part, Transition part
+	}
+	private pitchCurve pc = null;
 
 	private float getPositionY(float value) {
-		if (getLength() < 5) {
-			final float intercept = getLength() / 2;
-			final float yChange;
-			final float yInitial;
-			final float offsetValue;
-			if (value < intercept) {
-				yChange = (yEnd - yStart) / 2F;
-				yInitial = yStart;
-				offsetValue = value;
-			} else {
-				yChange = (yStart - yEnd) / 2F;
-				yInitial = yEnd;
-				offsetValue = getLength() - value;
-			}
-			return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
+		calculatePitchCurve();
+		if (pc.H == 0) {
+			return yStart;
+		}
+		final float yLow = Math.min(yStart, yEnd);
+		final float yHigh = Math.max(yStart, yEnd);
+		final float valueLow = yStart < yEnd ? value - 0.5F : pc.L - value + 0.5F;
+		if (valueLow < 0) {
+			return yLow;
+		} else if (valueLow > pc.L) {
+			return yHigh;
+		} else if (valueLow < pc.lT) {
+			final float cosA = (float)Math.sqrt(1 - Math.pow(valueLow / pc.r, 2));
+			return pc.r - pc.r * cosA + yLow;
+		} else if (valueLow >= pc.L - pc.lT) {
+			final float cosA = (float)Math.sqrt(1 - Math.pow((pc.L - valueLow) / pc.r, 2));
+			return yHigh - pc.r + pc.r * cosA;
 		} else {
-			if (yTheta == -1) {
-				transitionLength = Math.min(Math.max(2, getLength() / 5), 6);
-				double deltaKMin = Double.MAX_VALUE;
-				for (double a = 0; a < Math.PI / 2; a += Math.PI / 180) {
-					double r = transitionLength / Math.sin(a);
-					double h = Math.abs(yStart - yEnd) - 2 * r * (1 - Math.cos(a));
-					double l = getLength() - 2 * r * Math.sin(a);
-					double deltaK = Math.abs(Math.tan(a) - h / l);
+			return yLow + pc.hT + (valueLow - pc.lT) * pc.k;
+		}
+	}
+
+	private void calculatePitchCurve() {
+		if (pc == null) {
+			pc = new pitchCurve();
+			pc.L = getLength() - 1;
+			pc.H = Math.abs(yStart - yEnd);
+			if (pc.H == 0) {
+				pc.lT = 0;
+				pc.lC = pc.L;
+				pc.hT = pc.hC = pc.a = pc.r = pc.k = 0;
+				return;
+			}
+			if (pc.L < 5) {
+				pc.lT = pc.L / 2;
+				pc.lC = 0;
+				pc.hT = pc.H / 2;
+				pc.hC = 0;
+				pc.r = (pc.H * pc.H + pc.L * pc.L) / (4 * pc.H);
+				pc.a = 2 * (float)Math.atan(pc.H / pc.L);
+				pc.k = (float)Math.tan(pc.a);
+			} else {
+				pc.lT = Math.min(Math.max(2, pc.L / 5), 6);
+				pc.lC = pc.L - 2 * pc.lT;
+				float deltaKMin = Float.MAX_VALUE;
+				// Exact value requires solving a cubic equation. So just take an approximation.
+				for (float a = 0; a < Math.PI / 2; a += Math.PI / 180) {
+					final float r = pc.lT / (float)Math.sin(a);
+					final float h = pc.H - 2 * r * (1 - (float)Math.cos(a));
+					final float deltaK = Math.abs((float)Math.tan(a) - h / pc.lC);
 					if (deltaK < deltaKMin) {
 						deltaKMin = deltaK;
-						yTheta = a;
+						pc.a = a;
+						pc.r = r;
+						pc.hC = h;
+						pc.hT = (pc.H - h) / 2;
+						pc.k = h / pc.lC;
 					}
 				}
-			}
-			double r = transitionLength / Math.sin(yTheta);
-			double h = Math.abs(yStart - yEnd) - 2 * r * (1 - Math.cos(yTheta));
-			double l = getLength() - 2 * r * Math.sin(yTheta);
-			double yLow = Math.min(yStart, yEnd);
-			double yHigh = Math.max(yStart, yEnd);
-			double valueLow = yStart < yEnd ? value : getLength() - value;
-			if (valueLow < transitionLength) {
-				double cosA = Math.sqrt(1 - Math.pow(valueLow / r, 2));
-				return (float) (r - r * cosA + yLow);
-			} else if (valueLow > getLength() - transitionLength) {
-				double cosA = Math.sqrt(1 - Math.pow((getLength() - valueLow) / r, 2));
-				return (float) (yHigh - r + r * cosA);
-			} else {
-				return (float) (yLow + r * (1 - Math.cos(yTheta)) + (valueLow - transitionLength) * (h / l));
 			}
 		}
 	}
@@ -394,9 +413,6 @@ public class Rail extends SerializedDataBase {
 				isStraight, true, callback
 		);
 		// Middle segments, 1 block long
-		// TODO: Find a way to let the beginning and end of middle segment to be at least level with the block
-		//       the rail node is placed on, to prevent the block under the rail node from "clipping" through
-		//       the rendered ballast.
 		for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
 			renderSingleSegment(
 					h, k, r,

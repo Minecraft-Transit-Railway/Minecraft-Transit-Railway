@@ -5,6 +5,8 @@ import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 
+import java.util.HashMap;
+
 public class MoreRenderLayers extends RenderPhase {
 
 	public MoreRenderLayers(String name, Runnable beginAction, Runnable endAction) {
