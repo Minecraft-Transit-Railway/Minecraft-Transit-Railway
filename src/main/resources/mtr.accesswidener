@@ -7,3 +7,6 @@ accessible field net/minecraft/client/render/block/BlockModelRenderer$AmbientOcc
 accessible field net/minecraft/client/render/block/BlockModelRenderer$AmbientOcclusionCalculator brightness [F
 
 accessible field net/minecraft/client/render/model/BakedQuad sprite Lnet/minecraft/client/texture/Sprite;
+
+accessible field net/minecraft/client/render/BufferBuilder$State buffer Ljava/nio/ByteBuffer;
+accessible field net/minecraft/client/render/BufferBuilder$State format Lnet/minecraft/client/render/VertexFormat;

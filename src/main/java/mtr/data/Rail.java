@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.render.QuadCache;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +37,8 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
 	private static final String KEY_BALLAST_TEXTURE = "ballast_texture";
+
+	public QuadCache quadCache = new QuadCache();
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -456,6 +459,14 @@ public class Rail extends SerializedDataBase {
 		} else {
 			return t;
 		}
+	}
+
+	public boolean isStraight() {
+		return isStraight1 && isStraight2;
+	}
+
+	public boolean isFlat() {
+		return yStart == yEnd;
 	}
 
 	@FunctionalInterface
