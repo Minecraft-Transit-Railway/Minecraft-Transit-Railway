@@ -27,26 +27,31 @@ public class QuadCache {
         BlockPos pos;
         boolean isBlockFace;
 
-        public void apply(VertexConsumer vertexConsumer, MatrixStack matrices, World world) {
+        float[] brightness; int[] light;
+
+        public void apply(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
             if (isBlockFace) {
-                applyBlock(vertexConsumer, matrices, world);
+                applyBlock(vertexConsumer, matrices, world, performLightUpdate);
             } else {
-                applyNonBlock(vertexConsumer, matrices, world);
+                applyNonBlock(vertexConsumer, matrices, world, performLightUpdate);
             }
         }
 
-        public void applyNonBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world) {
+        public void applyNonBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
             final Vec3i vec3i = facing.getVector();
             final Matrix4f matrix4f = matrices.peek().getModel();
             final Matrix3f matrix3f = matrices.peek().getNormal();
-            final int light = WorldRenderer.getLightmapCoordinates(world, pos);
-            vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-            vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-            vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u3, v3).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
-            vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u4, v4).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+            if (this.light == null || performLightUpdate) {
+                if (this.light == null) this.light = new int[1];
+                this.light[0] = WorldRenderer.getLightmapCoordinates(world, pos);
+            }
+            vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+            vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+            vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u3, v3).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
+            vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u4, v4).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
         }
 
-        public void applyBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world) {
+        public void applyBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
             final BlockState bs = world.getBlockState(pos);
             final float yMax = Math.max(Math.max(y1, y2), Math.max(y3, y4));
 
@@ -87,27 +92,26 @@ public class QuadCache {
             };
             BakedQuad quad = new BakedQuad(vertexData, 0, facing, null, true);
 
-            if (MinecraftClient.isAmbientOcclusionEnabled() && (facing.getAxis() != Direction.Axis.Y)) {
-                BitSet flags = new BitSet(3);
-                float[] box = new float[Direction.values().length * 2];
-                blockModelRenderer.getQuadDimensions(world, bs, lightRefPos.offset(facing.getOpposite()), vertexData, facing, box, flags);
-                aoCalculator.apply(world, bs, lightRefPos.offset(facing.getOpposite()), facing, box, flags, true);
-                vertexConsumer.quad(matrices.peek(), quad,
-                        new float[]{aoCalculator.brightness[0], aoCalculator.brightness[1], aoCalculator.brightness[2], aoCalculator.brightness[3]},
-                        r, g, b,
-                        new int[]{aoCalculator.light[0], aoCalculator.light[1], aoCalculator.light[2], aoCalculator.light[3]},
-                        0, false
-                );
-            } else {
-                final int light = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
-                final float brightness = world.getBrightness(facing, true);
-                vertexConsumer.quad(matrices.peek(), quad,
-                        new float[]{brightness, brightness, brightness, brightness},
-                        r, g, b,
-                        new int[]{light, light, light, light},
-                        0, false
-                );
+            if (this.brightness == null || this.light == null || performLightUpdate) {
+                if (MinecraftClient.isAmbientOcclusionEnabled() && (facing.getAxis() != Direction.Axis.Y)) {
+                    BitSet flags = new BitSet(3);
+                    float[] box = new float[Direction.values().length * 2];
+                    blockModelRenderer.getQuadDimensions(world, bs, lightRefPos.offset(facing.getOpposite()), vertexData, facing, box, flags);
+                    aoCalculator.apply(world, bs, lightRefPos.offset(facing.getOpposite()), facing, box, flags, true);
+                    brightness = aoCalculator.brightness.clone();
+                    light = aoCalculator.light.clone();
+                } else {
+                    final int light = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
+                    final float brightness = world.getBrightness(facing, true);
+                    if (this.brightness == null) this.brightness = new float[4];
+                    if (this.light == null) this.light = new int[4];
+                    this.brightness[0] = brightness; this.brightness[1] = brightness;
+                    this.brightness[2] = brightness; this.brightness[3] = brightness;
+                    this.light[0] = light; this.light[1] = light;
+                    this.light[2] = light; this.light[3] = light;
+                }
             }
+            vertexConsumer.quad(matrices.peek(), quad,  brightness, r, g, b, light, 0, false);
 
             matrices.pop();
         }
@@ -149,10 +153,10 @@ public class QuadCache {
             cacheList.add(item);
         }
 
-        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world) {
+        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, boolean performLightUpdate) {
             final VertexConsumer vc = vertexConsumers.getBuffer(isSolid ? MoreRenderLayers.getSolid(texture) : MoreRenderLayers.getExterior(texture));
             for (QuadCacheItem item : cacheList) {
-                item.apply(vc, matrices, world);
+                item.apply(vc, matrices, world, performLightUpdate);
             }
         }
     }
@@ -172,12 +176,22 @@ public class QuadCache {
         return item;
     }
 
+    private long lastLightUpdate = 0;
+
     public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, RenderCallback callback) {
         if (cacheMap == null) {
             cacheMap = new HashMap<>();
             callback.renderCallback(this);
         }
-        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world));
+        // Caching light data - how much impact does it have?
+        boolean performLightUpdate = false;
+        final long updateMinInterval = 40;
+        if (world.getTimeOfDay() - lastLightUpdate > updateMinInterval || world.getTimeOfDay() < lastLightUpdate) {
+            lastLightUpdate = world.getTimeOfDay();
+            performLightUpdate = true;
+        }
+        boolean finalPerformLightUpdate = performLightUpdate;
+        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world, finalPerformLightUpdate));
     }
 
     @FunctionalInterface

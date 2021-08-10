@@ -222,6 +222,11 @@ public class RenderTrains implements IGui {
 
 		final ArrayList<Rail> dynamicRenderRailList = new ArrayList<>();
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+			// Save some memory?
+			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance * 2) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance * 2)) {
+				rail.quadCache.reset();
+				return;
+			}
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
@@ -245,7 +250,7 @@ public class RenderTrains implements IGui {
 				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
 				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
 				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
-				final float dY = 0.0625F + SMALL_OFFSET;
+				final float dY = 0.0625F /*+ SMALL_OFFSET*/;
 				final float y1d = y1 - dY, y2d = y2 - dY;
 				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
 				final float dV = Math.abs(t2 - t1);

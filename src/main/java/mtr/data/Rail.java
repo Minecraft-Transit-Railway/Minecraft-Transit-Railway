@@ -1,6 +1,8 @@
 package mtr.data;
 
 import mtr.render.QuadCache;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.MinecraftClientGame;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -415,14 +417,27 @@ public class Rail extends SerializedDataBase {
 				i + rawValueOffset, i + increment / 2 + rawValueOffset,
 				isStraight, true, callback
 		);
-		// Middle segments, 1 block long
-		for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
-			renderSingleSegment(
-					h, k, r,
-					(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment) + tStart,
-					i + rawValueOffset, i + increment + rawValueOffset,
-					isStraight, false, callback
-			);
+		if (isStraight() && isFlat()) {
+			final float segmentLength = 64;
+			final float midInc = (float)((count - increment) / Math.ceil((count - increment) / segmentLength));
+			for (i = increment / 2; i < count - 0.1 - increment / 2; i += midInc) {
+				renderSingleSegment(
+						h, k, r,
+						(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + midInc) + tStart,
+						i + rawValueOffset, i + midInc + rawValueOffset,
+						isStraight, false, callback
+				);
+			}
+		} else {
+			// Middle segments, 1 block long
+			for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
+				renderSingleSegment(
+						h, k, r,
+						(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment) + tStart,
+						i + rawValueOffset, i + increment + rawValueOffset,
+						isStraight, false, callback
+				);
+			}
 		}
 		// Last segment, 0.5 block long
 		renderSingleSegment(
