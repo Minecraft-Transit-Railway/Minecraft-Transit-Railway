@@ -1,10 +1,11 @@
-// Made with Blockbench 3.9.2
-	// Exported for Minecraft version 1.15
-	// Paste this class into your mod and generate all required imports
-
 	package mtr.model;
 
-	public class ModelR179Train extends EntityModel<ModelTrainBase> {
+        import net.minecraft.client.model.ModelPart;
+	import net.minecraft.client.render.VertexConsumer;
+	import net.minecraft.client.util.math.MatrixStack;
+
+	public class ModelR179Train extends ModelTrainBase {
+
 private final ModelPart window;
 	private final ModelPart wall;
 	private final ModelPart wall_10_r1;
@@ -157,18 +158,6 @@ private final ModelPart window;
 	private final ModelPart handrail_turn_3_r5;
 	private final ModelPart handrail_turn_2_r5;
 	private final ModelPart handrail_turn_1_r5;
-	private final ModelPart end_light_right;
-	private final ModelPart light_r1;
-	private final ModelPart end_light_off_right;
-	private final ModelPart light_r2;
-	private final ModelPart end_light_on_right;
-	private final ModelPart light_r3;
-	private final ModelPart end_light_left;
-	private final ModelPart light_r4;
-	private final ModelPart end_light_off_left;
-	private final ModelPart light_r5;
-	private final ModelPart end_light_on_left;
-	private final ModelPart light_r6;
 	private final ModelPart end_exterior;
 	private final ModelPart end_bottom_out;
 	private final ModelPart buttom_panel_left_9_r1;
@@ -290,18 +279,6 @@ private final ModelPart window;
 	private final ModelPart cab_door_back;
 	private final ModelPart end_wall_4_r1;
 	private final ModelPart end_wall_2_r1;
-	private final ModelPart head_light_left;
-	private final ModelPart light_r7;
-	private final ModelPart head_light_right;
-	private final ModelPart light_r8;
-	private final ModelPart head_light_on_right;
-	private final ModelPart light_r9;
-	private final ModelPart head_light_off_left;
-	private final ModelPart light_r10;
-	private final ModelPart head_light_off_right;
-	private final ModelPart light_r11;
-	private final ModelPart head_light_on_left;
-	private final ModelPart light_r12;
 	private final ModelPart head_exterior;
 	private final ModelPart bottom;
 	private final ModelPart buttom_panel_left_9_r2;
@@ -366,9 +343,9 @@ private final ModelPart window;
 	private final ModelPart door_light;
 	private final ModelPart light_plate_1_r1;
 	private final ModelPart door_light_on;
-	private final ModelPart light_r13;
+	private final ModelPart light_r1;
 	private final ModelPart door_light_off;
-	private final ModelPart light_r14;
+	private final ModelPart light_r2;
 	private final ModelPart coupler_fence;
 	private final ModelPart front_display;
 	private final ModelPart letter_display;
@@ -382,6 +359,18 @@ private final ModelPart window;
 	private final ModelPart outer_cover_2_r2;
 	private final ModelPart US_Flag;
 	private final ModelPart Flag_1_r1;
+	private final ModelPart end_light;
+	private final ModelPart light_r3;
+	private final ModelPart end_light_on;
+	private final ModelPart light_r4;
+	private final ModelPart end_light_off;
+	private final ModelPart light_r5;
+	private final ModelPart head_light;
+	private final ModelPart light_r6;
+	private final ModelPart head_light_on;
+	private final ModelPart light_r7;
+	private final ModelPart head_light_off;
+	private final ModelPart light_r8;
 public ModelR179Train() {
 		textureWidth = 608;
 		textureHeight = 608;
@@ -1288,72 +1277,6 @@ public ModelR179Train() {
 		setRotationAngle(handrail_turn_1_r5, -0.574F, -0.1527F, 0.0846F);
 		handrail_turn_1_r5.setTextureOffset(36, 0).addCuboid(0.0F, 0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 0.2F, false);
 
-		end_light_right = new ModelPart(this);
-		end_light_right.setPivot(-0.6F, -0.3F, -0.025F);
-		end.addChild(end_light_right);
-		
-
-		light_r1 = new ModelPart(this);
-		light_r1.setPivot(-8.4206F, -31.1645F, -8.95F);
-		end_light_right.addChild(light_r1);
-		setRotationAngle(light_r1, 0.0F, 0.0F, -1.5708F);
-		light_r1.setTextureOffset(20, 0).addCuboid(-0.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
-
-		end_light_off_right = new ModelPart(this);
-		end_light_off_right.setPivot(-0.2F, 0.1F, 0.025F);
-		end.addChild(end_light_off_right);
-		
-
-		light_r2 = new ModelPart(this);
-		light_r2.setPivot(-8.3206F, -31.1145F, -8.975F);
-		end_light_off_right.addChild(light_r2);
-		setRotationAngle(light_r2, 0.0F, 0.0F, -1.5708F);
-		light_r2.setTextureOffset(11, 11).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		end_light_on_right = new ModelPart(this);
-		end_light_on_right.setPivot(0.0F, 0.0F, 0.025F);
-		end.addChild(end_light_on_right);
-		
-
-		light_r3 = new ModelPart(this);
-		light_r3.setPivot(-8.5206F, -31.0145F, -8.975F);
-		end_light_on_right.addChild(light_r3);
-		setRotationAngle(light_r3, 0.0F, 0.0F, -1.5708F);
-		light_r3.setTextureOffset(12, 0).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		end_light_left = new ModelPart(this);
-		end_light_left.setPivot(0.6F, -0.3F, -0.025F);
-		end.addChild(end_light_left);
-		
-
-		light_r4 = new ModelPart(this);
-		light_r4.setPivot(8.4206F, -31.1645F, -8.95F);
-		end_light_left.addChild(light_r4);
-		setRotationAngle(light_r4, 0.0F, 0.0F, 1.5708F);
-		light_r4.setTextureOffset(20, 3).addCuboid(-1.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
-
-		end_light_off_left = new ModelPart(this);
-		end_light_off_left.setPivot(0.2F, 0.1F, 0.025F);
-		end.addChild(end_light_off_left);
-		
-
-		light_r5 = new ModelPart(this);
-		light_r5.setPivot(8.3206F, -31.1145F, -8.975F);
-		end_light_off_left.addChild(light_r5);
-		setRotationAngle(light_r5, 0.0F, 0.0F, 1.5708F);
-		light_r5.setTextureOffset(12, 3).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		end_light_on_left = new ModelPart(this);
-		end_light_on_left.setPivot(0.0F, 0.0F, 0.025F);
-		end.addChild(end_light_on_left);
-		
-
-		light_r6 = new ModelPart(this);
-		light_r6.setPivot(8.5206F, -31.0145F, -8.975F);
-		end_light_on_left.addChild(light_r6);
-		setRotationAngle(light_r6, 0.0F, 0.0F, 1.5708F);
-		light_r6.setTextureOffset(11, 13).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
 		end_exterior = new ModelPart(this);
 		end_exterior.setPivot(0.0F, 24.0F, 0.0F);
 		
@@ -2081,72 +2004,6 @@ public ModelR179Train() {
 		setRotationAngle(end_wall_2_r1, 0.0F, 0.0F, -0.1047F);
 		end_wall_2_r1.setTextureOffset(60, 164).addCuboid(-0.075F, -23.0F, 57.1F, 1.0F, 21.0F, 2.0F, 0.0F, false);
 
-		head_light_left = new ModelPart(this);
-		head_light_left.setPivot(0.6F, -3.3F, 11.125F);
-		head.addChild(head_light_left);
-		
-
-		light_r7 = new ModelPart(this);
-		light_r7.setPivot(8.4206F, -31.1645F, -8.95F);
-		head_light_left.addChild(light_r7);
-		setRotationAngle(light_r7, 0.0F, 0.0F, 1.5708F);
-		light_r7.setTextureOffset(20, 3).addCuboid(-1.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
-
-		head_light_right = new ModelPart(this);
-		head_light_right.setPivot(-17.65F, -3.3F, 11.125F);
-		head.addChild(head_light_right);
-		
-
-		light_r8 = new ModelPart(this);
-		light_r8.setPivot(8.4206F, -31.1645F, -8.95F);
-		head_light_right.addChild(light_r8);
-		setRotationAngle(light_r8, 0.0F, 0.0F, 1.5708F);
-		light_r8.setTextureOffset(20, 3).addCuboid(-1.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
-
-		head_light_on_right = new ModelPart(this);
-		head_light_on_right.setPivot(0.0F, -3.0F, 11.175F);
-		head.addChild(head_light_on_right);
-		
-
-		light_r9 = new ModelPart(this);
-		light_r9.setPivot(-8.5206F, -31.0145F, -8.975F);
-		head_light_on_right.addChild(light_r9);
-		setRotationAngle(light_r9, 0.0F, 0.0F, -1.5708F);
-		light_r9.setTextureOffset(12, 0).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		head_light_off_left = new ModelPart(this);
-		head_light_off_left.setPivot(0.2F, -2.9F, 11.175F);
-		head.addChild(head_light_off_left);
-		
-
-		light_r10 = new ModelPart(this);
-		light_r10.setPivot(8.3206F, -31.1145F, -8.975F);
-		head_light_off_left.addChild(light_r10);
-		setRotationAngle(light_r10, 0.0F, 0.0F, 1.5708F);
-		light_r10.setTextureOffset(12, 3).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		head_light_off_right = new ModelPart(this);
-		head_light_off_right.setPivot(-18.05F, -2.9F, 11.175F);
-		head.addChild(head_light_off_right);
-		
-
-		light_r11 = new ModelPart(this);
-		light_r11.setPivot(8.3206F, -31.1145F, -8.975F);
-		head_light_off_right.addChild(light_r11);
-		setRotationAngle(light_r11, 0.0F, 0.0F, 1.5708F);
-		light_r11.setTextureOffset(12, 3).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
-		head_light_on_left = new ModelPart(this);
-		head_light_on_left.setPivot(18.25F, -3.0F, 11.175F);
-		head.addChild(head_light_on_left);
-		
-
-		light_r12 = new ModelPart(this);
-		light_r12.setPivot(-8.5206F, -31.0145F, -8.975F);
-		head_light_on_left.addChild(light_r12);
-		setRotationAngle(light_r12, 0.0F, 0.0F, -1.5708F);
-		light_r12.setTextureOffset(12, 0).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
-
 		head_exterior = new ModelPart(this);
 		head_exterior.setPivot(0.0F, 24.0F, 0.0F);
 		
@@ -2520,7 +2377,7 @@ public ModelR179Train() {
 		
 
 		light_plate_1_r1 = new ModelPart(this);
-		light_plate_1_r1.setPivot(-20.4294F, -31.1645F, 1.0F);
+		light_plate_1_r1.setPivot(-20.4294F, -31.1645F, 0.0F);
 		door_light.addChild(light_plate_1_r1);
 		setRotationAngle(light_plate_1_r1, 0.0F, 0.0F, 1.5708F);
 		light_plate_1_r1.setTextureOffset(0, 45).addCuboid(-1.5F, -1.1F, -1.0F, 1.0F, 1.0F, 1.0F, 0.0F, false);
@@ -2529,21 +2386,21 @@ public ModelR179Train() {
 		door_light_on.setPivot(0.0F, 24.0F, 0.0F);
 		
 
-		light_r13 = new ModelPart(this);
-		light_r13.setPivot(-20.4294F, -31.1645F, -0.025F);
-		door_light_on.addChild(light_r13);
-		setRotationAngle(light_r13, 0.0F, 0.0F, 1.5708F);
-		light_r13.setTextureOffset(48, 12).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
+		light_r1 = new ModelPart(this);
+		light_r1.setPivot(-20.4294F, -31.1645F, -1.025F);
+		door_light_on.addChild(light_r1);
+		setRotationAngle(light_r1, 0.0F, 0.0F, 1.5708F);
+		light_r1.setTextureOffset(48, 12).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
 
 		door_light_off = new ModelPart(this);
 		door_light_off.setPivot(0.0F, 24.0F, 0.0F);
 		
 
-		light_r14 = new ModelPart(this);
-		light_r14.setPivot(-20.4294F, -31.1645F, -0.025F);
-		door_light_off.addChild(light_r14);
-		setRotationAngle(light_r14, 0.0F, 0.0F, 1.5708F);
-		light_r14.setTextureOffset(48, 10).addCuboid(-1.5F, -1.1F, 0.01F, 1.0F, 1.0F, 0.0F, 0.0F, false);
+		light_r2 = new ModelPart(this);
+		light_r2.setPivot(-20.4294F, -31.1645F, -1.025F);
+		door_light_off.addChild(light_r2);
+		setRotationAngle(light_r2, 0.0F, 0.0F, 1.5708F);
+		light_r2.setTextureOffset(48, 10).addCuboid(-1.5F, -1.1F, 0.01F, 1.0F, 1.0F, 0.0F, 0.0F, false);
 
 		coupler_fence = new ModelPart(this);
 		coupler_fence.setPivot(0.0F, 24.0F, 0.0F);
@@ -2609,56 +2466,317 @@ public ModelR179Train() {
 		US_Flag.addChild(Flag_1_r1);
 		setRotationAngle(Flag_1_r1, 0.0F, 1.5708F, 0.1047F);
 		Flag_1_r1.setTextureOffset(0, 570).addCuboid(-1.0F, -5.0F, 1.0F, 9.0F, 5.0F, 0.0F, 0.0F, false);
-}
-@Override
-public void setAngles(ModelTrainBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
-		//previously the render function, render code was moved to a method below
-}
-@Override
-public void render(MatrixStack matrixStack, VertexConsumer	buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+
+		end_light = new ModelPart(this);
+		end_light.setPivot(0.0F, 24.0F, 0.0F);
 		
-		window.render(matrixStack, buffer, packedLight, packedOverlay);
-		window_display.render(matrixStack, buffer, packedLight, packedOverlay);
-		window_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		under_seatbox.render(matrixStack, buffer, packedLight, packedOverlay);
-		side_panel.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_window.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_door.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_head.render(matrixStack, buffer, packedLight, packedOverlay);
-		door.render(matrixStack, buffer, packedLight, packedOverlay);
-		door_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		handrail_door_type_1.render(matrixStack, buffer, packedLight, packedOverlay);
-		handrail_door_type_2.render(matrixStack, buffer, packedLight, packedOverlay);
-		end.render(matrixStack, buffer, packedLight, packedOverlay);
-		end_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_end.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_end_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_door_light.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_window_light.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_end_light.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_head_light.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_handle.render(matrixStack, buffer, packedLight, packedOverlay);
-		head.render(matrixStack, buffer, packedLight, packedOverlay);
-		head_exterior.render(matrixStack, buffer, packedLight, packedOverlay);
-		headlights.render(matrixStack, buffer, packedLight, packedOverlay);
-		tail_lights.render(matrixStack, buffer, packedLight, packedOverlay);
-		door_light.render(matrixStack, buffer, packedLight, packedOverlay);
-		door_light_on.render(matrixStack, buffer, packedLight, packedOverlay);
-		door_light_off.render(matrixStack, buffer, packedLight, packedOverlay);
-		coupler_fence.render(matrixStack, buffer, packedLight, packedOverlay);
-		front_display.render(matrixStack, buffer, packedLight, packedOverlay);
-		letter_display.render(matrixStack, buffer, packedLight, packedOverlay);
-		end_display.render(matrixStack, buffer, packedLight, packedOverlay);
-		system_map.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_cover_window.render(matrixStack, buffer, packedLight, packedOverlay);
-		roof_cover_end.render(matrixStack, buffer, packedLight, packedOverlay);
-		US_Flag.render(matrixStack, buffer, packedLight, packedOverlay);
-}
-public void setRotationAngle(ModelPart bone, float x, float y, float z) {
-		bone.pitch = x;
-		bone.yaw = y;
-		bone.roll = z;
+
+		light_r3 = new ModelPart(this);
+		light_r3.setPivot(-9.0206F, -31.4645F, 0.0F);
+		end_light.addChild(light_r3);
+		setRotationAngle(light_r3, 0.0F, 0.0F, -1.5708F);
+		light_r3.setTextureOffset(20, 0).addCuboid(-0.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
+
+		end_light_on = new ModelPart(this);
+		end_light_on.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		light_r4 = new ModelPart(this);
+		light_r4.setPivot(-8.5206F, -31.0145F, -0.05F);
+		end_light_on.addChild(light_r4);
+		setRotationAngle(light_r4, 0.0F, 0.0F, -1.5708F);
+		light_r4.setTextureOffset(12, 0).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
+
+		end_light_off = new ModelPart(this);
+		end_light_off.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		light_r5 = new ModelPart(this);
+		light_r5.setPivot(-8.5206F, -31.0145F, -0.025F);
+		end_light_off.addChild(light_r5);
+		setRotationAngle(light_r5, 0.0F, 0.0F, -1.5708F);
+		light_r5.setTextureOffset(11, 11).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
+
+		head_light = new ModelPart(this);
+		head_light.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		light_r6 = new ModelPart(this);
+		light_r6.setPivot(-11.2294F, -32.4645F, 0.0F);
+		head_light.addChild(light_r6);
+		setRotationAngle(light_r6, 0.0F, 0.0F, 1.5708F);
+		light_r6.setTextureOffset(20, 3).addCuboid(-1.5F, -1.1F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, false);
+
+		head_light_on = new ModelPart(this);
+		head_light_on.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		light_r7 = new ModelPart(this);
+		light_r7.setPivot(-10.5206F, -32.0145F, 0.05F);
+		head_light_on.addChild(light_r7);
+		setRotationAngle(light_r7, 0.0F, 0.0F, -1.5708F);
+		light_r7.setTextureOffset(12, 0).addCuboid(0.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
+
+		head_light_off = new ModelPart(this);
+		head_light_off.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		light_r8 = new ModelPart(this);
+		light_r8.setPivot(-11.7294F, -32.0145F, 0.025F);
+		head_light_off.addChild(light_r8);
+		setRotationAngle(light_r8, 0.0F, 0.0F, 1.5708F);
+		light_r8.setTextureOffset(12, 3).addCuboid(-1.5F, -1.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, false);
 }
 
-	}
+private static final int DOOR_MAX = 14;
+		private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_r179_alpha_6_left.png", "door_overlay_r179_alpha_6_right.png");
+
+		@Override
+		protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+			final boolean frontWindow = isIndex(0, position, getWindowPositions());
+			final boolean middleWindow = isIndex(1, position, getWindowPositions());
+			final boolean endWindow = isIndex(2, position, getWindowPositions());
+			final boolean Display;
+
+			switch (renderStage) {
+				case LIGHTS:
+					renderMirror(roof_window_light, matrices, vertices, light, position);
+					break;
+				case INTERIOR:
+					renderMirror(window, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderMirror(roof_window, matrices, vertices, light, position);
+						if (frontWindow && renderDetails)
+							renderOnceFlipped(window_display, matrices, vertices, light, position);
+						renderOnceFlipped(end_display, matrices, vertices, light, -80);
+						if (middleWindow && renderDetails)
+							renderOnce(roof_handle, matrices, vertices, light, position);
+						if (endWindow && renderDetails)
+							renderOnce(window_display, matrices, vertices, light, position);
+						renderOnce(end_display, matrices, vertices, light, 80);
+
+					}
+					break;
+				case INTERIOR_TRANSLUCENT:
+					renderMirror(side_panel, matrices, vertices, light, position - 25.5F);
+					renderMirror(side_panel, matrices, vertices, light, position + 25.5F);
+					break;
+				case EXTERIOR:
+					renderMirror(window_exterior, matrices, vertices, light, position);
+					renderMirror(roof_exterior, matrices, vertices, light, position);
+					renderMirror(roof_cover_window, matrices, vertices, light, position);
+					if (frontWindow && renderDetails)
+						renderOnceFlipped(US_Flag, matrices, vertices, light, -78.3F);
+					if (endWindow && renderDetails)
+						renderOnce(US_Flag, matrices, vertices, light, 86.3F);
+					break;
+			}
+		}
+
+		@Override
+		protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+			final boolean firstDoor = isIndex(0, position, getDoorPositions());
+			final boolean notLastDoor = !firstDoor && !isIndex(-1, position, getDoorPositions());
+			final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
+
+			switch (renderStage) {
+				case LIGHTS:
+					if (notLastDoor) {
+						renderMirror(roof_window_light, matrices, vertices, light, position);
+					}
+					if (firstDoor && doorOpen) {
+						renderMirror(door_light_on, matrices, vertices, light, -140);
+						//renderMirror(head_light_on, matrices, vertices, light, 153);
+						//renderMirror(end_light_on, matrices, vertices, light, -153);
+					}
+					break;
+				case INTERIOR:
+					door_right.setPivot(doorRightX, 0, doorRightZ);
+					door_left.setPivot(doorRightX, 0, -doorRightZ);
+					renderOnce(door, matrices, vertices, light, position);
+					door_right.setPivot(doorLeftX, 0, doorLeftZ);
+					door_left.setPivot(doorLeftX, 0, -doorLeftZ);
+					renderOnceFlipped(door, matrices, vertices, light, position);
+
+					if (renderDetails) {
+						renderMirror(roof_door, matrices, vertices, light, position);
+						if (getDoorPositions().length > 2 && (position == getDoorPositions()[1] || position == getDoorPositions()[2])) {
+							renderOnce(handrail_door_type_2, matrices, vertices, light, position);
+						} else {
+							renderOnce(handrail_door_type_1, matrices, vertices, light, position);
+						}
+					}
+					break;
+				case EXTERIOR:
+					door_right_exterior.setPivot(doorRightX, 0, doorRightZ);
+					door_left_exterior.setPivot(doorRightX, 0, -doorRightZ);
+					renderOnce(door_exterior, matrices, vertices, light, position);
+					door_right_exterior.setPivot(doorLeftX, 0, doorLeftZ);
+					door_left_exterior.setPivot(doorLeftX, 0, -doorLeftZ);
+					renderOnceFlipped(door_exterior, matrices, vertices, light, position);
+					renderMirror(roof_exterior, matrices, vertices, light, position);
+					renderMirror(roof_cover_window, matrices, vertices, light, position);
+					if (firstDoor && renderDetails) {
+						renderMirror(door_light, matrices, vertices, light, -140);
+						//renderMirror(head_light, matrices, vertices, light, 154);
+						//renderMirror(end_light, matrices, vertices, light, -154);
+						if (!doorOpen) {
+							renderMirror(door_light_off, matrices, vertices, light, -140);
+							//renderMirror(head_light_off, matrices, vertices, light, 153);
+							//renderMirror(end_light_off, matrices, vertices, light, -153);
+						}
+					}
+					break;
+			}
+		}
+
+		@Override
+		protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+			switch (renderStage) {
+				case LIGHTS:
+					renderOnce(roof_head_light, matrices, vertices, light, position);
+					break;
+				case ALWAYS_ON_LIGHTS:
+					renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+					break;
+				case INTERIOR:
+					renderOnce(head, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnce(roof_head, matrices, vertices, light, position);
+					}
+					break;
+				case EXTERIOR:
+					renderOnce(head_exterior, matrices, vertices, light, position);
+					renderOnce(roof_end_exterior, matrices, vertices, light, position);
+					renderOnce(roof_cover_end, matrices, vertices, light, position);
+					renderOnce(letter_display, matrices, vertices, light, position);
+					break;
+
+			}
+		}
+
+		@Override
+		protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+			switch (renderStage) {
+				case LIGHTS:
+					renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
+					break;
+				case ALWAYS_ON_LIGHTS:
+					renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+					break;
+				case INTERIOR:
+					renderOnceFlipped(head, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnceFlipped(roof_end, matrices, vertices, light, position);
+					}
+					break;
+				case EXTERIOR:
+					renderOnceFlipped(head_exterior, matrices, vertices, light, position);
+					renderOnceFlipped(roof_end_exterior, matrices, vertices, light, position);
+					renderOnceFlipped(roof_cover_end, matrices, vertices, light, position);
+					renderOnceFlipped(letter_display, matrices, vertices, light, position);
+					break;
+			}
+		}
+
+		@Override
+		protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+			switch (renderStage) {
+				case LIGHTS:
+					renderOnce(roof_end_light, matrices, vertices, light, position);
+					break;
+				case INTERIOR:
+					renderOnce(end, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnce(roof_end, matrices, vertices, light, position);
+					}
+					break;
+				case INTERIOR_TRANSLUCENT:
+					renderMirror(side_panel, matrices, vertices, light, position + 9.5F);
+					break;
+				case EXTERIOR:
+					renderOnce(end_exterior, matrices, vertices, light, position);
+					//renderOnce(coupler_fence, matrices, vertices, light, -164);
+					renderOnce(roof_cover_end, matrices, vertices, light, -135);
+					renderOnce(roof_end_exterior, matrices, vertices, light, -134);
+					break;
+			}
+		}
+
+		@Override
+		protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+			switch (renderStage) {
+				case LIGHTS:
+					renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
+					break;
+				case INTERIOR:
+					renderOnceFlipped(end, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnceFlipped(roof_end, matrices, vertices, light, position);
+					}
+					break;
+				case INTERIOR_TRANSLUCENT:
+					renderMirror(side_panel, matrices, vertices, light, position - 9.5F);
+					break;
+				case EXTERIOR:
+					renderOnceFlipped(end_exterior, matrices, vertices, light, position);
+					//renderOnceFlipped(coupler_fence, matrices, vertices, light, 173);
+					renderOnceFlipped(roof_cover_end, matrices, vertices, light, 145);
+					renderOnceFlipped(roof_end_exterior, matrices, vertices, light, 142);
+					break;
+			}
+		}
+
+		@Override
+		protected ModelDoorOverlay getModelDoorOverlay() {
+			return null;
+		}
+
+		@Override
+		protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+			return null;
+		}
+
+		@Override
+		protected int[] getWindowPositions() {
+			return new int[]{-78, 4, 86};
+		}
+
+		@Override
+		protected int[] getDoorPositions() {
+			return new int[]{-119, -37, 45, 127};
+		}
+
+
+		@Override
+		protected int[] getEndPositions() {
+			return new int[]{-144, 152};
+		}
+
+
+		@Override
+		protected float getDoorAnimationX(float value, boolean opening) {
+			return 0;
+		}
+
+
+		@Override
+		protected float getDoorAnimationZ(float value, boolean opening) {
+			if (opening) {
+				if (value > 0.4) {
+					return smoothEnds(DOOR_MAX - 1, DOOR_MAX - 0.5F, 0.4F, 0.6F, value);
+				} else {
+					return smoothEnds(-DOOR_MAX + 1, DOOR_MAX - 1, -0.4F, 0.4F, value);
+				}
+			} else {
+				if (value > 0.2) {
+					return smoothEnds(1, DOOR_MAX - 0.5F, 0.2F, 0.6F, value);
+				} else {
+					return smoothEnds(-1.5F, 1.5F, -0.4F, 0.4F, value);
+				}
+
+			}
+
+		}
+}
+
