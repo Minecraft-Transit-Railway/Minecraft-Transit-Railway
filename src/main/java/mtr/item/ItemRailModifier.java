@@ -133,7 +133,7 @@ public class ItemRailModifier extends Item {
 		}
 
 		final String ballastTexture = nbtCompound.getString(TAG_BALLAST_TEXTURE);
-		if (!ballastTexture.isBlank()) {
+		if (!ballastTexture.isEmpty()) {
 			tooltip.add(new LiteralText(ballastTexture).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 	}

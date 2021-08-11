@@ -27,17 +27,17 @@ public class QuadCache {
         BlockPos pos;
         boolean isBlockFace;
 
-        float[] brightness; int[] light;
+        float[] brightness = null; int[] light = null;
 
-        public void apply(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
+        public void apply(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate, boolean applyColor) {
             if (isBlockFace) {
-                applyBlock(vertexConsumer, matrices, world, performLightUpdate);
+                applyBlock(vertexConsumer, matrices, world, performLightUpdate, applyColor);
             } else {
-                applyNonBlock(vertexConsumer, matrices, world, performLightUpdate);
+                applyNonBlock(vertexConsumer, matrices, world, performLightUpdate, applyColor);
             }
         }
 
-        public void applyNonBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
+        public void applyNonBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate, boolean applyColor) {
             final Vec3i vec3i = facing.getVector();
             final Matrix4f matrix4f = matrices.peek().getModel();
             final Matrix3f matrix3f = matrices.peek().getNormal();
@@ -45,13 +45,17 @@ public class QuadCache {
                 if (this.light == null) this.light = new int[1];
                 this.light[0] = WorldRenderer.getLightmapCoordinates(world, pos);
             }
+            final float r = applyColor ? this.r : 1.0F;
+            final float g = applyColor ? this.g : 1.0F;
+            final float b = applyColor ? this.b : 1.0F;
+            final float a = applyColor ? this.a : 1.0F;
             vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, a).texture(u1, v1).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
             vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, a).texture(u2, v2).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
             vertexConsumer.vertex(matrix4f, x3, y3, z3).color(r, g, b, a).texture(u3, v3).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
             vertexConsumer.vertex(matrix4f, x4, y4, z4).color(r, g, b, a).texture(u4, v4).overlay(OverlayTexture.DEFAULT_UV).light(light[0]).normal(matrix3f, vec3i.getX(), vec3i.getY(), vec3i.getZ()).next();
         }
 
-        public void applyBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate) {
+        public void applyBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate, boolean applyColor) {
             final BlockState bs = world.getBlockState(pos);
             final float yMax = Math.max(Math.max(y1, y2), Math.max(y3, y4));
 
@@ -111,6 +115,10 @@ public class QuadCache {
                     this.light[2] = light; this.light[3] = light;
                 }
             }
+            final float r = applyColor ? this.r : 1.0F;
+            final float g = applyColor ? this.g : 1.0F;
+            final float b = applyColor ? this.b : 1.0F;
+            final float a = applyColor ? this.a : 1.0F;
             vertexConsumer.quad(matrices.peek(), quad,  brightness, r, g, b, light, 0, false);
 
             matrices.pop();
@@ -156,12 +164,13 @@ public class QuadCache {
         private int lightUpdateIndex = 0;
         private static final int updatesPerFrame = 2;
 
-        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world) {
+        public void apply(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, boolean applyColor) {
             final VertexConsumer vc = vertexConsumers.getBuffer(isSolid ? MoreRenderLayers.getSolid(texture) : MoreRenderLayers.getExterior(texture));
 
             // Caching light data - how much impact does it have?
             for (int i = 0; i < cacheList.size(); i++) {
-                cacheList.get(i).apply(vc, matrices, world, i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame);
+                cacheList.get(i).apply(vc, matrices, world,
+                        i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame, applyColor);
             }
             lightUpdateIndex += updatesPerFrame;
             if (lightUpdateIndex > cacheList.size()) lightUpdateIndex = 0;
@@ -183,12 +192,12 @@ public class QuadCache {
         return item;
     }
 
-    public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, RenderCallback callback) {
+    public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, boolean applyColor, RenderCallback callback) {
         if (cacheMap == null) {
             cacheMap = new HashMap<>();
             callback.renderCallback(this);
         }
-        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world));
+        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world, applyColor));
     }
 
     @FunctionalInterface

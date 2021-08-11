@@ -277,13 +277,15 @@ public class RenderTrains implements IGui {
 				dynamicRenderRailList.add(rail);
 			}
 
-			rail.quadCache.renderWithCache(vertexConsumers, matrices, world, (cache) -> rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
+			rail.quadCache.renderWithCache(vertexConsumers, matrices, world, renderColors || rail.railType.hasSavedRail,
+				(cache) -> rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
 				final int yf = (int)Math.floor(Math.min(y1, y2));
 				final int yc = (int) Math.ceil(Math.max(y1, y2));
 				final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
 				final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
 				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
 				final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
+				final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
 				if (shouldNotRender(player, new BlockPos(rc1.x, y1, rc1.z), maxRailDistance)) {
 					return;
 				}
@@ -295,10 +297,10 @@ public class RenderTrains implements IGui {
 				final float y1d = y1 - dY, y2d = y2 - dY;
 				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
 				final float dV = Math.abs(t2 - t1);
-				BlockPos lightRefPos = new BlockPos(rc1.x, yc, rc1.z);
+				BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
 
 				final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
-				final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
+				final int color = rail.railType.color;
 				final QuadCache.QuadCacheList vcRail = cache.withTexture(TEXTURE_PATH_RAIL, false);
 				vcRail.addNonBlockFace(rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
 				vcRail.addNonBlockFace(rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
@@ -345,16 +347,18 @@ public class RenderTrains implements IGui {
 				final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
 				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
 				final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
+				final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
+				final float dV = Math.abs(t2 - t1);
 				if (shouldNotRender(player, new BlockPos(rc1.x, y1, rc1.z), maxRailDistance)) {
 					return;
 				}
-				BlockPos lightRefPos = new BlockPos(rc1.x, yc, rc1.z);
+				BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
 				final int lightRail = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
 
 				if (rail.railType == RailType.NONE && renderColors) {
 					final VertexConsumer vcRailArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
-					IDrawing.drawTexture(matrices, vcRailArrow, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
-					IDrawing.drawTexture(matrices, vcRailArrow, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc1.x, y1, rc1.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, rc3.x, y2, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
+					IDrawing.drawTexture(matrices, vcRailArrow, rc1.x, y1 + SMALL_OFFSET, rc1.z, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc3.x, y2 + SMALL_OFFSET, rc3.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
+					IDrawing.drawTexture(matrices, vcRailArrow, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc1.x, y1 + SMALL_OFFSET, rc1.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, rc3.x, y2 + SMALL_OFFSET, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
 				}
 			});
 		});

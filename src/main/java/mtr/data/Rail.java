@@ -419,7 +419,9 @@ public class Rail extends SerializedDataBase {
 				isStraight, true, callback
 		);
 		if (isStraight() && isFlat()) {
-			final float segmentLength = 64;
+			// Save some performance
+			// Sacrifices lighting accuracy
+			final float segmentLength = 8;
 			final float midInc = (float)((count - increment) / Math.ceil((count - increment) / segmentLength));
 			for (i = increment / 2; i < count - 0.1 - increment / 2; i += midInc) {
 				renderSingleSegment(
