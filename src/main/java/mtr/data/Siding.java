@@ -585,7 +585,9 @@ public class Siding extends SavedRailBase implements IPacket {
 							if (stoppingDistance < 0.5F * speed * speed / ACCELERATION) {
 								speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
 							} else {
-								final float railSpeed = path.get(getIndex(0, trainSpacing, false)).rail.railType.maxBlocksPerTick;
+								final RailType rail = path.get(getIndex(0, trainSpacing, false)).rail.railType;
+								final float railSpeed = rail.canAccelerate ? rail.maxBlocksPerTick : Math.max(RailType.WOODEN.maxBlocksPerTick, speed);
+
 								if (speed < railSpeed) {
 									speed = Math.min(speed + newAcceleration, railSpeed);
 								} else if (speed > railSpeed) {
