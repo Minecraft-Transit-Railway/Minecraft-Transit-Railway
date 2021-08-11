@@ -22,6 +22,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
@@ -63,6 +65,7 @@ public class ItemRailModifier extends Item {
 			final BlockPos posStart = context.getBlockPos();
 			final BlockState stateStart = world.getBlockState(posStart);
 			final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
+			final PlayerEntity player = context.getPlayer();
 
 			if (stateStart.getBlock() instanceof BlockRail) {
 				if (nbtCompound.contains(TAG_POS)) {
@@ -71,7 +74,6 @@ public class ItemRailModifier extends Item {
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
 					if (stateEnd.getBlock() instanceof BlockRail) {
-						final PlayerEntity player = context.getPlayer();
 						if (isConnector) {
 							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
 							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
@@ -110,9 +112,16 @@ public class ItemRailModifier extends Item {
 
 				return ActionResult.SUCCESS;
 			} else {
-				BlockState state = world.getBlockState(context.getBlockPos());
-				// FIXME: Disabled for benchmark
-				// nbtCompound.putString(TAG_BALLAST_TEXTURE, Registry.BLOCK.getId(state.getBlock()).toString());
+				if (player != null && player.isSneaking()) {
+					nbtCompound.putString(TAG_BALLAST_TEXTURE, "");
+					player.sendMessage(new TranslatableText("gui.mtr.ballast_none"), true);
+				} else {
+					BlockState state = world.getBlockState(context.getBlockPos());
+					nbtCompound.putString(TAG_BALLAST_TEXTURE, Registry.BLOCK.getId(state.getBlock()).toString());
+					if (player != null) {
+						player.sendMessage(new TranslatableText(state.getBlock().getTranslationKey()), true);
+					}
+				}
 				return ActionResult.SUCCESS;
 			}
 		} else {
@@ -134,7 +143,9 @@ public class ItemRailModifier extends Item {
 
 		final String ballastTexture = nbtCompound.getString(TAG_BALLAST_TEXTURE);
 		if (!ballastTexture.isEmpty()) {
-			tooltip.add(new LiteralText(ballastTexture).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+			final String[] parts = ballastTexture.split(":", 2);
+			final String translationKey = "block." + parts[0] + "." + parts[1].replace('/', '.');
+			tooltip.add(new TranslatableText(translationKey).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 	}
 

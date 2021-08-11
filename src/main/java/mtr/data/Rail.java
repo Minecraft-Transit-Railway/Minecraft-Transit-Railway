@@ -276,8 +276,7 @@ public class Rail extends SerializedDataBase {
 		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
 		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
-		// FIXME: Disabled for benchmark
-		// nbtCompound.putString(KEY_BALLAST_TEXTURE, ballastTexture);
+		nbtCompound.putString(KEY_BALLAST_TEXTURE, ballastTexture);
 		return nbtCompound;
 	}
 

@@ -155,6 +155,7 @@
 	"gui.mtr.untitled": "未命名",
 	"gui.mtr.zone": "收费区",
 	"gui.mtr.zone_number": "%s 号收费区",
+	"gui.mtr.ballast_none": "道床已消除",
 	"item.mtr.apg_door": "月台自动闸门",
 	"item.mtr.apg_glass": "月台自动闸门",
 	"item.mtr.apg_glass_end": "月台自动闸门",

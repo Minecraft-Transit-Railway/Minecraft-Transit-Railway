@@ -348,7 +348,6 @@ public class RenderTrains implements IGui {
 				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
 				final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
 				final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
-				final float dV = Math.abs(t2 - t1);
 				if (shouldNotRender(player, new BlockPos(rc1.x, y1, rc1.z), maxRailDistance)) {
 					return;
 				}
@@ -356,6 +355,7 @@ public class RenderTrains implements IGui {
 				final int lightRail = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
 
 				if (rail.railType == RailType.NONE && renderColors) {
+					// TODO: Investigate fighting
 					final VertexConsumer vcRailArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
 					IDrawing.drawTexture(matrices, vcRailArrow, rc1.x, y1 + SMALL_OFFSET, rc1.z, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc3.x, y2 + SMALL_OFFSET, rc3.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
 					IDrawing.drawTexture(matrices, vcRailArrow, rc2.x, y1 + SMALL_OFFSET * 2, rc2.z, rc1.x, y1 + SMALL_OFFSET, rc1.z, rc4.x, y2 + SMALL_OFFSET * 2, rc4.z, rc3.x, y2 + SMALL_OFFSET, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
