@@ -49,6 +49,8 @@ public class RenderTrains implements IGui {
 	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini(false);
 	private static final ModelSP1900 MODEL_C1141A = new ModelSP1900(true);
 	private static final ModelSP1900Mini MODEL_C1141A_MINI = new ModelSP1900Mini(true);
+	private static final ModelMLR MODEL_MLR = new ModelMLR();
+	private static final ModelMLRMini MODEL_MLR_MINI = new ModelMLRMini();
 	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain();
@@ -351,12 +353,16 @@ public class RenderTrains implements IGui {
 		switch (trainType) {
 			case SP1900:
 				return MODEL_SP1900;
-			case C1141A:
-				return MODEL_C1141A;
 			case SP1900_MINI:
 				return MODEL_SP1900_MINI;
+			case C1141A:
+				return MODEL_C1141A;
 			case C1141A_MINI:
 				return MODEL_C1141A_MINI;
+			case MLR:
+				return MODEL_MLR;
+			case MLR_MINI:
+				return MODEL_MLR_MINI;
 			case M_TRAIN:
 				return MODEL_M_TRAIN;
 			case M_TRAIN_MINI:

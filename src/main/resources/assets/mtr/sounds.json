@@ -3959,6 +3959,22 @@
 			}
 		]
 	},
+	"mlr_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:mlr/door_open",
+				"pitch": 0.5
+			}
+		]
+	},
+	"mlr_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:mlr/door_close",
+				"pitch": 0.5
+			}
+		]
+	},
 	"m_train_door_open": {
 		"sounds": [
 			{
