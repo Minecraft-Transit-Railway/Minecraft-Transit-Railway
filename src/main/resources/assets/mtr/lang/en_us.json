@@ -263,6 +263,8 @@
 	"train.mtr.K_TRAIN_MINI": "K-Train (Mini)",
 	"train.mtr.LIGHT_RAIL_1": "Light Rail (Phase 1)",
 	"train.mtr.MINECART": "Minecart",
+	"train.mtr.MLR": "MLR Train",
+	"train.mtr.MLR_MINI": "MLR Train (Mini)",
 	"train.mtr.M_TRAIN": "M-Train",
 	"train.mtr.M_TRAIN_MINI": "M-Train (Mini)",
 	"train.mtr.SP1900": "SP1900",
