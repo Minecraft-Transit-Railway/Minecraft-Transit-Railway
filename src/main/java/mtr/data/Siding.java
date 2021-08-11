@@ -400,7 +400,6 @@ public class Siding extends SavedRailBase implements IPacket {
 		private static final float CONNECTION_HEIGHT = 2.25F;
 		private static final float CONNECTION_Z_OFFSET = 0.5F;
 		private static final float CONNECTION_X_OFFSET = 0.25F;
-		private boolean accelOnPlatform;
 
 		private Train(World world, long id, long sidingId, float railLength, List<PathData> path, List<Float> distances) {
 			super(id);
@@ -587,18 +586,11 @@ public class Siding extends SavedRailBase implements IPacket {
 								speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
 							} else {
 								final RailType rail = path.get(getIndex(0, trainSpacing, false)).rail.railType;
-								final float railSpeed = rail.maxBlocksPerTick;
+								final float railSpeed = rail.canAccelerate ? rail.maxBlocksPerTick : speed;
 
-								if(speed < RailType.WOODEN.maxBlocksPerTick) {
-									accelOnPlatform = true;
-								} else if(speed == railSpeed) {
-									accelOnPlatform = false;
-								}
-
-								if (speed < railSpeed && ((rail != RailType.PLATFORM && rail != RailType.SIDING && rail != RailType.TURN_BACK) || accelOnPlatform)) {
+								if (speed < railSpeed) {
 									speed = Math.min(speed + newAcceleration, railSpeed);
 								} else if (speed > railSpeed) {
-									accelOnPlatform = false;
 									speed = Math.max(speed - newAcceleration, railSpeed);
 								}
 							}
