@@ -1,13 +1,7 @@
 {
 	"textures": {
 		"particle": "mtr:block/metal",
-		"back": "mtr:block/black",
-		"orange": "mtr:block/light_on",
-		"pids1": "mtr:block/pids_1",
-		"pids2": "mtr:block/pids_2",
-		"pids3": "mtr:block/pids_3",
-		"pids4": "mtr:block/pids_4",
-		"pids5": "mtr:block/pids_5"
+		"back": "mtr:block/black"
 	},
 	"elements": [
 		{   "__comment": "Main",

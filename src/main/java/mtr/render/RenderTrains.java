@@ -94,6 +94,7 @@ public class RenderTrains implements IGui {
 		final boolean isReplayMod = isReplayMod(player);
 		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 
+		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
 			if (lastFrameDuration > 0.8) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
@@ -149,8 +150,10 @@ public class RenderTrains implements IGui {
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			final Identifier roofTextureId = new Identifier(getConnectorTextureString(trainType.id, "roof"));
+			final Identifier floorTextureId = new Identifier(getConnectorTextureString(trainType.id, "floor"));
+			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(roofTextureId) : MoreRenderLayers.getExterior(roofTextureId)), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(floorTextureId) : MoreRenderLayers.getExterior(floorTextureId)), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -177,37 +180,61 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
-			final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
 				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
-					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
-					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
+					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 					if (nextStation != null) {
-						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
+						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
+						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
 						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
 						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
+							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final String mergedStations = IGui.mergeStations(interchangeRoutes, ", ");
 							if (!mergedStations.isEmpty()) {
-								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
+								messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedStations));
+							}
+						}
+
+						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
+							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							if (nextFinalStation != null) {
+								if (nextRoute.isLightRailRoute) {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+								} else {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_announcement_cjk", "gui.mtr.next_route_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+								}
 							}
 						}
 					}
 
-					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-					if (useTTSAnnouncements) {
-						Narrator.getNarrator().say(message, false);
-					}
-					if (showAnnouncementMessages) {
-						player.sendMessage(Text.of(message), false);
+					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
+					if (!message.isEmpty()) {
+						if (useTTSAnnouncements) {
+							Narrator.getNarrator().say(message, false);
+						}
+						if (showAnnouncementMessages) {
+							player.sendMessage(Text.of(message), false);
+						}
 					}
 				});
 			}
-		}, (platformId, arrivalMillis, departureMillis, trainType, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+		}, (stopIndex, routeIds) -> {
+			if (useTTSAnnouncements) {
+				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					if (thisRoute.isLightRailRoute && lastStation != null) {
+						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), false);
+					}
+				});
+			}
+		}, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (lastStation != null) {
 				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
 					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
@@ -378,7 +405,7 @@ public class RenderTrains implements IGui {
 
 	private static Text getStationText(Station station, String textKey) {
 		if (station != null) {
-			return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station.name), new TranslatableText("gui.mtr." + textKey + "_station_cjk").getString(), new TranslatableText("gui.mtr." + textKey + "_station").getString(), "", "")));
+			return Text.of(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
 		} else {
 			return new LiteralText("");
 		}
