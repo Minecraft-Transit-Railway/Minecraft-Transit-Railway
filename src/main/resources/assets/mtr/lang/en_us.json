@@ -267,6 +267,8 @@
 	"tooltip.mtr.railway_sign_length": "Length: %s",
 	"tooltip.mtr.railway_sign_odd": "Orientation: Odd",
 	"tooltip.mtr.selected_block": "Selected Block: %s",
+	"tooltip.mtr.ballast_usage_set": "Right-click on block to set ballast",
+	"tooltip.mtr.ballast_usage_unset": "Right-click while sneaking to remove ballast",
 	"tooltip.mtr.station_color": "Colour depends on the station",
 	"tooltip.mtr.station_color_name": "Colour and text depend on the station",
 	"train.mtr.A_TRAIN_AEL": "CAF Airport Express",

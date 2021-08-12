@@ -145,7 +145,10 @@ public class ItemRailModifier extends Item {
 		if (!ballastTexture.isEmpty()) {
 			final String[] parts = ballastTexture.split(":", 2);
 			final String translationKey = "block." + parts[0] + "." + parts[1].replace('/', '.');
+			tooltip.add(new TranslatableText("tooltip.mtr.ballast_usage_unset").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 			tooltip.add(new TranslatableText(translationKey).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		} else {
+			tooltip.add(new TranslatableText("tooltip.mtr.ballast_usage_set").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 	}
 

@@ -374,7 +374,7 @@ public class Rail extends SerializedDataBase {
 				pc.a = 2 * (float)Math.atan(pc.H / pc.L);
 				pc.k = (float)Math.tan(pc.a);
 			} else {
-				pc.lT = Math.min(Math.max(2, pc.L / 5), 6);
+				pc.lT = Math.min(Math.max(2, pc.L / 5), 10); // Min 2, Max 10
 				pc.lC = pc.L - 2 * pc.lT;
 				float deltaKMin = Float.MAX_VALUE;
 				// Exact value requires solving a cubic equation. So just take an approximation.
@@ -417,10 +417,9 @@ public class Rail extends SerializedDataBase {
 				i + rawValueOffset, i + increment / 2 + rawValueOffset,
 				isStraight, true, callback
 		);
-		if (isStraight() && isFlat()) {
-			// Save some performance
-			// Sacrifices lighting accuracy
-			final float segmentLength = 8;
+		/*if (isStraight() && isFlat()) {
+			// This saves some performance, but sacrifices lighting accuracy
+			final float segmentLength = 4;
 			final float midInc = (float)((count - increment) / Math.ceil((count - increment) / segmentLength));
 			for (i = increment / 2; i < count - 0.1 - increment / 2; i += midInc) {
 				renderSingleSegment(
@@ -430,17 +429,17 @@ public class Rail extends SerializedDataBase {
 						isStraight, false, callback
 				);
 			}
-		} else {
-			// Middle segments, 1 block long
-			for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
-				renderSingleSegment(
-						h, k, r,
-						(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment) + tStart,
-						i + rawValueOffset, i + increment + rawValueOffset,
-						isStraight, false, callback
-				);
-			}
+		} else {*/
+		// Middle segments, 1 block long
+		for (i = increment / 2; i < count - 0.1 - increment / 2; i += increment) {
+			renderSingleSegment(
+					h, k, r,
+					(reverseT ? -1 : 1) * i + tStart, (reverseT ? -1 : 1) * (i + increment) + tStart,
+					i + rawValueOffset, i + increment + rawValueOffset,
+					isStraight, false, callback
+			);
 		}
+		// }
 		// Last segment, 0.5 block long
 		renderSingleSegment(
 				h, k, r,

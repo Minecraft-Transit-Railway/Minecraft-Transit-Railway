@@ -267,6 +267,8 @@
 	"tooltip.mtr.railway_sign_length": "長度：%s",
 	"tooltip.mtr.railway_sign_odd": "擺放模式：單數",
 	"tooltip.mtr.selected_block": "已選定方塊：",
+	"tooltip.mtr.ballast_usage_set": "對方塊右擊可選擇道床",
+	"tooltip.mtr.ballast_usage_unset": "潛行時右擊可移除道床",
 	"tooltip.mtr.station_color": "顏色取決於車站",
 	"tooltip.mtr.station_color_name": "顏色和文字取決於車站",
 	"train.mtr.A_TRAIN_AEL": "CAF 機場快綫列車",

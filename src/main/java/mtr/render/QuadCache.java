@@ -25,17 +25,8 @@ public class QuadCache {
         float r, g, b, a;
         Direction facing;
         BlockPos pos;
-        boolean isBlockFace;
 
         float[] brightness = null; int[] light = null;
-
-        public void apply(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate, boolean applyColor) {
-            if (isBlockFace) {
-                applyBlock(vertexConsumer, matrices, world, performLightUpdate, applyColor);
-            } else {
-                applyNonBlock(vertexConsumer, matrices, world, performLightUpdate, applyColor);
-            }
-        }
 
         public void applyNonBlock(VertexConsumer vertexConsumer, MatrixStack matrices, World world, boolean performLightUpdate, boolean applyColor) {
             final Vec3i vec3i = facing.getVector();
@@ -130,15 +121,15 @@ public class QuadCache {
 
     public static class QuadCacheList {
         public Identifier texture;
-        public boolean isSolid;
+        public boolean isSolid, isBlockFace, isOptional;
         public ArrayList<QuadCacheItem> cacheList = new ArrayList<>();
 
-        public void addNonBlockFace(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4,
-                                    float u1, float v1, float u2, float v2, Direction facing, int color, BlockPos lightRefPos) {
+        public void addFace(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4,
+                            float u1, float v1, float u2, float v2, Direction facing, int color, BlockPos lightRefPos) {
             final QuadCacheItem item = new QuadCacheItem();
             item.x1 = x1; item.y1 = y1; item.z1 = z1; item.x2 = x2; item.y2 = y2; item.z2 = z2; item.x3 = x3; item.y3 = y3; item.z3 = z3; item.x4 = x4; item.y4 = y4; item.z4 = z4;
             item.u1 = u1; item.v1 = v2; item.u2 = u2; item.v2 = v2; item.u3 = u2; item.v3 = v1; item.u4 = u1; item.v4 = v1;
-            item.facing = facing; item.pos = lightRefPos; item.isBlockFace = false;
+            item.facing = facing; item.pos = lightRefPos;
             item.a = ((color >> 24) & 0xFF) / 255F;
             item.r = ((color >> 16) & 0xFF) / 255F;
             item.g = ((color >> 8) & 0xFF)/ 255F;
@@ -153,7 +144,7 @@ public class QuadCache {
             final QuadCacheItem item = new QuadCacheItem();
             item.x1 = x1; item.y1 = y1; item.z1 = z1; item.x2 = x2; item.y2 = y2; item.z2 = z2; item.x3 = x3; item.y3 = y3; item.z3 = z3; item.x4 = x4; item.y4 = y4; item.z4 = z4;
             item.u1 = u1; item.v1 = v1; item.u2 = u2; item.v2 = v2; item.u3 = u3; item.v3 = v3; item.u4 = u4; item.v4 = v4;
-            item.facing = facing; item.pos = pos; item.isBlockFace = true;
+            item.facing = facing; item.pos = pos;
             item.r = ((color >> 16) & 0xFF) / 255F;
             item.g = ((color >> 8) & 0xFF) / 255F;
             item.b = (color & 0xFF) / 255F;
@@ -168,9 +159,16 @@ public class QuadCache {
             final VertexConsumer vc = vertexConsumers.getBuffer(isSolid ? MoreRenderLayers.getSolid(texture) : MoreRenderLayers.getExterior(texture));
 
             // Caching light data - how much impact does it have?
-            for (int i = 0; i < cacheList.size(); i++) {
-                cacheList.get(i).apply(vc, matrices, world,
-                        i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame, applyColor);
+            if (isBlockFace) {
+                for (int i = 0; i < cacheList.size(); i++) {
+                    cacheList.get(i).applyBlock(vc, matrices, world,
+                            i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame, applyColor);
+                }
+            } else {
+                for (int i = 0; i < cacheList.size(); i++) {
+                    cacheList.get(i).applyNonBlock(vc, matrices, world,
+                            i >= lightUpdateIndex && i < lightUpdateIndex + updatesPerFrame, applyColor);
+                }
             }
             lightUpdateIndex += updatesPerFrame;
             if (lightUpdateIndex > cacheList.size()) lightUpdateIndex = 0;
@@ -184,20 +182,25 @@ public class QuadCache {
         cacheMap = null;
     }
 
-    public QuadCacheList withTexture(String texture, boolean isSolid) {
-        if (cacheMap.containsKey(texture)) return cacheMap.get(texture);
+    public QuadCacheList createList(String texture, boolean isSolid, boolean isBlockFace, boolean isOptional) {
+        final String cacheName = isBlockFace ? texture + ":B" : texture;
+        if (cacheMap.containsKey(cacheName)) return cacheMap.get(cacheName);
         final QuadCacheList item = new QuadCacheList();
-        item.isSolid = isSolid; item.texture = new Identifier(texture);
-        cacheMap.put(texture, item);
+        item.texture = new Identifier(texture);
+        item.isSolid = isSolid; item.isBlockFace = isBlockFace; item.isOptional = isOptional;
+        cacheMap.put(cacheName, item);
         return item;
     }
 
-    public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world, boolean applyColor, RenderCallback callback) {
+    public void renderWithCache(VertexConsumerProvider vertexConsumers, MatrixStack matrices, World world,
+            boolean applyColor, boolean showOptional, RenderCallback callback) {
         if (cacheMap == null) {
             cacheMap = new HashMap<>();
             callback.renderCallback(this);
         }
-        cacheMap.forEach((texture, list) -> list.apply(vertexConsumers, matrices, world, applyColor));
+        cacheMap.forEach((texture, list) -> {
+            if (!list.isOptional || showOptional) list.apply(vertexConsumers, matrices, world, applyColor);
+        });
     }
 
     @FunctionalInterface
