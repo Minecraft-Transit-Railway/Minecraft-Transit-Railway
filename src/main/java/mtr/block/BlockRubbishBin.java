@@ -58,17 +58,13 @@ public class BlockRubbishBin extends HorizontalFacingBlock {
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		IBlock.checkHoldingBrush(world, player, () -> {
-			//If brush is used, reset the bin
 			world.setBlockState(pos, state.with(FILLED, 0));
 		}, () -> {
-			//Otherwise if the brush isn't used, do not proceed if the player's right hand is empty.
 			if(!player.inventory.getMainHandStack().isEmpty()) {
 				int nextState = world.getBlockState(pos).get(FILLED) + 1;
 				if (nextState <= 10) {
 					world.setBlockState(pos, state.with(FILLED, nextState));
 					player.inventory.getMainHandStack().decrement(1);
-					//Schedule to reset the bin after 1200 ticks (1min) if the bin is full
-					if(nextState == 10) world.getBlockTickScheduler().schedule(pos, this, 1200);
 				}
 			}
 		});
@@ -77,7 +73,13 @@ public class BlockRubbishBin extends HorizontalFacingBlock {
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		world.setBlockState(pos, state.with(FILLED, 0));
+	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+		int prevValue = world.getBlockState(pos).get(FILLED) - 1;
+		if(prevValue >= 0) world.setBlockState(pos, state.with(FILLED, prevValue));
+	}
+
+	@Override
+	public boolean hasRandomTicks(BlockState state) {
+		return true;
 	}
 }
