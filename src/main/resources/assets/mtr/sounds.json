@@ -9130,5 +9130,13 @@
 				"attenuation_distance": 32
 			}
 		]
+	},
+	"tactile_map_music": {
+		"sounds": [
+			{
+				"name": "mtr:tactile_map_music",
+				"pitch": 1
+			}
+		]
 	}
 }

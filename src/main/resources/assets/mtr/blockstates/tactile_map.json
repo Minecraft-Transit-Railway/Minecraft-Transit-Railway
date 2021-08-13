@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mtr:block/tactile_map",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mtr:block/tactile_map"
+    },
+    "facing=south": {
+      "model": "mtr:block/tactile_map",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mtr:block/tactile_map",
+      "y": 270
+    }
+  }
+}

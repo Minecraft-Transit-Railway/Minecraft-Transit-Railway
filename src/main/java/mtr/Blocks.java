@@ -103,4 +103,5 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
 	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
+	Block TACTILE_MAP = new BlockTactileMap();
 }
