@@ -141,7 +141,7 @@ public class ModelLightRail extends ModelTrainBase {
 		door_left_5 = new ModelMapper(modelPartData);
 		door_left_5.setPivot(0, 0, 0);
 		door_5.addChild(door_left_5);
-		door_left_5.setTextureOffset(167, 217).addCuboid(-20, -32, 0, 0, 32, 16, 0, false);
+		door_left_5.setTextureOffset(167, 218).addCuboid(-20.0F, -32.0F, 0.0F, 0.0F, 32.0F, 16.0F, 0.0F, false);
 
 		door_right_5 = new ModelMapper(modelPartData);
 		door_right_5.setPivot(0, 0, 0);
@@ -751,6 +751,9 @@ public class ModelLightRail extends ModelTrainBase {
 
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_3 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_3_left.png", "door_overlay_light_rail_3_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", true, false);
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
@@ -845,6 +848,7 @@ public class ModelLightRail extends ModelTrainBase {
 			case EXTERIOR:
 				switch (phase) {
 					case 1:
+					case 2:
 						renderOnce(head_exterior_1, matrices, vertices, light, position);
 						break;
 					case 3:
@@ -904,7 +908,18 @@ public class ModelLightRail extends ModelTrainBase {
 
 	@Override
 	protected ModelDoorOverlay getModelDoorOverlay() {
-		return MODEL_DOOR_OVERLAY;
+		switch (phase) {
+			case 1:
+			case 2:
+				return MODEL_DOOR_OVERLAY;
+			case 3:
+				return MODEL_DOOR_OVERLAY_3;
+			case 4:
+				return MODEL_DOOR_OVERLAY_4;
+			case 5:
+				return MODEL_DOOR_OVERLAY_5;
+		}
+		return null;
 	}
 
 	@Override
@@ -951,6 +966,7 @@ public class ModelLightRail extends ModelTrainBase {
 						return smoothEnds(-3, 3, -0.1F, 0.1F, value);
 					}
 				}
+			case 2:
 			case 3:
 			case 5:
 				return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
