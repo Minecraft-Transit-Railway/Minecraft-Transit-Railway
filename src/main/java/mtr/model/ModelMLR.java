@@ -1242,9 +1242,12 @@ public class ModelMLR extends ModelTrainBase {
 				door_right_exterior.setPivot(0, 0, -doorLeftZ);
 				renderOnceFlipped(door_exterior, matrices, vertices, light, position);
 				renderMirror(roof_exterior, matrices, vertices, light, position);
-				if (middleDoor && !doorOpen && renderDetails) {
+
+				if (middleDoor && renderDetails) {
 					renderMirror(door_light, matrices, vertices, light, position - 22);
-					renderMirror(door_light_off, matrices, vertices, light, position - 22);
+					if (!doorOpen) {
+						renderMirror(door_light_off, matrices, vertices, light, position - 22);
+					}
 				}
 				break;
 		}
