@@ -77,6 +77,8 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent[] C1141A_DECELERATION = registerSoundEvents(C1141A_SPEED_COUNT, 3, "c1141a_deceleration_");
 	public static final SoundEvent SP1900_DOOR_OPEN = registerSoundEvent("sp1900_door_open");
 	public static final SoundEvent SP1900_DOOR_CLOSE = registerSoundEvent("sp1900_door_close");
+	public static final SoundEvent MLR_DOOR_OPEN = registerSoundEvent("mlr_door_open");
+	public static final SoundEvent MLR_DOOR_CLOSE = registerSoundEvent("mlr_door_close");
 	private static final int M_TRAIN_SPEED_COUNT = 90;
 	public static final SoundEvent[] M_TRAIN_ACCELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_acceleration_");
 	public static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
