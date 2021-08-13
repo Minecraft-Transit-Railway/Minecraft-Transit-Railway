@@ -50,6 +50,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_WKS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NA_PLATFORM_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NA_PLATFORM_2, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_1, RenderLayer.getCutout());
