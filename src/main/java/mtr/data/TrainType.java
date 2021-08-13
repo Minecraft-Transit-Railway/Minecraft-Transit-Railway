@@ -14,8 +14,8 @@ public enum TrainType {
 	SP1900_MINI(0x003399, 12, 2, true, MTR.SP1900_ACCELERATION, MTR.SP1900_DECELERATION, MTR.SP1900_DOOR_OPEN, MTR.SP1900_DOOR_CLOSE, 0.5F, "sp1900"),
 	C1141A(0xB42249, 24, 2, true, MTR.C1141A_ACCELERATION, MTR.C1141A_DECELERATION, MTR.SP1900_DOOR_OPEN, MTR.SP1900_DOOR_CLOSE, 0.5F, "c1141a"),
 	C1141A_MINI(0xB42249, 12, 2, true, MTR.C1141A_ACCELERATION, MTR.C1141A_DECELERATION, MTR.SP1900_DOOR_OPEN, MTR.SP1900_DOOR_CLOSE, 0.5F, "c1141a"),
-	MLR(0x6CB5E2, 24, 2, true, null, null, MTR.MLR_DOOR_OPEN, MTR.MLR_DOOR_CLOSE, 0.5F, "mlr"),
-	MLR_MINI(0x6CB5E2, 12, 2, true, null, null, MTR.MLR_DOOR_OPEN, MTR.MLR_DOOR_CLOSE, 0.5F, "mlr"),
+	MLR(0x6CB5E2, 24, 2, true, MTR.MLR_ACCELERATION, MTR.MLR_DECELERATION, MTR.MLR_DOOR_OPEN, MTR.MLR_DOOR_CLOSE, 0.5F, true, "mlr"),
+	MLR_MINI(0x6CB5E2, 12, 2, true, MTR.MLR_ACCELERATION, MTR.MLR_DECELERATION, MTR.MLR_DOOR_OPEN, MTR.MLR_DOOR_CLOSE, 0.5F, true, "mlr"),
 	M_TRAIN(0x999999, 24, 2, true, MTR.M_TRAIN_ACCELERATION, MTR.M_TRAIN_DECELERATION, MTR.M_TRAIN_DOOR_OPEN, MTR.M_TRAIN_DOOR_CLOSE, 0.5F, "m_train"),
 	M_TRAIN_MINI(0x999999, 9, 2, true, MTR.M_TRAIN_ACCELERATION, MTR.M_TRAIN_DECELERATION, MTR.M_TRAIN_DOOR_OPEN, MTR.M_TRAIN_DOOR_CLOSE, 0.5F, "m_train"),
 	K_TRAIN(0x0EAB52, 24, 2, true, MTR.K_TRAIN_ACCELERATION, MTR.K_TRAIN_DECELERATION, MTR.K_TRAIN_DOOR_OPEN, MTR.K_TRAIN_DOOR_CLOSE, 1, "k_train"),
@@ -43,16 +43,22 @@ public enum TrainType {
 	private final int speedCount;
 	private final SoundEvent[] accelerationSoundEvents;
 	private final SoundEvent[] decelerationSoundEvents;
+	private final boolean useAccelerationSoundsWhenCoasting;
 	private final int length;
 
 	private static final int TICKS_PER_SPEED_SOUND = 4;
 
 	TrainType(int color, int length, int width, boolean shouldRenderConnection, SoundEvent[] accelerationSoundEvents, SoundEvent[] decelerationSoundEvents, SoundEvent doorOpenSoundEvent, SoundEvent doorCloseSoundEvent, float doorCloseSoundTime, String id) {
+		this(color, length, width, shouldRenderConnection, accelerationSoundEvents, decelerationSoundEvents, doorOpenSoundEvent, doorCloseSoundEvent, doorCloseSoundTime, false, id);
+	}
+
+	TrainType(int color, int length, int width, boolean shouldRenderConnection, SoundEvent[] accelerationSoundEvents, SoundEvent[] decelerationSoundEvents, SoundEvent doorOpenSoundEvent, SoundEvent doorCloseSoundEvent, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, String id) {
 		this.color = color;
 		this.length = length;
 		this.width = width;
 		this.accelerationSoundEvents = accelerationSoundEvents;
 		this.decelerationSoundEvents = decelerationSoundEvents;
+		this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
 		this.doorOpenSoundEvent = doorOpenSoundEvent;
 		this.doorCloseSoundEvent = doorCloseSoundEvent;
 		this.shouldRenderConnection = shouldRenderConnection;
@@ -74,7 +80,7 @@ public enum TrainType {
 			final int floorSpeed = (int) Math.floor(speed / Siding.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
-				final boolean isAccelerating = speed == oldSpeed ? new Random().nextBoolean() : speed > oldSpeed;
+				final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
 				world.playSound(null, pos, isAccelerating ? accelerationSoundEvents[index] : decelerationSoundEvents[index], SoundCategory.BLOCKS, 1, 1);
 			}
 		}
