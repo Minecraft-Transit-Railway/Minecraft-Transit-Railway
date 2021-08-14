@@ -10,7 +10,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -179,7 +178,7 @@ public class RouteRenderer implements IGui {
 		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList()));
 
 		if (!destinationString.isEmpty() && visibleArrow) {
-			destinationString = IGui.addToStationName(destinationString, new TranslatableText("gui.mtr.to_cjk").getString(), new TranslatableText("gui.mtr.to").getString(), "", "");
+			destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
 		}
 
 		final boolean leftToRight = hasLeft || !hasRight;

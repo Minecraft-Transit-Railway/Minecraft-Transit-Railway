@@ -205,7 +205,7 @@ public class RailwayData extends PersistentState implements IPacket {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(null, 1, trainPositions, null, null, null, null, null);
+			siding.simulateTrain(null, 1, trainPositions, null, null, null, null, null, null);
 		});
 
 		final Set<PlayerEntity> playersToRemove = new HashSet<>();

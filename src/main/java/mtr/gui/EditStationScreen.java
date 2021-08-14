@@ -1,13 +1,10 @@
 package mtr.gui;
 
 import mtr.data.DataConverter;
-import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Station;
-import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,22 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EditStationScreen extends Screen implements IGui, IPacket {
+public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	String editingExit;
 	int editingDestinationIndex;
 
-	private final Station station;
-	private final DashboardScreen dashboardScreen;
-
-	private final Text stationNameText = new TranslatableText("gui.mtr.station_name");
-	private final Text stationColorText = new TranslatableText("gui.mtr.station_color");
 	private final Text stationZoneText = new TranslatableText("gui.mtr.zone");
 	private final Text exitParentsText = new TranslatableText("gui.mtr.exit_parents");
 	private final Text exitDestinationsText = new TranslatableText("gui.mtr.exit_destinations");
 
-	private final TextFieldWidget textFieldName;
-	private final TextFieldWidget textFieldColor;
 	private final TextFieldWidget textFieldZone;
 	private final TextFieldWidget textFieldExitParentLetter;
 	private final TextFieldWidget textFieldExitParentNumber;
@@ -51,13 +41,8 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	private static final int EXIT_PANELS_START = SQUARE_SIZE * 3 + TEXT_FIELD_PADDING + TEXT_PADDING;
 
 	public EditStationScreen(Station station, DashboardScreen dashboardScreen) {
-		super(new LiteralText(""));
-		this.station = station;
-		this.dashboardScreen = dashboardScreen;
-
+		super(station, dashboardScreen, "gui.mtr.station_name", "gui.mtr.station_color");
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldZone = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldExitParentLetter = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		textFieldExitParentNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
@@ -74,11 +59,9 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 
 	@Override
 	protected void init() {
-		super.init();
-		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, yStart, width - width / 2 - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(textFieldColor, width / 2 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(textFieldZone, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
+		setPositionsAndInit(0, width / 2, width / 4 * 3);
+
+		IDrawing.setPositionAndWidth(textFieldZone, width / 4 * 3 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, width / 4 - TEXT_FIELD_PADDING);
 
 		final int yExitText = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING / 2;
 		IDrawing.setPositionAndWidth(textFieldExitParentLetter, TEXT_FIELD_PADDING / 2, yExitText, width / 4 - TEXT_FIELD_PADDING);
@@ -90,18 +73,8 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		IDrawing.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
-		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
-		textFieldName.setText(station.name);
-		textFieldColor.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
-		textFieldColor.setText(DashboardScreen.colorIntToString(station.color));
-		textFieldColor.setChangedListener(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
-			if (!newText.equals(text)) {
-				textFieldColor.setText(newText);
-			}
-		});
 		textFieldZone.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
-		textFieldZone.setText(String.valueOf(station.zone));
+		textFieldZone.setText(String.valueOf(data.zone));
 		textFieldZone.setChangedListener(text -> {
 			final String newText = text.replaceAll("[^0-9-]", "");
 			if (!newText.equals(text)) {
@@ -140,8 +113,6 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		exitParentList.init();
 		exitDestinationList.init();
 
-		addChild(textFieldName);
-		addChild(textFieldColor);
 		addChild(textFieldZone);
 		addChild(textFieldExitParentLetter);
 		addChild(textFieldExitParentNumber);
@@ -156,8 +127,7 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 
 	@Override
 	public void tick() {
-		textFieldName.tick();
-		textFieldColor.tick();
+		super.tick();
 		textFieldZone.tick();
 		textFieldExitParentLetter.tick();
 		textFieldExitParentNumber.tick();
@@ -166,14 +136,14 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		exitParentList.tick();
 		exitDestinationList.tick();
 
-		final List<DataConverter> exitParents = station.exits.keySet().stream().sorted().map(value -> {
-			final List<String> destinations = station.exits.get(value);
+		final List<DataConverter> exitParents = data.exits.keySet().stream().sorted().map(value -> {
+			final List<String> destinations = data.exits.get(value);
 			final String additional = destinations.size() > 1 ? "(+" + (destinations.size() - 1) + ")" : "";
 			return new DataConverter(destinations.size() > 0 ? value + "|" + destinations.get(0) + "|" + additional : value, 0);
 		}).collect(Collectors.toList());
 		exitParentList.setData(exitParents, false, false, true, false, false, true);
 
-		final List<DataConverter> exitDestinations = parentExists() ? station.exits.get(editingExit).stream().map(value -> new DataConverter(value, 0)).collect(Collectors.toList()) : new ArrayList<>();
+		final List<DataConverter> exitDestinations = parentExists() ? data.exits.get(editingExit).stream().map(value -> new DataConverter(value, 0)).collect(Collectors.toList()) : new ArrayList<>();
 		exitDestinationList.setData(exitDestinations, false, false, true, true, false, true);
 	}
 
@@ -181,8 +151,8 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			textFieldName.render(matrices, mouseX, mouseY, delta);
-			textFieldColor.render(matrices, mouseX, mouseY, delta);
+			renderTextFields(matrices, mouseX, mouseY, delta);
+
 			textFieldZone.render(matrices, mouseX, mouseY, delta);
 			textFieldExitParentLetter.render(matrices, mouseX, mouseY, delta);
 			textFieldExitParentNumber.render(matrices, mouseX, mouseY, delta);
@@ -193,8 +163,6 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 			exitParentList.render(matrices, textRenderer, mouseX, mouseY, delta);
 			exitDestinationList.render(matrices, textRenderer, mouseX, mouseY, delta);
 
-			drawCenteredText(matrices, textRenderer, stationNameText, width / 4, TEXT_PADDING, ARGB_WHITE);
-			drawCenteredText(matrices, textRenderer, stationColorText, width / 8 * 5, TEXT_PADDING, ARGB_WHITE);
 			drawCenteredText(matrices, textRenderer, stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
 			drawCenteredText(matrices, textRenderer, exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			if (parentExists()) {
@@ -223,23 +191,12 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			client.openScreen(dashboardScreen);
-		}
-
-		station.name = textFieldName.getText();
-		station.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
 		try {
-			station.zone = Integer.parseInt(textFieldZone.getText());
+			data.zone = Integer.parseInt(textFieldZone.getText());
 		} catch (Exception ignored) {
-			station.zone = 0;
+			data.zone = 0;
 		}
-		station.setZone(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
-	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return false;
+		data.setZone(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 	}
 
 	private void changeEditingExit(String editingExit, int editingDestinationIndex) {
@@ -250,8 +207,8 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 			textFieldExitParentLetter.setText(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
 			textFieldExitParentNumber.setText(editingExit.replaceAll("[^0-9]", ""));
 		}
-		if (editingDestinationIndex >= 0 && editingDestinationIndex < station.exits.get(editingExit).size()) {
-			textFieldExitDestination.setText(station.exits.get(editingExit).get(editingDestinationIndex));
+		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {
+			textFieldExitDestination.setText(data.exits.get(editingExit).get(editingDestinationIndex));
 		} else {
 			textFieldExitDestination.setText("");
 		}
@@ -274,7 +231,7 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 		if (!parentLetter.isEmpty() && !parentNumber.isEmpty()) {
 			try {
 				final String exitParent = parentLetter + Integer.valueOf(parentNumber);
-				station.setExitParent(editingExit, exitParent, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+				data.setExitParent(editingExit, exitParent, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -285,49 +242,49 @@ public class EditStationScreen extends Screen implements IGui, IPacket {
 	private void onDoneExitDestination() {
 		final String destination = textFieldExitDestination.getText();
 		if (parentExists() && editingDestinationIndex >= 0 && !destination.isEmpty()) {
-			final List<String> destinations = station.exits.get(editingExit);
+			final List<String> destinations = data.exits.get(editingExit);
 			if (editingDestinationIndex < destinations.size()) {
 				destinations.set(editingDestinationIndex, destination);
 			} else {
 				destinations.add(destination);
 			}
-			station.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+			data.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		}
 		changeEditingExit(editingExit, -1);
 	}
 
-	private void onEditExitParent(NameColorDataBase data, int index) {
-		changeEditingExit(formatExitName(data.name), -1);
+	private void onEditExitParent(NameColorDataBase listData, int index) {
+		changeEditingExit(formatExitName(listData.name), -1);
 	}
 
-	private void onDeleteExitParent(NameColorDataBase data, int index) {
-		station.deleteExitParent(formatExitName(data.name), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+	private void onDeleteExitParent(NameColorDataBase listData, int index) {
+		data.deleteExitParent(formatExitName(listData.name), packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		changeEditingExit(null, -1);
 	}
 
-	private void onEditExitDestination(NameColorDataBase data, int index) {
+	private void onEditExitDestination(NameColorDataBase listData, int index) {
 		changeEditingExit(editingExit, index);
 	}
 
 	private void onSortExitDestination() {
-		station.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+		data.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		changeEditingExit(editingExit, -1);
 	}
 
-	private void onDeleteExitDestination(NameColorDataBase data, int index) {
+	private void onDeleteExitDestination(NameColorDataBase listData, int index) {
 		if (parentExists()) {
-			station.exits.get(editingExit).remove(data.name);
-			station.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
+			data.exits.get(editingExit).remove(listData.name);
+			data.setExitDestinations(editingExit, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 		}
 		changeEditingExit(editingExit, -1);
 	}
 
 	private List<String> getExitDestinationList() {
-		return parentExists() ? station.exits.get(editingExit) : new ArrayList<>();
+		return parentExists() ? data.exits.get(editingExit) : new ArrayList<>();
 	}
 
 	private boolean parentExists() {
-		return editingExit != null && station.exits.containsKey(editingExit);
+		return editingExit != null && data.exits.containsKey(editingExit);
 	}
 
 	private static String formatExitName(String text) {

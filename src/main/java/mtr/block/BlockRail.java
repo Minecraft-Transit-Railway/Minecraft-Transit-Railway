@@ -122,9 +122,9 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			return nbtCompound;
 		}
 
-		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, RailType railType) {
+		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, RailType railType, String ballastTexture) {
 			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
-				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2, railType));
+				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2, railType, ballastTexture));
 
 				markDirty();
 				sync();

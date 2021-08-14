@@ -8,11 +8,17 @@ import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
 import mtr.model.*;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
@@ -24,13 +30,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RenderTrains implements IGui {
@@ -60,6 +65,24 @@ public class RenderTrains implements IGui {
 	private static final ModelLightRail MODEL_LIGHT_RAIL_4 = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_5 = new ModelLightRail(5);
 
+	private static final String TEXTURE_PATH_RAIL = "textures/block/rail.png";
+
+	private static class BlockTextureCache {
+		public String textureFile;
+		public BlockColorProvider provider;
+		public BlockState defaultState;
+
+		public BlockTextureCache(String s, BlockColorProvider provider, BlockState state) {
+			textureFile = s; this.provider = provider; this.defaultState = state;
+		}
+
+		public int getTint(World world, BlockPos pos) {
+			if (provider == null) return 0xffffff;
+			return provider.getColor(defaultState, world, pos, 0);
+		}
+	}
+	private static final HashMap<String, BlockTextureCache> blockTextureCacheMap = new HashMap<>();
+
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
 		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
@@ -71,6 +94,7 @@ public class RenderTrains implements IGui {
 		final boolean isReplayMod = isReplayMod(player);
 		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 
+		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
 			if (lastFrameDuration > 0.8) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
@@ -126,8 +150,10 @@ public class RenderTrains implements IGui {
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			final Identifier roofTextureId = new Identifier(getConnectorTextureString(trainType.id, "roof"));
+			final Identifier floorTextureId = new Identifier(getConnectorTextureString(trainType.id, "floor"));
+			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(roofTextureId) : MoreRenderLayers.getExterior(roofTextureId)), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(floorTextureId) : MoreRenderLayers.getExterior(floorTextureId)), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -154,127 +180,179 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
-			final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
 				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
-					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
-					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
+					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 					if (nextStation != null) {
-						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
+						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
+						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
 						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
 						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
+							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final String mergedStations = IGui.mergeStations(interchangeRoutes, ", ");
 							if (!mergedStations.isEmpty()) {
-								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
+								messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedStations));
+							}
+						}
+
+						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
+							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							if (nextFinalStation != null) {
+								if (nextRoute.isLightRailRoute) {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+								} else {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_announcement_cjk", "gui.mtr.next_route_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+								}
 							}
 						}
 					}
 
-					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-					if (useTTSAnnouncements) {
-						Narrator.getNarrator().say(message, false);
-					}
-					if (showAnnouncementMessages) {
-						player.sendMessage(Text.of(message), false);
+					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
+					if (!message.isEmpty()) {
+						if (useTTSAnnouncements) {
+							Narrator.getNarrator().say(message, false);
+						}
+						if (showAnnouncementMessages) {
+							player.sendMessage(Text.of(message), false);
+						}
 					}
 				});
 			}
-		}, (platformId, arrivalMillis, departureMillis, trainType, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+		}, (stopIndex, routeIds) -> {
+			if (useTTSAnnouncements) {
+				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					if (thisRoute.isLightRailRoute && lastStation != null) {
+						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), false);
+					}
+				});
+			}
+		}, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (lastStation != null) {
 				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
 					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
 				}
-				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
+
+				final String destinationString;
+				if (thisRoute != null && thisRoute.isLightRailRoute) {
+					final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+					final String[] lastStationSplit = lastStation.name.split("\\|");
+					final StringBuilder destination = new StringBuilder();
+					for (final String lastStationSplitPart : lastStationSplit) {
+						destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+					}
+					destinationString = destination.length() > 0 ? destination.substring(1) : "";
+				} else {
+					destinationString = lastStation.name;
+				}
+
+				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
 			}
 		})));
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
 		final int maxRailDistance = renderDistanceChunks * 16;
+
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+			// Save some memory?
+			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance * 2) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance * 2)) {
+				rail.quadCache.reset();
+				return;
+			}
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
 
-			rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
-				final int yf = (int)Math.floor(Math.min(y1, y2));
+			final BlockTextureCache ballastBlockMetadata = getBlockTextureMetadata(rail.ballastTexture);
+			final boolean shouldRenderColor = renderColors || rail.railType.hasSavedRail;
+			final boolean shouldRenderArrow = renderColors && rail.railType == RailType.NONE;
 
+			rail.quadCache.renderWithCache(vertexConsumers, matrices, world, shouldRenderColor, !shouldRenderArrow,
+				(cache) -> rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
+				final int yf = (int)Math.floor(Math.min(y1, y2));
+				final int yc = (int) Math.ceil(Math.max(y1, y2));
 				final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
 				final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
 				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
 				final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
-				
-				if (shouldNotRender(player, new BlockPos(rc1.x, y1, rc1.z), maxRailDistance)) {
-					return;
-				}
-
-				BlockPos lightRefPos = new BlockPos(rc1.x, yf, rc1.z);
-				// Prevent rail from appearing black in slopes. Might need more investigation for better code.
-				while (!world.getBlockState(lightRefPos).isAir()) {
-					if (lightRefPos.getY() <= yf + 2) {
-						lightRefPos = lightRefPos.up();
-					} else {
-						break;
-					}
-				}
-
-				final int lightRail = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
-
-				if (rail.railType == RailType.NONE) {
-					if (renderColors) {
-						final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, 0, 0.25F, 1, 0.75F, Direction.UP, -1, lightRail);
-					}
-				} else {
-					final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
-					final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
-
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
-					IDrawing.drawTexture(matrices, vertexConsumer, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRail);
-					IDrawing.drawTexture(matrices, vertexConsumer, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRail);
-				}
-
-				// Render ballast
+				final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
 				final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
 				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
 				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
 				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
+				final float dY = 0.0625F /*+ SMALL_OFFSET*/;
+				final float y1d = y1 - dY, y2d = y2 - dY;
 				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
-				if (!isEnd && (y1 != yf || y2 != yf)) {
-					// Straight slope
-					if (alignment == 1) {
-						final int xmin = Math.min((int) bc1.x, (int) bc2.x);
-						final int zmin = Math.min((int) bc1.z, (int) bc3.z);
-						final float yl = bc1.z < bc3.z ? y1 : y2;
-						final float ym = bc1.z < bc3.z ? y2 : y1;
-						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
-									new BlockPos(xmin + i, yf, zmin), yl, ym, ym, yl);
-						}
-					} else if (alignment == 2) {
-						final int zmin = Math.min((int) bc1.z, (int) bc2.z);
-						final int xmin = Math.min((int) bc1.x, (int) bc3.x);
-						final float yl = bc1.x < bc3.x ? y1 : y2;
-						final float ym = bc1.x < bc3.x ? y2 : y1;
-						for (int i = 0; i < 3; i++) {
-							drawSlopeBlock(matrices, vertexConsumers, "textures/block/gravel.png", world,
-									new BlockPos(xmin, yf, zmin + i), yl, yl, ym, ym);
+				final float dV = Math.abs(t2 - t1);
+				BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
+
+				final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
+				final int color = rail.railType.color;
+				final QuadCache.QuadCacheList vcRail = cache.createList(TEXTURE_PATH_RAIL, false, false, true);
+				vcRail.addFace(rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
+				vcRail.addFace(rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
+
+				if (ballastBlockMetadata != null) {
+					final int tint = ballastBlockMetadata.getTint(world, lightRefPos);
+					final QuadCache.QuadCacheList vcBallastFlat = cache.createList(ballastBlockMetadata.textureFile, true, false, false);
+					vcBallastFlat.addFace(bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z,
+							bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP,
+							0xFF000000 | tint, lightRefPos);
+					if (rail.isStraight() && !rail.isFlat()) {
+						final QuadCache.QuadCacheList vcBallastBlock = cache.createList(ballastBlockMetadata.textureFile, true, true, false);
+						final float xmin = Math.min(Math.min(bc1.x, bc2.x), bc3.x);
+						final float zmin = Math.min(Math.min(bc1.z, bc2.z), bc3.z);
+						final float xmax = Math.max(Math.max(bc1.x, bc2.x), bc3.x);
+						final float zmax = Math.max(Math.max(bc1.z, bc2.z), bc3.z);
+						final int xblock = (int) Math.floor(xmin);
+						final int zblock = (int) Math.floor(zmin);
+						final float dxmin = xmin - xblock, dxmax = xmax - xblock, dzmin = zmin - zblock, dzmax = zmax - zblock;
+						if (alignment == 1) {
+							final float yl = bc1.z < bc3.z ? y1 : y2;
+							final float ym = bc1.z < bc3.z ? y2 : y1;
+							for (int i = 0; i < 3; i++) {
+								drawSlopeBlock(vcBallastBlock, new BlockPos(xblock + i, yf, zblock),
+										yl, ym, ym, yl, 0, dzmin, 1, dzmax, alignment, isEnd, i, tint);
+							}
+						} else if (alignment == 2) {
+							final float yl = bc1.x < bc3.x ? y1 : y2;
+							final float ym = bc1.x < bc3.x ? y2 : y1;
+							for (int i = 0; i < 3; i++) {
+								drawSlopeBlock(vcBallastBlock, new BlockPos(xblock, yf, zblock + i),
+										yl, yl, ym, ym, dxmin, 0, dxmax, 1, alignment, isEnd, i, tint);
+							}
 						}
 					}
-				} else if (!isEnd && (y1 == yf && y2 == yf)) {
-					// Flat rail parts
-					final float dV = Math.abs(t2 - t1);
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getSolid(new Identifier("textures/block/gravel.png")));
-					IDrawing.drawTexture(matrices, vertexConsumer, bc1.x, y1, bc1.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc3.x, y2, bc3.z, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP, 0xFFFFFFFF, lightRail);
-					IDrawing.drawTexture(matrices, vertexConsumer, bc4.x, y2 + SMALL_OFFSET / 3, bc4.z, bc3.x, y2, bc3.z, bc2.x, y1 + SMALL_OFFSET / 3, bc2.z, bc1.x, y1, bc1.z, 0, 0, 3, dV, Direction.DOWN, 0xFFFFFFFF, lightRail);
 				}
-			});
+			}));
+
+			if (shouldRenderArrow) {
+				rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
+					final int yc = (int) Math.ceil(Math.max(y1, y2));
+					final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
+					final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
+					final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
+					final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
+					final float dV = Math.abs(t2 - t1);
+					final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
+					if (shouldNotRender(player, new BlockPos(rc1.x, y1, rc1.z), maxRailDistance)) {
+						return;
+					}
+					BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
+					final int lightRail = WorldRenderer.getLightmapCoordinates(world, lightRefPos);
+					final VertexConsumer vcRailArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/one_way_rail_arrow.png")));
+					IDrawing.drawTexture(matrices, vcRailArrow, rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.25F, 1, 0.25F + dV / 2, Direction.UP, -1, lightRail);
+					IDrawing.drawTexture(matrices, vcRailArrow, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, 0, 0.25F, 1, 0.25F + dV / 2, Direction.UP, -1, lightRail);
+				});
+			}
 		}));
 	}
 
@@ -323,7 +401,7 @@ public class RenderTrains implements IGui {
 
 	private static Text getStationText(Station station, String textKey) {
 		if (station != null) {
-			return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station.name), new TranslatableText("gui.mtr." + textKey + "_station_cjk").getString(), new TranslatableText("gui.mtr." + textKey + "_station").getString(), "", "")));
+			return Text.of(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
 		} else {
 			return new LiteralText("");
 		}
@@ -394,58 +472,60 @@ public class RenderTrains implements IGui {
 		}
 	}
 
+	// l: less, m: more, lm: the corner of a block where x is minimum and z is maximum (i.e. southwest)
 
-	private static void drawSlopeBlock(MatrixStack matrices, VertexConsumerProvider vertexConsumers, String texture, World world, BlockPos pos, float yll, float ylm, float ymm, float yml) {
-		if (!world.getBlockState(pos).isAir()) return;
+	private static void drawSlopeBlock(QuadCache.QuadCacheList cacheList, BlockPos pos,
+		   float yll, float ylm, float ymm, float yml, float dxl, float dzl, float dxm, float dzm,
+		   int alignment, boolean isEnd, int step, int color) {
+		// if (!blockState.isAir() && !(blockState.getBlock() instanceof mtr.block.BlockRail)) return;
 		float yf = pos.getY();
-
-		matrices.push();
-		final float dY = 0.0625F + SMALL_OFFSET;
-		matrices.translate(pos.getX(), pos.getY() - dY, pos.getZ());
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				0, yll - yf, 0, 0, ylm - yf, 1,
-				1, ymm - yf, 1, 1, yml - yf, 0,
-				0, 0, 0, 1, 1, 1, 1, 0,
+		/* IDrawing.drawBlockFace(
+				matrices, vertexConsumer,
+				dxl, yll - yf, dzl, dxl, ylm - yf, dzm,
+				dxm, ymm - yf, dzm, dxm, yml - yf, dzl,
+				dxl, dzl, dxl, dzm, dxm, dzm, dxm, dzl,
 				Direction.UP, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				0, 0, 0, 1, 0, 0,
-				1, 0, 1, 0, 0, 1,
-				0, 0, 0, 1, 1, 1, 1, 0,
-				Direction.DOWN, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				0, yll - yf, 0, 0, 0, 0,
-				0, 0, 1, 0, ylm - yf, 1,
-				0, 1 - (yll - yf), 0, 1, 1, 1, 1, 1 - (ylm - yf),
-				Direction.WEST, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				0, ylm - yf, 1, 0, 0, 1,
-				1, 0, 1, 1, ymm - yf, 1,
-				0, 1 - (ylm - yf), 0, 1, 1, 1, 1, 1 - (ymm - yf),
-				Direction.SOUTH, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				1, ymm - yf, 1, 1, 0, 1,
-				1, 0, 0, 1, yml - yf, 0,
-				0, 1 - (ymm - yf), 0, 1, 1, 1, 1, 1 - (yml - yf),
-				Direction.EAST, pos, world
-		);
-		IDrawing.drawBlockFace(
-				matrices, vertexConsumers, texture,
-				1, yml - yf, 0, 1, 0, 0,
-				0, 0, 0, 0, yll - yf, 0,
-				0, 1 - (yml - yf), 0, 1, 1, 1, 1, 1 - (yll - yf),
-				Direction.NORTH, pos, world
-		);
-
-		matrices.pop();
+		); */
+		if (isEnd) {
+			cacheList.addBlockFace(
+					dxl, 0, dzl, dxm, 0, dzl,
+					dxm, 0, dzm, dxl, 0, dzm,
+					dxl, dzl, dxm, dzl, dxm, dzm, dxl, dzm,
+					Direction.DOWN, pos, color
+			);
+		}
+		if ((alignment == 1 && step == 0) || isEnd) {
+			cacheList.addBlockFace(
+					dxl, yll - yf, dzl, dxl, 0, dzl,
+					dxl, 0, dzm, dxl, ylm - yf, dzm,
+					dzl, 1 - (yll - yf), dzl, 1, dzm, 1, dzm, 1 - (ylm - yf),
+					Direction.WEST, pos, color
+			);
+		}
+		if ((alignment == 1 && step == 2) || isEnd) {
+			cacheList.addBlockFace(
+					dxm, ymm - yf, dzm, dxm, 0, dzm,
+					dxm, 0, dzl, dxm, yml - yf, dzl,
+					dzm, 1 - (ymm - yf), dzm, 1, dzl, 1, dzl, 1 - (yml - yf),
+					Direction.EAST, pos, color
+			);
+		}
+		if ((alignment == 2 && step == 2) || isEnd) {
+			cacheList.addBlockFace(
+					dxl, ylm - yf, dzm, dxl, 0, dzm,
+					dxm, 0, dzm, dxm, ymm - yf, dzm,
+					dxl, 1 - (ylm - yf), dxl, 1, dxm, 1, dxm, 1 - (ymm - yf),
+					Direction.SOUTH, pos, color
+			);
+		}
+		if ((alignment == 2 && step == 0) || isEnd) {
+			cacheList.addBlockFace(
+					dxm, yml - yf, dzl, dxm, 0, dzl,
+					dxl, 0, dzl, dxl, yll - yf, dzl,
+					dxm, 1 - (yml - yf), dxm, 1, dxl, 1, dxl, 1 - (yll - yf),
+					Direction.NORTH, pos, color
+			);
+		}
 	}
 
 	private static int getAxisAlignment(Pos3f c1, Pos3f c2, Pos3f c3, Pos3f c4) {
@@ -456,6 +536,33 @@ public class RenderTrains implements IGui {
 		} else {
 			return 0;
 		}
+	}
+
+	private static BlockTextureCache getBlockTextureMetadata(String blockName) {
+		if (!blockName.isEmpty()) {
+			if (blockTextureCacheMap.containsKey(blockName)) {
+				return blockTextureCacheMap.get(blockName);
+			} else {
+				final Block ballastBlock = Registry.BLOCK.get(new Identifier(blockName));
+				if (ballastBlock != Blocks.AIR) {
+					final BlockColorProvider provider = ColorProviderRegistry.BLOCK.get(ballastBlock);
+					final BlockState ballastBlockState = ballastBlock.getDefaultState();
+					final List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(ballastBlockState)
+							.getQuads(ballastBlockState, Direction.UP, new Random(0));
+					if (quads.size() > 0) {
+						BlockTextureCache bbm = new BlockTextureCache("textures/" + quads.get(0).sprite.getId().getPath() + ".png",
+								provider, ballastBlockState);
+						blockTextureCacheMap.put(blockName, bbm);
+						return bbm;
+					}
+				}
+			}
+		} else {
+			// For benchmark enable this
+			// return new BlockTextureCache("textures/block/gravel.png", null, Blocks.GRAVEL.getDefaultState());
+			return null;
+		}
+		return null;
 	}
 
 	@FunctionalInterface

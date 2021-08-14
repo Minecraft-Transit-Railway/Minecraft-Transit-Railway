@@ -3,7 +3,9 @@ package mtr.data;
 import net.minecraft.text.TranslatableText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public interface IGui {
@@ -59,21 +61,79 @@ public interface IGui {
 		return newText;
 	}
 
-	static String addToStationName(String name, String prefixCJK, String prefix, String suffixCJK, String suffix) {
-		final String[] nameSplit = name.split("\\|");
-		final StringBuilder newName = new StringBuilder();
-		for (final String namePart : nameSplit) {
-			if (namePart.codePoints().anyMatch(Character::isIdeographic)) {
-				newName.append(prefixCJK).append(namePart).append(suffixCJK);
-			} else {
-				newName.append(prefix).append(namePart).append(suffix);
-			}
-			newName.append("|");
+	static String insertTranslation(String keyCJK, String key, int expectedArguments, String... arguments) {
+		return insertTranslation(keyCJK, key, null, expectedArguments, arguments);
+	}
+
+	static String insertTranslation(String keyCJK, String key, String overrideFirst, int expectedArguments, String... arguments) {
+		if (arguments.length < expectedArguments) {
+			return "";
 		}
-		return newName.deleteCharAt(newName.length() - 1).toString();
+
+		final List<String[]> dataCJK = new ArrayList<>();
+		final List<String[]> data = new ArrayList<>();
+		for (int i = 0; i < arguments.length; i++) {
+			final String[] argumentSplit = arguments[i].split("\\|");
+
+			int indexCJK = 0;
+			int index = 0;
+			for (final String text : argumentSplit) {
+				if (text.codePoints().anyMatch(Character::isIdeographic)) {
+					if (indexCJK == dataCJK.size()) {
+						dataCJK.add(new String[expectedArguments]);
+					}
+					dataCJK.get(indexCJK)[i] = text;
+					indexCJK++;
+				} else {
+					if (index == data.size()) {
+						data.add(new String[expectedArguments]);
+					}
+					data.get(index)[i] = text;
+					index++;
+				}
+			}
+		}
+
+		final StringBuilder result = new StringBuilder();
+		dataCJK.forEach(combinedArguments -> {
+			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
+				result.append("|");
+				if (overrideFirst == null) {
+					result.append(new TranslatableText(keyCJK, (Object[]) combinedArguments).getString());
+				} else {
+					final String[] newCombinedArguments = new String[expectedArguments + 1];
+					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
+					newCombinedArguments[0] = overrideFirst;
+					result.append(new TranslatableText(keyCJK, (Object[]) newCombinedArguments).getString());
+				}
+			}
+		});
+		data.forEach(combinedArguments -> {
+			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
+				result.append("|");
+				if (overrideFirst == null) {
+					result.append(new TranslatableText(key, (Object[]) combinedArguments).getString());
+				} else {
+					final String[] newCombinedArguments = new String[expectedArguments + 1];
+					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
+					newCombinedArguments[0] = overrideFirst;
+					result.append(new TranslatableText(key, (Object[]) newCombinedArguments).getString());
+				}
+			}
+		});
+
+		if (result.length() > 0) {
+			return result.substring(1);
+		} else {
+			return "";
+		}
 	}
 
 	static String mergeStations(List<String> stations) {
+		return mergeStations(stations, null);
+	}
+
+	static String mergeStations(List<String> stations, String separator) {
 		final List<List<String>> combinedCJK = new ArrayList<>();
 		final List<List<String>> combined = new ArrayList<>();
 
@@ -117,8 +177,8 @@ public interface IGui {
 			}
 		}
 
-		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator_cjk").getString() + b).orElse("")).collect(Collectors.toList());
-		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + new TranslatableText("gui.mtr.separator").getString() + b).orElse("")).collect(Collectors.toList()));
+		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? new TranslatableText("gui.mtr.separator_cjk").getString() : separator) + b).orElse("")).collect(Collectors.toList());
+		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? new TranslatableText("gui.mtr.separator").getString() : separator) + b).orElse("")).collect(Collectors.toList()));
 		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
 	}
 

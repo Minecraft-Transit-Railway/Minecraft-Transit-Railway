@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
 
-	private String customDestination;
-	private boolean shuffleTrains;
+	public boolean isLightRailRoute;
+	public String lightRailRouteNumber;
 
 	public final List<Long> platformIds;
 
@@ -27,8 +27,8 @@ public final class Route extends NameColorDataBase implements IGui {
 	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
-	private static final String KEY_CUSTOM_DESTINATION = "custom_destination";
-	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
+	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
+	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
 	private static final String KEY_PATH = "path";
 
 	public Route() {
@@ -39,8 +39,8 @@ public final class Route extends NameColorDataBase implements IGui {
 		super(id);
 		platformIds = new ArrayList<>();
 		path = new ArrayList<>();
-		customDestination = "";
-		shuffleTrains = true;
+		isLightRailRoute = false;
+		lightRailRouteNumber = "";
 	}
 
 	public Route(NbtCompound nbtCompound) {
@@ -52,8 +52,8 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(platformId);
 		}
 
-		customDestination = nbtCompound.getString(KEY_CUSTOM_DESTINATION);
-		shuffleTrains = nbtCompound.getBoolean(KEY_SHUFFLE_TRAINS);
+		isLightRailRoute = nbtCompound.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		lightRailRouteNumber = nbtCompound.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 
 		path = new ArrayList<>();
 		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
@@ -71,8 +71,8 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(packet.readLong());
 		}
 
-		customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
-		shuffleTrains = packet.readBoolean();
+		isLightRailRoute = packet.readBoolean();
+		lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
 
 		path = new ArrayList<>();
 		final int pathLength = packet.readInt();
@@ -86,8 +86,8 @@ public final class Route extends NameColorDataBase implements IGui {
 		final NbtCompound nbtCompound = super.toCompoundTag();
 		nbtCompound.putLongArray(KEY_PLATFORM_IDS, platformIds);
 
-		nbtCompound.putString(KEY_CUSTOM_DESTINATION, customDestination);
-		nbtCompound.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
+		nbtCompound.putBoolean(KEY_IS_LIGHT_RAIL_ROUTE, isLightRailRoute);
+		nbtCompound.putString(KEY_LIGHT_RAIL_ROUTE_NUMBER, lightRailRouteNumber);
 
 		final NbtCompound tagPath = new NbtCompound();
 		for (int i = 0; i < path.size(); i++) {
@@ -104,8 +104,8 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
 
-		packet.writeString(customDestination);
-		packet.writeBoolean(shuffleTrains);
+		packet.writeBoolean(isLightRailRoute);
+		packet.writeString(lightRailRouteNumber);
 
 		packet.writeInt(path.size());
 		path.forEach(pathDataDeleteThisLater -> pathDataDeleteThisLater.writePacket(packet));
@@ -121,11 +121,11 @@ public final class Route extends NameColorDataBase implements IGui {
 					platformIds.add(packet.readLong());
 				}
 				break;
-			case KEY_CUSTOM_DESTINATION:
-				customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
-				break;
-			case KEY_SHUFFLE_TRAINS:
-				shuffleTrains = packet.readBoolean();
+			case KEY_IS_LIGHT_RAIL_ROUTE:
+				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				isLightRailRoute = packet.readBoolean();
+				lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
 				break;
 			default:
 				super.update(key, packet);
@@ -142,6 +142,17 @@ public final class Route extends NameColorDataBase implements IGui {
 		sendPacket.accept(packet);
 	}
 
+	public void setLightRailRoute(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_IS_LIGHT_RAIL_ROUTE);
+		packet.writeString(name);
+		packet.writeInt(color);
+		packet.writeBoolean(isLightRailRoute);
+		packet.writeString(lightRailRouteNumber);
+		sendPacket.accept(packet);
+	}
+
 	// TODO temporary code start
 	public void generateRails(World world, RailwayData railwayData) {
 		path.forEach(pathDataDeleteThisLater -> {
@@ -150,7 +161,8 @@ public final class Route extends NameColorDataBase implements IGui {
 			if (entity instanceof BlockRail.TileEntityRail) {
 				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
 					railwayData.addRail(entity.getPos(), blockPos, rail, false);
-					railwayData.addRail(blockPos, entity.getPos(), new Rail(blockPos, rail.facingEnd, entity.getPos(), rail.facingStart, rail.railType), false);
+					railwayData.addRail(blockPos, entity.getPos(), new Rail(blockPos, rail.facingEnd, entity.getPos(),
+							rail.facingStart, rail.railType, rail.ballastTexture), false);
 				});
 			}
 		});
@@ -162,14 +174,16 @@ public final class Route extends NameColorDataBase implements IGui {
 		public final float arrivalMillis;
 		public final float departureMillis;
 		public final TrainType trainType;
+		public final int trainLength;
 		public final long platformId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long platformId, String destination, boolean isTerminating) {
+		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.departureMillis = departureMillis;
 			this.trainType = trainType;
+			this.trainLength = trainLength;
 			this.platformId = platformId;
 			this.destination = destination;
 			this.isTerminating = isTerminating;
