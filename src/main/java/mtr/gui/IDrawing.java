@@ -3,24 +3,23 @@ package mtr.gui;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
-import mtr.render.MoreRenderLayers;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3i;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 public interface IDrawing {
