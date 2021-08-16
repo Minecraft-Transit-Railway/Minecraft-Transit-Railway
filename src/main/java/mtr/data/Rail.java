@@ -1,8 +1,5 @@
 package mtr.data;
 
-import mtr.render.QuadCache;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.MinecraftClientGame;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -39,8 +36,6 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
 	private static final String KEY_BALLAST_TEXTURE = "ballast_texture";
-
-	public QuadCache quadCache = new QuadCache();
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -329,6 +324,7 @@ public class Rail extends SerializedDataBase {
 		public float L, lC, lT; // Length, Constant part, Transition part
 		public float H, hC, hT; // Height, Constant part, Transition part
 	}
+
 	private pitchCurve pc = null;
 
 	private float getPositionY(float value) {
@@ -344,10 +340,10 @@ public class Rail extends SerializedDataBase {
 		} else if (valueLow > pc.L) {
 			return yHigh;
 		} else if (valueLow < pc.lT) {
-			final float cosA = (float)Math.sqrt(1 - Math.pow(valueLow / pc.r, 2));
+			final float cosA = (float) Math.sqrt(1 - Math.pow(valueLow / pc.r, 2));
 			return pc.r - pc.r * cosA + yLow;
 		} else if (valueLow >= pc.L - pc.lT) {
-			final float cosA = (float)Math.sqrt(1 - Math.pow((pc.L - valueLow) / pc.r, 2));
+			final float cosA = (float) Math.sqrt(1 - Math.pow((pc.L - valueLow) / pc.r, 2));
 			return yHigh - pc.r + pc.r * cosA;
 		} else {
 			return yLow + pc.hT + (valueLow - pc.lT) * pc.k;
@@ -371,17 +367,17 @@ public class Rail extends SerializedDataBase {
 				pc.hT = pc.H / 2;
 				pc.hC = 0;
 				pc.r = (pc.H * pc.H + pc.L * pc.L) / (4 * pc.H);
-				pc.a = 2 * (float)Math.atan(pc.H / pc.L);
-				pc.k = (float)Math.tan(pc.a);
+				pc.a = 2 * (float) Math.atan(pc.H / pc.L);
+				pc.k = (float) Math.tan(pc.a);
 			} else {
 				pc.lT = Math.min(Math.max(2, pc.L / 5), 10); // Min 2, Max 10
 				pc.lC = pc.L - 2 * pc.lT;
 				float deltaKMin = Float.MAX_VALUE;
 				// Exact value requires solving a cubic equation. So just take an approximation.
 				for (float a = 0; a < Math.PI / 2; a += Math.PI / 180) {
-					final float r = pc.lT / (float)Math.sin(a);
-					final float h = pc.H - 2 * r * (1 - (float)Math.cos(a));
-					final float deltaK = Math.abs((float)Math.tan(a) - h / pc.lC);
+					final float r = pc.lT / (float) Math.sin(a);
+					final float h = pc.H - 2 * r * (1 - (float) Math.cos(a));
+					final float deltaK = Math.abs((float) Math.tan(a) - h / pc.lC);
 					if (deltaK < deltaKMin) {
 						deltaKMin = deltaK;
 						pc.a = a;

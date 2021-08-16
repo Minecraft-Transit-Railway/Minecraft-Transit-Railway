@@ -18,7 +18,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
-import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
@@ -35,7 +35,6 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class RenderTrains implements IGui {
@@ -66,22 +65,7 @@ public class RenderTrains implements IGui {
 	private static final ModelLightRail MODEL_LIGHT_RAIL_5 = new ModelLightRail(5);
 
 	private static final String TEXTURE_PATH_RAIL = "textures/block/rail.png";
-
-	private static class BlockTextureCache {
-		public String textureFile;
-		public BlockColorProvider provider;
-		public BlockState defaultState;
-
-		public BlockTextureCache(String s, BlockColorProvider provider, BlockState state) {
-			textureFile = s; this.provider = provider; this.defaultState = state;
-		}
-
-		public int getTint(World world, BlockPos pos) {
-			if (provider == null) return 0xffffff;
-			return provider.getColor(defaultState, world, pos, 0);
-		}
-	}
-	private static final HashMap<String, BlockTextureCache> blockTextureCacheMap = new HashMap<>();
+	private static final HashMap<String, BlockTextureCache> BLOCK_TEXTURE_CACHE = new HashMap<>();
 
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
 		final MinecraftClient client = MinecraftClient.getInstance();
@@ -264,7 +248,7 @@ public class RenderTrains implements IGui {
 		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			// Save some memory?
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance * 2) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance * 2)) {
-				rail.quadCache.reset();
+				ClientData.railRenderingCache.remove(rail);
 				return;
 			}
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
@@ -275,64 +259,83 @@ public class RenderTrains implements IGui {
 			final boolean shouldRenderColor = renderColors || rail.railType.hasSavedRail;
 			final boolean shouldRenderArrow = renderColors && rail.railType == RailType.NONE;
 
-			rail.quadCache.renderWithCache(vertexConsumers, matrices, world, shouldRenderColor, !shouldRenderArrow,
-				(cache) -> rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
-				final int yf = (int)Math.floor(Math.min(y1, y2));
-				final int yc = (int) Math.ceil(Math.max(y1, y2));
-				final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
-				final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
-				final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
-				final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
-				final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
-				final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
-				final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
-				final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
-				final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
-				final float dY = 0.0625F /*+ SMALL_OFFSET*/;
-				final float y1d = y1 - dY, y2d = y2 - dY;
-				int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
-				final float dV = Math.abs(t2 - t1);
-				BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
+			if (!ClientData.railRenderingCache.containsKey(rail)) {
+				final Map<String, QuadCache> cache = new HashMap<>();
+				rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
+					final int yf = (int) Math.floor(Math.min(y1, y2));
+					final int yc = (int) Math.ceil(Math.max(y1, y2));
+					final Pos3f rc1 = Rail.getPositionXZ(h, k, r, t1, -1, isStraight);
+					final Pos3f rc2 = Rail.getPositionXZ(h, k, r, t1, 1, isStraight);
+					final Pos3f rc3 = Rail.getPositionXZ(h, k, r, t2, 1, isStraight);
+					final Pos3f rc4 = Rail.getPositionXZ(h, k, r, t2, -1, isStraight);
+					final Pos3f lightRefC = Rail.getPositionXZ(h, k, r, (t1 + t2) / 2, 0, isStraight);
+					final Pos3f bc1 = Rail.getPositionXZ(h, k, r, t1, -1.5F, isStraight);
+					final Pos3f bc2 = Rail.getPositionXZ(h, k, r, t1, 1.5F, isStraight);
+					final Pos3f bc3 = Rail.getPositionXZ(h, k, r, t2, 1.5F, isStraight);
+					final Pos3f bc4 = Rail.getPositionXZ(h, k, r, t2, -1.5F, isStraight);
+					final float dY = 0.0625F /*+ SMALL_OFFSET*/;
+					final float y1d = y1 - dY, y2d = y2 - dY;
+					final int alignment = getAxisAlignment(bc1, bc2, bc3, bc4);
+					final float dV = Math.abs(t2 - t1);
+					final BlockPos lightRefPos = new BlockPos(lightRefC.x, yc, lightRefC.z);
 
-				final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
-				final int color = rail.railType.color;
-				final QuadCache.QuadCacheList vcRail = cache.createList(TEXTURE_PATH_RAIL, false, false, true);
-				vcRail.addFace(rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
-				vcRail.addFace(rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
+					final float textureOffset = (((int) (rc1.x + rc1.z)) % 4) * 0.25F;
+					final int color = shouldRenderColor ? rail.railType.color : ARGB_WHITE;
 
-				if (ballastBlockMetadata != null) {
-					final int tint = ballastBlockMetadata.getTint(world, lightRefPos);
-					final QuadCache.QuadCacheList vcBallastFlat = cache.createList(ballastBlockMetadata.textureFile, true, false, false);
-					vcBallastFlat.addFace(bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z,
-							bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP,
-							0xFF000000 | tint, lightRefPos);
-					if (rail.isStraight() && !rail.isFlat()) {
-						final QuadCache.QuadCacheList vcBallastBlock = cache.createList(ballastBlockMetadata.textureFile, true, true, false);
-						final float xmin = Math.min(Math.min(bc1.x, bc2.x), bc3.x);
-						final float zmin = Math.min(Math.min(bc1.z, bc2.z), bc3.z);
-						final float xmax = Math.max(Math.max(bc1.x, bc2.x), bc3.x);
-						final float zmax = Math.max(Math.max(bc1.z, bc2.z), bc3.z);
-						final int xblock = (int) Math.floor(xmin);
-						final int zblock = (int) Math.floor(zmin);
-						final float dxmin = xmin - xblock, dxmax = xmax - xblock, dzmin = zmin - zblock, dzmax = zmax - zblock;
-						if (alignment == 1) {
-							final float yl = bc1.z < bc3.z ? y1 : y2;
-							final float ym = bc1.z < bc3.z ? y2 : y1;
-							for (int i = 0; i < 3; i++) {
-								drawSlopeBlock(vcBallastBlock, new BlockPos(xblock + i, yf, zblock),
-										yl, ym, ym, yl, 0, dzmin, 1, dzmax, alignment, isEnd, i, tint);
+					if (!cache.containsKey("rail")) {
+						cache.put("rail", new QuadCache(false, TEXTURE_PATH_RAIL, null));
+					}
+					final QuadCache quadCacheRail = cache.get("rail");
+
+					quadCacheRail.addFace(rc1.x, y1, rc1.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc3.x, y2, rc3.z, rc4.x, y2 + SMALL_OFFSET, rc4.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
+					quadCacheRail.addFace(rc4.x, y2 + SMALL_OFFSET, rc4.z, rc3.x, y2, rc3.z, rc2.x, y1 + SMALL_OFFSET, rc2.z, rc1.x, y1, rc1.z, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, lightRefPos);
+
+					if (ballastBlockMetadata != null) {
+						if (!cache.containsKey("ballast_flat")) {
+							cache.put("ballast_flat", new QuadCache(true, "textures/" + ballastBlockMetadata.sprite.getId().getPath() + ".png", ballastBlockMetadata.sprite));
+						}
+						final QuadCache quadCacheBallastFlat = cache.get("ballast_flat");
+
+						final int tint = ballastBlockMetadata.getTint(world, lightRefPos);
+						quadCacheBallastFlat.addFace(bc1.x, y1d, bc1.z, bc2.x, y1d + SMALL_OFFSET / 3, bc2.z,
+								bc3.x, y2d, bc3.z, bc4.x, y2d + SMALL_OFFSET / 3, bc4.z, 0, 0, 3, dV, Direction.UP,
+								tint, lightRefPos);
+						if (rail.isStraight() && !rail.isFlat()) {
+							if (!cache.containsKey("ballast_block")) {
+								cache.put("ballast_block", new QuadCache(true, "textures/" + ballastBlockMetadata.sprite.getId().getPath() + ".png", ballastBlockMetadata.sprite));
 							}
-						} else if (alignment == 2) {
-							final float yl = bc1.x < bc3.x ? y1 : y2;
-							final float ym = bc1.x < bc3.x ? y2 : y1;
-							for (int i = 0; i < 3; i++) {
-								drawSlopeBlock(vcBallastBlock, new BlockPos(xblock, yf, zblock + i),
-										yl, yl, ym, ym, dxmin, 0, dxmax, 1, alignment, isEnd, i, tint);
+							final QuadCache vcBallastBlock = cache.get("ballast_block");
+
+							final float xmin = Math.min(Math.min(bc1.x, bc2.x), bc3.x);
+							final float zmin = Math.min(Math.min(bc1.z, bc2.z), bc3.z);
+							final float xmax = Math.max(Math.max(bc1.x, bc2.x), bc3.x);
+							final float zmax = Math.max(Math.max(bc1.z, bc2.z), bc3.z);
+							final int xblock = (int) Math.floor(xmin);
+							final int zblock = (int) Math.floor(zmin);
+							final float dxmin = xmin - xblock, dxmax = xmax - xblock, dzmin = zmin - zblock, dzmax = zmax - zblock;
+							if (alignment == 1) {
+								final float yl = bc1.z < bc3.z ? y1 : y2;
+								final float ym = bc1.z < bc3.z ? y2 : y1;
+								for (int i = 0; i < 3; i++) {
+									drawSlopeBlock(vcBallastBlock, new BlockPos(xblock + i, yf, zblock),
+											yl, ym, ym, yl, 0, dzmin, 1, dzmax, alignment, isEnd, i, tint);
+								}
+							} else if (alignment == 2) {
+								final float yl = bc1.x < bc3.x ? y1 : y2;
+								final float ym = bc1.x < bc3.x ? y2 : y1;
+								for (int i = 0; i < 3; i++) {
+									drawSlopeBlock(vcBallastBlock, new BlockPos(xblock, yf, zblock + i),
+											yl, yl, ym, ym, dxmin, 0, dxmax, 1, alignment, isEnd, i, tint);
+								}
 							}
 						}
 					}
-				}
-			}));
+				});
+				ClientData.railRenderingCache.put(rail, cache);
+			}
+			ClientData.railRenderingCache.get(rail).values().forEach(quadCache -> {
+				quadCache.apply(vertexConsumers, matrices, world);
+			});
 
 			if (shouldRenderArrow) {
 				rail.render((h, k, r, t1, t2, y1, y2, isStraight, isEnd) -> {
@@ -474,9 +477,9 @@ public class RenderTrains implements IGui {
 
 	// l: less, m: more, lm: the corner of a block where x is minimum and z is maximum (i.e. southwest)
 
-	private static void drawSlopeBlock(QuadCache.QuadCacheList cacheList, BlockPos pos,
-		   float yll, float ylm, float ymm, float yml, float dxl, float dzl, float dxm, float dzm,
-		   int alignment, boolean isEnd, int step, int color) {
+	private static void drawSlopeBlock(QuadCache cacheList, BlockPos pos,
+									   float yll, float ylm, float ymm, float yml, float dxl, float dzl, float dxm, float dzm,
+									   int alignment, boolean isEnd, int step, int color) {
 		// if (!blockState.isAir() && !(blockState.getBlock() instanceof mtr.block.BlockRail)) return;
 		float yf = pos.getY();
 		/* IDrawing.drawBlockFace(
@@ -540,29 +543,37 @@ public class RenderTrains implements IGui {
 
 	private static BlockTextureCache getBlockTextureMetadata(String blockName) {
 		if (!blockName.isEmpty()) {
-			if (blockTextureCacheMap.containsKey(blockName)) {
-				return blockTextureCacheMap.get(blockName);
+			if (BLOCK_TEXTURE_CACHE.containsKey(blockName)) {
+				return BLOCK_TEXTURE_CACHE.get(blockName);
 			} else {
 				final Block ballastBlock = Registry.BLOCK.get(new Identifier(blockName));
 				if (ballastBlock != Blocks.AIR) {
-					final BlockColorProvider provider = ColorProviderRegistry.BLOCK.get(ballastBlock);
 					final BlockState ballastBlockState = ballastBlock.getDefaultState();
-					final List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(ballastBlockState)
-							.getQuads(ballastBlockState, Direction.UP, new Random(0));
-					if (quads.size() > 0) {
-						BlockTextureCache bbm = new BlockTextureCache("textures/" + quads.get(0).sprite.getId().getPath() + ".png",
-								provider, ballastBlockState);
-						blockTextureCacheMap.put(blockName, bbm);
-						return bbm;
-					}
+					final BlockTextureCache blockTextureCache = new BlockTextureCache(MinecraftClient.getInstance().getBlockRenderManager().getModel(ballastBlockState).getSprite(), ColorProviderRegistry.BLOCK.get(ballastBlock), ballastBlockState);
+					BLOCK_TEXTURE_CACHE.put(blockName, blockTextureCache);
+					return blockTextureCache;
 				}
 			}
-		} else {
-			// For benchmark enable this
-			// return new BlockTextureCache("textures/block/gravel.png", null, Blocks.GRAVEL.getDefaultState());
-			return null;
 		}
+
 		return null;
+	}
+
+	private static class BlockTextureCache {
+
+		public Sprite sprite;
+		public BlockColorProvider provider;
+		public BlockState state;
+
+		public BlockTextureCache(Sprite sprite, BlockColorProvider provider, BlockState state) {
+			this.sprite = sprite;
+			this.provider = provider;
+			this.state = state;
+		}
+
+		public int getTint(World world, BlockPos pos) {
+			return provider == null ? ARGB_WHITE : provider.getColor(state, world, pos, 0) | ARGB_BLACK;
+		}
 	}
 
 	@FunctionalInterface
