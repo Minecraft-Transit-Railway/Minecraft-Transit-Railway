@@ -24,6 +24,8 @@ The [Crowdin site for the Minecraft Transit Railway mod](https://crwd.in/minecra
 
 Crowdin is a cloud-based platform for translators to contribute to a project. With your help, we can translate the mod to many different languages. You may create a free account to start translating.
 
+[![Crowdin](https://badges.crowdin.net/minecraft-transit-railway/localized.svg)](https://crowdin.com/project/minecraft-transit-railway)
+
 ## License
 
 This project is licensed with the [MIT License](https://opensource.org/licenses/MIT). All [Noto fonts](http://www.google.com/get/noto/), bundled with this mod, are licensed with the [Open Font License](http://scripts.sil.org/OFL).
