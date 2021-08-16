@@ -392,7 +392,7 @@ public class RenderTrains implements IGui {
 				return MODEL_LIGHT_RAIL_4;
 			case LIGHT_RAIL_5:
 				return MODEL_LIGHT_RAIL_5;
-			case VIBRANT_EXPRESS:
+			case CRH380A_VIBRANT_EXPRESS:
 				return MODEL_VIBRANT_EXPRESS;
 			default:
 				return null;
