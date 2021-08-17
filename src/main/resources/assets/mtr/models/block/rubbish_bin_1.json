@@ -1,0 +1,160 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/metal",
+		"rubbish": "mtr:sign/rubbish",
+		"spit": "mtr:sign/spit"
+	},
+	"elements": [
+		{	"__comment": "Base",
+			"from": [ 2.5, 0.05, 0.5 ],
+			"to": [ 13.5, 1, 4 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left",
+			"from": [ 2, 0, 1.5 ],
+			"to": [ 2.5, 16, 3 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right",
+			"from": [ 13.5, 0, 1.5 ],
+			"to": [ 14, 16, 3 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Up",
+			"from": [ 3.5, 0, 0 ],
+			"to": [ 12.5, 16, 0.5 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Down",
+			"from": [ 3.5, 0, 4 ],
+			"to": [ 12.5, 16, 4.5 ],
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left 1",
+			"from": [ 2, 0, 0.35195 ],
+			"to": [ 2.5, 16, 1.5 ],
+			"rotation": { "origin": [ 2, 8, 1.5 ], "axis": "y", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left 2",
+			"from": [ 2.35195, 0, 0 ],
+			"to": [ 3.5, 16, 0.5 ],
+			"rotation": { "origin": [ 3.5, 8, 0 ], "axis": "y", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left 3",
+			"from": [ 2, 0, 3 ],
+			"to": [ 2.5, 16, 4.14805 ],
+			"rotation": { "origin": [ 2, 8, 3 ], "axis": "y", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Left 4",
+			"from": [ 2.35195, 0, 4 ],
+			"to": [ 3.5, 16, 4.5 ],
+			"rotation": { "origin": [ 3.5, 8, 4.5 ], "axis": "y", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right 1",
+			"from": [ 13.5, 0, 0.35195 ],
+			"to": [ 14, 16, 1.5 ],
+			"rotation": { "origin": [ 14, 8, 1.5 ], "axis": "y", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right 2",
+			"from": [ 12.5, 0, 0 ],
+			"to": [ 13.64805, 16, 0.5 ],
+			"rotation": { "origin": [ 12.5, 8, 0 ], "axis": "y", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right 3",
+			"from": [ 13.5, 0, 3 ],
+			"to": [ 14, 16, 4.14805 ],
+			"rotation": { "origin": [ 14, 8, 3 ], "axis": "y", "angle": -22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Right 4",
+			"from": [ 12.5, 0, 4 ],
+			"to": [ 13.64805, 16, 4.5 ],
+			"rotation": { "origin": [ 12.5, 8, 4.5 ], "axis": "y", "angle": 22.5 },
+			"faces": {
+				"up": { "texture": "#particle" },
+				"down": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{	"__comment": "Spit",
+			"from": [ 5, 11, 4.51 ],
+			"to": [ 8, 15, 4.51 ],
+			"faces": {
+				"south": { "uv": [ 0, 0, 12, 16 ], "texture": "#spit" }
+			}
+		},
+		{	"__comment": "Rubbish",
+			"from": [ 8.5, 12, 4.51 ],
+			"to": [ 10.75, 15, 4.51 ],
+			"faces": {
+				"south": { "uv": [ 0, 0, 12, 16 ], "texture": "#rubbish" }
+			}
+		}
+	]
+}
