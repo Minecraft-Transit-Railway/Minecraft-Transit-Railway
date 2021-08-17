@@ -6,16 +6,7 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
-					"conditions": [
-						{
-							"condition": "minecraft:block_state_property",
-							"block": "mtr:rubbish_bin",
-							"properties": {
-								"fill": "0"
-							}
-						}
-					],
-					"name": "mtr:rubbish_bin"
+					"name": "mtr:rubbish_bin_1"
 				}
 			],
 			"conditions": [
