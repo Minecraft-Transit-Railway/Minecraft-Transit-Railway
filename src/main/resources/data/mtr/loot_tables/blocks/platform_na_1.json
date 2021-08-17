@@ -6,7 +6,7 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
-					"name": "mtr:na_platform_2"
+					"name": "mtr:platform_na_1"
 				}
 			],
 			"conditions": [
