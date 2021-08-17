@@ -111,6 +111,8 @@ public class MTR implements ModInitializer, IPacket {
 	@Override
 	public void onInitialize() {
 		registerItem("apg_door", Items.APG_DOOR);
+		registerItem("apg_door_hsr_left", Items.APG_DOOR_HSR_LEFT);
+		registerItem("apg_door_hsr_right", Items.APG_DOOR_HSR_RIGHT);
 		registerItem("apg_glass", Items.APG_GLASS);
 		registerItem("apg_glass_end", Items.APG_GLASS_END);
 		registerItem("brush", Items.BRUSH);
@@ -140,6 +142,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerItem("rail_remover", Items.RAIL_REMOVER);
 
 		registerBlock("apg_door", Blocks.APG_DOOR);
+		registerBlock("apg_door_hsr_left", Blocks.APG_DOOR_HSR_LEFT);
+		registerBlock("apg_door_hsr_right", Blocks.APG_DOOR_HSR_RIGHT);
 		registerBlock("apg_glass", Blocks.APG_GLASS);
 		registerBlock("apg_glass_end", Blocks.APG_GLASS_END);
 		registerBlock("arrival_projector_1_small", Blocks.ARRIVAL_PROJECTOR_1_SMALL, ItemGroups.RAILWAY_FACILITIES);

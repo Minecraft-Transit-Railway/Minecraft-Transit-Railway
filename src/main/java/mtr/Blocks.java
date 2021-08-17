@@ -9,7 +9,9 @@ import net.minecraft.block.Material;
 
 public interface Blocks {
 
-	Block APG_DOOR = new BlockAPGDoor();
+	Block APG_DOOR = new BlockAPGDoor(false, false);
+	Block APG_DOOR_HSR_RIGHT = new BlockAPGDoor(true, false);
+	Block APG_DOOR_HSR_LEFT = new BlockAPGDoor(true, true);
 	Block APG_GLASS = new BlockAPGGlass();
 	Block APG_GLASS_END = new BlockAPGGlassEnd();
 	Block ARRIVAL_PROJECTOR_1_SMALL = new BlockArrivalProjector1Small();

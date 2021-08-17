@@ -105,6 +105,10 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 					case PSD_APG_GLASS_END:
 						return Blocks.APG_GLASS_END.getDefaultState();
 				}
+			case APG_HSR_LEFT:
+				return Blocks.APG_DOOR_HSR_LEFT.getDefaultState();
+			case APG_HSR_RIGHT:
+				return Blocks.APG_DOOR_HSR_RIGHT.getDefaultState();
 		}
 		return net.minecraft.block.Blocks.AIR.getDefaultState();
 	}
@@ -135,7 +139,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		return false;
 	}
 
-	public enum EnumPSDAPGType {PSD_1, PSD_2, APG}
+	public enum EnumPSDAPGType {PSD_1, PSD_2, APG, APG_HSR_LEFT, APG_HSR_RIGHT}
 
 	public enum EnumPSDAPGItem implements StringIdentifiable {
 
