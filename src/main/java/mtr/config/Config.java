@@ -63,7 +63,7 @@ public class Config {
 	}
 
 	public static void refreshProperties() {
-		System.out.println("Refreshed mtr.MTR.MTR mod config");
+		System.out.println("Refreshed MTR mod config");
 		try {
 			final JsonObject jsonConfig = new JsonParser().parse(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
 			try {
@@ -89,7 +89,7 @@ public class Config {
 	}
 
 	private static void writeToFile() {
-		System.out.println("Wrote mtr.MTR.MTR mod config to file");
+		System.out.println("Wrote MTR mod config to file");
 		final JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addProperty(USE_MTR_FONT_KEY, useMTRFont);
 		jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES, showAnnouncementMessages);
