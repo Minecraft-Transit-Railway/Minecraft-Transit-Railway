@@ -46,12 +46,10 @@ public class BlockRubbishBin extends HorizontalFacingBlock {
 			return ActionResult.FAIL;
 		} else {
 			IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(FILLED, 0)), () -> {
-				if (!player.inventory.getMainHandStack().isEmpty()) {
-					if (currentLevel < MAX_LEVEL) {
-						world.setBlockState(pos, state.with(FILLED, currentLevel + 1));
-						if (!player.isCreative()) {
-							player.inventory.getMainHandStack().decrement(1);
-						}
+				if (!player.getMainHandStack().isEmpty() && currentLevel < MAX_LEVEL) {
+					world.setBlockState(pos, state.with(FILLED, currentLevel + 1));
+					if (!player.isCreative()) {
+						player.getMainHandStack().decrement(1);
 					}
 				}
 			});
