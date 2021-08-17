@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/platform_base",
+	"textures": {
+		"main": "block/stone",
+		"top": "mtr:block/platform_na_1"
+	}
+}

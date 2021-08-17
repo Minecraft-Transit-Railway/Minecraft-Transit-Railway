@@ -34,6 +34,8 @@ public interface Blocks {
 	Block PIDS_2 = new BlockPIDS2();
 	Block PIDS_3 = new BlockPIDS3();
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
+	Block PLATFORM_NA_1 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
+	Block PLATFORM_NA_2 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
 	Block PSD_GLASS_END_1 = new BlockPSDGlassEnd(0);
