@@ -63,11 +63,16 @@ public class ModelCRH380A extends ModelTrainBase {
 	private final ModelPart door_exterior;
 	private final ModelPart floor_2_r2;
 	private final ModelPart floor_1_r1;
+	private final ModelPart left_door_exterior;
+	private final ModelPart right_door_exterior;
 	private final ModelPart door_standard;
+	private final ModelPart left_door;
+	private final ModelPart right_door;
 	private final ModelPart door_exterior_end;
 	private final ModelPart floor_2_r3;
 	private final ModelPart floor_1_r2;
-	private final ModelPart door_end;
+	private final ModelPart left_door_exterior_end;
+	private final ModelPart right_door_exterior_end;
 	private final ModelPart roof;
 	private final ModelPart outer_roof_2_r1;
 	private final ModelPart outer_roof_3_r1;
@@ -100,6 +105,7 @@ public class ModelCRH380A extends ModelTrainBase {
 	private final ModelPart headlights_r1;
 	private final ModelPart taillights;
 	private final ModelPart taillights_r1;
+
 	public ModelCRH380A() {
 		textureWidth = 944;
 		textureHeight = 944;
@@ -131,7 +137,7 @@ public class ModelCRH380A extends ModelTrainBase {
 		floor_4_r1.setPivot(21.0F, 0.0F, 118.0F);
 		window_exterior_end.addChild(floor_4_r1);
 		setRotationAngle(floor_4_r1, 0.0F, 0.0F, 0.1745F);
-		floor_4_r1.setTextureOffset(0, 350).addCuboid(-1.0F, 0.0F, 0.0F, 1.0F, 8.0F, 234.0F, 0.0F, false);
+		floor_4_r1.setTextureOffset(0, 349).addCuboid(-1.0F, 0.0F, 0.0F, 1.0F, 8.0F, 234.0F, 0.0F, false);
 		floor_4_r1.setTextureOffset(88, 0).addCuboid(-1.0F, 0.0F, -118.0F, 1.0F, 8.0F, 78.0F, 0.0F, true);
 
 		floor_3_r1 = new ModelPart(this);
@@ -462,10 +468,29 @@ public class ModelCRH380A extends ModelTrainBase {
 		setRotationAngle(floor_1_r1, 0.0F, 0.0F, -0.1745F);
 		floor_1_r1.setTextureOffset(283, 1).addCuboid(0.0F, 0.0F, 78.0F, 1.0F, 8.0F, 40.0F, 0.0F, false);
 
+		left_door_exterior = new ModelPart(this);
+		left_door_exterior.setPivot(0.0F, 0.0F, 0.0F);
+		door_exterior.addChild(left_door_exterior);
+		left_door_exterior.setTextureOffset(391, 3).addCuboid(20.0F, -34.0F, 4.0F, 0.0F, 33.0F, 13.0F, 0.0F, true);
+
+		right_door_exterior = new ModelPart(this);
+		right_door_exterior.setPivot(0.0F, 0.0F, 0.0F);
+		door_exterior.addChild(right_door_exterior);
+		right_door_exterior.setTextureOffset(391, 3).addCuboid(-20.0F, -34.0F, 4.0F, 0.0F, 33.0F, 13.0F, 0.0F, false);
+
 		door_standard = new ModelPart(this);
 		door_standard.setPivot(0.0F, 24.0F, 0.0F);
-		door_standard.setTextureOffset(288, 137).addCuboid(-20.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, false);
-		door_standard.setTextureOffset(288, 137).addCuboid(19.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, true);
+
+
+		left_door = new ModelPart(this);
+		left_door.setPivot(0.0F, 0.0F, 0.0F);
+		door_standard.addChild(left_door);
+		left_door.setTextureOffset(288, 137).addCuboid(19.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, true);
+
+		right_door = new ModelPart(this);
+		right_door.setPivot(0.0F, 0.0F, 0.0F);
+		door_standard.addChild(right_door);
+		right_door.setTextureOffset(288, 137).addCuboid(-20.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, false);
 
 		door_exterior_end = new ModelPart(this);
 		door_exterior_end.setPivot(0.0F, 24.0F, 0.0F);
@@ -490,10 +515,15 @@ public class ModelCRH380A extends ModelTrainBase {
 		setRotationAngle(floor_1_r2, 0.0F, 0.0F, -0.1745F);
 		floor_1_r2.setTextureOffset(246, 143).addCuboid(0.0F, 0.0F, 78.0F, 1.0F, 8.0F, 40.0F, 0.0F, false);
 
-		door_end = new ModelPart(this);
-		door_end.setPivot(0.0F, 24.0F, 0.0F);
-		door_end.setTextureOffset(292, 50).addCuboid(-20.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, false);
-		door_end.setTextureOffset(292, 50).addCuboid(19.0F, -34.0F, 4.0F, 1.0F, 33.0F, 13.0F, 0.0F, true);
+		left_door_exterior_end = new ModelPart(this);
+		left_door_exterior_end.setPivot(0.0F, 0.0F, 0.0F);
+		door_exterior_end.addChild(left_door_exterior_end);
+		left_door_exterior_end.setTextureOffset(365, 3).addCuboid(20.0F, -34.0F, 4.0F, 0.0F, 33.0F, 13.0F, 0.0F, true);
+
+		right_door_exterior_end = new ModelPart(this);
+		right_door_exterior_end.setPivot(0.0F, 0.0F, 0.0F);
+		door_exterior_end.addChild(right_door_exterior_end);
+		right_door_exterior_end.setTextureOffset(365, 3).addCuboid(-20.0F, -34.0F, 4.0F, 0.0F, 33.0F, 13.0F, 0.0F, false);
 
 		roof = new ModelPart(this);
 		roof.setPivot(0.0F, 24.0F, 0.0F);
@@ -628,40 +658,40 @@ public class ModelCRH380A extends ModelTrainBase {
 
 		seat = new ModelPart(this);
 		seat.setPivot(0.0F, 24.0F, 0.0F);
-		seat.setTextureOffset(130, 173).addCuboid(-3.0F, -5.0F, -3.0F, 6.0F, 1.0F, 6.0F, 0.0F, false);
-		seat.setTextureOffset(30, 0).addCuboid(-1.5F, -16.4F, 4.5F, 3.0F, 2.0F, 1.0F, 0.0F, false);
-		seat.setTextureOffset(168, 41).addCuboid(3.0F, -9.0F, -3.0F, 1.0F, 5.0F, 7.0F, 0.0F, false);
-		seat.setTextureOffset(168, 41).addCuboid(-4.0F, -9.0F, -3.0F, 1.0F, 5.0F, 7.0F, 0.0F, true);
+		seat.setTextureOffset(130, 173).addCuboid(-3.0F, -7.0F, -3.0F, 6.0F, 1.0F, 6.0F, 0.0F, false);
+		seat.setTextureOffset(30, 0).addCuboid(-1.5F, -18.4F, 5.0F, 3.0F, 2.0F, 1.0F, 0.0F, false);
+		seat.setTextureOffset(168, 41).addCuboid(3.0F, -11.0F, -3.0F, 1.0F, 5.0F, 7.0F, 0.0F, false);
+		seat.setTextureOffset(168, 41).addCuboid(-4.0F, -11.0F, -3.0F, 1.0F, 5.0F, 7.0F, 0.0F, true);
 
 		top_right_r1 = new ModelPart(this);
 		top_right_r1.setPivot(-1.5F, -16.4F, 4.5F);
 		seat.addChild(top_right_r1);
 		setRotationAngle(top_right_r1, 0.0017F, 0.0F, 0.2618F);
-		top_right_r1.setTextureOffset(30, 3).addCuboid(0.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, 0.0F, false);
+		top_right_r1.setTextureOffset(30, 3).addCuboid(-1.0F, -2.0F, 0.5F, 1.0F, 2.0F, 1.0F, 0.0F, false);
 
 		top_left_r1 = new ModelPart(this);
 		top_left_r1.setPivot(1.5F, -16.4F, 4.5F);
 		seat.addChild(top_left_r1);
 		setRotationAngle(top_left_r1, 0.0017F, 0.0F, -0.2618F);
-		top_left_r1.setTextureOffset(30, 3).addCuboid(-1.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, 0.0F, false);
+		top_left_r1.setTextureOffset(30, 3).addCuboid(0.0F, -2.0F, 0.5F, 1.0F, 2.0F, 1.0F, 0.0F, false);
 
 		back_right_r1 = new ModelPart(this);
 		back_right_r1.setPivot(-1.5F, -5.0F, 2.0F);
 		seat.addChild(back_right_r1);
 		setRotationAngle(back_right_r1, -0.2618F, -0.1745F, 0.0873F);
-		back_right_r1.setTextureOffset(26, 24).addCuboid(-1.5F, -9.75F, 0.0F, 2.0F, 10.0F, 1.0F, 0.0F, true);
+		back_right_r1.setTextureOffset(26, 24).addCuboid(-1.5F, -11.75F, 0.0F, 2.0F, 10.0F, 1.0F, 0.0F, true);
 
 		back_left_r1 = new ModelPart(this);
 		back_left_r1.setPivot(1.5F, -5.0F, 2.0F);
 		seat.addChild(back_left_r1);
 		setRotationAngle(back_left_r1, -0.2618F, 0.1745F, -0.0873F);
-		back_left_r1.setTextureOffset(26, 24).addCuboid(-0.5F, -9.75F, 0.0F, 2.0F, 10.0F, 1.0F, 0.0F, false);
+		back_left_r1.setTextureOffset(26, 24).addCuboid(-0.5F, -11.75F, 0.0F, 2.0F, 10.0F, 1.0F, 0.0F, false);
 
 		back_r1 = new ModelPart(this);
 		back_r1.setPivot(3.0F, -5.0F, 2.0F);
 		seat.addChild(back_r1);
 		setRotationAngle(back_r1, -0.2618F, 0.0F, 0.0F);
-		back_r1.setTextureOffset(24, 13).addCuboid(-4.5F, -10.0F, 0.0F, 3.0F, 10.0F, 1.0F, 0.0F, false);
+		back_r1.setTextureOffset(24, 13).addCuboid(-4.5F, -12.0F, 0.0F, 3.0F, 10.0F, 1.0F, 0.0F, false);
 
 		head_wall = new ModelPart(this);
 		head_wall.setPivot(0.0F, 24.0F, 0.0F);
@@ -694,7 +724,7 @@ public class ModelCRH380A extends ModelTrainBase {
 	}
 
 	private static final int DOOR_MAX = 13;
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_crh380a_left.png", "door_overlay_crh380a_right.png");
+//	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_crh380a.png", null);
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
@@ -714,7 +744,7 @@ public class ModelCRH380A extends ModelTrainBase {
 					renderMirror(window, matrices, vertices, light, position + 39);
 					renderMirror(window, matrices, vertices, light, position + 117);
 					if (renderDetails) {
-						for (int z = position - 117; z <= position + 117; z += 19.5) {
+						for (float z = position - 117; z <= position + 117; z += 19.5) {
 							renderOnce(seat, matrices, vertices, light, 15, z);
 							renderOnce(seat, matrices, vertices, light, 8.5F, z);
 							renderOnce(seat, matrices, vertices, light, -8.5F, z);
@@ -729,38 +759,37 @@ public class ModelCRH380A extends ModelTrainBase {
 					renderMirror(roof_exterior, matrices, vertices, light, position + 39);
 					renderMirror(roof_exterior, matrices, vertices, light, position + 117);
 					break;
-				}
-			} else {
-			if (renderDetails) {
-//				for (int z = position - 117; z <= position + 117; z += 19.5) {
-//					renderOnce(seat, matrices, vertices, light, 15, z);
-//					renderOnce(seat, matrices, vertices, light, 8.5F, z);
-//					renderOnce(seat, matrices, vertices, light, -8.5F, z);
-//					renderOnce(seat, matrices, vertices, light, -15, z);
-//				}
+
 			}
 		}
 	}
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorX, float doorX2, float doorZ, float doorZ2, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean frontDoor = position > 0;
 		final boolean isEnd = isEnd1Head || isEnd2Head;
-		final boolean doorOpen = doorZ > 0;
+		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
 			case LIGHTS:
-				renderMirror(roof_door, matrices, vertices, light, position);
+				if (frontDoor) {
+					renderMirror(roof_door, matrices, vertices, light, !isEnd2Head ? position : position - 78);
+				} else {
+					renderMirror(roof_door, matrices, vertices, light, !isEnd1Head ? position : position + 78);
+				}
 				break;
 			case INTERIOR:
-				door_standard.setPivot(doorX, 0, doorZ);
 				if (frontDoor) {
-					renderOnce(isEnd2Head ? door_end : door_standard, matrices, vertices, light, !isEnd2Head ? position : position - 80);
-					renderOnce(door, matrices, vertices, light, !isEnd2Head ? position : position - 80);
-					renderOnce(end_door, matrices, vertices, light, !isEnd2Head ? position : position - 80);
+					left_door.setPivot(0, 0, -doorLeftZ);
+					right_door.setPivot(0, 0, -doorRightZ);
+					renderOnce(door_standard, matrices, vertices, light, !isEnd2Head ? position : position - 78);
+					renderOnce(door, matrices, vertices, light, !isEnd2Head ? position : position - 78);
+					renderOnce(end_door, matrices, vertices, light, !isEnd2Head ? position : position - 78);
 				} else {
-					renderOnceFlipped(isEnd1Head ? door_end : door_standard, matrices, vertices, light, !isEnd1Head ? position : position + 80);
-					renderOnceFlipped(door, matrices, vertices, light, !isEnd1Head ? position : position + 80);
-					renderOnceFlipped(end_door, matrices, vertices, light, !isEnd1Head ? position : position + 80);
+					left_door.setPivot(0, 0,-doorRightZ);
+					right_door.setPivot(0, 0, -doorLeftZ);
+					renderOnceFlipped(door_standard, matrices, vertices, light, !isEnd1Head ? position : position + 78);
+					renderOnceFlipped(door, matrices, vertices, light, !isEnd1Head ? position : position + 78);
+					renderOnceFlipped(end_door, matrices, vertices, light, !isEnd1Head ? position : position + 78);
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -773,11 +802,20 @@ public class ModelCRH380A extends ModelTrainBase {
 				}
 				break;
 			case EXTERIOR:
-				renderMirror(roof_exterior_door, matrices, vertices, light, position);
 				if (frontDoor) {
-					renderOnce(isEnd2Head ? door_exterior_end : door_exterior, matrices, vertices, light, !isEnd2Head ? position : position - 80);
+					left_door_exterior.setPivot(0, 0, -doorLeftZ);
+					left_door_exterior_end.setPivot(0, 0, -doorLeftZ);
+					right_door_exterior.setPivot(0, 0, -doorRightZ);
+					right_door_exterior_end.setPivot(0, 0,  -doorRightZ);
+					renderOnce(isEnd2Head ? door_exterior_end : door_exterior, matrices, vertices, light, !isEnd2Head ? position : position - 78);
+					renderMirror(roof_exterior_door, matrices, vertices, light, !isEnd2Head ? position : position - 78);
 				} else {
-					renderOnceFlipped(isEnd1Head ? door_exterior_end : door_exterior, matrices, vertices, light, !isEnd1Head ? position : position + 80);
+					left_door_exterior.setPivot(0, 0, -doorRightZ);
+					left_door_exterior_end.setPivot(0, 0, -doorRightZ);
+					right_door_exterior.setPivot(0, 0, -doorLeftZ);
+					right_door_exterior_end.setPivot(0, 0, -doorLeftZ);
+					renderOnceFlipped(isEnd1Head ? door_exterior_end : door_exterior, matrices, vertices, light, !isEnd1Head ? position : position + 78);
+					renderMirror(roof_exterior_door, matrices, vertices, light, !isEnd1Head ? position : position + 78);
 				}
 				break;
 		}
@@ -788,24 +826,42 @@ public class ModelCRH380A extends ModelTrainBase {
 
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnce(roof, matrices, vertices, light, position - 18);
+				renderMirror(roof, matrices, vertices, light, position + 19);
+				renderMirror(roof, matrices, vertices, light, position + 137);
+				renderMirror(roof, matrices, vertices, light, position + 215);
+				renderMirror(roof, matrices, vertices, light, position + 293);
 				break;
 			case ALWAYS_ON_LIGHTS:
-				renderOnce(useHeadlights ? headlights : taillights, matrices, vertices, light, position - 18);
+				renderOnce(useHeadlights ? headlights : taillights, matrices, vertices, light, position - 20);
 				break;
 			case INTERIOR:
-				renderOnce(head, matrices, vertices, light, position - 18);
+				renderOnce(head, matrices, vertices, light, position - 20);
 				if (renderDetails) {
-//					renderOnceFlipped(seat, matrices, vertices, light, 14.5F, position + 13);
-//					renderOnceFlipped(seat, matrices, vertices, light, 8, position + 13);
-//					renderOnceFlipped(seat, matrices, vertices, light, -14.5F, position + 13);
-//					renderOnceFlipped(seat, matrices, vertices, light, -8, position + 13);
+					for (float z =  position - 10; z < position + 58; z += 19.5 ) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, 8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
+					for (float z =  position + 104; z < position + 332; z += 19.5 ) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, 8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
 				}
+				renderMirror(window, matrices, vertices, light, position + 19);
+				renderMirror(window, matrices, vertices, light, position + 137);
+				renderMirror(window, matrices, vertices, light, position + 215);
+				renderMirror(window, matrices, vertices, light, position + 293);
+				renderOnce(head_wall, matrices, vertices, light, position - 20);
 				break;
 			case EXTERIOR:
-				renderOnce(window_exterior_end, matrices, vertices, light, position - 18);
-				renderMirror(roof_exterior, matrices, vertices, light, position);
-				renderMirror(roof_exterior, matrices, vertices, light, position);
+				renderOnce(window_exterior_end, matrices, vertices, light, position - 20);
+				renderMirror(roof_exterior, matrices, vertices, light, position + 19);
+				renderMirror(roof_exterior, matrices, vertices, light, position + 137);
+				renderMirror(roof_exterior, matrices, vertices, light, position + 215);
+				renderMirror(roof_exterior, matrices, vertices, light, position + 293);
 				break;
 		}
 	}
@@ -814,31 +870,50 @@ public class ModelCRH380A extends ModelTrainBase {
 	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
-				renderOnceFlipped(roof, matrices, vertices, light, position + 18);
+				renderMirror(roof, matrices, vertices, light, position - 19);
+				renderMirror(roof, matrices, vertices, light, position - 137);
+				renderMirror(roof, matrices, vertices, light, position - 215);
+				renderMirror(roof, matrices, vertices, light, position - 293);
 				break;
 			case ALWAYS_ON_LIGHTS:
-				renderOnceFlipped(useHeadlights ? headlights : taillights, matrices, vertices, light, position - 18);
+				renderOnceFlipped(useHeadlights ? headlights : taillights, matrices, vertices, light, position + 20);
 				break;
 			case INTERIOR:
-				renderOnceFlipped(head, matrices, vertices, light, position + 18);
+				renderOnceFlipped(head, matrices, vertices, light, position + 20);
 				if (renderDetails) {
-//					renderOnce(seat, matrices, vertices, light, 15, position - 13);
-//					renderOnce(seat, matrices, vertices, light, 8.5F, position - 13);
-//					renderOnce(seat, matrices, vertices, light, -15, position - 13);
-//					renderOnce(seat, matrices, vertices, light, -8.5F, position - 13);
+					for (float z = position + 10; z > position - 58; z -= 19.5) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, 8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
+					for (float z = position - 104; z > position - 332; z -= 19.5) {
+						renderOnce(seat, matrices, vertices, light, 15, z);
+						renderOnce(seat, matrices, vertices, light, 8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -8.5F, z);
+						renderOnce(seat, matrices, vertices, light, -15, z);
+					}
 				}
+				renderMirror(window, matrices, vertices, light, position - 19);
+				renderMirror(window, matrices, vertices, light, position - 137);
+				renderMirror(window, matrices, vertices, light, position - 215);
+				renderMirror(window, matrices, vertices, light, position - 293);
+				renderOnce(head_wall, matrices, vertices, light, position + 20);
 				break;
 			case EXTERIOR:
-				renderOnceFlipped(window_exterior_end, matrices, vertices, light, position + 18);
-				renderMirror(roof_exterior, matrices, vertices, light, position - 30);
-				renderMirror(roof_exterior, matrices, vertices, light, position - 70);
+				renderOnceFlipped(window_exterior_end, matrices, vertices, light, position + 20);
+				renderMirror(roof_exterior, matrices, vertices, light, position - 19);
+				renderMirror(roof_exterior, matrices, vertices, light, position - 137);
+				renderMirror(roof_exterior, matrices, vertices, light, position - 215);
+				renderMirror(roof_exterior, matrices, vertices, light, position - 293);
 				break;
 		}
 	}
 
 	@Override
 	protected ModelDoorOverlay getModelDoorOverlay() {
-		return MODEL_DOOR_OVERLAY;
+//		return MODEL_DOOR_OVERLAY;
+		return null;
 	}
 
 	@Override
@@ -861,14 +936,12 @@ public class ModelCRH380A extends ModelTrainBase {
 
 	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
-		return value < 0.05 ? -value * 20 - 0.01F : -1.01F;
+		return 0;
 	}
 
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
-		final int doorMax = DOOR_MAX;
-		final float time = 0.5F * (DOOR_MAX);
-		return smoothEnds(-doorMax, doorMax, -time, time, value);
+		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
 	}
 
 	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) { }
@@ -876,3 +949,4 @@ public class ModelCRH380A extends ModelTrainBase {
 	@Override
 	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) { }
 }
+
