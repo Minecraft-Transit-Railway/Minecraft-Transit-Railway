@@ -55,7 +55,7 @@
 	"block.mtr.ticket_processor_enquiry": "Enquiry Processor",
 	"block.mtr.ticket_processor_entrance": "Ticket Processor (Entrance)",
 	"block.mtr.ticket_processor_exit": "Ticket Processor (Exit)",
-	"block.mtr.tactile_map": "Tactile Map",
+	"block.mtr.tactile_map": "Tactile Station Layout Map",
 	"gui.mtr.add_balance_for_emeralds": "Add $%s for %s emerald(s)",
 	"gui.mtr.add_depot": "Add Depot",
 	"gui.mtr.add_exit": "Add Station Exit",
