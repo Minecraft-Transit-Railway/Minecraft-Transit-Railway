@@ -9,15 +9,12 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import java.util.stream.Stream;
 
 public class BlockTactileMap extends HorizontalFacingBlock {
 
@@ -36,13 +33,11 @@ public class BlockTactileMap extends HorizontalFacingBlock {
         }
 
         public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
-            Stream.of(
-                    VoxelShapes.cuboid(3, 0, 6, 12, 1, 9),
-                    VoxelShapes.cuboid(6, 1, 7, 9, 9.5, 8),
-                    VoxelShapes.cuboid(1.5, 1, 7, 13.5, 2, 17)
-            ).reduce((v1, v2) -> {return VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR);});
-            return VoxelShapes.cuboid(0.75f, 0f, 0.15f, 1.0f, 1.0f, 0.85f);
-        }
+            final VoxelShape first = VoxelShapes.cuboid(0, 0, 0, 16, 1, 16);
+            final VoxelShape second = VoxelShapes.cuboid(5.5, 1, 7.5, 10.5, 20, 8.5);
+            final VoxelShape third = VoxelShapes.cuboid(-0.5, 8, 12, 16.5, 9, 26);
+            return VoxelShapes.union(first, second, third);
+    }
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity placedBy,Hand hand, BlockHitResult blockHitResult) {
         if (!world.isClient) {
             world.playSound(null, blockPos, MTR.TACTILE_MAP_MUSIC, SoundCategory.BLOCKS, 1f, 1f);
