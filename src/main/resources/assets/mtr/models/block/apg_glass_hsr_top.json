@@ -1,0 +1,10 @@
+{
+	"parent": "mtr:block/apg_glass_single_base",
+	"textures": {
+		"frontbottom": "mtr:block/transparent",
+		"sidebottom": "mtr:block/transparent",
+		"fronttop": "mtr:block/apg_glass_single_top",
+		"sidetop": "mtr:block/psd_side_light",
+		"sidetriangle": "mtr:block/apg_side_triangle"
+	}
+}

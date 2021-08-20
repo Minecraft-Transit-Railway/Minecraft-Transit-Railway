@@ -39,6 +39,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final boolean isPSD = type == EnumPSDAPGType.PSD_1 || type == EnumPSDAPGType.PSD_2;
 		final boolean isDoor = item == EnumPSDAPGItem.PSD_APG_DOOR;
+		final boolean isHSR = type == EnumPSDAPGType.APG_HSR_LEFT || type == EnumPSDAPGType.APG_HSR_RIGHT;
 
 		if (blocksNotReplaceable(context, isDoor ? 2 : 1, isPSD ? 3 : 2, getBlockStateFromItem().getBlock())) {
 			return ActionResult.FAIL;
@@ -48,16 +49,19 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		final Direction playerFacing = context.getPlayerFacing();
 		final BlockPos pos = context.getBlockPos().offset(context.getSide());
 
-		for (int x = 0; x < (isDoor ? 2 : 1); x++) {
+		for (int x = 0; x < (isDoor ? (isHSR ? 3: 2) : 1); x++) {
 			final BlockPos newPos = pos.offset(playerFacing.rotateYClockwise(), x);
 
 			for (int y = 0; y < 2; y++) {
 				final BlockState state = getBlockStateFromItem().with(BlockPSDAPGBase.FACING, playerFacing).with(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
-				if (isDoor) {
+				if (isDoor && !isHSR) {
 					final EnumSide side = x == 0 ? EnumSide.LEFT : EnumSide.RIGHT;
 					world.setBlockState(newPos.up(y), state.with(SIDE, side));
-				} else {
+				} else if (!isHSR) {
 					final EnumSide side = EnumSide.SINGLE;
+					world.setBlockState(newPos.up(y), state.with(SIDE_EXTENDED, side));
+				} else {
+					final EnumSide side = x == 0 ? EnumSide.LEFT : x == 1 ? EnumSide.MIDDLE : EnumSide.RIGHT;
 					world.setBlockState(newPos.up(y), state.with(SIDE_EXTENDED, side));
 				}
 			}

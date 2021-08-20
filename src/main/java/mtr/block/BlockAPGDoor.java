@@ -14,14 +14,6 @@ import net.minecraft.world.WorldAccess;
 public class BlockAPGDoor extends BlockPSDAPGDoorBase {
 
 	public static final BooleanProperty GLASS = BooleanProperty.of("glass");
-	private final boolean hsr;
-	private final boolean toLeft;
-
-	public BlockAPGDoor(boolean hsr, boolean toLeft) {
-		super();
-		this.hsr = hsr;
-		this.toLeft = toLeft;
-	}
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
@@ -42,7 +34,7 @@ public class BlockAPGDoor extends BlockPSDAPGDoorBase {
 
 	@Override
 	public Item asItem() {
-		return hsr ? (toLeft ? Items.APG_DOOR_HSR_LEFT : Items.APG_DOOR_HSR_LEFT) : Items.APG_DOOR;
+		return Items.APG_DOOR;
 	}
 
 	@Override

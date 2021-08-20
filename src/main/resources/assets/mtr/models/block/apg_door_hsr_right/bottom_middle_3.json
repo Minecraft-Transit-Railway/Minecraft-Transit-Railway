@@ -2,35 +2,38 @@
  	"textures": {
  		"side": "mtr:block/psd_side_light",
  		"black": "mtr:block/black",
- 		"particle": "mtr:block/apg_door_hsr_left_bottom"
+ 		"particle": "mtr:block/apg_door_hsr_right_bottom"
  	},
  	"elements": [
  		{
  			"from": [ 1, 0, 3 ],
  			"to": [ 2, 16, 19 ],
  			"faces": {
- 				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#black", "cullface": "down" },
- 				"east": { "uv": [ 0, 0, 16, 16 ], "texture": "#particle" },
+ 				"down": { "uv": [ 16, 0, 0, 16 ], "texture": "#black", "cullface": "down" },
+ 				"east": { "uv": [ 0, 0,16, 16 ], "texture": "#particle" },
  				"west": { "uv": [ 16, 0, 0, 16 ], "texture": "#particle" },
- 				"south": { "texture": "#side" }
+ 				"north": { "texture": "#side" }
+ 
  			}
  		},
  		{
  			"from": [ 0, 0, 3 ],
  			"to": [ 1, 6, 19 ],
  			"faces": {
- 				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#black", "cullface": "down" },
+ 				"down": { "uv": [ 16, 0, 0, 16 ], "texture": "#black", "cullface": "down" },
  				"west": { "uv": [ 16, 9, 0, 9.1 ], "texture": "#particle", "cullface": "west" },
- 				"south": { "texture": "#side" }
+ 				"north": { "texture": "#side" }
+ 
  			}
  		},
  		{
  			"from": [ 0, 5, 3.05 ],
- 			"to": [ 1.414, 6, 19.45 ],
+ 			"to": [ 1.414, 6, 19.95 ],
  			"rotation": { "origin": [ 0, 6, 8 ], "axis": "z", "angle": 45 },
  			"faces": {
  				"up": { "uv": [ 0, 9, 16, 9.1 ], "texture": "#particle", "rotation": 270 },
- 				"south": { "texture": "#side" }
+ 				"north": { "texture": "#side" }
+ 
  			}
  		}
  	]
