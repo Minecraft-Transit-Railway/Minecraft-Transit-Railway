@@ -1,10 +1,10 @@
 plugins {
-    id "fabric-loom" version "0.8-SNAPSHOT"
+    id "fabric-loom" version "0.7-SNAPSHOT"
     id "maven-publish"
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -15,7 +15,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "io.github.prospector:modmenu:${project.mod_menu_version}"
+    modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "com.github.BlueMap-Minecraft:BlueMapAPI:${project.blue_map_version}"
     modImplementation "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
     include "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
@@ -32,7 +32,10 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
-    it.options.release = 16
+    def targetVersion = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release = targetVersion
+    }
 }
 
 java {
@@ -68,6 +71,9 @@ allprojects {
         }
         maven {
             url = "https://minecraft.guntram.de/maven/"
+        }
+        maven {
+            url = "https://maven.terraformersmc.com/"
         }
     }
 }

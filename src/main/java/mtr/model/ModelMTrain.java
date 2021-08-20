@@ -850,8 +850,8 @@ public class ModelMTrain extends ModelTrainBase {
 				renderOnceFlipped(door, matrices, vertices, light, position);
 
 				if (renderDetails) {
+					renderOnce(door_handrail, matrices, vertices, light, position);
 					if (notLastDoor) {
-						renderOnce(door_handrail, matrices, vertices, light, position);
 						renderMirror(roof_door, matrices, vertices, light, position);
 					}
 				}
@@ -962,7 +962,7 @@ public class ModelMTrain extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
 		return null;
 	}
 
