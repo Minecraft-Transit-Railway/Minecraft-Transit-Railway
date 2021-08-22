@@ -44,18 +44,20 @@ public class BlockTactileMap extends HorizontalFacingBlock {
             builder.add(FACING);
         }
 
-        public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
-        // You know what? I give up, goodbye! (Please fix it)
-            final VoxelShape first = VoxelShapes.cuboid(0, 0, 0, 16, 1, 16);
-            final VoxelShape second = VoxelShapes.cuboid(5.5, 1, 7.5, 10.5, 20, 8.5);
-            final VoxelShape third = VoxelShapes.cuboid(-0.5, 8, 12, 16.5, 9, 26);
-            return VoxelShapes.union(first, second, third);
+    public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+        // You know what? I give up, goodbye! (Please fix)
+        // Never gonna give you up, never gonna let you down!
+        final VoxelShape first = IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 1, 16, state.get(FACING).getOpposite());
+        final VoxelShape second = IBlock.getVoxelShapeByDirection(5.5, 1, 7.5, 10.5, 20, 8.5, state.get(FACING).getOpposite());
+        return VoxelShapes.union(first, second);
     }
+
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity player,Hand hand, BlockHitResult blockHitResult) {
         if (!world.isClient) {
             // The music might be copyrighted, please double-check before releasing
             world.playSound(null, blockPos, MTR.TACTILE_MAP_MUSIC, SoundCategory.BLOCKS, 1f, 1f);
             // I have no idea how to make the music stop, there's no method for that?
+            // Or instead you can even make it loop the music to make it more realistic
             // I like to add useless things. Remove if you decide to not trying make it stop
             player.sendMessage(new TranslatableText("Press again to stop"), true);
         }
