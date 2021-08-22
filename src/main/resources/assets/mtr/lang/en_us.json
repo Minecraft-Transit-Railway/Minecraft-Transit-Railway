@@ -269,7 +269,7 @@
 	"tooltip.mtr.selected_block": "Selected Block: %s",
 	"tooltip.mtr.station_color": "Colour depends on the station",
 	"tooltip.mtr.station_color_name": "Colour and text depend on the station",
-	"tooltip.mtr.tactile_map": "Non-functional. Currently only a decorative block.",
+	"tooltip.mtr.tactile_map": "Non-functional.\nCurrently only a decorative block that plays music when you click on it.\nThe music is unstoppable right now.",
 	"train.mtr.A_TRAIN_AEL": "CAF Airport Express",
 	"train.mtr.A_TRAIN_AEL_MINI": "CAF Airport Express (Mini)",
 	"train.mtr.A_TRAIN_TCL": "CAF Tung Chung Line",

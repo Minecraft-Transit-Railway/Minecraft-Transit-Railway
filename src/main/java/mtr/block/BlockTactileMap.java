@@ -31,6 +31,7 @@ public class BlockTactileMap extends HorizontalFacingBlock {
         }
     @Override
     public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
+        // A heads-up to people that they cannot actually make a tactile map of their station, I think
         tooltip.add(new TranslatableText("tooltip.mtr.tactile_map").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
     }
         @Override
@@ -44,14 +45,19 @@ public class BlockTactileMap extends HorizontalFacingBlock {
         }
 
         public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+        // You know what? I give up, goodbye! (Please fix it)
             final VoxelShape first = VoxelShapes.cuboid(0, 0, 0, 16, 1, 16);
             final VoxelShape second = VoxelShapes.cuboid(5.5, 1, 7.5, 10.5, 20, 8.5);
             final VoxelShape third = VoxelShapes.cuboid(-0.5, 8, 12, 16.5, 9, 26);
             return VoxelShapes.union(first, second, third);
     }
-    public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity placedBy,Hand hand, BlockHitResult blockHitResult) {
+    public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity player,Hand hand, BlockHitResult blockHitResult) {
         if (!world.isClient) {
+            // The music might be copyrighted, please double-check before releasing
             world.playSound(null, blockPos, MTR.TACTILE_MAP_MUSIC, SoundCategory.BLOCKS, 1f, 1f);
+            // I have no idea how to make the music stop, there's no method for that?
+            // I like to add useless things. Remove if you decide to not trying make it stop
+            player.sendMessage(new TranslatableText("Press again to stop"), true);
         }
         return ActionResult.success(false);
     }
