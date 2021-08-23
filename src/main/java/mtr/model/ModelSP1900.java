@@ -1513,7 +1513,7 @@ public class ModelSP1900 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
 					if (!isC1141A) {
-						if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
+						if (getDoorPositions().length > 3 && (isIndex(1, position, getDoorPositions()) || isIndex(3, position, getDoorPositions()))) {
 							renderOnce(bb_main, matrices, vertices, light, position);
 						} else {
 							renderOnce(tv_pole, matrices, vertices, light, position);

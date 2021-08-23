@@ -59,6 +59,7 @@ public class RenderTrains implements IGui {
 	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
 	private static final ModelATrainMini MODEL_A_TRAIN_AEL_MINI = new ModelATrainMini(true);
+	private static final ModelR179Train MODEL_R179 = new ModelR179Train();
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1 = new ModelLightRail(1);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_2 = new ModelLightRail(2);
@@ -133,10 +134,8 @@ public class RenderTrains implements IGui {
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "side"))));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			final Identifier roofTextureId = new Identifier(getConnectorTextureString(trainType.id, "roof"));
-			final Identifier floorTextureId = new Identifier(getConnectorTextureString(trainType.id, "floor"));
-			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(roofTextureId) : MoreRenderLayers.getExterior(roofTextureId)), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(lightsOn ? MoreRenderLayers.getInterior(floorTextureId) : MoreRenderLayers.getExterior(floorTextureId)), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainType.id, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -379,6 +378,8 @@ public class RenderTrains implements IGui {
 				return MODEL_A_TRAIN_AEL;
 			case A_TRAIN_AEL_MINI:
 				return MODEL_A_TRAIN_AEL_MINI;
+			case R179_TRAIN:
+				return MODEL_R179;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			case LIGHT_RAIL_1R:
