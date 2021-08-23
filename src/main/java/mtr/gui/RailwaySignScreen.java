@@ -180,13 +180,9 @@ public class RailwaySignScreen extends Screen implements IGui {
 			}
 		}
 
-		availableList.y = SQUARE_SIZE * 2;
-		availableList.height = height - SQUARE_SIZE * 5;
-		availableList.width = PANEL_WIDTH;
-
-		selectedList.y = SQUARE_SIZE * 2;
-		selectedList.height = height - SQUARE_SIZE * 5;
-		selectedList.width = PANEL_WIDTH;
+		availableList.y = selectedList.y = SQUARE_SIZE * 2;
+		availableList.height = selectedList.height = height - SQUARE_SIZE * 5;
+		availableList.width = selectedList.width = PANEL_WIDTH;
 
 		IDrawing.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
 		buttonClear.visible = false;

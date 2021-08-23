@@ -43,6 +43,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 	private final boolean appendDotAfterMin;
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
+	private static final int CAR_TEXT_COLOR = 0xFF0000;
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
@@ -125,6 +126,27 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				}
 			});
 
+			final boolean showCarLength;
+			final float carLengthMaxWidth;
+			if (!showAllPlatforms) {
+				int maxCars = 0;
+				int minCars = Integer.MAX_VALUE;
+				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
+					final int trainLength = scheduleEntry.trainLength;
+					if (trainLength > maxCars) {
+						maxCars = trainLength;
+					}
+					if (trainLength < minCars) {
+						minCars = trainLength;
+					}
+				}
+				showCarLength = minCars != maxCars;
+				carLengthMaxWidth = showCarLength ? scale * 6 / 16 : 0;
+			} else {
+				showCarLength = false;
+				carLengthMaxWidth = 0;
+			}
+
 			for (int i = 0; i < Math.min(maxArrivals, scheduleList.size()); i++) {
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
@@ -139,6 +161,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				} else {
 					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 				}
+				final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainLength);
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
@@ -153,18 +176,31 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
 				}
 
+				final float newDestinationMaxWidth = destinationMaxWidth - carLengthMaxWidth;
+
 				if (showAllPlatforms) {
 					final String platformName = platformIdToName.get(currentSchedule.platformId);
 					if (platformName != null) {
-						textRenderer.draw(matrices, platformName, destinationStart + destinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
+						textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
 					}
+				}
+
+				if (showCarLength) {
+					matrices.push();
+					matrices.translate(destinationStart + newDestinationMaxWidth + platformMaxWidth, 0, 0);
+					final int carTextWidth = textRenderer.getWidth(carText);
+					if (carTextWidth > carLengthMaxWidth) {
+						matrices.scale(carLengthMaxWidth / carTextWidth, 1, 1);
+					}
+					textRenderer.draw(matrices, carText, 0, 0, CAR_TEXT_COLOR);
+					matrices.pop();
 				}
 
 				matrices.push();
 				matrices.translate(destinationStart, 0, 0);
 				final int destinationWidth = textRenderer.getWidth(destinationString);
-				if (destinationWidth > destinationMaxWidth) {
-					matrices.scale(destinationMaxWidth / destinationWidth, 1, 1);
+				if (destinationWidth > newDestinationMaxWidth) {
+					matrices.scale(newDestinationMaxWidth / destinationWidth, 1, 1);
 				}
 				textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
 				matrices.pop();
@@ -173,7 +209,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					matrices.push();
 					final int arrivalWidth = textRenderer.getWidth(arrivalText);
 					if (arrivalWidth > arrivalMaxWidth) {
-						matrices.translate(destinationStart + destinationMaxWidth + platformMaxWidth, 0, 0);
+						matrices.translate(destinationStart + newDestinationMaxWidth + platformMaxWidth + carLengthMaxWidth, 0, 0);
 						matrices.scale(arrivalMaxWidth / arrivalWidth, 1, 1);
 					} else {
 						matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);

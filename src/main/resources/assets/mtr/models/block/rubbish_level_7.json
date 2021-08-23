@@ -1,0 +1,15 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"main": "mtr:block/rubbish"
+	},
+	"elements": [
+		{
+			"from": [ 2.5, 7, 0.5 ],
+			"to": [ 13.5, 7, 4 ],
+			"faces": {
+				"up": { "uv": [ 5, 1, 16, 4.5 ], "texture": "#main" }
+			}
+		}
+	]
+}

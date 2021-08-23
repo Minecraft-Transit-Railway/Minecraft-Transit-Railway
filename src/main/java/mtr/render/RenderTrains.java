@@ -49,6 +49,8 @@ public class RenderTrains implements IGui {
 	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini(false);
 	private static final ModelSP1900 MODEL_C1141A = new ModelSP1900(true);
 	private static final ModelSP1900Mini MODEL_C1141A_MINI = new ModelSP1900Mini(true);
+	private static final ModelMLR MODEL_MLR = new ModelMLR();
+	private static final ModelMLRMini MODEL_MLR_MINI = new ModelMLRMini();
 	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain();
@@ -60,6 +62,7 @@ public class RenderTrains implements IGui {
 	private static final ModelR179Train MODEL_R179 = new ModelR179Train();
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1 = new ModelLightRail(1);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
+	private static final ModelLightRail MODEL_LIGHT_RAIL_2 = new ModelLightRail(2);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_3 = new ModelLightRail(3);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_4 = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_5 = new ModelLightRail(5);
@@ -75,6 +78,7 @@ public class RenderTrains implements IGui {
 		final boolean isReplayMod = isReplayMod(player);
 		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 
+		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
 			if (lastFrameDuration > 0.8) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
@@ -158,42 +162,80 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
-			final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
 				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
-					final String fullstopCJK = new TranslatableText("gui.mtr.fullstop_cjk").getString() + " ";
-					final String fullstop = new TranslatableText("gui.mtr.fullstop").getString() + " ";
+					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
 					if (nextStation != null) {
-						messages.add(IGui.addToStationName(nextStation.name, new TranslatableText("gui.mtr.next_station_announcement_cjk").getString(), new TranslatableText("gui.mtr.next_station_announcement").getString(), fullstopCJK, fullstop));
+						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
+						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
 						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
 						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> !interchangeRoute.name.split("\\|\\|")[0].equals(thisRoute.name.split("\\|\\|")[0])).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-							final String mergedStations = IGui.mergeStations(interchangeRoutes).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), ", ").replace(new TranslatableText("gui.mtr.separator").getString(), ", ");
+							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
+							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+							final String mergedStations = IGui.mergeStations(interchangeRoutes, ", ");
 							if (!mergedStations.isEmpty()) {
-								messages.add(IGui.addToStationName(mergedStations, new TranslatableText("gui.mtr.interchange_announcement_cjk").getString(), new TranslatableText("gui.mtr.interchange_announcement").getString(), fullstopCJK, fullstop));
+								messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedStations));
+							}
+						}
+
+						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
+							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							if (nextFinalStation != null) {
+								if (nextRoute.isLightRailRoute) {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+								} else {
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_announcement_cjk", "gui.mtr.next_route_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+								}
 							}
 						}
 					}
 
-					final String message = IGui.formatStationName(IGui.mergeStations(messages).replace(new TranslatableText("gui.mtr.separator_cjk").getString(), "").replace(new TranslatableText("gui.mtr.separator").getString(), "")).replace("  ", " ");
-					if (useTTSAnnouncements) {
-						Narrator.getNarrator().say(message, false);
-					}
-					if (showAnnouncementMessages) {
-						player.sendMessage(Text.of(message), false);
+					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
+					if (!message.isEmpty()) {
+						if (useTTSAnnouncements) {
+							Narrator.getNarrator().say(message, false);
+						}
+						if (showAnnouncementMessages) {
+							player.sendMessage(Text.of(message), false);
+						}
 					}
 				});
 			}
-		}, (platformId, arrivalMillis, departureMillis, trainType, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+		}, (stopIndex, routeIds) -> {
+			if (useTTSAnnouncements) {
+				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					if (thisRoute.isLightRailRoute && lastStation != null) {
+						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), false);
+					}
+				});
+			}
+		}, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (lastStation != null) {
 				if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
 					ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
 				}
-				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, platformId, lastStation.name, nextStation == null));
+
+				final String destinationString;
+				if (thisRoute != null && thisRoute.isLightRailRoute) {
+					final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+					final String[] lastStationSplit = lastStation.name.split("\\|");
+					final StringBuilder destination = new StringBuilder();
+					for (final String lastStationSplitPart : lastStationSplit) {
+						destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+					}
+					destinationString = destination.length() > 0 ? destination.substring(1) : "";
+				} else {
+					destinationString = lastStation.name;
+				}
+
+				ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
 			}
 		})));
 
@@ -276,7 +318,7 @@ public class RenderTrains implements IGui {
 
 	private static Text getStationText(Station station, String textKey) {
 		if (station != null) {
-			return Text.of(IGui.formatStationName(IGui.addToStationName(IGui.textOrUntitled(station.name), new TranslatableText("gui.mtr." + textKey + "_station_cjk").getString(), new TranslatableText("gui.mtr." + textKey + "_station").getString(), "", "")));
+			return Text.of(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
 		} else {
 			return new LiteralText("");
 		}
@@ -310,12 +352,16 @@ public class RenderTrains implements IGui {
 		switch (trainType) {
 			case SP1900:
 				return MODEL_SP1900;
-			case C1141A:
-				return MODEL_C1141A;
 			case SP1900_MINI:
 				return MODEL_SP1900_MINI;
+			case C1141A:
+				return MODEL_C1141A;
 			case C1141A_MINI:
 				return MODEL_C1141A_MINI;
+			case MLR:
+				return MODEL_MLR;
+			case MLR_MINI:
+				return MODEL_MLR_MINI;
 			case M_TRAIN:
 				return MODEL_M_TRAIN;
 			case M_TRAIN_MINI:
@@ -338,6 +384,8 @@ public class RenderTrains implements IGui {
 				return MODEL_LIGHT_RAIL_1;
 			case LIGHT_RAIL_1R:
 				return MODEL_LIGHT_RAIL_1R;
+			case LIGHT_RAIL_2:
+				return MODEL_LIGHT_RAIL_2;
 			case LIGHT_RAIL_3:
 				return MODEL_LIGHT_RAIL_3;
 			case LIGHT_RAIL_4:
