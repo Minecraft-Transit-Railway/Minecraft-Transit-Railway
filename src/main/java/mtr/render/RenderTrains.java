@@ -332,7 +332,7 @@ public class RenderTrains implements IGui {
 				return MODEL_A_TRAIN_AEL;
 			case A_TRAIN_AEL_MINI:
 				return MODEL_A_TRAIN_AEL_MINI;
-			case R179_TRAIN_BETA_1:
+			case R179_TRAIN:
 				return MODEL_R179_BETA_1;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;

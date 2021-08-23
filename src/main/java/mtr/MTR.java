@@ -93,10 +93,10 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent A_TRAIN_DOOR_OPEN = registerSoundEvent("a_train_door_open");
 	public static final SoundEvent A_TRAIN_DOOR_CLOSE = registerSoundEvent("a_train_door_close");
 	private static final int R179_BETA_1_SPEED_COUNT = 116;
-	public static final SoundEvent[] R179_BETA_1_ACCELERATION = registerSoundEvents(R179_BETA_1_SPEED_COUNT, 3, "r179_beta_1_acceleration_");
-	public static final SoundEvent[] R179_BETA_1_DECELERATION = registerSoundEvents(R179_BETA_1_SPEED_COUNT, 3, "r179_beta_1_deceleration_");
-	public static final SoundEvent R179_BETA_1_DOOR_OPEN = registerSoundEvent("r179_beta_1_door_open");
-	public static final SoundEvent R179_BETA_1_DOOR_CLOSE = registerSoundEvent("r179_beta_1_door_close");
+	public static final SoundEvent[] R179_ACCELERATION = registerSoundEvents(R179_BETA_1_SPEED_COUNT, 3, "r179_beta_1_acceleration_");
+	public static final SoundEvent[] R179_DECELERATION = registerSoundEvents(R179_BETA_1_SPEED_COUNT, 3, "r179_beta_1_deceleration_");
+	public static final SoundEvent R179_DOOR_OPEN = registerSoundEvent("r179_beta_1_door_open");
+	public static final SoundEvent R179_DOOR_CLOSE = registerSoundEvent("r179_beta_1_door_close");
 	private static final int LIGHT_RAIL_1_SPEED_COUNT = 48;
 	public static final SoundEvent[] LIGHT_RAIL_ACCELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_acceleration_");
 	public static final SoundEvent[] LIGHT_RAIL_DECELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_deceleration_");

@@ -8219,1319 +8219,1189 @@
 			}
 		]
 	},
-	"r179_beta_1_door_open": {
+	"r179_door_open": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/door_open",
+				"name": "mtr:r179/door_open",
 				"pitch": 1
 			}
 		]
 	},
-	"r179_beta_1_door_close": {
+	"r179_door_close": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/door_close",
+				"name": "mtr:r179/door_close",
 				"pitch": 1
 			}
 		]
 	},
-	"r179_beta_1_acceleration_0a": {
+	"r179_acceleration_0a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_0a",
+				"name": "mtr:r179/acceleration/speed_0a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_1a": {
+	"r179_acceleration_1a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_1a",
+				"name": "mtr:r179/acceleration/speed_1a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_2a": {
+	"r179_acceleration_2a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_2a",
+				"name": "mtr:r179/acceleration/speed_2a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_3a": {
+	"r179_acceleration_3a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_3a",
+				"name": "mtr:r179/acceleration/speed_3a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_4a": {
+	"r179_acceleration_4a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_4a",
+				"name": "mtr:r179/acceleration/speed_4a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_5a": {
+	"r179_acceleration_5a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_5a",
+				"name": "mtr:r179/acceleration/speed_5a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_6a": {
+	"r179_acceleration_6a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_6a",
+				"name": "mtr:r179/acceleration/speed_6a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_7a": {
+	"r179_acceleration_7a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_7a",
+				"name": "mtr:r179/acceleration/speed_7a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_8a": {
+	"r179_acceleration_8a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_8a",
+				"name": "mtr:r179/acceleration/speed_8a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_9a": {
+	"r179_acceleration_9a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_9a",
+				"name": "mtr:r179/acceleration/speed_9a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_10a": {
+	"r179_acceleration_10a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_10a",
+				"name": "mtr:r179/acceleration/speed_10a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_11a": {
+	"r179_acceleration_11a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_11a",
+				"name": "mtr:r179/acceleration/speed_11a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_12a": {
+	"r179_acceleration_12a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12a",
+				"name": "mtr:r179/acceleration/speed_12a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_13a": {
+	"r179_acceleration_13a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12a",
+				"name": "mtr:r179/acceleration/speed_12a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_14a": {
+	"r179_acceleration_14a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_14a",
+				"name": "mtr:r179/acceleration/speed_14a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_15a": {
+	"r179_acceleration_15a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_15a",
+				"name": "mtr:r179/acceleration/speed_15a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_16a": {
+	"r179_acceleration_16a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_16a",
+				"name": "mtr:r179/acceleration/speed_16a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_17a": {
+	"r179_acceleration_17a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_17a",
+				"name": "mtr:r179/acceleration/speed_17a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_18a": {
+	"r179_acceleration_18a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_18a",
+				"name": "mtr:r179/acceleration/speed_18a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_19a": {
+	"r179_acceleration_19a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_19a",
+				"name": "mtr:r179/acceleration/speed_19a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_20a": {
+	"r179_acceleration_20a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_20a",
+				"name": "mtr:r179/acceleration/speed_20a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_21a": {
+	"r179_acceleration_21a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_21a",
+				"name": "mtr:r179/acceleration/speed_21a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_0b": {
+	"r179_acceleration_0b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_0b",
+				"name": "mtr:r179/acceleration/speed_0b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_1b": {
+	"r179_acceleration_1b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_1b",
+				"name": "mtr:r179/acceleration/speed_1b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_2b": {
+	"r179_acceleration_2b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_2b",
+				"name": "mtr:r179/acceleration/speed_2b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_3b": {
+	"r179_acceleration_3b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_3b",
+				"name": "mtr:r179/acceleration/speed_3b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_4b": {
+	"r179_acceleration_4b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_4b",
+				"name": "mtr:r179/acceleration/speed_4b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_5b": {
+	"r179_acceleration_5b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_5b",
+				"name": "mtr:r179/acceleration/speed_5b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_6b": {
+	"r179_acceleration_6b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_6b",
+				"name": "mtr:r179/acceleration/speed_6b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_7b": {
+	"r179_acceleration_7b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_7b",
+				"name": "mtr:r179/acceleration/speed_7b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_8b": {
+	"r179_acceleration_8b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_8b",
+				"name": "mtr:r179/acceleration/speed_8b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_9b": {
+	"r179_acceleration_9b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_9b",
+				"name": "mtr:r179/acceleration/speed_9b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_10b": {
+	"r179_acceleration_10b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_10b",
+				"name": "mtr:r179/acceleration/speed_10b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_11b": {
+	"r179_acceleration_11b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_11b",
+				"name": "mtr:r179/acceleration/speed_11b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_12b": {
+	"r179_acceleration_12b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12b",
+				"name": "mtr:r179/acceleration/speed_12b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_13b": {
+	"r179_acceleration_13b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12b",
+				"name": "mtr:r179/acceleration/speed_12b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_14b": {
+	"r179_acceleration_14b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_14b",
+				"name": "mtr:r179/acceleration/speed_14b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_15b": {
+	"r179_acceleration_15b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_15b",
+				"name": "mtr:r179/acceleration/speed_15b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_16b": {
+	"r179_acceleration_16b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_16b",
+				"name": "mtr:r179/acceleration/speed_16b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_17b": {
+	"r179_acceleration_17b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_17b",
+				"name": "mtr:r179/acceleration/speed_17b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_18b": {
+	"r179_acceleration_18b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_18b",
+				"name": "mtr:r179/acceleration/speed_18b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_19b": {
+	"r179_acceleration_19b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_19b",
+				"name": "mtr:r179/acceleration/speed_19b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_20b": {
+	"r179_acceleration_20b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_20b",
+				"name": "mtr:r179/acceleration/speed_20b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_21b": {
+	"r179_acceleration_21b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_21b",
+				"name": "mtr:r179/acceleration/speed_21b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_1c": {
+	"r179_acceleration_1c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_1c",
+				"name": "mtr:r179/acceleration/speed_1c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_2c": {
+	"r179_acceleration_2c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_2c",
+				"name": "mtr:r179/acceleration/speed_2c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_3c": {
+	"r179_acceleration_3c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_3c",
+				"name": "mtr:r179/acceleration/speed_3c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_4c": {
+	"r179_acceleration_4c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_4c",
+				"name": "mtr:r179/acceleration/speed_4c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_5c": {
+	"r179_acceleration_5c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_5c",
+				"name": "mtr:r179/acceleration/speed_5c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_6c": {
+	"r179_acceleration_6c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_6c",
+				"name": "mtr:r179/acceleration/speed_6c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_7c": {
+	"r179_acceleration_7c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_7c",
+				"name": "mtr:r179/acceleration/speed_7c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_8c": {
+	"r179_acceleration_8c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_8c",
+				"name": "mtr:r179/acceleration/speed_8c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_9c": {
+	"r179_acceleration_9c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_9c",
+				"name": "mtr:r179/acceleration/speed_9c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_10c": {
+	"r179_acceleration_10c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_10c",
+				"name": "mtr:r179/acceleration/speed_10c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_11c": {
+	"r179_acceleration_11c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_11c",
+				"name": "mtr:r179/acceleration/speed_11c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_12c": {
+	"r179_acceleration_12c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12c",
+				"name": "mtr:r179/acceleration/speed_12c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_13c": {
+	"r179_acceleration_13c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_12c",
+				"name": "mtr:r179/acceleration/speed_12c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_14c": {
+	"r179_acceleration_14c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_14c",
+				"name": "mtr:r179/acceleration/speed_14c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_15c": {
+	"r179_acceleration_15c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_15c",
+				"name": "mtr:r179/acceleration/speed_15c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_16c": {
+	"r179_acceleration_16c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_16c",
+				"name": "mtr:r179/acceleration/speed_16c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_17c": {
+	"r179_acceleration_17c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_17c",
+				"name": "mtr:r179/acceleration/speed_17c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_18c": {
+	"r179_acceleration_18c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_18c",
+				"name": "mtr:r179/acceleration/speed_18c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_19c": {
+	"r179_acceleration_19c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_19c",
+				"name": "mtr:r179/acceleration/speed_19c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_20c": {
+	"r179_acceleration_20c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_20c",
+				"name": "mtr:r179/acceleration/speed_20c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_acceleration_21c": {
+	"r179_acceleration_21c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/acceleration/speed_21c",
+				"name": "mtr:r179/acceleration/speed_21c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_0a": {
+	"r179_deceleration_0a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_0a",
+				"name": "mtr:r179/deceleration/speed_0a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_1a": {
+	"r179_deceleration_1a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_1a",
+				"name": "mtr:r179/deceleration/speed_1a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_2a": {
+	"r179_deceleration_2a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_2a",
+				"name": "mtr:r179/deceleration/speed_2a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_3a": {
+	"r179_deceleration_3a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_3a",
+				"name": "mtr:r179/deceleration/speed_3a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_4a": {
+	"r179_deceleration_4a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_4a",
+				"name": "mtr:r179/deceleration/speed_4a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_5a": {
+	"r179_deceleration_5a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_5a",
+				"name": "mtr:r179/deceleration/speed_5a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_6a": {
+	"r179_deceleration_6a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_6a",
+				"name": "mtr:r179/deceleration/speed_6a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_7a": {
+	"r179_deceleration_7a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_7a",
+				"name": "mtr:r179/deceleration/speed_7a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_8a": {
+	"r179_deceleration_8a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_8a",
+				"name": "mtr:r179/deceleration/speed_8a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_9a": {
+	"r179_deceleration_9a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_9a",
+				"name": "mtr:r179/deceleration/speed_9a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_10a": {
+	"r179_deceleration_10a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_10a",
+				"name": "mtr:r179/deceleration/speed_10a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_11a": {
+	"r179_deceleration_11a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_11a",
+				"name": "mtr:r179/deceleration/speed_11a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_12a": {
+	"r179_deceleration_12a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_12a",
+				"name": "mtr:r179/deceleration/speed_12a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_13a": {
+	"r179_deceleration_13a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_13a",
+				"name": "mtr:r179/deceleration/speed_13a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_14a": {
+	"r179_deceleration_14a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_14a",
+				"name": "mtr:r179/deceleration/speed_14a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_15a": {
+	"r179_deceleration_15a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_15a",
+				"name": "mtr:r179/deceleration/speed_15a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_16a": {
+	"r179_deceleration_16a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_16a",
+				"name": "mtr:r179/deceleration/speed_16a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_17a": {
+	"r179_deceleration_17a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_17a",
+				"name": "mtr:r179/deceleration/speed_17a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_18a": {
+	"r179_deceleration_18a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_18a",
+				"name": "mtr:r179/deceleration/speed_18a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_19a": {
+	"r179_deceleration_19a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_19a",
+				"name": "mtr:r179/deceleration/speed_19a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_20a": {
+	"r179_deceleration_20a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_20a",
+				"name": "mtr:r179/deceleration/speed_20a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_21a": {
+	"r179_deceleration_21a": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_21a",
+				"name": "mtr:r179/deceleration/speed_21a",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_0b": {
+	"r179_deceleration_0b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_0b",
+				"name": "mtr:r179/deceleration/speed_0b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_1b": {
+	"r179_deceleration_1b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_1b",
+				"name": "mtr:r179/deceleration/speed_1b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_2b": {
+	"r179_deceleration_2b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_2b",
+				"name": "mtr:r179/deceleration/speed_2b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_3b": {
+	"r179_deceleration_3b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_3b",
+				"name": "mtr:r179/deceleration/speed_3b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_4b": {
+	"r179_deceleration_4b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_4b",
+				"name": "mtr:r179/deceleration/speed_4b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_5b": {
+	"r179_deceleration_5b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_5b",
+				"name": "mtr:r179/deceleration/speed_5b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_6b": {
+	"r179_deceleration_6b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_6b",
+				"name": "mtr:r179/deceleration/speed_6b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_7b": {
+	"r179_deceleration_7b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_7b",
+				"name": "mtr:r179/deceleration/speed_7b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_8b": {
+	"r179_deceleration_8b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_8b",
+				"name": "mtr:r179/deceleration/speed_8b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_9b": {
+	"r179_deceleration_9b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_9b",
+				"name": "mtr:r179/deceleration/speed_9b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_10b": {
+	"r179_deceleration_10b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_10b",
+				"name": "mtr:r179/deceleration/speed_10b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_11b": {
+	"r179_deceleration_11b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_11b",
+				"name": "mtr:r179/deceleration/speed_11b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_12b": {
+	"r179_deceleration_12b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_12b",
+				"name": "mtr:r179/deceleration/speed_12b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_13b": {
+	"r179_deceleration_13b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_13b",
+				"name": "mtr:r179/deceleration/speed_13b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_14b": {
+	"r179_deceleration_14b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_14b",
+				"name": "mtr:r179/deceleration/speed_14b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_15b": {
+	"r179_deceleration_15b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_15b",
+				"name": "mtr:r179/deceleration/speed_15b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_16b": {
+	"r179_deceleration_16b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_16b",
+				"name": "mtr:r179/deceleration/speed_16b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_17b": {
+	"r179_deceleration_17b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_17b",
+				"name": "mtr:r179/deceleration/speed_17b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_18b": {
+	"r179_deceleration_18b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_18b",
+				"name": "mtr:r179/deceleration/speed_18b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_19b": {
+	"r179_deceleration_19b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_19b",
+				"name": "mtr:r179/deceleration/speed_19b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_20b": {
+	"r179_deceleration_20b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_20b",
+				"name": "mtr:r179/deceleration/speed_20b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_21b": {
+	"r179_deceleration_21b": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_21b",
+				"name": "mtr:r179/deceleration/speed_21b",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_1c": {
+	"r179_deceleration_1c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_1c",
+				"name": "mtr:r179/deceleration/speed_1c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_2c": {
+	"r179_deceleration_2c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_2c",
+				"name": "mtr:r179/deceleration/speed_2c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_3c": {
+	"r179_deceleration_3c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_3c",
+				"name": "mtr:r179/deceleration/speed_3c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_4c": {
+	"r179_deceleration_4c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_4c",
+				"name": "mtr:r179/deceleration/speed_4c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_5c": {
+	"r179_deceleration_5c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_5c",
+				"name": "mtr:r179/deceleration/speed_5c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_6c": {
+	"r179_deceleration_6c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_6c",
+				"name": "mtr:r179/deceleration/speed_6c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_7c": {
+	"r179_deceleration_7c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_7c",
+				"name": "mtr:r179/deceleration/speed_7c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_8c": {
+	"r179_deceleration_8c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_8c",
+				"name": "mtr:r179/deceleration/speed_8c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_9c": {
+	"r179_deceleration_9c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_9c",
+				"name": "mtr:r179/deceleration/speed_9c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_10c": {
+	"r179_deceleration_10c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_10c",
+				"name": "mtr:r179/deceleration/speed_10c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_11c": {
+	"r179_deceleration_11c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_11c",
+				"name": "mtr:r179/deceleration/speed_11c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_12c": {
+	"r179_deceleration_12c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_12c",
+				"name": "mtr:r179/deceleration/speed_12c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_13c": {
+	"r179_deceleration_13c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_13c",
+				"name": "mtr:r179/deceleration/speed_13c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_14c": {
+	"r179_deceleration_14c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_14c",
+				"name": "mtr:r179/deceleration/speed_14c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_15c": {
+	"r179_deceleration_15c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_15c",
+				"name": "mtr:r179/deceleration/speed_15c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_16c": {
+	"r179_deceleration_16c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_16c",
+				"name": "mtr:r179/deceleration/speed_16c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_17c": {
+	"r179_deceleration_17c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_17c",
+				"name": "mtr:r179/deceleration/speed_17c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_18c": {
+	"r179_deceleration_18c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_18c",
+				"name": "mtr:r179/deceleration/speed_18c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_19c": {
+	"r179_deceleration_19c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_19c",
+				"name": "mtr:r179/deceleration/speed_19c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_20c": {
+	"r179_deceleration_20c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_20c",
+				"name": "mtr:r179/deceleration/speed_20c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
-	"r179_beta_1_deceleration_21c": {
+	"r179_deceleration_21c": {
 		"sounds": [
 			{
-				"name": "mtr:r179_beta_1/deceleration/speed_21c",
+				"name": "mtr:r179/deceleration/speed_21c",
 				"pitch": 1,
 				"attenuation_distance": 32
-
 			}
 		]
 	},
