@@ -1,7 +1,6 @@
 # Minecraft Transit Railway 3.0
 
-_Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.gamepedia.com/Mods) based on Hong Kong's train
-system, the [MTR](https://en.wikipedia.org/wiki/MTR). It adds trains into the game along with other miscellaneous blocks
+_Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.gamepedia.com/Mods) based on Hong Kong [MTR](https://en.wikipedia.org/wiki/MTR) and other train systems around the world. It adds trains into the game along with other miscellaneous blocks
 and items. With this mod, it is possible to build a fully functional railway system in your world!
 
 This mod is now available for Fabric 1.16.2/3/4/5 as a public beta. Enjoy :)
