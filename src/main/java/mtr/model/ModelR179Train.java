@@ -205,6 +205,7 @@ public class ModelR179Train extends ModelTrainBase {
 	private final ModelPart roof_handrail_curve_17_r1;
 	private final ModelPart roof_handrail_curve_20_r1;
 	private final ModelPart roof_handrail_curve_21_r3;
+	private final ModelPart roof_handrail_2_r1;
 	private final ModelPart headlights;
 	private final ModelPart front_right_panel_6_r1;
 	private final ModelPart front_right_panel_5_r2;
@@ -1348,8 +1349,6 @@ public class ModelR179Train extends ModelTrainBase {
 		roof_handle.setTextureOffset(0, 0).addCuboid(4.0F, -37.2F, -8.0F, 0.0F, 2.0F, 0.0F, 0.2F, false);
 		roof_handle.setTextureOffset(0, 0).addCuboid(4.0F, -37.2F, 8.0F, 0.0F, 2.0F, 0.0F, 0.2F, false);
 		roof_handle.setTextureOffset(0, 0).addCuboid(4.0F, -37.2F, 24.0F, 0.0F, 2.0F, 0.0F, 0.2F, false);
-		roof_handle.setTextureOffset(0, 0).addCuboid(-4.0F, -35.0F, -28.0F, 0.0F, 0.0F, 56.0F, 0.2F, false);
-		roof_handle.setTextureOffset(0, 0).addCuboid(4.0F, -35.0F, -28.0F, 0.0F, 0.0F, 56.0F, 0.2F, false);
 
 		roof_handrail_curve_19_r1 = new ModelPart(this);
 		roof_handrail_curve_19_r1.setPivot(0.2215F, -35.0F, -31.2785F);
@@ -1422,6 +1421,13 @@ public class ModelR179Train extends ModelTrainBase {
 		roof_handle.addChild(roof_handrail_curve_21_r3);
 		setRotationAngle(roof_handrail_curve_21_r3, 0.0F, 0.5236F, 0.0F);
 		roof_handrail_curve_21_r3.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 2.0F, 0.2F, false);
+
+		roof_handrail_2_r1 = new ModelPart(this);
+		roof_handrail_2_r1.setPivot(4.0F, -35.0F, 0.0F);
+		roof_handle.addChild(roof_handrail_2_r1);
+		setRotationAngle(roof_handrail_2_r1, -1.5708F, 0.0F, 0.0F);
+		roof_handrail_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, -28.0F, 0.0F, 0.0F, 56.0F, 0.0F, 0.2F, false);
+		roof_handrail_2_r1.setTextureOffset(0, 0).addCuboid(-8.0F, -28.0F, 0.0F, 0.0F, 56.0F, 0.0F, 0.2F, false);
 
 		headlights = new ModelPart(this);
 		headlights.setPivot(0.0F, 24.0F, 0.0F);
@@ -1679,7 +1685,7 @@ public class ModelR179Train extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
 		return null;
 	}
 
