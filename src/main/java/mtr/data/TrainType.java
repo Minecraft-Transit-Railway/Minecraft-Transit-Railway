@@ -33,7 +33,6 @@ public enum TrainType {
 	LIGHT_RAIL_5(0xD2A825, 22, 2, false, MTR.LIGHT_RAIL_ACCELERATION, MTR.LIGHT_RAIL_DECELERATION, MTR.LIGHT_RAIL_4_DOOR_OPEN, MTR.LIGHT_RAIL_4_DOOR_CLOSE, 1, "light_rail_5"),
 	MINECART(0x666666, 1, 1, false, null, null, null, null, 0.5F, "minecart");
 
-
 	public final int color;
 	public final int width;
 	public final boolean shouldRenderConnection;
@@ -41,6 +40,7 @@ public enum TrainType {
 	public final SoundEvent doorCloseSoundEvent;
 	public final float doorCloseSoundTime;
 	public final String id;
+
 	private final int speedCount;
 	private final SoundEvent[] accelerationSoundEvents;
 	private final SoundEvent[] decelerationSoundEvents;
@@ -83,7 +83,6 @@ public enum TrainType {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
 				final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
 				world.playSound(null, pos, isAccelerating ? accelerationSoundEvents[index] : decelerationSoundEvents[index], SoundCategory.BLOCKS, 1, 1);
-
 			}
 		}
 	}
