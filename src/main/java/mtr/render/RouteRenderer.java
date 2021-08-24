@@ -69,7 +69,7 @@ public class RouteRenderer implements IGui {
 		matrices.pop();
 	}
 
-	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light) {
+	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light, boolean skipText) {
 		final List<ClientData.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
@@ -82,6 +82,7 @@ public class RouteRenderer implements IGui {
 		final float endScaled = end * scaleSmaller;
 		final float smallOffset = SMALL_OFFSET * scaleSmaller;
 		final int newLight = convertLight(light);
+		final VertexConsumerProvider.Immediate immediateFiltered = skipText ? null : immediate;
 
 		for (int i = 0; i < routeCount; i++) {
 			final int routeColor = filteredRouteData.get(i).routeColor + ARGB_BLACK;
@@ -98,7 +99,7 @@ public class RouteRenderer implements IGui {
 			if (vertical) {
 				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(thisStationPosition, endScaled), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(thisStationPosition, endScaled), smallOffset, facing, PASSED_STATION_COLOR, newLight);
 				IDrawing.drawTexture(matrices, vertexConsumer, routePosition - COLOR_LINE_HALF_HEIGHT, Math.min(startScaled, thisStationPosition), smallOffset, routePosition + COLOR_LINE_HALF_HEIGHT, Math.max(startScaled, thisStationPosition), smallOffset, facing, routeColor, newLight);
-				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, filteredRouteData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, filteredRouteData.get(i).routeName, HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, routePosition - routeHeight / 2, startScaled, 0.125F * scale, -1, 1, ARGB_BLACK, false, newLight, null);
 			} else {
 				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(startScaled, thisStationPosition), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(startScaled, thisStationPosition), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, PASSED_STATION_COLOR, newLight);
 				IDrawing.drawTexture(matrices, vertexConsumer, Math.min(thisStationPosition, endScaled), routePosition - COLOR_LINE_HALF_HEIGHT, smallOffset, Math.max(thisStationPosition, endScaled), routePosition + COLOR_LINE_HALF_HEIGHT, smallOffset, facing, routeColor, newLight);
@@ -121,13 +122,13 @@ public class RouteRenderer implements IGui {
 						final VertexConsumer vertexConsumerInterchange = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/interchange.png", newLight));
 						if (vertical) {
 							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, y - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
-							IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, y, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+							IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(0).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, y, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						} else {
 							final VerticalAlignment verticalAlignment = bottomText ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP;
 							final float yLine = y + (bottomText ? -STATION_CIRCLE_SIZE / 2F - INTERCHANGE_LINE_SIZE : STATION_CIRCLE_SIZE / 2F);
 							final float yText = yLine + (bottomText ? 0 : INTERCHANGE_LINE_SIZE);
 							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x - INTERCHANGE_LINE_SIZE / 2F, yLine, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.3125F, bottomText ? 0 : 0.625F, 0.6875F, bottomText ? 0.375F : 1, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
-							IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(0).name, HorizontalAlignment.CENTER, verticalAlignment, x, yText, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+							IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(0).name, HorizontalAlignment.CENTER, verticalAlignment, x, yText, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						}
 					}
 				} else {
@@ -142,14 +143,14 @@ public class RouteRenderer implements IGui {
 					final VertexConsumer vertexConsumerInterchange = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/interchange.png", newLight));
 					for (int k = 0; k < interchangeCount; k++) {
 						final float yLine = y2 + (k + (vertical ? 0 : bottomText ? 0 : 1)) * INTERCHANGE_HALF_HEIGHT * 2;
-						IDrawing.drawStringWithFont(matrices, textRenderer, immediate, interchangeRoutes.get(k).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, yLine, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
+						IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(k).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, yLine, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, yLine - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(k).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
 					}
 				}
 
 				final HorizontalAlignment horizontalAlignment = vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER;
 				final VerticalAlignment verticalAlignment = vertical ? VerticalAlignment.CENTER : bottomText ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM;
-				IDrawing.drawStringWithFont(matrices, textRenderer, immediate, IGui.textOrUntitled(stationDetails.get(j).stationName), horizontalAlignment, verticalAlignment, x - (vertical ? STATION_TEXT_PADDING : 0), y + (vertical ? 0 : bottomText ? STATION_TEXT_PADDING : -STATION_TEXT_PADDING), 1, onStation ? ARGB_WHITE : onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, (x1, y1, x2, y2) -> {
+				IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, IGui.textOrUntitled(stationDetails.get(j).stationName), horizontalAlignment, verticalAlignment, x - (vertical ? STATION_TEXT_PADDING : 0), y + (vertical ? 0 : bottomText ? STATION_TEXT_PADDING : -STATION_TEXT_PADDING), 1, onStation ? ARGB_WHITE : onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, (x1, y1, x2, y2) -> {
 					if (onStation) {
 						matrices.push();
 						IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight)), x1 - STATION_NAME_BACKGROUND_PADDING, y1 - STATION_NAME_BACKGROUND_PADDING, smallOffset, x2 + STATION_NAME_BACKGROUND_PADDING, y2 + STATION_NAME_BACKGROUND_PADDING, smallOffset, facing, ARGB_BLACK, newLight);

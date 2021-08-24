@@ -30,14 +30,13 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
+		final BlockState state = world.getBlockState(pos);
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			return;
 		}
 
-		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-
 		final Platform platform = ClientData.getClosePlatform(pos);
 		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
@@ -61,9 +60,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 						break;
 					case ROUTE:
 						final boolean flipLine = arrowDirection == 1;
-						if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4)) {
-							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
-						}
+						routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
 						break;
 				}
 			}

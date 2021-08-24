@@ -16,6 +16,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
@@ -76,7 +77,8 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, rotate90 ? null : facing)) {
 			return;
 		}
 
@@ -163,7 +165,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
 				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
