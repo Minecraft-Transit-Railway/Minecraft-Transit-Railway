@@ -38,7 +38,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int SLIDER_WIDTH = 64;
 	private static final int WIDGET_SLIDER_WIDTH = 110;
 	private static final int FIND_PATH_WIDTH = 80;
-	private static final int MAX_TRAINS_PER_HOUR = 10;
+	private static final int MAX_TRAINS_PER_HOUR = 20;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
@@ -77,7 +77,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonEditTrainFrequency, 30, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDone2, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDone2, rightPanelsX + 50, PANELS_START + 60, width - rightPanelsX - FIND_PATH_WIDTH);
 
 		addNewList.y = trainList.y = SQUARE_SIZE * 2;
 		addNewList.height = trainList.height = height - SQUARE_SIZE * 5;
