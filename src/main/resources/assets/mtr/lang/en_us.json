@@ -85,6 +85,7 @@
 	"gui.mtr.dwell_time": "Train Dwell Time",
 	"gui.mtr.edit_area": "Click and drag to draw area.",
 	"gui.mtr.edit_instructions": "Edit Train Instructions",
+	"gui.mtr.edit_train_frequency": "Edit Depot Timetable",
 	"gui.mtr.edit_route": "Click on a platform to add it to the route.",
 	"gui.mtr.emeralds": "Emeralds: %s",
 	"gui.mtr.enter_barrier": "Entered %s - Balance: $%s",

@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private boolean addingTrain;
+	private boolean editTimetable;
+	private boolean addTrainIText;
 
 	private final int sliderX;
 	private final int sliderWidthWithText;
@@ -24,16 +26,19 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final ButtonWidget buttonEditInstructions;
+	private final ButtonWidget buttonEditTrainFrequency;
 	private final ButtonWidget buttonGenerateRoute;
 	private final ButtonWidget buttonDone;
+	private final ButtonWidget buttonDone2;
 
 	private final DashboardList addNewList;
 	private final DashboardList trainList;
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
+	private static final int WIDGET_SLIDER_WIDTH = 110;
 	private static final int FIND_PATH_WIDTH = 80;
-	private static final int MAX_TRAINS_PER_HOUR = 5;
+	private static final int MAX_TRAINS_PER_HOUR = 120;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
@@ -48,15 +53,17 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> depot.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet)), EditDepotScreen::getSliderString);
+			sliders[i] = new WidgetShorterSlider(sliderX, WIDGET_SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> depot.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet)), EditDepotScreen::getSliderString);
 		}
 
 		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
+		buttonEditTrainFrequency = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_train_frequency"), button -> setIsTimetable(true));
 		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> {
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
+		buttonDone2 = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsTimetable(false));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
 		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
@@ -67,27 +74,25 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
+		IDrawing.setPositionAndWidth(buttonEditTrainFrequency, 30, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDone2, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
 
 		addNewList.y = trainList.y = SQUARE_SIZE * 2;
 		addNewList.height = trainList.height = height - SQUARE_SIZE * 5;
 		addNewList.width = trainList.width = PANEL_WIDTH;
 
-		for (WidgetShorterSlider slider : sliders) {
-			addButton(slider);
-		}
-		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(data.getFrequency(i));
-		}
-
 		addNewList.init();
 		trainList.init();
 		setIsSelecting(false);
+		setIsTimetable(false);
 
 		addButton(buttonEditInstructions);
+		addButton(buttonEditTrainFrequency);
 		addButton(buttonGenerateRoute);
 		addButton(buttonDone);
+		addButton(buttonDone2);
 	}
 
 	@Override
@@ -110,18 +115,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.edit_instructions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
 				renderBackground(matrices);
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
 				renderTextFields(matrices, mouseX, mouseY, delta);
 
-				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
-				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
-					sliders[i].y = SQUARE_SIZE + lineHeight * i;
-					sliders[i].setHeight(lineHeight);
-				}
+
 				super.render(matrices, mouseX, mouseY, delta);
 
 				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
@@ -130,9 +129,19 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				for (int i = 0; i < stringSplit.length; i++) {
 					textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
 				}
-
+			}
+			if (addTrainIText) {
+				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.edit_instructions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
+			}
+			if (editTimetable) {
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
+				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
+					sliders[i].y = SQUARE_SIZE + lineHeight * i;
+					sliders[i].setHeight(lineHeight);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -160,15 +169,32 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private void setIsSelecting(boolean isSelecting) {
 		addingTrain = isSelecting;
+		addTrainIText = isSelecting;
 
-		for (final WidgetShorterSlider slider : sliders) {
-			slider.visible = !addingTrain;
-		}
 		addNewList.x = addingTrain ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
 		buttonEditInstructions.visible = !addingTrain;
+		buttonEditTrainFrequency.visible = !addingTrain;
 		buttonGenerateRoute.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
+	}
+	private void setIsTimetable(boolean isTimetable) {
+		editTimetable = isTimetable;
+		addingTrain = isTimetable;
+
+		for (final WidgetShorterSlider slider : sliders) {
+			slider.visible = isTimetable;
+		}
+		for (WidgetShorterSlider slider : sliders) {
+			addButton(slider);
+		}
+		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+			sliders[i].setValue(data.getFrequency(i));
+		}
+		buttonEditInstructions.visible = !isTimetable;
+		buttonEditTrainFrequency.visible = !isTimetable;
+		buttonGenerateRoute.visible = !isTimetable;
+		buttonDone2.visible = isTimetable;
 	}
 
 	private void onAdded(NameColorDataBase listData, int index) {
