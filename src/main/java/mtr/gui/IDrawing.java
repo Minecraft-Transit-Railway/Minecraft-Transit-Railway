@@ -95,7 +95,9 @@ public interface IDrawing {
 			final int g = (int) (((textColor >> 8) & 0xFF) * shade);
 			final int b = (int) ((textColor & 0xFF) * shade);
 
-			textRenderer.draw(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, matrices.peek().getModel(), immediate, false, 0, light);
+			if (immediate != null) {
+				textRenderer.draw(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, matrices.peek().getModel(), immediate, false, 0, light);
+			}
 
 			if (isCJK) {
 				matrices.pop();
