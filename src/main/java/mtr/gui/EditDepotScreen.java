@@ -38,7 +38,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int SLIDER_WIDTH = 64;
 	private static final int WIDGET_SLIDER_WIDTH = 110;
 	private static final int FIND_PATH_WIDTH = 80;
-	private static final int MAX_TRAINS_PER_HOUR = 120;
+	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
