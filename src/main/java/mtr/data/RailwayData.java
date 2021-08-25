@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -38,7 +39,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
-	private final List<Depot> depotsToGenerate = new ArrayList<>();
+	private final Set<Long> generatingDepotIds = new HashSet<>();
 
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int RAIL_UPDATE_DISTANCE = 64;
@@ -152,16 +153,6 @@ public class RailwayData extends PersistentState implements IPacket {
 		}
 		// TODO temporary code end
 
-		if (!depotsToGenerate.isEmpty()) {
-			final Depot depot = depotsToGenerate.get(0);
-			if (depot != null) {
-				final boolean success = depot.generateSidingRoute(world, rails);
-				if (success) {
-					depotsToGenerate.remove(depot);
-				}
-			}
-		}
-
 		world.getPlayers().forEach(player -> {
 			final BlockPos playerPos = player.getBlockPos();
 
@@ -265,11 +256,13 @@ public class RailwayData extends PersistentState implements IPacket {
 		playerLastUpdatedPositions.remove(player);
 	}
 
-	public void generatePath(long depotId) {
+	public void generatePath(MinecraftServer minecraftServer, long depotId) {
 		final Depot depot = getDataById(depots, depotId);
 		if (depot != null) {
-			depot.generateMainRoute(rails, platforms, sidings, routes);
-			depotsToGenerate.add(depot);
+			if (!generatingDepotIds.contains(depotId)) {
+				generatingDepotIds.add(depotId);
+				depot.generateMainRoute(minecraftServer, world, rails, platforms, sidings, routes, () -> generatingDepotIds.remove(depotId));
+			}
 		}
 	}
 

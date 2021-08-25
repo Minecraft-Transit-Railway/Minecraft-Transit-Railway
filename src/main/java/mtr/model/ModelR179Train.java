@@ -1257,84 +1257,84 @@ public class ModelR179Train extends ModelTrainBase {
 		handrail_curve = new ModelPart(this);
 		handrail_curve.setPivot(0.175F, 3.25F, 15.1F);
 		handrail_door_type_2.addChild(handrail_curve);
-		handrail_curve.setTextureOffset(0, 0).addCuboid(-0.2F, -34.1585F, -16.6F, 0.0F, 0.0F, 3.0F, 0.2F, false);
-		handrail_curve.setTextureOffset(0, 0).addCuboid(-0.2F, -17.5F, -16.6F, 0.0F, 0.0F, 3.0F, 0.2F, false);
+		handrail_curve.setTextureOffset(0, 0).addCuboid(-0.175F, -34.1585F, -16.6F, 0.0F, 0.0F, 3.0F, 0.2F, false);
+		handrail_curve.setTextureOffset(0, 0).addCuboid(-0.175F, -17.5F, -16.6F, 0.0F, 0.0F, 3.0F, 0.2F, false);
 
 		handrail_curve_12_r1 = new ModelPart(this);
-		handrail_curve_12_r1.setPivot(-0.2F, -17.7828F, -17.1464F);
+		handrail_curve_12_r1.setPivot(-0.175F, -17.7828F, -17.1464F);
 		handrail_curve.addChild(handrail_curve_12_r1);
 		setRotationAngle(handrail_curve_12_r1, -0.7854F, 0.0F, 0.0F);
 		handrail_curve_12_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_10_r1 = new ModelPart(this);
-		handrail_curve_10_r1.setPivot(-0.2F, -18.056F, -17.356F);
+		handrail_curve_10_r1.setPivot(-0.175F, -18.056F, -17.356F);
 		handrail_curve.addChild(handrail_curve_10_r1);
 		setRotationAngle(handrail_curve_10_r1, -1.0472F, 0.0F, 0.0F);
 		handrail_curve_10_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_9_r1 = new ModelPart(this);
-		handrail_curve_9_r1.setPivot(-0.2F, -17.5732F, -16.8732F);
+		handrail_curve_9_r1.setPivot(-0.175F, -17.5732F, -16.8732F);
 		handrail_curve.addChild(handrail_curve_9_r1);
 		setRotationAngle(handrail_curve_9_r1, -0.5236F, 0.0F, 0.0F);
 		handrail_curve_9_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_7_r1 = new ModelPart(this);
-		handrail_curve_7_r1.setPivot(-0.2F, -30.8293F, -17.4293F);
+		handrail_curve_7_r1.setPivot(-0.175F, -25.8043F, -17.4293F);
 		handrail_curve.addChild(handrail_curve_7_r1);
 		setRotationAngle(handrail_curve_7_r1, 0.0F, 0.0F, -1.5708F);
-		handrail_curve_7_r1.setTextureOffset(0, 0).addCuboid(-12.5F, 0.0F, 0.0F, 15.0F, 0.0F, 0.0F, 0.2F, false);
-		handrail_curve_7_r1.setTextureOffset(0, 0).addCuboid(-12.5F, 0.0F, 4.6585F, 15.0F, 0.0F, 0.0F, 0.2F, false);
+		handrail_curve_7_r1.setTextureOffset(0, 0).addCuboid(-7.5F, 0.0F, 0.0F, 15.0F, 0.0F, 0.0F, 0.2F, false);
+		handrail_curve_7_r1.setTextureOffset(0, 0).addCuboid(-7.5F, 0.0F, 4.6585F, 15.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_6_r1 = new ModelPart(this);
-		handrail_curve_6_r1.setPivot(-0.2F, -33.6025F, -17.356F);
+		handrail_curve_6_r1.setPivot(-0.175F, -33.6025F, -17.356F);
 		handrail_curve.addChild(handrail_curve_6_r1);
 		setRotationAngle(handrail_curve_6_r1, 1.0472F, 0.0F, 0.0F);
 		handrail_curve_6_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_5_r1 = new ModelPart(this);
-		handrail_curve_5_r1.setPivot(-0.2F, -33.8757F, -17.1464F);
+		handrail_curve_5_r1.setPivot(-0.175F, -33.8757F, -17.1464F);
 		handrail_curve.addChild(handrail_curve_5_r1);
 		setRotationAngle(handrail_curve_5_r1, 0.7854F, 0.0F, 0.0F);
 		handrail_curve_5_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_3_r1 = new ModelPart(this);
-		handrail_curve_3_r1.setPivot(-0.2F, -34.0853F, -16.8732F);
+		handrail_curve_3_r1.setPivot(-0.175F, -34.0853F, -16.8732F);
 		handrail_curve.addChild(handrail_curve_3_r1);
 		setRotationAngle(handrail_curve_3_r1, 0.5236F, 0.0F, 0.0F);
 		handrail_curve_3_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_11_r1 = new ModelPart(this);
-		handrail_curve_11_r1.setPivot(-0.2F, -17.7828F, -13.0536F);
+		handrail_curve_11_r1.setPivot(-0.175F, -17.7828F, -13.0536F);
 		handrail_curve.addChild(handrail_curve_11_r1);
 		setRotationAngle(handrail_curve_11_r1, 0.7854F, 0.0F, 0.0F);
 		handrail_curve_11_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_9_r2 = new ModelPart(this);
-		handrail_curve_9_r2.setPivot(-0.2F, -18.056F, -12.844F);
+		handrail_curve_9_r2.setPivot(-0.175F, -18.056F, -12.844F);
 		handrail_curve.addChild(handrail_curve_9_r2);
 		setRotationAngle(handrail_curve_9_r2, 1.0472F, 0.0F, 0.0F);
 		handrail_curve_9_r2.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_8_r1 = new ModelPart(this);
-		handrail_curve_8_r1.setPivot(-0.2F, -17.5732F, -13.3268F);
+		handrail_curve_8_r1.setPivot(-0.175F, -17.5732F, -13.3268F);
 		handrail_curve.addChild(handrail_curve_8_r1);
 		setRotationAngle(handrail_curve_8_r1, 0.5236F, 0.0F, 0.0F);
 		handrail_curve_8_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_5_r2 = new ModelPart(this);
-		handrail_curve_5_r2.setPivot(-0.2F, -33.6025F, -12.844F);
+		handrail_curve_5_r2.setPivot(-0.175F, -33.6025F, -12.844F);
 		handrail_curve.addChild(handrail_curve_5_r2);
 		setRotationAngle(handrail_curve_5_r2, -1.0472F, 0.0F, 0.0F);
 		handrail_curve_5_r2.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_4_r1 = new ModelPart(this);
-		handrail_curve_4_r1.setPivot(-0.2F, -33.8757F, -13.0536F);
+		handrail_curve_4_r1.setPivot(-0.175F, -33.8757F, -13.0536F);
 		handrail_curve.addChild(handrail_curve_4_r1);
 		setRotationAngle(handrail_curve_4_r1, -0.7854F, 0.0F, 0.0F);
 		handrail_curve_4_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);
 
 		handrail_curve_2_r1 = new ModelPart(this);
-		handrail_curve_2_r1.setPivot(-0.2F, -34.0853F, -13.3268F);
+		handrail_curve_2_r1.setPivot(-0.175F, -34.0853F, -13.3268F);
 		handrail_curve.addChild(handrail_curve_2_r1);
 		setRotationAngle(handrail_curve_2_r1, -0.5236F, 0.0F, 0.0F);
 		handrail_curve_2_r1.setTextureOffset(0, 0).addCuboid(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.2F, false);

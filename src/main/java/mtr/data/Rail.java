@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.EnumHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -215,7 +216,7 @@ public class Rail extends SerializedDataBase {
 		isStraight1 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_1);
 		reverseT2 = nbtCompound.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
-		railType = RailType.valueOf(nbtCompound.getString(KEY_RAIL_TYPE));
+		railType = EnumHelper.valueOf(RailType.IRON, nbtCompound.getString(KEY_RAIL_TYPE));
 
 		facingStart = getDirection(0, 0.1F);
 		final float length = getLength();
@@ -239,7 +240,7 @@ public class Rail extends SerializedDataBase {
 		isStraight1 = packet.readBoolean();
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
-		railType = RailType.valueOf(packet.readString(PACKET_STRING_READ_LENGTH));
+		railType = EnumHelper.valueOf(RailType.IRON, packet.readString(PACKET_STRING_READ_LENGTH));
 
 		facingStart = getDirection(0, 0.1F);
 		final float length = getLength();

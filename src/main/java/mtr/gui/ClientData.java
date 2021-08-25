@@ -103,7 +103,7 @@ public final class ClientData {
 								return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
 							}
 						}).collect(Collectors.toList());
-						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
+						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platform.id), stationDetails);
 					}).collect(Collectors.toList())));
 
 					sidings.forEach(siding -> siding.setSidingData(MinecraftClient.getInstance().world, depots.stream().filter(depot -> {
@@ -175,12 +175,14 @@ public final class ClientData {
 
 		public final String routeName;
 		public final int routeColor;
+		public final Route.CircularState circularState;
 		public final int currentStationIndex;
 		public final List<StationDetails> stationDetails;
 
-		public PlatformRouteDetails(String routeName, int routeColor, int currentStationIndex, List<StationDetails> stationDetails) {
+		public PlatformRouteDetails(String routeName, int routeColor, Route.CircularState circularState, int currentStationIndex, List<StationDetails> stationDetails) {
 			this.routeName = routeName;
 			this.routeColor = routeColor;
+			this.circularState = circularState;
 			this.currentStationIndex = currentStationIndex;
 			this.stationDetails = stationDetails;
 		}

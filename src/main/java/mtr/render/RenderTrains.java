@@ -250,7 +250,7 @@ public class RenderTrains implements IGui {
 			}
 
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxRailDistance)) {
+				if (shouldNotRender(player, new BlockPos(x1, y1, z1), maxRailDistance, null)) {
 					return;
 				}
 
@@ -275,13 +275,25 @@ public class RenderTrains implements IGui {
 		}));
 	}
 
-	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance) {
-		return player == null || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance, Direction facing) {
+		final boolean playerFacingAway;
+		if (facing == null) {
+			playerFacingAway = false;
+		} else {
+			if (facing.getAxis() == Direction.Axis.X) {
+				final double playerXOffset = player.getX() - pos.getX() - 0.5;
+				playerFacingAway = Math.signum(playerXOffset) == facing.getOffsetX() && Math.abs(playerXOffset) >= 0.5;
+			} else {
+				final double playerZOffset = player.getZ() - pos.getZ() - 0.5;
+				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
+			}
+		}
+		return player == null || playerFacingAway || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
-	public static boolean shouldNotRender(BlockPos pos, int maxDistance) {
+	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
 		final PlayerEntity player = MinecraftClient.getInstance().player;
-		return shouldNotRender(player, pos, maxDistance);
+		return shouldNotRender(player, pos, maxDistance, facing);
 	}
 
 	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RouteAndStationsCallback routeAndStationsCallback) {
@@ -313,7 +325,7 @@ public class RenderTrains implements IGui {
 
 	private static void renderWithLight(World world, float x, float y, float z, Vec3d cameraPos, PlayerEntity player, boolean offsetRender, RenderCallback renderCallback) {
 		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).add(x, y, z) : new BlockPos(x, y, z);
-		if (!shouldNotRender(player, posAverage, MinecraftClient.getInstance().options.viewDistance * 8)) {
+		if (!shouldNotRender(player, posAverage, MinecraftClient.getInstance().options.viewDistance * 8, null)) {
 			renderCallback.renderCallback(LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, posAverage), world.getLightLevel(LightType.SKY, posAverage)), posAverage);
 		}
 	}

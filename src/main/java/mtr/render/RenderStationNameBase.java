@@ -36,12 +36,12 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
+		final BlockState state = world.getBlockState(pos);
+		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			return;
 		}
 
-		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int color;
 		switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
 			case 1:
