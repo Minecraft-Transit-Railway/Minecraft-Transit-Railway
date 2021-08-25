@@ -2,6 +2,7 @@ package mtr.render;
 
 import mtr.data.IGui;
 import mtr.data.Platform;
+import mtr.data.Route;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import net.minecraft.client.MinecraftClient;
@@ -37,6 +38,7 @@ public class RouteRenderer implements IGui {
 	private static final int INTERCHANGE_HALF_HEIGHT = 8;
 	private static final int INTERCHANGE_LINE_SIZE = 10;
 	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.63F;
+	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
 
 	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, Platform platform, boolean vertical, boolean glowing) {
 		this.matrices = matrices;
@@ -176,9 +178,30 @@ public class RouteRenderer implements IGui {
 		final float arrowSize = bottom - top;
 		final float arrowPadding = arrowSize / 4;
 
-		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList()));
+		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> {
+			if (route.circularState == Route.CircularState.NONE) {
+				return route.stationDetails.get(route.stationDetails.size() - 1).stationName;
+			} else {
+				boolean isVia = false;
+				String text = "";
+				for (int i = route.currentStationIndex + 1; i < route.stationDetails.size() - 1; i++) {
+					if (!route.stationDetails.get(i).interchangeRoutes.isEmpty()) {
+						text = route.stationDetails.get(i).stationName;
+						isVia = true;
+						break;
+					}
+				}
+				if (!isVia) {
+					text = route.stationDetails.get(route.stationDetails.size() - 1).stationName;
+				}
+				final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
+				return TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text);
+			}
+		}).collect(Collectors.toList()));
 
-		if (!destinationString.isEmpty() && visibleArrow) {
+		final boolean noToString = destinationString.startsWith(TEMP_CIRCULAR_MARKER);
+		destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER, "");
+		if (!destinationString.isEmpty() && visibleArrow && !noToString) {
 			destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
 		}
 
