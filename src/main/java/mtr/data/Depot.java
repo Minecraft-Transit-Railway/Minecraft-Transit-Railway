@@ -6,6 +6,7 @@ import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -24,12 +25,6 @@ public class Depot extends AreaBase {
 	public final List<Long> routeIds = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
-
-	private final List<Siding> sidingsToGenerate = new ArrayList<>();
-	private final List<SavedRailBase> platformsInRoute = new ArrayList<>();
-	private final List<PathData> tempPath = new ArrayList<>();
-	private int successfulSegmentsMain;
-	private int successfulSegments;
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
@@ -157,33 +152,8 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public boolean generateSidingRoute(World world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
-		if (sidingsToGenerate.isEmpty()) {
-			return true;
-		}
-
-		final Siding siding = sidingsToGenerate.remove(0);
-		final BlockPos sidingMidPos = siding.getMidPos();
-		if (inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
-			final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
-			final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
-			final int result = siding.generateRoute(tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
-			if (result < successfulSegments) {
-				successfulSegments = result;
-			}
-		}
-
-		final boolean complete = sidingsToGenerate.isEmpty();
-		if (complete) {
-			PacketTrainDataGuiServer.generatePathS2C(world, id, successfulSegments);
-		}
-		return complete;
-	}
-
-	public void generateMainRoute(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes) {
-		platformsInRoute.clear();
-		sidingsToGenerate.clear();
-		sidingsToGenerate.addAll(sidings);
+	public void generateMainRoute(MinecraftServer minecraftServer, World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Runnable callback) {
+		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 
 		routeIds.forEach(routeId -> {
 			final Route route = RailwayData.getDataById(routes, routeId);
@@ -197,8 +167,30 @@ public class Depot extends AreaBase {
 			}
 		});
 
-		successfulSegments = Integer.MAX_VALUE;
-		successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
+		new Thread(() -> {
+			try {
+				final List<PathData> tempPath = new ArrayList<>();
+				final int successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
+				final int[] successfulSegments = new int[]{Integer.MAX_VALUE};
+
+				sidings.forEach(siding -> {
+					final BlockPos sidingMidPos = siding.getMidPos();
+					if (inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
+						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
+						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
+						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
+						if (result < successfulSegments[0]) {
+							successfulSegments[0] = result;
+						}
+					}
+				});
+
+				PacketTrainDataGuiServer.generatePathS2C(world, id, successfulSegments[0]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			callback.run();
+		}).start();
 	}
 
 	public boolean deployTrain(WorldAccess world) {

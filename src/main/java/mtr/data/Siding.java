@@ -15,6 +15,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Pair;
@@ -220,7 +221,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	public int generateRoute(List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
+	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
+		final List<PathData> tempPath = new ArrayList<>();
 		final int successfulSegments;
 		if (firstPlatform == null || lastPlatform == null) {
 			successfulSegments = 0;
@@ -228,15 +230,15 @@ public class Siding extends SavedRailBase implements IPacket {
 			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
 			depotAndFirstPlatform.add(this);
 			depotAndFirstPlatform.add(firstPlatform);
-			PathFinder.findPath(path, rails, depotAndFirstPlatform, 0);
+			PathFinder.findPath(tempPath, rails, depotAndFirstPlatform, 0);
 
-			if (path.isEmpty()) {
+			if (tempPath.isEmpty()) {
 				successfulSegments = 1;
 			} else if (mainPath.isEmpty()) {
-				path.clear();
+				tempPath.clear();
 				successfulSegments = successfulSegmentsMain + 1;
 			} else {
-				PathFinder.appendPath(path, mainPath);
+				PathFinder.appendPath(tempPath, mainPath);
 
 				final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
 				lastPlatformAndDepot.add(lastPlatform);
@@ -246,15 +248,15 @@ public class Siding extends SavedRailBase implements IPacket {
 
 				if (pathLastPlatformToDepot.isEmpty()) {
 					successfulSegments = successfulSegmentsMain + 1;
-					path.clear();
+					tempPath.clear();
 				} else {
-					PathFinder.appendPath(path, pathLastPlatformToDepot);
+					PathFinder.appendPath(tempPath, pathLastPlatformToDepot);
 					successfulSegments = successfulSegmentsMain + 2;
 				}
 			}
 		}
 
-		if (path.isEmpty()) {
+		if (tempPath.isEmpty()) {
 			generateDefaultPath(rails);
 		}
 
@@ -263,11 +265,20 @@ public class Siding extends SavedRailBase implements IPacket {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_PATH);
-		packet.writeInt(path.size());
-		path.forEach(pathData -> pathData.writePacket(packet));
+		packet.writeInt(tempPath.size());
+		tempPath.forEach(pathData -> pathData.writePacket(packet));
 		if (packet.readableBytes() <= MAX_PACKET_BYTES) {
 			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
 		}
+
+		minecraftServer.execute(() -> {
+			try {
+				path.clear();
+				path.addAll(tempPath);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 
 		return successfulSegments;
 	}
@@ -344,9 +355,6 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		if (depot != null) {
-			depot.clientPathGenerationSuccessfulSegments = 0;
-		}
 		trains.add(new Train(null, 0, id, railLength, path, distances));
 	}
 

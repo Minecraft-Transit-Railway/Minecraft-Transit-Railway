@@ -126,7 +126,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long depotId = packet.readLong();
-			minecraftServer.execute(() -> railwayData.generatePath(depotId));
+			minecraftServer.execute(() -> railwayData.generatePath(minecraftServer, depotId));
 		}
 	}
 
