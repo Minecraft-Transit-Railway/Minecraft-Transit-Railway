@@ -55,6 +55,10 @@ public class RenderTrains implements IGui {
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain();
 	private static final ModelKTrainMini MODEL_K_TRAIN_MINI = new ModelKTrainMini();
+	private static final ModelKTrain MODEL_K_TRAIN_TCL = new ModelKTrain();
+	private static final ModelKTrainMini MODEL_K_TRAIN_TCL_MINI = new ModelKTrainMini();
+	private static final ModelKTrain MODEL_K_TRAIN_AEL = new ModelKTrain();
+	private static final ModelKTrainMini MODEL_K_TRAIN_AEL_MINI = new ModelKTrainMini();
 	private static final ModelATrain MODEL_A_TRAIN_TCL = new ModelATrain(false);
 	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
@@ -382,6 +386,14 @@ public class RenderTrains implements IGui {
 				return MODEL_K_TRAIN;
 			case K_TRAIN_MINI:
 				return MODEL_K_TRAIN_MINI;
+			case K_TRAIN_TCL:
+				return MODEL_K_TRAIN_TCL;
+			case K_TRAIN_TCL_MINI:
+				return MODEL_K_TRAIN_TCL_MINI;
+			case K_TRAIN_AEL:
+				return MODEL_K_TRAIN_AEL;
+			case K_TRAIN_AEL_MINI:
+				return MODEL_K_TRAIN_AEL_MINI;
 			case A_TRAIN_TCL:
 				return MODEL_A_TRAIN_TCL;
 			case A_TRAIN_TCL_MINI:
