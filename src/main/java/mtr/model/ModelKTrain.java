@@ -25,6 +25,9 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelMapper seat_back_r1;
 	private final ModelMapper window_exterior;
 	private final ModelMapper upper_wall_r2;
+	private final ModelMapper window_exterior_end;
+	private final ModelMapper upper_wall_r3;
+	private final ModelMapper upper_wall_r4;
 	private final ModelMapper side_panel;
 	private final ModelMapper roof_window;
 	private final ModelMapper inner_roof_4_r1;
@@ -44,11 +47,17 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelMapper door_right_top_r1;
 	private final ModelMapper door_handrail;
 	private final ModelMapper door_exterior;
-	private final ModelMapper upper_wall_r3;
+	private final ModelMapper upper_wall_r5;
 	private final ModelMapper door_left_exterior;
 	private final ModelMapper door_left_top_r2;
 	private final ModelMapper door_right_exterior;
 	private final ModelMapper door_right_top_r2;
+	private final ModelMapper door_exterior_end;
+	private final ModelMapper upper_wall_r6;
+	private final ModelMapper door_left_exterior_end;
+	private final ModelMapper door_left_top_r3;
+	private final ModelMapper door_right_exterior_end;
+	private final ModelMapper door_right_top_r3;
 	private final ModelMapper end;
 	private final ModelMapper upper_wall_2_r2;
 	private final ModelMapper upper_wall_1_r1;
@@ -228,6 +237,28 @@ public class ModelKTrain extends ModelTrainBase {
 		setRotationAngle(upper_wall_r2, 0, 0, 0.1107F);
 		upper_wall_r2.setTextureOffset(0, 41).addCuboid(0, -22, -26, 0, 22, 52, 0, false);
 
+		setRotationAngle(upper_wall_r2, 0, 0, 0.1107F);
+		upper_wall_r2.setTextureOffset(0, 41).addCuboid(0, -22, -26, 0, 22, 52, 0, false);
+
+		window_exterior_end = new ModelMapper(modelPartData);
+		window_exterior_end.setPivot(0, 24, 0);
+		window_exterior_end.setTextureOffset(87, 258).addCuboid(-21, 0, -24, 1, 4, 48, 0, false);
+		window_exterior_end.setTextureOffset(137, 228).addCuboid(-21, -14, -26, 0, 14, 52, 0, false);
+		window_exterior_end.setTextureOffset(87, 258).addCuboid(20, 0, -24, 1, 4, 48, 0, true);
+		window_exterior_end.setTextureOffset(137, 228).addCuboid(21, -14, -26, 0, 14, 52, 0, true);
+
+		upper_wall_r3 = new ModelMapper(modelPartData);
+		upper_wall_r3.setPivot(21, -14, 0);
+		window_exterior_end.addChild(upper_wall_r3);
+		setRotationAngle(upper_wall_r3, 0, 0, -0.1107F);
+		upper_wall_r3.setTextureOffset(137, 206).addCuboid(0, -22, -26, 0, 22, 52, 0, true);
+
+		upper_wall_r4 = new ModelMapper(modelPartData);
+		upper_wall_r4.setPivot(-21, -14, 0);
+		window_exterior_end.addChild(upper_wall_r4);
+		setRotationAngle(upper_wall_r4, 0, 0, 0.1107F);
+		upper_wall_r4.setTextureOffset(137, 206).addCuboid(0, -22, -26, 0, 22, 52, 0, false);
+
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
 		side_panel.setTextureOffset(30, 143).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
@@ -328,11 +359,11 @@ public class ModelKTrain extends ModelTrainBase {
 		door_exterior.setPivot(0, 24, 0);
 		door_exterior.setTextureOffset(114, 161).addCuboid(-21, 0, -16, 1, 4, 32, 0, false);
 
-		upper_wall_r3 = new ModelMapper(modelPartData);
-		upper_wall_r3.setPivot(-21, -14, 0);
-		door_exterior.addChild(upper_wall_r3);
-		setRotationAngle(upper_wall_r3, 0, 0, 0.1107F);
-		upper_wall_r3.setTextureOffset(77, 259).addCuboid(0, -22, -14, 1, 3, 28, 0, false);
+		upper_wall_r5 = new ModelMapper(modelPartData);
+		upper_wall_r5.setPivot(-21, -14, 0);
+		door_exterior.addChild(upper_wall_r5);
+		setRotationAngle(upper_wall_r5, 0, 0, 0.1107F);
+		upper_wall_r5.setTextureOffset(77, 259).addCuboid(0, -22, -14, 1, 3, 28, 0, false);
 
 		door_left_exterior = new ModelMapper(modelPartData);
 		door_left_exterior.setPivot(0, 0, 0);
@@ -355,6 +386,38 @@ public class ModelKTrain extends ModelTrainBase {
 		door_right_exterior.addChild(door_right_top_r2);
 		setRotationAngle(door_right_top_r2, 0, 0, 0.1107F);
 		door_right_top_r2.setTextureOffset(262, 209).addCuboid(0, -20, -14, 0, 20, 14, 0, false);
+
+		door_exterior_end = new ModelMapper(modelPartData);
+		door_exterior_end.setPivot(0, 24, 0);
+		door_exterior_end.setTextureOffset(0, 282).addCuboid(-21, 0, -16, 1, 4, 32, 0, false);
+
+		upper_wall_r6 = new ModelMapper(modelPartData);
+		upper_wall_r6.setPivot(-21, -14, 0);
+		door_exterior_end.addChild(upper_wall_r6);
+		setRotationAngle(upper_wall_r6, 0, 0, 0.1107F);
+		upper_wall_r6.setTextureOffset(77, 259).addCuboid(0, -22, -14, 1, 3, 28, 0, false);
+
+		door_left_exterior_end = new ModelMapper(modelPartData);
+		door_left_exterior_end.setPivot(0, 0, 0);
+		door_exterior_end.addChild(door_left_exterior_end);
+		door_left_exterior_end.setTextureOffset(0, 268).addCuboid(-21, -14, 0, 0, 14, 14, 0, false);
+
+		door_left_top_r3 = new ModelMapper(modelPartData);
+		door_left_top_r3.setPivot(-21, -14, 0);
+		door_left_exterior_end.addChild(door_left_top_r3);
+		setRotationAngle(door_left_top_r3, 0, 0, 0.1107F);
+		door_left_top_r3.setTextureOffset(0, 115).addCuboid(0, -20, 0, 0, 20, 14, 0, false);
+
+		door_right_exterior_end = new ModelMapper(modelPartData);
+		door_right_exterior_end.setPivot(0, 0, 0);
+		door_exterior_end.addChild(door_right_exterior_end);
+		door_right_exterior_end.setTextureOffset(0, 282).addCuboid(-21, -14, -14, 0, 14, 14, 0, false);
+
+		door_right_top_r3 = new ModelMapper(modelPartData);
+		door_right_top_r3.setPivot(-21, -14, 0);
+		door_right_exterior_end.addChild(door_right_top_r3);
+		setRotationAngle(door_right_top_r3, 0, 0, 0.1107F);
+		door_right_top_r3.setTextureOffset(262, 209).addCuboid(0, -20, -14, 0, 20, 14, 0, false);
 
 		end = new ModelMapper(modelPartData);
 		end.setPivot(0, 24, 0);
@@ -751,6 +814,7 @@ public class ModelKTrain extends ModelTrainBase {
 		window.setModelPart(modelPart);
 		window_handrail.setModelPart(modelPart);
 		window_exterior.setModelPart(modelPart);
+		window_exterior_end.setModelPart(modelPart);
 		side_panel.setModelPart(modelPart);
 		roof_window.setModelPart(modelPart);
 		roof_door.setModelPart(modelPart);
@@ -762,6 +826,9 @@ public class ModelKTrain extends ModelTrainBase {
 		door_exterior.setModelPart(modelPart);
 		door_left_exterior.setModelPart(modelPart.getChild(door_exterior.name));
 		door_right_exterior.setModelPart(modelPart.getChild(door_exterior.name));
+		door_exterior_end.setModelPart(modelPart);
+		door_left_exterior_end.setModelPart(modelPart.getChild(door_exterior_end.name));
+		door_right_exterior_end.setModelPart(modelPart.getChild(door_exterior_end.name));
 		end.setModelPart(modelPart);
 		end_exterior.setModelPart(modelPart);
 		roof_end.setModelPart(modelPart);
@@ -798,7 +865,13 @@ public class ModelKTrain extends ModelTrainBase {
 				renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
 				break;
 			case EXTERIOR:
-				renderMirror(window_exterior, matrices, vertices, light, position);
+				if (isIndex(0, position, getWindowPositions()) && isEnd1Head) {
+					renderOnceFlipped(window_exterior_end, matrices, vertices, light, position);
+				} else if (isIndex(-1, position, getWindowPositions()) && isEnd2Head) {
+					renderOnce(window_exterior_end, matrices, vertices, light, position);
+				} else {
+					renderMirror(window_exterior, matrices, vertices, light, position);
+				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
 				break;
 		}
@@ -835,12 +908,29 @@ public class ModelKTrain extends ModelTrainBase {
 				}
 				break;
 			case EXTERIOR:
-				door_left_exterior.setOffset(doorRightX, 0, doorRightZ);
-				door_right_exterior.setOffset(doorRightX, 0, -doorRightZ);
-				renderOnce(door_exterior, matrices, vertices, light, position);
-				door_left_exterior.setOffset(doorLeftX, 0, doorLeftZ);
-				door_right_exterior.setOffset(doorLeftX, 0, -doorLeftZ);
-				renderOnceFlipped(door_exterior, matrices, vertices, light, position);
+				final boolean door1End = isIndex(0, position, getDoorPositions()) && isEnd1Head;
+				final boolean door2End = isIndex(-1, position, getDoorPositions()) && isEnd2Head;
+
+				if (door1End || door2End) {
+					door_left_exterior_end.setOffset(doorRightX, 0, doorRightZ);
+					door_right_exterior_end.setOffset(doorRightX, 0, -doorRightZ);
+					renderOnce(door_exterior_end, matrices, vertices, light, position);
+				} else {
+					door_left_exterior.setOffset(doorRightX, 0, doorRightZ);
+					door_right_exterior.setOffset(doorRightX, 0, -doorRightZ);
+					renderOnce(door_exterior, matrices, vertices, light, position);
+				}
+
+				if (door1End || door2End) {
+					door_left_exterior_end.setOffset(doorLeftX, 0, doorLeftZ);
+					door_right_exterior_end.setOffset(doorLeftX, 0, -doorLeftZ);
+					renderOnceFlipped(door_exterior_end, matrices, vertices, light, position);
+				} else {
+					door_left_exterior.setOffset(doorLeftX, 0, doorLeftZ);
+					door_right_exterior.setOffset(doorLeftX, 0, -doorLeftZ);
+					renderOnceFlipped(door_exterior, matrices, vertices, light, position);
+				}
+
 				renderMirror(roof_exterior, matrices, vertices, light, position);
 				if (firstDoor && renderDetails) {
 					renderMirror(door_light, matrices, vertices, light, 0);
