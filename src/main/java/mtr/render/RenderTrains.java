@@ -204,7 +204,7 @@ public class RenderTrains implements IGui {
 					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
 					if (!message.isEmpty()) {
 						if (useTTSAnnouncements) {
-							Narrator.getNarrator().say(message, false);
+							Narrator.getNarrator().say(message, true);
 						}
 						if (showAnnouncementMessages) {
 							player.sendMessage(Text.of(message), false);
@@ -216,7 +216,7 @@ public class RenderTrains implements IGui {
 			if (useTTSAnnouncements) {
 				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
-						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), false);
+						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
 					}
 				});
 			}
