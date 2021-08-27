@@ -49,7 +49,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 		scale = 160 * maxArrivals / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
-		destinationMaxWidth = totalScaledWidth * 0.6F;
+		destinationMaxWidth = totalScaledWidth * 0.7F;
 		platformMaxWidth = showAllPlatforms ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
 		this.maxArrivals = maxArrivals;
@@ -214,7 +214,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 					} else {
 						matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 					}
-					textRenderer.draw(matrices, arrivalText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+					textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
 					matrices.pop();
 				}
 
