@@ -152,7 +152,7 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public void generateMainRoute(MinecraftServer minecraftServer, World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Runnable callback) {
+	public void generateMainRoute(MinecraftServer minecraftServer, World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Consumer<Thread> callback) {
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 
 		routeIds.forEach(routeId -> {
@@ -167,7 +167,7 @@ public class Depot extends AreaBase {
 			}
 		});
 
-		new Thread(() -> {
+		final Thread thread = new Thread(() -> {
 			try {
 				final List<PathData> tempPath = new ArrayList<>();
 				final int successfulSegmentsMain = PathFinder.findPath(tempPath, rails, platformsInRoute, 1);
@@ -186,11 +186,13 @@ public class Depot extends AreaBase {
 				});
 
 				PacketTrainDataGuiServer.generatePathS2C(world, id, successfulSegments[0]);
+				System.out.println("Finished path generation" + (name.isEmpty() ? "" : " for " + name));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			callback.run();
-		}).start();
+		});
+		callback.accept(thread);
+		thread.start();
 	}
 
 	public boolean deployTrain(WorldAccess world) {

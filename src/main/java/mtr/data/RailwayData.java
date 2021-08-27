@@ -39,7 +39,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
-	private final Set<Long> generatingDepotIds = new HashSet<>();
+	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int RAIL_UPDATE_DISTANCE = 64;
@@ -256,12 +256,16 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public void generatePath(MinecraftServer minecraftServer, long depotId) {
+		generatingPathThreads.keySet().removeIf(id -> !generatingPathThreads.get(id).isAlive());
 		final Depot depot = getDataById(depots, depotId);
 		if (depot != null) {
-			if (!generatingDepotIds.contains(depotId)) {
-				generatingDepotIds.add(depotId);
-				depot.generateMainRoute(minecraftServer, world, rails, platforms, sidings, routes, () -> generatingDepotIds.remove(depotId));
+			if (generatingPathThreads.containsKey(depotId)) {
+				generatingPathThreads.get(depotId).interrupt();
+				System.out.println("Restarting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
+			} else {
+				System.out.println("Starting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
 			}
+			depot.generateMainRoute(minecraftServer, world, rails, platforms, sidings, routes, thread -> generatingPathThreads.put(depotId, thread));
 		}
 	}
 
