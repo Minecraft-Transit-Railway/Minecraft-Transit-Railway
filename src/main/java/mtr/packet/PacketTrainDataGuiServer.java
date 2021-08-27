@@ -130,6 +130,24 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void clearTrainsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final World world = player.world;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final int sidingCount = packet.readInt();
+			final Set<Long> sidingIds = new HashSet<>();
+			for (int i = 0; i < sidingCount; i++) {
+				sidingIds.add(packet.readLong());
+			}
+			minecraftServer.execute(() -> sidingIds.forEach(sidingId -> {
+				final Siding siding = RailwayData.getDataById(railwayData.sidings, sidingId);
+				if (siding != null) {
+					siding.clearTrains();
+				}
+			}));
+		}
+	}
+
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
 		final int selectedIdsLength = packet.readInt();
