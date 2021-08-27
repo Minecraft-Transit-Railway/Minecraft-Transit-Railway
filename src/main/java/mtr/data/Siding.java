@@ -256,25 +256,26 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (tempPath.isEmpty()) {
-			generateDefaultPath(rails);
-		}
-
-		generateDistances();
-
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeLong(id);
-		packet.writeString(KEY_PATH);
-		packet.writeInt(tempPath.size());
-		tempPath.forEach(pathData -> pathData.writePacket(packet));
-		if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
-		}
 
 		minecraftServer.execute(() -> {
 			try {
+				if (tempPath.isEmpty()) {
+					generateDefaultPath(rails);
+				}
+
+				generateDistances();
+
 				path.clear();
 				path.addAll(tempPath);
+
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeLong(id);
+				packet.writeString(KEY_PATH);
+				packet.writeInt(tempPath.size());
+				tempPath.forEach(pathData -> pathData.writePacket(packet));
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
