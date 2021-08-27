@@ -80,6 +80,7 @@
 	"gui.mtr.arrival_sec_cjk": "%s 秒",
 	"gui.mtr.available": "Available",
 	"gui.mtr.balance": "Balance: $%s",
+	"gui.mtr.clear_trains": "Clear Trains",
 	"gui.mtr.clockwise_to": "Clockwise to %s",
 	"gui.mtr.clockwise_to_cjk": "順時針往%s",
 	"gui.mtr.clockwise_via": "Clockwise via %s",

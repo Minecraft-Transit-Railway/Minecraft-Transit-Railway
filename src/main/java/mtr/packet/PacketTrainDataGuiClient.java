@@ -1,10 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
-import mtr.data.Depot;
-import mtr.data.NameColorDataBase;
-import mtr.data.Rail;
-import mtr.data.RailwayData;
+import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.DashboardScreen;
 import mtr.gui.RailwaySignScreen;
@@ -16,6 +13,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -143,6 +141,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(sidingId);
 		ClientPlayNetworking.send(PACKET_GENERATE_PATH, packet);
+	}
+
+	public static void clearTrainsC2S(Collection<Siding> sidings) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(sidings.size());
+		sidings.forEach(siding -> packet.writeLong(siding.id));
+		ClientPlayNetworking.send(PACKET_CLEAR_TRAINS, packet);
 	}
 
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {

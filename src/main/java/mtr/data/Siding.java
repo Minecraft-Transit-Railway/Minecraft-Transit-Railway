@@ -256,7 +256,6 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-
 		minecraftServer.execute(() -> {
 			try {
 				if (tempPath.isEmpty()) {
@@ -339,6 +338,10 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	public boolean getUnlimitedTrains() {
 		return unlimitedTrains;
+	}
+
+	public void clearTrains() {
+		trains.clear();
 	}
 
 	private void setTrainDetails(String customId, TrainType trainType) {
