@@ -22,6 +22,25 @@ Take a look.
 The [Crowdin site for the Minecraft Transit Railway mod](https://crwd.in/minecraft-transit-railway) is available!
 
 Crowdin is a cloud-based platform for translators to contribute to a project. With your help, we can translate the mod to many different languages. You may create a free account to start translating.
+[![Crowdin](https://badges.crowdin.net/minecraft-transit-railway/localized.svg)](https://crowdin.com/project/minecraft-transit-railway)
+
+## Contributing
+
+- Fork this project
+- Create a new branch based on the `beta-x` branch (Where x is the latest beta version)
+- Implements your feature
+- Make a Pull Request
+
+### Building
+**NOTE: JDK 16+ is required to build on the 1.17 branch**  
+To build the mod, simply type the following command:
+```
+gradlew build
+```
+The outputted jar file should be located on
+```
+Project Folder\build\libs
+```
 
 ## License
 
