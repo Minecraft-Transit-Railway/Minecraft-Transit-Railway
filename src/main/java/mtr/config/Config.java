@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Collections;
 
@@ -82,8 +83,10 @@ public class Config {
 				useDynamicFPS = jsonConfig.get(USE_DYNAMIC_FPS).getAsBoolean();
 			} catch (Exception ignored) {
 			}
-		} catch (Exception e) {
+		} catch (NoSuchFileException ex) {
+			System.out.println("Cannot find config file for the MTR mod, generating one.");
 			writeToFile();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
