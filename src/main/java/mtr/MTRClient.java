@@ -183,7 +183,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 			final MatrixStack matrices = context.matrixStack();
 			matrices.push();
-			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera().getPos());
+			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera());
 			matrices.pop();
 		});
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
