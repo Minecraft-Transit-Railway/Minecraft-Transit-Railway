@@ -10,10 +10,7 @@ import mtr.item.ItemRailModifier;
 import mtr.model.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
@@ -55,6 +52,10 @@ public class RenderTrains implements IGui {
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
 	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain();
 	private static final ModelKTrainMini MODEL_K_TRAIN_MINI = new ModelKTrainMini();
+	private static final ModelKTrain MODEL_K_TRAIN_TCL = new ModelKTrain();
+	private static final ModelKTrainMini MODEL_K_TRAIN_TCL_MINI = new ModelKTrainMini();
+	private static final ModelKTrain MODEL_K_TRAIN_AEL = new ModelKTrain();
+	private static final ModelKTrainMini MODEL_K_TRAIN_AEL_MINI = new ModelKTrainMini();
 	private static final ModelATrain MODEL_A_TRAIN_TCL = new ModelATrain(false);
 	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
@@ -69,7 +70,7 @@ public class RenderTrains implements IGui {
 	private static final ModelE44 MODEL_E_44 = new ModelE44();
 	private static final ModelE44Mini MODEL_E_44_MINI = new ModelE44Mini();
 
-	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Vec3d cameraPos) {
+	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Camera camera) {
 		final MinecraftClient client = MinecraftClient.getInstance();
 		final ClientPlayerEntity player = client.player;
 		if (player == null) {
@@ -91,18 +92,22 @@ public class RenderTrains implements IGui {
 			maxTrainRenderDistance = renderDistanceChunks * 8;
 		}
 
+		final Vec3d cameraPos = camera.getPos();
+		final float cameraYaw = camera.getYaw();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
 		ClientData.updateReferences();
 		ClientData.schedulesForPlatform.clear();
-		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : lastFrameDuration, null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
+		ClientData.sidings.forEach(siding -> siding.simulateTrain(client.player, client.isPaused() ? 0 : lastFrameDuration, null, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, playerOffset != null, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
-			if (offsetRender) {
-				matrices.translate(x + cameraOffset.x, y + cameraOffset.y, z + cameraOffset.z);
-			} else {
+			if (playerOffset == null) {
 				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
+			} else {
+				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.yaw - cameraYaw));
+				matrices.translate(x - playerOffset.x, y - playerOffset.y, z - playerOffset.z);
 			}
 			matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
 			matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) Math.PI + pitch));
@@ -118,12 +123,14 @@ public class RenderTrains implements IGui {
 			}
 
 			matrices.pop();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, trainType, lightsOn, offsetRender) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, offsetRender, (light, posAverage) -> {
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, playerOffset != null, (light, posAverage) -> {
 			matrices.push();
-			if (offsetRender) {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-			} else {
+			if (playerOffset == null) {
 				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+			} else {
+				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.yaw - cameraYaw));
+				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
 			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainType.id, "exterior"))));
@@ -202,7 +209,7 @@ public class RenderTrains implements IGui {
 					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
 					if (!message.isEmpty()) {
 						if (useTTSAnnouncements) {
-							Narrator.getNarrator().say(message, false);
+							Narrator.getNarrator().say(message, true);
 						}
 						if (showAnnouncementMessages) {
 							player.sendMessage(Text.of(message), false);
@@ -214,7 +221,7 @@ public class RenderTrains implements IGui {
 			if (useTTSAnnouncements) {
 				useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
-						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), false);
+						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
 					}
 				});
 			}
@@ -384,6 +391,14 @@ public class RenderTrains implements IGui {
 				return MODEL_K_TRAIN;
 			case K_TRAIN_MINI:
 				return MODEL_K_TRAIN_MINI;
+			case K_TRAIN_TCL:
+				return MODEL_K_TRAIN_TCL;
+			case K_TRAIN_TCL_MINI:
+				return MODEL_K_TRAIN_TCL_MINI;
+			case K_TRAIN_AEL:
+				return MODEL_K_TRAIN_AEL;
+			case K_TRAIN_AEL_MINI:
+				return MODEL_K_TRAIN_AEL_MINI;
 			case A_TRAIN_TCL:
 				return MODEL_A_TRAIN_TCL;
 			case A_TRAIN_TCL_MINI:

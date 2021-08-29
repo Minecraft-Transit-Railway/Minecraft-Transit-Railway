@@ -25,6 +25,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final ButtonWidget buttonEditInstructions;
 	private final ButtonWidget buttonGenerateRoute;
+	private final ButtonWidget buttonClearTrains;
 	private final ButtonWidget buttonDone;
 
 	private final DashboardList addNewList;
@@ -32,7 +33,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
-	private static final int FIND_PATH_WIDTH = 80;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
@@ -56,6 +56,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
+		buttonClearTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.clear_trains"), button -> {
+			sidingsInDepot.values().forEach(Siding::clearTrains);
+			PacketTrainDataGuiClient.clearTrainsC2S(sidingsInDepot.values());
+		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
 		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
@@ -66,8 +70,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	protected void init() {
 		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
-		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
-		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
+		final int buttonWidth = (width - rightPanelsX) / 2;
+		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
+		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth);
+		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
 		addNewList.y = trainList.y = SQUARE_SIZE * 2;
@@ -87,6 +93,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		addButton(buttonEditInstructions);
 		addButton(buttonGenerateRoute);
+		addButton(buttonClearTrains);
 		addButton(buttonDone);
 	}
 
@@ -124,11 +131,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				}
 				super.render(matrices, mouseX, mouseY, delta);
 
-				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 
 				final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 				for (int i = 0; i < stringSplit.length; i++) {
-					textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+					textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
 				}
 
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);

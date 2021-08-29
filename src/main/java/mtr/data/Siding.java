@@ -256,25 +256,25 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (tempPath.isEmpty()) {
-			generateDefaultPath(rails);
-		}
-
-		generateDistances();
-
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeLong(id);
-		packet.writeString(KEY_PATH);
-		packet.writeInt(tempPath.size());
-		tempPath.forEach(pathData -> pathData.writePacket(packet));
-		if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
-		}
-
 		minecraftServer.execute(() -> {
 			try {
+				if (tempPath.isEmpty()) {
+					generateDefaultPath(rails);
+				}
+
+				generateDistances();
+
 				path.clear();
 				path.addAll(tempPath);
+
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeLong(id);
+				packet.writeString(KEY_PATH);
+				packet.writeInt(tempPath.size());
+				tempPath.forEach(pathData -> pathData.writePacket(packet));
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -338,6 +338,10 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	public boolean getUnlimitedTrains() {
 		return unlimitedTrains;
+	}
+
+	public void clearTrains() {
+		trains.clear();
 	}
 
 	private void setTrainDetails(String customId, TrainType trainType) {
@@ -620,7 +624,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				}
 
 				if (!path.isEmpty() && depot != null) {
-					final List<Vec3d> offset = new ArrayList<>();
+					final List<Float> offset = new ArrayList<>();
 
 					final boolean playerRiding = clientPlayer != null && ridingEntities.contains(clientPlayer.getUuid());
 					final int headIndex = getIndex(0, trainSpacing, false);
@@ -651,12 +655,17 @@ public class Siding extends SavedRailBase implements IPacket {
 
 							clientPlayer.fallDistance = 0;
 							clientPlayer.setVelocity(0, 0, 0);
-							final Vec3d playerOffset = new Vec3d(getValueFromPercentage(clientPercentageX, trainTypeMapping.trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(clientPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw).add(x, y, z);
-							clientPlayer.move(MovementType.SELF, playerOffset.subtract(clientPlayer.getPos()));
+							final Vec3d playerOffset = new Vec3d(getValueFromPercentage(clientPercentageX, trainTypeMapping.trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(clientPercentageZ), realSpacing)).rotateX(pitch).rotateY(yaw);
+							clientPlayer.move(MovementType.SELF, playerOffset.add(x - clientPlayer.getX(), y - clientPlayer.getY(), z - clientPlayer.getZ()));
 
 							if (speed > 0) {
 								clientPlayer.yaw -= Math.toDegrees(yaw - clientPrevYaw);
-								offset.add(playerOffset.add(0, clientPlayer.getStandingEyeHeight(), 0));
+								offset.add(x);
+								offset.add(y);
+								offset.add(z);
+								offset.add((float) playerOffset.x);
+								offset.add((float) playerOffset.y + clientPlayer.getStandingEyeHeight());
+								offset.add((float) playerOffset.z);
 							}
 
 							clientPrevYaw = yaw;
@@ -664,7 +673,7 @@ public class Siding extends SavedRailBase implements IPacket {
 					}
 
 					justMounted = false;
-					render(world, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset.get(0));
+					render(world, positions, doorValueRaw, oldSpeed, oldDoorValue, trainTypeMapping, trainLength, renderTrainCallback, renderConnectionCallback, offset.isEmpty() ? null : offset);
 				}
 
 				if (world.isClient() && depot != null && writeScheduleCallback != null) {
@@ -690,7 +699,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		private void render(World world, Pos3f[] positions, float doorValueRaw, float oldSpeed, float oldDoorValue, CustomResources.TrainMapping trainTypeMapping, int trainLength, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, Vec3d offset) {
+		private void render(World world, Pos3f[] positions, float doorValueRaw, float oldSpeed, float oldDoorValue, CustomResources.TrainMapping trainTypeMapping, int trainLength, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, List<Float> offset) {
 			final TrainType trainType = trainTypeMapping.trainType;
 			final float doorValue = Math.abs(doorValueRaw);
 			final boolean opening = doorValueRaw > 0;
@@ -733,18 +742,19 @@ public class Siding extends SavedRailBase implements IPacket {
 				final float halfWidth = trainType.width / 2F;
 
 				if (world.isClient()) {
-					final float newX = x - (offset == null ? 0 : (float) offset.x);
-					final float newY = y - (offset == null ? 0 : (float) offset.y);
-					final float newZ = z - (offset == null ? 0 : (float) offset.z);
+					final float newX = x - (offset == null ? 0 : offset.get(0));
+					final float newY = y - (offset == null ? 0 : offset.get(1));
+					final float newZ = z - (offset == null ? 0 : offset.get(2));
+					final Vec3d playerOffset = offset == null ? null : new Vec3d(offset.get(3), offset.get(4), offset.get(5));
 
 					if (renderTrainCallback != null) {
-						renderTrainCallback.renderTrainCallback(newX, newY, newZ, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, offset != null);
+						renderTrainCallback.renderTrainCallback(newX, newY, newZ, yaw, pitch, trainTypeMapping.customId, trainType, i == 0, i == trainLength - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, playerOffset);
 					}
 
 					if (renderConnectionCallback != null && i > 0 && trainType.shouldRenderConnection) {
-						final float prevCarX = xList[i - 1] - (offset == null ? 0 : (float) offset.x);
-						final float prevCarY = yList[i - 1] - (offset == null ? 0 : (float) offset.y);
-						final float prevCarZ = zList[i - 1] - (offset == null ? 0 : (float) offset.z);
+						final float prevCarX = xList[i - 1] - (offset == null ? 0 : (float) offset.get(0));
+						final float prevCarY = yList[i - 1] - (offset == null ? 0 : (float) offset.get(1));
+						final float prevCarZ = zList[i - 1] - (offset == null ? 0 : (float) offset.get(2));
 						final float prevCarYaw = yawList[i - 1];
 						final float prevCarPitch = pitchList[i - 1];
 
@@ -761,7 +771,7 @@ public class Siding extends SavedRailBase implements IPacket {
 						final Pos3f thisPos3 = new Pos3f(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(newX, newY, newZ);
 						final Pos3f thisPos4 = new Pos3f(xStart, SMALL_OFFSET, -zStart).rotateX(pitch).rotateY(yaw).add(newX, newY, newZ);
 
-						renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, trainType, isOnRoute, offset != null);
+						renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, yaw, trainType, isOnRoute, playerOffset);
 					}
 				} else {
 					final BlockPos soundPos = new BlockPos(x, y, z);
@@ -1044,12 +1054,12 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean offsetRender);
+		void renderTrainCallback(float x, float y, float z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, TrainType trainType, boolean lightsOn, boolean offsetRender);
+		void renderConnectionCallback(Pos3f prevPos1, Pos3f prevPos2, Pos3f prevPos3, Pos3f prevPos4, Pos3f thisPos1, Pos3f thisPos2, Pos3f thisPos3, Pos3f thisPos4, float x, float y, float z, float yaw, TrainType trainType, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface

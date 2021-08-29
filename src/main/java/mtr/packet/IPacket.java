@@ -14,6 +14,7 @@ public interface IPacket {
 	Identifier PACKET_REMOVE_RAIL = new Identifier(MTR.MOD_ID, "packet_remove_rail");
 
 	Identifier PACKET_GENERATE_PATH = new Identifier(MTR.MOD_ID, "packet_generate_path");
+	Identifier PACKET_CLEAR_TRAINS = new Identifier(MTR.MOD_ID, "packet_clear_trains");
 	Identifier PACKET_SIGN_TYPES = new Identifier(MTR.MOD_ID, "packet_sign_types");
 	Identifier PACKET_ADD_BALANCE = new Identifier(MTR.MOD_ID, "packet_add_balance");
 	Identifier PACKET_CHUNK_S2C = new Identifier(MTR.MOD_ID, "packet_chunk_s2c");
