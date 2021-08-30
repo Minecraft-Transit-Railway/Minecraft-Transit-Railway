@@ -2,6 +2,10 @@ package mtr.model;
 
 public class ModelKTrainMini extends ModelKTrain {
 
+	public ModelKTrainMini(boolean isTcl) {
+		super(isTcl);
+	}
+
 	@Override
 	protected int[] getWindowPositions() {
 		return new int[]{0};

@@ -50,12 +50,12 @@ public class RenderTrains implements IGui {
 	private static final ModelMLRMini MODEL_MLR_MINI = new ModelMLRMini();
 	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
 	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
-	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain();
-	private static final ModelKTrainMini MODEL_K_TRAIN_MINI = new ModelKTrainMini();
-	private static final ModelKTrain MODEL_K_TRAIN_TCL = new ModelKTrain();
-	private static final ModelKTrainMini MODEL_K_TRAIN_TCL_MINI = new ModelKTrainMini();
-	private static final ModelKTrain MODEL_K_TRAIN_AEL = new ModelKTrain();
-	private static final ModelKTrainMini MODEL_K_TRAIN_AEL_MINI = new ModelKTrainMini();
+	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain(false);
+	private static final ModelKTrainMini MODEL_K_TRAIN_MINI = new ModelKTrainMini(false);
+	private static final ModelKTrain MODEL_K_TRAIN_TCL = new ModelKTrain(true);
+	private static final ModelKTrainMini MODEL_K_TRAIN_TCL_MINI = new ModelKTrainMini(true);
+	private static final ModelKTrain MODEL_K_TRAIN_AEL = new ModelKTrain(true);
+	private static final ModelKTrainMini MODEL_K_TRAIN_AEL_MINI = new ModelKTrainMini(true);
 	private static final ModelATrain MODEL_A_TRAIN_TCL = new ModelATrain(false);
 	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
@@ -405,7 +405,7 @@ public class RenderTrains implements IGui {
 				return MODEL_A_TRAIN_AEL;
 			case A_TRAIN_AEL_MINI:
 				return MODEL_A_TRAIN_AEL_MINI;
-			case R179_TRAIN:
+			case R179:
 				return MODEL_R179;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;

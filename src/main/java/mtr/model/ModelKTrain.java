@@ -126,7 +126,11 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelMapper door_light_off;
 	private final ModelMapper light_r2;
 
-	public ModelKTrain() {
+	private final boolean isTcl;
+
+	public ModelKTrain(boolean isTcl) {
+		this.isTcl = isTcl;
+
 		final int textureWidth = 320;
 		final int textureHeight = 320;
 
@@ -865,9 +869,9 @@ public class ModelKTrain extends ModelTrainBase {
 				renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
 				break;
 			case EXTERIOR:
-				if (isIndex(0, position, getWindowPositions()) && isEnd1Head) {
+				if (isTcl && isIndex(0, position, getWindowPositions()) && isEnd1Head) {
 					renderOnceFlipped(window_exterior_end, matrices, vertices, light, position);
-				} else if (isIndex(-1, position, getWindowPositions()) && isEnd2Head) {
+				} else if (isTcl && isIndex(-1, position, getWindowPositions()) && isEnd2Head) {
 					renderOnce(window_exterior_end, matrices, vertices, light, position);
 				} else {
 					renderMirror(window_exterior, matrices, vertices, light, position);
@@ -911,7 +915,7 @@ public class ModelKTrain extends ModelTrainBase {
 				final boolean door1End = isIndex(0, position, getDoorPositions()) && isEnd1Head;
 				final boolean door2End = isIndex(-1, position, getDoorPositions()) && isEnd2Head;
 
-				if (door1End || door2End) {
+				if (isTcl && (door1End || door2End)) {
 					door_left_exterior_end.setOffset(doorRightX, 0, doorRightZ);
 					door_right_exterior_end.setOffset(doorRightX, 0, -doorRightZ);
 					renderOnce(door_exterior_end, matrices, vertices, light, position);
@@ -921,7 +925,7 @@ public class ModelKTrain extends ModelTrainBase {
 					renderOnce(door_exterior, matrices, vertices, light, position);
 				}
 
-				if (door1End || door2End) {
+				if (isTcl && (door1End || door2End)) {
 					door_left_exterior_end.setOffset(doorLeftX, 0, doorLeftZ);
 					door_right_exterior_end.setOffset(doorLeftX, 0, -doorLeftZ);
 					renderOnceFlipped(door_exterior_end, matrices, vertices, light, position);

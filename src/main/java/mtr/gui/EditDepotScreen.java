@@ -175,6 +175,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
 		buttonEditInstructions.visible = !addingTrain;
 		buttonGenerateRoute.visible = !addingTrain;
+		buttonClearTrains.visible = !addingTrain;
 		buttonDone.visible = addingTrain;
 		textFieldName.visible = !addingTrain;
 		textFieldColor.visible = !addingTrain;
