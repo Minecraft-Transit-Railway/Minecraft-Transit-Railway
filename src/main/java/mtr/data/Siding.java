@@ -597,9 +597,7 @@ public class Siding extends SavedRailBase implements IPacket {
 							if (stoppingDistance < 0.5F * speed * speed / ACCELERATION) {
 								speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
 							} else {
-								final RailType rail = path.get(getIndex(0, trainSpacing, false)).rail.railType;
-								final float railSpeed = rail.canAccelerate ? rail.maxBlocksPerTick : Math.max(RailType.WOODEN.maxBlocksPerTick, speed);
-
+								final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
 								if (speed < railSpeed) {
 									speed = Math.min(speed + newAcceleration, railSpeed);
 								} else if (speed > railSpeed) {
@@ -982,6 +980,18 @@ public class Siding extends SavedRailBase implements IPacket {
 			return hasPlatform;
 		}
 
+		private float getRailSpeed(int railIndex) {
+			final RailType thisRail = path.get(railIndex).rail.railType;
+			final float railSpeed;
+			if (thisRail.canAccelerate) {
+				railSpeed = thisRail.maxBlocksPerTick;
+			} else {
+				final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
+				railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.WOODEN.maxBlocksPerTick, speed);
+			}
+			return railSpeed;
+		}
+
 		private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainLength, int trainSpacing) {
 			final int index = getIndex(0, trainSpacing, true);
 			final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
@@ -997,7 +1007,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		private Pair<Float, Float> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainLength, int index, float progress, float currentTicks, float currentSpeed) {
 			final PathData pathData = path.get(index);
-			final Pair<Float, Float> timeAndSpeed = calculateTicksAndSpeed(pathData.rail, progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
+			final Pair<Float, Float> timeAndSpeed = calculateTicksAndSpeed(getRailSpeed(index), pathData.rail.getLength(), progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
 
 			if (pathData.dwellTime > 0) {
 				final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (index == nextStoppingIndex ? stopCounter : 0), 0);
@@ -1020,8 +1030,8 @@ public class Siding extends SavedRailBase implements IPacket {
 			return (percentage - 0.5F) * total;
 		}
 
-		private static Pair<Float, Float> calculateTicksAndSpeed(Rail rail, float progress, float initialSpeed, boolean shouldStop) {
-			final float distance = rail.getLength() - progress;
+		private static Pair<Float, Float> calculateTicksAndSpeed(float railSpeed, float railLength, float progress, float initialSpeed, boolean shouldStop) {
+			final float distance = railLength - progress;
 
 			if (distance <= 0) {
 				return new Pair<>(0F, initialSpeed);
@@ -1032,12 +1042,10 @@ public class Siding extends SavedRailBase implements IPacket {
 					return new Pair<>(2 * distance / initialSpeed, 0F);
 				}
 
-				final float maxSpeed = Math.min(rail.railType.maxBlocksPerTick, (float) Math.sqrt(ACCELERATION * distance + initialSpeed * initialSpeed / 2));
+				final float maxSpeed = Math.min(railSpeed, (float) Math.sqrt(ACCELERATION * distance + initialSpeed * initialSpeed / 2));
 				final float ticks = (2 * ACCELERATION * distance + initialSpeed * initialSpeed - 2 * initialSpeed * maxSpeed + 2 * maxSpeed * maxSpeed) / (2 * ACCELERATION * maxSpeed);
 				return new Pair<>(ticks, 0F);
 			} else {
-				final float railSpeed = rail.railType.maxBlocksPerTick;
-
 				if (initialSpeed == railSpeed) {
 					return new Pair<>(distance / initialSpeed, initialSpeed);
 				} else {
