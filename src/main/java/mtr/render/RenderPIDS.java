@@ -118,7 +118,6 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				}
 			}
 
-			final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
 			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
 			scheduleList.sort((a, b) -> {
 				if (a.arrivalMillis == b.arrivalMillis) {
@@ -153,7 +152,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
 				final String[] destinationSplit = currentSchedule.destination.split("\\|");
-				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
+				final String destinationString = destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
 				final Text arrivalText;
 				final int seconds = (int) Math.floor(currentSchedule.arrivalMillis / 1000);

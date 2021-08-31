@@ -24,10 +24,6 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	private final List<PathDataDeleteThisLater> path;
 
-	public static final int HOURS_IN_DAY = 24;
-	public static final int TICKS_PER_HOUR = 1000;
-	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";

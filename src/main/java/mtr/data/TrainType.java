@@ -81,7 +81,7 @@ public enum TrainType {
 	}
 
 	public void playSpeedSoundEffect(WorldAccess world, BlockPos pos, float oldSpeed, float speed) {
-		if (world.getLunarTime() % TICKS_PER_SPEED_SOUND == 0 && accelerationSoundEvents != null && decelerationSoundEvents != null) {
+		if (MTR.isGameTickInterval(TICKS_PER_SPEED_SOUND) && accelerationSoundEvents != null && decelerationSoundEvents != null) {
 			final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final int index = Math.min(floorSpeed, speedCount) - 1;
