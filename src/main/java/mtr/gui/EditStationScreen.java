@@ -224,7 +224,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		final String parentNumber = textFieldExitParentNumber.getText();
 		if (!parentLetter.isEmpty() && !parentNumber.isEmpty()) {
 			try {
-				final String exitParent = parentLetter + Integer.valueOf(parentNumber);
+				final String exitParent = parentLetter + Integer.parseInt(parentNumber);
 				data.setExitParent(editingExit, exitParent, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_STATION, packet));
 			} catch (Exception e) {
 				e.printStackTrace();
