@@ -198,6 +198,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			}).findFirst().orElse(null), rails);
 			siding.simulateTrain(null, 1, trainPositions, null, null, null, null, null, null);
 		});
+		depots.forEach(depot -> depot.deployTrain(world));
 
 		final Set<PlayerEntity> playersToRemove = new HashSet<>();
 		playerRidingCoolDown.forEach((player, coolDown) -> {

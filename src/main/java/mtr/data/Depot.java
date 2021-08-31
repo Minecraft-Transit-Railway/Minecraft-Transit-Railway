@@ -9,22 +9,21 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Depot extends AreaBase {
 
 	public int clientPathGenerationSuccessfulSegments;
 	private long lastDeployedMillis;
+	private int deployIndex;
 
 	public final List<Long> routeIds = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
+	private final Map<Long, Train> deployableSidings = new HashMap<>();
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
@@ -34,6 +33,7 @@ public class Depot extends AreaBase {
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_FREQUENCIES = "frequencies";
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
+	private static final String KEY_DEPLOY_INDEX = "deploy_index";
 
 	public Depot() {
 		super();
@@ -56,6 +56,7 @@ public class Depot extends AreaBase {
 		}
 
 		lastDeployedMillis = System.currentTimeMillis() - nbtCompound.getLong(KEY_LAST_DEPLOYED);
+		deployIndex = nbtCompound.getInt(KEY_DEPLOY_INDEX);
 	}
 
 	public Depot(PacketByteBuf packet) {
@@ -71,6 +72,7 @@ public class Depot extends AreaBase {
 		}
 
 		lastDeployedMillis = packet.readLong();
+		deployIndex = packet.readInt();
 	}
 
 	@Override
@@ -84,6 +86,7 @@ public class Depot extends AreaBase {
 		}
 
 		nbtCompound.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
+		nbtCompound.putInt(KEY_DEPLOY_INDEX, deployIndex);
 
 		return nbtCompound;
 	}
@@ -100,6 +103,7 @@ public class Depot extends AreaBase {
 		}
 
 		packet.writeLong(lastDeployedMillis);
+		packet.writeInt(deployIndex);
 	}
 
 	@Override
@@ -195,14 +199,40 @@ public class Depot extends AreaBase {
 		thread.start();
 	}
 
-	public boolean deployTrain(WorldAccess world) {
+	public void requestDeploy(long sidingId, Train train) {
+		deployableSidings.put(sidingId, train);
+	}
+
+	public void deployTrain(World world) {
 		final long currentMillis = System.currentTimeMillis();
 		final int hour = (int) wrapTime(world.getLunarTime(), -6000) / TICKS_PER_HOUR;
-		final boolean success = frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR * TRAIN_FREQUENCY_MULTIPLIER / frequencies[hour];
-		if (success) {
-			lastDeployedMillis = currentMillis;
+
+		if (frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR * TRAIN_FREQUENCY_MULTIPLIER / frequencies[hour]) {
+			final RailwayData railwayData = RailwayData.getInstance(world);
+
+			if (railwayData != null) {
+				final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
+					final BlockPos sidingPos = siding.getMidPos();
+					return inArea(sidingPos.getX(), sidingPos.getZ());
+				}).sorted().collect(Collectors.toList());
+
+				final int sidingsInDepotSize = sidingsInDepot.size();
+				for (int i = deployIndex; i < deployIndex + sidingsInDepotSize; i++) {
+					final Train train = deployableSidings.get(sidingsInDepot.get(i % sidingsInDepotSize).id);
+					if (train != null) {
+						lastDeployedMillis = currentMillis;
+						deployIndex++;
+						if (deployIndex >= sidingsInDepotSize) {
+							deployIndex = 0;
+						}
+						train.deployTrain();
+						break;
+					}
+				}
+			}
 		}
-		return success;
+
+		deployableSidings.clear();
 	}
 
 	public static float wrapTime(float time1, float time2) {

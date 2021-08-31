@@ -4,6 +4,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -110,5 +111,22 @@ public abstract class SavedRailBase extends NameColorDataBase {
 
 	public static boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return !RailwayData.containsRail(rails, pos1, pos2) || !rails.get(pos1).get(pos2).railType.hasSavedRail;
+	}
+
+	@Override
+	public int compareTo(NameColorDataBase compare) {
+		final boolean thisIsNumber = NumberUtils.isParsable(name);
+		final boolean compareIsNumber = NumberUtils.isParsable(compare.name);
+
+		if (thisIsNumber && compareIsNumber) {
+			final int floatCompare = Float.compare(Float.parseFloat(name), Float.parseFloat(compare.name));
+			return floatCompare == 0 ? super.compareTo(compare) : floatCompare;
+		} else if (thisIsNumber) {
+			return -1;
+		} else if (compareIsNumber) {
+			return 1;
+		} else {
+			return super.compareTo(compare);
+		}
 	}
 }
