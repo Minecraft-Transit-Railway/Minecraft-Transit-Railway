@@ -141,6 +141,10 @@ public class Siding extends SavedRailBase implements IPacket {
 					}
 					trains.removeIf(train -> !trainIds.contains(train.id));
 				} else {
+					final long startUpMillis = packet.readLong();
+					if (depot != null && startUpMillis > 0) {
+						depot.lastDeployedMillis = startUpMillis;
+					}
 					final long trainId = packet.readLong();
 					boolean updated = false;
 					for (final Train train : trains) {

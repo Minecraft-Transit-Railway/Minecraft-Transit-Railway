@@ -9,6 +9,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -17,8 +18,9 @@ import java.util.stream.Collectors;
 public class Depot extends AreaBase {
 
 	public int clientPathGenerationSuccessfulSegments;
-	private long lastDeployedMillis;
+	public long lastDeployedMillis;
 	private int deployIndex;
+	private int clientDepartureCount;
 
 	public final List<Long> routeIds = new ArrayList<>();
 
@@ -28,7 +30,8 @@ public class Depot extends AreaBase {
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 	public static final int TICKS_PER_HOUR = 1000;
-	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
+	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
+	private static final int MILLIS_PER_TICK = 50;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_FREQUENCIES = "frequencies";
@@ -203,31 +206,24 @@ public class Depot extends AreaBase {
 		deployableSidings.put(sidingId, train);
 	}
 
-	public void deployTrain(World world) {
-		final long currentMillis = System.currentTimeMillis();
-		final int hour = (int) wrapTime(world.getLunarTime(), -6000) / TICKS_PER_HOUR;
+	public void deployTrain(RailwayData railwayData, int hour) {
+		if (!deployableSidings.isEmpty() && getMillisUntilDeploy(hour) == 0) {
+			final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
+				final BlockPos sidingPos = siding.getMidPos();
+				return inArea(sidingPos.getX(), sidingPos.getZ());
+			}).sorted().collect(Collectors.toList());
 
-		if (frequencies[hour] > 0 && currentMillis - lastDeployedMillis >= 50 * TICKS_PER_HOUR * TRAIN_FREQUENCY_MULTIPLIER / frequencies[hour]) {
-			final RailwayData railwayData = RailwayData.getInstance(world);
-
-			if (railwayData != null) {
-				final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
-					final BlockPos sidingPos = siding.getMidPos();
-					return inArea(sidingPos.getX(), sidingPos.getZ());
-				}).sorted().collect(Collectors.toList());
-
-				final int sidingsInDepotSize = sidingsInDepot.size();
-				for (int i = deployIndex; i < deployIndex + sidingsInDepotSize; i++) {
-					final Train train = deployableSidings.get(sidingsInDepot.get(i % sidingsInDepotSize).id);
-					if (train != null) {
-						lastDeployedMillis = currentMillis;
-						deployIndex++;
-						if (deployIndex >= sidingsInDepotSize) {
-							deployIndex = 0;
-						}
-						train.deployTrain();
-						break;
+			final int sidingsInDepotSize = sidingsInDepot.size();
+			for (int i = deployIndex; i < deployIndex + sidingsInDepotSize; i++) {
+				final Train train = deployableSidings.get(sidingsInDepot.get(i % sidingsInDepotSize).id);
+				if (train != null) {
+					lastDeployedMillis = System.currentTimeMillis();
+					deployIndex++;
+					if (deployIndex >= sidingsInDepotSize) {
+						deployIndex = 0;
 					}
+					train.deployTrain();
+					break;
 				}
 			}
 		}
@@ -235,7 +231,31 @@ public class Depot extends AreaBase {
 		deployableSidings.clear();
 	}
 
-	public static float wrapTime(float time1, float time2) {
-		return (time1 - time2 + TICKS_PER_DAY) % TICKS_PER_DAY;
+	public int getNextDepartureTicks(int hour) {
+		final int millisUntilDeploy = getMillisUntilDeploy(hour);
+		clientDepartureCount++;
+		return millisUntilDeploy >= 0 ? millisUntilDeploy / MILLIS_PER_TICK : -1;
+	}
+
+	public void resetDepartureCount() {
+		clientDepartureCount = 0;
+	}
+
+	private int getMillisUntilDeploy(int hour) {
+		for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
+			final int frequency = frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
+			if (frequency > 0) {
+				return Math.max(frequency * (1 + clientDepartureCount) - (int) (System.currentTimeMillis() - lastDeployedMillis), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+			}
+		}
+		return -1;
+	}
+
+	public static int getHour(WorldAccess world) {
+		return (int) wrapTime(world.getLunarTime()) / TICKS_PER_HOUR;
+	}
+
+	private static float wrapTime(float time) {
+		return (time + 6000 + TICKS_PER_DAY) % TICKS_PER_DAY;
 	}
 }
