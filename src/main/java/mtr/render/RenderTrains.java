@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class RenderTrains implements IGui {
 
 	public static int maxTrainRenderDistance;
+	private static float gameTick = 0;
 
 	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
@@ -78,6 +79,7 @@ public class RenderTrains implements IGui {
 		final int renderDistanceChunks = client.options.viewDistance;
 		final boolean isReplayMod = isReplayMod(player);
 		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
+		gameTick += lastFrameDuration;
 
 		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
@@ -326,6 +328,10 @@ public class RenderTrains implements IGui {
 			}
 		}
 		return false;
+	}
+
+	public static float getGameTicks() {
+		return gameTick;
 	}
 
 	private static void renderWithLight(World world, float x, float y, float z, Vec3d cameraPos, PlayerEntity player, boolean offsetRender, RenderCallback renderCallback) {

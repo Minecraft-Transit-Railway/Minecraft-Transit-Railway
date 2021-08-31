@@ -28,6 +28,8 @@ import java.util.stream.IntStream;
 
 public class MTR implements ModInitializer, IPacket {
 
+	private static int gameTick = 0;
+
 	public static final String MOD_ID = "mtr";
 
 	public static final BlockEntityType<BlockArrivalProjector1Small.TileEntityArrivalProjector1Small> ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY = registerTileEntity("arrival_projector_1_small", BlockArrivalProjector1Small.TileEntityArrivalProjector1Small::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL);
@@ -262,6 +264,7 @@ public class MTR implements ModInitializer, IPacket {
 			if (railwayData != null) {
 				railwayData.simulateTrains();
 			}
+			gameTick++;
 		}));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
@@ -277,6 +280,10 @@ public class MTR implements ModInitializer, IPacket {
 				railwayData.disconnectPlayer(handler.player);
 			}
 		});
+	}
+
+	public static boolean isGameTickInterval(int interval) {
+		return gameTick % interval == 0;
 	}
 
 	private static void registerItem(String path, Item item) {
