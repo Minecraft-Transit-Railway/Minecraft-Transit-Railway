@@ -10,6 +10,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart upper_wall_r1;
 	private final ModelPart window_exterior;
 	private final ModelPart upper_wall_r2;
+	private final ModelPart window_handrails;
 	private final ModelPart seats;
 	private final ModelPart handrail_3_r1;
 	private final ModelPart seat_7;
@@ -26,6 +27,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart inner_roof_4_r2;
 	private final ModelPart inner_roof_3_r1;
 	private final ModelPart inner_roof_2_r2;
+	private final ModelPart door_handrails;
 	private final ModelPart roof_light;
 	private final ModelPart roof_exterior;
 	private final ModelPart outer_roof_5_r1;
@@ -38,7 +40,6 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart door_left_top_r1;
 	private final ModelPart door_right_exterior;
 	private final ModelPart door_right_top_r1;
-	private final ModelPart door_handrails;
 	private final ModelPart side_panel;
 	private final ModelPart door;
 	private final ModelPart door_left;
@@ -184,18 +185,22 @@ public class ModelE44 extends ModelTrainBase {
 		setRotationAngle(upper_wall_r2, 0.0F, 0.0F, 0.1107F);
 		upper_wall_r2.setTextureOffset(220, 80).addCuboid(0.0F, -20.0F, -18.0F, 0.0F, 20.0F, 36.0F, 0.0F, false);
 
+		window_handrails = new ModelPart(this);
+		window_handrails.setPivot(0.0F, 24.0F, 0.0F);
+		window_handrails.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, 7.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrails.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, 0.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		window_handrails.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, -7.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+
 		seats = new ModelPart(this);
 		seats.setPivot(0.0F, 24.0F, 0.0F);
-		seats.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, 7.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		seats.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, 0.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		seats.setTextureOffset(6, 0).addCuboid(-11.0F, -30.35F, -7.0F, 2.0F, 4.0F, 0.0F, 0.0F, false);
+		
 
 		handrail_3_r1 = new ModelPart(this);
 		handrail_3_r1.setPivot(0.0F, 0.0F, 0.0F);
 		seats.addChild(handrail_3_r1);
 		setRotationAngle(handrail_3_r1, 0.0F, 0.0F, -0.1745F);
-		handrail_3_r1.setTextureOffset(1, 0).addCuboid(-4.3486F, -31.2973F, -15.0F, 0.0F, 18.0F, 0.0F, 0.2F, false);
-		handrail_3_r1.setTextureOffset(1, 0).addCuboid(-4.3236F, -31.2973F, 15.0F, 0.0F, 18.0F, 0.0F, 0.2F, false);
+		handrail_3_r1.setTextureOffset(339, 95).addCuboid(-4.3486F, -31.2973F, -15.0F, 0.0F, 18.0F, 0.0F, 0.2F, false);
+		handrail_3_r1.setTextureOffset(339, 95).addCuboid(-4.3236F, -31.2973F, 15.0F, 0.0F, 18.0F, 0.0F, 0.2F, false);
 
 		seat_7 = new ModelPart(this);
 		seat_7.setPivot(0.0F, 0.0F, 0.0F);
@@ -279,6 +284,11 @@ public class ModelE44 extends ModelTrainBase {
 		setRotationAngle(inner_roof_2_r2, 0.0F, 0.0F, -0.5236F);
 		inner_roof_2_r2.setTextureOffset(0, 0).addCuboid(-1.5F, 0.325F, -16.0F, 4.0F, 0.0F, 32.0F, 0.0F, false);
 
+		door_handrails = new ModelPart(this);
+		door_handrails.setPivot(0.0F, 0.0F, 0.0F);
+		roof_door.addChild(door_handrails);
+		
+
 		roof_light = new ModelPart(this);
 		roof_light.setPivot(0.0F, 24.0F, 0.0F);
 		roof_light.setTextureOffset(110, 0).addCuboid(-2.5F, -33.1F, -16.0F, 5.0F, 0.0F, 32.0F, 0.0F, false);
@@ -342,10 +352,6 @@ public class ModelE44 extends ModelTrainBase {
 		door_right_exterior.addChild(door_right_top_r1);
 		setRotationAngle(door_right_top_r1, 0.0F, 0.0F, 0.1107F);
 		door_right_top_r1.setTextureOffset(62, 52).addCuboid(0.0F, -20.0F, -15.0F, 0.0F, 20.0F, 15.0F, 0.0F, false);
-
-		door_handrails = new ModelPart(this);
-		door_handrails.setPivot(0.0F, 24.0F, 0.0F);
-		
 
 		side_panel = new ModelPart(this);
 		side_panel.setPivot(0.0F, 24.0F, 0.0F);
@@ -500,22 +506,22 @@ public class ModelE44 extends ModelTrainBase {
 		roof_end.setTextureOffset(6, 0).addCuboid(-11.0F, -31.0F, 5.4F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 		roof_end.setTextureOffset(6, 0).addCuboid(-11.0F, -31.0F, -0.6F, 2.0F, 4.0F, 0.0F, 0.0F, false);
 		roof_end.setTextureOffset(6, 0).addCuboid(-11.0F, -31.0F, -6.6F, 2.0F, 4.0F, 0.0F, 0.0F, false);
-		roof_end.setTextureOffset(1, 0).addCuboid(-10.0F, -33.4649F, -16.8899F, 0.0F, 2.0F, 0.0F, 0.2F, false);
-		roof_end.setTextureOffset(1, 0).addCuboid(10.0F, -33.4649F, -16.8899F, 0.0F, 2.0F, 0.0F, 0.2F, false);
+		roof_end.setTextureOffset(339, 95).addCuboid(-10.0F, -33.4649F, -16.8899F, 0.0F, 2.0F, 0.0F, 0.2F, false);
+		roof_end.setTextureOffset(339, 95).addCuboid(10.0F, -33.4649F, -16.8899F, 0.0F, 2.0F, 0.0F, 0.2F, false);
 
 		handrail_12_r1 = new ModelPart(this);
 		handrail_12_r1.setPivot(10.0F, -30.275F, -16.1F);
 		roof_end.addChild(handrail_12_r1);
 		setRotationAngle(handrail_12_r1, 0.7854F, 0.0F, 0.0F);
-		handrail_12_r1.setTextureOffset(1, 0).addCuboid(0.0F, -1.2F, 0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
-		handrail_12_r1.setTextureOffset(1, 0).addCuboid(-20.0F, -1.2F, 0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+		handrail_12_r1.setTextureOffset(339, 95).addCuboid(0.0F, -1.2F, 0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
+		handrail_12_r1.setTextureOffset(339, 95).addCuboid(-20.0F, -1.2F, 0.2F, 0.0F, 1.0F, 0.0F, 0.2F, false);
 
 		handrail_9_r1 = new ModelPart(this);
 		handrail_9_r1.setPivot(-10.0F, 1.0F, 0.0F);
 		roof_end.addChild(handrail_9_r1);
 		setRotationAngle(handrail_9_r1, -1.5708F, 0.0F, 0.0F);
-		handrail_9_r1.setTextureOffset(1, 0).addCuboid(0.0F, -16.0F, -31.5F, 0.0F, 32.0F, 0.0F, 0.2F, false);
-		handrail_9_r1.setTextureOffset(1, 0).addCuboid(20.0F, -16.0F, -31.5F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+		handrail_9_r1.setTextureOffset(339, 95).addCuboid(0.0F, -16.0F, -31.5F, 0.0F, 32.0F, 0.0F, 0.2F, false);
+		handrail_9_r1.setTextureOffset(339, 95).addCuboid(20.0F, -16.0F, -31.5F, 0.0F, 32.0F, 0.0F, 0.2F, false);
 
 		inner_roof_right_6_r1 = new ModelPart(this);
 		inner_roof_right_6_r1.setPivot(0.0F, 0.0F, 0.0F);
@@ -820,7 +826,7 @@ public class ModelE44 extends ModelTrainBase {
 		outer_head_1_r1.setPivot(0.0F, 0.0F, 0.0F);
 		side_1.addChild(outer_head_1_r1);
 		setRotationAngle(outer_head_1_r1, 0.0F, -0.0873F, 0.0F);
-		outer_head_1_r1.setTextureOffset(168, 190).addCuboid(22.75F, -13.25F, 29.0F, 0.0F, 12.0F, 9.0F, 0.0F, false);
+		outer_head_1_r1.setTextureOffset(168, 190).addCuboid(22.7F, -13.25F, 29.0F, 0.0F, 12.0F, 9.0F, 0.0F, false);
 
 		outer_roof_11_r1 = new ModelPart(this);
 		outer_roof_11_r1.setPivot(16.9769F, -38.2468F, -0.05F);
@@ -907,7 +913,7 @@ public class ModelE44 extends ModelTrainBase {
 		outer_head_1_r2.setPivot(0.0F, 0.0F, 0.0F);
 		side_2.addChild(outer_head_1_r2);
 		setRotationAngle(outer_head_1_r2, 0.0F, 0.0873F, 0.0F);
-		outer_head_1_r2.setTextureOffset(132, 189).addCuboid(-22.75F, -14.0F, 29.0F, 0.0F, 11.0F, 9.0F, 0.0F, false);
+		outer_head_1_r2.setTextureOffset(132, 189).addCuboid(-22.7F, -14.0F, 29.0F, 0.0F, 11.0F, 9.0F, 0.0F, false);
 
 		outer_roof_11_r2 = new ModelPart(this);
 		outer_roof_11_r2.setPivot(-16.9769F, -38.2468F, -0.05F);
@@ -1031,13 +1037,13 @@ public class ModelE44 extends ModelTrainBase {
 
 		tail_lights = new ModelPart(this);
 		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
-
+		
 
 		tail_light_r1 = new ModelPart(this);
 		tail_light_r1.setPivot(-14.0978F, -10.0F, 38.5824F);
 		tail_lights.addChild(tail_light_r1);
 		setRotationAngle(tail_light_r1, 0.1745F, 0.0F, 0.0F);
-		tail_light_r1.setTextureOffset(97, 200).addCuboid(15.1F, -31.325F, 0.0F, 4.0F, 3.0F, 0.0F, 0.0F, false);
+		tail_light_r1.setTextureOffset(3, 43).addCuboid(15.1F, -31.325F, 0.0F, 4.0F, 3.0F, 0.0F, 0.0F, false);
 
 		door_light = new ModelPart(this);
 		door_light.setPivot(0.0F, 24.0F, 0.0F);
@@ -1067,7 +1073,7 @@ public class ModelE44 extends ModelTrainBase {
 		light_r2.setPivot(-20.0F, -13.0F, 0.0F);
 		door_light_on.addChild(light_r2);
 		setRotationAngle(light_r2, 0.0F, 0.0F, 0.1107F);
-		light_r2.setTextureOffset(19, 9).addCuboid(-1.0F, -21.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
+		light_r2.setTextureOffset(10, 46).addCuboid(-1.0F, -21.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
 }
 	private static final int DOOR_MAX = 14;
 
@@ -1084,6 +1090,7 @@ public class ModelE44 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(roof_window, matrices, vertices, light, position);
 					renderMirror(seats, matrices, vertices, light, position);
+					renderMirror(window_handrails, matrices, vertices, light, position);
 				}
 				break;
 			case EXTERIOR:
@@ -1116,7 +1123,6 @@ public class ModelE44 extends ModelTrainBase {
 
 				if (renderDetails) {
 					renderMirror(roof_door, matrices, vertices, light, position);
-					renderMirror(door_handrails, matrices, vertices, light, position);
 				}
 				break;
 			case EXTERIOR:
