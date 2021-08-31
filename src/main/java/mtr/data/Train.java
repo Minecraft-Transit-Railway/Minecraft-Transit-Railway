@@ -73,7 +73,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
-		syncTrainToClient(world, null, 0, 0);
+		syncTrainToClient(world, null, false, 0, 0);
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -203,6 +203,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		final int oldStoppingIndex = nextStoppingIndex;
+		final boolean oldIsOnRoute = isOnRoute;
 		final int oldPassengerCount = ridingEntities.size();
 		try {
 			final int trainSpacing = trainTypeMapping.trainType.getSpacing();
@@ -339,13 +340,16 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			}
 
 			if (world.isClient() && depot != null && writeScheduleCallback != null) {
-				writeArrivalTimes(writeScheduleCallback, depot.routeIds, trainTypeMapping, trainLength, trainSpacing);
+				final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
+				if (offsetTicks >= 0) {
+					writeArrivalTimes(writeScheduleCallback, depot.routeIds, offsetTicks, trainTypeMapping, trainLength, trainSpacing);
+				}
 			}
 		} catch (Exception ignored) {
 		}
 
 		if (oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex) {
-			syncTrainToClient(world, null, 0, 0);
+			syncTrainToClient(world, null, !oldIsOnRoute && isOnRoute, 0, 0);
 		}
 	}
 
@@ -455,7 +459,7 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 						final Vec3d positionRotated = player.getPos().subtract(x, y, z).rotateY(-yaw).rotateX(-pitch);
 						if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 							ridingEntities.add(player.getUuid());
-							syncTrainToClient(world, player, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
+							syncTrainToClient(world, player, false, (float) (positionRotated.x / trainType.width + 0.5), (float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 						}
 					});
 				}
@@ -551,12 +555,13 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		return 0;
 	}
 
-	private void syncTrainToClient(World world, PlayerEntity player, float percentageX, float percentageZ) {
+	private void syncTrainToClient(World world, PlayerEntity player, boolean isStartUpEvent, float percentageX, float percentageZ) {
 		if (world != null && !world.isClient()) {
 			final PacketByteBuf packet = PacketByteBufs.create();
 			packet.writeLong(sidingId);
 			packet.writeString(Siding.KEY_TRAINS);
 			packet.writeBoolean(false);
+			packet.writeLong(isStartUpEvent ? System.currentTimeMillis() : 0);
 			packet.writeLong(id);
 			writeMainPacket(packet);
 			packet.writeFloat(percentageX);
@@ -656,11 +661,11 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 		return railSpeed;
 	}
 
-	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainTypeMapping, int trainLength, int trainSpacing) {
+	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainTypeMapping, int trainLength, int trainSpacing) {
 		final int index = getIndex(0, trainSpacing, true);
-		final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), 0, speed);
+		final Pair<Float, Float> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), ticksOffset, speed);
 
-		float currentTicks = firstTimeAndSpeed.getLeft();
+		float currentTicks = firstTimeAndSpeed.getLeft() + ticksOffset;
 		float currentSpeed = firstTimeAndSpeed.getRight();
 		for (int i = index + 1; i < path.size(); i++) {
 			final Pair<Float, Float> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainTypeMapping, trainLength, i, 0, currentTicks, currentSpeed);
