@@ -4,7 +4,7 @@ public class ModelE44Mini extends ModelE44 {
 
 	@Override
 	protected int[] getWindowPositions() {
-		return new int[]{-32, 32};
+		return new int[]{-34, 34};
 	}
 
 	@Override
@@ -14,6 +14,6 @@ public class ModelE44Mini extends ModelE44 {
 
 	@Override
 	protected int[] getEndPositions() {
-		return new int[]{-64, 64};
+		return new int[]{-62, 62};
 	}
 }
