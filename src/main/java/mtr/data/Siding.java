@@ -364,10 +364,4 @@ public class Siding extends SavedRailBase implements IPacket {
 			trains.removeIf(train -> (train.id == 0) == unlimitedTrains);
 		}
 	}
-
-	@Override
-	public int compareTo(NameColorDataBase compare) {
-		final int superCompare = super.compareTo(compare);
-		return superCompare == 0 ? new Random().nextBoolean() ? 1 : -1 : superCompare;
-	}
 }

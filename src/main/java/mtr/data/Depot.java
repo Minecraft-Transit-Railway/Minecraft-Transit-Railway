@@ -32,6 +32,7 @@ public class Depot extends AreaBase {
 	public static final int TICKS_PER_HOUR = 1000;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 	private static final int MILLIS_PER_TICK = 50;
+	private static final int MAX_DEPLOYED_MILLIS = 3600000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_FREQUENCIES = "frequencies";
@@ -245,7 +246,7 @@ public class Depot extends AreaBase {
 		for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
 			final int frequency = frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
 			if (frequency > 0) {
-				return Math.max(frequency * (1 + clientDepartureCount) - (int) (System.currentTimeMillis() - lastDeployedMillis), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+				return Math.max(frequency * (1 + clientDepartureCount) - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
 			}
 		}
 		return -1;
