@@ -1,5 +1,6 @@
 {
-  "variants": {
-    "": { "model": "mtr:block/train_sensor" }
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "mtr:block/train_sensor"
   }
 }
