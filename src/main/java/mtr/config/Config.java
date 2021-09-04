@@ -64,6 +64,12 @@ public class Config {
 	}
 
 	public static void refreshProperties() {
+		if(!Files.exists(CONFIG_FILE_PATH)) {
+			System.out.println("Cannot find config file for the MTR mod, generating one.");
+			writeToFile();
+			return;
+		}
+
 		System.out.println("Refreshed MTR mod config");
 		try {
 			final JsonObject jsonConfig = new JsonParser().parse(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
@@ -83,11 +89,9 @@ public class Config {
 				useDynamicFPS = jsonConfig.get(USE_DYNAMIC_FPS).getAsBoolean();
 			} catch (Exception ignored) {
 			}
-		} catch (NoSuchFileException ex) {
-			System.out.println("Cannot find config file for the MTR mod, generating one.");
-			writeToFile();
 		} catch (Exception e) {
 			e.printStackTrace();
+			writeToFile();
 		}
 	}
 
