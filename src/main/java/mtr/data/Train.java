@@ -18,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
@@ -28,8 +29,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.*;
-
-import static mtr.block.BlockTrainSensor.REDSTONE;
 
 public class Train extends NameColorDataBase implements IPacket, IGui {
 
@@ -506,15 +505,12 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			trainSensor(world, x, y, z,realSpacing /2);
+			final boolean doTrainSensor = trainSensor(world, x, y, z,realSpacing /2);
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
 	}
 
 	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, float halfSpacing) {
-		if (!world.isClient()) {
-			return false;
-		}
 
 		final BlockPos checkPos = new BlockPos(trainX,trainY -2, trainZ);
 		final Block block = world.getBlockState(checkPos).getBlock();
@@ -529,18 +525,27 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			// Don't allow the train to trigger this sensor more than once until another trigger has
 			// been detected
 			//
+			BlockPos chris = new BlockPos(-216, 62, -19);
+			final BlockState state = world.getBlockState(chris);
+			final Block block2 = state.getBlock();
+
 			if(!currentPos.equals(previousPos)) {
 				//player.sendMessage(new LiteralText(currentPos), false);
 				previousPos = (int)trainX + "-" + (int)(trainY -2) + "-" + (int)trainZ;
-				BlockPos chris = new BlockPos((int) -216, (int) 62, (int) -19);
-				final BlockState state = world.getBlockState(chris);
+
 				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, true));
+
 				player.sendMessage(new LiteralText(String.valueOf(chris)), false);
+
+			} else {
+				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, false));
 			}
 
 		}
 		return true;
 	}
+
+
 
 	private boolean railBlocked(Set<UUID> trainPositions, int checkIndex) {
 		if (trainPositions != null && checkIndex < path.size()) {
