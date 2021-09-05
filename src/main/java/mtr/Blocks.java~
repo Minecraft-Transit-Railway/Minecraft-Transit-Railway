@@ -106,8 +106,4 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
 	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
-
-	// add Marble and Sandy Marble
-	Block MARBLE = new BlockMarble(AbstractBlock.Settings.copy(PLATFORM));
-	Block MARBLE2 = new BlockMarble2(AbstractBlock.Settings.copy(PLATFORM));
 }

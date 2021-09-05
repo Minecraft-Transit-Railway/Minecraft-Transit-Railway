@@ -1,0 +1,30 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+		{
+			"item": "mtr:marble"
+		}
+	],
+	"result": {
+		"item": "mtr:marble",
+		"count": 64
+	}
+}
