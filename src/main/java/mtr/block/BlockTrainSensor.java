@@ -18,14 +18,15 @@ import net.minecraft.world.World;
 public class BlockTrainSensor extends Block {
     public static final BooleanProperty REDSTONE = BooleanProperty.of("redstone");
 
-    public BlockTrainSensor(AbstractBlock.Settings settings) {
+    public BlockTrainSensor(Settings settings) {
         super(settings);
         setDefaultState(getStateManager().getDefaultState().with(REDSTONE, false));
     }
 
+
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
-        stateManager.add(REDSTONE);
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(REDSTONE);
     }
 
     @Override
@@ -38,16 +39,17 @@ public class BlockTrainSensor extends Block {
                 world.setBlockState(pos, state.with(REDSTONE, false));
                 player.sendMessage(new LiteralText("Redstone Off"), false);
             }
+            player.sendMessage(new LiteralText(pos.toShortString()), false);
         }
 
         return ActionResult.SUCCESS;
     }
 
-
     @Override
     public boolean emitsRedstonePower(BlockState state) {
         return state.get(REDSTONE);
     }
+
 
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
@@ -57,4 +59,5 @@ public class BlockTrainSensor extends Block {
             return 0;
         }
     }
+
 }

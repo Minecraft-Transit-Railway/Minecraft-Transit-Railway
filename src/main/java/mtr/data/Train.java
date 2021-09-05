@@ -3,6 +3,7 @@ package mtr.data;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
+import mtr.block.BlockTrainSensor;
 import mtr.config.CustomResources;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
@@ -10,12 +11,15 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -25,8 +29,11 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
+import static mtr.block.BlockTrainSensor.REDSTONE;
+
 public class Train extends NameColorDataBase implements IPacket, IGui {
 
+	private static String previousPos;
 	private float speed;
 	private float railProgress;
 	private float stopCounter;
@@ -499,9 +506,40 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-
+			trainSensor(world, x, y, z,realSpacing /2);
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
+	}
+
+	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, float halfSpacing) {
+		if (!world.isClient()) {
+			return false;
+		}
+
+		final BlockPos checkPos = new BlockPos(trainX,trainY -2, trainZ);
+		final Block block = world.getBlockState(checkPos).getBlock();
+
+
+		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+
+		if (block instanceof BlockTrainSensor) {
+			String currentPos = (int)trainX + "-" + (int)(trainY -2) + "-" + (int)trainZ;
+			//
+			// Don't allow the train to trigger this sensor more than once until another trigger has
+			// been detected
+			//
+			if(!currentPos.equals(previousPos)) {
+				//player.sendMessage(new LiteralText(currentPos), false);
+				previousPos = (int)trainX + "-" + (int)(trainY -2) + "-" + (int)trainZ;
+				BlockPos chris = new BlockPos((int) -216, (int) 62, (int) -19);
+				final BlockState state = world.getBlockState(chris);
+				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, true));
+				player.sendMessage(new LiteralText(String.valueOf(chris)), false);
+			}
+
+		}
+		return true;
 	}
 
 	private boolean railBlocked(Set<UUID> trainPositions, int checkIndex) {
