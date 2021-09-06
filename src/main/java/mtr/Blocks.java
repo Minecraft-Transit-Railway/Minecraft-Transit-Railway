@@ -110,4 +110,7 @@ public interface Blocks {
 	// add Marble and Sandy Marble
 	Block MARBLE = new BlockMarble(AbstractBlock.Settings.copy(PLATFORM));
 	Block MARBLE2 = new BlockMarble2(AbstractBlock.Settings.copy(PLATFORM));
+
+	// add PSD top only
+	Block PSD_TOP_ONLY = new BlockPSDTopOnly();
 }

@@ -67,6 +67,8 @@ public class MTR implements ModInitializer, IPacket {
 		BlockMarble.TileEntityMarble::new, Blocks.MARBLE);
 	public static final BlockEntityType<BlockMarble2.TileEntityMarble2> MARBLE2_TILE_ENTITY = registerTileEntity("marble_2",
 		BlockMarble2.TileEntityMarble2::new, Blocks.MARBLE2);
+	public static final BlockEntityType<BlockPSDTopOnly.TileEntityPSDTopOnly> PSD_TOP_ONLY_TILE_ENTITY = registerTileEntity("psd_top_only",
+			BlockPSDTopOnly.TileEntityPSDTopOnly::new, Blocks.PSD_TOP_ONLY);
 
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
@@ -187,6 +189,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock("psd_top", Blocks.PSD_TOP);
+		registerBlock("psd_top_only", Blocks.PSD_TOP_ONLY, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("rail", Blocks.RAIL, ItemGroups.CORE);
 		registerBlock("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);
