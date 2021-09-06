@@ -1,21 +1,17 @@
 package mtr.render;
 
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockPSDAPGGlassEndBase;
-import mtr.block.BlockPSDTop;
 import mtr.block.BlockPSDTopOnly;
 import mtr.block.IBlock;
-import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldAccess;
+
+import static mtr.block.BlockPSDTopOnly.HAS_ARROW;
 
 public class RenderPSDTopOnly extends RenderRouteBase<BlockPSDTopOnly.TileEntityPSDTopOnly> implements IBlock {
 
@@ -74,6 +70,16 @@ public class RenderPSDTopOnly extends RenderRouteBase<BlockPSDTopOnly.TileEntity
         } else {
             return RenderType.NONE;
         }*/
+        boolean arrow;
+        try {
+            arrow = world.getBlockState(pos).get(HAS_ARROW);
+        }
+        catch (Exception e) {
+            arrow = false;
+        }
+        if (arrow) {
+            return RenderType.ARROW;
+        }
         return RenderType.ROUTE;
     }
 
