@@ -11,16 +11,12 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -505,53 +501,21 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doTrainSensor = trainSensor(world, x, y, z,yaw, pitch,realSpacing /2);
+			final boolean doTrainSensor = trainSensor(world, x, y, z);
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
 	}
 
-	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, float checkYaw, float pitch, float halfSpacing) {
-
-		final BlockPos checkPos = new BlockPos(trainX,trainY -2, trainZ);
+	private boolean trainSensor(World world, float trainX, float trainY, float trainZ) {
+		final BlockPos checkPos = new BlockPos(trainX , trainY -2, trainZ);
 		final Block block = world.getBlockState(checkPos).getBlock();
 
-		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw).rotateX(pitch);
-		final Vec3d traverseVec = new Vec3d(0, 0, 1).rotateY(checkYaw).rotateX(pitch);
-
-
-		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
-
-
 		if (block instanceof BlockTrainSensor) {
-			String currentPos = (int)trainX + "-" + (int)(trainY -2) + "-" + (int)trainZ;
-			//
-			// Don't allow the train to trigger this sensor more than once until another trigger has
-			// been detected
-			//
-			BlockPos chris = new BlockPos(-216, 62, -19);
-			final BlockState state = world.getBlockState(chris);
-			final Block block2 = state.getBlock();
-
-			if(!currentPos.equals(previousPos)) {
-				//player.sendMessage(new LiteralText(currentPos), false);
-				previousPos = (int)trainX + "-" + (int)(trainY -2) + "-" + (int)trainZ;
-
-				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, true));
-
-
-
-				final BlockPos checkPos2 = new BlockPos(trainX + offsetVec.x  + traverseVec.x , trainY, trainZ + offsetVec.z + traverseVec.z);
-				player.sendMessage(new LiteralText(String.valueOf(railLength)), false);
-
-			} else {
-				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, false));
-			}
-
+			final BlockState state = world.getBlockState(checkPos);
+			world.setBlockState(checkPos, state.with(BlockTrainSensor.REDSTONE, true));
 		}
 		return true;
 	}
-
-
 
 	private boolean railBlocked(Set<UUID> trainPositions, int checkIndex) {
 		if (trainPositions != null && checkIndex < path.size()) {

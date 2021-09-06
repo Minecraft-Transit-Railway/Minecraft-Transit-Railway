@@ -2,10 +2,7 @@ package mtr.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.text.LiteralText;
@@ -17,7 +14,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import java.util.Random;
+import java.util.*;
 
 public class BlockTrainSensor extends Block {
     public static final BooleanProperty REDSTONE = BooleanProperty.of("redstone");
@@ -42,7 +39,6 @@ public class BlockTrainSensor extends Block {
                 world.setBlockState(pos, state.with(REDSTONE, false));
                 player.sendMessage(new LiteralText("Redstone Off"), false);
             }
-            player.sendMessage(new LiteralText(pos.toShortString()), false);
         }
 
         return ActionResult.SUCCESS;
@@ -52,6 +48,7 @@ public class BlockTrainSensor extends Block {
     public boolean emitsRedstonePower(BlockState state) {
         return state.get(REDSTONE);
     }
+
 
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
