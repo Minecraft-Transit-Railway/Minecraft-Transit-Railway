@@ -505,15 +505,18 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doTrainSensor = trainSensor(world, x, y, z,realSpacing /2);
+			final boolean doTrainSensor = trainSensor(world, x, y, z,yaw, pitch,realSpacing /2);
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
 	}
 
-	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, float halfSpacing) {
+	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, float checkYaw, float pitch, float halfSpacing) {
 
 		final BlockPos checkPos = new BlockPos(trainX,trainY -2, trainZ);
 		final Block block = world.getBlockState(checkPos).getBlock();
+
+		final Vec3d offsetVec = new Vec3d(1, 0, 0).rotateY(checkYaw).rotateX(pitch);
+		final Vec3d traverseVec = new Vec3d(0, 0, 1).rotateY(checkYaw).rotateX(pitch);
 
 
 		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -535,7 +538,10 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 
 				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, true));
 
-				player.sendMessage(new LiteralText(String.valueOf(chris)), false);
+
+
+				final BlockPos checkPos2 = new BlockPos(trainX + offsetVec.x  + traverseVec.x , trainY, trainZ + offsetVec.z + traverseVec.z);
+				player.sendMessage(new LiteralText(String.valueOf(railLength)), false);
 
 			} else {
 				world.setBlockState(chris, state.with(BlockTrainSensor.REDSTONE, false));
