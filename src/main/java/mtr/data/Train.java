@@ -11,17 +11,17 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -501,20 +501,46 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doTrainSensor = trainSensor(world, x, y, z);
+			final boolean doTrainSensor = trainSensor(world, x, y, z, positions);
+
+
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
 	}
 
-	private boolean trainSensor(World world, float trainX, float trainY, float trainZ) {
-		final BlockPos checkPos = new BlockPos(trainX , trainY -2, trainZ);
-		final Block block = world.getBlockState(checkPos).getBlock();
+	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, Pos3f[] positions) {
 
-		if (block instanceof BlockTrainSensor) {
-			final BlockState state = world.getBlockState(checkPos);
-			world.setBlockState(checkPos, state.with(BlockTrainSensor.REDSTONE, true));
-		}
-		return true;
+			Pos3f front = null;
+		    //final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+			if(!reversed) {
+				front = positions[0];
+
+			} else {
+				front = positions[positions.length -1];
+			}
+
+			if(front != null) {
+				final BlockPos checkPos = new BlockPos(front.x, trainY -2, front.z);
+				final Block block = world.getBlockState(checkPos).getBlock();
+				final BlockState state = world.getBlockState(checkPos);
+
+				final BlockPos checkPos2 = new BlockPos(front.x, trainY -3, front.z);
+				final Block block2 = world.getBlockState(checkPos2).getBlock();
+				final BlockState state2 = world.getBlockState(checkPos2);
+
+				if(block instanceof BlockTrainSensor) {
+					world.setBlockState(checkPos, state.with(BlockTrainSensor.REDSTONE, true));
+					world.getBlockTickScheduler().schedule(new BlockPos(checkPos), block, 20);
+				} else if (block2 instanceof BlockTrainSensor) {
+					world.setBlockState(checkPos2, state2.with(BlockTrainSensor.REDSTONE, true));
+					world.getBlockTickScheduler().schedule(new BlockPos(checkPos2), block2, 20);
+				}
+			}
+
+			return true;
+
+
 	}
 
 	private boolean railBlocked(Set<UUID> trainPositions, int checkIndex) {
