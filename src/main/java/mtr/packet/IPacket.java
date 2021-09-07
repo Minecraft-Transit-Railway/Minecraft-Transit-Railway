@@ -32,6 +32,9 @@ public interface IPacket {
 	Identifier PACKET_DELETE_DEPOT = new Identifier(MTR.MOD_ID, "packet_delete_depot");
 
 	Identifier PACKET_WRITE_RAILS = new Identifier(MTR.MOD_ID, "write_rails");
+	Identifier PACKET_UPDATE_TRAINS = new Identifier(MTR.MOD_ID, "update_trains");
+	Identifier PACKET_DELETE_TRAINS = new Identifier(MTR.MOD_ID, "delete_trains");
+	Identifier PACKET_UPDATE_TRAIN_RIDING_POSITION = new Identifier(MTR.MOD_ID, "update_train_riding_position");
 
 	int MAX_PACKET_BYTES = 1048576;
 }

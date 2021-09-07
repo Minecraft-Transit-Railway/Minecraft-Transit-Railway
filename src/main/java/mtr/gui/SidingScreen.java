@@ -124,8 +124,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldSavedRailNumber.visible = !isSelectingTrain;
-		final CustomResources.TrainMapping trainTypeMapping = savedRailBase.getTrainTypeMapping();
-		buttonSelectTrain.setMessage(CustomResources.customTrains.containsKey(trainTypeMapping.customId) ? new LiteralText(CustomResources.customTrains.get(trainTypeMapping.customId).name) : new TranslatableText("train.mtr." + trainTypeMapping.trainType));
+		final CustomResources.TrainMapping trainMapping = savedRailBase.getTrainMapping();
+		buttonSelectTrain.setMessage(CustomResources.customTrains.containsKey(trainMapping.customId) ? new LiteralText(CustomResources.customTrains.get(trainMapping.customId).name) : new TranslatableText("train.mtr." + trainMapping.trainType));
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}
 
@@ -147,7 +147,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 			}
 
 			if (trainType != null) {
-				savedRailBase.setTrainTypeMapping(customId, trainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+				savedRailBase.setTrainMapping(customId, trainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
 			}
 		}
 		setIsSelectingTrain(false);

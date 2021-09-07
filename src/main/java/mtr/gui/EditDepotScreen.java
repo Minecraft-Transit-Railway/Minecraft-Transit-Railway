@@ -2,7 +2,6 @@ package mtr.gui;
 
 import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.RenderTrains;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -208,7 +207,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RenderTrains.useRoutesAndStationsFromIndex(0, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -232,7 +231,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableText("gui.mtr.path_found");
 				} else {
-					RenderTrains.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));

@@ -20,6 +20,7 @@ public final class ClientData {
 	public static Set<Route> routes = new HashSet<>();
 	public static Set<Depot> depots = new HashSet<>();
 	public static Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
+	public static Set<TrainClient> trains = new HashSet<>();
 
 	public static Map<Long, Route> routeIdMap = new HashMap<>();
 	public static Map<Long, Station> platformIdToStation = new HashMap<>();
@@ -49,6 +50,45 @@ public final class ClientData {
 		}
 
 		client.execute(() -> rails = railsTemp);
+	}
+
+	public static void updateTrains(MinecraftClient client, PacketByteBuf packet) {
+		final Set<TrainClient> trainsToUpdate = new HashSet<>();
+
+		final int trainsCount = packet.readInt();
+		for (int i = 0; i < trainsCount; i++) {
+			final TrainClient train = new TrainClient(packet);
+			trainsToUpdate.add(train);
+		}
+
+		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
+			final TrainClient existingTrain = RailwayData.getDataById(trains, newTrain.id);
+			if (existingTrain == null) {
+				trains.add(newTrain);
+			} else {
+				existingTrain.copyFromTrain(newTrain);
+			}
+		}));
+	}
+
+	public static void deleteTrains(MinecraftClient client, PacketByteBuf packet) {
+		final Set<Long> trainIdsToDelete = new HashSet<>();
+
+		final int trainsCount = packet.readInt();
+		for (int i = 0; i < trainsCount; i++) {
+			trainIdsToDelete.add(packet.readLong());
+		}
+
+		client.execute(() -> trains.removeIf(train -> trainIdsToDelete.contains(train.id)));
+	}
+
+	public static void updateTrainRidingPosition(MinecraftClient client, PacketByteBuf packet) {
+		final TrainClient train = RailwayData.getDataById(trains, packet.readLong());
+		final float clientPercentageX = packet.readFloat();
+		final float clientPercentageZ = packet.readFloat();
+		if (train != null) {
+			client.execute(() -> train.updateClientPercentages(client.player, clientPercentageX, clientPercentageZ));
+		}
 	}
 
 	public static void receivePacket(PacketByteBuf packet) {
