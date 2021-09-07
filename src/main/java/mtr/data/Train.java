@@ -28,7 +28,6 @@ import java.util.*;
 
 public class Train extends NameColorDataBase implements IPacket, IGui {
 
-	private static String previousPos;
 	private float speed;
 	private float railProgress;
 	private float stopCounter;
@@ -511,11 +510,11 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 	private boolean trainSensor(World world, float trainX, float trainY, float trainZ, Pos3f[] positions) {
 
 			Pos3f front = null;
-		    //final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+		    final ClientPlayerEntity player = MinecraftClient.getInstance().player;
 
 			if(!reversed) {
 				front = positions[0];
-
 			} else {
 				front = positions[positions.length -1];
 			}
@@ -528,11 +527,11 @@ public class Train extends NameColorDataBase implements IPacket, IGui {
 				final BlockPos checkPos2 = new BlockPos(front.x, trainY -3, front.z);
 				final Block block2 = world.getBlockState(checkPos2).getBlock();
 				final BlockState state2 = world.getBlockState(checkPos2);
-
-				if(block instanceof BlockTrainSensor) {
+				//player.sendMessage(new LiteralText(String.valueOf(speed)), false);
+				if(block instanceof BlockTrainSensor && speed > 0.1) {
 					world.setBlockState(checkPos, state.with(BlockTrainSensor.REDSTONE, true));
 					world.getBlockTickScheduler().schedule(new BlockPos(checkPos), block, 20);
-				} else if (block2 instanceof BlockTrainSensor) {
+				} else if (block2 instanceof BlockTrainSensor && speed > 0.1) {
 					world.setBlockState(checkPos2, state2.with(BlockTrainSensor.REDSTONE, true));
 					world.getBlockTickScheduler().schedule(new BlockPos(checkPos2), block2, 20);
 				}
