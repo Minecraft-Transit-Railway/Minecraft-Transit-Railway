@@ -25,7 +25,7 @@ public class Depot extends AreaBase {
 	public final List<Long> routeIds = new ArrayList<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
-	private final Map<Long, Train> deployableSidings = new HashMap<>();
+	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();
 
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
@@ -203,7 +203,7 @@ public class Depot extends AreaBase {
 		thread.start();
 	}
 
-	public void requestDeploy(long sidingId, Train train) {
+	public void requestDeploy(long sidingId, TrainServer train) {
 		deployableSidings.put(sidingId, train);
 	}
 
@@ -216,7 +216,7 @@ public class Depot extends AreaBase {
 
 			final int sidingsInDepotSize = sidingsInDepot.size();
 			for (int i = deployIndex; i < deployIndex + sidingsInDepotSize; i++) {
-				final Train train = deployableSidings.get(sidingsInDepot.get(i % sidingsInDepotSize).id);
+				final TrainServer train = deployableSidings.get(sidingsInDepot.get(i % sidingsInDepotSize).id);
 				if (train != null) {
 					lastDeployedMillis = System.currentTimeMillis();
 					deployIndex++;
@@ -246,7 +246,7 @@ public class Depot extends AreaBase {
 		for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
 			final int frequency = frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
 			if (frequency > 0) {
-				return Math.max(frequency * (1 + clientDepartureCount) - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
+				return Math.max(frequency - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
 			}
 		}
 		return -1;
