@@ -116,7 +116,7 @@ public class TrainClient extends Train {
 				lightRailAnnouncementCallback.announcementCallback(stopIndex, routeIds);
 			}
 
-			final CalculateRenderCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+			final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
 				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
@@ -147,7 +147,7 @@ public class TrainClient extends Train {
 				clientPercentageZ += movement.z / realSpacingRender;
 				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				if (currentRidingCar == newRidingCar) {
-					moveClient.calculateRenderCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+					moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 				} else {
 					calculateCar(world, positions, newRidingCar, doorValue, moveClient);
 				}
@@ -158,12 +158,12 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean isRailBlocked(int checkIndex) {
+	protected boolean canDeploy(Depot depot) {
 		return false;
 	}
 
 	@Override
-	protected boolean canDeploy(Depot depot) {
+	protected boolean isRailBlocked(int checkIndex) {
 		return false;
 	}
 

@@ -160,19 +160,19 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		ridingEntities.forEach(packet::writeUuid);
 	}
 
-	public boolean getIsOnRoute() {
+	public final boolean getIsOnRoute() {
 		return isOnRoute;
 	}
 
-	public float getRailProgress() {
+	public final float getRailProgress() {
 		return railProgress;
 	}
 
-	public boolean closeToDepot(int trainDistance) {
+	public final boolean closeToDepot(int trainDistance) {
 		return !isOnRoute || railProgress < trainDistance + railLength;
 	}
 
-	protected void simulateTrain(World world, float ticksElapsed, Depot depot) {
+	protected final void simulateTrain(World world, float ticksElapsed, Depot depot) {
 		if (world == null) {
 			return;
 		}
@@ -288,22 +288,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
-	}
-
-	protected abstract boolean canDeploy(Depot depot);
-
-	protected abstract void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress);
-
-	protected abstract void simulateCar(
-			World world, int ridingCar, float ticksElapsed,
-			double carX, double carY, double carZ, float carYaw, float carPitch,
-			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
-			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
-	);
-
-	protected void calculateCar(World world, Vec3d[] positions, int index, float doorValue, CalculateRenderCallback calculateRenderCallback) {
+	protected final void calculateCar(World world, Vec3d[] positions, int index, float doorValue, CalculateCarCallback calculateCarCallback) {
 		final Vec3d pos1 = positions[index];
 		final Vec3d pos2 = positions[index + 1];
 
@@ -318,9 +303,47 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 
-			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
+			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
 	}
+
+	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
+		for (int i = 0; i < path.size(); i++) {
+			final float tempRailProgress = getRailProgress(car, trainSpacing);
+			final float tempDistance = distances.get(i);
+			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
+				return i;
+			}
+		}
+		return path.size() - 1;
+	}
+
+	protected final float getRailSpeed(int railIndex) {
+		final RailType thisRail = path.get(railIndex).rail.railType;
+		final float railSpeed;
+		if (thisRail.canAccelerate) {
+			railSpeed = thisRail.maxBlocksPerTick;
+		} else {
+			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
+			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.WOODEN.maxBlocksPerTick, speed);
+		}
+		return railSpeed;
+	}
+
+	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
+	}
+
+	protected abstract void simulateCar(
+			World world, int ridingCar, float ticksElapsed,
+			double carX, double carY, double carZ, float carYaw, float carPitch,
+			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
+			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
+	);
+
+	protected abstract void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress);
+
+	protected abstract boolean canDeploy(Depot depot);
 
 	protected abstract boolean isRailBlocked(int checkIndex);
 
@@ -330,17 +353,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	private float getRailProgress(int car, int trainSpacing) {
 		return railProgress - car * trainSpacing;
-	}
-
-	protected int getIndex(int car, int trainSpacing, boolean roundDown) {
-		for (int i = 0; i < path.size(); i++) {
-			final float tempRailProgress = getRailProgress(car, trainSpacing);
-			final float tempDistance = distances.get(i);
-			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
-				return i;
-			}
-		}
-		return path.size() - 1;
 	}
 
 	private Vec3d getRoutePosition(int car, int trainSpacing) {
@@ -412,18 +424,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return hasPlatform;
 	}
 
-	protected float getRailSpeed(int railIndex) {
-		final RailType thisRail = path.get(railIndex).rail.railType;
-		final float railSpeed;
-		if (thisRail.canAccelerate) {
-			railSpeed = thisRail.maxBlocksPerTick;
-		} else {
-			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
-			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.WOODEN.maxBlocksPerTick, speed);
-		}
-		return railSpeed;
-	}
-
 	public static double getAverage(double a, double b) {
 		return (a + b) / 2;
 	}
@@ -433,7 +433,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@FunctionalInterface
-	protected interface CalculateRenderCallback {
-		void calculateRenderCallback(double x, double y, double z, float yaw, float pitch, double realSpacing, boolean doorLeftOpen, boolean doorRightOpen);
+	protected interface CalculateCarCallback {
+		void calculateCarCallback(double x, double y, double z, float yaw, float pitch, double realSpacing, boolean doorLeftOpen, boolean doorRightOpen);
 	}
 }

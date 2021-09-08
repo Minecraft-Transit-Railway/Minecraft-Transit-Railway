@@ -226,7 +226,6 @@ public class RenderTrains implements IGui {
 				});
 			}
 		}));
-		ClientData.depots.forEach(Depot::resetDepartureCount);
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemRailModifier);
