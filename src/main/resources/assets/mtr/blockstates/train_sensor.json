@@ -1,5 +1,10 @@
 {
-  "variants": {
-    "": { "model": "mtr:block/train_sensor" }
-  }
+	"variants": {
+		"powered=false": {
+			"model": "mtr:block/train_sensor_off"
+		},
+		"powered=true": {
+			"model": "mtr:block/train_sensor_on"
+		}
+	}
 }

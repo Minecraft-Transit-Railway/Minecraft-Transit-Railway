@@ -3,7 +3,6 @@ package mtr.data;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
-import mtr.block.BlockTrainSensor;
 import mtr.config.CustomResources;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
@@ -35,6 +34,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 
 	public static final float ACCELERATION = 0.01F;
+	protected static final int MAX_CHECK_DISTANCE = 32;
 
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
@@ -48,7 +48,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
-	private static final int DOOR_MAX_DISTANCE = 32;
 
 	public Train(long id, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -313,8 +312,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doTrainSensor = trainSensor(world, x, y, z, positions);
-
 
 			calculateRenderCallback.calculateRenderCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
@@ -367,7 +364,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private boolean openDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue) {
-		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, DOOR_MAX_DISTANCE, entity -> true) == null) {
+		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null) {
 			return false;
 		}
 

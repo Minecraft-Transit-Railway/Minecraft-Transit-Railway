@@ -1,9 +1,11 @@
 package mtr.data;
 
+import mtr.block.BlockTrainSensor;
 import mtr.config.CustomResources;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -105,6 +107,7 @@ public class TrainServer extends Train {
 				trainsInPlayerRange.get(player).add(this);
 			}
 		});
+		triggerTrainSensor(world, positions);
 	}
 
 	@Override
@@ -239,6 +242,23 @@ public class TrainServer extends Train {
 					final double coastingTicks = (distance - accelerationDistance) / railSpeed;
 					return new Pair<>(accelerationTicks + coastingTicks, railSpeed);
 				}
+			}
+		}
+	}
+
+	private void triggerTrainSensor(World world, Vec3d[] positions) {
+		final Vec3d frontPos = positions[reversed ? positions.length - 1 : 0];
+		if (world.getClosestPlayer(frontPos.x, frontPos.y, frontPos.z, MAX_CHECK_DISTANCE, entity -> true) == null) {
+			return;
+		}
+
+		for (int i = 0; i <= 3; i++) {
+			final BlockPos checkPos = new BlockPos(frontPos).down(i);
+			final Block block = world.getBlockState(checkPos).getBlock();
+			if (block instanceof BlockTrainSensor) {
+				world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
+				world.getBlockTickScheduler().schedule(checkPos, block, 20);
+				return;
 			}
 		}
 	}
