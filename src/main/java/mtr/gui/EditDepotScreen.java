@@ -207,7 +207,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -231,7 +231,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableText("gui.mtr.path_found");
 				} else {
-					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));

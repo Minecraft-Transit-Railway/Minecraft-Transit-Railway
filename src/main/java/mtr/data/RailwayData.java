@@ -2,11 +2,9 @@ package mtr.data;
 
 import mtr.MTR;
 import mtr.block.BlockRail;
-import mtr.gui.ClientData;
 import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.render.RenderTrains;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -205,7 +203,28 @@ public class RailwayData extends PersistentState implements IPacket {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, stations, platforms, routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				if (lastStation != null) {
+					if (!schedulesForPlatform.containsKey(platformId)) {
+						schedulesForPlatform.put(platformId, new HashSet<>());
+					}
+
+					final String destinationString;
+					if (thisRoute != null && thisRoute.isLightRailRoute) {
+						final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+						final String[] lastStationSplit = lastStation.name.split("\\|");
+						final StringBuilder destination = new StringBuilder();
+						for (final String lastStationSplitPart : lastStationSplit) {
+							destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+						}
+						destinationString = destination.length() > 0 ? destination.substring(1) : "";
+					} else {
+						destinationString = lastStation.name;
+					}
+
+					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
+				}
+			}));
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -387,6 +406,9 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public static <T extends AreaBase> T getAreaBySavedRail(Set<T> areas, SavedRailBase savedRail) {
+		if (savedRail == null) {
+			return null;
+		}
 		try {
 			final BlockPos pos = savedRail.getMidPos();
 			return areas.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
@@ -460,15 +482,15 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
-	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RenderTrains.RouteAndStationsCallback routeAndStationsCallback) {
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;
 		}
 
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
-			final Route thisRoute = ClientData.routeIdMap.get(routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? ClientData.routeIdMap.get(routeIds.get(i + 1)) : null;
+			final Route thisRoute = RailwayData.getDataById(routes, routeIds.get(i));
+			final Route nextRoute = i < routeIds.size() - 1 ? RailwayData.getDataById(routes, routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
@@ -476,9 +498,9 @@ public class RailwayData extends PersistentState implements IPacket {
 					sum--;
 				}
 				if (stopIndex < sum) {
-					final Station thisStation = ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference));
-					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
-					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : ClientData.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
+					final Station thisStation = RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(difference)));
+					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(difference + 1))) : null;
+					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(thisRoute.platformIds.size() - 1)));
 					routeAndStationsCallback.routeAndStationsCallback(thisRoute, nextRoute, thisStation, nextStation, lastStation);
 					return true;
 				}
@@ -593,5 +615,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		@Override
 		public void writePacket(PacketByteBuf packet) {
 		}
+	}
+
+	@FunctionalInterface
+	public interface RouteAndStationsCallback {
+		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
 	}
 }

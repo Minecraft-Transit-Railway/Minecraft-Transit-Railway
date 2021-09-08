@@ -5,12 +5,10 @@ import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -123,14 +121,6 @@ public class Siding extends SavedRailBase implements IPacket {
 			case KEY_UNLIMITED_TRAINS:
 				unlimitedTrains = packet.readBoolean();
 				break;
-			case KEY_PATH:
-				final int pathSize = packet.readInt();
-				path.clear();
-				for (int i = 0; i < pathSize; i++) {
-					path.add(new PathData(packet));
-				}
-				generateDistances();
-				break;
 			default:
 				super.update(key, packet);
 				break;
@@ -219,15 +209,6 @@ public class Siding extends SavedRailBase implements IPacket {
 
 				path.clear();
 				path.addAll(tempPath);
-
-				final PacketByteBuf packet = PacketByteBufs.create();
-				packet.writeLong(id);
-				packet.writeString(KEY_PATH);
-				packet.writeInt(tempPath.size());
-				tempPath.forEach(pathData -> pathData.writePacket(packet));
-				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SIDING, packet));
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -236,7 +217,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, TrainServer.WriteScheduleCallback writeScheduleCallback) {
 		if (depot == null) {
 			return;
 		}
@@ -247,7 +228,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform)) {
+			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, writeScheduleCallback)) {
 				trainsToSync.add(train);
 			}
 

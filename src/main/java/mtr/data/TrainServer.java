@@ -136,7 +136,7 @@ public class TrainServer extends Train {
 		}
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, WriteScheduleCallback writeScheduleCallback) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -146,7 +146,7 @@ public class TrainServer extends Train {
 
 		final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
 		if (offsetTicks >= 0) {
-			writeArrivalTimes(schedulesForPlatform, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+			writeArrivalTimes(writeScheduleCallback, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
 		}
 
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
@@ -179,20 +179,20 @@ public class TrainServer extends Train {
 		return path.size() - 1;
 	}
 
-	private void writeArrivalTimes(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainMapping, int trainLength, int trainSpacing) {
+	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainMapping, int trainLength, int trainSpacing) {
 		final int index = getIndex(0, trainSpacing, true);
-		final Pair<Double, Double> firstTimeAndSpeed = writeArrivalTime(schedulesForPlatform, routeIds, trainMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), ticksOffset, speed);
+		final Pair<Double, Double> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), ticksOffset, speed);
 
 		double currentTicks = firstTimeAndSpeed.getLeft() + ticksOffset;
 		double currentSpeed = firstTimeAndSpeed.getRight();
 		for (int i = index + 1; i < path.size(); i++) {
-			final Pair<Double, Double> timeAndSpeed = writeArrivalTime(schedulesForPlatform, routeIds, trainMapping, trainLength, i, 0, currentTicks, currentSpeed);
+			final Pair<Double, Double> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, i, 0, currentTicks, currentSpeed);
 			currentTicks += timeAndSpeed.getLeft();
 			currentSpeed = timeAndSpeed.getRight();
 		}
 	}
 
-	private Pair<Double, Double> writeArrivalTime(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, List<Long> routeIds, CustomResources.TrainMapping trainMapping, int trainLength, int index, float progress, double currentTicks, double currentSpeed) {
+	private Pair<Double, Double> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainMapping, int trainLength, int index, float progress, double currentTicks, double currentSpeed) {
 		final PathData pathData = path.get(index);
 		final Pair<Double, Double> timeAndSpeed = calculateTicksAndSpeed(getRailSpeed(index), pathData.rail.getLength(), progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
 
@@ -201,29 +201,7 @@ public class TrainServer extends Train {
 
 			if (pathData.savedRailBaseId != 0) {
 				final long arrivalMillis = System.currentTimeMillis() + (long) ((currentTicks + timeAndSpeed.getLeft()) * Depot.MILLIS_PER_TICK);
-				final long platformId = pathData.savedRailBaseId;
-				RailwayData.useRoutesAndStationsFromIndex(pathData.stopIndex - 1, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-					if (lastStation != null) {
-						if (!schedulesForPlatform.containsKey(platformId)) {
-							schedulesForPlatform.put(platformId, new HashSet<>());
-						}
-
-						final String destinationString;
-						if (thisRoute != null && thisRoute.isLightRailRoute) {
-							final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
-							final String[] lastStationSplit = lastStation.name.split("\\|");
-							final StringBuilder destination = new StringBuilder();
-							for (final String lastStationSplitPart : lastStationSplit) {
-								destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
-							}
-							destinationString = destination.length() > 0 ? destination.substring(1) : "";
-						} else {
-							destinationString = lastStation.name;
-						}
-
-						schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, platformId, destinationString, nextStation == null));
-					}
-				});
+				writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
 			}
 			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
 		} else {
@@ -279,5 +257,10 @@ public class TrainServer extends Train {
 				return;
 			}
 		}
+	}
+
+	@FunctionalInterface
+	public interface WriteScheduleCallback {
+		void writeScheduleCallback(long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
 	}
 }
