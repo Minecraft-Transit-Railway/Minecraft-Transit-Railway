@@ -1,10 +1,12 @@
 package mtr.data;
 
 import mtr.gui.ClientData;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -165,6 +167,16 @@ public class TrainClient extends Train {
 	@Override
 	protected boolean isRailBlocked(int checkIndex) {
 		return false;
+	}
+
+	@Override
+	protected boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ) {
+		return false;
+	}
+
+	@Override
+	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue) {
+		return true;
 	}
 
 	public void render(World world, float ticksElapsed, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, AnnouncementCallback lightRailAnnouncementCallback) {
