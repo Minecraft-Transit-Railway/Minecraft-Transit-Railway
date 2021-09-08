@@ -35,6 +35,7 @@ public interface IPacket {
 	Identifier PACKET_UPDATE_TRAINS = new Identifier(MTR.MOD_ID, "update_trains");
 	Identifier PACKET_DELETE_TRAINS = new Identifier(MTR.MOD_ID, "delete_trains");
 	Identifier PACKET_UPDATE_TRAIN_RIDING_POSITION = new Identifier(MTR.MOD_ID, "update_train_riding_position");
+	Identifier PACKET_UPDATE_SCHEDULE = new Identifier(MTR.MOD_ID, "update_schedule");
 
 	int MAX_PACKET_BYTES = 1048576;
 }

@@ -91,6 +91,22 @@ public final class ClientData {
 		}
 	}
 
+	public static void updateSchedule(MinecraftClient client, PacketByteBuf packet) {
+		final Map<Long, Set<Route.ScheduleEntry>> tempSchedulesForPlatform = new HashMap<>();
+		final int platformCount = packet.readInt();
+		for (int i = 0; i < platformCount; i++) {
+			final long platformId = packet.readLong();
+			final int scheduleCount = packet.readInt();
+			for (int j = 0; j < scheduleCount; j++) {
+				if (!tempSchedulesForPlatform.containsKey(platformId)) {
+					tempSchedulesForPlatform.put(platformId, new HashSet<>());
+				}
+				tempSchedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(packet));
+			}
+		}
+		client.execute(() -> schedulesForPlatform = tempSchedulesForPlatform);
+	}
+
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
 		stations = deserializeData(packetCopy, Station::new);
@@ -146,10 +162,7 @@ public final class ClientData {
 						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platform.id), stationDetails);
 					}).collect(Collectors.toList())));
 
-					sidings.forEach(siding -> siding.setSidingData(MinecraftClient.getInstance().world, depots.stream().filter(depot -> {
-						final BlockPos sidingMidPos = siding.getMidPos();
-						return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
-					}).findFirst().orElse(null), rails));
+					sidings.forEach(siding -> siding.setSidingData(MinecraftClient.getInstance().world, RailwayData.getAreaBySavedRail(depots, siding), rails));
 					break;
 				case 1:
 					writeSavedRailMaps(stations, platforms, platformsWithOffset, platformsInStation);

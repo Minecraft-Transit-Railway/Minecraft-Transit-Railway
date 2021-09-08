@@ -173,17 +173,17 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 	// TODO temporary code end
 
-	public static class ScheduleEntry {
+	public static class ScheduleEntry implements Comparable<ScheduleEntry> {
 
-		public final double arrivalMillis;
-		public final double departureMillis;
+		public final long arrivalMillis;
+		public final long departureMillis;
 		public final TrainType trainType;
 		public final int trainLength;
 		public final long platformId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(double arrivalMillis, double departureMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
+		public ScheduleEntry(long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.departureMillis = departureMillis;
 			this.trainType = trainType;
@@ -191,6 +191,35 @@ public final class Route extends NameColorDataBase implements IGui {
 			this.platformId = platformId;
 			this.destination = destination;
 			this.isTerminating = isTerminating;
+		}
+
+		public ScheduleEntry(PacketByteBuf packet) {
+			arrivalMillis = packet.readLong();
+			departureMillis = packet.readLong();
+			trainType = TrainType.values()[packet.readInt()];
+			trainLength = packet.readInt();
+			platformId = packet.readLong();
+			destination = packet.readString(PACKET_STRING_READ_LENGTH);
+			isTerminating = packet.readBoolean();
+		}
+
+		public void writePacket(PacketByteBuf packet) {
+			packet.writeLong(arrivalMillis);
+			packet.writeLong(departureMillis);
+			packet.writeInt(trainType.ordinal());
+			packet.writeInt(trainLength);
+			packet.writeLong(platformId);
+			packet.writeString(destination);
+			packet.writeBoolean(isTerminating);
+		}
+
+		@Override
+		public int compareTo(ScheduleEntry o) {
+			if (arrivalMillis == o.arrivalMillis) {
+				return destination.compareTo(o.destination);
+			} else {
+				return arrivalMillis > o.arrivalMillis ? 1 : -1;
+			}
 		}
 	}
 

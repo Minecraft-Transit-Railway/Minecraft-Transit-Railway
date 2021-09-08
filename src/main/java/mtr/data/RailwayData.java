@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.MTR;
 import mtr.block.BlockRail;
 import mtr.gui.ClientData;
 import mtr.mixin.PlayerTeleportationStateAccessor;
@@ -22,6 +23,7 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RailwayData extends PersistentState implements IPacket {
 
@@ -47,6 +49,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public static final int RAIL_UPDATE_DISTANCE = 64;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
+	private static final int SCHEDULE_UPDATE_TICKS = 100;
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -194,14 +197,15 @@ public class RailwayData extends PersistentState implements IPacket {
 
 		trainPositions.remove(0);
 		trainPositions.add(new HashSet<>());
-		final Set<TrainServer> trainsToSync = new HashSet<>();
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
+		final Set<TrainServer> trainsToSync = new HashSet<>();
+		final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync);
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -228,7 +232,9 @@ public class RailwayData extends PersistentState implements IPacket {
 				final PacketByteBuf packet = PacketByteBufs.create();
 				packet.writeInt(trainsToRemove.size());
 				trainsToRemove.forEach(train -> packet.writeLong(train.id));
-				ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_DELETE_TRAINS, packet);
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_DELETE_TRAINS, packet);
+				}
 			}
 		});
 
@@ -244,12 +250,44 @@ public class RailwayData extends PersistentState implements IPacket {
 				final PacketByteBuf packet = PacketByteBufs.create();
 				packet.writeInt(trainsToUpdate.size());
 				trainsToUpdate.forEach(train -> train.writePacket(packet));
-				ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAINS, packet);
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAINS, packet);
+				}
 			}
 		});
 
 		trainsInPlayerRange.clear();
 		trainsInPlayerRange.putAll(newTrainsInPlayerRange);
+
+		if (MTR.isGameTickInterval(SCHEDULE_UPDATE_TICKS)) {
+			world.getPlayers().forEach(player -> {
+				final Set<Long> platformIds = platforms.stream().filter(platform -> {
+					if (platform.isCloseToSavedRail(player.getBlockPos(), PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
+						return true;
+					}
+					final Station station = getAreaBySavedRail(stations, platform);
+					return station != null && station.inArea(player.getBlockPos().getX(), player.getBlockPos().getZ());
+				}).map(platform -> platform.id).collect(Collectors.toSet());
+
+				if (!platformIds.isEmpty()) {
+					final PacketByteBuf packet = PacketByteBufs.create();
+					packet.writeInt(platformIds.size());
+					platformIds.forEach(platformId -> {
+						packet.writeLong(platformId);
+						final Set<Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
+						if (scheduleEntries == null) {
+							packet.writeInt(0);
+						} else {
+							packet.writeInt(scheduleEntries.size());
+							scheduleEntries.forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
+						}
+					});
+					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+						ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SCHEDULE, packet);
+					}
+				}
+			});
+		}
 
 		markDirty();
 	}
