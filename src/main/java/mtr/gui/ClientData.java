@@ -29,7 +29,6 @@ public final class ClientData {
 	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
 	public static Map<BlockPos, List<Siding>> sidingsWithOffset = new HashMap<>();
 	public static Map<Long, Map<Integer, ColorNamePair>> routesInStation = new HashMap<>();
-	public static Map<Long, String> stationNames = new HashMap<>();
 	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
 	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 
@@ -149,7 +148,6 @@ public final class ClientData {
 
 					depots.forEach(depot -> depot.routeIds.removeIf(routeId -> RailwayData.getDataById(routes, routeId) == null));
 
-					stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
 					platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
 						final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
 							final Station station = platformIdToStation.get(platformId);

@@ -37,6 +37,19 @@ public class TrainServer extends Train {
 	}
 
 	@Override
+	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
+		canDeploy = false;
+		isOnRoute = true;
+		stopCounter = 0;
+		speed = ACCELERATION;
+		if (isOppositeRail) {
+			railProgress += trainLength * trainSpacing;
+			reversed = !reversed;
+		}
+		nextStoppingIndex = getNextStoppingIndex(trainSpacing);
+	}
+
+	@Override
 	protected void simulateCar(
 			World world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
@@ -107,19 +120,6 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
-		canDeploy = false;
-		isOnRoute = true;
-		stopCounter = 0;
-		speed = ACCELERATION;
-		if (isOppositeRail) {
-			railProgress += trainLength * trainSpacing;
-			reversed = !reversed;
-		}
-		nextStoppingIndex = getNextStoppingIndex(trainSpacing);
-	}
-
-	@Override
 	protected boolean canDeploy(Depot depot) {
 		if (path.size() > 1 && depot != null) {
 			depot.requestDeploy(sidingId, this);
@@ -136,7 +136,7 @@ public class TrainServer extends Train {
 		}
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, WriteScheduleCallback writeScheduleCallback) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, WriteScheduleCallback writeScheduleCallback, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -146,7 +146,7 @@ public class TrainServer extends Train {
 
 		final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
 		if (offsetTicks >= 0) {
-			writeArrivalTimes(writeScheduleCallback, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+			writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
 		}
 
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
@@ -179,13 +179,13 @@ public class TrainServer extends Train {
 		return path.size() - 1;
 	}
 
-	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainMapping, int trainLength, int trainSpacing) {
+	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, boolean isUnlimited, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainMapping, int trainLength, int trainSpacing) {
 		final int index = getIndex(0, trainSpacing, true);
 		final Pair<Double, Double> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), ticksOffset, speed);
 
 		double currentTicks = firstTimeAndSpeed.getLeft() + ticksOffset;
 		double currentSpeed = firstTimeAndSpeed.getRight();
-		for (int i = index + 1; i < path.size(); i++) {
+		for (int i = index + 1; i < path.size() + (isUnlimited ? 0 : index + 1); i++) {
 			final Pair<Double, Double> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, i, 0, currentTicks, currentSpeed);
 			currentTicks += timeAndSpeed.getLeft();
 			currentSpeed = timeAndSpeed.getRight();
@@ -193,11 +193,12 @@ public class TrainServer extends Train {
 	}
 
 	private Pair<Double, Double> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainMapping, int trainLength, int index, float progress, double currentTicks, double currentSpeed) {
-		final PathData pathData = path.get(index);
-		final Pair<Double, Double> timeAndSpeed = calculateTicksAndSpeed(getRailSpeed(index), pathData.rail.getLength(), progress, currentSpeed, pathData.dwellTime > 0 || index == nextStoppingIndex);
+		final int indexWrapped = index % path.size();
+		final PathData pathData = path.get(indexWrapped);
+		final Pair<Double, Double> timeAndSpeed = calculateTicksAndSpeed(getRailSpeed(indexWrapped), pathData.rail.getLength(), progress, currentSpeed, pathData.dwellTime > 0 || indexWrapped == nextStoppingIndex);
 
 		if (pathData.dwellTime > 0) {
-			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (index == nextStoppingIndex ? stopCounter : 0), 0);
+			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (indexWrapped == nextStoppingIndex ? stopCounter : 0), 0);
 
 			if (pathData.savedRailBaseId != 0) {
 				final long arrivalMillis = System.currentTimeMillis() + (long) ((currentTicks + timeAndSpeed.getLeft()) * Depot.MILLIS_PER_TICK);

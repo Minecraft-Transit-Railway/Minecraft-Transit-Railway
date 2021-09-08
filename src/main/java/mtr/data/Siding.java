@@ -201,14 +201,13 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		minecraftServer.execute(() -> {
 			try {
+				path.clear();
 				if (tempPath.isEmpty()) {
 					generateDefaultPath(rails);
+				} else {
+					path.addAll(tempPath);
 				}
-
 				generateDistances();
-
-				path.clear();
-				path.addAll(tempPath);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -228,7 +227,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, writeScheduleCallback)) {
+			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, writeScheduleCallback, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
 
@@ -254,16 +253,14 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (world != null && !world.isClient()) {
-			if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-				final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances);
-				trains.add(train);
-				trainsToSync.add(train);
-			}
+		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
+			final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances);
+			trains.add(train);
+			trainsToSync.add(train);
+		}
 
-			if (!trainsToRemove.isEmpty()) {
-				trainsToRemove.forEach(trains::remove);
-			}
+		if (!trainsToRemove.isEmpty()) {
+			trainsToRemove.forEach(trains::remove);
 		}
 	}
 
