@@ -148,7 +148,7 @@ public class RenderTrains implements IGui {
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Text text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -173,7 +173,7 @@ public class RenderTrains implements IGui {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
 					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
@@ -219,7 +219,7 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
 					}
@@ -385,11 +385,6 @@ public class RenderTrains implements IGui {
 			default:
 				return null;
 		}
-	}
-
-	@FunctionalInterface
-	public interface RouteAndStationsCallback {
-		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
 	}
 
 	@FunctionalInterface
