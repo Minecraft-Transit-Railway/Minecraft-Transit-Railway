@@ -1,11 +1,15 @@
 package mtr.data;
 
+import mtr.block.BlockPSDAPGDoorBase;
+import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainSensor;
 import mtr.config.CustomResources;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -14,6 +18,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -116,7 +121,24 @@ public class TrainServer extends Train {
 				trainsInPlayerRange.get(player).add(this);
 			}
 		});
-		triggerTrainSensor(world, positions);
+
+		final Vec3d frontPos = positions[reversed ? positions.length - 1 : 0];
+		if (!skipScanBlocks(world, frontPos.x, frontPos.y, frontPos.z)) {
+			for (int i = 0; i <= 3; i++) {
+				final BlockPos checkPos = new BlockPos(frontPos).down(i);
+				final Block block = world.getBlockState(checkPos).getBlock();
+				if (block instanceof BlockTrainSensor) {
+					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
+					world.getBlockTickScheduler().schedule(checkPos, block, 20);
+					break;
+				} else if (block instanceof BlockTrainAnnouncer) {
+					final BlockEntity entity = world.getBlockEntity(checkPos);
+					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
+						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -134,6 +156,33 @@ public class TrainServer extends Train {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	protected boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ) {
+		return world.getClosestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null;
+	}
+
+	@Override
+	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue) {
+		if (block instanceof BlockPSDAPGDoorBase) {
+			for (int i = -1; i <= 1; i++) {
+				final BlockPos doorPos = checkPos.up(i);
+				final BlockState state = world.getBlockState(doorPos);
+				final Block doorBlock = state.getBlock();
+
+				if (doorBlock instanceof BlockPSDAPGDoorBase) {
+					final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
+					world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
+
+					if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(checkPos.up(), doorBlock)) {
+						world.getBlockTickScheduler().schedule(new BlockPos(doorPos), doorBlock, 20);
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, WriteScheduleCallback writeScheduleCallback, boolean isUnlimited) {
@@ -239,23 +288,6 @@ public class TrainServer extends Train {
 					final double coastingTicks = (distance - accelerationDistance) / railSpeed;
 					return new Pair<>(accelerationTicks + coastingTicks, railSpeed);
 				}
-			}
-		}
-	}
-
-	private void triggerTrainSensor(World world, Vec3d[] positions) {
-		final Vec3d frontPos = positions[reversed ? positions.length - 1 : 0];
-		if (world.getClosestPlayer(frontPos.x, frontPos.y, frontPos.z, MAX_CHECK_DISTANCE, entity -> true) == null) {
-			return;
-		}
-
-		for (int i = 0; i <= 3; i++) {
-			final BlockPos checkPos = new BlockPos(frontPos).down(i);
-			final Block block = world.getBlockState(checkPos).getBlock();
-			if (block instanceof BlockTrainSensor) {
-				world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
-				world.getBlockTickScheduler().schedule(checkPos, block, 20);
-				return;
 			}
 		}
 	}

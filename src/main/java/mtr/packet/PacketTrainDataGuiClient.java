@@ -1,15 +1,15 @@
 package mtr.packet;
 
+import com.mojang.text2speech.Narrator;
 import io.netty.buffer.ByteBuf;
+import mtr.config.Config;
 import mtr.data.*;
-import mtr.gui.ClientData;
-import mtr.gui.DashboardScreen;
-import mtr.gui.RailwaySignScreen;
-import mtr.gui.TicketMachineScreen;
+import mtr.gui.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -47,6 +47,27 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof TicketMachineScreen)) {
 				minecraftClient.setScreen(new TicketMachineScreen(balance));
+			}
+		});
+	}
+
+	public static void openTrainAnnouncerScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof TrainAnnouncerScreen)) {
+				minecraftClient.setScreen(new TrainAnnouncerScreen(pos));
+			}
+		});
+	}
+
+	public static void announceS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final String message = packet.readString();
+		minecraftClient.execute(() -> {
+			if (Config.useTTSAnnouncements()) {
+				Narrator.getNarrator().say(message, true);
+			}
+			if (Config.showAnnouncementMessages() && minecraftClient.player != null) {
+				minecraftClient.player.sendMessage(Text.of(message), false);
 			}
 		});
 	}
@@ -167,5 +188,12 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(addAmount);
 		packet.writeInt(emeralds);
 		ClientPlayNetworking.send(PACKET_ADD_BALANCE, packet);
+	}
+
+	public static void sendTrainAnnouncerMessageC2S(BlockPos pos, String message) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos);
+		packet.writeString(message);
+		ClientPlayNetworking.send(PACKET_TRAIN_ANNOUNCER, packet);
 	}
 }

@@ -2,6 +2,7 @@ package mtr.packet;
 
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
+import mtr.block.BlockTrainAnnouncer;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -42,6 +43,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeInt(TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore());
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
+	}
+
+	public static void openTrainAnnouncerScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(blockPos);
+		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
+	}
+
+	public static void announceS2C(ServerPlayerEntity player, String message) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeString(message);
+		ServerPlayNetworking.send(player, PACKET_ANNOUNCE, packet);
 	}
 
 	public static void createRailS2C(World world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
@@ -184,6 +197,17 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 			Inventories.remove(player.getInventory(), itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
+		});
+	}
+
+	public static void receiveTrainAnnouncerMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(pos);
+			if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
+				((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).setMessage(message);
+			}
 		});
 	}
 

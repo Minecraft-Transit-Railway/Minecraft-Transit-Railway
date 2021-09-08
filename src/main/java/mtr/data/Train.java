@@ -1,13 +1,11 @@
 package mtr.data;
 
 import mtr.block.BlockPSDAPGBase;
-import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPlatform;
 import mtr.config.CustomResources;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +34,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	public static final float ACCELERATION = 0.01F;
 	protected static final int MAX_CHECK_DISTANCE = 32;
+	protected static final int DOOR_MOVE_TIME = 64;
+	private static final int DOOR_DELAY = 20;
 
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
@@ -46,9 +46,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
-
-	private static final int DOOR_DELAY = 20;
-	private static final int DOOR_MOVE_TIME = 64;
 
 	public Train(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -300,8 +297,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final double realSpacing = pos2.distanceTo(pos1);
 			final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
-			final boolean doorLeftOpen = openDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doorRightOpen = openDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
+			final boolean doorLeftOpen = scanDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
+			final boolean doorRightOpen = scanDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
 
 			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
@@ -347,6 +344,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	protected abstract boolean isRailBlocked(int checkIndex);
 
+	protected abstract boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ);
+
+	protected abstract boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue);
+
 	private boolean isOppositeRail() {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
 	}
@@ -380,8 +381,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	private boolean openDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue) {
-		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null) {
+	private boolean scanDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue) {
+		if (skipScanBlocks(world, trainX, trainY, trainZ)) {
 			return false;
 		}
 
@@ -396,25 +397,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					final Block block = world.getBlockState(checkPos).getBlock();
 
 					if (block instanceof BlockPlatform || block instanceof BlockPSDAPGBase) {
-						if (world.isClient()) {
+						if (openDoors(world, block, checkPos, doorValue)) {
 							return true;
-						} else if (block instanceof BlockPSDAPGDoorBase) {
-							for (int i = -1; i <= 1; i++) {
-								final BlockPos doorPos = checkPos.up(i);
-								final BlockState state = world.getBlockState(doorPos);
-								final Block doorBlock = state.getBlock();
-
-								if (doorBlock instanceof BlockPSDAPGDoorBase) {
-									final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
-									world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
-
-									if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(checkPos.up(), doorBlock)) {
-										world.getBlockTickScheduler().schedule(new BlockPos(doorPos), doorBlock, 20);
-									}
-								}
-							}
 						}
-
 						hasPlatform = true;
 					}
 				}
