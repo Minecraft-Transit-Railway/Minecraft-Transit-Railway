@@ -35,6 +35,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private final float railLength;
 
 	public static final float ACCELERATION = 0.01F;
+	protected static final int MAX_CHECK_DISTANCE = 32;
 
 	private static final String KEY_SPEED = "speed";
 	private static final String KEY_RAIL_PROGRESS = "rail_progress";
@@ -48,7 +49,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	private static final int DOOR_DELAY = 20;
 	private static final int DOOR_MOVE_TIME = 64;
-	private static final int DOOR_MAX_DISTANCE = 32;
 
 	public Train(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -369,7 +369,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private boolean openDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue) {
-		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, DOOR_MAX_DISTANCE, entity -> true) == null) {
+		if (!world.isClient() && world.getClosestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null) {
 			return false;
 		}
 

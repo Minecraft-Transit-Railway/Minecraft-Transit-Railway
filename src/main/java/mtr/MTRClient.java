@@ -68,6 +68,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENTRANCE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_EXIT, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENQUIRY, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_SENSOR, RenderLayer.getCutout());
 
 		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
 		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
