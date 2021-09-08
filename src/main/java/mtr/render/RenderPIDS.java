@@ -119,13 +119,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			}
 
 			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-			scheduleList.sort((a, b) -> {
-				if (a.arrivalMillis == b.arrivalMillis) {
-					return a.destination.compareTo(b.destination);
-				} else {
-					return a.arrivalMillis > b.arrivalMillis ? 1 : -1;
-				}
-			});
+			Collections.sort(scheduleList);
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
@@ -155,7 +149,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final String destinationString = destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
 
 				final Text arrivalText;
-				final int seconds = (int) Math.floor(currentSchedule.arrivalMillis / 1000);
+				final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 				if (seconds >= 60) {
 					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");

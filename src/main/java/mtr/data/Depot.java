@@ -30,8 +30,8 @@ public class Depot extends AreaBase {
 	public static final int HOURS_IN_DAY = 24;
 	public static final int TRAIN_FREQUENCY_MULTIPLIER = 4;
 	public static final int TICKS_PER_HOUR = 1000;
+	public static final int MILLIS_PER_TICK = 50;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-	private static final int MILLIS_PER_TICK = 50;
 	private static final int MAX_DEPLOYED_MILLIS = 3600000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";

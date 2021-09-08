@@ -175,6 +175,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.updateTrains(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.deleteTrains(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
 
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
