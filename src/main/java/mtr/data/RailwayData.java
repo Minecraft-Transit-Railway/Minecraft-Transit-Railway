@@ -1,9 +1,11 @@
 package mtr.data;
 
 import mtr.block.BlockRail;
+import mtr.gui.ClientData;
 import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.render.RenderTrains;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 
@@ -37,12 +40,13 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
+	private final Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
+	public static final int RAIL_UPDATE_DISTANCE = 64;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
-	private static final int RAIL_UPDATE_DISTANCE = 64;
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -154,14 +158,13 @@ public class RailwayData extends PersistentState implements IPacket {
 		// TODO temporary code end
 
 		world.getPlayers().forEach(player -> {
-			final BlockPos playerPos = player.getBlockPos();
+			final BlockPos playerBlockPos = player.getBlockPos();
+			final Vec3d playerPos = player.getPos();
 
-			if (!playerLastUpdatedPositions.containsKey(player) || playerLastUpdatedPositions.get(player).getManhattanDistance(playerPos) > PLAYER_MOVE_UPDATE_THRESHOLD) {
-				final PacketByteBuf packet = PacketByteBufs.create();
-
+			if (!playerLastUpdatedPositions.containsKey(player) || playerLastUpdatedPositions.get(player).getManhattanDistance(playerBlockPos) > PLAYER_MOVE_UPDATE_THRESHOLD) {
 				final Map<BlockPos, Map<BlockPos, Rail>> railsToAdd = new HashMap<>();
 				rails.forEach((startPos, blockPosRailMap) -> blockPosRailMap.forEach((endPos, rail) -> {
-					if (new Box(startPos, endPos).expand(RAIL_UPDATE_DISTANCE).contains(player.getPos())) {
+					if (new Box(startPos, endPos).expand(RAIL_UPDATE_DISTANCE).contains(playerPos)) {
 						if (!railsToAdd.containsKey(startPos)) {
 							railsToAdd.put(startPos, new HashMap<>());
 						}
@@ -169,6 +172,7 @@ public class RailwayData extends PersistentState implements IPacket {
 					}
 				}));
 
+				final PacketByteBuf packet = PacketByteBufs.create();
 				packet.writeInt(railsToAdd.size());
 				railsToAdd.forEach((posStart, railMap) -> {
 					packet.writeBlockPos(posStart);
@@ -182,7 +186,7 @@ public class RailwayData extends PersistentState implements IPacket {
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
 					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_WRITE_RAILS, packet);
 				}
-				playerLastUpdatedPositions.put(player, playerPos);
+				playerLastUpdatedPositions.put(player, playerBlockPos);
 			}
 		});
 
@@ -191,12 +195,14 @@ public class RailwayData extends PersistentState implements IPacket {
 
 		trainPositions.remove(0);
 		trainPositions.add(new HashSet<>());
+		final Set<TrainServer> trainsToSync = new HashSet<>();
+		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(null, 1, trainPositions, null, null, null, null, null, null);
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -211,11 +217,46 @@ public class RailwayData extends PersistentState implements IPacket {
 		});
 		playersToRemove.forEach(playerRidingCoolDown::remove);
 
+		trainsInPlayerRange.forEach((player, trains) -> {
+			final Set<TrainServer> trainsToRemove = new HashSet<>();
+			trains.forEach(train -> {
+				if (!newTrainsInPlayerRange.containsKey(player) || !newTrainsInPlayerRange.get(player).contains(train)) {
+					trainsToRemove.add(train);
+				}
+			});
+
+			if (!trainsToRemove.isEmpty()) {
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeInt(trainsToRemove.size());
+				trainsToRemove.forEach(train -> packet.writeLong(train.id));
+				ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_DELETE_TRAINS, packet);
+			}
+		});
+
+		newTrainsInPlayerRange.forEach((player, trains) -> {
+			final Set<TrainServer> trainsToUpdate = new HashSet<>();
+			trains.forEach(train -> {
+				if (trainsToSync.contains(train) || !trainsInPlayerRange.containsKey(player) || !trainsInPlayerRange.get(player).contains(train)) {
+					trainsToUpdate.add(train);
+				}
+			});
+
+			if (!trainsToUpdate.isEmpty()) {
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeInt(trainsToUpdate.size());
+				trainsToUpdate.forEach(train -> train.writePacket(packet));
+				ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAINS, packet);
+			}
+		});
+
+		trainsInPlayerRange.clear();
+		trainsInPlayerRange.putAll(newTrainsInPlayerRange);
+
 		markDirty();
 	}
 
 	public void broadcastToPlayer(ServerPlayerEntity serverPlayerEntity) {
-		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots, rails);
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots);
 	}
 
 	public void updatePlayerRiding(PlayerEntity player) {
@@ -380,6 +421,33 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, RenderTrains.RouteAndStationsCallback routeAndStationsCallback) {
+		if (stopIndex < 0) {
+			return false;
+		}
+
+		int sum = 0;
+		for (int i = 0; i < routeIds.size(); i++) {
+			final Route thisRoute = ClientData.routeIdMap.get(routeIds.get(i));
+			final Route nextRoute = i < routeIds.size() - 1 ? ClientData.routeIdMap.get(routeIds.get(i + 1)) : null;
+			if (thisRoute != null) {
+				final int difference = stopIndex - sum;
+				sum += thisRoute.platformIds.size();
+				if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
+					sum--;
+				}
+				if (stopIndex < sum) {
+					final Station thisStation = ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference));
+					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? ClientData.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
+					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : ClientData.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
+					routeAndStationsCallback.routeAndStationsCallback(thisRoute, nextRoute, thisStation, nextStation, lastStation);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static boolean isBetween(double value, double value1, double value2) {

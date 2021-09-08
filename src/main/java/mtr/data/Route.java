@@ -162,8 +162,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	// TODO temporary code start
 	public void generateRails(World world, RailwayData railwayData) {
 		path.forEach(pathDataDeleteThisLater -> {
-			final Pos3f pos3f = pathDataDeleteThisLater.getPosition(0);
-			final BlockEntity entity = world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z));
+			final BlockEntity entity = world.getBlockEntity(new BlockPos(pathDataDeleteThisLater.getPosition(0)));
 			if (entity instanceof BlockRail.TileEntityRail) {
 				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
 					railwayData.addRail(entity.getPos(), blockPos, rail, false);
@@ -176,15 +175,15 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public static class ScheduleEntry {
 
-		public final float arrivalMillis;
-		public final float departureMillis;
+		public final double arrivalMillis;
+		public final double departureMillis;
 		public final TrainType trainType;
 		public final int trainLength;
 		public final long platformId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
+		public ScheduleEntry(double arrivalMillis, double departureMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.departureMillis = departureMillis;
 			this.trainType = trainType;
