@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.gui.ClientData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.MovementType;
@@ -24,7 +25,7 @@ public class TrainClient extends Train {
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
 
-	private final List<Long> routeIds = new ArrayList<>(); // TODO
+	private final List<Long> routeIds;
 	private final List<Double> offset = new ArrayList<>();
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
@@ -33,6 +34,9 @@ public class TrainClient extends Train {
 
 	public TrainClient(PacketByteBuf packet) {
 		super(packet);
+		final Siding siding = RailwayData.getDataById(ClientData.sidings, sidingId);
+		final Depot depot = siding == null ? null : RailwayData.getAreaBySavedRail(ClientData.depots, siding);
+		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 	}
 
 	@Override
@@ -61,14 +65,17 @@ public class TrainClient extends Train {
 		}
 
 		if (renderConnectionCallback != null && ridingCar > 0 && trainType.shouldRenderConnection) {
+			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
+			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
+			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
 
 			final float xStart = trainType.width / 2F - CONNECTION_X_OFFSET;
 			final float zStart = trainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
 
-			final Vec3d prevPos1 = new Vec3d(xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-			final Vec3d prevPos2 = new Vec3d(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-			final Vec3d prevPos3 = new Vec3d(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
-			final Vec3d prevPos4 = new Vec3d(-xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+			final Vec3d prevPos1 = new Vec3d(xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos2 = new Vec3d(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos3 = new Vec3d(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos4 = new Vec3d(-xStart, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
 
 			final Vec3d thisPos1 = new Vec3d(-xStart, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 			final Vec3d thisPos2 = new Vec3d(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
@@ -81,6 +88,7 @@ public class TrainClient extends Train {
 
 	@Override
 	protected void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+		offset.clear();
 		final ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
 		if (clientPlayer == null) {
 			return;
@@ -108,13 +116,11 @@ public class TrainClient extends Train {
 				lightRailAnnouncementCallback.announcementCallback(stopIndex, routeIds);
 			}
 
-			calculateCar(world, positions, (int) Math.floor(clientPercentageZ), doorValue, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
+			final CalculateRenderCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
-				clientPercentageX += movement.x / trainType.width;
-				clientPercentageZ += movement.z / realSpacingRender;
+				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
-				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : (int) Math.floor(clientPercentageZ) + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : (int) Math.floor(clientPercentageZ) + 0.95F) - 0.01F);
+				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : newRidingCar + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : newRidingCar + 0.95F) - 0.01F);
 
 				clientPlayer.fallDistance = 0;
 				clientPlayer.setVelocity(0, 0, 0);
@@ -132,6 +138,19 @@ public class TrainClient extends Train {
 				}
 
 				clientPrevYaw = yaw;
+			};
+
+			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
+			calculateCar(world, positions, currentRidingCar, doorValue, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
+				clientPercentageX += movement.x / trainType.width;
+				clientPercentageZ += movement.z / realSpacingRender;
+				final int newRidingCar = (int) Math.floor(clientPercentageZ);
+				if (currentRidingCar == newRidingCar) {
+					moveClient.calculateRenderCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+				} else {
+					calculateCar(world, positions, newRidingCar, doorValue, moveClient);
+				}
 			});
 		}
 

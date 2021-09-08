@@ -98,7 +98,6 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
 		ClientData.updateReferences();
-		ClientData.schedulesForPlatform.clear();
 		ClientData.trains.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, playerOffset != null, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 

@@ -26,12 +26,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected boolean reversed;
 	protected boolean isOnRoute = false;
 
-	private final float railLength;
+	public final long sidingId;
 	protected final CustomResources.TrainMapping trainMapping;
 	protected final int trainLength;
 	protected final List<PathData> path;
 	protected final List<Float> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
+	private final float railLength;
 
 	public static final float ACCELERATION = 0.01F;
 
@@ -49,8 +50,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final int DOOR_MOVE_TIME = 64;
 	private static final int DOOR_MAX_DISTANCE = 32;
 
-	public Train(long id, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
+	public Train(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id);
+		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.trainMapping = trainMapping;
 		this.trainLength = trainLength;
@@ -58,9 +60,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.distances = distances;
 	}
 
-	public Train(float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
+	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
 		super(nbtCompound);
 
+		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
@@ -95,6 +98,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			distances.add(packet.readFloat());
 		}
 
+		sidingId = packet.readLong();
 		railLength = packet.readFloat();
 		speed = packet.readFloat();
 		railProgress = packet.readFloat();
@@ -142,6 +146,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			packet.writeFloat(distances.get(i));
 		}
 
+		packet.writeLong(sidingId);
 		packet.writeFloat(railLength);
 		packet.writeFloat(speed);
 		packet.writeFloat(railProgress);

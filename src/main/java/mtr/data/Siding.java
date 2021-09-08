@@ -1,7 +1,6 @@
 package mtr.data;
 
 import mtr.config.CustomResources;
-import mtr.gui.ClientData;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
@@ -237,7 +236,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync) {
+	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -248,29 +247,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-				// TODO
-				if (lastStation != null) {
-					if (!ClientData.schedulesForPlatform.containsKey(platformId)) {
-						ClientData.schedulesForPlatform.put(platformId, new HashSet<>());
-					}
-
-					final String destinationString;
-					if (thisRoute != null && thisRoute.isLightRailRoute) {
-						final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
-						final String[] lastStationSplit = lastStation.name.split("\\|");
-						final StringBuilder destination = new StringBuilder();
-						for (final String lastStationSplitPart : lastStationSplit) {
-							destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
-						}
-						destinationString = destination.length() > 0 ? destination.substring(1) : "";
-					} else {
-						destinationString = lastStation.name;
-					}
-
-					ClientData.schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
-				}
-			}))) {
+			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform)) {
 				trainsToSync.add(train);
 			}
 
