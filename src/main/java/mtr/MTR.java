@@ -63,13 +63,6 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 
-	public static final BlockEntityType<BlockMarble.TileEntityMarble> MARBLE_TILE_ENTITY = registerTileEntity("marble",
-		BlockMarble.TileEntityMarble::new, Blocks.MARBLE);
-	public static final BlockEntityType<BlockMarble2.TileEntityMarble2> MARBLE2_TILE_ENTITY = registerTileEntity("marble_2",
-		BlockMarble2.TileEntityMarble2::new, Blocks.MARBLE2);
-	public static final BlockEntityType<BlockPSDTopOnly.TileEntityPSDTopOnly> PSD_TOP_ONLY_TILE_ENTITY = registerTileEntity("psd_top_only",
-			BlockPSDTopOnly.TileEntityPSDTopOnly::new, Blocks.PSD_TOP_ONLY);
-
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
 	public static final SoundEvent TICKET_PROCESSOR_ENTRY = registerSoundEvent("ticket_processor_entry");
@@ -174,8 +167,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlock("marble", Blocks.MARBLE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlock("marble_2", Blocks.MARBLE2, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("marble_sandy", Blocks.MARBLE_SANDY, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_3", Blocks.PIDS_3, ItemGroups.RAILWAY_FACILITIES);
@@ -189,7 +182,6 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock("psd_top", Blocks.PSD_TOP);
-		registerBlock("psd_top_only", Blocks.PSD_TOP_ONLY, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("rail", Blocks.RAIL, ItemGroups.CORE);
 		registerBlock("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);

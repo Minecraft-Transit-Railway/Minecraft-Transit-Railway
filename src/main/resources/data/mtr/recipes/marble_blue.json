@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:polished_andesite"
+		},
+		{
+			"item": "minecraft:polished_andesite"
+		},
+		{
+			"item": "minecraft:polished_andesite"
+		},
+		{
+			"item": "minecraft:polished_diorite"
+		},
+		{
+			"item": "minecraft:polished_diorite"
+		},
+		{
+			"item": "minecraft:polished_diorite"
+		}
+	],
+	"result": {
+		"item": "mtr:marble_blue",
+		"count": 6
+	}
+}
