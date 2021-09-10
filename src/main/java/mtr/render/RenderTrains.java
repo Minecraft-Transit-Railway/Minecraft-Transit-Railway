@@ -1,6 +1,7 @@
 package mtr.render;
 
 import com.mojang.text2speech.Narrator;
+import mtr.MTRClient;
 import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.*;
@@ -78,15 +79,14 @@ public class RenderTrains implements IGui {
 		}
 
 		final int renderDistanceChunks = client.options.viewDistance;
-		final boolean isReplayMod = isReplayMod(player);
-		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
+		final float lastFrameDuration = MTRClient.isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 		gameTick += lastFrameDuration;
 
 		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
-			if (lastFrameDuration > 0.8) {
+			if (lastFrameDuration > 0.5) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
-			} else if (lastFrameDuration < 0.5) {
+			} else if (lastFrameDuration < 0.4) {
 				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * 8);
 			}
 		} else {
@@ -118,7 +118,7 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isReplayMod || posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
@@ -273,7 +273,7 @@ public class RenderTrains implements IGui {
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return player == null || playerFacingAway || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return player == null || playerFacingAway || player.getBlockPos().getManhattanDistance(pos) > (MTRClient.isReplayMod ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
@@ -302,14 +302,6 @@ public class RenderTrains implements IGui {
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumer vertexConsumer, Vec3d pos1, Vec3d pos2, Vec3d pos3, Vec3d pos4, int light) {
 		IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
-	}
-
-	private static boolean isReplayMod(PlayerEntity player) {
-		if (player == null) {
-			return false;
-		} else {
-			return player.getClass().toGenericString().toLowerCase().contains("replaymod");
-		}
 	}
 
 	private static Identifier getTrainTexture(String customId, String trainId) {
