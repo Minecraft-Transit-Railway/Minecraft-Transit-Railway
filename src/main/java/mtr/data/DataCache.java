@@ -110,42 +110,46 @@ public class DataCache<T extends ReentrantThreadExecutor<? extends Runnable>> ex
 					depotsTemp.forEach(depot -> depot.routeIds.removeIf(routeId -> routeIdMapTemp.get(routeId) == null));
 				}
 
-				minecraft.execute(() -> {
-					clearAndAddAll(stationsTemp, stations);
-					clearAndAddAll(platformsTemp, platforms);
-					clearAndAddAll(sidingsTemp, sidings);
-					clearAndAddAll(routesTemp, routes);
-					clearAndAddAll(depotsTemp, depots);
+				synchronized (monitor) {
+					final boolean[] done = {false};
+					minecraft.execute(() -> {
+						clearAndAddAll(stationsTemp, stations);
+						clearAndAddAll(platformsTemp, platforms);
+						clearAndAddAll(sidingsTemp, sidings);
+						clearAndAddAll(routesTemp, routes);
+						clearAndAddAll(depotsTemp, depots);
 
-					clearAndAddAll(stationIdMap, stationIdMapTemp);
-					clearAndAddAll(platformIdMap, platformIdMapTemp);
-					clearAndAddAll(sidingIdMap, sidingIdMapTemp);
-					clearAndAddAll(routeIdMap, routeIdMapTemp);
-					clearAndAddAll(depotIdMap, depotIdMapTemp);
+						clearAndAddAll(stationIdMap, stationIdMapTemp);
+						clearAndAddAll(platformIdMap, platformIdMapTemp);
+						clearAndAddAll(sidingIdMap, sidingIdMapTemp);
+						clearAndAddAll(routeIdMap, routeIdMapTemp);
+						clearAndAddAll(depotIdMap, depotIdMapTemp);
 
-					clearAndAddAll(platformIdToStation, platformIdToStationTemp);
-					clearAndAddAll(sidingIdToDepot, sidingIdToDepotTemp);
-					clearAndAddAllRecursiveMap(stationIdToPlatforms, stationIdToPlatformsTemp);
-					clearAndAddAllRecursiveMap(depotIdToSidings, depotIdToSidingsTemp);
-					clearAndAddAllRecursiveList(posToPlatforms, posToPlatformsTemp);
-					clearAndAddAllRecursiveList(posToSidings, posToSidingsTemp);
-					clearAndAddAllRecursiveMap(stationIdToRoutes, stationIdToRoutesTemp);
-					clearAndAddAllRecursiveList(platformIdToRoutes, platformIdToRoutesTemp);
+						clearAndAddAll(platformIdToStation, platformIdToStationTemp);
+						clearAndAddAll(sidingIdToDepot, sidingIdToDepotTemp);
+						clearAndAddAllRecursiveMap(stationIdToPlatforms, stationIdToPlatformsTemp);
+						clearAndAddAllRecursiveMap(depotIdToSidings, depotIdToSidingsTemp);
+						clearAndAddAllRecursiveList(posToPlatforms, posToPlatformsTemp);
+						clearAndAddAllRecursiveList(posToSidings, posToSidingsTemp);
+						clearAndAddAllRecursiveMap(stationIdToRoutes, stationIdToRoutesTemp);
+						clearAndAddAllRecursiveList(platformIdToRoutes, platformIdToRoutesTemp);
 
-					synchronized (monitor) {
-						monitor.notifyAll();
+						synchronized (monitor) {
+							done[0] = true;
+							monitor.notifyAll();
+						}
+					});
+
+					while (!done[0]) {
+						try {
+							monitor.wait(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
-				});
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-
-			synchronized (monitor) {
-				try {
-					monitor.wait();
-				} catch (InterruptedException ignored) {
-					break;
-				}
 			}
 		}
 
