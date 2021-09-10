@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mtr.data.DataCache;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Route;
@@ -25,7 +26,7 @@ public class RouteRenderer implements IGui {
 	private final VertexConsumerProvider.Immediate immediate;
 	private final TextRenderer textRenderer;
 
-	private final List<ClientData.PlatformRouteDetails> routeData;
+	private final List<DataCache.PlatformRouteDetails> routeData;
 	private final String platformNumber;
 	private final boolean vertical;
 	private final boolean glowing;
@@ -45,8 +46,8 @@ public class RouteRenderer implements IGui {
 		this.vertexConsumers = vertexConsumers;
 		this.immediate = immediate;
 
-		final List<ClientData.PlatformRouteDetails> platformRouteDetails = ClientData.platformToRoute.get(platform);
-		routeData = platform == null || platformRouteDetails == null ? new ArrayList<>() : platformRouteDetails;
+		final List<DataCache.PlatformRouteDetails> platformRouteDetails = platform == null ? null : ClientData.getDataCache().platformIdToRoutes.get(platform.id);
+		routeData = platformRouteDetails == null ? new ArrayList<>() : platformRouteDetails;
 
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
@@ -72,7 +73,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light, boolean skipText) {
-		final List<ClientData.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).collect(Collectors.toList());
+		final List<DataCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
@@ -89,7 +90,7 @@ public class RouteRenderer implements IGui {
 		for (int i = 0; i < routeCount; i++) {
 			final int routeColor = filteredRouteData.get(i).routeColor + ARGB_BLACK;
 			final int currentStationIndex = filteredRouteData.get(i).currentStationIndex;
-			final List<ClientData.PlatformRouteDetails.StationDetails> stationDetails = filteredRouteData.get(i).stationDetails;
+			final List<DataCache.PlatformRouteDetails.StationDetails> stationDetails = filteredRouteData.get(i).stationDetails;
 			final int routeLength = stationDetails.size();
 			final float routePosition = routeHeight * (i + 0.5F) + side1 * scaleSmaller;
 
@@ -113,7 +114,7 @@ public class RouteRenderer implements IGui {
 				final boolean onOrAfterStation = j >= currentStationIndex;
 				final boolean onStation = j == currentStationIndex;
 				final boolean bottomText = (j % 2) == 0;
-				final List<ClientData.ColorNamePair> interchangeRoutes = stationDetails.get(j).interchangeRoutes;
+				final List<DataCache.ColorNamePair> interchangeRoutes = stationDetails.get(j).interchangeRoutes;
 				final int interchangeCount = interchangeRoutes.size();
 
 				final VertexConsumer vertexConsumerStationCircle = vertexConsumers.getBuffer(getRenderLayer(onOrAfterStation ? "mtr:textures/block/station_circle.png" : "mtr:textures/block/station_circle_passed.png", newLight));

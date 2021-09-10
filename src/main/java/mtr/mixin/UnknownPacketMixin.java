@@ -41,7 +41,7 @@ public abstract class UnknownPacketMixin implements IPacket {
 			if (PACKET_CHUNK_S2C.equals(channel)) {
 				PacketTrainDataGuiClient.receiveChunk(client, packetByteBuf);
 			} else if (PACKET_UPDATE_SIDING.equals(channel)) {
-				PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(client, packetByteBuf, ClientData.sidings, null, false);
+				PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(client, packetByteBuf, ClientData.SIDINGS, ClientData.getDataCache().sidingIdMap, null, false);
 			} else if (PACKET_WRITE_RAILS.equals(channel)) {
 				ClientData.writeRails(client, packetByteBuf);
 			} else {

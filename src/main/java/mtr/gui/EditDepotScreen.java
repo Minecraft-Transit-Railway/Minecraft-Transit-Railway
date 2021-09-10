@@ -38,7 +38,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
 		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
 
-		sidingsInDepot = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id) : new HashMap<>();
+		sidingsInDepot = ClientData.getDataCache().depotIdToSidings.containsKey(depot.id) ? ClientData.getDataCache().depotIdToSidings.get(depot.id) : new HashMap<>();
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		sliderX = textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
@@ -102,8 +102,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		addNewList.tick();
 		trainList.tick();
 
-		addNewList.setData(ClientData.routes, false, false, false, false, true, false);
-		trainList.setData(data.routeIds.stream().map(ClientData.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
+		addNewList.setData(ClientData.ROUTES, false, false, false, false, true, false);
+		trainList.setData(data.routeIds.stream().map(ClientData.getDataCache().routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
 
 		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 	}
@@ -205,7 +205,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -216,8 +216,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			} else {
 				int sum = 0;
 				for (int i = 0; i < data.routeIds.size(); i++) {
-					final Route thisRoute = ClientData.routeIdMap.get(data.routeIds.get(i));
-					final Route nextRoute = i < data.routeIds.size() - 1 ? ClientData.routeIdMap.get(data.routeIds.get(i + 1)) : null;
+					final Route thisRoute = ClientData.getDataCache().routeIdMap.get(data.routeIds.get(i));
+					final Route nextRoute = i < data.routeIds.size() - 1 ? ClientData.getDataCache().routeIdMap.get(data.routeIds.get(i + 1)) : null;
 					if (thisRoute != null) {
 						sum += thisRoute.platformIds.size();
 						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
@@ -229,7 +229,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableText("gui.mtr.path_found");
 				} else {
-					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));

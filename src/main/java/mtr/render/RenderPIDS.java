@@ -90,13 +90,13 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null || !ClientData.platformsInStation.containsKey(station.id)) {
+				if (station == null || !ClientData.getDataCache().stationIdToPlatforms.containsKey(station.id)) {
 					return;
 				}
 
 				schedules = new HashSet<>();
-				ClientData.platformsInStation.get(station.id).values().forEach(platform -> {
-					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.schedulesForPlatform.get(platform.id);
+				ClientData.getDataCache().stationIdToPlatforms.get(station.id).values().forEach(platform -> {
+					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {
 							if (!scheduleEntry.isTerminating) {
@@ -112,7 +112,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					return;
 				}
 
-				schedules = ClientData.schedulesForPlatform.get(platform.id);
+				schedules = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 				if (schedules == null) {
 					return;
 				}

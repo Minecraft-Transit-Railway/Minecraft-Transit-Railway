@@ -34,6 +34,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	public final Set<Siding> sidings;
 	public final Set<Route> routes;
 	public final Set<Depot> depots;
+	public final DataCache<MinecraftServer> dataCache;
 
 	private final World world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
@@ -66,6 +67,8 @@ public class RailwayData extends PersistentState implements IPacket {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
+		dataCache = new DataCache<>(world.getServer(), stations, platforms, sidings, routes, depots);
+		dataCache.start();
 
 		trainPositions.add(new HashSet<>());
 		trainPositions.add(new HashSet<>());
@@ -191,9 +194,6 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 		});
 
-		routes.forEach(route -> route.platformIds.removeIf(platformId -> getDataById(platforms, platformId) == null));
-		depots.forEach(depot -> depot.routeIds.removeIf(routeId -> RailwayData.getDataById(routes, routeId) == null));
-
 		trainPositions.remove(0);
 		trainPositions.add(new HashSet<>());
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
@@ -204,7 +204,7 @@ public class RailwayData extends PersistentState implements IPacket {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, stations, platforms, routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				if (lastStation != null) {
 					if (!schedulesForPlatform.containsKey(platformId)) {
 						schedulesForPlatform.put(platformId, new HashSet<>());
@@ -285,7 +285,7 @@ public class RailwayData extends PersistentState implements IPacket {
 					if (platform.isCloseToSavedRail(player.getBlockPos(), PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
 						return true;
 					}
-					final Station station = getAreaBySavedRail(stations, platform);
+					final Station station = dataCache.platformIdToStation.get(platform.id);
 					return station != null && station.inArea(player.getBlockPos().getX(), player.getBlockPos().getZ());
 				}).map(platform -> platform.id).collect(Collectors.toSet());
 
@@ -358,7 +358,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public void generatePath(MinecraftServer minecraftServer, long depotId) {
 		generatingPathThreads.keySet().removeIf(id -> !generatingPathThreads.get(id).isAlive());
-		final Depot depot = getDataById(depots, depotId);
+		final Depot depot = dataCache.depotIdMap.get(depotId);
 		if (depot != null) {
 			if (generatingPathThreads.containsKey(depotId)) {
 				generatingPathThreads.get(depotId).interrupt();
@@ -366,7 +366,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			} else {
 				System.out.println("Starting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
 			}
-			depot.generateMainRoute(minecraftServer, world, rails, platforms, sidings, routes, thread -> generatingPathThreads.put(depotId, thread));
+			depot.generateMainRoute(minecraftServer, world, dataCache, rails, sidings, thread -> generatingPathThreads.put(depotId, thread));
 		}
 	}
 
@@ -388,31 +388,9 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	// static finders
 
-	public static <T extends NameColorDataBase> T getDataById(Set<T> data, long id) {
-		try {
-			return data.stream().filter(item -> item.id == id).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	public static Platform getPlatformByPos(Set<Platform> platforms, BlockPos pos) {
 		try {
 			return platforms.stream().filter(platform -> platform.containsPos(pos)).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static <T extends AreaBase> T getAreaBySavedRail(Set<T> areas, SavedRailBase savedRail) {
-		if (savedRail == null) {
-			return null;
-		}
-		try {
-			final BlockPos pos = savedRail.getMidPos();
-			return areas.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -483,15 +461,15 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
-	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, Set<Station> stations, Set<Platform> platforms, Set<Route> routes, RouteAndStationsCallback routeAndStationsCallback) {
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache<?> dataCache, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;
 		}
 
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
-			final Route thisRoute = RailwayData.getDataById(routes, routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? RailwayData.getDataById(routes, routeIds.get(i + 1)) : null;
+			final Route thisRoute = dataCache.routeIdMap.get(routeIds.get(i));
+			final Route nextRoute = i < routeIds.size() - 1 ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
@@ -499,9 +477,9 @@ public class RailwayData extends PersistentState implements IPacket {
 					sum--;
 				}
 				if (stopIndex < sum) {
-					final Station thisStation = RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(difference)));
-					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(difference + 1))) : null;
-					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : RailwayData.getAreaBySavedRail(stations, RailwayData.getDataById(platforms, thisRoute.platformIds.get(thisRoute.platformIds.size() - 1)));
+					final Station thisStation = dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference));
+					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
+					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : dataCache.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
 					routeAndStationsCallback.routeAndStationsCallback(thisRoute, nextRoute, thisStation, nextStation, lastStation);
 					return true;
 				}
@@ -533,6 +511,15 @@ public class RailwayData extends PersistentState implements IPacket {
 			return ((ServerWorld) world).getPersistentStateManager().getOrCreate(() -> new RailwayData(world), NAME);
 		} else {
 			return null;
+		}
+	}
+
+	public static void benchmark(Runnable runnable, float threshold) {
+		final long nanos = System.nanoTime();
+		runnable.run();
+		final float duration = (System.nanoTime() - nanos) / 1000000000F;
+		if (duration >= threshold) {
+			System.out.println(duration);
 		}
 	}
 
