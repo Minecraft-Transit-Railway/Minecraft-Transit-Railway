@@ -313,6 +313,7 @@
 	"train.mtr.M_TRAIN": "M-Train",
 	"train.mtr.M_TRAIN_MINI": "M-Train (Mini)",
 	"train.mtr.R179": "R179 (New York City Subway)",
+	"train.mtr.WMATA_7000": "7000 Series (WMATA)",
 	"train.mtr.SP1900": "SP1900",
 	"train.mtr.SP1900_MINI": "SP1900 (Mini)"
 }

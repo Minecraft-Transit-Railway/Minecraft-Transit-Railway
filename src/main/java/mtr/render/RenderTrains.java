@@ -61,6 +61,7 @@ public class RenderTrains implements IGui {
 	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
 	private static final ModelATrainMini MODEL_A_TRAIN_AEL_MINI = new ModelATrainMini(true);
 	private static final ModelR179Train MODEL_R179 = new ModelR179Train();
+	private static final ModelWmata7000Train MODEL_WMATA_7000 = new ModelWmata7000Train();
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1 = new ModelLightRail(1);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
 	private static final ModelLightRail MODEL_LIGHT_RAIL_2 = new ModelLightRail(2);
@@ -364,6 +365,8 @@ public class RenderTrains implements IGui {
 				return MODEL_A_TRAIN_AEL_MINI;
 			case R179:
 				return MODEL_R179;
+			case WMATA_7000:
+				return MODEL_WMATA_7000;
 			case LIGHT_RAIL_1:
 				return MODEL_LIGHT_RAIL_1;
 			case LIGHT_RAIL_1R:
