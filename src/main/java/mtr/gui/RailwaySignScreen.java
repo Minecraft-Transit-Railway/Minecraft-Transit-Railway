@@ -95,12 +95,12 @@ public class RailwaySignScreen extends Screen implements IGui {
 					exitsForList.add(new DataConverter(exitParent + " " + (destinations.size() > 0 ? destinations.get(0) : ""), 0));
 				});
 
-				final List<Platform> platforms = new ArrayList<>(ClientData.platformsInStation.get(station.id).values());
+				final List<Platform> platforms = new ArrayList<>(ClientData.getDataCache().stationIdToPlatforms.get(station.id).values());
 				Collections.sort(platforms);
 				platforms.stream().map(platform -> platform.id).forEach(platformIds::add);
-				platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.platformToRoute.get(platform).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
+				platforms.stream().map(platform -> new DataConverter(platform.name + " " + IGui.mergeStations(ClientData.getDataCache().platformIdToRoutes.get(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
 
-				final Map<Integer, ClientData.ColorNamePair> routeMap = ClientData.routesInStation.get(station.id);
+				final Map<Integer, DataCache.ColorNamePair> routeMap = ClientData.getDataCache().stationIdToRoutes.get(station.id);
 				routeMap.forEach((color, route) -> {
 					routeColors.add(color);
 					routesForList.add(new DataConverter(route.name, route.color));

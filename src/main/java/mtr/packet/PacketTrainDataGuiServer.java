@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -96,7 +97,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, Identifier packetId, Function<RailwayData, Set<T>> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, Identifier packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
 		final World world = player.world;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
@@ -112,7 +113,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		if (isDelete) {
 			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);
 		} else {
-			updateData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
+			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
 		}
 
 		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION)) {
@@ -152,7 +153,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				sidingIds.add(packet.readLong());
 			}
 			minecraftServer.execute(() -> sidingIds.forEach(sidingId -> {
-				final Siding siding = RailwayData.getDataById(railwayData.sidings, sidingId);
+				final Siding siding = railwayData.dataCache.sidingIdMap.get(sidingId);
 				if (siding != null) {
 					siding.clearTrains();
 				}

@@ -79,20 +79,20 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final Rail rail2 = new Rail(packet);
 		final long savedRailId = packet.readLong();
 		minecraftClient.execute(() -> {
-			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos1, pos2, rail1, 0);
-			RailwayData.addRail(ClientData.rails, ClientData.platforms, ClientData.sidings, pos2, pos1, rail2, savedRailId);
+			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, pos1, pos2, rail1, 0);
+			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, pos2, pos1, rail2, savedRailId);
 		});
 	}
 
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.rails, pos));
+		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.RAILS, pos));
 	}
 
 	public static void removeRailConnectionS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.rails, pos1, pos2));
+		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.RAILS, pos1, pos2));
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {
@@ -127,12 +127,12 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Function<Long, T> createDataWithId, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
 		if (isDelete) {
 			deleteData(dataSet, minecraftClient, packet, (updatePacket, fullPacket) -> {
 			});
 		} else {
-			updateData(dataSet, minecraftClient, packet, (updatePacket, fullPacket) -> {
+			updateData(dataSet, cacheMap, minecraftClient, packet, (updatePacket, fullPacket) -> {
 			}, createDataWithId);
 		}
 	}
@@ -151,7 +151,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final long depotId = packet.readLong();
 		final int successfulSegments = packet.readInt();
 		minecraftClient.execute(() -> {
-			final Depot depot = RailwayData.getDataById(ClientData.depots, depotId);
+			final Depot depot = ClientData.getDataCache().depotIdMap.get(depotId);
 			if (depot != null) {
 				depot.clientPathGenerationSuccessfulSegments = successfulSegments;
 			}

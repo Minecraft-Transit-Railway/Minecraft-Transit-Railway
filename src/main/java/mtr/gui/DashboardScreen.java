@@ -181,18 +181,18 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			switch (selectedTab) {
 				case STATIONS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.stations, true, true, true, false, false, true);
+						dashboardList.setData(ClientData.STATIONS, true, true, true, false, false, true);
 					} else {
-						final Map<Long, Platform> platformData = ClientData.platformsInStation.get(editingArea.id);
+						final Map<Long, Platform> platformData = ClientData.getDataCache().stationIdToPlatforms.get(editingArea.id);
 						dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
 					}
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.routes, false, true, true, false, false, true);
+						dashboardList.setData(ClientData.ROUTES, false, true, true, false, false, true);
 					} else {
-						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(platformId -> RailwayData.getDataById(ClientData.platforms, platformId)).filter(Objects::nonNull).map(platform -> {
-							final Station station = ClientData.platformIdToStation.get(platform.id);
+						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(ClientData.getDataCache().platformIdMap::get).filter(Objects::nonNull).map(platform -> {
+							final Station station = ClientData.getDataCache().platformIdToStation.get(platform.id);
 							if (station != null) {
 								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
 							} else {
@@ -204,9 +204,9 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.depots, true, true, true, false, false, true);
+						dashboardList.setData(ClientData.DEPOTS, true, true, true, false, false, true);
 					} else {
-						final Map<Long, Siding> sidingData = ClientData.sidingsInDepot.get(editingArea.id);
+						final Map<Long, Siding> sidingData = ClientData.getDataCache().depotIdToSidings.get(editingArea.id);
 						dashboardList.setData(sidingData == null ? new ArrayList<>() : new ArrayList<>(sidingData.values()), true, false, true, false, false, false);
 					}
 					break;
@@ -304,7 +304,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 						final Station station = (Station) data;
 						client.setScreen(new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
-							ClientData.stations.remove(station);
+							ClientData.STATIONS.remove(station);
 						}, IGui.formatStationName(station.name), this));
 					}
 					break;
@@ -314,7 +314,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 							final Route route = (Route) data;
 							client.setScreen(new DeleteConfirmationScreen(() -> {
 								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
-								ClientData.routes.remove(route);
+								ClientData.ROUTES.remove(route);
 							}, IGui.formatStationName(route.name), this));
 						}
 					} else {
@@ -327,7 +327,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 						final Depot depot = (Depot) data;
 						client.setScreen(new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
-							ClientData.depots.remove(depot);
+							ClientData.DEPOTS.remove(depot);
 						}, IGui.formatStationName(depot.name), this));
 					}
 					break;
@@ -392,9 +392,9 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		if (isNew) {
 			try {
 				if (isStation) {
-					ClientData.stations.add((Station) editingArea);
+					ClientData.STATIONS.add((Station) editingArea);
 				} else {
-					ClientData.depots.add((Depot) editingArea);
+					ClientData.DEPOTS.add((Depot) editingArea);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -409,7 +409,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	private void onDoneEditingRoute() {
 		if (isNew) {
 			try {
-				ClientData.routes.add(editingRoute);
+				ClientData.ROUTES.add(editingRoute);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

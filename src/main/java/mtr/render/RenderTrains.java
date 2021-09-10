@@ -97,8 +97,7 @@ public class RenderTrains implements IGui {
 		final float cameraYaw = camera.getYaw();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
-		ClientData.updateReferences();
-		ClientData.trains.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, playerOffset != null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), player, playerOffset != null, (light, posAverage) -> {
 			final ModelTrainBase model = getModel(trainType);
 
 			matrices.push();
@@ -148,7 +147,7 @@ public class RenderTrains implements IGui {
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Text text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -173,7 +172,7 @@ public class RenderTrains implements IGui {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
 					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
@@ -182,7 +181,7 @@ public class RenderTrains implements IGui {
 						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
 						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
-						final Map<Integer, ClientData.ColorNamePair> routesInStation = ClientData.routesInStation.get(nextStation.id);
+						final Map<Integer, DataCache.ColorNamePair> routesInStation = ClientData.getDataCache().stationIdToRoutes.get(nextStation.id);
 						if (routesInStation != null) {
 							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
 								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
@@ -195,7 +194,7 @@ public class RenderTrains implements IGui {
 						}
 
 						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-							final Station nextFinalStation = ClientData.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							final Station nextFinalStation = ClientData.getDataCache().platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
 							if (nextFinalStation != null) {
 								if (nextRoute.isLightRailRoute) {
 									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
@@ -219,7 +218,7 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.stations, ClientData.platforms, ClientData.routes, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
 					}
@@ -230,7 +229,7 @@ public class RenderTrains implements IGui {
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemRailModifier);
 		final int maxRailDistance = renderDistanceChunks * 16;
-		ClientData.rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
+		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}

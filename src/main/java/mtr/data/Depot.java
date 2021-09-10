@@ -160,14 +160,14 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public void generateMainRoute(MinecraftServer minecraftServer, World world, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Consumer<Thread> callback) {
+	public void generateMainRoute(MinecraftServer minecraftServer, World world, DataCache<MinecraftServer> dataCache, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Siding> sidings, Consumer<Thread> callback) {
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 
 		routeIds.forEach(routeId -> {
-			final Route route = RailwayData.getDataById(routes, routeId);
+			final Route route = dataCache.routeIdMap.get(routeId);
 			if (route != null) {
 				route.platformIds.forEach(platformId -> {
-					final Platform platform = RailwayData.getDataById(platforms, platformId);
+					final Platform platform = dataCache.platformIdMap.get(platformId);
 					if (platform != null && (platformsInRoute.isEmpty() || platform.id != platformsInRoute.get(platformsInRoute.size() - 1).id)) {
 						platformsInRoute.add(platform);
 					}
