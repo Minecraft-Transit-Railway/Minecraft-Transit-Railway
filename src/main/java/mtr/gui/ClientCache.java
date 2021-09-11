@@ -1,8 +1,10 @@
 package mtr.gui;
 
 import mtr.data.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
@@ -14,11 +16,15 @@ public class ClientCache extends DataCache {
 	public final Map<BlockPos, List<Platform>> posToPlatforms = new HashMap<>();
 	public final Map<BlockPos, List<Siding>> posToSidings = new HashMap<>();
 	public final Map<Long, Map<Integer, ColorNamePair>> stationIdToRoutes = new HashMap<>();
+	public final Map<BlockPos, Long> renderingStateMap = new HashMap<>();
 
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
 	private final Map<Long, Map<Long, Siding>> depotIdToSidings = new HashMap<>();
 	private final Map<Long, List<PlatformRouteDetails>> platformIdToRoutes = new HashMap<>();
 	private final Map<BlockPos, List<RenderingInstruction>> blockPosToRenderingInstructions = new HashMap<>();
+	private final List<BlockPos> blockPosToRenderingInstructionsToClear = new ArrayList<>();
+
+	private static final int RENDER_CACHE_MAX_DISTANCE = 128;
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -43,7 +49,11 @@ public class ClientCache extends DataCache {
 		stationIdToPlatforms.clear();
 		depotIdToSidings.clear();
 		platformIdToRoutes.clear();
-		blockPosToRenderingInstructions.clear();
+		blockPosToRenderingInstructions.keySet().forEach(pos -> {
+			if (!blockPosToRenderingInstructionsToClear.contains(pos)) {
+				blockPosToRenderingInstructionsToClear.add(pos);
+			}
+		});
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -87,11 +97,32 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
-	public void requestRenderForPos(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, BlockPos pos, Supplier<List<RenderingInstruction>> renderingInstructionsProvider) {
+	public void requestRenderForPos(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, BlockPos pos, boolean forceRefresh, Supplier<List<RenderingInstruction>> renderingInstructionsProvider) {
+		if (forceRefresh && !blockPosToRenderingInstructionsToClear.contains(pos)) {
+			blockPosToRenderingInstructionsToClear.add(pos);
+		}
+
 		if (!blockPosToRenderingInstructions.containsKey(pos)) {
 			blockPosToRenderingInstructions.put(pos, renderingInstructionsProvider.get());
+
+			final PlayerEntity player = MinecraftClient.getInstance().player;
+			if (player != null) {
+				final BlockPos playerPos = player.getBlockPos();
+				blockPosToRenderingInstructions.keySet().forEach(checkPos -> {
+					if (checkPos.getManhattanDistance(playerPos) > RENDER_CACHE_MAX_DISTANCE) {
+						blockPosToRenderingInstructionsToClear.add(checkPos);
+					}
+				});
+			}
 		}
+
 		RenderingInstruction.render(matrices, vertexConsumers, immediate, blockPosToRenderingInstructions.get(pos));
+	}
+
+	public void clearBlockPosToRenderingInstructionsIfNeeded() {
+		if (!blockPosToRenderingInstructionsToClear.isEmpty()) {
+			blockPosToRenderingInstructions.remove(blockPosToRenderingInstructionsToClear.remove(0));
+		}
 	}
 
 	private static <U extends AreaBase, V extends SavedRailBase> Map<Long, V> areaIdToSavedRails(U area, Set<V> savedRails) {

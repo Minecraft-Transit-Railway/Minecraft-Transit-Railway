@@ -61,9 +61,10 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final long prevPlatformId = ClientData.DATA_CACHE.renderingStateMap.getOrDefault(pos, 0L);
+		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 8, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
-		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, () -> {
+		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, prevPlatformId != platform.id, () -> {
 			final List<RenderingInstruction> renderingInstructions = new ArrayList<>();
 			final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, platform, true, false);
 
@@ -79,6 +80,8 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			RenderingInstruction.addPop(renderingInstructions);
 			return renderingInstructions;
 		});
+
+		ClientData.DATA_CACHE.renderingStateMap.put(pos, platform.id);
 	}
 
 	@Override
