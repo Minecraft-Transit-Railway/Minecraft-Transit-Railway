@@ -34,7 +34,10 @@ public class RailwayData extends PersistentState implements IPacket {
 	public final Set<Siding> sidings;
 	public final Set<Route> routes;
 	public final Set<Depot> depots;
-	public final DataCache<MinecraftServer> dataCache;
+	public final DataCache dataCache;
+
+	private int prevPlatformCount;
+	private int prevSidingCount;
 
 	private final World world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
@@ -46,7 +49,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
-	public static final int RAIL_UPDATE_DISTANCE = 64;
+	private static final int RAIL_UPDATE_DISTANCE = 64;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int SCHEDULE_UPDATE_TICKS = 100;
 
@@ -67,8 +70,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
-		dataCache = new DataCache<>(world.getServer(), stations, platforms, sidings, routes, depots);
-		dataCache.start();
+		dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
 		trainPositions.add(new HashSet<>());
 		trainPositions.add(new HashSet<>());
@@ -119,6 +121,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			if (generated) {
 				validateData();
 			}
+			dataCache.sync();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -309,6 +312,12 @@ public class RailwayData extends PersistentState implements IPacket {
 			});
 		}
 
+		if (prevPlatformCount != platforms.size() || prevSidingCount != sidings.size()) {
+			dataCache.sync();
+		}
+		prevPlatformCount = platforms.size();
+		prevSidingCount = sidings.size();
+
 		markDirty();
 	}
 
@@ -461,7 +470,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
-	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache<?> dataCache, RouteAndStationsCallback routeAndStationsCallback) {
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache dataCache, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;
 		}

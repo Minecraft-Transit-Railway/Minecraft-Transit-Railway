@@ -121,6 +121,8 @@ public class Depot extends AreaBase {
 				}
 				break;
 			case KEY_FREQUENCIES:
+				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
 				for (int i = 0; i < HOURS_IN_DAY; i++) {
 					frequencies[i] = packet.readInt();
 				}
@@ -138,17 +140,22 @@ public class Depot extends AreaBase {
 		}
 	}
 
-	public void setFrequencies(int newFrequency, int index, Consumer<PacketByteBuf> sendPacket) {
+	public void setFrequency(int newFrequency, int index) {
 		if (index >= 0 && index < frequencies.length) {
 			frequencies[index] = newFrequency;
-			final PacketByteBuf packet = PacketByteBufs.create();
-			packet.writeLong(id);
-			packet.writeString(KEY_FREQUENCIES);
-			for (final int frequency : frequencies) {
-				packet.writeInt(frequency);
-			}
-			sendPacket.accept(packet);
 		}
+	}
+
+	public void setFrequencies(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_FREQUENCIES);
+		packet.writeString(name);
+		packet.writeInt(color);
+		for (final int frequency : frequencies) {
+			packet.writeInt(frequency);
+		}
+		sendPacket.accept(packet);
 	}
 
 	public void setRouteIds(Consumer<PacketByteBuf> sendPacket) {
@@ -160,7 +167,7 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public void generateMainRoute(MinecraftServer minecraftServer, World world, DataCache<MinecraftServer> dataCache, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Siding> sidings, Consumer<Thread> callback) {
+	public void generateMainRoute(MinecraftServer minecraftServer, World world, DataCache dataCache, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Siding> sidings, Consumer<Thread> callback) {
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 
 		routeIds.forEach(routeId -> {

@@ -36,8 +36,8 @@ public class TrainClient extends Train {
 
 	public TrainClient(PacketByteBuf packet) {
 		super(packet);
-		final Siding siding = ClientData.getDataCache().sidingIdMap.get(sidingId);
-		final Depot depot = siding == null ? null : ClientData.getDataCache().sidingIdToDepot.get(siding.id);
+		final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
+		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
 		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 	}
 

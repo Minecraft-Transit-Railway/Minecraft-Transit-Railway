@@ -128,17 +128,17 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(MinecraftClient minecraftClient, PacketByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.DATA_CACHE.sync();
 		if (isDelete) {
-			deleteData(dataSet, minecraftClient, packet, (updatePacket, fullPacket) -> {
-			});
+			deleteData(dataSet, minecraftClient, packet, packetCallback);
 		} else {
-			updateData(dataSet, cacheMap, minecraftClient, packet, (updatePacket, fullPacket) -> {
-			}, createDataWithId);
+			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId);
 		}
 	}
 
 	public static void sendUpdate(Identifier packetId, PacketByteBuf packet) {
 		ClientPlayNetworking.send(packetId, packet);
+		ClientData.DATA_CACHE.sync();
 	}
 
 	public static void sendDeleteData(Identifier packetId, long id) {
@@ -151,7 +151,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final long depotId = packet.readLong();
 		final int successfulSegments = packet.readInt();
 		minecraftClient.execute(() -> {
-			final Depot depot = ClientData.getDataCache().depotIdMap.get(depotId);
+			final Depot depot = ClientData.DATA_CACHE.depotIdMap.get(depotId);
 			if (depot != null) {
 				depot.clientPathGenerationSuccessfulSegments = successfulSegments;
 			}

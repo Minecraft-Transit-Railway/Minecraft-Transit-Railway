@@ -9,7 +9,6 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -287,12 +286,6 @@ public class MTR implements ModInitializer, IPacket {
 				railwayData.disconnectPlayer(handler.player);
 			}
 		});
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> server.getWorlds().forEach(world -> {
-			final RailwayData railwayData = RailwayData.getInstance(world);
-			if (railwayData != null) {
-				railwayData.dataCache.interrupt();
-			}
-		}));
 	}
 
 	public static boolean isGameTickInterval(int interval) {

@@ -186,7 +186,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					if (editingArea == null) {
 						dashboardList.setData(ClientData.STATIONS, true, true, true, false, false, true);
 					} else {
-						final Map<Long, Platform> platformData = ClientData.getDataCache().stationIdToPlatforms.get(editingArea.id);
+						final Map<Long, Platform> platformData = ClientData.DATA_CACHE.requestStationIdToPlatforms(editingArea.id);
 						dashboardList.setData(platformData == null ? new ArrayList<>() : new ArrayList<>(platformData.values()), true, false, true, false, false, false);
 					}
 					break;
@@ -194,8 +194,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					if (editingRoute == null) {
 						dashboardList.setData(ClientData.ROUTES, false, true, true, false, false, true);
 					} else {
-						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(ClientData.getDataCache().platformIdMap::get).filter(Objects::nonNull).map(platform -> {
-							final Station station = ClientData.getDataCache().platformIdToStation.get(platform.id);
+						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(ClientData.DATA_CACHE.platformIdMap::get).filter(Objects::nonNull).map(platform -> {
+							final Station station = ClientData.DATA_CACHE.platformIdToStation.get(platform.id);
 							if (station != null) {
 								return new DataConverter(String.format("%s (%s)", station.name, platform.name), station.color);
 							} else {
@@ -209,7 +209,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 					if (editingArea == null) {
 						dashboardList.setData(ClientData.DEPOTS, true, true, true, false, false, true);
 					} else {
-						final Map<Long, Siding> sidingData = ClientData.getDataCache().depotIdToSidings.get(editingArea.id);
+						final Map<Long, Siding> sidingData = ClientData.DATA_CACHE.requestDepotIdToSidings(editingArea.id);
 						dashboardList.setData(sidingData == null ? new ArrayList<>() : new ArrayList<>(sidingData.values()), true, false, true, false, false, false);
 					}
 					break;

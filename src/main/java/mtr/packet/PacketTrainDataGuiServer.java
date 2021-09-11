@@ -108,6 +108,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			if (!worldPlayer.getUuid().equals(player.getUuid())) {
 				ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, packetId, fullPacket);
 			}
+			railwayData.dataCache.sync();
 		});
 
 		if (isDelete) {
