@@ -45,9 +45,14 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			return;
 		}
 
+		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+		final int glassLength = getGlassLength(world, pos, facing);
+		final int prevArrowDirection = (int) (ClientData.DATA_CACHE.renderingStateMap.getOrDefault(pos, 0b100L) & 0b111);
+		final int prevGlassLength = (int) (ClientData.DATA_CACHE.renderingStateMap.getOrDefault(pos, 0L) >> 3);
+
 		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
-		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, () -> {
+		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, prevArrowDirection != arrowDirection || prevGlassLength != glassLength, () -> {
 			final List<RenderingInstruction> renderingInstructions = new ArrayList<>();
 
 			RenderingInstruction.addPush(renderingInstructions);
@@ -56,7 +61,6 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 			renderAdditionalUnmodified(renderingInstructions, state, facing, light);
 
-			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 			final Platform platform = ClientData.getClosePlatform(pos);
 			final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, platform, false, false);
 
@@ -65,7 +69,6 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			RenderingInstruction.addTranslate(renderingInstructions, -0.5F, 0, getZ() - SMALL_OFFSET * 2);
 
 			if (isLeft(state)) {
-				final int glassLength = getGlassLength(world, pos, facing);
 				if (glassLength > 1) {
 					switch (getRenderType(world, pos, state)) {
 						case ARROW:
@@ -84,6 +87,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			RenderingInstruction.addPop(renderingInstructions);
 			return renderingInstructions;
 		});
+
+		ClientData.DATA_CACHE.renderingStateMap.put(pos, ((long) glassLength << 3) + arrowDirection);
 	}
 
 	protected void renderAdditionalUnmodified(List<RenderingInstruction> renderingInstructions, BlockState state, Direction facing, int light) {
