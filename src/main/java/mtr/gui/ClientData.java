@@ -2,9 +2,7 @@ package mtr.gui;
 
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.HashMap;
@@ -24,7 +22,7 @@ public final class ClientData {
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final Map<Long, Set<Route.ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	private static DataCache<MinecraftClient> dataCache;
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
 
 	public static void writeRails(MinecraftClient client, PacketByteBuf packet) {
 		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
@@ -40,7 +38,7 @@ public final class ClientData {
 			railsTemp.put(startPos, railMap);
 		}
 
-		client.execute(() -> DataCache.clearAndAddAll(RAILS, railsTemp));
+		client.execute(() -> clearAndAddAll(RAILS, railsTemp));
 	}
 
 	public static void updateTrains(MinecraftClient client, PacketByteBuf packet) {
@@ -95,21 +93,18 @@ public final class ClientData {
 				tempSchedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(packet));
 			}
 		}
-		client.execute(() -> DataCache.clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform));
+		client.execute(() -> clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform));
 	}
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
-		DataCache.clearAndAddAll(STATIONS, deserializeData(packetCopy, Station::new));
-		DataCache.clearAndAddAll(PLATFORMS, deserializeData(packetCopy, Platform::new));
-		DataCache.clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
-		DataCache.clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
-		DataCache.clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(STATIONS, deserializeData(packetCopy, Station::new));
+		clearAndAddAll(PLATFORMS, deserializeData(packetCopy, Platform::new));
+		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
+		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
+		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
 
-		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player != null) {
-			player.sendMessage(new TranslatableText("gui.mtr.railway_loading_complete"), true);
-		}
+		ClientData.DATA_CACHE.sync();
 	}
 
 	public static Station getStation(BlockPos pos) {
@@ -130,18 +125,6 @@ public final class ClientData {
 		}
 	}
 
-	public static DataCache<MinecraftClient> getDataCache() {
-		if (dataCache == null) {
-			dataCache = new DataCache<>(MinecraftClient.getInstance(), STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
-		}
-		return dataCache;
-	}
-
-	public static void resetAndRunDataCache() {
-		dataCache = new DataCache<>(MinecraftClient.getInstance(), STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
-		dataCache.start();
-	}
-
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();
@@ -149,6 +132,16 @@ public final class ClientData {
 			objects.add(supplier.apply(packet));
 		}
 		return objects;
+	}
+
+	private static <U> void clearAndAddAll(Set<U> target, Set<U> source) {
+		target.clear();
+		target.addAll(source);
+	}
+
+	private static <U, V> void clearAndAddAll(Map<U, V> target, Map<U, V> source) {
+		target.clear();
+		target.putAll(source);
 	}
 
 	private static TrainClient getTrainById(long id) {

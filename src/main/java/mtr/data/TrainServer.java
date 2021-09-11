@@ -30,6 +30,7 @@ public class TrainServer extends Train {
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 
+	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
@@ -112,7 +113,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
-		final Box trainBox = new Box(positions[0], positions[positions.length - 1]).expand(RailwayData.RAIL_UPDATE_DISTANCE);
+		final Box trainBox = new Box(positions[0], positions[positions.length - 1]).expand(TRAIN_UPDATE_DISTANCE);
 		world.getPlayers().forEach(player -> {
 			if (trainBox.contains(player.getPos())) {
 				if (!trainsInPlayerRange.containsKey(player)) {

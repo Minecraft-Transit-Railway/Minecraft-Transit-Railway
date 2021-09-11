@@ -94,7 +94,7 @@ public class WidgetMap implements Drawable, Selectable, Element, IGui {
 
 		try {
 			if (showStations) {
-				ClientData.getDataCache().posToPlatforms.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+				ClientData.DATA_CACHE.posToPlatforms.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
 				for (final Station station : ClientData.STATIONS) {
 					if (AreaBase.nonNullCorners(station)) {
 						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
@@ -102,7 +102,7 @@ public class WidgetMap implements Drawable, Selectable, Element, IGui {
 				}
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
 			} else {
-				ClientData.getDataCache().posToSidings.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
+				ClientData.DATA_CACHE.posToSidings.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
 				for (final Depot depot : ClientData.DEPOTS) {
 					if (AreaBase.nonNullCorners(depot)) {
 						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
@@ -137,9 +137,9 @@ public class WidgetMap implements Drawable, Selectable, Element, IGui {
 		if (scale >= 8) {
 			try {
 				if (showStations) {
-					ClientData.getDataCache().posToPlatforms.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+					ClientData.DATA_CACHE.posToPlatforms.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
 				} else {
-					ClientData.getDataCache().posToSidings.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
+					ClientData.DATA_CACHE.posToSidings.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -284,7 +284,7 @@ public class WidgetMap implements Drawable, Selectable, Element, IGui {
 
 	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		try {
-			(isPlatform ? ClientData.getDataCache().posToPlatforms : ClientData.getDataCache().posToSidings).forEach((savedRailPos, savedRails) -> {
+			(isPlatform ? ClientData.DATA_CACHE.posToPlatforms : ClientData.DATA_CACHE.posToSidings).forEach((savedRailPos, savedRails) -> {
 				final int savedRailCount = savedRails.size();
 				for (int i = 0; i < savedRailCount; i++) {
 					final float left = savedRailPos.getX();

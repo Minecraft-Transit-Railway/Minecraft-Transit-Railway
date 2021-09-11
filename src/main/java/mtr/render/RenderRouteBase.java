@@ -5,6 +5,7 @@ import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.gui.ClientData;
+import mtr.gui.RenderingInstruction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -14,9 +15,11 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, BlockEntityRenderer<T> {
 
@@ -33,21 +36,28 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 
-		matrices.push();
-		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+			return;
+		}
 
-		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
+		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, () -> {
+			final List<RenderingInstruction> renderingInstructions = new ArrayList<>();
+
+			RenderingInstruction.addPush(renderingInstructions);
+			RenderingInstruction.addTranslate(renderingInstructions, 0.5F, 0, 0.5F);
+			RenderingInstruction.addRotateYDegrees(renderingInstructions, -facing.asRotation());
+
+			renderAdditionalUnmodified(renderingInstructions, state, facing, light);
+
 			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 			final Platform platform = ClientData.getClosePlatform(pos);
-			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
+			final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, platform, false, false);
 
-			matrices.translate(0, 1, 0);
-			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-			matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
+			RenderingInstruction.addTranslate(renderingInstructions, 0, 1, 0);
+			RenderingInstruction.addRotateZDegrees(renderingInstructions, 180);
+			RenderingInstruction.addTranslate(renderingInstructions, -0.5F, 0, getZ() - SMALL_OFFSET * 2);
 
 			if (isLeft(state)) {
 				final int glassLength = getGlassLength(world, pos, facing);
@@ -58,20 +68,20 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 							break;
 						case ROUTE:
 							final boolean flipLine = arrowDirection == 1;
-							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
+							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
 							break;
 					}
 				}
 			}
 
-			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-			immediate.draw();
-		}
+			renderAdditional(renderingInstructions, routeRenderer, state, facing, light);
 
-		matrices.pop();
+			RenderingInstruction.addPop(renderingInstructions);
+			return renderingInstructions;
+		});
 	}
 
-	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
+	protected void renderAdditionalUnmodified(List<RenderingInstruction> renderingInstructions, BlockState state, Direction facing, int light) {
 	}
 
 	protected abstract float getZ();
@@ -90,7 +100,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 
 	protected abstract RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
+	protected abstract void renderAdditional(List<RenderingInstruction> renderingInstructions, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
 
 	private int getGlassLength(WorldAccess world, BlockPos pos, Direction facing) {
 		int glassLength = 1;

@@ -89,12 +89,17 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null || !ClientData.getDataCache().stationIdToPlatforms.containsKey(station.id)) {
+				if (station == null) {
+					return;
+				}
+
+				final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+				if (platforms.isEmpty()) {
 					return;
 				}
 
 				schedules = new HashSet<>();
-				ClientData.getDataCache().stationIdToPlatforms.get(station.id).values().forEach(platform -> {
+				platforms.values().forEach(platform -> {
 					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {

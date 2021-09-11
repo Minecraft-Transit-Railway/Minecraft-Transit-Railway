@@ -3,7 +3,6 @@ package mtr.gui;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -81,7 +80,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	@Override
 	public void onClose() {
 		super.onClose();
-		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		if (client != null) {
 			client.setScreen(dashboardScreen);
 		}

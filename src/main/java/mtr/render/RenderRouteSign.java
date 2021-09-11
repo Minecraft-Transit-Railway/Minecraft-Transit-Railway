@@ -8,6 +8,7 @@ import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Station;
 import mtr.gui.ClientData;
+import mtr.gui.RenderingInstruction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.Tessellator;
@@ -16,9 +17,10 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> implements IBlock, IGui, BlockEntityRenderer<T> {
@@ -49,7 +51,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final Map<Long, Platform> platformPositions = ClientData.getDataCache().stationIdToPlatforms.get(station.id);
+		final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
 		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}
@@ -59,19 +61,24 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, true, false);
+		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
-		matrices.push();
-		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
+		ClientData.DATA_CACHE.requestRenderForPos(matrices, vertexConsumers, immediate, pos, () -> {
+			final List<RenderingInstruction> renderingInstructions = new ArrayList<>();
+			final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, platform, true, false);
 
-		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
-		matrices.pop();
-		immediate.draw();
+			RenderingInstruction.addPush(renderingInstructions);
+			RenderingInstruction.addTranslate(renderingInstructions, 0.5F, 0, 0.5F);
+			RenderingInstruction.addRotateYDegrees(renderingInstructions, -facing.asRotation());
+			RenderingInstruction.addRotateZDegrees(renderingInstructions, 180);
+			RenderingInstruction.addTranslate(renderingInstructions, 0, 0, 0.4375F - SMALL_OFFSET * 4);
+
+			routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
+			routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
+
+			RenderingInstruction.addPop(renderingInstructions);
+			return renderingInstructions;
+		});
 	}
 
 	@Override
