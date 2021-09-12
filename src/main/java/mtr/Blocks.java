@@ -38,6 +38,7 @@ public interface Blocks {
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
 	Block PLATFORM_NA_1 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
 	Block PLATFORM_NA_2 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2));
+	Block PLATFORM_UK_1 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2).nonOpaque());
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
 	Block PSD_GLASS_END_1 = new BlockPSDGlassEnd(0);
