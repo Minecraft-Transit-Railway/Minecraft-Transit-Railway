@@ -30,6 +30,8 @@ import net.minecraft.util.Identifier;
 
 public class MTRClient implements ClientModInitializer, IPacket {
 
+	public static boolean isReplayMod;
+
 	@Override
 	public void onInitializeClient() {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_DOOR, RenderLayer.getCutout());
@@ -187,6 +189,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 			if (entity == MinecraftClient.getInstance().player) {
 				Config.refreshProperties();
 				ClientData.resetAndRunDataCache();
+				isReplayMod = entity.getClass().toGenericString().toLowerCase().contains("replaymod");
 			}
 		});
 		ClientEntityEvents.ENTITY_UNLOAD.register((entity, clientWorld) -> {

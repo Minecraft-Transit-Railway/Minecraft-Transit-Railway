@@ -125,12 +125,12 @@ public class DataCache<T extends ReentrantThreadExecutor<? extends Runnable>> ex
 
 					clearAndAddAll(platformIdToStation, platformIdToStationTemp);
 					clearAndAddAll(sidingIdToDepot, sidingIdToDepotTemp);
-					clearAndAddAll(stationIdToPlatforms, stationIdToPlatformsTemp);
-					clearAndAddAll(depotIdToSidings, depotIdToSidingsTemp);
-					clearAndAddAll(posToPlatforms, posToPlatformsTemp);
-					clearAndAddAll(posToSidings, posToSidingsTemp);
-					clearAndAddAll(stationIdToRoutes, stationIdToRoutesTemp);
-					clearAndAddAll(platformIdToRoutes, platformIdToRoutesTemp);
+					clearAndAddAllRecursiveMap(stationIdToPlatforms, stationIdToPlatformsTemp);
+					clearAndAddAllRecursiveMap(depotIdToSidings, depotIdToSidingsTemp);
+					clearAndAddAllRecursiveList(posToPlatforms, posToPlatformsTemp);
+					clearAndAddAllRecursiveList(posToSidings, posToSidingsTemp);
+					clearAndAddAllRecursiveMap(stationIdToRoutes, stationIdToRoutesTemp);
+					clearAndAddAllRecursiveList(platformIdToRoutes, platformIdToRoutesTemp);
 
 					synchronized (monitor) {
 						monitor.notifyAll();
@@ -159,6 +159,18 @@ public class DataCache<T extends ReentrantThreadExecutor<? extends Runnable>> ex
 
 	public static <U, V> void clearAndAddAll(Map<U, V> target, Map<U, V> source) {
 		target.clear();
+		target.putAll(source);
+	}
+
+	private static <U, V> void clearAndAddAllRecursiveList(Map<U, List<V>> target, Map<U, List<V>> source) {
+		target.clear();
+		source.forEach((key, value) -> target.put(key, new ArrayList<>(value)));
+		target.putAll(source);
+	}
+
+	private static <U, V, W> void clearAndAddAllRecursiveMap(Map<U, Map<V, W>> target, Map<U, Map<V, W>> source) {
+		target.clear();
+		source.forEach((key, value) -> target.put(key, new HashMap<>(value)));
 		target.putAll(source);
 	}
 

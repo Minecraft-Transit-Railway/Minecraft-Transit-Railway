@@ -44,6 +44,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
+	private static final int MAX_VIEW_DISTANCE = 16;
 
 	public RenderPIDS(int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		scale = 160 * maxArrivals / maxHeight * textPadding;
@@ -78,7 +79,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 
 		final BlockPos pos = entity.getPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, rotate90 ? null : facing)) {
+		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
 			return;
 		}
 
