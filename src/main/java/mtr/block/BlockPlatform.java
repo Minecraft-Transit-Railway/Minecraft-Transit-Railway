@@ -3,6 +3,7 @@ package mtr.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
@@ -10,15 +11,21 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
 public class BlockPlatform extends HorizontalFacingBlock {
 
+	private final boolean isIndented;
+
 	public static final EnumProperty<EnumDoorType> DOOR_TYPE = EnumProperty.of("door_type", EnumDoorType.class);
 	public static final IntProperty SIDE = IntProperty.of("side", 0, 4);
 
-	public BlockPlatform(Settings settings) {
+	public BlockPlatform(Settings settings, boolean isIndented) {
 		super(settings);
+		this.isIndented = isIndented;
 		setDefaultState(stateManager.getDefaultState().with(DOOR_TYPE, EnumDoorType.NONE));
 	}
 
@@ -30,6 +37,16 @@ public class BlockPlatform extends HorizontalFacingBlock {
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return getDefaultState().with(FACING, ctx.getPlayerFacing());
+	}
+
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		if (isIndented) {
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 6, 16, 13, 16, facing), Block.createCuboidShape(0, 13, 0, 16, 16, 16));
+		} else {
+			return super.getOutlineShape(state, world, pos, context);
+		}
 	}
 
 	@Override

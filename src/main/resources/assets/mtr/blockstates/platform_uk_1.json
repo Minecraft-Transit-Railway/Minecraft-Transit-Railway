@@ -6,7 +6,7 @@
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/platform_hk_1"
+				"model": "mtr:block/platform_uk_1"
 			}
 		},
 		{
@@ -15,7 +15,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/platform_hk_1",
+				"model": "mtr:block/platform_uk_1",
 				"y": 90
 			}
 		},
@@ -25,7 +25,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/platform_hk_1",
+				"model": "mtr:block/platform_uk_1",
 				"y": 180
 			}
 		},
@@ -35,7 +35,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/platform_hk_1",
+				"model": "mtr:block/platform_uk_1",
 				"y": 270
 			}
 		},

@@ -1,0 +1,36 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"item": "minecraft:stone_bricks"
+		},
+		{
+			"tag": "c:white_dyes"
+		},
+		{
+			"tag": "c:yellow_dyes"
+		},
+		{
+			"tag": "c:black_dyes"
+		}
+	],
+	"result": {
+		"item": "mtr:platform_uk_1",
+		"count": 6
+	}
+}
