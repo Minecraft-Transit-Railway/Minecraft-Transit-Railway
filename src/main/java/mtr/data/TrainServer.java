@@ -132,7 +132,13 @@ public class TrainServer extends Train {
 					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
 					world.getBlockTickScheduler().schedule(checkPos, block, 20);
 					break;
-				} else if (block instanceof BlockTrainAnnouncer) {
+				}
+			}
+		}
+		if (!ridingEntities.isEmpty()) {
+			for (int i = 0; i <= 3; i++) {
+				final BlockPos checkPos = new BlockPos(frontPos).down(i);
+				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
