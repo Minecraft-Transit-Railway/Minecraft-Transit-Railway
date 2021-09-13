@@ -5,7 +5,6 @@ import net.minecraft.client.model.ModelPart;
 	import net.minecraft.client.util.math.MatrixStack;
 
 	public class ModelWmata7000Train extends ModelTrainBase {
-
 private final ModelPart window;
 	private final ModelPart walls_window;
 	private final ModelPart wall_right_2_r1;
@@ -2008,5 +2007,4 @@ private static final int DOOR_MAX = 12;
 			}
 
 		}
-
 	}
