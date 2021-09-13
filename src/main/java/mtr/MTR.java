@@ -174,8 +174,13 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_3", Blocks.PIDS_3, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_indented", Blocks.PLATFORM_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("platform_na_1", Blocks.PLATFORM_NA_1, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_1_indented", Blocks.PLATFORM_NA_1_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("platform_na_2", Blocks.PLATFORM_NA_2, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_2_indented", Blocks.PLATFORM_NA_2_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_uk_1", Blocks.PLATFORM_UK_1, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_uk_1_indented", Blocks.PLATFORM_UK_1_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR_1);
 		registerBlock("psd_glass", Blocks.PSD_GLASS_1);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END_1);
