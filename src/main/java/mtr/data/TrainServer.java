@@ -42,7 +42,7 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(World world, int trainLength, float trainSpacing, boolean isOppositeRail) {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
@@ -51,7 +51,7 @@ public class TrainServer extends Train {
 			railProgress += trainLength * trainSpacing;
 			reversed = !reversed;
 		}
-		nextStoppingIndex = getNextStoppingIndex(trainSpacing);
+		nextStoppingIndex = getNextStoppingIndex((int) trainSpacing);
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class TrainServer extends Train {
 
 		final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
 		if (offsetTicks >= 0) {
-			writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+			writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, (int) trainMapping.trainType.getSpacing());
 		}
 
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
@@ -203,10 +203,10 @@ public class TrainServer extends Train {
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
 		if (!path.isEmpty()) {
-			final int trainSpacing = trainMapping.trainType.getSpacing();
-			final int headIndex = getIndex(0, trainSpacing, true);
-			final int tailIndex = getIndex(trainLength, trainSpacing, false);
-			for (int i = tailIndex; i <= headIndex; i++) {
+			final float trainSpacing = trainMapping.trainType.getSpacing();
+			final float headIndex = getIndex(0, trainSpacing, true);
+			final float tailIndex = getIndex(trainLength, trainSpacing, false);
+			for (int i = (int) tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 					trainPositions.add(path.get(i).getRailProduct());
 				}

@@ -175,7 +175,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		try {
-			final int trainSpacing = trainMapping.trainType.getSpacing();
+			final float trainSpacing = trainMapping.trainType.getSpacing();
 			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
@@ -218,9 +218,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						}
 					} else {
 						if (!world.isClient()) {
-							final int checkIndex = getIndex(0, trainSpacing, true) + 1;
-							if (isRailBlocked(checkIndex)) {
-								nextStoppingIndex = checkIndex - 1;
+							final float checkIndex = getIndex(0, trainSpacing, true) + 1;
+							if (isRailBlocked((int) checkIndex)) {
+								nextStoppingIndex = (int) (checkIndex - 1);
 							}
 						}
 
@@ -304,7 +304,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
+	protected final int getIndex(int car, float trainSpacing, boolean roundDown) {
 		for (int i = 0; i < path.size(); i++) {
 			final float tempRailProgress = getRailProgress(car, trainSpacing);
 			final float tempDistance = distances.get(i);
@@ -327,7 +327,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return railSpeed;
 	}
 
-	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(World world, int trainLength, float trainSpacing, boolean isOppositeRail) {
 	}
 
 	protected abstract void simulateCar(
@@ -352,13 +352,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
 	}
 
-	private float getRailProgress(int car, int trainSpacing) {
+	private float getRailProgress(int car, float trainSpacing) {
 		return railProgress - car * trainSpacing;
 	}
 
-	private Vec3d getRoutePosition(int car, int trainSpacing) {
-		final int index = getIndex(car, trainSpacing, false);
-		return path.get(index).rail.getPosition(getRailProgress(car, trainSpacing) - (index == 0 ? 0 : distances.get(index - 1)));
+	private Vec3d getRoutePosition(int car, float trainSpacing) {
+		final float index = getIndex(car, trainSpacing, false);
+		return path.get((int) index).rail.getPosition(getRailProgress(car, trainSpacing) - (index == 0 ? 0 : distances.get((int) (index - 1))));
 	}
 
 	private float getDoorValue() {
