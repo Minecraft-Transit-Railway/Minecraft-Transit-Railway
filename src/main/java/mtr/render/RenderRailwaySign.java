@@ -8,6 +8,7 @@ import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
+import mtr.gui.RenderingInstruction;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Tessellator;
@@ -114,7 +115,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
 		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
 
-		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
 		if (vertexConsumers != null && isExit) {
 			final Station station = ClientData.getStation(pos);
@@ -203,12 +204,14 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 				final float smallPadding = margin / selectedCount;
 				final float height = (size - margin * 2 + smallPadding) / selectedCount;
+				final List<RenderingInstruction> renderingInstructions = new ArrayList<>();
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
 					final float topOffset = i * height + margin;
 					final float bottomOffset = (i + 1) * height + margin - smallPadding;
-//					final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, selectedIdsSorted.get(i), true, true);
-//					routeRenderer.renderArrow((flipCustomText ? x - maxWidthLeft * size : x) + margin, (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin, topOffset, bottomOffset, flipCustomText, !flipCustomText, facing, MAX_LIGHT_GLOWING, false);
+					final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, selectedIdsSorted.get(i), true, true);
+					routeRenderer.renderArrow((flipCustomText ? x - maxWidthLeft * size : x) + margin, (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin, topOffset, bottomOffset, flipCustomText, !flipCustomText, facing, MAX_LIGHT_GLOWING, false);
 				}
+				RenderingInstruction.render(matrices, vertexConsumers, immediate, renderingInstructions);
 			}
 		} else {
 			drawTexture.drawTexture(sign.textureId, x + margin, y + margin, signSize, flipTexture);
@@ -222,7 +225,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			}
 		}
 
-		immediate.draw();
+		if (immediate != null) {
+			immediate.draw();
+		}
 	}
 
 	public static CustomResources.CustomSign getSign(String signId) {
