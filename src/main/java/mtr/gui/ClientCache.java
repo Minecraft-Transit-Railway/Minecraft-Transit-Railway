@@ -141,8 +141,9 @@ public class ClientCache extends DataCache {
 		savedRails.forEach(savedRail -> {
 			final BlockPos pos = savedRail.getMidPos(true);
 			if (!posToSavedRails.containsKey(pos)) {
-				posToSavedRails.put(pos, savedRails.stream().filter(savedRail1 -> savedRail1.getMidPos().getX() == pos.getX() && savedRail1.getMidPos().getZ() == pos.getZ()).sorted(Comparator.comparingInt(savedRail1 -> savedRail1.getMidPos().getY())).collect(Collectors.toList()));
+				posToSavedRails.put(pos, new ArrayList<>());
 			}
+			posToSavedRails.get(pos).add(savedRail);
 		});
 	}
 
