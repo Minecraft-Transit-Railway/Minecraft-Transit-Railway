@@ -15,6 +15,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
@@ -36,6 +37,12 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
 
+		matrices.push();
+		matrices.translate(0.5, 0, 0.5);
+		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
+		matrices.pop();
+
 		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			return;
 		}
@@ -53,8 +60,6 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 			RenderingInstruction.addPush(renderingInstructions);
 			RenderingInstruction.addTranslate(renderingInstructions, 0.5F, 0, 0.5F);
 			RenderingInstruction.addRotateYDegrees(renderingInstructions, -facing.asRotation());
-
-			renderAdditionalUnmodified(renderingInstructions, state, facing, light);
 
 			final Platform platform = ClientData.getClosePlatform(pos);
 			final RouteRenderer routeRenderer = new RouteRenderer(renderingInstructions, platform, false, false);
@@ -86,7 +91,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> implements IGui, Bl
 		ClientData.DATA_CACHE.renderingStateMap.put(pos, ((long) glassLength << 3) + arrowDirection);
 	}
 
-	protected void renderAdditionalUnmodified(List<RenderingInstruction> renderingInstructions, BlockState state, Direction facing, int light) {
+	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
 	protected abstract float getZ();
