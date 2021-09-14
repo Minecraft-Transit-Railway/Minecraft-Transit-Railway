@@ -218,9 +218,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						}
 					} else {
 						if (!world.isClient()) {
-							final float checkIndex = getIndex(0, trainSpacing, true) + 1;
-							if (isRailBlocked((int) checkIndex)) {
-								nextStoppingIndex = (int) (checkIndex - 1);
+							final int checkIndex = getIndex(0, trainSpacing, true) + 1;
+							if (isRailBlocked(checkIndex)) {
+								nextStoppingIndex = checkIndex - 1;
 							}
 						}
 

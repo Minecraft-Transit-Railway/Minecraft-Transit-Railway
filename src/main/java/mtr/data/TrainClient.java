@@ -141,11 +141,10 @@ public class TrainClient extends Train {
 
 			final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
-				final boolean trainbarriers = trainType.trainbarriers;
 				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
 				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : newRidingCar + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : newRidingCar + 0.95F) - 0.01F);
-				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (trainbarriers ? 0 : newRidingCar + 0.05F) + 0.01F, (trainbarriers ? trainLength : newRidingCar + 0.95F) - 0.01F);
+
 
 				clientPlayer.fallDistance = 0;
 				clientPlayer.setVelocity(0, 0, 0);
