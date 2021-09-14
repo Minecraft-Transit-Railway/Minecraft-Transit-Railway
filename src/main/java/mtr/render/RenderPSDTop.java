@@ -5,7 +5,6 @@ import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.gui.IDrawing;
-import mtr.gui.RenderingInstruction;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,8 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldAccess;
-
-import java.util.List;
 
 public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
 
@@ -131,7 +128,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	}
 
 	@Override
-	protected void renderAdditional(List<RenderingInstruction> renderingInstructions, RouteRenderer routeRenderer, BlockState state, Direction facing, int light) {
+	protected void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light) {
 		final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
 		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, light);

@@ -1,14 +1,9 @@
 package mtr.gui;
 
 import mtr.data.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ClientCache extends DataCache {
@@ -16,15 +11,14 @@ public class ClientCache extends DataCache {
 	public final Map<BlockPos, List<Platform>> posToPlatforms = new HashMap<>();
 	public final Map<BlockPos, List<Siding>> posToSidings = new HashMap<>();
 	public final Map<Long, Map<Integer, ColorNamePair>> stationIdToRoutes = new HashMap<>();
-	public final Map<BlockPos, Long> renderingStateMap = new HashMap<>();
 
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
 	private final Map<Long, Map<Long, Siding>> depotIdToSidings = new HashMap<>();
 	private final Map<Long, List<PlatformRouteDetails>> platformIdToRoutes = new HashMap<>();
-	private final Map<BlockPos, List<RenderingInstruction>> blockPosToRenderingInstructions = new HashMap<>();
-	private final List<BlockPos> blockPosToRenderingInstructionsToClear = new ArrayList<>();
 
-	private static final int RENDER_CACHE_MAX_DISTANCE = 128;
+	private final List<Long> clearStationIdToPlatforms = new ArrayList<>();
+	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
+	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -46,12 +40,19 @@ public class ClientCache extends DataCache {
 			}
 		}));
 
-		stationIdToPlatforms.clear();
-		depotIdToSidings.clear();
-		platformIdToRoutes.clear();
-		blockPosToRenderingInstructions.keySet().forEach(pos -> {
-			if (!blockPosToRenderingInstructionsToClear.contains(pos)) {
-				blockPosToRenderingInstructionsToClear.add(pos);
+		stationIdToPlatforms.keySet().forEach(id -> {
+			if (!clearStationIdToPlatforms.contains(id)) {
+				clearStationIdToPlatforms.add(id);
+			}
+		});
+		depotIdToSidings.keySet().forEach(id -> {
+			if (!clearDepotIdToSidings.contains(id)) {
+				clearDepotIdToSidings.add(id);
+			}
+		});
+		platformIdToRoutes.keySet().forEach(id -> {
+			if (!clearPlatformIdToRoutes.contains(id)) {
+				clearPlatformIdToRoutes.add(id);
 			}
 		});
 	}
@@ -97,31 +98,15 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
-	public void requestRenderForPos(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, BlockPos pos, boolean forceRefresh, Supplier<List<RenderingInstruction>> renderingInstructionsProvider) {
-		if (forceRefresh && !blockPosToRenderingInstructionsToClear.contains(pos)) {
-			blockPosToRenderingInstructionsToClear.add(pos);
+	public void clearDataIfNeeded() {
+		if (!clearStationIdToPlatforms.isEmpty()) {
+			stationIdToPlatforms.remove(clearStationIdToPlatforms.remove(0));
 		}
-
-		if (!blockPosToRenderingInstructions.containsKey(pos)) {
-			blockPosToRenderingInstructions.put(pos, renderingInstructionsProvider.get());
-
-			final PlayerEntity player = MinecraftClient.getInstance().player;
-			if (player != null) {
-				final BlockPos playerPos = player.getBlockPos();
-				blockPosToRenderingInstructions.keySet().forEach(checkPos -> {
-					if (checkPos.getManhattanDistance(playerPos) > RENDER_CACHE_MAX_DISTANCE) {
-						blockPosToRenderingInstructionsToClear.add(checkPos);
-					}
-				});
-			}
+		if (!clearDepotIdToSidings.isEmpty()) {
+			depotIdToSidings.remove(clearDepotIdToSidings.remove(0));
 		}
-
-		RenderingInstruction.render(matrices, vertexConsumers, immediate, blockPosToRenderingInstructions.get(pos));
-	}
-
-	public void clearBlockPosToRenderingInstructionsIfNeeded() {
-		if (!blockPosToRenderingInstructionsToClear.isEmpty()) {
-			blockPosToRenderingInstructions.remove(blockPosToRenderingInstructionsToClear.remove(0));
+		if (!clearPlatformIdToRoutes.isEmpty()) {
+			platformIdToRoutes.remove(clearPlatformIdToRoutes.remove(0));
 		}
 	}
 
