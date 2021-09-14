@@ -267,7 +267,7 @@ public class RenderTrains implements IGui {
 		}
 		prevPlatformCount = ClientData.PLATFORMS.size();
 		prevSidingCount = ClientData.SIDINGS.size();
-		ClientData.DATA_CACHE.clearBlockPosToRenderingInstructionsIfNeeded();
+		ClientData.DATA_CACHE.clearDataIfNeeded();
 	}
 
 	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance, Direction facing) {
