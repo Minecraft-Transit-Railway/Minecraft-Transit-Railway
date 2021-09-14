@@ -26,7 +26,8 @@ import java.util.*;
 
 public class TrainServer extends Train {
 
-	protected boolean canDeploy;
+	private boolean canDeploy;
+	private boolean justCreated = false;
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 
@@ -36,6 +37,7 @@ public class TrainServer extends Train {
 
 	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id, sidingId, railLength, trainMapping, trainLength, path, distances);
+		justCreated = true;
 	}
 
 	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -200,12 +202,17 @@ public class TrainServer extends Train {
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
-		if (offsetTicks >= 0) {
-			writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+		final boolean update = justCreated || oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		justCreated = false;
+
+		if (update) {
+			final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
+			if (offsetTicks >= 0) {
+				writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+			}
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		return update;
 	}
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
@@ -258,7 +265,7 @@ public class TrainServer extends Train {
 
 			if (pathData.savedRailBaseId != 0) {
 				final long arrivalMillis = System.currentTimeMillis() + (long) ((currentTicks + timeAndSpeed.getLeft()) * Depot.MILLIS_PER_TICK);
-				writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
+				writeScheduleCallback.writeScheduleCallback(id, pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
 			}
 			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
 		} else {
@@ -288,7 +295,7 @@ public class TrainServer extends Train {
 				final double accelerationDistance = (railSpeed * railSpeed - initialSpeed * initialSpeed) / (2 * ACCELERATION);
 
 				if (accelerationDistance > distance) {
-					final double finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance + initialSpeed * initialSpeed);
+					final double finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance) + initialSpeed;
 					return new Pair<>((finalSpeed - initialSpeed) / ACCELERATION, finalSpeed);
 				} else {
 					final double accelerationTicks = (railSpeed - initialSpeed) / ACCELERATION;
@@ -301,6 +308,6 @@ public class TrainServer extends Train {
 
 	@FunctionalInterface
 	public interface WriteScheduleCallback {
-		void writeScheduleCallback(long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
+		void writeScheduleCallback(long trainId, long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
 	}
 }
