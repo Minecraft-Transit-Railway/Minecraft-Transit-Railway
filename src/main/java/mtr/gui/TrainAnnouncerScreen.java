@@ -44,8 +44,8 @@ public class TrainAnnouncerScreen extends Screen implements IGui, IPacket {
 	protected void init() {
 		super.init();
 		IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-		textFieldMessage.setText(initialMessage);
 		textFieldMessage.setMaxLength(MAX_MESSAGE_LENGTH);
+		textFieldMessage.setText(initialMessage);
 		addDrawableChild(textFieldMessage);
 	}
 
