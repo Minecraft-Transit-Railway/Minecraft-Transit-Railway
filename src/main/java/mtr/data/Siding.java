@@ -216,7 +216,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, TrainServer.WriteScheduleCallback writeScheduleCallback) {
+	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, TrainServer.WriteScheduleCallback writeScheduleCallback) {
 		if (depot == null) {
 			return;
 		}
@@ -227,6 +227,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
+			trainIds.add(train.id);
 			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, writeScheduleCallback, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
@@ -256,7 +257,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
 			final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances);
 			trains.add(train);
-			trainsToSync.add(train);
+			trainIds.add(train.id);
 		}
 
 		if (!trainsToRemove.isEmpty()) {

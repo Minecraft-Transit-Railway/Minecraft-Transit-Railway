@@ -45,6 +45,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
+	private static final int MAX_VIEW_DISTANCE = 16;
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
@@ -80,7 +81,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 		final BlockPos pos = entity.getPos();
 		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, rotate90 ? null : facing)) {
+		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
 			return;
 		}
 
@@ -90,12 +91,17 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null || !ClientData.getDataCache().stationIdToPlatforms.containsKey(station.id)) {
+				if (station == null) {
+					return;
+				}
+
+				final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+				if (platforms.isEmpty()) {
 					return;
 				}
 
 				schedules = new HashSet<>();
-				ClientData.getDataCache().stationIdToPlatforms.get(station.id).values().forEach(platform -> {
+				platforms.values().forEach(platform -> {
 					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {

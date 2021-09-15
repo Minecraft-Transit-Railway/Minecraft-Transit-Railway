@@ -182,11 +182,6 @@ public interface IGui {
 		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
 	}
 
-	@FunctionalInterface
-	interface DrawingCallback {
-		void drawingCallback(float x1, float y1, float x2, float y2);
-	}
-
 	enum HorizontalAlignment {
 		LEFT, CENTER, RIGHT;
 

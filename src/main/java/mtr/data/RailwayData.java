@@ -34,21 +34,26 @@ public class RailwayData extends PersistentState implements IPacket {
 	public final Set<Siding> sidings;
 	public final Set<Route> routes;
 	public final Set<Depot> depots;
-	public final DataCache<MinecraftServer> dataCache;
+	public final DataCache dataCache;
+
+	private int prevPlatformCount;
+	private int prevSidingCount;
 
 	private final World world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 
 	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
+	private final Map<Long, Map<Long, Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	private final List<PlayerEntity> playersToSyncSchedules = new ArrayList<>();
 	private final Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
-	public static final int RAIL_UPDATE_DISTANCE = 64;
+	private static final int RAIL_UPDATE_DISTANCE = 64;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
-	private static final int SCHEDULE_UPDATE_TICKS = 100;
+	private static final int SCHEDULE_UPDATE_TICKS = 60;
 
 	private static final String NAME = "mtr_train_data";
 	private static final String KEY_STATIONS = "stations";
@@ -67,8 +72,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
-		dataCache = new DataCache<>(world.getServer(), stations, platforms, sidings, routes, depots);
-		dataCache.start();
+		dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
 		trainPositions.add(new HashSet<>());
 		trainPositions.add(new HashSet<>());
@@ -119,6 +123,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			if (generated) {
 				validateData();
 			}
+			dataCache.sync();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -198,16 +203,16 @@ public class RailwayData extends PersistentState implements IPacket {
 		trainPositions.add(new HashSet<>());
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
-		final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+		final Set<Long> trainIds = new HashSet<>();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, (platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, (trainId, platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				if (lastStation != null) {
 					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashSet<>());
+						schedulesForPlatform.put(platformId, new HashMap<>());
 					}
 
 					final String destinationString;
@@ -223,7 +228,7 @@ public class RailwayData extends PersistentState implements IPacket {
 						destinationString = lastStation.name;
 					}
 
-					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
+					schedulesForPlatform.get(platformId).put(trainId, new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
 				}
 			}));
 		});
@@ -281,33 +286,47 @@ public class RailwayData extends PersistentState implements IPacket {
 
 		if (MTR.isGameTickInterval(SCHEDULE_UPDATE_TICKS)) {
 			world.getPlayers().forEach(player -> {
-				final Set<Long> platformIds = platforms.stream().filter(platform -> {
-					if (platform.isCloseToSavedRail(player.getBlockPos(), PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
-						return true;
-					}
-					final Station station = dataCache.platformIdToStation.get(platform.id);
-					return station != null && station.inArea(player.getBlockPos().getX(), player.getBlockPos().getZ());
-				}).map(platform -> platform.id).collect(Collectors.toSet());
-
-				if (!platformIds.isEmpty()) {
-					final PacketByteBuf packet = PacketByteBufs.create();
-					packet.writeInt(platformIds.size());
-					platformIds.forEach(platformId -> {
-						packet.writeLong(platformId);
-						final Set<Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
-						if (scheduleEntries == null) {
-							packet.writeInt(0);
-						} else {
-							packet.writeInt(scheduleEntries.size());
-							scheduleEntries.forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
-						}
-					});
-					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-						ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SCHEDULE, packet);
-					}
+				if (!playersToSyncSchedules.contains(player)) {
+					playersToSyncSchedules.add(player);
 				}
 			});
 		}
+		if (!playersToSyncSchedules.isEmpty()) {
+			final PlayerEntity player = playersToSyncSchedules.remove(0);
+			final Set<Long> platformIds = platforms.stream().filter(platform -> {
+				if (platform.isCloseToSavedRail(player.getBlockPos(), PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
+					return true;
+				}
+				final Station station = dataCache.platformIdToStation.get(platform.id);
+				return station != null && station.inArea(player.getBlockPos().getX(), player.getBlockPos().getZ());
+			}).map(platform -> platform.id).collect(Collectors.toSet());
+
+			if (!platformIds.isEmpty()) {
+				final PacketByteBuf packet = PacketByteBufs.create();
+				packet.writeInt(platformIds.size());
+				platformIds.forEach(platformId -> {
+					packet.writeLong(platformId);
+					final Map<Long, Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
+					if (scheduleEntries == null) {
+						packet.writeInt(0);
+					} else {
+						final long currentMillis = System.currentTimeMillis();
+						scheduleEntries.keySet().removeIf(trainId -> !trainIds.contains(trainId) || scheduleEntries.get(trainId).departureMillis < currentMillis);
+						packet.writeInt(scheduleEntries.size());
+						scheduleEntries.values().forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
+					}
+				});
+				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SCHEDULE, packet);
+				}
+			}
+		}
+
+		if (prevPlatformCount != platforms.size() || prevSidingCount != sidings.size()) {
+			dataCache.sync();
+		}
+		prevPlatformCount = platforms.size();
+		prevSidingCount = sidings.size();
 
 		markDirty();
 	}
@@ -461,7 +480,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
-	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache<?> dataCache, RouteAndStationsCallback routeAndStationsCallback) {
+	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache dataCache, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;
 		}

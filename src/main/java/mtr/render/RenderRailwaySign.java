@@ -5,6 +5,7 @@ import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.config.CustomResources;
 import mtr.data.*;
+import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import net.minecraft.block.BlockState;
@@ -113,7 +114,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
 		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
 
-		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
 		if (vertexConsumers != null && isExit) {
 			final Station station = ClientData.getStation(pos);
@@ -159,14 +160,14 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				return;
 			}
 
-			final Map<Integer, DataCache.ColorNamePair> routesInStation = ClientData.getDataCache().stationIdToRoutes.get(station.id);
+			final Map<Integer, ClientCache.ColorNamePair> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
 			if (routesInStation != null) {
-				final List<DataCache.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+				final List<ClientCache.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
 				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);
 				final List<Float> textWidths = new ArrayList<>();
-				for (final DataCache.ColorNamePair route : selectedIdsSorted) {
+				for (final ClientCache.ColorNamePair route : selectedIdsSorted) {
 					IDrawing.drawStringWithFont(matrices, textRenderer, null, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), 0, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> textWidths.add(x2));
 				}
 
@@ -182,7 +183,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 				float xOffset = margin * 0.5F;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
-					final DataCache.ColorNamePair route = selectedIdsSorted.get(i);
+					final ClientCache.ColorNamePair route = selectedIdsSorted.get(i);
 					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.CENTER, flipCustomText ? -xOffset : xOffset, y + size / 2, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y + margin, SMALL_OFFSET, x2 + margin / 2, y + size - margin, SMALL_OFFSET, facing, route.color + ARGB_BLACK, MAX_LIGHT_GLOWING));
 					xOffset += textWidths.get(i) + margin * 1.5F;
 				}
@@ -195,7 +196,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				return;
 			}
 
-			final Map<Long, Platform> platformPositions = ClientData.getDataCache().stationIdToPlatforms.get(station.id);
+			final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
 			if (platformPositions != null) {
 				final List<Platform> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).map(platformPositions::get).sorted(NameColorDataBase::compareTo).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
@@ -221,7 +222,9 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			}
 		}
 
-		immediate.draw();
+		if (immediate != null) {
+			immediate.draw();
+		}
 	}
 
 	public static CustomResources.CustomSign getSign(String signId) {

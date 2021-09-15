@@ -69,6 +69,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	}
 
 	@Override
+	public void onClose() {
+		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
+		super.onClose();
+	}
+
+	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
 		availableTrainsList.mouseMoved(mouseX, mouseY);
 	}

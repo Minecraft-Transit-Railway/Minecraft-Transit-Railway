@@ -51,6 +51,8 @@ public final class Platform extends SavedRailBase {
 	@Override
 	public void update(String key, PacketByteBuf packet) {
 		if (KEY_DWELL_TIME.equals(key)) {
+			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			color = packet.readInt();
 			dwellTime = packet.readInt();
 		} else {
 			super.update(key, packet);
@@ -74,6 +76,8 @@ public final class Platform extends SavedRailBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_DWELL_TIME);
+		packet.writeString(name);
+		packet.writeInt(color);
 		packet.writeInt(dwellTime);
 		sendPacket.accept(packet);
 	}
