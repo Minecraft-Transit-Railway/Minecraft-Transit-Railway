@@ -26,15 +26,18 @@ import java.util.*;
 
 public class TrainServer extends Train {
 
-	protected boolean canDeploy;
+	private boolean canDeploy;
+	private boolean justCreated = false;
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 
+	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
 	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
 		super(id, sidingId, railLength, trainMapping, trainLength, path, distances);
+		justCreated = true;
 	}
 
 	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -112,7 +115,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
-		final Box trainBox = new Box(positions[0], positions[positions.length - 1]).expand(RailwayData.RAIL_UPDATE_DISTANCE);
+		final Box trainBox = new Box(positions[0], positions[positions.length - 1]).expand(TRAIN_UPDATE_DISTANCE);
 		world.getPlayers().forEach(player -> {
 			if (trainBox.contains(player.getPos())) {
 				if (!trainsInPlayerRange.containsKey(player)) {
@@ -131,7 +134,13 @@ public class TrainServer extends Train {
 					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
 					world.getBlockTickScheduler().schedule(checkPos, block, 20);
 					break;
-				} else if (block instanceof BlockTrainAnnouncer) {
+				}
+			}
+		}
+		if (!ridingEntities.isEmpty()) {
+			for (int i = 0; i <= 3; i++) {
+				final BlockPos checkPos = new BlockPos(frontPos).down(i);
+				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
@@ -193,12 +202,17 @@ public class TrainServer extends Train {
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
-		if (offsetTicks >= 0) {
-			writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+		final boolean update = justCreated || oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		justCreated = false;
+
+		if (update) {
+			final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
+			if (offsetTicks >= 0) {
+				writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+			}
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		return update;
 	}
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
@@ -251,7 +265,7 @@ public class TrainServer extends Train {
 
 			if (pathData.savedRailBaseId != 0) {
 				final long arrivalMillis = System.currentTimeMillis() + (long) ((currentTicks + timeAndSpeed.getLeft()) * Depot.MILLIS_PER_TICK);
-				writeScheduleCallback.writeScheduleCallback(pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
+				writeScheduleCallback.writeScheduleCallback(id, pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
 			}
 			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
 		} else {
@@ -281,7 +295,7 @@ public class TrainServer extends Train {
 				final double accelerationDistance = (railSpeed * railSpeed - initialSpeed * initialSpeed) / (2 * ACCELERATION);
 
 				if (accelerationDistance > distance) {
-					final double finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance + initialSpeed * initialSpeed);
+					final double finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance) + initialSpeed;
 					return new Pair<>((finalSpeed - initialSpeed) / ACCELERATION, finalSpeed);
 				} else {
 					final double accelerationTicks = (railSpeed - initialSpeed) / ACCELERATION;
@@ -294,6 +308,6 @@ public class TrainServer extends Train {
 
 	@FunctionalInterface
 	public interface WriteScheduleCallback {
-		void writeScheduleCallback(long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
+		void writeScheduleCallback(long trainId, long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
 	}
 }

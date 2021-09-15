@@ -2,6 +2,6 @@
 	"parent": "mtr:block/platform_base",
 	"textures": {
 		"main": "block/stone",
-		"top": "mtr:block/platform_none"
+		"top": "mtr:block/platform_hk_1"
 	}
 }

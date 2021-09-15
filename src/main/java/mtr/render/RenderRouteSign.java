@@ -54,7 +54,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final Map<Long, Platform> platformPositions = ClientData.getDataCache().stationIdToPlatforms.get(station.id);
+		final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
 		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}

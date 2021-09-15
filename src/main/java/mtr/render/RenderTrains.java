@@ -1,9 +1,11 @@
 package mtr.render;
 
 import com.mojang.text2speech.Narrator;
+import mtr.MTRClient;
 import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.*;
+import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
@@ -36,6 +38,8 @@ public class RenderTrains implements IGui {
 
 	public static int maxTrainRenderDistance;
 	private static float gameTick = 0;
+	private static int prevPlatformCount;
+	private static int prevSidingCount;
 
 	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
@@ -79,15 +83,14 @@ public class RenderTrains implements IGui {
 		}
 
 		final int renderDistanceChunks = client.options.viewDistance;
-		final boolean isReplayMod = isReplayMod(player);
-		final float lastFrameDuration = isReplayMod ? 20F / 60 : client.getLastFrameDuration();
+		final float lastFrameDuration = MTRClient.isReplayMod ? 20F / 60 : client.getLastFrameDuration();
 		gameTick += lastFrameDuration;
 
 		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
-			if (lastFrameDuration > 0.8) {
+			if (lastFrameDuration > 0.5) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
-			} else if (lastFrameDuration < 0.5) {
+			} else if (lastFrameDuration < 0.4) {
 				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * 8);
 			}
 		} else {
@@ -119,7 +122,7 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isReplayMod || posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
+				model.render(matrices, vertexConsumers, getTrainTexture(customId, trainType.id), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(player.getBlockPos()) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
@@ -148,7 +151,7 @@ public class RenderTrains implements IGui {
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Text text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -173,7 +176,7 @@ public class RenderTrains implements IGui {
 			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
 
 			if (showAnnouncementMessages || useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
 					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
@@ -182,7 +185,7 @@ public class RenderTrains implements IGui {
 						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
 						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
 
-						final Map<Integer, DataCache.ColorNamePair> routesInStation = ClientData.getDataCache().stationIdToRoutes.get(nextStation.id);
+						final Map<Integer, ClientCache.ColorNamePair> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(nextStation.id);
 						if (routesInStation != null) {
 							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
 								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
@@ -195,7 +198,7 @@ public class RenderTrains implements IGui {
 						}
 
 						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-							final Station nextFinalStation = ClientData.getDataCache().platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+							final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
 							if (nextFinalStation != null) {
 								if (nextRoute.isLightRailRoute) {
 									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
@@ -219,7 +222,7 @@ public class RenderTrains implements IGui {
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useTTSAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.getDataCache(), (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
 					}
@@ -259,6 +262,13 @@ public class RenderTrains implements IGui {
 				}
 			});
 		}));
+
+		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
+			ClientData.DATA_CACHE.sync();
+		}
+		prevPlatformCount = ClientData.PLATFORMS.size();
+		prevSidingCount = ClientData.SIDINGS.size();
+		ClientData.DATA_CACHE.clearDataIfNeeded();
 	}
 
 	public static boolean shouldNotRender(PlayerEntity player, BlockPos pos, int maxDistance, Direction facing) {
@@ -274,7 +284,7 @@ public class RenderTrains implements IGui {
 				playerFacingAway = Math.signum(playerZOffset) == facing.getOffsetZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return player == null || playerFacingAway || player.getBlockPos().getManhattanDistance(pos) > (isReplayMod(player) ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return player == null || playerFacingAway || player.getBlockPos().getManhattanDistance(pos) > (MTRClient.isReplayMod ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
@@ -303,14 +313,6 @@ public class RenderTrains implements IGui {
 
 	private static void drawTexture(MatrixStack matrices, VertexConsumer vertexConsumer, Vec3d pos1, Vec3d pos2, Vec3d pos3, Vec3d pos4, int light) {
 		IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
-	}
-
-	private static boolean isReplayMod(PlayerEntity player) {
-		if (player == null) {
-			return false;
-		} else {
-			return player.getClass().toGenericString().toLowerCase().contains("replaymod");
-		}
 	}
 
 	private static Identifier getTrainTexture(String customId, String trainId) {
