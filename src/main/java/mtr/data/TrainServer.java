@@ -27,21 +27,24 @@ import java.util.*;
 public class TrainServer extends Train {
 
 	private boolean canDeploy;
-	private boolean justCreated = false;
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private final Map<Long, Long> schedule = new HashMap<>();
+
+	private final List<Float> timePoints;
 
 	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
-	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances) {
+	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances, List<Float> timePoints) {
 		super(id, sidingId, railLength, trainMapping, trainLength, path, distances);
-		justCreated = true;
+		this.timePoints = timePoints;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Float> timePoints, NbtCompound nbtCompound) {
 		super(sidingId, railLength, path, distances, nbtCompound);
+		this.timePoints = timePoints;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class TrainServer extends Train {
 			railProgress += trainLength * trainSpacing;
 			reversed = !reversed;
 		}
-		nextStoppingIndex = getNextStoppingIndex(trainSpacing);
+		nextStoppingIndex = getNextStoppingIndex();
 	}
 
 	@Override
@@ -194,7 +197,7 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, WriteScheduleCallback writeScheduleCallback, boolean isUnlimited) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -202,15 +205,28 @@ public class TrainServer extends Train {
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final boolean update = justCreated || oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
-		justCreated = false;
+		final boolean update = oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 
-		if (update) {
-			final int offsetTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world));
-			if (offsetTicks >= 0) {
-				writeArrivalTimes(writeScheduleCallback, isUnlimited, depot.routeIds, offsetTicks, trainMapping, trainLength, trainMapping.trainType.getSpacing());
+		if (update || schedule.isEmpty()) {
+			schedule.clear();
+			final long currentMillis = System.currentTimeMillis();
+			final int index = getIndex(0, 0, true);
+			final long startingMillis = currentMillis + (isOnRoute ? 0 : Math.min(0, depot.getNextDepartureTicks(Depot.getHour(world)) * Depot.MILLIS_PER_TICK));
+			for (int i = index; i < path.size(); i++) {
+				final PathData pathData = path.get(i);
+				if (pathData.dwellTime > 0) {
+					final long arrivalMillis = startingMillis + (long) (timePoints.get(i) - timePoints.get(index)) * Depot.MILLIS_PER_TICK;
+					schedule.put(pathData.savedRailBaseId, arrivalMillis);
+				}
 			}
 		}
+
+		schedule.forEach((platformId, arrivalMillis) -> {
+			if (!schedulesForPlatform.containsKey(platformId)) {
+				schedulesForPlatform.put(platformId, new HashSet<>());
+			}
+			schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, arrivalMillis, trainMapping.trainType, trainLength, platformId, "a", false));
+		});
 
 		return update;
 	}
@@ -232,8 +248,8 @@ public class TrainServer extends Train {
 		canDeploy = true;
 	}
 
-	private int getNextStoppingIndex(int trainSpacing) {
-		final int headIndex = getIndex(0, trainSpacing, false);
+	private int getNextStoppingIndex() {
+		final int headIndex = getIndex(0, 0, false);
 		for (int i = headIndex; i < path.size(); i++) {
 			if (path.get(i).dwellTime > 0) {
 				return i;

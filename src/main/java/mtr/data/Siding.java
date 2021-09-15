@@ -26,6 +26,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
+	private final List<Float> timePoints = new ArrayList<>();
 	private final Set<TrainServer> trains = new HashSet<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
@@ -64,10 +65,10 @@ public class Siding extends SavedRailBase implements IPacket {
 		for (int i = 0; i < pathCount; i++) {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
-		generateDistances();
+		generateDistancesAndTimePoints();
 
 		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
-		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, tagTrains.getCompound(key))));
+		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timePoints, tagTrains.getCompound(key))));
 	}
 
 	public Siding(PacketByteBuf packet) {
@@ -81,7 +82,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		for (int i = 0; i < pathCount; i++) {
 			path.add(new PathData(packet));
 		}
-		generateDistances();
+		generateDistancesAndTimePoints();
 	}
 
 	@Override
@@ -160,7 +161,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			distances.clear();
 		} else if (path.isEmpty()) {
 			generateDefaultPath(rails);
-			generateDistances();
+			generateDistancesAndTimePoints();
 		}
 	}
 
@@ -207,7 +208,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				} else {
 					path.addAll(tempPath);
 				}
-				generateDistances();
+				generateDistancesAndTimePoints();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -216,7 +217,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, TrainServer.WriteScheduleCallback writeScheduleCallback) {
+	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -228,7 +229,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
 			trainIds.add(train.id);
-			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, writeScheduleCallback, unlimitedTrains)) {
+			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
 
@@ -255,7 +256,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-			final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances);
+			final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances, timePoints);
 			trains.add(train);
 			trainIds.add(train.id);
 		}
@@ -288,16 +289,48 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(0, id, railLength, trainMapping, trainLength, path, distances));
+		trains.add(new TrainServer(0, id, railLength, trainMapping, trainLength, path, distances, timePoints));
 	}
 
-	private void generateDistances() {
+	private void generateDistancesAndTimePoints() {
 		distances.clear();
-		float sum = 0;
+		timePoints.clear();
+
+		float distanceSum = 0;
+		float timeSum = 0;
+		float speed = Train.ACCELERATION;
 		for (final PathData pathData : path) {
-			sum += pathData.rail.getLength();
-			distances.add(sum);
+			final float railLength = (float) pathData.rail.getLength();
+			distanceSum += railLength;
+			distances.add(distanceSum);
+
+			float distanceTracker = 0;
+			final RailType railType = pathData.rail.railType;
+			while (distanceTracker < railLength) {
+				final float remainingDistance = railLength - distanceTracker;
+				final float railSpeed = railType.canAccelerate ? railType.maxBlocksPerTick : speed;
+				if (speed == railSpeed) {
+					timeSum += remainingDistance / speed;
+					distanceTracker = railLength;
+				} else {
+					final float accelerationDistance = Math.min(Math.abs(railSpeed * railSpeed - speed * speed) / (2 * Train.ACCELERATION), remainingDistance);
+					final float newSpeed = (float) Math.sqrt((speed < railSpeed ? 2 : -2) * Train.ACCELERATION * accelerationDistance + speed * speed);
+					timeSum += 2 * accelerationDistance / (speed + newSpeed);
+					speed = newSpeed;
+					distanceTracker += accelerationDistance;
+				}
+			}
+
+			if (pathData.dwellTime > 0) {
+				timeSum += speed / (2 * Train.ACCELERATION);
+				timePoints.add(timeSum);
+				timeSum += pathData.dwellTime * 10;
+				speed = Train.ACCELERATION;
+			} else {
+				timePoints.add(timeSum);
+			}
 		}
+
 		if (path.size() != 1) {
 			trains.removeIf(train -> (train.id == 0) == unlimitedTrains);
 		}
