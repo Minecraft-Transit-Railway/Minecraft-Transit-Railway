@@ -104,6 +104,7 @@ public final class ClientData {
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
 
+		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
 	}
 

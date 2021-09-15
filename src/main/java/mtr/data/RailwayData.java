@@ -44,14 +44,13 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
-	private final Map<Long, Map<Long, Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final List<PlayerEntity> playersToSyncSchedules = new ArrayList<>();
 	private final Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
-	private static final int RAIL_UPDATE_DISTANCE = 64;
+	private static final int RAIL_UPDATE_DISTANCE = 128;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int SCHEDULE_UPDATE_TICKS = 60;
 
@@ -203,33 +202,13 @@ public class RailwayData extends PersistentState implements IPacket {
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
 		final Set<Long> trainIds = new HashSet<>();
+		final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, (trainId, platformId, arrivalMillis, departureMillis, trainType, trainLength, stopIndex, routeIds) -> useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-				if (lastStation != null) {
-					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashMap<>());
-					}
-
-					final String destinationString;
-					if (thisRoute != null && thisRoute.isLightRailRoute) {
-						final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
-						final String[] lastStationSplit = lastStation.name.split("\\|");
-						final StringBuilder destination = new StringBuilder();
-						for (final String lastStationSplitPart : lastStationSplit) {
-							destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
-						}
-						destinationString = destination.length() > 0 ? destination.substring(1) : "";
-					} else {
-						destinationString = lastStation.name;
-					}
-
-					schedulesForPlatform.get(platformId).put(trainId, new Route.ScheduleEntry(arrivalMillis, departureMillis, trainType, trainLength, platformId, destinationString, nextStation == null));
-				}
-			}));
+			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -305,14 +284,12 @@ public class RailwayData extends PersistentState implements IPacket {
 				packet.writeInt(platformIds.size());
 				platformIds.forEach(platformId -> {
 					packet.writeLong(platformId);
-					final Map<Long, Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
+					final Set<Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
 					if (scheduleEntries == null) {
 						packet.writeInt(0);
 					} else {
-						final long currentMillis = System.currentTimeMillis();
-						scheduleEntries.keySet().removeIf(trainId -> !trainIds.contains(trainId) || scheduleEntries.get(trainId).departureMillis < currentMillis);
 						packet.writeInt(scheduleEntries.size());
-						scheduleEntries.values().forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
+						scheduleEntries.forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
 					}
 				});
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
