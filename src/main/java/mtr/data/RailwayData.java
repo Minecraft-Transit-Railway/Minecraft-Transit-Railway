@@ -202,14 +202,13 @@ public class RailwayData extends PersistentState implements IPacket {
 		trainPositions.add(new HashSet<>());
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
-		final Set<Long> trainIds = new HashSet<>();
 		final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, dataCache, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, schedulesForPlatform);
+			siding.simulateTrain(1, dataCache, trainPositions, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -225,19 +224,22 @@ public class RailwayData extends PersistentState implements IPacket {
 		playersToRemove.forEach(playerRidingCoolDown::remove);
 
 		trainsInPlayerRange.forEach((player, trains) -> {
-			final Set<TrainServer> trainsToRemove = new HashSet<>();
-			trains.forEach(train -> {
+			for (final TrainServer train : trains) {
 				if (!newTrainsInPlayerRange.containsKey(player) || !newTrainsInPlayerRange.get(player).contains(train)) {
-					trainsToRemove.add(train);
-				}
-			});
+					final PacketByteBuf packet = PacketByteBufs.create();
 
-			if (!trainsToRemove.isEmpty()) {
-				final PacketByteBuf packet = PacketByteBufs.create();
-				packet.writeInt(trainsToRemove.size());
-				trainsToRemove.forEach(train -> packet.writeLong(train.id));
-				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_DELETE_TRAINS, packet);
+					if (newTrainsInPlayerRange.containsKey(player)) {
+						packet.writeInt(newTrainsInPlayerRange.get(player).size());
+						newTrainsInPlayerRange.get(player).forEach(trainToKeep -> packet.writeLong(trainToKeep.id));
+					} else {
+						packet.writeInt(0);
+					}
+
+					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
+						ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_DELETE_TRAINS, packet);
+					}
+
+					break;
 				}
 			}
 		});
