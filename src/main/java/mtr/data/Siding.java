@@ -65,10 +65,10 @@ public class Siding extends SavedRailBase implements IPacket {
 		for (int i = 0; i < pathCount; i++) {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
-		generateDistancesAndTimePoints();
 
 		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
 		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timePoints, tagTrains.getCompound(key))));
+		generateDistancesAndTimePoints();
 	}
 
 	public Siding(PacketByteBuf packet) {
@@ -217,7 +217,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -228,7 +228,6 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			trainIds.add(train.id);
 			if (train.simulateTrain(world, ticksElapsed, depot, dataCache, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
@@ -256,9 +255,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-			final TrainServer train = new TrainServer(new Random().nextLong(), id, railLength, trainMapping, trainLength, path, distances, timePoints);
+			final TrainServer train = new TrainServer(unlimitedTrains ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timePoints);
 			trains.add(train);
-			trainIds.add(train.id);
 		}
 
 		if (!trainsToRemove.isEmpty()) {
@@ -289,7 +287,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(0, id, railLength, trainMapping, trainLength, path, distances, timePoints));
+		trains.add(new TrainServer(id, id, railLength, trainMapping, trainLength, path, distances, timePoints));
 	}
 
 	private void generateDistancesAndTimePoints() {
@@ -337,7 +335,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		if (path.size() != 1) {
-			trains.removeIf(train -> (train.id == 0) == unlimitedTrains);
+			trains.removeIf(train -> (train.id == id) == unlimitedTrains);
 		}
 	}
 }

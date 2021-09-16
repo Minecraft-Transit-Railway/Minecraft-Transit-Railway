@@ -61,14 +61,14 @@ public final class ClientData {
 	}
 
 	public static void deleteTrains(MinecraftClient client, PacketByteBuf packet) {
-		final Set<Long> trainIdsToDelete = new HashSet<>();
+		final Set<Long> trainIdsToKeep = new HashSet<>();
 
 		final int trainsCount = packet.readInt();
 		for (int i = 0; i < trainsCount; i++) {
-			trainIdsToDelete.add(packet.readLong());
+			trainIdsToKeep.add(packet.readLong());
 		}
 
-		client.execute(() -> TRAINS.removeIf(train -> trainIdsToDelete.contains(train.id)));
+		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
 	}
 
 	public static void updateTrainRidingPosition(MinecraftClient client, PacketByteBuf packet) {
@@ -104,7 +104,6 @@ public final class ClientData {
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
 
-		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
 	}
 
