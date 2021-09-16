@@ -209,7 +209,7 @@ public class RailwayData extends PersistentState implements IPacket {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, schedulesForPlatform);
+			siding.simulateTrain(1, dataCache, trainPositions, newTrainsInPlayerRange, trainsToSync, trainIds, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));

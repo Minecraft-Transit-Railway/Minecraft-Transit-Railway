@@ -15,7 +15,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -29,7 +28,7 @@ public class TrainServer extends Train {
 	private boolean canDeploy;
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
-	private final Map<Long, Long> schedule = new HashMap<>();
+	private final Map<Long, Route.ScheduleEntry> schedule = new HashMap<>();
 
 	private final List<Float> timePoints;
 
@@ -197,35 +196,45 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
 		final int oldPassengerCount = ridingEntities.size();
+		final int index = getIndex(0, 0, true);
 
 		simulateTrain(world, ticksElapsed, depot);
 
 		final boolean update = oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		final PathData currentPathData = path.get(index);
+		final int currentDwellTime = currentPathData.dwellTime;
+		final long currentMillis = System.currentTimeMillis();
 
-		if (update || schedule.isEmpty()) {
+		if (update || schedule.isEmpty() || speed == 0 && currentDwellTime == 0) {
 			schedule.clear();
-			final long currentMillis = System.currentTimeMillis();
-			final int index = getIndex(0, 0, true);
-			final long startingMillis = currentMillis + (isOnRoute ? 0 : Math.min(0, depot.getNextDepartureTicks(Depot.getHour(world)) * Depot.MILLIS_PER_TICK));
-			for (int i = index; i < path.size(); i++) {
-				final PathData pathData = path.get(i);
+			final long startingMillis = currentMillis + (long) (((isOnRoute ? 0 : Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world)))) - timePoints.get(index) - currentDwellTime * 10L) * Depot.MILLIS_PER_TICK);
+			for (int i = index + 1; i < path.size() + (isUnlimited ? 0 : index); i++) {
+				final PathData pathData = path.get(i % path.size());
 				if (pathData.dwellTime > 0) {
-					final long arrivalMillis = startingMillis + (long) (timePoints.get(i) - timePoints.get(index)) * Depot.MILLIS_PER_TICK;
-					schedule.put(pathData.savedRailBaseId, arrivalMillis);
+					final float extraTicks = i >= timePoints.size() ? timePoints.get(timePoints.size() - 1) : 0;
+					final long arrivalMillis = startingMillis + (long) ((timePoints.get(i % timePoints.size()) + extraTicks) * Depot.MILLIS_PER_TICK);
+					addScheduleEntry(pathData, depot, dataCache, arrivalMillis);
 				}
 			}
 		}
 
-		schedule.forEach((platformId, arrivalMillis) -> {
+		final long currentPlatformId = currentPathData.savedRailBaseId;
+		if (currentPlatformId != 0 && speed == 0 && !schedule.containsKey(currentPlatformId)) {
+			addScheduleEntry(currentPathData, depot, dataCache, 0);
+		}
+
+		schedule.forEach((platformId, scheduleEntry) -> {
 			if (!schedulesForPlatform.containsKey(platformId)) {
 				schedulesForPlatform.put(platformId, new HashSet<>());
 			}
-			schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, arrivalMillis, trainMapping.trainType, trainLength, platformId, "a", false));
+			final long arrivalMillis = scheduleEntry.arrivalMillis;
+			final long newArrivalMillis = currentPlatformId == platformId && speed == 0 ? 0 : Math.max(currentMillis + 2000, arrivalMillis);
+			schedulesForPlatform.get(platformId).add(newArrivalMillis == arrivalMillis ? scheduleEntry : new Route.ScheduleEntry(scheduleEntry, newArrivalMillis));
 		});
 
 		return update;
@@ -258,72 +267,25 @@ public class TrainServer extends Train {
 		return path.size() - 1;
 	}
 
-	private void writeArrivalTimes(WriteScheduleCallback writeScheduleCallback, boolean isUnlimited, List<Long> routeIds, int ticksOffset, CustomResources.TrainMapping trainMapping, int trainLength, int trainSpacing) {
-		final int index = getIndex(0, trainSpacing, true);
-		final Pair<Double, Double> firstTimeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, index, index == 0 ? railProgress : railProgress - distances.get(index - 1), ticksOffset, speed);
-
-		double currentTicks = firstTimeAndSpeed.getLeft() + ticksOffset;
-		double currentSpeed = firstTimeAndSpeed.getRight();
-		for (int i = index + 1; i < path.size() + (isUnlimited ? 0 : index + 1); i++) {
-			final Pair<Double, Double> timeAndSpeed = writeArrivalTime(writeScheduleCallback, routeIds, trainMapping, trainLength, i, 0, currentTicks, currentSpeed);
-			currentTicks += timeAndSpeed.getLeft();
-			currentSpeed = timeAndSpeed.getRight();
-		}
-	}
-
-	private Pair<Double, Double> writeArrivalTime(WriteScheduleCallback writeScheduleCallback, List<Long> routeIds, CustomResources.TrainMapping trainMapping, int trainLength, int index, float progress, double currentTicks, double currentSpeed) {
-		final int indexWrapped = index % path.size();
-		final PathData pathData = path.get(indexWrapped);
-		final Pair<Double, Double> timeAndSpeed = calculateTicksAndSpeed(getRailSpeed(indexWrapped), pathData.rail.getLength(), progress, currentSpeed, pathData.dwellTime > 0 || indexWrapped == nextStoppingIndex);
-
-		if (pathData.dwellTime > 0) {
-			final float stopTicksRemaining = Math.max(pathData.dwellTime * 10 - (indexWrapped == nextStoppingIndex ? stopCounter : 0), 0);
-
-			if (pathData.savedRailBaseId != 0) {
-				final long arrivalMillis = System.currentTimeMillis() + (long) ((currentTicks + timeAndSpeed.getLeft()) * Depot.MILLIS_PER_TICK);
-				writeScheduleCallback.writeScheduleCallback(id, pathData.savedRailBaseId, arrivalMillis, arrivalMillis + (long) (stopTicksRemaining * Depot.MILLIS_PER_TICK), trainMapping.trainType, trainLength, pathData.stopIndex - 1, routeIds);
-			}
-			return new Pair<>(timeAndSpeed.getLeft() + stopTicksRemaining, timeAndSpeed.getRight());
-		} else {
-			return timeAndSpeed;
-		}
-	}
-
-	private static Pair<Double, Double> calculateTicksAndSpeed(double railSpeed, double railLength, float progress, double initialSpeed, boolean shouldStop) {
-		final double distance = railLength - progress;
-
-		if (distance <= 0) {
-			return new Pair<>(0D, initialSpeed);
-		}
-
-		if (shouldStop) {
-			if (initialSpeed * initialSpeed / (2 * distance) >= ACCELERATION) {
-				return new Pair<>(2 * distance / initialSpeed, 0D);
-			}
-
-			final double maxSpeed = Math.min(railSpeed, Math.sqrt(ACCELERATION * distance + initialSpeed * initialSpeed / 2));
-			final double ticks = (2 * ACCELERATION * distance + initialSpeed * initialSpeed - 2 * initialSpeed * maxSpeed + 2 * maxSpeed * maxSpeed) / (2 * ACCELERATION * maxSpeed);
-			return new Pair<>(ticks, 0D);
-		} else {
-			if (initialSpeed == railSpeed) {
-				return new Pair<>(distance / initialSpeed, initialSpeed);
-			} else {
-				final double accelerationDistance = (railSpeed * railSpeed - initialSpeed * initialSpeed) / (2 * ACCELERATION);
-
-				if (accelerationDistance > distance) {
-					final double finalSpeed = (float) Math.sqrt(2 * ACCELERATION * distance) + initialSpeed;
-					return new Pair<>((finalSpeed - initialSpeed) / ACCELERATION, finalSpeed);
+	private void addScheduleEntry(final PathData pathData, Depot depot, DataCache dataCache, long arrivalMillis) {
+		final long platformId = pathData.savedRailBaseId;
+		RailwayData.useRoutesAndStationsFromIndex(pathData.stopIndex, depot.routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (lastStation != null) {
+				final String destinationString;
+				if (thisRoute != null && thisRoute.isLightRailRoute) {
+					final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+					final String[] lastStationSplit = lastStation.name.split("\\|");
+					final StringBuilder destination = new StringBuilder();
+					for (final String lastStationSplitPart : lastStationSplit) {
+						destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+					}
+					destinationString = destination.length() > 0 ? destination.substring(1) : "";
 				} else {
-					final double accelerationTicks = (railSpeed - initialSpeed) / ACCELERATION;
-					final double coastingTicks = (distance - accelerationDistance) / railSpeed;
-					return new Pair<>(accelerationTicks + coastingTicks, railSpeed);
+					destinationString = lastStation.name;
 				}
-			}
-		}
-	}
 
-	@FunctionalInterface
-	public interface WriteScheduleCallback {
-		void writeScheduleCallback(long trainId, long platformId, long arrivalMillis, long departureMillis, TrainType trainType, int trainLength, int stopIndex, List<Long> routeIds);
+				schedule.put(platformId, new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, destinationString, nextStation == null));
+			}
+		});
 	}
 }
