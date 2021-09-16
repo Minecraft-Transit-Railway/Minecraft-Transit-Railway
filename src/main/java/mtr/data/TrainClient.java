@@ -119,11 +119,6 @@ public class TrainClient extends Train {
 			}
 
 			final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
-				final int newRidingCar = (int) Math.floor(clientPercentageZ);
-				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
-				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : newRidingCar + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : newRidingCar + 0.95F) - 0.01F);
-
 				clientPlayer.fallDistance = 0;
 				clientPlayer.setVelocity(0, 0, 0);
 				final Vec3d playerOffset = new Vec3d(getValueFromPercentage(clientPercentageX, trainType.width), 0, getValueFromPercentage(MathHelper.fractionalPart(clientPercentageZ), realSpacingRender)).rotateX(pitch).rotateY(yaw);
@@ -144,9 +139,12 @@ public class TrainClient extends Train {
 
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
 			calculateCar(world, positions, currentRidingCar, doorValue, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
 				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
 				clientPercentageX += movement.x / trainType.width;
 				clientPercentageZ += movement.z / realSpacingRender;
+				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
+				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (shouldRenderConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (shouldRenderConnection ? trainLength : currentRidingCar + 0.95F) - 0.01F);
 				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				if (currentRidingCar == newRidingCar) {
 					moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
