@@ -233,7 +233,7 @@ public class TrainServer extends Train {
 				schedulesForPlatform.put(platformId, new HashSet<>());
 			}
 			final long arrivalMillis = scheduleEntry.arrivalMillis;
-			final long newArrivalMillis = currentPlatformId == platformId && speed == 0 ? 0 : Math.max(currentMillis + 2000, arrivalMillis);
+			final long newArrivalMillis = currentPlatformId == platformId && speed == 0 ? 0 : Math.max(currentMillis + 2500, arrivalMillis);
 			schedulesForPlatform.get(platformId).add(newArrivalMillis == arrivalMillis ? scheduleEntry : new Route.ScheduleEntry(scheduleEntry, newArrivalMillis));
 		});
 
