@@ -127,10 +127,10 @@ public class TrainServer extends Train {
 			}
 		});
 
-		final Vec3d frontPos = positions[reversed ? positions.length - 1 : 0];
-		if (!skipScanBlocks(world, frontPos.x, frontPos.y, frontPos.z)) {
+		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
+		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			for (int i = 0; i <= 3; i++) {
-				final BlockPos checkPos = new BlockPos(frontPos).down(i);
+				final BlockPos checkPos = frontPos.down(i);
 				final Block block = world.getBlockState(checkPos).getBlock();
 				if (block instanceof BlockTrainSensor) {
 					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
