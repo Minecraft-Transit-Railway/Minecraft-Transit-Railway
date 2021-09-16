@@ -245,20 +245,31 @@ public class RailwayData extends PersistentState implements IPacket {
 		});
 
 		newTrainsInPlayerRange.forEach((player, trains) -> {
-			final Set<TrainServer> trainsToUpdate = new HashSet<>();
+			final List<PacketByteBuf> trainsPacketsToUpdate = new ArrayList<>();
 			trains.forEach(train -> {
 				if (trainsToSync.contains(train) || !trainsInPlayerRange.containsKey(player) || !trainsInPlayerRange.get(player).contains(train)) {
-					trainsToUpdate.add(train);
+					final PacketByteBuf packet = PacketByteBufs.create();
+					train.writePacket(packet);
+					if (packet.readableBytes() < MAX_PACKET_BYTES) {
+						trainsPacketsToUpdate.add(packet);
+					}
 				}
 			});
 
-			if (!trainsToUpdate.isEmpty()) {
-				final PacketByteBuf packet = PacketByteBufs.create();
-				packet.writeInt(trainsToUpdate.size());
-				trainsToUpdate.forEach(train -> train.writePacket(packet));
-				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAINS, packet);
+			while (!trainsPacketsToUpdate.isEmpty()) {
+				PacketByteBuf packet = PacketByteBufs.create();
+
+				while (!trainsPacketsToUpdate.isEmpty()) {
+					final PacketByteBuf trainPacket = trainsPacketsToUpdate.get(0);
+					if (packet.readableBytes() + trainPacket.readableBytes() < MAX_PACKET_BYTES) {
+						packet.writeBytes(trainPacket);
+						trainsPacketsToUpdate.remove(0);
+					} else {
+						break;
+					}
 				}
+
+				ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAINS, packet);
 			}
 		});
 
