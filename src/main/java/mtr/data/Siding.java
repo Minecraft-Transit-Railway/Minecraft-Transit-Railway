@@ -217,7 +217,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Set<Long> trainIds, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -229,7 +229,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
 			trainIds.add(train.id);
-			if (train.simulateTrain(world, ticksElapsed, depot, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
+			if (train.simulateTrain(world, ticksElapsed, depot, dataCache, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
 
@@ -304,8 +304,13 @@ public class Siding extends SavedRailBase implements IPacket {
 			distanceSum += railLength;
 			distances.add(distanceSum);
 
-			float distanceTracker = 0;
 			final RailType railType = pathData.rail.railType;
+			if (speed == Train.ACCELERATION && !railType.canAccelerate) {
+				timePoints.add(timeSum);
+				continue;
+			}
+
+			float distanceTracker = 0;
 			while (distanceTracker < railLength) {
 				final float remainingDistance = railLength - distanceTracker;
 				final float railSpeed = railType.canAccelerate ? railType.maxBlocksPerTick : speed;
