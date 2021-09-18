@@ -26,7 +26,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
 	private final List<Float> distances = new ArrayList<>();
-	private final List<Float> timePoints = new ArrayList<>();
+	private final List<TimeSegment> timeSegments = new ArrayList<>();
 	private final Set<TrainServer> trains = new HashSet<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
@@ -66,23 +66,18 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
+		generateTimeSegments(path, timeSegments, trainMapping, trainLength, railLength);
+
 		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
-		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timePoints, tagTrains.getCompound(key))));
-		generateDistancesAndTimePoints();
+		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
+		generateDistances();
 	}
 
 	public Siding(PacketByteBuf packet) {
 		super(packet);
-
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
-
-		final int pathCount = packet.readInt();
-		for (int i = 0; i < pathCount; i++) {
-			path.add(new PathData(packet));
-		}
-		generateDistancesAndTimePoints();
 	}
 
 	@Override
@@ -103,14 +98,10 @@ public class Siding extends SavedRailBase implements IPacket {
 	@Override
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
-
 		packet.writeFloat(railLength);
 		packet.writeString(trainMapping.customId);
 		packet.writeInt(trainMapping.trainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
-
-		packet.writeInt(path.size());
-		path.forEach(pathData -> pathData.writePacket(packet));
 	}
 
 	@Override
@@ -161,7 +152,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			distances.clear();
 		} else if (path.isEmpty()) {
 			generateDefaultPath(rails);
-			generateDistancesAndTimePoints();
+			generateDistances();
 		}
 	}
 
@@ -200,6 +191,9 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
+		final List<TimeSegment> tempTimeSegments = new ArrayList<>();
+		generateTimeSegments(tempPath, tempTimeSegments, trainMapping, trainLength, railLength);
+
 		minecraftServer.execute(() -> {
 			try {
 				path.clear();
@@ -208,7 +202,9 @@ public class Siding extends SavedRailBase implements IPacket {
 				} else {
 					path.addAll(tempPath);
 				}
-				generateDistancesAndTimePoints();
+				timeSegments.clear();
+				timeSegments.addAll(tempTimeSegments);
+				generateDistances();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -255,7 +251,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-			final TrainServer train = new TrainServer(unlimitedTrains ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timePoints);
+			final TrainServer train = new TrainServer(unlimitedTrains ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timeSegments);
 			trains.add(train);
 		}
 
@@ -287,55 +283,115 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(id, id, railLength, trainMapping, trainLength, path, distances, timePoints));
+		trains.add(new TrainServer(id, id, railLength, trainMapping, trainLength, path, distances, timeSegments));
 	}
 
-	private void generateDistancesAndTimePoints() {
+	private void generateDistances() {
 		distances.clear();
-		timePoints.clear();
 
 		float distanceSum = 0;
-		float timeSum = 0;
-		float speed = Train.ACCELERATION;
 		for (final PathData pathData : path) {
-			final float railLength = (float) pathData.rail.getLength();
-			distanceSum += railLength;
+			distanceSum += pathData.rail.getLength();
 			distances.add(distanceSum);
-
-			final RailType railType = pathData.rail.railType;
-			if (speed == Train.ACCELERATION && !railType.canAccelerate) {
-				timePoints.add(timeSum);
-				continue;
-			}
-
-			float distanceTracker = 0;
-			while (distanceTracker < railLength) {
-				final float remainingDistance = railLength - distanceTracker;
-				final float railSpeed = railType.canAccelerate ? railType.maxBlocksPerTick : speed;
-				if (speed == railSpeed) {
-					timeSum += remainingDistance / speed;
-					distanceTracker = railLength;
-				} else {
-					final float accelerationDistance = Math.min(Math.abs(railSpeed * railSpeed - speed * speed) / (2 * Train.ACCELERATION), remainingDistance);
-					final float newSpeed = (float) Math.sqrt((speed < railSpeed ? 2 : -2) * Train.ACCELERATION * accelerationDistance + speed * speed);
-					timeSum += 2 * accelerationDistance / (speed + newSpeed);
-					speed = newSpeed;
-					distanceTracker += accelerationDistance;
-				}
-			}
-
-			if (pathData.dwellTime > 0) {
-				timeSum += speed / (2 * Train.ACCELERATION);
-				timePoints.add(timeSum);
-				timeSum += pathData.dwellTime * 10;
-				speed = Train.ACCELERATION;
-			} else {
-				timePoints.add(timeSum);
-			}
 		}
 
 		if (path.size() != 1) {
 			trains.removeIf(train -> (train.id == id) == unlimitedTrains);
+		}
+	}
+
+	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, CustomResources.TrainMapping trainMapping, int trainLength, float railLength) {
+		timeSegments.clear();
+
+		float distanceSum = 0;
+		final List<Float> stoppingDistances = new ArrayList<>();
+		for (final PathData pathData : path) {
+			distanceSum += pathData.rail.getLength();
+			if (pathData.dwellTime > 0) {
+				stoppingDistances.add(distanceSum);
+			}
+		}
+
+		float railProgress = (railLength + trainLength * trainMapping.trainType.getSpacing()) / 2;
+		float nextStoppingDistance = 0;
+		float speed = 0;
+		float time = 0;
+		distanceSum = 0;
+		for (int i = 0; i < path.size(); i++) {
+			if (railProgress >= nextStoppingDistance) {
+				if (stoppingDistances.isEmpty()) {
+					break;
+				}
+				nextStoppingDistance = stoppingDistances.remove(0);
+			}
+
+			final PathData pathData = path.get(i);
+			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.railType.maxBlocksPerTick : Math.max(speed, RailType.WOODEN.maxBlocksPerTick);
+			distanceSum += pathData.rail.getLength();
+
+			while (railProgress < distanceSum) {
+				final int speedChange;
+				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5F * speed * speed / Train.ACCELERATION) {
+					speed = Math.max(speed - Train.ACCELERATION, Train.ACCELERATION);
+					speedChange = -1;
+				} else if (speed < railSpeed) {
+					speed = Math.min(speed + Train.ACCELERATION, railSpeed);
+					speedChange = 1;
+				} else {
+					speedChange = 0;
+				}
+
+				if (timeSegments.isEmpty() || timeSegments.get(timeSegments.size() - 1).speedChange != speedChange) {
+					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange));
+				}
+
+				railProgress = Math.min(railProgress + speed, distanceSum);
+				time++;
+
+				final TimeSegment timeSegment = timeSegments.get(timeSegments.size() - 1);
+				timeSegment.endRailProgress = railProgress;
+				timeSegment.endTime = time;
+				timeSegment.savedRailBaseId = railProgress == distanceSum ? pathData.savedRailBaseId : 0;
+			}
+
+			time += pathData.dwellTime * 10;
+
+			if (i + 1 < path.size() && pathData.isOppositeRail(path.get(i + 1))) {
+				railProgress += trainMapping.trainType.getSpacing() * trainLength;
+			}
+		}
+	}
+
+	public static class TimeSegment {
+
+		public float endRailProgress;
+		public long savedRailBaseId;
+		private float endTime;
+
+		public final float startRailProgress;
+		private final float startSpeed;
+		private final float startTime;
+		private final int speedChange;
+
+		private TimeSegment(float startRailProgress, float startSpeed, float startTime, int speedChange) {
+			this.startRailProgress = startRailProgress;
+			this.startSpeed = startSpeed;
+			this.startTime = startTime;
+			this.speedChange = Integer.compare(speedChange, 0);
+		}
+
+		public float getTime(float railProgress) {
+			final float distance = railProgress - startRailProgress;
+			if (speedChange == 0) {
+				return startTime + distance / startSpeed;
+			} else {
+				final float acceleration = speedChange * Train.ACCELERATION;
+				return startTime + (float) (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration;
+			}
+		}
+
+		public float getTimeDifference(float time) {
+			return endTime - time;
 		}
 	}
 }

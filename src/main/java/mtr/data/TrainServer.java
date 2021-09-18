@@ -28,22 +28,21 @@ public class TrainServer extends Train {
 	private boolean canDeploy;
 	private Set<UUID> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
-	private final Map<Long, Route.ScheduleEntry> schedule = new HashMap<>();
 
-	private final List<Float> timePoints;
+	private final List<Siding.TimeSegment> timeSegments;
 
 	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
-	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances, List<Float> timePoints) {
+	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments) {
 		super(id, sidingId, railLength, trainMapping, trainLength, path, distances);
-		this.timePoints = timePoints;
+		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Float> timePoints, NbtCompound nbtCompound) {
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, NbtCompound nbtCompound) {
 		super(sidingId, railLength, path, distances, nbtCompound);
-		this.timePoints = timePoints;
+		this.timeSegments = timeSegments;
 	}
 
 	@Override
@@ -201,43 +200,21 @@ public class TrainServer extends Train {
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
 		final int oldPassengerCount = ridingEntities.size();
-		final int index = getIndex(0, 0, true);
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final boolean update = oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
-		final PathData currentPathData = path.get(index);
-		final int currentDwellTime = currentPathData.dwellTime;
-		final long currentMillis = System.currentTimeMillis();
-
-		if (update || schedule.isEmpty() || speed == 0 && currentDwellTime == 0) {
-			schedule.clear();
-			final long startingMillis = currentMillis + (long) (((isOnRoute ? 0 : Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world)))) - timePoints.get(index) - currentDwellTime * 10L) * Depot.MILLIS_PER_TICK);
-			for (int i = index + 1; i < path.size() + (isUnlimited ? 0 : index); i++) {
-				final PathData pathData = path.get(i % path.size());
-				if (pathData.dwellTime > 0) {
-					final float extraTicks = i >= timePoints.size() ? timePoints.get(timePoints.size() - 1) : 0;
-					final long arrivalMillis = startingMillis + (long) ((timePoints.get(i % timePoints.size()) + extraTicks) * Depot.MILLIS_PER_TICK);
-					addScheduleEntry(pathData, depot, dataCache, arrivalMillis);
-				}
+		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (isOnRoute ? 0 : (long) Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world))) * Depot.MILLIS_PER_TICK);
+		float currentTime = -1;
+		for (final Siding.TimeSegment timeSegment : timeSegments) {
+			if (currentTime < 0 && RailwayData.isBetween(railProgress, timeSegment.startRailProgress, timeSegment.endRailProgress)) {
+				currentTime = timeSegment.getTime(railProgress);
+			}
+			if (currentTime >= 0 && timeSegment.savedRailBaseId != 0) {
+				addScheduleEntry(schedulesForPlatform, path.get(getIndex(timeSegment.endRailProgress, true)), depot, dataCache, currentMillis + (long) (timeSegment.getTimeDifference(currentTime) * Depot.MILLIS_PER_TICK));
 			}
 		}
 
-		final long currentPlatformId = currentPathData.savedRailBaseId;
-		if (currentPlatformId != 0 && speed == 0 && !schedule.containsKey(currentPlatformId)) {
-			addScheduleEntry(currentPathData, depot, dataCache, 0);
-		}
-
-		schedule.forEach((platformId, scheduleEntry) -> {
-			if (!schedulesForPlatform.containsKey(platformId)) {
-				schedulesForPlatform.put(platformId, new HashSet<>());
-			}
-			final long arrivalMillis = scheduleEntry.arrivalMillis;
-			final long newArrivalMillis = currentPlatformId == platformId && speed == 0 ? 0 : Math.max(currentMillis + 2500, arrivalMillis);
-			schedulesForPlatform.get(platformId).add(newArrivalMillis == arrivalMillis ? scheduleEntry : new Route.ScheduleEntry(scheduleEntry, newArrivalMillis));
-		});
-
-		return update;
+		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
@@ -267,7 +244,7 @@ public class TrainServer extends Train {
 		return path.size() - 1;
 	}
 
-	private void addScheduleEntry(final PathData pathData, Depot depot, DataCache dataCache, long arrivalMillis) {
+	private void addScheduleEntry(Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, final PathData pathData, Depot depot, DataCache dataCache, long arrivalMillis) {
 		final long platformId = pathData.savedRailBaseId;
 		RailwayData.useRoutesAndStationsFromIndex(pathData.stopIndex, depot.routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (lastStation != null) {
@@ -284,7 +261,10 @@ public class TrainServer extends Train {
 					destinationString = lastStation.name;
 				}
 
-				schedule.put(platformId, new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, destinationString, nextStation == null));
+				if (!schedulesForPlatform.containsKey(platformId)) {
+					schedulesForPlatform.put(platformId, new HashSet<>());
+				}
+				schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, destinationString, nextStation == null));
 			}
 		});
 	}
