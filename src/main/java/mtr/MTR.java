@@ -270,13 +270,15 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 
-		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
-			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-			if (railwayData != null) {
-				railwayData.simulateTrains();
-			}
+		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
+			minecraftServer.getWorlds().forEach(serverWorld -> {
+				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
+				if (railwayData != null) {
+					railwayData.simulateTrains();
+				}
+			});
 			gameTick++;
-		}));
+		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
