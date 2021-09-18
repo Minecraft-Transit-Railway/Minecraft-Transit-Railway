@@ -204,46 +204,63 @@ public class TrainServer extends Train {
 		simulateTrain(world, ticksElapsed, depot);
 
 		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (isOnRoute ? 0 : (long) Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world))) * Depot.MILLIS_PER_TICK);
+
 		float currentTime = -1;
+		int startingIndex = 0;
 		for (final Siding.TimeSegment timeSegment : timeSegments) {
-			if (currentTime < 0 && RailwayData.isBetween(railProgress, timeSegment.startRailProgress, timeSegment.endRailProgress)) {
+			if (RailwayData.isBetween(railProgress, timeSegment.startRailProgress, timeSegment.endRailProgress)) {
 				currentTime = timeSegment.getTime(railProgress);
+				break;
 			}
+			startingIndex++;
+		}
 
-			if (currentTime >= 0 && timeSegment.savedRailBaseId != 0) {
-				if (timeSegment.routeId == 0) {
-					RailwayData.useRoutesAndStationsFromIndex(path.get(getIndex(timeSegment.endRailProgress, true)).stopIndex - 1, depot.routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-						timeSegment.lastStationId = lastStation == null ? 0 : lastStation.id;
-						timeSegment.routeId = thisRoute == null ? 0 : thisRoute.id;
-						timeSegment.isTerminating = nextStation == null;
-					});
-				}
+		if (currentTime >= 0) {
+			float offsetTime = 0;
+			for (int i = startingIndex; i < timeSegments.size() + (isUnlimited ? 0 : startingIndex); i++) {
+				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
-				final String destinationString;
-				final Station lastStation = dataCache.stationIdMap.get(timeSegment.lastStationId);
-				if (lastStation != null) {
-					final Route thisRoute = dataCache.routeIdMap.get(timeSegment.routeId);
-					if (thisRoute != null && thisRoute.isLightRailRoute) {
-						final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
-						final String[] lastStationSplit = lastStation.name.split("\\|");
-						final StringBuilder destination = new StringBuilder();
-						for (final String lastStationSplitPart : lastStationSplit) {
-							destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
-						}
-						destinationString = destination.length() > 0 ? destination.substring(1) : "";
-					} else {
-						destinationString = lastStation.name;
+				if (timeSegment.savedRailBaseId != 0) {
+					if (timeSegment.routeId == 0) {
+						RailwayData.useRoutesAndStationsFromIndex(path.get(getIndex(timeSegment.endRailProgress, true)).stopIndex - 1, depot.routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+							timeSegment.lastStationId = lastStation == null ? 0 : lastStation.id;
+							timeSegment.routeId = thisRoute == null ? 0 : thisRoute.id;
+							timeSegment.isTerminating = nextStation == null;
+						});
 					}
-				} else {
-					destinationString = "";
+
+					final String destinationString;
+					final Station lastStation = dataCache.stationIdMap.get(timeSegment.lastStationId);
+					if (lastStation != null) {
+						final Route thisRoute = dataCache.routeIdMap.get(timeSegment.routeId);
+						if (thisRoute != null && thisRoute.isLightRailRoute) {
+							final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
+							final String[] lastStationSplit = lastStation.name.split("\\|");
+							final StringBuilder destination = new StringBuilder();
+							for (final String lastStationSplitPart : lastStationSplit) {
+								destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
+							}
+							destinationString = destination.length() > 0 ? destination.substring(1) : "";
+						} else {
+							destinationString = lastStation.name;
+						}
+					} else {
+						destinationString = "";
+					}
+
+					final long platformId = timeSegment.savedRailBaseId;
+					if (!schedulesForPlatform.containsKey(platformId)) {
+						schedulesForPlatform.put(platformId, new HashSet<>());
+					}
+
+					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
+					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, destinationString, timeSegment.isTerminating));
+
 				}
 
-				if (!schedulesForPlatform.containsKey(timeSegment.savedRailBaseId)) {
-					schedulesForPlatform.put(timeSegment.savedRailBaseId, new HashSet<>());
+				if (i == timeSegments.size() - 1) {
+					offsetTime = timeSegment.endTime;
 				}
-
-				final long arrivalMillis = currentMillis + (long) (timeSegment.getTimeDifference(currentTime) * Depot.MILLIS_PER_TICK);
-				schedulesForPlatform.get(timeSegment.savedRailBaseId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, timeSegment.savedRailBaseId, destinationString, timeSegment.isTerminating));
 			}
 		}
 
