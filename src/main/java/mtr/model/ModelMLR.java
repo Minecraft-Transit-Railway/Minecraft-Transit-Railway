@@ -1208,7 +1208,7 @@ public class ModelMLR extends ModelTrainBase {
 
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, 13, "door_overlay_mlr_left.png", "door_overlay_mlr_right.png");
-	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR();
+	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_mlr_top.png");
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
