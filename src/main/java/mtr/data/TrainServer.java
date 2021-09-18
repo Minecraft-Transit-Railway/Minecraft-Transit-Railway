@@ -174,7 +174,7 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue) {
+	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
 		if (block instanceof BlockPSDAPGDoorBase) {
 			for (int i = -1; i <= 1; i++) {
 				final BlockPos doorPos = checkPos.up(i);
@@ -185,8 +185,8 @@ public class TrainServer extends Train {
 					final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 					world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
-					if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(checkPos.up(), doorBlock)) {
-						world.getBlockTickScheduler().schedule(new BlockPos(doorPos), doorBlock, 20);
+					if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(doorPos, doorBlock)) {
+						world.getBlockTickScheduler().schedule(doorPos, doorBlock, dwellTicks);
 					}
 				}
 			}
