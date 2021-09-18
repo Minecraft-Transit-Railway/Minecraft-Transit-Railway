@@ -180,6 +180,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
+			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainLength * trainSpacing) / 2;
@@ -191,7 +192,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					startUp(world, trainLength, trainSpacing, isOppositeRail());
 				}
 			} else {
-				oldDoorValue = nextStoppingIndex < path.size() ? Math.abs(getDoorValue()) : 0;
+				oldDoorValue = Math.abs(getDoorValue());
 				final float newAcceleration = ACCELERATION * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainLength * trainSpacing) / 2) {
@@ -201,7 +202,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 				} else {
 					if (speed <= 0) {
 						speed = 0;
-						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 						if (dwellTicks == 0) {
 							doorValueRaw = 0;
@@ -263,7 +263,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 				for (int i = 0; i < trainLength; i++) {
 					final int ridingCar = i;
-					calculateCar(world, positions, i, Math.abs(doorValueRaw), (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
+					calculateCar(world, positions, i, Math.abs(doorValueRaw), dwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
 						simulateCar(
 								world, ridingCar, ticksElapsed,
 								x, y, z,
@@ -285,7 +285,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final void calculateCar(World world, Vec3d[] positions, int index, float doorValue, CalculateCarCallback calculateCarCallback) {
+	protected final void calculateCar(World world, Vec3d[] positions, int index, float doorValue, int dwellTicks, CalculateCarCallback calculateCarCallback) {
 		final Vec3d pos1 = positions[index];
 		final Vec3d pos2 = positions[index + 1];
 
@@ -297,8 +297,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final double realSpacing = pos2.distanceTo(pos1);
 			final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
 			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
-			final boolean doorLeftOpen = scanDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
-			final boolean doorRightOpen = scanDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue) && doorValue > 0;
+			final boolean doorLeftOpen = scanDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
+			final boolean doorRightOpen = scanDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
 
 			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
@@ -349,7 +349,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	protected abstract boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ);
 
-	protected abstract boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue);
+	protected abstract boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks);
 
 	private boolean isOppositeRail() {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
@@ -384,7 +384,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	private boolean scanDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue) {
+	private boolean scanDoors(World world, double trainX, double trainY, double trainZ, float checkYaw, float pitch, double halfSpacing, float doorValue, int dwellTicks) {
 		if (skipScanBlocks(world, trainX, trainY, trainZ)) {
 			return false;
 		}
@@ -400,7 +400,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					final Block block = world.getBlockState(checkPos).getBlock();
 
 					if (block instanceof BlockPlatform || block instanceof BlockPSDAPGBase) {
-						if (openDoors(world, block, checkPos, doorValue)) {
+						if (openDoors(world, block, checkPos, doorValue, dwellTicks)) {
 							return true;
 						}
 						hasPlatform = true;

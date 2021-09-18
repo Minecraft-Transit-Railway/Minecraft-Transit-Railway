@@ -138,7 +138,7 @@ public class TrainClient extends Train {
 			};
 
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
-			calculateCar(world, positions, currentRidingCar, doorValue, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+			calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean shouldRenderConnection = trainType.shouldRenderConnection;
 				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.getYaw()) - yaw);
 				clientPercentageX += movement.x / trainType.width;
@@ -149,7 +149,7 @@ public class TrainClient extends Train {
 				if (currentRidingCar == newRidingCar) {
 					moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 				} else {
-					calculateCar(world, positions, newRidingCar, doorValue, moveClient);
+					calculateCar(world, positions, newRidingCar, doorValue, 0, moveClient);
 				}
 			});
 		}
@@ -173,7 +173,7 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue) {
+	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
 		return true;
 	}
 
