@@ -96,11 +96,11 @@ public class TrainClient extends Train {
 
 			final Vec3d prevPos1 = new Vec3d(xStart + 0.15f, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
 			final Vec3d prevPos2 = new Vec3d(xStart + 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-			final Vec3d prevPos3 = new Vec3d(-xStart + 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-			final Vec3d prevPos4 = new Vec3d(-xStart + 0.15f, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos3 = new Vec3d(-xStart - 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos4 = new Vec3d(-xStart - 0.15f, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
 
-			final Vec3d thisPos1 = new Vec3d(-xStart + 0.15f, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
-			final Vec3d thisPos2 = new Vec3d(-xStart + 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+			final Vec3d thisPos1 = new Vec3d(-xStart - 0.15f, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+			final Vec3d thisPos2 = new Vec3d(-xStart - 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 			final Vec3d thisPos3 = new Vec3d(xStart + 0.15f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 			final Vec3d thisPos4 = new Vec3d(xStart + 0.15f, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 
