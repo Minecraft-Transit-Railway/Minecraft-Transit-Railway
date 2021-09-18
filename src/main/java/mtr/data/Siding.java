@@ -366,6 +366,9 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		public float endRailProgress;
 		public long savedRailBaseId;
+		public long lastStationId;
+		public long routeId;
+		public boolean isTerminating;
 		private float endTime;
 
 		public final float startRailProgress;

@@ -150,7 +150,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
 				final String[] destinationSplit = currentSchedule.destination.split("\\|");
-				final String destinationString = destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
+				final String destinationString = IGui.textOrUntitled(destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length]);
 
 				final Text arrivalText;
 				final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
