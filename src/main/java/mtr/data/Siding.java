@@ -303,12 +303,12 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, CustomResources.TrainMapping trainMapping, int trainLength, float railLength) {
 		timeSegments.clear();
 
-		float distanceSum = 0;
+		float distanceSum1 = 0;
 		final List<Float> stoppingDistances = new ArrayList<>();
 		for (final PathData pathData : path) {
-			distanceSum += pathData.rail.getLength();
+			distanceSum1 += pathData.rail.getLength();
 			if (pathData.dwellTime > 0) {
-				stoppingDistances.add(distanceSum);
+				stoppingDistances.add(distanceSum1);
 			}
 		}
 
@@ -316,20 +316,21 @@ public class Siding extends SavedRailBase implements IPacket {
 		float nextStoppingDistance = 0;
 		float speed = 0;
 		float time = 0;
-		distanceSum = 0;
+		float distanceSum2 = 0;
 		for (int i = 0; i < path.size(); i++) {
 			if (railProgress >= nextStoppingDistance) {
 				if (stoppingDistances.isEmpty()) {
-					break;
+					nextStoppingDistance = distanceSum1;
+				} else {
+					nextStoppingDistance = stoppingDistances.remove(0);
 				}
-				nextStoppingDistance = stoppingDistances.remove(0);
 			}
 
 			final PathData pathData = path.get(i);
 			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.railType.maxBlocksPerTick : Math.max(speed, RailType.WOODEN.maxBlocksPerTick);
-			distanceSum += pathData.rail.getLength();
+			distanceSum2 += pathData.rail.getLength();
 
-			while (railProgress < distanceSum) {
+			while (railProgress < distanceSum2) {
 				final int speedChange;
 				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5F * speed * speed / Train.ACCELERATION) {
 					speed = Math.max(speed - Train.ACCELERATION, Train.ACCELERATION);
@@ -345,13 +346,13 @@ public class Siding extends SavedRailBase implements IPacket {
 					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange));
 				}
 
-				railProgress = Math.min(railProgress + speed, distanceSum);
+				railProgress = Math.min(railProgress + speed, distanceSum2);
 				time++;
 
 				final TimeSegment timeSegment = timeSegments.get(timeSegments.size() - 1);
 				timeSegment.endRailProgress = railProgress;
 				timeSegment.endTime = time;
-				timeSegment.savedRailBaseId = railProgress == distanceSum ? pathData.savedRailBaseId : 0;
+				timeSegment.savedRailBaseId = nextStoppingDistance != distanceSum1 && railProgress == distanceSum2 ? pathData.savedRailBaseId : 0;
 			}
 
 			time += pathData.dwellTime * 10;
@@ -369,7 +370,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		public long lastStationId;
 		public long routeId;
 		public boolean isTerminating;
-		private float endTime;
+		public float endTime;
 
 		public final float startRailProgress;
 		private final float startSpeed;
@@ -391,10 +392,6 @@ public class Siding extends SavedRailBase implements IPacket {
 				final float acceleration = speedChange * Train.ACCELERATION;
 				return startTime + (float) (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration;
 			}
-		}
-
-		public float getTimeDifference(float time) {
-			return endTime - time;
 		}
 	}
 }
