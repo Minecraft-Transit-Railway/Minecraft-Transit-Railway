@@ -1117,6 +1117,8 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	private static final int DOOR_MAX = 14;
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, 13, "door_overlay_e44_left.png", "door_overlay_e44_right.png");
+	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_e44_top.png");
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1282,12 +1284,12 @@ public class ModelE44 extends ModelTrainBase {
 
 	@Override
 	protected ModelDoorOverlay getModelDoorOverlay() {
-		return null;
+		return MODEL_DOOR_OVERLAY;
 	}
 
 	@Override
 	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
-		return null;
+		return MODEL_DOOR_OVERLAY_TOP;
 	}
 
 	@Override

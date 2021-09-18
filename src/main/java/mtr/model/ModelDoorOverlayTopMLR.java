@@ -13,9 +13,11 @@ public class ModelDoorOverlayTopMLR extends ModelDoorOverlayTopBase {
 	private final ModelPart right;
 	private final ModelPart outer_roof_2_r1;
 
-	private static final Identifier TEXTURE_ID = new Identifier("mtr:textures/sign/door_overlay_mlr_top.png");
+	private final Identifier texture;
 
-	public ModelDoorOverlayTopMLR() {
+	public ModelDoorOverlayTopMLR(String texture) {
+		this.texture = new Identifier(texture);
+
 		textureWidth = 24;
 		textureHeight = 3;
 		left = new ModelPart(this);
@@ -41,9 +43,9 @@ public class ModelDoorOverlayTopMLR extends ModelDoorOverlayTopBase {
 
 	@Override
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int position, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		ModelTrainBase.renderOnce(left, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light, doorRightX, position + doorRightZ);
-		ModelTrainBase.renderOnce(right, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light, doorRightX, position - doorRightZ);
-		ModelTrainBase.renderOnceFlipped(left, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light, doorLeftX, position - doorLeftZ);
-		ModelTrainBase.renderOnceFlipped(right, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light, doorLeftX, position + doorLeftZ);
+		ModelTrainBase.renderOnce(left, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), light, doorRightX, position + doorRightZ);
+		ModelTrainBase.renderOnce(right, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), light, doorRightX, position - doorRightZ);
+		ModelTrainBase.renderOnceFlipped(left, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), light, doorLeftX, position - doorLeftZ);
+		ModelTrainBase.renderOnceFlipped(right, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), light, doorLeftX, position + doorLeftZ);
 	}
 }
