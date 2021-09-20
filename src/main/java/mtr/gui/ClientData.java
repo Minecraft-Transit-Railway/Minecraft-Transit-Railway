@@ -44,10 +44,8 @@ public final class ClientData {
 	public static void updateTrains(MinecraftClient client, PacketByteBuf packet) {
 		final Set<TrainClient> trainsToUpdate = new HashSet<>();
 
-		final int trainsCount = packet.readInt();
-		for (int i = 0; i < trainsCount; i++) {
-			final TrainClient train = new TrainClient(packet);
-			trainsToUpdate.add(train);
+		while (packet.isReadable()) {
+			trainsToUpdate.add(new TrainClient(packet));
 		}
 
 		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
@@ -61,14 +59,14 @@ public final class ClientData {
 	}
 
 	public static void deleteTrains(MinecraftClient client, PacketByteBuf packet) {
-		final Set<Long> trainIdsToDelete = new HashSet<>();
+		final Set<Long> trainIdsToKeep = new HashSet<>();
 
 		final int trainsCount = packet.readInt();
 		for (int i = 0; i < trainsCount; i++) {
-			trainIdsToDelete.add(packet.readLong());
+			trainIdsToKeep.add(packet.readLong());
 		}
 
-		client.execute(() -> TRAINS.removeIf(train -> trainIdsToDelete.contains(train.id)));
+		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
 	}
 
 	public static void updateTrainRidingPosition(MinecraftClient client, PacketByteBuf packet) {
