@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
-	private boolean addingTrain;
+	private boolean addingRoute;
 
 	private final int sliderX;
 	private final int sliderWidthWithText;
@@ -31,7 +31,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final ButtonWidget buttonDone;
 
 	private final DashboardList addNewList;
-	private final DashboardList trainList;
+	private final DashboardList routeList;
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
@@ -63,8 +63,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
+		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
+		routeList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
 	}
 
 	@Override
@@ -77,9 +77,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
 
-		addNewList.y = trainList.y = SQUARE_SIZE * 2;
-		addNewList.height = trainList.height = height - SQUARE_SIZE * 5;
-		addNewList.width = trainList.width = PANEL_WIDTH;
+		addNewList.y = routeList.y = SQUARE_SIZE * 2;
+		addNewList.height = routeList.height = height - SQUARE_SIZE * 5;
+		addNewList.width = routeList.width = PANEL_WIDTH;
 
 		for (WidgetShorterSlider slider : sliders) {
 			addButton(slider);
@@ -89,7 +89,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 
 		addNewList.init();
-		trainList.init();
+		routeList.init();
 		setIsSelecting(false);
 
 		addButton(buttonEditInstructions);
@@ -102,10 +102,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	public void tick() {
 		super.tick();
 		addNewList.tick();
-		trainList.tick();
+		routeList.tick();
 
 		addNewList.setData(ClientData.ROUTES, false, false, false, false, true, false);
-		trainList.setData(data.routeIds.stream().map(ClientData.DATA_CACHE.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
+		routeList.setData(data.routeIds.stream().map(ClientData.DATA_CACHE.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
 
 		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 	}
@@ -113,10 +113,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
-			if (addingTrain) {
+			if (addingRoute) {
 				renderBackground(matrices);
 				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
+				routeList.render(matrices, textRenderer, mouseX, mouseY, delta);
 				super.render(matrices, mouseX, mouseY, delta);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.edit_instructions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
@@ -150,13 +150,13 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
 		addNewList.mouseMoved(mouseX, mouseY);
-		trainList.mouseMoved(mouseX, mouseY);
+		routeList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
 		addNewList.mouseScrolled(mouseX, mouseY, amount);
-		trainList.mouseScrolled(mouseX, mouseY, amount);
+		routeList.mouseScrolled(mouseX, mouseY, amount);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
@@ -170,17 +170,17 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	private void setIsSelecting(boolean isSelecting) {
-		addingTrain = isSelecting;
+		addingRoute = isSelecting;
 
 		for (final WidgetShorterSlider slider : sliders) {
-			slider.visible = !addingTrain;
+			slider.visible = !addingRoute;
 		}
-		addNewList.x = addingTrain ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
-		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
-		buttonEditInstructions.visible = !addingTrain;
-		buttonGenerateRoute.visible = !addingTrain;
-		buttonClearTrains.visible = !addingTrain;
-		buttonDone.visible = addingTrain;
+		addNewList.x = addingRoute ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
+		routeList.x = addingRoute ? width / 2 + SQUARE_SIZE : width;
+		buttonEditInstructions.visible = !addingRoute;
+		buttonGenerateRoute.visible = !addingRoute;
+		buttonClearTrains.visible = !addingRoute;
+		buttonDone.visible = addingRoute;
 	}
 
 	private void onAdded(NameColorDataBase listData, int index) {
