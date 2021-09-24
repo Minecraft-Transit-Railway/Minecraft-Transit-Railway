@@ -13,6 +13,13 @@ import java.util.function.Function;
 
 public final class ClientData {
 
+	public static String DASHBOARD_SEARCH = "";
+	public static String ROUTES_PLATFORMS_SEARCH = "";
+	public static String ROUTES_PLATFORMS_SELECTED_SEARCH = "";
+	public static String TRAINS_SEARCH = "";
+	public static String EXIT_PARENTS_SEARCH = "";
+	public static String EXIT_DESTINATIONS_SEARCH = "";
+
 	public static final Set<Station> STATIONS = new HashSet<>();
 	public static final Set<Platform> PLATFORMS = new HashSet<>();
 	public static final Set<Siding> SIDINGS = new HashSet<>();

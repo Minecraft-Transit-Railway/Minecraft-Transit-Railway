@@ -20,6 +20,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class DashboardList implements IGui {
 
@@ -43,6 +45,8 @@ public class DashboardList implements IGui {
 
 	private final RegisterButton registerButton;
 	private final AddChild addChild;
+	private final Supplier<String> getSearch;
+	private final Consumer<String> setSearch;
 
 	private List<NameColorDataBase> dataSorted = new ArrayList<>();
 	private final Map<Integer, NameColorDataBase> dataFiltered = new HashMap<>();
@@ -57,9 +61,11 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
+	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList, Supplier<String> getSearch, Consumer<String> setSearch) {
 		this.registerButton = registerButton;
 		this.addChild = addChild;
+		this.getSearch = getSearch;
+		this.setSearch = setSearch;
 		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
@@ -82,6 +88,9 @@ public class DashboardList implements IGui {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
+
+		textFieldSearch.setChangedListener(setSearch);
+		textFieldSearch.setText(getSearch.get());
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -229,7 +238,6 @@ public class DashboardList implements IGui {
 	}
 
 	private void onClick(OnClick onClick) {
-		textFieldSearch.setText("");
 		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
 

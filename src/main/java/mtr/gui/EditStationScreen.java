@@ -53,8 +53,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		buttonAddExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
 		buttonDoneExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitDestination());
 
-		exitParentList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null);
-		exitDestinationList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList);
+		exitParentList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
+		exitDestinationList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
 	}
 
 	@Override

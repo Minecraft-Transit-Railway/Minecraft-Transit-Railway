@@ -29,7 +29,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public SidingScreen(Siding siding, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen);
 		buttonSelectTrain = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> onSelectingTrain());
-		availableTrainsList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null);
+		availableTrainsList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.unlimited_trains"), checked -> savedRailBase.setUnlimitedTrains(checked, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_SIDING, packet)));
 	}
 

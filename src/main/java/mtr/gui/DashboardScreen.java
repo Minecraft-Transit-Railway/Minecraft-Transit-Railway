@@ -75,7 +75,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			}
 		});
 
-		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList);
+		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> ClientData.DASHBOARD_SEARCH, text -> ClientData.DASHBOARD_SEARCH = text);
 
 		onSelectTab(SelectedTab.STATIONS);
 	}
