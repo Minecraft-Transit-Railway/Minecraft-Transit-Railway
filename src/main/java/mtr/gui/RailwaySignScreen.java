@@ -151,8 +151,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false, false));
 
-		availableList = new DashboardList(this::addDrawableChild, null, null, null, null, this::onAdd, null, null);
-		selectedList = new DashboardList(this::addDrawableChild, null, null, null, null, null, this::onDelete, null);
+		availableList = new DashboardList(this::addDrawableChild, null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
+		selectedList = new DashboardList(this::addDrawableChild, null, null, null, null, null, this::onDelete, null, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
 	}
 
 	@Override
