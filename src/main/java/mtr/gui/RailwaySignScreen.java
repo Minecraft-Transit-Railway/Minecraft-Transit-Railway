@@ -8,14 +8,18 @@ import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderRailwaySign;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +30,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private boolean isSelectingExitLetter;
 	private boolean isSelectingPlatform;
 	private boolean isSelectingRoute;
+
+	private int page;
+	private int totalPages;
+	private int columns;
+	private int rows;
 
 	private final BlockPos signPos;
 	private final boolean isRailwaySign;
@@ -48,14 +57,14 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final ButtonWidget[] buttonsSelection;
 	private final ButtonWidget buttonClear;
 	private final ButtonWidget buttonDone;
+	private final TexturedButtonWidget buttonPrevPage;
+	private final TexturedButtonWidget buttonNextPage;
 
 	private final DashboardList availableList;
 	private final DashboardList selectedList;
 
 	private static final int SIGN_SIZE = 32;
-	private static final int ROW_START = 56;
-	private static final int COLUMNS = 24;
-	private static final int BUTTONS_SELECTION_HEIGHT = 16;
+	private static final int BUTTON_Y_START = SIGN_SIZE + SQUARE_SIZE + SQUARE_SIZE / 2;
 
 	public RailwaySignScreen(BlockPos signPos) {
 		super(new LiteralText(""));
@@ -143,11 +152,14 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonsSelection = new ButtonWidget[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
+			buttonsSelection[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
 		}
 
-		buttonClear = new ButtonWidget(0, 0, 0, BUTTONS_SELECTION_HEIGHT, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
+		buttonClear = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false, false, false));
+
+		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
+		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 
 		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
 		selectedList = new DashboardList(this::addButton, this::addChild, null, null, null, null, null, this::onDelete, null, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
@@ -163,33 +175,39 @@ public class RailwaySignScreen extends Screen implements IGui {
 			addButton(buttonsEdit[i]);
 		}
 
-		int column = 0;
-		int row = 0;
-		for (int i = 0; i < buttonsSelection.length; i++) {
-			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
-			final int columns = sign != null && sign.hasCustomText() ? 3 : 1;
+		columns = Math.max((width - SQUARE_SIZE * 3) / (SQUARE_SIZE * 8) * 2, 1);
+		rows = Math.max((height - SIGN_SIZE - SQUARE_SIZE * 4) / SQUARE_SIZE, 1);
+		totalPages = allSignIds.size() / (rows * columns);
 
-			IDrawing.setPositionAndWidth(buttonsSelection[i], (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * columns);
-			buttonsSelection[i].visible = false;
-			addButton(buttonsSelection[i]);
+		final int xOffsetSmall = (width - SQUARE_SIZE * (columns * 4 + 3)) / 2 + SQUARE_SIZE;
+		final int xOffsetBig = xOffsetSmall + SQUARE_SIZE * (columns + 1);
 
-			column += columns;
-			if (column >= COLUMNS) {
-				column = 0;
-				row++;
-			}
-		}
+		loopSigns((index, x, y, isBig) -> {
+			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SQUARE_SIZE * 3 : SQUARE_SIZE);
+			buttonsSelection[index].visible = false;
+			addButton(buttonsSelection[index]);
+		}, true);
 
 		availableList.y = selectedList.y = SQUARE_SIZE * 2;
 		availableList.height = selectedList.height = height - SQUARE_SIZE * 5;
 		availableList.width = selectedList.width = PANEL_WIDTH;
 
-		IDrawing.setPositionAndWidth(buttonClear, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2 + column * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT * (COLUMNS - column));
+		final int buttonClearX = (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2;
+		final int buttonY = height - SQUARE_SIZE * 2;
+
+		IDrawing.setPositionAndWidth(buttonClear, buttonClearX, buttonY, PANEL_WIDTH);
 		buttonClear.visible = false;
 		addButton(buttonClear);
 
-		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, buttonY, PANEL_WIDTH);
 		addButton(buttonDone);
+
+		IDrawing.setPositionAndWidth(buttonPrevPage, buttonClearX + PANEL_WIDTH, buttonY, SQUARE_SIZE);
+		buttonPrevPage.visible = false;
+		addButton(buttonPrevPage);
+		IDrawing.setPositionAndWidth(buttonNextPage, buttonClearX + PANEL_WIDTH + SQUARE_SIZE * 3, buttonY, SQUARE_SIZE);
+		buttonNextPage.visible = false;
+		addButton(buttonNextPage);
 
 		availableList.init();
 		selectedList.init();
@@ -228,29 +246,23 @@ public class RailwaySignScreen extends Screen implements IGui {
 				}
 
 				if (editingIndex >= 0) {
-					int column = 0;
-					int row = 0;
-					for (final String signId : allSignIds) {
-						final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
-						final int columns = sign != null && sign.hasCustomText() ? 3 : 1;
+					final int xOffsetSmall = (width - SQUARE_SIZE * (columns * 4 + 3)) / 2 + SQUARE_SIZE;
+					final int xOffsetBig = xOffsetSmall + SQUARE_SIZE * (columns + 1);
 
+					loopSigns((index, x, y, isBig) -> {
+						final String signId = allSignIds.get(index);
+						final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
 						if (sign != null) {
 							final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
-
 							client.getTextureManager().bindTexture(sign.textureId);
-							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (width - BUTTONS_SELECTION_HEIGHT * COLUMNS) / 2F + (column + (moveRight ? 2 : 0)) * BUTTONS_SELECTION_HEIGHT, row * BUTTONS_SELECTION_HEIGHT + ROW_START, BUTTONS_SELECTION_HEIGHT, 2, 2, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SQUARE_SIZE * 2 : 0), BUTTON_Y_START + y, SQUARE_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> drawTexture(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 						}
+					}, false);
 
-						column += columns;
-						if (column >= COLUMNS) {
-							column = 0;
-							row++;
-						}
-					}
+					DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 				}
 			}
-		} catch (
-				Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -266,6 +278,11 @@ public class RailwaySignScreen extends Screen implements IGui {
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
 		availableList.mouseScrolled(mouseX, mouseY, amount);
 		selectedList.mouseScrolled(mouseX, mouseY, amount);
+
+		if (!isSelectingPlatform && !isSelectingRoute && !isSelectingExitLetter) {
+			setPage(page + (int) Math.signum(-amount));
+		}
+
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
@@ -292,15 +309,55 @@ public class RailwaySignScreen extends Screen implements IGui {
 		editingIndex = -1;
 	}
 
+	private void loopSigns(LoopSignsCallback loopSignsCallback, boolean ignorePage) {
+		int pageCount = rows * columns;
+		int indexSmall = 0;
+		int indexBig = 0;
+		int columnSmall = 0;
+		int columnBig = 0;
+		int rowSmall = 0;
+		int rowBig = 0;
+		for (int i = 0; i < allSignIds.size(); i++) {
+			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
+			final boolean isBig = sign != null && sign.hasCustomText();
+
+			final boolean onPage = (isBig ? indexBig : indexSmall) / pageCount == page;
+			buttonsSelection[i].visible = onPage;
+			if (ignorePage || onPage) {
+				loopSignsCallback.loopSignsCallback(i, (isBig ? columnBig * 3 : columnSmall) * SQUARE_SIZE, (isBig ? rowBig : rowSmall) * SQUARE_SIZE, isBig);
+			}
+
+			if (isBig) {
+				columnBig++;
+				if (columnBig >= columns) {
+					columnBig = 0;
+					rowBig++;
+					if (rowBig >= rows) {
+						rowBig = 0;
+					}
+				}
+				indexBig++;
+			} else {
+				columnSmall++;
+				if (columnSmall >= columns) {
+					columnSmall = 0;
+					rowSmall++;
+					if (rowSmall >= rows) {
+						rowSmall = 0;
+					}
+				}
+				indexSmall++;
+			}
+		}
+	}
+
 	private void edit(int editingIndex) {
 		this.editingIndex = editingIndex;
 		for (ButtonWidget button : buttonsEdit) {
 			button.active = true;
 		}
-		for (ButtonWidget button : buttonsSelection) {
-			button.visible = true;
-		}
 		buttonClear.visible = true;
+		setPage(page);
 		buttonsEdit[editingIndex].active = false;
 	}
 
@@ -343,8 +400,14 @@ public class RailwaySignScreen extends Screen implements IGui {
 		for (final ButtonWidget button : buttonsEdit) {
 			button.visible = !isSelecting;
 		}
-		for (final ButtonWidget button : buttonsSelection) {
-			button.visible = !isSelecting;
+		if (isSelecting) {
+			for (final ButtonWidget button : buttonsSelection) {
+				button.visible = false;
+			}
+			buttonPrevPage.visible = false;
+			buttonNextPage.visible = false;
+		} else {
+			setPage(page);
 		}
 		buttonClear.visible = !isSelecting;
 		buttonDone.visible = isSelecting && isRailwaySign;
@@ -373,6 +436,12 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		availableList.setData(availableData, false, false, false, false, true, false);
 		selectedList.setData(selectedData, false, false, false, false, false, true);
+	}
+
+	private void setPage(int newPage) {
+		page = MathHelper.clamp(newPage, 0, totalPages - 1);
+		buttonPrevPage.visible = page > 0;
+		buttonNextPage.visible = page < totalPages - 1;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
@@ -404,5 +473,10 @@ public class RailwaySignScreen extends Screen implements IGui {
 			selectedIds.remove((long) routeColors.get(finalIndex));
 		}
 		updateList();
+	}
+
+	@FunctionalInterface
+	private interface LoopSignsCallback {
+		void loopSignsCallback(int index, int x, int y, boolean isBig);
 	}
 }
