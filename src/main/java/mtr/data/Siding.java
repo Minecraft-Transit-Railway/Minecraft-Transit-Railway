@@ -22,6 +22,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private CustomResources.TrainMapping trainMapping;
 	private int trainLength;
 	private boolean unlimitedTrains;
+	private int maxTrains;
 
 	private final float railLength;
 	private final List<PathData> path = new ArrayList<>();
@@ -33,6 +34,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
+	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
 
@@ -59,6 +61,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 		setTrainDetails(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), trainType);
 		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
+		maxTrains = nbtCompound.getInt(KEY_MAX_TRAINS);
 
 		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
 		final int pathCount = tagPath.getKeys().size();
@@ -78,6 +81,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
+		maxTrains = packet.readInt();
 	}
 
 	@Override
@@ -88,6 +92,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		nbtCompound.putString(KEY_TRAIN_CUSTOM_ID, trainMapping.customId);
 		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.toString());
 		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
+		nbtCompound.putInt(KEY_MAX_TRAINS, maxTrains);
 
 		RailwayData.writeTag(nbtCompound, path, KEY_PATH);
 		RailwayData.writeTag(nbtCompound, trains, KEY_TRAINS);
@@ -102,6 +107,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		packet.writeString(trainMapping.customId);
 		packet.writeInt(trainMapping.trainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
+		packet.writeInt(maxTrains);
 	}
 
 	@Override
@@ -111,7 +117,10 @@ public class Siding extends SavedRailBase implements IPacket {
 				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				break;
 			case KEY_UNLIMITED_TRAINS:
+				name = packet.readString();
+				color = packet.readInt();
 				unlimitedTrains = packet.readBoolean();
+				maxTrains = packet.readInt();
 				break;
 			default:
 				super.update(key, packet);
@@ -129,13 +138,17 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(customId, trainType);
 	}
 
-	public void setUnlimitedTrains(boolean unlimitedTrains, Consumer<PacketByteBuf> sendPacket) {
+	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_UNLIMITED_TRAINS);
+		packet.writeString(name);
+		packet.writeInt(color);
 		packet.writeBoolean(unlimitedTrains);
+		packet.writeInt(maxTrains);
 		sendPacket.accept(packet);
 		this.unlimitedTrains = unlimitedTrains;
+		this.maxTrains = maxTrains;
 	}
 
 	public CustomResources.TrainMapping getTrainMapping() {
@@ -250,14 +263,18 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (trains.isEmpty() || unlimitedTrains && spawnTrain) {
-			final TrainServer train = new TrainServer(unlimitedTrains ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timeSegments);
+		if (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains)) {
+			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timeSegments);
 			trains.add(train);
 		}
 
 		if (!trainsToRemove.isEmpty()) {
 			trainsToRemove.forEach(trains::remove);
 		}
+	}
+
+	public int getMaxTrains() {
+		return maxTrains;
 	}
 
 	public boolean getUnlimitedTrains() {
