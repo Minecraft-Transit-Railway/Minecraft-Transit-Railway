@@ -115,4 +115,5 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
 	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
 	Block TRAIN_SENSOR = new BlockTrainSensor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
+	Block TUNNEL_DARKNESS = new TunnelDarknessBlock(FabricBlockSettings.of(Material.STONE, MapColor.OFF_WHITE).requiresTool().hardness(2).nonOpaque());
 }

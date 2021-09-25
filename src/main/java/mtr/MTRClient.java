@@ -124,6 +124,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, RenderStationNameTall::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_WALL_TILE_ENTITY, RenderStationNameWall::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.DARK_TILE, RenderDarkTile::new);
 
 		registerStationColor(Blocks.STATION_COLOR_ANDESITE);
 		registerStationColor(Blocks.STATION_COLOR_BEDROCK);

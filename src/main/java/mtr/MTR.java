@@ -63,6 +63,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 	public static final BlockEntityType<BlockTrainAnnouncer.TileEntityTrainAnnouncer> TRAIN_ANNOUNCER_TILE_ENTITY = registerTileEntity("train_announcer", BlockTrainAnnouncer.TileEntityTrainAnnouncer::new, Blocks.TRAIN_ANNOUNCER);
+	public static final BlockEntityType<TunnelDarknessBlock.TileEntityTunnelDarkness> DARK_TILE = registerTileEntity("tunnel_darkness", TunnelDarknessBlock.TileEntityTunnelDarkness::new, Blocks.TUNNEL_DARKNESS);
 
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
@@ -253,6 +254,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_announcer", Blocks.TRAIN_ANNOUNCER, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_sensor", Blocks.TRAIN_SENSOR, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("tunnel_darkness", Blocks.TUNNEL_DARKNESS, ItemGroups.RAILWAY_FACILITIES);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CLEAR_TRAINS, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet));
