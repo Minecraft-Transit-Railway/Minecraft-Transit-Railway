@@ -224,6 +224,10 @@ public class DashboardList implements IGui {
 		}
 	}
 
+	public void clearSearch() {
+		textFieldSearch.setText("");
+	}
+
 	private void setPage(int newPage) {
 		page = MathHelper.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = page > 0;
