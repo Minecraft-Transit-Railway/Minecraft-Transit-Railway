@@ -16,6 +16,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BlockTrainAnnouncer extends Block implements BlockEntityProvider {
 
 	public BlockTrainAnnouncer(Settings settings) {
@@ -41,7 +44,7 @@ public class BlockTrainAnnouncer extends Block implements BlockEntityProvider {
 	public static class TileEntityTrainAnnouncer extends BlockEntity implements BlockEntityClientSerializable {
 
 		private String message = "";
-		private long lastAnnouncedMillis = 0;
+		private final Map<PlayerEntity, Long> lastAnnouncedMillis = new HashMap<>();
 		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 5000;
 		private static final String KEY_MESSAGE = "message";
 
@@ -85,8 +88,8 @@ public class BlockTrainAnnouncer extends Block implements BlockEntityProvider {
 
 		public void announce(PlayerEntity player) {
 			final long currentMillis = System.currentTimeMillis();
-			if (player != null && currentMillis - lastAnnouncedMillis >= ANNOUNCE_COOL_DOWN_MILLIS) {
-				lastAnnouncedMillis = System.currentTimeMillis();
+			if (player != null && (!lastAnnouncedMillis.containsKey(player) || currentMillis - lastAnnouncedMillis.get(player) >= ANNOUNCE_COOL_DOWN_MILLIS)) {
+				lastAnnouncedMillis.put(player, System.currentTimeMillis());
 				PacketTrainDataGuiServer.announceS2C((ServerPlayerEntity) player, message);
 			}
 		}

@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class TrainServer extends Train {
 
@@ -128,26 +129,23 @@ public class TrainServer extends Train {
 
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
 		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
-			for (int i = 0; i <= 3; i++) {
-				final BlockPos checkPos = frontPos.down(i);
+			checkBlock(frontPos, checkPos -> {
 				final Block block = world.getBlockState(checkPos).getBlock();
 				if (block instanceof BlockTrainSensor) {
 					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
 					world.getBlockTickScheduler().schedule(checkPos, block, 20);
-					break;
 				}
-			}
+			});
 		}
 		if (!ridingEntities.isEmpty()) {
-			for (int i = 0; i <= 3; i++) {
-				final BlockPos checkPos = new BlockPos(frontPos).down(i);
+			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
 					}
 				}
-			}
+			});
 		}
 	}
 
@@ -292,5 +290,16 @@ public class TrainServer extends Train {
 			}
 		}
 		return path.size() - 1;
+	}
+
+	private void checkBlock(BlockPos pos, Consumer<BlockPos> callback) {
+		final int checkRadius = (int) Math.floor(speed);
+		for (int x = -checkRadius; x <= checkRadius; x++) {
+			for (int z = -checkRadius; z <= checkRadius; z++) {
+				for (int y = 0; y <= 3; y++) {
+					callback.accept(pos.add(x, -y, z));
+				}
+			}
+		}
 	}
 }
