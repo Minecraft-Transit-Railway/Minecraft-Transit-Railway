@@ -9,6 +9,7 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -22,6 +23,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -270,6 +277,13 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 
+		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
+		final ServerConnector serverConnector = new ServerConnector(webServer);
+		serverConnector.setPort(8888);
+		webServer.setConnectors(new Connector[]{serverConnector});
+		final ServletHandler servletHandler = new ServletHandler();
+		webServer.setHandler(servletHandler);
+
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
 			minecraftServer.getWorlds().forEach(serverWorld -> {
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
@@ -291,6 +305,21 @@ public class MTR implements ModInitializer, IPacket {
 			final RailwayData railwayData = RailwayData.getInstance(handler.player.world);
 			if (railwayData != null) {
 				railwayData.disconnectPlayer(handler.player);
+			}
+		});
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			servletHandler.addServletWithMapping(new ServletHolder(new DataServletHandler(server)), "/data");
+			try {
+				webServer.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			try {
+				webServer.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
