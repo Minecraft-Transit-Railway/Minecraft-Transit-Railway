@@ -7,6 +7,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.servlet.DataServletHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -26,10 +27,13 @@ import net.minecraft.util.registry.Registry;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import java.net.URL;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -281,8 +285,16 @@ public class MTR implements ModInitializer, IPacket {
 		final ServerConnector serverConnector = new ServerConnector(webServer);
 		serverConnector.setPort(8888);
 		webServer.setConnectors(new Connector[]{serverConnector});
-		final ServletHandler servletHandler = new ServletHandler();
-		webServer.setHandler(servletHandler);
+		final ServletContextHandler context = new ServletContextHandler();
+		webServer.setHandler(context);
+		final URL url = getClass().getResource("/assets/mtr/website/");
+		if (url != null) {
+			try {
+				context.setBaseResource(Resource.newResource(url.toURI()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
 			minecraftServer.getWorlds().forEach(serverWorld -> {
@@ -308,7 +320,12 @@ public class MTR implements ModInitializer, IPacket {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			servletHandler.addServletWithMapping(new ServletHolder(new DataServletHandler(server)), "/data");
+			context.addServlet(new ServletHolder(new DataServletHandler(server)), "/data");
+
+			final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
+			servletHolder.setInitParameter("dirAllowed", "true");
+			context.addServlet(servletHolder, "/");
+
 			try {
 				webServer.start();
 			} catch (Exception e) {

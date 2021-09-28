@@ -1,10 +1,8 @@
-package mtr;
+package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import jakarta.servlet.AsyncContext;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,10 +12,6 @@ import mtr.data.RailwayData;
 import mtr.data.Station;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 public class DataServletHandler extends HttpServlet {
 
@@ -57,11 +51,7 @@ public class DataServletHandler extends HttpServlet {
 								if (platform != null) {
 									try {
 										final String newId = station.id + "_" + route.color;
-
-										final JsonObject platformObject = new JsonObject();
-										platformObject.addProperty("name", station.name);
-										platformObject.addProperty("position", newId);
-										routeStationsArray.add(platformObject);
+										routeStationsArray.add(newId);
 
 										final BlockPos pos = platform.getMidPos();
 										if (stationPositionsObject.has(newId)) {
@@ -98,32 +88,7 @@ public class DataServletHandler extends HttpServlet {
 				dataArray.add(dataObject);
 			});
 
-			final ByteBuffer content = ByteBuffer.wrap(dataArray.toString().getBytes(StandardCharsets.UTF_16));
-
-			try {
-				final ServletOutputStream servletOutputStream = response.getOutputStream();
-				servletOutputStream.setWriteListener(new WriteListener() {
-					@Override
-					public void onWritePossible() throws IOException {
-						while (servletOutputStream.isReady()) {
-							if (!content.hasRemaining()) {
-								response.setStatus(200);
-								asyncContext.complete();
-								return;
-							}
-							servletOutputStream.write(content.get());
-						}
-					}
-
-					@Override
-					public void onError(Throwable t) {
-						getServletContext().log("Async Error", t);
-						asyncContext.complete();
-					}
-				});
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			IServletHandler.sendResponse(response, asyncContext, dataArray.toString());
 		});
 	}
 }
