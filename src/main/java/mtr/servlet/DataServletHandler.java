@@ -2,10 +2,6 @@ package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import mtr.data.DataCache;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
@@ -13,6 +9,11 @@ import mtr.data.Station;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+
+import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class DataServletHandler extends HttpServlet {
 

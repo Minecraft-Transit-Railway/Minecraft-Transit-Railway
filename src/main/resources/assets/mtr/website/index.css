@@ -24,7 +24,6 @@ input {
 #legend {
     bottom: 0;
     left: 0;
-    max-width: 50%;
     display: flex;
     flex-direction: column;
     overflow-x: auto;
@@ -34,8 +33,7 @@ input {
 #search {
     top: 0;
     right: 0;
-    width: 20%;
-    max-height: 50%;
+    width: 24em;
 }
 
 #search_top {
@@ -59,6 +57,7 @@ input {
     border-radius: 0.6em;
     box-sizing: border-box;
     margin: 1em;
+    max-width: 40%;
     padding: 0.4em;
     position: fixed;
     white-space: nowrap;
@@ -67,7 +66,6 @@ input {
 .search_results {
     display: flex;
     flex-direction: column;
-    max-height: 12em;
     overflow-x: hidden;
     overflow-y: auto;
 }
