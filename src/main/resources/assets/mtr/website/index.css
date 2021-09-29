@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    font-family: "Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", sans-serif;
+}
+
+canvas {
+    display: block;
+}
+
+label {
+    display: none;
+}
+
+input {
+    background-color: transparent;
+    border: none;
+    font-size: 1em;
+    margin: 0;
+    outline-width: 0;
+    padding: 0;
+    text-align: left;
+}
+
+#legend {
+    bottom: 0;
+    left: 0;
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+#search {
+    top: 0;
+    right: 0;
+    width: 20%;
+    max-height: 50%;
+}
+
+#search_top {
+    align-items: center;
+    display: flex;
+    height: 2em;
+    overflow: hidden;
+}
+
+#search_box {
+    width: 100%;
+}
+
+#clear_search_icon {
+    float: right;
+}
+
+.box {
+    background: white;
+    border: 0.2em solid lightgray;
+    border-radius: 0.6em;
+    box-sizing: border-box;
+    margin: 1em;
+    padding: 0.4em;
+    position: fixed;
+    white-space: nowrap;
+}
+
+.search_results {
+    display: flex;
+    flex-direction: column;
+    max-height: 12em;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    background: #EEEEEE;
+}
+
+.clickable_icon:hover {
+    color: black;
+}
+
+.station {
+    display: inline-block;
+    border-radius: 0.2em;
+    height: 0.4em;
+    width: 0.4em;
+    margin: 0.2em 0.4em 0.2em 0.2em;
+}
+
+.line {
+    display: inline-block;
+    border-radius: 0.2em;
+    height: 0.4em;
+    width: 3em;
+    margin: 0.2em 0.4em 0.2em 0.2em;
+}
+
+.material-icons {
+    color: gray;
+    cursor: default;
+    margin: 0;
+    padding: 0.2em;
+    vertical-align: middle;
+}

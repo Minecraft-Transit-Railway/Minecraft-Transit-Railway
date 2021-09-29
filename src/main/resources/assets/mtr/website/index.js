@@ -2,16 +2,14 @@ const URL = "http://localhost:8888/data";
 
 const SCALE_UPPER_LIMIT = 64;
 const SCALE_LOWER_LIMIT = 1 / 128;
-const CIRCLE_RADIUS = 8;
-const LINE_WIDTH = 6;
-const LEGEND_LINE_LENGTH = 48;
-const TEXT_PADDING = 4;
-const LEGEND_PADDING = 16;
-const FONT_SIZE = 12;
 
-const convertX = x => (x - canvasOffsetX) * scale + window.innerWidth / 2;
-const convertY = y => (y - canvasOffsetY) * scale + window.innerHeight / 2;
+const LINE_SIZE = 6;
+const TEXT_PADDING = 6;
+
+const convertX = x => Math.floor(x * scale / LINE_SIZE) * LINE_SIZE - canvasOffsetX * scale + window.innerWidth / 2;
+const convertY = y => Math.floor(y * scale / LINE_SIZE) * LINE_SIZE - canvasOffsetY * scale + window.innerHeight / 2;
 const convertColor = color => "#" + Number(color).toString(16).padStart(6, "0");
+const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
 
 let json;
 let dragging = false;
@@ -20,189 +18,303 @@ let mouseClickY = 0;
 let canvasOffsetX = 0;
 let canvasOffsetY = 0;
 let scale = 1;
+let selectedColor = "";
+let dimension = 0;
+
+window.onload = () => {
+    window.addEventListener("resize", callback);
+    const canvas = document.getElementById("map");
+    canvas.addEventListener("mousedown", onCanvasMouseDown);
+    canvas.addEventListener("mousemove", onCanvasMouseMove);
+    canvas.addEventListener("mouseup", onCanvasMouseUp);
+    canvas.addEventListener("mouseleave", onCanvasMouseUp);
+    canvas.addEventListener("wheel", onCanvasScroll);
+}
 
 refresh();
-setInterval(refresh, 1000);
+setInterval(refresh, 5000);
 
 function refresh() {
     fetch(URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
         json = result;
-
-        for (const dimensionIndex in json) {
-            const dimension = json[dimensionIndex];
-            const positions = dimension["positions"];
-            dimension["blobs"] = {};
-            for (const positionKey in positions) {
-                const stationId = positionKey.split("_")[0];
-                const currentX = positions[positionKey]["x"];
-                const currentY = positions[positionKey]["y"];
-                let blob = dimension["blobs"][stationId];
-                if (blob === undefined) {
-                    dimension["blobs"][stationId] = {
-                        xMin: currentX,
-                        yMin: currentY,
-                        xMax: currentX,
-                        yMax: currentY,
-                        name: dimension["stations"][stationId]["name"],
-                    };
-                } else {
-                    blob["xMin"] = Math.min(blob["xMin"], currentX);
-                    blob["yMin"] = Math.min(blob["yMin"], currentY);
-                    blob["xMax"] = Math.max(blob["xMax"], currentX);
-                    blob["yMax"] = Math.max(blob["yMax"], currentY);
-                }
-            }
-        }
-
         callback();
     });
 }
 
 function callback() {
-    const canvas = document.getElementById("map");
-    canvas.addEventListener("mousedown", onCanvasMouseDown);
-    canvas.addEventListener("mousemove", onCanvasMouseMove);
-    canvas.addEventListener("mouseup", onCanvasMouseUp);
-    canvas.addEventListener("wheel", onCanvasScroll);
-
-    const context = canvas.getContext("2d");
+    const context = document.getElementById("map").getContext("2d");
     context.canvas.width = window.innerWidth;
     context.canvas.height = window.innerHeight;
 
-    for (const dimensionIndex in json) {
-        const dimension = json[dimensionIndex];
-        const positions = dimension["positions"];
-        const blobs = dimension["blobs"];
-        const legend = {};
+    const data = json[dimension];
+    const positions = data["positions"];
 
-        for (const routeKey in dimension["routes"]) {
-            const route = dimension["routes"][routeKey];
-            const color = convertColor(route["color"]);
+    const visitedPositions = {};
+    const blobs = {};
+    for (const positionKey in positions) {
+        const position = positions[positionKey];
+        const x = convertX(position["x"]);
+        const y = convertY(position["y"]);
+
+        const stationId = positionKey.split("_")[0];
+        const color = positionKey.split("_")[1];
+        const colorConverted = convertColor(color);
+
+        let newX = x;
+        let newY = y;
+        if (position["vertical"]) {
+            let i = 1;
+            while (visitedPositions[stationId + "_x_" + newX] !== undefined && visitedPositions[stationId + "_x_" + newX] !== color) {
+                newX = x + i * LINE_SIZE;
+                i = i > 0 ? -i : -i + 1;
+            }
+            visitedPositions[stationId + "_x_" + newX] = color;
+        } else {
+            let i = 1;
+            while (visitedPositions[stationId + "_y_" + newY] !== undefined && visitedPositions[stationId + "_y_" + newY] !== color) {
+                newY = y + i * LINE_SIZE;
+                i = i > 0 ? -i : -i + 1;
+            }
+            visitedPositions[stationId + "_y_" + newY] = color;
+        }
+
+        position["x2"] = newX;
+        position["y2"] = newY;
+
+        let blob = blobs[stationId];
+        if (blob === undefined) {
+            blobs[stationId] = {
+                xMin: newX,
+                yMin: newY,
+                xMax: newX,
+                yMax: newY,
+                name: data["stations"][stationId]["name"],
+                colors: [colorConverted],
+            };
+        } else {
+            blob["xMin"] = Math.min(blob["xMin"], newX);
+            blob["yMin"] = Math.min(blob["yMin"], newY);
+            blob["xMax"] = Math.max(blob["xMax"], newX);
+            blob["yMax"] = Math.max(blob["yMax"], newY);
+            if (!blob["colors"].includes(colorConverted)) {
+                blob["colors"].push(colorConverted);
+            }
+        }
+    }
+
+    const legend = {};
+    for (const routeKey in data["routes"]) {
+        const route = data["routes"][routeKey];
+        const color = convertColor(route["color"]);
+
+        beginDraw(context, selectedColor === "" || selectedColor === color ? color : "lightgray", LINE_SIZE);
+
+        let prevX = undefined;
+        let prevY = undefined;
+        let prevVertical = undefined;
+        for (const stationIndex in route["stations"]) {
+            const id = route["stations"][stationIndex];
+            const x = positions[id]["x2"];
+            const y = positions[id]["y2"];
+            const vertical = positions[id]["vertical"];
+
+            if (prevX === undefined || prevY === undefined) {
+                context.moveTo(x, y);
+            } else {
+                drawLine(context, prevX, prevY, prevVertical, x, y, vertical);
+            }
 
             if (legend[color] === undefined) {
-                legend[color] = route["name"].split("||")[0].replace("|", " ");
-            }
-
-            context.beginPath();
-            context.strokeStyle = color;
-            context.lineWidth = LINE_WIDTH;
-            context.lineJoin = "round";
-
-            let prevX = undefined;
-            let prevY = undefined;
-            for (const stationIndex in route["stations"]) {
-                const id = route["stations"][stationIndex];
-                const x = positions[id]["x"];
-                const y = positions[id]["y"];
-                if (prevX === undefined || prevY === undefined) {
-                    context.moveTo(convertX(x), convertY(y));
-                } else {
-                    drawLine(context, prevX, prevY, x, y);
+                const inX = isBetween(prevX, 0, window.innerWidth) || isBetween(x, 0, window.innerWidth) || isBetween(0, prevX, x) || isBetween(window.innerWidth, prevX, x);
+                const inY = isBetween(prevY, 0, window.innerHeight) || isBetween(y, 0, window.innerHeight) || isBetween(0, prevY, y) || isBetween(window.innerHeight, prevY, y);
+                if (inX && inY) {
+                    legend[color] = route["name"].split("||")[0];
                 }
-                prevX = x;
-                prevY = y;
             }
 
-            context.stroke();
+            prevX = x;
+            prevY = y;
+            prevVertical = vertical;
         }
 
-        for (const blobKey in blobs) {
-            const blob = blobs[blobKey];
-            const xMin = convertX(blob["xMin"]);
-            const yMin = convertY(blob["yMin"]);
-            const xMax = convertX(blob["xMax"]);
-            const yMax = convertY(blob["yMax"]);
-            context.beginPath();
-            context.strokeStyle = "black";
-            context.fillStyle = "white";
-            context.lineWidth = 2;
-            if (xMin === xMax && yMin === yMax) {
-                context.arc(xMin, yMin, CIRCLE_RADIUS, 0, 2 * Math.PI);
-            } else {
-                context.arc(xMax, yMax, CIRCLE_RADIUS, 0, Math.PI / 2);
-                context.lineTo(xMin, yMax + CIRCLE_RADIUS);
-                context.arc(xMin, yMax, CIRCLE_RADIUS, Math.PI / 2, Math.PI);
-                context.lineTo(xMin - CIRCLE_RADIUS, yMin);
-                context.arc(xMin, yMin, CIRCLE_RADIUS, Math.PI, 3 * Math.PI / 2);
-                context.lineTo(xMax, yMin - CIRCLE_RADIUS);
-                context.arc(xMax, yMin, CIRCLE_RADIUS, 3 * Math.PI / 2, 2 * Math.PI);
-                context.lineTo(xMax + CIRCLE_RADIUS, yMax);
-            }
-            context.fill();
-            context.stroke();
+        context.stroke();
+    }
 
-            context.strokeStyle = "white";
-            context.fillStyle = "black";
-            context.font = "bold " + FONT_SIZE + "px Arial";
-            context.textAlign = "center";
-            context.textBaseline = "top";
-            const nameSplit = blob["name"].split("|");
-            let y = yMax + CIRCLE_RADIUS + TEXT_PADDING;
-            for (const index in nameSplit) {
-                context.strokeText(nameSplit[index], (xMin + xMax) / 2, y);
-                context.fillText(nameSplit[index], (xMin + xMax) / 2, y);
-                y += FONT_SIZE;
-            }
+    for (const blobKey in blobs) {
+        const blob = blobs[blobKey];
+        const xMin = blob["xMin"];
+        const yMin = blob["yMin"];
+        const xMax = blob["xMax"];
+        const yMax = blob["yMax"];
+        const shouldDraw = selectedColor === "" || blob["colors"].includes(selectedColor);
+
+        beginDraw(context, shouldDraw ? "black" : "lightgray", 2);
+        if (xMin === xMax && yMin === yMax) {
+            context.arc(xMin, yMin, LINE_SIZE, 0, 2 * Math.PI);
+        } else {
+            context.arc(xMax, yMax, LINE_SIZE, 0, Math.PI / 2);
+            context.lineTo(xMin, yMax + LINE_SIZE);
+            context.arc(xMin, yMax, LINE_SIZE, Math.PI / 2, Math.PI);
+            context.lineTo(xMin - LINE_SIZE, yMin);
+            context.arc(xMin, yMin, LINE_SIZE, Math.PI, 3 * Math.PI / 2);
+            context.lineTo(xMax, yMin - LINE_SIZE);
+            context.arc(xMax, yMin, LINE_SIZE, 3 * Math.PI / 2, 2 * Math.PI);
+            context.lineTo(xMax + LINE_SIZE, yMax);
         }
-
-        const sortedColors = [];
-        let textWidth = 0;
-        for (const color in legend) {
-            sortedColors.push(color);
-            textWidth = Math.max(context.measureText(legend[color]).width, textWidth);
-        }
-        sortedColors.sort();
-        const legendHeight = sortedColors.length * (FONT_SIZE + TEXT_PADDING) + LEGEND_PADDING * 2 - (sortedColors.length > 0 ? TEXT_PADDING : 0);
-        const legendStart = window.innerHeight - legendHeight;
-
-        context.beginPath();
-        context.strokeStyle = "lightgray";
-        context.fillStyle = "white";
-        context.lineWidth = 0;
-        context.rect(-LEGEND_PADDING, legendStart, LEGEND_PADDING * 4 + LEGEND_LINE_LENGTH + textWidth, legendHeight + LEGEND_PADDING * 3);
         context.fill();
         context.stroke();
 
-        let y = legendStart + FONT_SIZE / 2 + LEGEND_PADDING;
-        for (const colorIndex in sortedColors) {
-            context.beginPath();
-            context.lineWidth = LINE_WIDTH;
-            context.strokeStyle = sortedColors[colorIndex];
-            context.moveTo(LEGEND_PADDING, y);
-            context.lineTo(LEGEND_PADDING + LEGEND_LINE_LENGTH, y);
-            context.stroke();
-
-            context.fillStyle = "black";
-            context.font = "bold " + FONT_SIZE + "px Arial";
-            context.textAlign = "left";
-            context.textBaseline = "middle";
-            context.fillText(legend[sortedColors[colorIndex]], LEGEND_PADDING * 2 + LEGEND_LINE_LENGTH, y);
-
-            y += FONT_SIZE + TEXT_PADDING;
+        if (shouldDraw) {
+            drawText(context, blob["name"], (xMin + xMax) / 2, yMax + LINE_SIZE * 2, "center", "top");
         }
+    }
+
+    const sortedColors = [];
+    let textWidth = 0;
+    for (const color in legend) {
+        sortedColors.push(color);
+        textWidth = Math.max(context.measureText(legend[color]).width, textWidth);
+    }
+    sortedColors.sort();
+
+    let legendHtml = "";
+    for (const colorIndex in sortedColors) {
+        const color = sortedColors[colorIndex];
+        legendHtml += getRouteHtml(color, legend[color]);
+    }
+
+    const legendElement = document.getElementById("legend");
+    if (sortedColors.length === 0) {
+        legendElement.setAttribute("hidden", "true");
+    } else {
+        legendElement.removeAttribute("hidden");
+        legendElement.innerHTML = legendHtml;
+        legendElement.style.maxHeight = window.innerHeight - 32 + "px";
     }
 }
 
-function drawLine(context, x1, y1, x2, y2) {
+function beginDraw(context, strokeColor, lineWidth) {
+    context.beginPath();
+    context.strokeStyle = strokeColor;
+    context.fillStyle = "white";
+    context.lineWidth = lineWidth;
+    context.lineJoin = "round";
+}
+
+function drawLine(context, x1, y1, vertical1, x2, y2, vertical2) {
     const differenceX = Math.abs(x2 - x1);
     const differenceY = Math.abs(y2 - y1);
     if (differenceX > differenceY) {
-        const sign = Math.sign(x2 - x1);
-        if (y1 > y2) {
-            context.lineTo(convertX(x2 - sign * differenceY), convertY(y1));
+        if (vertical1 && vertical2) {
+            const midpoint = (y1 + y2) / 2;
+            context.lineTo(x1 + Math.sign(x2 - x1) * Math.abs(midpoint - y1), midpoint);
+            context.lineTo(x2 - Math.sign(x2 - x1) * Math.abs(midpoint - y1), midpoint);
+        } else if (!vertical1 && !vertical2) {
+            context.lineTo(x1 + Math.sign(x2 - x1) * (differenceX - differenceY) / 2, y1);
+            context.lineTo(x2 - Math.sign(x2 - x1) * (differenceX - differenceY) / 2, y2);
+        } else if (vertical1) {
+            context.lineTo(x1 + Math.sign(x2 - x1) * differenceY, y2);
         } else {
-            context.lineTo(convertX(x1 + sign * differenceY), convertY(y2));
+            context.lineTo(x2 - Math.sign(x2 - x1) * differenceY, y1);
         }
-        context.lineTo(convertX(x2), convertY(y2));
     } else {
-        const sign = Math.sign(y2 - y1);
-        if (x1 > x2) {
-            context.lineTo(convertX(x1), convertY(y2 - sign * differenceX));
+        if (vertical1 && vertical2) {
+            context.lineTo(x1, y1 + Math.sign(y2 - y1) * (differenceY - differenceX) / 2);
+            context.lineTo(x2, y2 - Math.sign(y2 - y1) * (differenceY - differenceX) / 2);
+        } else if (!vertical1 && !vertical2) {
+            const midpoint = (x1 + x2) / 2;
+            context.lineTo(midpoint, y1 + Math.sign(y2 - y1) * Math.abs(midpoint - x1));
+            context.lineTo(midpoint, y2 - Math.sign(y2 - y1) * Math.abs(midpoint - x1));
+        } else if (vertical1) {
+            context.lineTo(x1, y2 - Math.sign(y2 - y1) * differenceX);
         } else {
-            context.lineTo(convertX(x2), convertY(y1 + sign * differenceX));
+            context.lineTo(x2, y1 + Math.sign(y2 - y1) * differenceX);
         }
-        context.lineTo(convertX(x2), convertY(y2));
     }
+    context.lineTo(x2, y2);
+}
+
+function drawText(context, text, x, y, textAlign, textBaseline) {
+    context.strokeStyle = "white";
+    context.fillStyle = "black";
+    context.textAlign = textAlign;
+    context.textBaseline = textBaseline;
+    const textSplit = text.split("|");
+    let yStart = y;
+    for (const index in textSplit) {
+        const textPart = textSplit[index];
+        const isCJK = textPart.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/);
+        context.font = (isCJK ? 3 : 1.5) * LINE_SIZE + "px " + getComputedStyle(document.body).fontFamily;
+        context.strokeText(textPart, x, yStart);
+        context.fillText(textPart, x, yStart);
+        yStart += (isCJK ? 3 : 1.5) * LINE_SIZE;
+    }
+}
+
+function getStationHtml(color, name) {
+    return "<div onclick='onClickStation(\"" + name + "\")' class='clickable'>" +
+        "<span class='station' style='background: " + color + "'></span>" +
+        "<span style='color: black'>" + name.replaceAll("|", " ") + "</span>" +
+        "</div>";
+}
+
+function getRouteHtml(color, name) {
+    return "<div onclick='onClickLine(\"" + color + "\")' class='clickable'>" +
+        "<span class='line' style='background: " + (selectedColor === "" || selectedColor === color ? color : "lightgray") + "'></span>" +
+        "<span style='color: " + (selectedColor === "" || selectedColor === color ? "black" : "lightgray") + "'>" + name.replaceAll("|", " ") + "</span>" +
+        "</div>";
+}
+
+function onClickStation(name) {
+    // TODO
+    callback();
+    onSearch();
+}
+
+function onClickLine(color) {
+    selectedColor = selectedColor === color ? "" : color;
+    callback();
+    onSearch();
+}
+
+function onSearch() {
+    const searchBox = document.getElementById("search_box");
+    const search = searchBox.value.toLowerCase();
+    document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
+
+    let resultsStationsHtml = "";
+    let resultsRoutesHtml = "";
+    if (search !== "") {
+        const {stations, routes} = json[dimension];
+        const resultsStations = Object.keys(stations).filter(station => stations[station]["name"].toLowerCase().includes(search));
+        for (const result in resultsStations) {
+            const {color, name} = stations[resultsStations[result]];
+            resultsStationsHtml += getStationHtml(convertColor(color), name);
+        }
+
+        const resultsRoutes = Object.keys(routes).filter(route => routes[route]["name"].toLowerCase().includes(search));
+        const addedColors = [];
+        for (const result in resultsRoutes) {
+            const {color, name} = routes[resultsRoutes[result]];
+            const convertedColor = convertColor(color);
+            if (!addedColors.includes(convertedColor)) {
+                resultsRoutesHtml += getRouteHtml(convertColor(color), name);
+                addedColors.push(convertedColor);
+            }
+        }
+    }
+
+    document.getElementById("search_results_stations").innerHTML = resultsStationsHtml;
+    document.getElementById("search_results_routes").innerHTML = resultsRoutesHtml;
+}
+
+function onClearSearch() {
+    const searchBox = document.getElementById("search_box");
+    searchBox.value = "";
+    searchBox.focus();
+    document.getElementById("clear_search_icon").innerText = "";
+    document.getElementById("search_results_stations").innerHTML = "";
+    document.getElementById("search_results_routes").innerHTML = "";
 }
 
 function onCanvasMouseDown(event) {

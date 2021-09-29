@@ -12,23 +12,20 @@ import mtr.data.RailwayData;
 import mtr.data.Station;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 public class DataServletHandler extends HttpServlet {
 
-	private final MinecraftServer server;
-
-	public DataServletHandler(MinecraftServer server) {
-		this.server = server;
-	}
+	public static MinecraftServer SERVER;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext asyncContext = request.startAsync();
 
-		server.execute(() -> {
+		SERVER.execute(() -> {
 			final JsonArray dataArray = new JsonArray();
 
-			server.getWorlds().forEach(world -> {
+			SERVER.getWorlds().forEach(world -> {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				final JsonArray routesArray = new JsonArray();
 				final JsonObject stationPositionsObject = new JsonObject();
@@ -64,6 +61,7 @@ public class DataServletHandler extends HttpServlet {
 											final JsonObject stationPositionObject = new JsonObject();
 											stationPositionObject.addProperty("x", pos.getX());
 											stationPositionObject.addProperty("y", pos.getZ());
+											stationPositionObject.addProperty("vertical", platform.getAxis() == Direction.Axis.Z);
 											stationPositionsObject.add(newId, stationPositionObject);
 										}
 
