@@ -1,4 +1,4 @@
-const URL = "http://localhost:8888/data";
+const URL = "http://" + document.location.host + "/data";
 
 const SCALE_UPPER_LIMIT = 64;
 const SCALE_LOWER_LIMIT = 1 / 128;
@@ -19,7 +19,7 @@ let canvasOffsetX = 0;
 let canvasOffsetY = 0;
 let scale = 1;
 let selectedColor = "";
-let dimension = 0;
+let dimension = 0; // TODO other dimensions
 
 window.onload = () => {
     window.addEventListener("resize", callback);
