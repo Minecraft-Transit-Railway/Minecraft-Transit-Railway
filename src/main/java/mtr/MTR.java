@@ -295,6 +295,10 @@ public class MTR implements ModInitializer, IPacket {
 				e.printStackTrace();
 			}
 		}
+		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
+		servletHolder.setInitParameter("dirAllowed", "true");
+		context.addServlet(servletHolder, "/");
+		context.addServlet(DataServletHandler.class, "/data");
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
 			minecraftServer.getWorlds().forEach(serverWorld -> {
@@ -320,12 +324,7 @@ public class MTR implements ModInitializer, IPacket {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			context.addServlet(new ServletHolder(new DataServletHandler(server)), "/data");
-
-			final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
-			servletHolder.setInitParameter("dirAllowed", "true");
-			context.addServlet(servletHolder, "/");
-
+			DataServletHandler.SERVER = server;
 			try {
 				webServer.start();
 			} catch (Exception e) {
