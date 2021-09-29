@@ -7,8 +7,10 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.servlet.DataServletHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -22,7 +24,16 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import java.net.URL;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -272,6 +283,25 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 
+		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
+		final ServerConnector serverConnector = new ServerConnector(webServer);
+		serverConnector.setPort(8888);
+		webServer.setConnectors(new Connector[]{serverConnector});
+		final ServletContextHandler context = new ServletContextHandler();
+		webServer.setHandler(context);
+		final URL url = getClass().getResource("/assets/mtr/website/");
+		if (url != null) {
+			try {
+				context.setBaseResource(Resource.newResource(url.toURI()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
+		servletHolder.setInitParameter("dirAllowed", "true");
+		context.addServlet(servletHolder, "/");
+		context.addServlet(DataServletHandler.class, "/data");
+
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
 			minecraftServer.getWorlds().forEach(serverWorld -> {
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
@@ -293,6 +323,21 @@ public class MTR implements ModInitializer, IPacket {
 			final RailwayData railwayData = RailwayData.getInstance(handler.player.world);
 			if (railwayData != null) {
 				railwayData.disconnectPlayer(handler.player);
+			}
+		});
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			DataServletHandler.SERVER = server;
+			try {
+				webServer.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			try {
+				webServer.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
