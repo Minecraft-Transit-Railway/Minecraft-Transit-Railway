@@ -47,10 +47,13 @@ function callback() {
     context.canvas.height = window.innerHeight;
 
     const data = json[dimension];
+    data["blobs"] = {};
+    const blobs = data["blobs"];
     const positions = data["positions"];
+    const stations = data["stations"];
+
 
     const visitedPositions = {};
-    const blobs = {};
     for (const positionKey in positions) {
         const position = positions[positionKey];
         const x = convertX(position["x"]);
@@ -88,7 +91,7 @@ function callback() {
                 yMin: newY,
                 xMax: newX,
                 yMax: newY,
-                name: data["stations"][stationId]["name"],
+                name: stations[stationId]["name"],
                 colors: [colorConverted],
             };
         } else {
@@ -102,7 +105,9 @@ function callback() {
         }
     }
 
-    const legend = {};
+    const routeNames = {};
+    const sortedColors = [];
+    const visibleLegendColors = [];
     for (const routeKey in data["routes"]) {
         const route = data["routes"][routeKey];
         const color = convertColor(route["color"]);
@@ -124,11 +129,11 @@ function callback() {
                 drawLine(context, prevX, prevY, prevVertical, x, y, vertical);
             }
 
-            if (legend[color] === undefined) {
+            if (!visibleLegendColors.includes(color)) {
                 const inX = isBetween(prevX, 0, window.innerWidth) || isBetween(x, 0, window.innerWidth) || isBetween(0, prevX, x) || isBetween(window.innerWidth, prevX, x);
                 const inY = isBetween(prevY, 0, window.innerHeight) || isBetween(y, 0, window.innerHeight) || isBetween(0, prevY, y) || isBetween(window.innerHeight, prevY, y);
                 if (inX && inY) {
-                    legend[color] = route["name"].split("||")[0];
+                    visibleLegendColors.push(color);
                 }
             }
 
@@ -137,8 +142,14 @@ function callback() {
             prevVertical = vertical;
         }
 
+        routeNames[color] = route["name"];
+        if (!sortedColors.includes(color)) {
+            sortedColors.push(color);
+        }
+
         context.stroke();
     }
+    sortedColors.sort();
 
     for (const blobKey in blobs) {
         const blob = blobs[blobKey];
@@ -169,28 +180,31 @@ function callback() {
         }
     }
 
-    const sortedColors = [];
-    let textWidth = 0;
-    for (const color in legend) {
-        sortedColors.push(color);
-        textWidth = Math.max(context.measureText(legend[color]).width, textWidth);
-    }
-    sortedColors.sort();
-
     let legendHtml = "";
+    let resultsRoutesHtml = "";
     for (const colorIndex in sortedColors) {
         const color = sortedColors[colorIndex];
-        legendHtml += getRouteHtml(color, legend[color]);
+        legendHtml += getRouteHtml(color, routeNames[color], visibleLegendColors.includes(color), "");
+        resultsRoutesHtml += getRouteHtml(color, routeNames[color], true, color);
+    }
+
+    let resultsStationsHtml = "";
+    for (const stationId in stations) {
+        resultsStationsHtml += getStationHtml(convertColor(stations[stationId]["color"]), stations[stationId]["name"], stationId);
     }
 
     const legendElement = document.getElementById("legend");
-    if (sortedColors.length === 0) {
+    if (visibleLegendColors.length === 0) {
         legendElement.setAttribute("hidden", "true");
     } else {
         legendElement.removeAttribute("hidden");
         legendElement.innerHTML = legendHtml;
         legendElement.style.maxHeight = window.innerHeight - 32 + "px";
     }
+    document.getElementById("search_results_routes").innerHTML = resultsRoutesHtml;
+    document.getElementById("search_results_stations").innerHTML = resultsStationsHtml;
+
+    onSearch();
 }
 
 function beginDraw(context, strokeColor, lineWidth) {
@@ -251,22 +265,24 @@ function drawText(context, text, x, y, textAlign, textBaseline) {
     }
 }
 
-function getStationHtml(color, name) {
-    return "<div onclick='onClickStation(\"" + name + "\")' class='clickable'>" +
+function getStationHtml(color, name, id) {
+    return "<div id='" + id + "' onclick='onClickStation(\"" + id + "\")' class='clickable' style='display: none'>" +
         "<span class='station' style='background: " + color + "'></span>" +
         "<span style='color: black'>" + name.replaceAll("|", " ") + "</span>" +
         "</div>";
 }
 
-function getRouteHtml(color, name) {
-    return "<div onclick='onClickLine(\"" + color + "\")' class='clickable'>" +
+function getRouteHtml(color, name, visible, id) {
+    return "<div id='" + id + "' onclick='onClickLine(\"" + color + "\")' class='clickable' " + (visible ? "" : "style='display: none'") + ">" +
         "<span class='line' style='background: " + (selectedColor === "" || selectedColor === color ? color : "lightgray") + "'></span>" +
         "<span style='color: " + (selectedColor === "" || selectedColor === color ? "black" : "lightgray") + "'>" + name.replaceAll("|", " ") + "</span>" +
         "</div>";
 }
 
-function onClickStation(name) {
-    // TODO
+function onClickStation(id) {
+    const {xMin, yMin, xMax, yMax} = json[dimension]["blobs"][id];
+    canvasOffsetX += (xMin + xMax - window.innerWidth) / 2 / scale;
+    canvasOffsetY += (yMin + yMax - window.innerHeight) / 2 / scale;
     callback();
     onSearch();
 }
@@ -282,30 +298,22 @@ function onSearch() {
     const search = searchBox.value.toLowerCase();
     document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
 
-    let resultsStationsHtml = "";
-    let resultsRoutesHtml = "";
-    if (search !== "") {
-        const {stations, routes} = json[dimension];
-        const resultsStations = Object.keys(stations).filter(station => stations[station]["name"].toLowerCase().includes(search));
-        for (const result in resultsStations) {
-            const {color, name} = stations[resultsStations[result]];
-            resultsStationsHtml += getStationHtml(convertColor(color), name);
-        }
+    const {stations, routes} = json[dimension];
 
-        const resultsRoutes = Object.keys(routes).filter(route => routes[route]["name"].toLowerCase().includes(search));
-        const addedColors = [];
-        for (const result in resultsRoutes) {
-            const {color, name} = routes[resultsRoutes[result]];
-            const convertedColor = convertColor(color);
-            if (!addedColors.includes(convertedColor)) {
-                resultsRoutesHtml += getRouteHtml(convertColor(color), name);
-                addedColors.push(convertedColor);
-            }
-        }
+    const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].toLowerCase().includes(search));
+    for (const stationId in stations) {
+        document.getElementById(stationId).style.display = resultsStations.includes(stationId) ? "block" : "none";
     }
 
-    document.getElementById("search_results_stations").innerHTML = resultsStationsHtml;
-    document.getElementById("search_results_routes").innerHTML = resultsRoutesHtml;
+    const resultsRoutes = search === "" ? [] : Object.keys(routes).filter(route => routes[route]["name"].toLowerCase().includes(search));
+    for (const routeIndex in routes) {
+        const color = convertColor(routes[routeIndex]["color"]);
+        document.getElementById(color).style.display = resultsRoutes.includes(routeIndex) ? "block" : "none";
+    }
+
+    const maxHeight = window.innerHeight / 3;
+    document.getElementById("search_results_stations").style.maxHeight = maxHeight + "px";
+    document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
 }
 
 function onClearSearch() {
