@@ -259,6 +259,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 				startEditingRoute((Route) data, false);
 				break;
 		}
+		dashboardList.clearSearch();
 	}
 
 	private void onEdit(NameColorDataBase data, int index) {

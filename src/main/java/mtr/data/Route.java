@@ -191,15 +191,6 @@ public final class Route extends NameColorDataBase implements IGui {
 			this.isTerminating = isTerminating;
 		}
 
-		public ScheduleEntry(ScheduleEntry scheduleEntry, long newArrivalMillis) {
-			arrivalMillis = newArrivalMillis;
-			trainType = scheduleEntry.trainType;
-			trainLength = scheduleEntry.trainLength;
-			platformId = scheduleEntry.platformId;
-			destination = scheduleEntry.destination;
-			isTerminating = scheduleEntry.isTerminating;
-		}
-
 		public ScheduleEntry(PacketByteBuf packet) {
 			arrivalMillis = packet.readLong();
 			trainType = TrainType.values()[packet.readInt()];

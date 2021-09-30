@@ -4,6 +4,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
@@ -71,6 +72,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	public BlockPos getMidPos(boolean zeroY) {
 		final BlockPos pos = getPosition(0).add(getPosition(1));
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
+	}
+
+	public Direction.Axis getAxis() {
+		final BlockPos difference = getPosition(0).subtract(getPosition(1));
+		return Math.abs(difference.getX()) > Math.abs(difference.getZ()) ? Direction.Axis.X : Direction.Axis.Z;
 	}
 
 	public boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {

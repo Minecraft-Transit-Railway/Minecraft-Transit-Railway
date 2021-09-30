@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Railway System Map</title>
+	<link rel="stylesheet" href="index.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+TC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+SC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body style="margin: 0">
+<script src="index.js"></script>
+<canvas id="map"></canvas>
+<div id="legend" class="box"></div>
+<div id="search" class="box">
+	<div id="search_top">
+		<span class="material-icons">search</span>
+		<label for="search_box">Search</label>
+		<input id="search_box" onchange="onSearch()" onpaste="onSearch()" oninput="onSearch()" type="text"/>
+		<span id="clear_search_icon" class="material-icons clickable_icon right_align" onclick="onClearSearch()"></span>
+	</div>
+	<div id="search_results_stations" class="search_results"></div>
+	<div id="search_results_routes" class="search_results"></div>
+	<div id="station_info" class="search_results" style="display: none">
+		<div id="station_info_top">
+			<span class="material-icons right_align" style="opacity: 0">clear</span>
+			<div id="station_name"></div>
+			<span class="material-icons clickable_icon right_align" onclick="onClearStationInfo()">clear</span>
+		</div>
+		<div id="station_line"></div>
+		<div id="station_routes"></div>
+		<div id="station_arrivals"></div>
+	</div>
+</div>
+</body>
+</html>

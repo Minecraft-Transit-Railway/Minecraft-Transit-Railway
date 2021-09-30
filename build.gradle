@@ -18,7 +18,23 @@ dependencies {
     modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "com.github.BlueMap-Minecraft:BlueMapAPI:${project.blue_map_version}"
     modImplementation "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
+    modImplementation "org.eclipse.jetty:jetty-http:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-io:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-security:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-server:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-servlet:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-util:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-util-ajax:${project.jetty_version}"
+    modImplementation "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
     include "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
+    include "org.eclipse.jetty:jetty-http:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-io:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-security:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-server:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-servlet:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-util:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-util-ajax:${project.jetty_version}"
+    include "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
 }
 
 processResources {

@@ -125,6 +125,7 @@
 	"gui.mtr.light_rail_route_announcement": "This is route %s to %s.",
 	"gui.mtr.light_rail_route_announcement_cjk": "本班為%s綫列車前往%s。",
 	"gui.mtr.light_rail_route_number": "Light Rail Route Number",
+	"gui.mtr.max_trains": "Maximum Trains for Siding",
 	"gui.mtr.mtr_options": "Minecraft Transit Railway Options",
 	"gui.mtr.name": "Name",
 	"gui.mtr.next_route_announcement": "This train will be changed to the %s to %s.",
