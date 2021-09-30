@@ -25,6 +25,8 @@ let canvasOffsetY = 0;
 let scale = 1;
 let selectedColor = "";
 let selectedStation = 0;
+let fetchArrivalId = 0;
+let refreshArrivalId = 0;
 let arrivalData = [];
 let dimension = 0; // TODO other dimensions
 
@@ -325,26 +327,28 @@ function getRouteHtml(color, name, visible, id, showColor) {
 
 function fetchArrivals() {
     if (selectedStation !== 0) {
+        clearTimeout(fetchArrivalId);
         fetch(ARRIVALS_URL + "?worldIndex=" + dimension + "&stationId=" + selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
             arrivalData = result;
-            setTimeout(fetchArrivals, REFRESH_INTERVAL);
+            fetchArrivalId = setTimeout(fetchArrivals, REFRESH_INTERVAL);
         });
     }
 }
 
 function refreshArrivals() {
     if (selectedStation !== 0) {
+        clearTimeout(refreshArrivalId);
         let arrivalsHtml = "";
         for (const arrivalIndex in arrivalData) {
             const {arrival, destination} = arrivalData[arrivalIndex];
             const arrivalDifference = Math.floor((arrival - Date.now()) / 1000);
             const hour = Math.floor(arrivalDifference / 60);
             const minute = (arrivalDifference % 60).toString().padStart(2, "0");
-            arrivalsHtml += "<div class='arrival'><span style='width: 100%'>" + destination.replace("|", " ") + "</span><span class='right_align'>" + (arrivalDifference < 0 ? "" : hour + ":" + minute) + "</span></div>";
+            arrivalsHtml += "<div class='arrival'><span style='width: 100%; overflow-wrap: anywhere; white-space: normal'>" + destination.replace("|", " ") + "</span><span class='right_align'>" + (arrivalDifference < 0 ? "" : hour + ":" + minute) + "</span></div>";
         }
         document.getElementById("station_arrivals").innerHTML = arrivalsHtml;
 
-        setTimeout(refreshArrivals, 500);
+        refreshArrivalId = setTimeout(refreshArrivals, 500);
     }
 }
 
