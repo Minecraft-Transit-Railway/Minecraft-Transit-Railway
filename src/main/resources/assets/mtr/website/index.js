@@ -1,4 +1,7 @@
-const URL = "http://" + document.location.host + "/data";
+const URL = "http://" + document.location.host;
+const DATA_URL = URL + "/data"
+const ARRIVALS_URL = URL + "/arrivals";
+const REFRESH_INTERVAL = 5000;
 
 const SCALE_UPPER_LIMIT = 64;
 const SCALE_LOWER_LIMIT = 1 / 128;
@@ -10,15 +13,19 @@ const convertX = x => Math.floor(x * scale / LINE_SIZE) * LINE_SIZE - canvasOffs
 const convertY = y => Math.floor(y * scale / LINE_SIZE) * LINE_SIZE - canvasOffsetY * scale + window.innerHeight / 2;
 const convertColor = color => "#" + Number(color).toString(16).padStart(6, "0");
 const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
+const isCJK = text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/);
 
 let json;
 let dragging = false;
+let selecting = false;
 let mouseClickX = 0;
 let mouseClickY = 0;
 let canvasOffsetX = 0;
 let canvasOffsetY = 0;
 let scale = 1;
 let selectedColor = "";
+let selectedStation = 0;
+let arrivalData = [];
 let dimension = 0; // TODO other dimensions
 
 window.onload = () => {
@@ -32,10 +39,10 @@ window.onload = () => {
 }
 
 refresh();
-setInterval(refresh, 5000);
+setInterval(refresh, REFRESH_INTERVAL);
 
 function refresh() {
-    fetch(URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
+    fetch(DATA_URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
         json = result;
         callback();
     });
@@ -48,9 +55,7 @@ function callback() {
 
     const data = json[dimension];
     data["blobs"] = {};
-    const blobs = data["blobs"];
-    const positions = data["positions"];
-    const stations = data["stations"];
+    const {blobs, positions, stations, routes} = data;
 
 
     const visitedPositions = {};
@@ -108,8 +113,8 @@ function callback() {
     const routeNames = {};
     const sortedColors = [];
     const visibleLegendColors = [];
-    for (const routeKey in data["routes"]) {
-        const route = data["routes"][routeKey];
+    for (const routeKey in routes) {
+        const route = routes[routeKey];
         const color = convertColor(route["color"]);
 
         beginDraw(context, selectedColor === "" || selectedColor === color ? color : "lightgray", LINE_SIZE);
@@ -184,8 +189,8 @@ function callback() {
     let resultsRoutesHtml = "";
     for (const colorIndex in sortedColors) {
         const color = sortedColors[colorIndex];
-        legendHtml += getRouteHtml(color, routeNames[color], visibleLegendColors.includes(color), "");
-        resultsRoutesHtml += getRouteHtml(color, routeNames[color], true, color);
+        legendHtml += getRouteHtml(color, routeNames[color], visibleLegendColors.includes(color), "", selectedColor === "" || selectedColor === color);
+        resultsRoutesHtml += getRouteHtml(color, routeNames[color], true, color, selectedColor === "" || selectedColor === color);
     }
 
     let resultsStationsHtml = "";
@@ -203,6 +208,45 @@ function callback() {
     }
     document.getElementById("search_results_routes").innerHTML = resultsRoutesHtml;
     document.getElementById("search_results_stations").innerHTML = resultsStationsHtml;
+
+    if (selectedStation === 0) {
+        document.getElementById("station_info").style.display = "none";
+    } else {
+        const {name, color} = stations[selectedStation];
+        const stationInfoElement = document.getElementById("station_info");
+        stationInfoElement.style.display = "flex";
+
+        let stationNameHtml = "";
+        const nameSplit = name.split("|");
+        for (const nameSplitIndex in nameSplit) {
+            const namePart = nameSplit[nameSplitIndex];
+            if (isCJK(namePart)) {
+                stationNameHtml += "<h1>" + namePart + "</h1>";
+            } else {
+                stationNameHtml += "<h2>" + namePart + "</h2>";
+            }
+        }
+        document.getElementById("station_name").innerHTML = stationNameHtml;
+
+        document.getElementById("station_line").style.backgroundColor = convertColor(color);
+
+        let stationRoutesHtml = "";
+        const addedRouteColors = [];
+        for (const routeIndex in routes) {
+            const route = routes[routeIndex];
+            if (!addedRouteColors.includes(route["color"])) {
+                for (const stationIndex in route["stations"]) {
+                    if (route["stations"][stationIndex].split("_")[0] === selectedStation) {
+                        stationRoutesHtml += getRouteHtml(convertColor(route["color"]), route["name"].replace("|", " "), true, "", true);
+                        addedRouteColors.push(route["color"]);
+                        break;
+                    }
+                }
+            }
+        }
+        document.getElementById("station_routes").innerHTML = stationRoutesHtml;
+        stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
+    }
 
     onSearch();
 }
@@ -257,11 +301,11 @@ function drawText(context, text, x, y, textAlign, textBaseline) {
     let yStart = y;
     for (const index in textSplit) {
         const textPart = textSplit[index];
-        const isCJK = textPart.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/);
-        context.font = (isCJK ? 3 : 1.5) * LINE_SIZE + "px " + getComputedStyle(document.body).fontFamily;
+        const isTextCJK = isCJK(textPart);
+        context.font = (isTextCJK ? 3 : 1.5) * LINE_SIZE + "px " + getComputedStyle(document.body).fontFamily;
         context.strokeText(textPart, x, yStart);
         context.fillText(textPart, x, yStart);
-        yStart += (isCJK ? 3 : 1.5) * LINE_SIZE;
+        yStart += (isTextCJK ? 3 : 1.5) * LINE_SIZE;
     }
 }
 
@@ -272,19 +316,48 @@ function getStationHtml(color, name, id) {
         "</div>";
 }
 
-function getRouteHtml(color, name, visible, id) {
+function getRouteHtml(color, name, visible, id, showColor) {
     return "<div id='" + id + "' onclick='onClickLine(\"" + color + "\")' class='clickable' " + (visible ? "" : "style='display: none'") + ">" +
-        "<span class='line' style='background: " + (selectedColor === "" || selectedColor === color ? color : "lightgray") + "'></span>" +
-        "<span style='color: " + (selectedColor === "" || selectedColor === color ? "black" : "lightgray") + "'>" + name.replaceAll("|", " ") + "</span>" +
+        "<span class='line' style='background: " + (showColor ? color : "lightgray") + "'></span>" +
+        "<span style='color: " + (showColor ? "black" : "lightgray") + "'>" + name.replaceAll("|", " ") + "</span>" +
         "</div>";
+}
+
+function fetchArrivals() {
+    if (selectedStation !== 0) {
+        fetch(ARRIVALS_URL + "?worldIndex=" + dimension + "&stationId=" + selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
+            arrivalData = result;
+            setTimeout(fetchArrivals, REFRESH_INTERVAL);
+        });
+    }
+}
+
+function refreshArrivals() {
+    if (selectedStation !== 0) {
+        let arrivalsHtml = "";
+        for (const arrivalIndex in arrivalData) {
+            const {arrival, destination} = arrivalData[arrivalIndex];
+            const arrivalDifference = Math.floor((arrival - Date.now()) / 1000);
+            const hour = Math.floor(arrivalDifference / 60);
+            const minute = (arrivalDifference % 60).toString().padStart(2, "0");
+            arrivalsHtml += "<div class='arrival'><span style='width: 100%'>" + destination.replace("|", " ") + "</span><span class='right_align'>" + (arrivalDifference < 0 ? "" : hour + ":" + minute) + "</span></div>";
+        }
+        document.getElementById("station_arrivals").innerHTML = arrivalsHtml;
+
+        setTimeout(refreshArrivals, 500);
+    }
 }
 
 function onClickStation(id) {
     const {xMin, yMin, xMax, yMax} = json[dimension]["blobs"][id];
     canvasOffsetX += (xMin + xMax - window.innerWidth) / 2 / scale;
     canvasOffsetY += (yMin + yMax - window.innerHeight) / 2 / scale;
+
+    selectedStation = id;
+    onClearSearch();
     callback();
-    onSearch();
+    fetchArrivals();
+    refreshArrivals();
 }
 
 function onClickLine(color) {
@@ -311,9 +384,13 @@ function onSearch() {
         document.getElementById(color).style.display = resultsRoutes.includes(routeIndex) ? "block" : "none";
     }
 
-    const maxHeight = window.innerHeight / 3;
+    const maxHeight = (window.innerHeight - 80) / 2;
     document.getElementById("search_results_stations").style.maxHeight = maxHeight + "px";
     document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
+
+    if (search !== "") {
+        onClearStationInfo();
+    }
 }
 
 function onClearSearch() {
@@ -321,12 +398,28 @@ function onClearSearch() {
     searchBox.value = "";
     searchBox.focus();
     document.getElementById("clear_search_icon").innerText = "";
-    document.getElementById("search_results_stations").innerHTML = "";
-    document.getElementById("search_results_routes").innerHTML = "";
+    clearSearchResults();
+}
+
+function onClearStationInfo() {
+    selectedStation = 0;
+    document.getElementById("station_info").style.display = "none";
+}
+
+function clearSearchResults() {
+    const {stations, routes} = json[dimension];
+    for (const stationId in stations) {
+        document.getElementById(stationId).style.display = "none";
+    }
+    for (const routeIndex in routes) {
+        const color = convertColor(routes[routeIndex]["color"]);
+        document.getElementById(color).style.display = "none";
+    }
 }
 
 function onCanvasMouseDown(event) {
     dragging = true;
+    selecting = true;
     mouseClickX = event.screenX;
     mouseClickY = event.screenY;
 }
@@ -338,10 +431,28 @@ function onCanvasMouseMove(event) {
         onCanvasMouseDown(event);
         callback();
     }
+    selecting = false;
 }
 
-function onCanvasMouseUp() {
+function onCanvasMouseUp(event) {
     dragging = false;
+    if (selecting) {
+        const clickX = event.clientX;
+        const clickY = event.clientY;
+        const blobs = json[dimension]["blobs"];
+        for (const stationId in blobs) {
+            const {xMin, yMin, xMax, yMax} = json[dimension]["blobs"][stationId];
+            const margin = LINE_SIZE * 5;
+            if (isBetween(clickX, xMin - margin, xMax + margin) && isBetween(clickY, yMin - margin, yMax + margin)) {
+                selectedStation = stationId;
+                onClearSearch();
+                callback();
+                fetchArrivals();
+                refreshArrivals();
+                break;
+            }
+        }
+    }
 }
 
 function onCanvasScroll(event) {

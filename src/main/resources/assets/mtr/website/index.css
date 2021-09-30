@@ -21,6 +21,21 @@ input {
     text-align: left;
 }
 
+h1, h2 {
+    line-height: 1.2em;
+    text-align: center;
+    white-space: break-spaces;
+    width: 100%;
+}
+
+h1 {
+    font-size: 3em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
 #legend {
     bottom: 0;
     left: 0;
@@ -47,8 +62,23 @@ input {
     width: 100%;
 }
 
-#clear_search_icon {
-    float: right;
+#station_info_top {
+    display: flex;
+    overflow: hidden;
+}
+
+#station_name {
+    width: 100%;
+}
+
+#station_line {
+    border-radius: 0.1em;
+    height: 0.2em;
+    margin: 0.6em 0.2em;
+}
+
+#station_arrivals {
+    padding: 0.4em 0.2em 0 0.2em;
 }
 
 .box {
@@ -70,8 +100,14 @@ input {
     overflow-y: auto;
 }
 
+.arrival {
+    display: flex;
+    overflow: hidden;
+}
+
 .clickable {
     cursor: pointer;
+    padding: 0 0.2em;
 }
 
 .clickable:hover {
@@ -80,6 +116,10 @@ input {
 
 .clickable_icon:hover {
     color: black;
+}
+
+.right_align {
+    float: right;
 }
 
 .station {
@@ -95,7 +135,7 @@ input {
     border-radius: 0.2em;
     height: 0.4em;
     width: 3em;
-    margin: 0.2em 0.4em 0.2em 0.2em;
+    margin: 0.2em 0.4em 0.2em 0;
 }
 
 .material-icons {

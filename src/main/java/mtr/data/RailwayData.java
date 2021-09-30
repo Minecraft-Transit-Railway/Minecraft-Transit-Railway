@@ -46,6 +46,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<PlayerEntity> playersToSyncSchedules = new ArrayList<>();
 	private final Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<PlayerEntity, Integer> playerRidingCoolDown = new HashMap<>();
 
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
@@ -202,7 +203,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		trainPositions.add(new HashSet<>());
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
-		final Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+		schedulesForPlatform.clear();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
@@ -377,6 +378,15 @@ public class RailwayData extends PersistentState implements IPacket {
 			}
 			depot.generateMainRoute(minecraftServer, world, dataCache, rails, sidings, thread -> generatingPathThreads.put(depotId, thread));
 		}
+	}
+
+	public void getSchedulesForStation(Map<Long, Set<Route.ScheduleEntry>> schedulesForStation, long stationId) {
+		schedulesForPlatform.forEach((platformId, schedules) -> {
+			final Station station = dataCache.platformIdToStation.get(platformId);
+			if (station != null && station.id == stationId) {
+				schedulesForStation.put(platformId, schedules);
+			}
+		});
 	}
 
 	private void validateData() {

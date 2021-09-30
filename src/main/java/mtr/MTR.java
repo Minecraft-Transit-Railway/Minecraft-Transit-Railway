@@ -7,6 +7,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -299,6 +300,7 @@ public class MTR implements ModInitializer, IPacket {
 		servletHolder.setInitParameter("dirAllowed", "true");
 		context.addServlet(servletHolder, "/");
 		context.addServlet(DataServletHandler.class, "/data");
+		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
 
 		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
 			minecraftServer.getWorlds().forEach(serverWorld -> {
@@ -325,6 +327,7 @@ public class MTR implements ModInitializer, IPacket {
 		});
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			DataServletHandler.SERVER = server;
+			ArrivalsServletHandler.SERVER = server;
 			try {
 				webServer.start();
 			} catch (Exception e) {
