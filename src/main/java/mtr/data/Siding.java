@@ -117,7 +117,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				break;
 			case KEY_UNLIMITED_TRAINS:
-				name = packet.readString();
+				name = packet.readString(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();

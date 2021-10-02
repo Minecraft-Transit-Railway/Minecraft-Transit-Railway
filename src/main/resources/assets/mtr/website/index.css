@@ -1,6 +1,7 @@
 * {
-    margin: 0;
     font-family: "Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", sans-serif;
+    margin: 0;
+    user-select: none;
 }
 
 canvas {

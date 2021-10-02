@@ -10,17 +10,18 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<script src="https://pixijs.download/release/pixi.js"></script>
+	<script src="index.js"></script>
+	<script src="drawing.js"></script>
+	<script src="utilities.js"></script>
 </head>
-<body style="margin: 0">
-<script src="index.js"></script>
-<canvas id="map"></canvas>
-<div id="legend" class="box"></div>
+<body>
 <div id="search" class="box">
 	<div id="search_top">
 		<span class="material-icons">search</span>
 		<label for="search_box">Search</label>
-		<input id="search_box" onchange="onSearch()" onpaste="onSearch()" oninput="onSearch()" type="text"/>
-		<span id="clear_search_icon" class="material-icons clickable_icon right_align" onclick="onClearSearch()"></span>
+		<input id="search_box" type="text"/>
+		<span id="clear_search_icon" class="material-icons clickable_icon right_align"></span>
 	</div>
 	<div id="search_results_stations" class="search_results"></div>
 	<div id="search_results_routes" class="search_results"></div>
