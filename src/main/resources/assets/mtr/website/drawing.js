@@ -12,11 +12,9 @@
 	let refreshArrivalId = 0;
 	let arrivalData = [];
 
-	const clearAndDestroy = (array, canClear) => {
+	const clearAndDestroy = array => {
 		for (const index in array) {
-			if (canClear) {
-				array[index].clear();
-			}
+			array[index].clear();
 			array[index].destroy();
 		}
 	};
@@ -30,8 +28,9 @@
 			selecting = true;
 		});
 		graphics.on("pointermove", event => {
-			onCanvasMouseMove(event, container);
-			selecting = false;
+			if (onCanvasMouseMove(event, container)) {
+				selecting = false;
+			}
 		});
 		graphics.on("pointerup", event => {
 			onCanvasMouseUp(event);
@@ -51,7 +50,7 @@
 			clearTimeout(fetchArrivalId);
 			fetch(ARRIVALS_URL + "?worldIndex=" + dimension + "&stationId=" + selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
 				arrivalData = result;
-				fetchArrivalId = setTimeout(fetchArrivals, REFRESH_INTERVAL);
+				fetchArrivalId = setTimeout(fetchArrivals, REFRESH_ARRIVALS_INTERVAL);
 				refreshArrivals();
 			});
 		}
@@ -119,14 +118,13 @@
 		};
 
 		const onClickStation = id => {
-			onClearSearch(data);
+			onClearSearch(data, false);
 			const {name, color} = stations[id];
 			const stationInfoElement = document.getElementById("station_info");
 			stationInfoElement.removeAttribute("style");
 
 			const {xMin, yMin, xMax, yMax} = data["blobs"][id];
-			container.x = Math.round(-(xMin + xMax) / 2 + window.innerWidth / 2);
-			container.y = Math.round(-(yMin + yMax) / 2 + window.innerHeight / 2);
+			slideTo(container, -(xMin + xMax) / 2 + window.innerWidth / 2, -(yMin + yMax) / 2 + window.innerHeight / 2);
 
 			let stationNameHtml = "";
 			const nameSplit = name.split("|");
@@ -181,14 +179,12 @@
 			drawMap(container, data);
 		};
 
-		clearAndDestroy(graphicsRoutesLayer1, true);
-		clearAndDestroy(graphicsRoutesLayer2, true);
-		clearAndDestroy(graphicsStationsLayer1, true);
-		clearAndDestroy(graphicsStationsLayer2, true);
-		clearAndDestroy(graphicsStationsTextLayer1, true);
-		clearAndDestroy(graphicsStationsTextLayer2, true);
-		clearAndDestroy(textStations, false);
-		clearAndDestroy(container.children, true);
+		clearAndDestroy(graphicsRoutesLayer1);
+		clearAndDestroy(graphicsRoutesLayer2);
+		clearAndDestroy(graphicsStationsLayer1);
+		clearAndDestroy(graphicsStationsLayer2);
+		clearAndDestroy(graphicsStationsTextLayer1);
+		clearAndDestroy(graphicsStationsTextLayer2);
 		graphicsRoutesLayer1 = [];
 		graphicsRoutesLayer2 = [];
 		graphicsStationsLayer1 = [];

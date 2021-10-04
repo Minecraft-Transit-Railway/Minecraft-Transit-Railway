@@ -1,7 +1,8 @@
 const URL = document.location.origin + document.location.pathname;
 const DATA_URL = URL + "data"
 const ARRIVALS_URL = URL + "arrivals";
-const REFRESH_INTERVAL = 5000;
+const REFRESH_DATA_INTERVAL = 60000;
+const REFRESH_ARRIVALS_INTERVAL = 5000;
 
 const LINE_SIZE = 6;
 const TEXT_PADDING = 6;
@@ -23,7 +24,15 @@ window.onload = () => {
 	searchBoxElement.onpaste = () => onSearch(json[dimension]);
 	searchBoxElement.oninput = () => onSearch(json[dimension]);
 
-	document.getElementById("clear_search_icon").onclick = () => onClearSearch(json[dimension]);
+	document.getElementById("zoom_in_icon").onclick = () => {
+		onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
+		drawMap(container, json[dimension]);
+	};
+	document.getElementById("zoom_out_icon").onclick = () => {
+		onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
+		drawMap(container, json[dimension]);
+	};
+	document.getElementById("clear_search_icon").onclick = () => onClearSearch(json[dimension], true);
 
 	window.addEventListener("resize", resize);
 	const background = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -44,6 +53,7 @@ window.onload = () => {
 		onCanvasScroll(event, container);
 		drawMap(container, json[dimension]);
 	});
+	app.ticker.add(delta => update(delta, container));
 
 	fetchMainData();
 
@@ -52,7 +62,7 @@ window.onload = () => {
 		fetch(DATA_URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
 			json = result;
 			drawMap(container, json[dimension]);
-			refreshDataId = setTimeout(fetchMainData, REFRESH_INTERVAL);
+			refreshDataId = setTimeout(fetchMainData, REFRESH_DATA_INTERVAL);
 		});
 	}
 
@@ -60,6 +70,7 @@ window.onload = () => {
 		app.renderer.resize(window.innerWidth, window.innerHeight);
 		background.width = app.screen.width;
 		background.height = app.screen.height;
+		document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
 		document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
 	}
 }
@@ -95,10 +106,12 @@ function onClearStationInfo() {
 	document.getElementById("station_info").style.display = "none";
 }
 
-function onClearSearch(data) {
+function onClearSearch(data, focus) {
 	const searchBox = document.getElementById("search_box");
 	searchBox.value = "";
-	searchBox.focus();
+	if (focus) {
+		searchBox.focus();
+	}
 	document.getElementById("clear_search_icon").innerText = "";
 	const {stations, routes} = data;
 	for (const stationId in stations) {
