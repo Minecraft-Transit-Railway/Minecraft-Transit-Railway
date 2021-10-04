@@ -252,8 +252,7 @@ public class TrainServer extends Train {
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, destinationString, timeSegment.isTerminating));
-
+					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
 				}
 
 				if (i == timeSegments.size() - 1) {

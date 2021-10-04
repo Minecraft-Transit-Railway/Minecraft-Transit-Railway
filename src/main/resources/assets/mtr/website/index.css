@@ -4,6 +4,26 @@
     user-select: none;
 }
 
+:root {
+    --backgroundColor: #FFFFFF;
+    --backgroundHover: #EEEEEE;
+    --boxBorder: #DDDDDD;
+    --textColorDisabled: #BBBBBB;
+    --textColorGray: #666666;
+    --textColor: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --backgroundColor: #000000;
+        --backgroundHover: #333333;
+        --boxBorder: #555555;
+        --textColorDisabled: #666666;
+        --textColorGray: #BBBBBB;
+        --textColor: #FFFFFF;
+    }
+}
+
 canvas {
     display: block;
 }
@@ -73,8 +93,8 @@ h2 {
 }
 
 #station_line {
-    border-radius: 0.1em;
-    height: 0.2em;
+    border-radius: 0.2em;
+    height: 0.4em;
     margin: 0.6em 0.2em;
 }
 
@@ -83,8 +103,8 @@ h2 {
 }
 
 .box {
-    background: white;
-    border: 0.2em solid lightgray;
+    background: var(--backgroundColor);
+    border: 0.2em solid var(--boxBorder);
     border-radius: 0.6em;
     box-sizing: border-box;
     margin: 1em;
@@ -92,6 +112,14 @@ h2 {
     padding: 0.4em;
     position: fixed;
     white-space: nowrap;
+}
+
+.text {
+    color: var(--textColor);
+}
+
+.text_disabled {
+    color: var(--textColorDisabled);
 }
 
 .search_results {
@@ -102,8 +130,17 @@ h2 {
 }
 
 .arrival {
+    align-items: center;
     display: flex;
+    height: 1em;
+    margin: 0.2em;
+}
+
+.arrival_text {
+    color: var(--textColorGray);
+    font-size: 0.8em;
     overflow: hidden;
+    white-space: nowrap;
 }
 
 .clickable {
@@ -112,11 +149,15 @@ h2 {
 }
 
 .clickable:hover {
-    background: #EEEEEE;
+    background: var(--backgroundHover);
 }
 
 .clickable_icon:hover {
-    color: black;
+    color: var(--textColor);
+}
+
+.left_align {
+    float: left;
 }
 
 .right_align {
@@ -139,8 +180,15 @@ h2 {
     margin: 0.2em 0.4em 0.2em 0;
 }
 
+.spacer {
+    background-color: var(--boxBorder);
+    border-radius: 0.1em;
+    height: 0.1em;
+    margin: 0.2em;
+}
+
 .material-icons {
-    color: gray;
+    color: var(--textColorGray);
     cursor: default;
     margin: 0;
     padding: 0.2em;
