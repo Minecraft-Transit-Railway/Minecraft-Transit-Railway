@@ -69,19 +69,22 @@
 				const second = (arrivalDifference % 60).toString().padStart(2, "0");
 				const destinationSplit = destination.split("|");
 				if (arrivalsHtml[color] === undefined) {
-					arrivalsHtml[color] = "";
+					arrivalsHtml[color] = {html: "", count: 0};
 				}
-				arrivalsHtml[color] +=
-					`<div class="arrival">` +
-					`<span class="arrival_text left_align" style="width: 70%">${destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
-					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : minute + ":" + second}</span>` +
-					`</div>`;
+				if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
+					arrivalsHtml[color]["html"] +=
+						`<div class="arrival">` +
+						`<span class="arrival_text left_align" style="width: 70%">${destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+						`<span class="arrival_text" style="width: 10%">${platform}</span>` +
+						`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : minute + ":" + second}</span>` +
+						`</div>`;
+					arrivalsHtml[color]["count"]++;
+				}
 			}
 			for (const color in arrivalsHtml) {
 				const arrivalElement = document.getElementById("station_arrivals_" + color);
 				if (arrivalElement != null) {
-					arrivalElement.innerHTML = arrivalsHtml[color];
+					arrivalElement.innerHTML = arrivalsHtml[color]["html"];
 				}
 			}
 			refreshArrivalId = setTimeout(refreshArrivals, 1000);

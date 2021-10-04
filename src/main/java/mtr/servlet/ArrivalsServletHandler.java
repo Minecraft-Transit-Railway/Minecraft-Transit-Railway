@@ -31,15 +31,10 @@ public class ArrivalsServletHandler extends HttpServlet {
 			worldIndex = Integer.parseInt(request.getParameter("worldIndex"));
 		} catch (Exception ignored) {
 		}
-		try {
-			maxArrivals = Integer.parseInt(request.getParameter("maxArrivals"));
-		} catch (Exception ignored) {
-		}
 
 		final AsyncContext asyncContext = request.startAsync();
 		final long stationIdFinal = stationId;
 		final long worldIndexFinal = worldIndex;
-		final long maxArrivalsFinal = maxArrivals;
 
 		SERVER.execute(() -> {
 			final JsonArray dataArray = new JsonArray();
@@ -57,8 +52,7 @@ public class ArrivalsServletHandler extends HttpServlet {
 						schedulesForStation.values().forEach(scheduleEntries::addAll);
 						Collections.sort(scheduleEntries);
 
-						for (int i = 0; i < Math.min(maxArrivalsFinal, scheduleEntries.size()); i++) {
-							final Route.ScheduleEntry scheduleEntry = scheduleEntries.get(i);
+						for (final Route.ScheduleEntry scheduleEntry : scheduleEntries) {
 							if (!scheduleEntry.isTerminating) {
 								final JsonObject scheduleObject = new JsonObject();
 								scheduleObject.addProperty("arrival", scheduleEntry.arrivalMillis);
