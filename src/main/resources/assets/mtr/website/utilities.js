@@ -6,11 +6,20 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 {
 	const scaleUpperLimit = 64;
 	const scaleLowerLimit = 1 / 128;
+	const dragThreshold = 10;
+	const steps = 50;
 
 	let scale = 1;
 	let dragging = false;
+	let dragCounter = 0;
 	let mouseClickX = 0;
 	let mouseClickY = 0;
+
+	let step = 0;
+	let startX = 0;
+	let startY = 0;
+	let targetX = undefined;
+	let targetY = undefined;
 
 	function convertX(x) {
 		return Math.floor((x + window.innerWidth / 2) * scale / LINE_SIZE) * LINE_SIZE;
@@ -24,6 +33,8 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 		dragging = true;
 		mouseClickX = event.data.global.x;
 		mouseClickY = event.data.global.y;
+		targetX = undefined;
+		targetY = undefined;
 	}
 
 	function onCanvasMouseMove(event, container) {
@@ -32,24 +43,88 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 			const mouseY = event.data.global.y;
 
 			if (isBetween(mouseX, 0, window.innerWidth) && isBetween(mouseY, 0, window.innerHeight)) {
-				container.x += mouseX - mouseClickX;
-				container.y += mouseY - mouseClickY;
-				onCanvasMouseDown(event);
+				const changeX = mouseX - mouseClickX;
+				const changeY = mouseY - mouseClickY;
+				container.x += changeX;
+				container.y += changeY;
+				dragCounter += Math.abs(changeX) + Math.abs(changeY);
+				mouseClickX = event.data.global.x;
+				mouseClickY = event.data.global.y;
 			} else {
 				onCanvasMouseUp();
 			}
 		}
+
+		return dragCounter > dragThreshold;
 	}
 
 	function onCanvasMouseUp() {
 		dragging = false;
+		dragCounter = 0;
 	}
 
 	function onCanvasScroll(event, container) {
-		scale *= event.deltaY < 0 ? 2 : 0.5;
+		onZoom(Math.sign(event.deltaY), event.offsetX, event.offsetY, container);
+	}
+
+	function onZoom(amount, offsetX, offsetY, container) {
+		scale *= amount < 0 ? 2 : 0.5;
 		scale = Math.min(scaleUpperLimit, Math.max(scaleLowerLimit, scale));
-		container.x -= Math.round((event.offsetX - container.x) / (event.deltaY < 0 ? 1 : -2));
-		container.y -= Math.round((event.offsetY - container.y) / (event.deltaY < 0 ? 1 : -2));
+		container.x -= Math.round((offsetX - container.x) / (amount < 0 ? 1 : -2));
+		container.y -= Math.round((offsetY - container.y) / (amount < 0 ? 1 : -2));
+	}
+
+	function slideTo(container, x, y) {
+		startX = container.x;
+		startY = container.y;
+		targetX = Math.round(x);
+		targetY = Math.round(y);
+		step = 0;
+	}
+
+	function update(delta, container) {
+		if (targetX !== undefined && targetY !== undefined) {
+			step += delta;
+			const speed = step >= steps / 2 ? 4 - 4 * step / steps : 4 * step / steps;
+			container.x += speed * (targetX - startX) / steps;
+			container.y += speed * (targetY - startY) / steps;
+			if (step >= steps) {
+				container.x = targetX;
+				container.y = targetY;
+				targetX = undefined;
+				targetY = undefined;
+			}
+		}
+	}
+}
+
+{
+	const textCache = {};
+
+	function drawText(textArray, text, x, y) {
+		const textSplit = text.split("|");
+		let yStart = y;
+		for (const index in textSplit) {
+			const textPart = textSplit[index];
+			const isTextCJK = isCJK(textPart);
+
+			if (textCache[textPart] === undefined) {
+				const richText = new PIXI.Text(textPart, {
+					fontFamily: getComputedStyle(document.body).fontFamily,
+					fontSize: (isTextCJK ? 3 : 1.5) * LINE_SIZE,
+					fill: getColorStyle("--textColor"),
+					stroke: getColorStyle("--backgroundColor"),
+					strokeThickness: 2,
+				});
+				richText.anchor.set(0.5, 0);
+				textCache[textPart] = richText;
+			}
+
+			const richText = textCache[textPart];
+			richText.position.set(Math.round(x / 2) * 2, yStart);
+			textArray.push(richText);
+			yStart += (isTextCJK ? 3 : 1.5) * LINE_SIZE;
+		}
 	}
 }
 
@@ -115,24 +190,4 @@ function drawLine(graphics, x1, y1, vertical1, x2, y2, vertical2) {
 		}
 		reverse = !reverse;
 	} while (reverse);
-}
-
-function drawText(textArray, text, x, y) {
-	const textSplit = text.split("|");
-	let yStart = y;
-	for (const index in textSplit) {
-		const textPart = textSplit[index];
-		const isTextCJK = isCJK(textPart);
-		const richText = new PIXI.Text(textPart, {
-			fontFamily: getComputedStyle(document.body).fontFamily,
-			fontSize: (isTextCJK ? 3 : 1.5) * LINE_SIZE,
-			fill: getColorStyle("--textColor"),
-			stroke: getColorStyle("--backgroundColor"),
-			strokeThickness: 2,
-		});
-		richText.anchor.set(0.5, 0);
-		richText.position.set(Math.round(x / 2) * 2, yStart);
-		textArray.push(richText);
-		yStart += (isTextCJK ? 3 : 1.5) * LINE_SIZE;
-	}
 }
