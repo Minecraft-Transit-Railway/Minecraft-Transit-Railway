@@ -2,6 +2,7 @@ package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import net.minecraft.server.MinecraftServer;
@@ -62,6 +63,10 @@ public class ArrivalsServletHandler extends HttpServlet {
 								final JsonObject scheduleObject = new JsonObject();
 								scheduleObject.addProperty("arrival", scheduleEntry.arrivalMillis);
 								scheduleObject.addProperty("destination", scheduleEntry.destination);
+								final Platform platform = railwayData.dataCache.platformIdMap.get(scheduleEntry.platformId);
+								scheduleObject.addProperty("platform", platform == null ? "" : platform.name);
+								final Route route = railwayData.dataCache.routeIdMap.get(scheduleEntry.routeId);
+								scheduleObject.addProperty("color", route == null ? 0 : route.color);
 								dataArray.add(scheduleObject);
 							}
 						}

@@ -60,20 +60,31 @@
 	const refreshArrivals = () => {
 		if (selectedStation !== 0) {
 			clearTimeout(refreshArrivalId);
-			let arrivalsHtml = "";
+			const arrivalsHtml = {};
 			for (const arrivalIndex in arrivalData) {
-				const {arrival, destination} = arrivalData[arrivalIndex];
-				const arrivalDifference = Math.floor((arrival - Date.now()) / 1000);
-				const hour = Math.floor(arrivalDifference / 60);
-				const minute = (arrivalDifference % 60).toString().padStart(2, "0");
-				arrivalsHtml +=
+				const {arrival, destination, platform, color} = arrivalData[arrivalIndex];
+				const currentMillis = Date.now();
+				const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
+				const minute = Math.floor(arrivalDifference / 60);
+				const second = (arrivalDifference % 60).toString().padStart(2, "0");
+				const destinationSplit = destination.split("|");
+				if (arrivalsHtml[color] === undefined) {
+					arrivalsHtml[color] = "";
+				}
+				arrivalsHtml[color] +=
 					`<div class="arrival">` +
-					`<span style="width: 100%; overflow-wrap: anywhere; white-space: normal">${destination.replaceAll("|", " ")}</span>` +
-					`<span class='right_align'>${arrivalDifference < 0 ? "" : hour + ":" + minute}</span>` +
+					`<span class="arrival_text left_align" style="width: 70%">${destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
+					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : minute + ":" + second}</span>` +
 					`</div>`;
 			}
-			document.getElementById("station_arrivals").innerHTML = arrivalsHtml;
-			refreshArrivalId = setTimeout(refreshArrivals, 500);
+			for (const color in arrivalsHtml) {
+				const arrivalElement = document.getElementById("station_arrivals_" + color);
+				if (arrivalElement != null) {
+					arrivalElement.innerHTML = arrivalsHtml[color];
+				}
+			}
+			refreshArrivalId = setTimeout(refreshArrivals, 1000);
 		}
 	};
 
@@ -85,8 +96,8 @@
 			element.setAttribute("style", "display: none");
 			element.onclick = () => onClickStation(id);
 			element.innerHTML =
-				`<span class='station' style='background: ${convertColor(color)}'></span>` +
-				`<span style='color: black'>${name.replaceAll("|", " ")}</span>`;
+				`<span class="station" style="background: ${convertColor(color)}"></span>` +
+				`<span class="text">${name.replaceAll("|", " ")}</span>`;
 			return element;
 		};
 
@@ -99,8 +110,8 @@
 			}
 			element.onclick = () => onClickLine(color);
 			element.innerHTML =
-				`<span class='line' style='background: ${showColor ? convertColor(color) : "lightgray"}'></span>` +
-				`<span style='color: ${showColor ? "black" : "lightgray"}'>${name.replaceAll("|", " ")}</span>`;
+				`<span class="line" style="background: ${convertColor(showColor ? color : getColorStyle("--textColorDisabled"))}"></span>` +
+				`<span class="${showColor ? "text" : "text_disabled"}">${name.replaceAll("|", " ")}</span>`;
 			return element;
 		};
 
@@ -109,7 +120,6 @@
 			const {name, color} = stations[id];
 			const stationInfoElement = document.getElementById("station_info");
 			stationInfoElement.removeAttribute("style");
-			document.getElementById("station_arrivals").innerHTML = "";
 
 			const {xMin, yMin, xMax, yMax} = data["blobs"][id];
 			container.x = Math.round(-(xMin + xMax) / 2 + window.innerWidth / 2);
@@ -139,10 +149,23 @@
 						if (route["stations"][stationIndex].split("_")[0] === id) {
 							stationRoutesElement.append(getRouteElement(route["color"], route["name"].replaceAll("|", " "), true, "", true, () => onClickLine(container, data, color)));
 							addedRouteColors.push(route["color"]);
+
+							const arrivalElement = document.createElement("div");
+							arrivalElement.setAttribute("id", "station_arrivals_" + route["color"]);
+							stationRoutesElement.append(arrivalElement);
+
+							const spacerElement = document.createElement("div");
+							spacerElement.setAttribute("class", "spacer");
+							stationRoutesElement.append(spacerElement);
+
 							break;
 						}
 					}
 				}
+			}
+
+			if (stationRoutesElement.lastChild != null) {
+				stationRoutesElement.removeChild(stationRoutesElement.lastChild);
 			}
 
 			stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
@@ -235,7 +258,7 @@
 
 			createClickable(container, graphicsRoute => {
 				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
-				graphicsRoute.beginFill(shouldDraw ? color : COLOR_GRAY);
+				graphicsRoute.beginFill(shouldDraw ? color : getColorStyle("--textColorDisabled"));
 
 				let prevX = undefined;
 				let prevY = undefined;
@@ -269,8 +292,8 @@
 
 			createClickable(container, graphicsStation => {
 				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
-				graphicsStation.beginFill(0xFFFFFF);
-				graphicsStation.lineStyle(2, shouldDraw ? 0x000000 : COLOR_GRAY, 1);
+				graphicsStation.beginFill(getColorStyle("--backgroundColor"));
+				graphicsStation.lineStyle(2, getColorStyle(shouldDraw ? "--textColor" : "--textColorDisabled"), 1);
 
 				if (xMin === xMax && yMin === yMax) {
 					graphicsStation.drawCircle(xMin, yMin, LINE_SIZE);

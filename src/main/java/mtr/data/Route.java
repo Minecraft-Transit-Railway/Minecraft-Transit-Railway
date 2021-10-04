@@ -179,14 +179,16 @@ public final class Route extends NameColorDataBase implements IGui {
 		public final TrainType trainType;
 		public final int trainLength;
 		public final long platformId;
+		public final long routeId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(long arrivalMillis, TrainType trainType, int trainLength, long platformId, String destination, boolean isTerminating) {
+		public ScheduleEntry(long arrivalMillis, TrainType trainType, int trainLength, long platformId, long routeId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.trainType = trainType;
 			this.trainLength = trainLength;
 			this.platformId = platformId;
+			this.routeId = routeId;
 			this.destination = destination;
 			this.isTerminating = isTerminating;
 		}
@@ -196,6 +198,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			trainType = TrainType.values()[packet.readInt()];
 			trainLength = packet.readInt();
 			platformId = packet.readLong();
+			routeId = packet.readLong();
 			destination = packet.readString(PACKET_STRING_READ_LENGTH);
 			isTerminating = packet.readBoolean();
 		}
@@ -205,6 +208,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			packet.writeInt(trainType.ordinal());
 			packet.writeInt(trainLength);
 			packet.writeLong(platformId);
+			packet.writeLong(routeId);
 			packet.writeString(destination);
 			packet.writeBoolean(isTerminating);
 		}

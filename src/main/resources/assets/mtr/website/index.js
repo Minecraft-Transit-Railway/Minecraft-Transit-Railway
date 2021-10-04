@@ -1,12 +1,9 @@
-// const DATA_URL = document.location.origin + "/data"
-// const ARRIVALS_URL = document.location.origin + "/arrivals";
-const DATA_URL = "data.json";
-const ARRIVALS_URL = "arrivals.json";
+const DATA_URL = document.location.origin + "/data"
+const ARRIVALS_URL = document.location.origin + "/arrivals";
 const REFRESH_INTERVAL = 5000;
 
 const LINE_SIZE = 6;
 const TEXT_PADDING = 6;
-const COLOR_GRAY = 0xDDDDDD;
 const FILTER = new PIXI.filters.BlurFilter();
 
 let dimension = 0; // TODO other dimensions
@@ -14,10 +11,11 @@ let selectedColor = -1;
 let selectedStation = 0;
 
 window.onload = () => {
-	const app = new PIXI.Application({autoResize: true, antialias: true, resolution: devicePixelRatio});
+	const app = new PIXI.Application({autoResize: true, antialias: true});
 	const searchBoxElement = document.getElementById("search_box");
 
 	let json;
+	let refreshDataId = 0;
 
 	searchBoxElement.onchange = () => onSearch(json[dimension]);
 	searchBoxElement.onpaste = () => onSearch(json[dimension]);
@@ -29,6 +27,7 @@ window.onload = () => {
 	const background = new PIXI.Sprite(PIXI.Texture.WHITE);
 	resize();
 
+	background.tint = getColorStyle("--backgroundColor");
 	background.interactive = true;
 	background.on("pointerdown", onCanvasMouseDown);
 	background.on("pointermove", event => onCanvasMouseMove(event, container));
@@ -45,12 +44,13 @@ window.onload = () => {
 	});
 
 	fetchMainData();
-	setInterval(fetchMainData, REFRESH_INTERVAL);
 
 	function fetchMainData() {
+		clearTimeout(refreshDataId);
 		fetch(DATA_URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
 			json = result;
 			drawMap(container, json[dimension]);
+			refreshDataId = setTimeout(fetchMainData, REFRESH_INTERVAL);
 		});
 	}
 
@@ -58,6 +58,7 @@ window.onload = () => {
 		app.renderer.resize(window.innerWidth, window.innerHeight);
 		background.width = app.screen.width;
 		background.height = app.screen.height;
+		document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
 	}
 }
 
