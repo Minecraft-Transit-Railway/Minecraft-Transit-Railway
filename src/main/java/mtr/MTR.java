@@ -298,6 +298,7 @@ public class MTR implements ModInitializer, IPacket {
 		}
 		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
 		servletHolder.setInitParameter("dirAllowed", "true");
+		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
 		context.addServlet(servletHolder, "/");
 		context.addServlet(DataServletHandler.class, "/data");
 		context.addServlet(ArrivalsServletHandler.class, "/arrivals");

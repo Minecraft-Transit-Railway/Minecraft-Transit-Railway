@@ -85,7 +85,6 @@ h2 {
 
 #station_info_top {
     display: flex;
-    overflow: hidden;
 }
 
 #station_name {
@@ -94,7 +93,7 @@ h2 {
 
 #station_line {
     border-radius: 0.2em;
-    height: 0.4em;
+    min-height: 0.4em;
     margin: 0.6em 0.2em;
 }
 

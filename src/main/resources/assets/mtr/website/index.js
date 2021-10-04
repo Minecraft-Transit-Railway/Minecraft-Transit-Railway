@@ -1,9 +1,11 @@
-const DATA_URL = document.location.origin + "/data"
-const ARRIVALS_URL = document.location.origin + "/arrivals";
+const URL = document.location.origin + document.location.pathname;
+const DATA_URL = URL + "data"
+const ARRIVALS_URL = URL + "arrivals";
 const REFRESH_INTERVAL = 5000;
 
 const LINE_SIZE = 6;
 const TEXT_PADDING = 6;
+const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 
 let dimension = 0; // TODO other dimensions
