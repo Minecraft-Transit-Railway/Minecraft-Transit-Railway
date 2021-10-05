@@ -3,7 +3,7 @@ package mtr.config;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.MTR;
-import mtr.data.TrainType;
+import mtr.data.TrainRegistry;
 import mtr.gui.DashboardScreen;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
@@ -67,7 +67,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 									color = 0;
 								}
 
-								final TrainType trainType = TrainType.valueOf(jsonObject.get(CUSTOM_TRAINS_BASE_TRAIN_TYPE).getAsString().toUpperCase());
+								final TrainRegistry.TrainType trainType = TrainRegistry.getTrainType(jsonObject.get(CUSTOM_TRAINS_BASE_TRAIN_TYPE).getAsString());
 
 								customTrains.put(CUSTOM_TRAIN_ID_PREFIX + entry.getKey(), new CustomTrain(jsonObject.get(CUSTOM_TRAINS_NAME).getAsString(), color, trainType, jsonObject.get(CUSTOM_TRAINS_TEXTURE_ID).getAsString()));
 							} catch (Exception e) {
@@ -147,10 +147,10 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 
 		public final String name;
 		public final int color;
-		public final TrainType baseTrainType;
+		public final TrainRegistry.TrainType baseTrainType;
 		public final Identifier textureId;
 
-		public CustomTrain(String name, int color, TrainType baseTrainType, String textureIdString) {
+		public CustomTrain(String name, int color, TrainRegistry.TrainType baseTrainType, String textureIdString) {
 			this.name = name;
 			this.color = color;
 			this.baseTrainType = baseTrainType;
@@ -184,9 +184,9 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 	public static class TrainMapping {
 
 		public final String customId;
-		public final TrainType trainType;
+		public final TrainRegistry.TrainType trainType;
 
-		public TrainMapping(String customId, TrainType trainType) {
+		public TrainMapping(String customId, TrainRegistry.TrainType trainType) {
 			this.customId = customId;
 			this.trainType = trainType;
 		}

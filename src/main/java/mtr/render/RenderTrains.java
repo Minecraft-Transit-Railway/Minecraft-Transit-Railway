@@ -9,7 +9,8 @@ import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
-import mtr.model.*;
+import mtr.model.ModelTrainBase;
+import mtr.model.TrainModelRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -46,33 +47,6 @@ public class RenderTrains implements IGui {
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>(MinecartEntityModel.getTexturedModelData().createModel());
-	private static final ModelSP1900 MODEL_SP1900 = new ModelSP1900(false);
-	private static final ModelSP1900Mini MODEL_SP1900_MINI = new ModelSP1900Mini(false);
-	private static final ModelSP1900 MODEL_C1141A = new ModelSP1900(true);
-	private static final ModelSP1900Mini MODEL_C1141A_MINI = new ModelSP1900Mini(true);
-	private static final ModelMLR MODEL_MLR = new ModelMLR();
-	private static final ModelMLRMini MODEL_MLR_MINI = new ModelMLRMini();
-	private static final ModelMTrain MODEL_M_TRAIN = new ModelMTrain();
-	private static final ModelMTrainMini MODEL_M_TRAIN_MINI = new ModelMTrainMini();
-	private static final ModelKTrain MODEL_K_TRAIN = new ModelKTrain(false);
-	private static final ModelKTrainMini MODEL_K_TRAIN_MINI = new ModelKTrainMini(false);
-	private static final ModelKTrain MODEL_K_TRAIN_TCL = new ModelKTrain(true);
-	private static final ModelKTrainMini MODEL_K_TRAIN_TCL_MINI = new ModelKTrainMini(true);
-	private static final ModelKTrain MODEL_K_TRAIN_AEL = new ModelKTrain(true);
-	private static final ModelKTrainMini MODEL_K_TRAIN_AEL_MINI = new ModelKTrainMini(true);
-	private static final ModelATrain MODEL_A_TRAIN_TCL = new ModelATrain(false);
-	private static final ModelATrainMini MODEL_A_TRAIN_TCL_MINI = new ModelATrainMini(false);
-	private static final ModelATrain MODEL_A_TRAIN_AEL = new ModelATrain(true);
-	private static final ModelATrainMini MODEL_A_TRAIN_AEL_MINI = new ModelATrainMini(true);
-	private static final ModelR179Train MODEL_R179 = new ModelR179Train();
-	private static final ModelLightRail MODEL_LIGHT_RAIL_1 = new ModelLightRail(1);
-	private static final ModelLightRail MODEL_LIGHT_RAIL_1R = new ModelLightRail(4);
-	private static final ModelLightRail MODEL_LIGHT_RAIL_2 = new ModelLightRail(2);
-	private static final ModelLightRail MODEL_LIGHT_RAIL_3 = new ModelLightRail(3);
-	private static final ModelLightRail MODEL_LIGHT_RAIL_4 = new ModelLightRail(4);
-	private static final ModelLightRail MODEL_LIGHT_RAIL_5 = new ModelLightRail(5);
-	private static final ModelE44 MODEL_E_44 = new ModelE44();
-	private static final ModelE44Mini MODEL_E_44_MINI = new ModelE44Mini();
 
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Camera camera) {
 		final MinecraftClient client = MinecraftClient.getInstance();
@@ -101,7 +75,7 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
 		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, customId, trainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
-			final ModelTrainBase model = getModel(trainType);
+			final ModelTrainBase model = TrainModelRegistry.getModel(trainType.id);
 
 			matrices.push();
 			if (playerOffset == null) {
@@ -316,75 +290,16 @@ public class RenderTrains implements IGui {
 
 	private static Identifier getTrainTexture(String customId, String trainId) {
 		if (customId.isEmpty() || !CustomResources.customTrains.containsKey(customId)) {
-			return new Identifier("mtr:textures/entity/" + trainId + ".png");
+			final String newTrainId = trainId.endsWith(TrainRegistry.MINI_ID_STRING) ? trainId.substring(0, trainId.length() - TrainRegistry.MINI_ID_STRING.length()) : trainId;
+			return new Identifier("mtr:textures/entity/" + newTrainId + ".png");
 		} else {
 			return CustomResources.customTrains.get(customId).textureId;
 		}
 	}
 
 	private static String getConnectorTextureString(String trainId, String connectorPart) {
-		return "mtr:textures/entity/" + trainId + "_connector_" + connectorPart + ".png";
-	}
-
-	private static ModelTrainBase getModel(TrainType trainType) {
-		switch (trainType) {
-			case SP1900:
-				return MODEL_SP1900;
-			case SP1900_MINI:
-				return MODEL_SP1900_MINI;
-			case C1141A:
-				return MODEL_C1141A;
-			case C1141A_MINI:
-				return MODEL_C1141A_MINI;
-			case MLR:
-				return MODEL_MLR;
-			case MLR_MINI:
-				return MODEL_MLR_MINI;
-			case M_TRAIN:
-				return MODEL_M_TRAIN;
-			case M_TRAIN_MINI:
-				return MODEL_M_TRAIN_MINI;
-			case K_TRAIN:
-				return MODEL_K_TRAIN;
-			case K_TRAIN_MINI:
-				return MODEL_K_TRAIN_MINI;
-			case K_TRAIN_TCL:
-				return MODEL_K_TRAIN_TCL;
-			case K_TRAIN_TCL_MINI:
-				return MODEL_K_TRAIN_TCL_MINI;
-			case K_TRAIN_AEL:
-				return MODEL_K_TRAIN_AEL;
-			case K_TRAIN_AEL_MINI:
-				return MODEL_K_TRAIN_AEL_MINI;
-			case A_TRAIN_TCL:
-				return MODEL_A_TRAIN_TCL;
-			case A_TRAIN_TCL_MINI:
-				return MODEL_A_TRAIN_TCL_MINI;
-			case A_TRAIN_AEL:
-				return MODEL_A_TRAIN_AEL;
-			case A_TRAIN_AEL_MINI:
-				return MODEL_A_TRAIN_AEL_MINI;
-			case R179:
-				return MODEL_R179;
-			case LIGHT_RAIL_1:
-				return MODEL_LIGHT_RAIL_1;
-			case LIGHT_RAIL_1R:
-				return MODEL_LIGHT_RAIL_1R;
-			case LIGHT_RAIL_2:
-				return MODEL_LIGHT_RAIL_2;
-			case LIGHT_RAIL_3:
-				return MODEL_LIGHT_RAIL_3;
-			case LIGHT_RAIL_4:
-				return MODEL_LIGHT_RAIL_4;
-			case LIGHT_RAIL_5:
-				return MODEL_LIGHT_RAIL_5;
-			case E44:
-				return MODEL_E_44;
-			case E44_MINI:
-				return MODEL_E_44_MINI;
-			default:
-				return null;
-		}
+		final String newTrainId = trainId.endsWith(TrainRegistry.MINI_ID_STRING) ? trainId.substring(0, trainId.length() - TrainRegistry.MINI_ID_STRING.length()) : trainId;
+		return "mtr:textures/entity/" + newTrainId + "_connector_" + connectorPart + ".png";
 	}
 
 	@FunctionalInterface
