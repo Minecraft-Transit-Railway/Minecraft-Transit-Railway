@@ -176,14 +176,14 @@ public final class Route extends NameColorDataBase implements IGui {
 	public static class ScheduleEntry implements Comparable<ScheduleEntry> {
 
 		public final long arrivalMillis;
-		public final TrainType trainType;
+		public final TrainRegistry.TrainType trainType;
 		public final int trainLength;
 		public final long platformId;
 		public final long routeId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(long arrivalMillis, TrainType trainType, int trainLength, long platformId, long routeId, String destination, boolean isTerminating) {
+		public ScheduleEntry(long arrivalMillis, TrainRegistry.TrainType trainType, int trainLength, long platformId, long routeId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
 			this.trainType = trainType;
 			this.trainLength = trainLength;
@@ -195,7 +195,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		public ScheduleEntry(PacketByteBuf packet) {
 			arrivalMillis = packet.readLong();
-			trainType = TrainType.values()[packet.readInt()];
+			trainType = TrainRegistry.getTrainType(packet.readInt());
 			trainLength = packet.readInt();
 			platformId = packet.readLong();
 			routeId = packet.readLong();
@@ -205,7 +205,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		public void writePacket(PacketByteBuf packet) {
 			packet.writeLong(arrivalMillis);
-			packet.writeInt(trainType.ordinal());
+			packet.writeInt(TrainRegistry.getIndex(trainType.id));
 			packet.writeInt(trainLength);
 			packet.writeLong(platformId);
 			packet.writeLong(routeId);

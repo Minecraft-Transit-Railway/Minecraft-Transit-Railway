@@ -53,7 +53,7 @@ public class TrainClient extends Train {
 		if (clientPlayer == null) {
 			return;
 		}
-		final TrainType trainType = trainMapping.trainType;
+		final TrainRegistry.TrainType trainType = trainMapping.trainType;
 		final float doorValue = Math.abs(doorValueRaw);
 		final boolean opening = doorValueRaw > 0;
 
@@ -96,7 +96,7 @@ public class TrainClient extends Train {
 			return;
 		}
 
-		final TrainType trainType = trainMapping.trainType;
+		final TrainRegistry.TrainType trainType = trainMapping.trainType;
 		final int trainSpacing = trainType.getSpacing();
 		final int headIndex = getIndex(0, trainSpacing, false);
 		final int stopIndex = path.get(headIndex).stopIndex - 1;
@@ -223,12 +223,12 @@ public class TrainClient extends Train {
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, Vec3d playerOffset);
+		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainRegistry.TrainType trainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Vec3d prevPos1, Vec3d prevPos2, Vec3d prevPos3, Vec3d prevPos4, Vec3d thisPos1, Vec3d thisPos2, Vec3d thisPos3, Vec3d thisPos4, double x, double y, double z, float yaw, TrainType trainType, boolean lightsOn, Vec3d playerOffset);
+		void renderConnectionCallback(Vec3d prevPos1, Vec3d prevPos2, Vec3d prevPos3, Vec3d prevPos4, Vec3d thisPos1, Vec3d thisPos2, Vec3d thisPos3, Vec3d thisPos4, double x, double y, double z, float yaw, TrainRegistry.TrainType trainType, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface

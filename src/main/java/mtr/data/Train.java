@@ -71,12 +71,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		nextStoppingIndex = nbtCompound.getInt(KEY_NEXT_STOPPING_INDEX);
 		reversed = nbtCompound.getBoolean(KEY_REVERSED);
 
-		TrainType trainType = TrainType.values()[0];
-		try {
-			trainType = TrainType.valueOf(nbtCompound.getString(KEY_TRAIN_TYPE));
-		} catch (Exception ignored) {
-		}
-		trainMapping = new CustomResources.TrainMapping(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), trainType);
+		trainMapping = new CustomResources.TrainMapping(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), TrainRegistry.getTrainType(nbtCompound.getString(KEY_TRAIN_TYPE)));
 		trainLength = (int) Math.floor(railLength / trainMapping.trainType.getSpacing());
 
 		isOnRoute = nbtCompound.getBoolean(KEY_IS_ON_ROUTE);
@@ -102,7 +97,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		stopCounter = packet.readFloat();
 		nextStoppingIndex = packet.readInt();
 		reversed = packet.readBoolean();
-		trainMapping = new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+		trainMapping = new CustomResources.TrainMapping(packet.readString(PACKET_STRING_READ_LENGTH), TrainRegistry.getTrainType(packet.readInt()));
 		trainLength = (int) Math.floor(railLength / trainMapping.trainType.getSpacing());
 		isOnRoute = packet.readBoolean();
 
@@ -122,7 +117,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		nbtCompound.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
 		nbtCompound.putBoolean(KEY_REVERSED, reversed);
 		nbtCompound.putString(KEY_TRAIN_CUSTOM_ID, trainMapping.customId);
-		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.toString());
+		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.id);
 		nbtCompound.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
 
 		final NbtCompound tagRidingEntities = new NbtCompound();
@@ -151,7 +146,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		packet.writeInt(nextStoppingIndex);
 		packet.writeBoolean(reversed);
 		packet.writeString(trainMapping.customId);
-		packet.writeInt(trainMapping.trainType.ordinal());
+		packet.writeInt(TrainRegistry.getIndex(trainMapping.trainType.id));
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUuid);

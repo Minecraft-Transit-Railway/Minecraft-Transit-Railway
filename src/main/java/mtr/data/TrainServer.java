@@ -67,7 +67,7 @@ public class TrainServer extends Train {
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
 			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
 	) {
-		final TrainType trainType = trainMapping.trainType;
+		final TrainRegistry.TrainType trainType = trainMapping.trainType;
 		final float doorValue = Math.abs(doorValueRaw);
 		final float halfSpacing = trainType.getSpacing() / 2F;
 		final float halfWidth = trainType.width / 2F;

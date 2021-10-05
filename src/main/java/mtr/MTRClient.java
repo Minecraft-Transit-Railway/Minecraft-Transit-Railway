@@ -6,9 +6,11 @@ import mtr.config.CustomResources;
 import mtr.data.Depot;
 import mtr.data.Route;
 import mtr.data.Station;
+import mtr.data.TrainRegistry;
 import mtr.gui.ClientData;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
+import mtr.model.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
@@ -31,6 +33,36 @@ import net.minecraft.util.Identifier;
 public class MTRClient implements ClientModInitializer, IPacket {
 
 	public static boolean isReplayMod;
+
+	private static final ModelTrainBase[] MODELS = {
+			new ModelSP1900(false),
+			new ModelSP1900Mini(false),
+			new ModelSP1900(true),
+			new ModelSP1900Mini(true),
+			new ModelMTrain(),
+			new ModelMTrainMini(),
+			new ModelMLR(),
+			new ModelMLRMini(),
+			new ModelE44(),
+			new ModelE44Mini(),
+			new ModelKTrain(false),
+			new ModelKTrainMini(false),
+			new ModelKTrain(true),
+			new ModelKTrainMini(true),
+			new ModelKTrain(true),
+			new ModelKTrainMini(true),
+			new ModelATrain(false),
+			new ModelATrainMini(false),
+			new ModelATrain(true),
+			new ModelATrainMini(true),
+			new ModelLightRail(1),
+			new ModelLightRail(4),
+			new ModelLightRail(2),
+			new ModelLightRail(3),
+			new ModelLightRail(4),
+			new ModelLightRail(5),
+			new ModelR179Train(),
+	};
 
 	@Override
 	public void onInitializeClient() {
@@ -186,6 +218,10 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.deleteTrains(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
+
+		for (int i = 0; i < MODELS.length; i++) {
+			TrainModelRegistry.register(TrainRegistry.getTrainType(i).id, MODELS[i]);
+		}
 
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);

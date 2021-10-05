@@ -41,25 +41,20 @@ public class Siding extends SavedRailBase implements IPacket {
 	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainType.values()[0]);
+		setTrainDetails("", TrainRegistry.getFirstTrain());
 	}
 
 	public Siding(BlockPos pos1, BlockPos pos2, float railLength) {
 		super(pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainType.values()[0]);
+		setTrainDetails("", TrainRegistry.getFirstTrain());
 	}
 
 	public Siding(NbtCompound nbtCompound) {
 		super(nbtCompound);
 
 		railLength = nbtCompound.getFloat(KEY_RAIL_LENGTH);
-		TrainType trainType = TrainType.values()[0];
-		try {
-			trainType = TrainType.valueOf(nbtCompound.getString(KEY_TRAIN_TYPE));
-		} catch (Exception ignored) {
-		}
-		setTrainDetails(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), trainType);
+		setTrainDetails(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), TrainRegistry.getTrainType(nbtCompound.getString(KEY_TRAIN_TYPE)));
 		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = nbtCompound.getInt(KEY_MAX_TRAINS);
 
@@ -79,7 +74,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	public Siding(PacketByteBuf packet) {
 		super(packet);
 		railLength = packet.readFloat();
-		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainRegistry.getTrainType(packet.readInt()));
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
 	}
@@ -90,7 +85,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		nbtCompound.putFloat(KEY_RAIL_LENGTH, railLength);
 		nbtCompound.putString(KEY_TRAIN_CUSTOM_ID, trainMapping.customId);
-		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.toString());
+		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.id);
 		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
 		nbtCompound.putInt(KEY_MAX_TRAINS, maxTrains);
 
@@ -105,7 +100,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		super.writePacket(packet);
 		packet.writeFloat(railLength);
 		packet.writeString(trainMapping.customId);
-		packet.writeInt(trainMapping.trainType.ordinal());
+		packet.writeInt(TrainRegistry.getIndex(trainMapping.trainType.id));
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
 	}
@@ -114,7 +109,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	public void update(String key, PacketByteBuf packet) {
 		switch (key) {
 			case KEY_TRAIN_TYPE:
-				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainRegistry.getTrainType(packet.readInt()));
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readString(PACKET_STRING_READ_LENGTH);
@@ -128,12 +123,12 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	public void setTrainMapping(String customId, TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
+	public void setTrainMapping(String customId, TrainRegistry.TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_TRAIN_TYPE);
 		packet.writeString(customId);
-		packet.writeInt(trainType.ordinal());
+		packet.writeInt(TrainRegistry.getIndex(trainType.id));
 		sendPacket.accept(packet);
 		setTrainDetails(customId, trainType);
 	}
@@ -285,7 +280,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		trains.clear();
 	}
 
-	private void setTrainDetails(String customId, TrainType trainType) {
+	private void setTrainDetails(String customId, TrainRegistry.TrainType trainType) {
 		trainMapping = new CustomResources.TrainMapping(customId, trainType);
 		trainLength = (int) Math.floor(railLength / trainMapping.trainType.getSpacing());
 	}

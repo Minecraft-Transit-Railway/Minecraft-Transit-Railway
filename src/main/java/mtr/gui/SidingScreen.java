@@ -4,7 +4,7 @@ import mtr.config.CustomResources;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Siding;
-import mtr.data.TrainType;
+import mtr.data.TrainRegistry;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +17,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -146,7 +145,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private void onSelectingTrain() {
 		final List<DataConverter> trainList = new ArrayList<>();
-		Arrays.stream(TrainType.values()).map(trainType -> new DataConverter(trainType.getName(), trainType.color)).forEach(trainList::add);
+		TrainRegistry.getTrainTypesStream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).forEach(trainList::add);
 
 		final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
 		Collections.sort(sortedKeys);
@@ -165,20 +164,20 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
 		final CustomResources.TrainMapping trainMapping = savedRailBase.getTrainMapping();
-		buttonSelectTrain.setMessage(CustomResources.customTrains.containsKey(trainMapping.customId) ? new LiteralText(CustomResources.customTrains.get(trainMapping.customId).name) : new TranslatableText("train.mtr." + trainMapping.trainType));
+		buttonSelectTrain.setMessage(new LiteralText(CustomResources.customTrains.containsKey(trainMapping.customId) ? CustomResources.customTrains.get(trainMapping.customId).name : trainMapping.trainType.getName()));
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		final int trainTypesCount = TrainType.values().length;
+		final int trainTypesCount = TrainRegistry.getTrainTypesCount();
 		final int customTrainCount = CustomResources.customTrains.size();
 
 		if (index < trainTypesCount + customTrainCount) {
 			final String customId;
-			final TrainType trainType;
+			final TrainRegistry.TrainType trainType;
 			if (index < trainTypesCount) {
 				customId = "";
-				trainType = TrainType.values()[index];
+				trainType = TrainRegistry.getTrainType(index);
 			} else {
 				final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
 				Collections.sort(sortedKeys);
