@@ -99,7 +99,7 @@
 			element.onclick = () => onClickStation(id);
 			element.innerHTML =
 				`<span class="station" style="background: ${convertColor(color)}"></span>` +
-				`<span class="text">${name.replaceAll("|", " ")}</span>`;
+				`<span class="text">${name.replace(/\|/g, " ")}</span>`;
 			return element;
 		};
 
@@ -113,7 +113,7 @@
 			element.onclick = () => onClickLine(color);
 			element.innerHTML =
 				`<span class="line" style="background: ${convertColor(showColor ? color : getColorStyle("--textColorDisabled"))}"></span>` +
-				`<span class="${showColor ? "text" : "text_disabled"}">${name.replaceAll("|", " ")}</span>`;
+				`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
 			return element;
 		};
 
@@ -148,7 +148,7 @@
 				if (!addedRouteColors.includes(route["color"])) {
 					for (const stationIndex in route["stations"]) {
 						if (route["stations"][stationIndex].split("_")[0] === id) {
-							stationRoutesElement.append(getRouteElement(route["color"], route["name"].replaceAll("|", " "), true, "", true, () => onClickLine(container, data, color)));
+							stationRoutesElement.append(getRouteElement(route["color"], route["name"].replace(/\|/g, " "), true, "", true, () => onClickLine(container, data, color)));
 							addedRouteColors.push(route["color"]);
 
 							const arrivalElement = document.createElement("div");
