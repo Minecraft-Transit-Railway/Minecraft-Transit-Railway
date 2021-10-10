@@ -1,7 +1,7 @@
 const convertColor = color => "#" + Number(color).toString(16).padStart(6, "0");
 const isCJK = text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/);
 const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
-const getColorStyle = style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace("#", ""), 16);
+const getColorStyle = style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16);
 
 {
 	const scaleUpperLimit = 64;
