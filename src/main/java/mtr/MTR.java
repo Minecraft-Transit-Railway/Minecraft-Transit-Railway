@@ -105,6 +105,11 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent[] R179_DECELERATION = registerSoundEvents(R179_SPEED_COUNT, 3, "r179_deceleration_");
 	public static final SoundEvent R179_DOOR_OPEN = registerSoundEvent("r179_door_open");
 	public static final SoundEvent R179_DOOR_CLOSE = registerSoundEvent("r179_door_close");
+	private static final int WMATA_7000_SPEED_COUNT = 66;
+	public static final SoundEvent[] WMATA_7000_ACCELERATION = registerSoundEvents(WMATA_7000_SPEED_COUNT, 3, "wmata_7000_acceleration_");
+	public static final SoundEvent[] WMATA_7000_DECELERATION = registerSoundEvents(WMATA_7000_SPEED_COUNT, 3, "wmata_7000_deceleration_");
+	public static final SoundEvent WMATA_7000_DOOR_OPEN = registerSoundEvent("wmata_7000_door_open");
+	public static final SoundEvent WMATA_7000_DOOR_CLOSE = registerSoundEvent("wmata_7000_door_close");
 	private static final int LIGHT_RAIL_1_SPEED_COUNT = 48;
 	public static final SoundEvent[] LIGHT_RAIL_ACCELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_acceleration_");
 	public static final SoundEvent[] LIGHT_RAIL_DECELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_deceleration_");
