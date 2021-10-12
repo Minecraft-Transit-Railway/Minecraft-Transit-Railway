@@ -7,6 +7,7 @@ import mtr.MTR;
 import mtr.data.TrainType;
 import mtr.gui.DashboardScreen;
 import mtr.model.TrainClientRegistry;
+import mtr.render.RenderTrains;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.sound.SoundEvent;
@@ -36,6 +37,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 	private static final String CUSTOM_SIGNS_KEY = "custom_signs";
 
 	private static final String CUSTOM_TRAINS_BASE_TRAIN_TYPE = "base_train_type";
+	private static final String CUSTOM_TRAINS_NAME = "name";
 	private static final String CUSTOM_TRAINS_COLOR = "color";
 	private static final String CUSTOM_TRAINS_MODEL = "model";
 	private static final String CUSTOM_TRAINS_MODEL_PROPERTIES = "model_properties";
@@ -60,6 +62,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 	@Override
 	public void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
+		RenderTrains.clearTextureAvailability();
 		CUSTOM_SIGNS.clear();
 		final List<String> customTrains = new ArrayList<>();
 
@@ -71,7 +74,8 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 						final String trainId = CUSTOM_TRAIN_ID_PREFIX + entry.getKey();
 
 						final TrainType baseTrainType = TrainType.getOrDefault(jsonObject.get(CUSTOM_TRAINS_BASE_TRAIN_TYPE).getAsString());
-						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType.toString());
+						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType.toString(), baseTrainType);
+						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, null, JsonElement::getAsString);
 						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, baseTrainProperties.color, jsonElement -> DashboardScreen.colorStringToInt(jsonElement.getAsString()));
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, baseTrainProperties.textureId, JsonElement::getAsString);
 						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.speedSoundCount, JsonElement::getAsInt);
@@ -81,11 +85,11 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
 								customTrains.add(trainId);
 							}));
 						} else {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
 							customTrains.add(trainId);
 						}
 					} catch (Exception e) {

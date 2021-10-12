@@ -58,7 +58,7 @@ public class TrainClient extends Train {
 		final boolean opening = doorValueRaw > 0;
 
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 		trainProperties.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
 		if (doorLeftOpen || doorRightOpen) {
 			trainProperties.playDoorSoundEffect(world, soundPos, oldDoorValue, doorValue);
@@ -70,10 +70,10 @@ public class TrainClient extends Train {
 		final Vec3d playerOffset = offset.isEmpty() ? null : new Vec3d(offset.get(3), offset.get(4), offset.get(5));
 
 		if (renderTrainCallback != null) {
-			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, playerOffset);
+			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, playerOffset);
 		}
 
-		if (renderConnectionCallback != null && ridingCar > 0 && TrainClientRegistry.getTrainProperties(trainId).hasGangwayConnection) {
+		if (renderConnectionCallback != null && ridingCar > 0 && TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection) {
 			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
 			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
@@ -91,7 +91,7 @@ public class TrainClient extends Train {
 			final Vec3d thisPos3 = new Vec3d(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 			final Vec3d thisPos4 = new Vec3d(xStart, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
 
-			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, isOnRoute, playerOffset);
+			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, playerOffset);
 		}
 	}
 
@@ -145,7 +145,7 @@ public class TrainClient extends Train {
 
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
 			calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-				final boolean hasGangwayConnection = TrainClientRegistry.getTrainProperties(trainId).hasGangwayConnection;
+				final boolean hasGangwayConnection = TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection;
 				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
 				clientPercentageX += movement.x / baseTrainType.width;
 				clientPercentageZ += movement.z / realSpacingRender;
@@ -229,12 +229,12 @@ public class TrainClient extends Train {
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, Vec3d playerOffset);
+		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainType baseTrainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Vec3d prevPos1, Vec3d prevPos2, Vec3d prevPos3, Vec3d prevPos4, Vec3d thisPos1, Vec3d thisPos2, Vec3d thisPos3, Vec3d thisPos4, double x, double y, double z, float yaw, String trainId, boolean lightsOn, Vec3d playerOffset);
+		void renderConnectionCallback(Vec3d prevPos1, Vec3d prevPos2, Vec3d prevPos3, Vec3d prevPos4, Vec3d thisPos1, Vec3d thisPos2, Vec3d thisPos3, Vec3d thisPos4, double x, double y, double z, float yaw, String trainId, TrainType baseTrainType, boolean lightsOn, Vec3d playerOffset);
 	}
 
 	@FunctionalInterface
