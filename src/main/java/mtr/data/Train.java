@@ -279,7 +279,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					});
 				}
 			}
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

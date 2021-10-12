@@ -150,6 +150,10 @@ public class Siding extends SavedRailBase implements IPacket {
 		return trainId;
 	}
 
+	public TrainType getBaseTrainType() {
+		return baseTrainType;
+	}
+
 	public void setSidingData(World world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		this.world = world;
 		this.depot = depot;

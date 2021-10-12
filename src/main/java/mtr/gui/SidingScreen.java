@@ -143,7 +143,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private void onSelectingTrain() {
 		final List<DataConverter> trainList = new ArrayList<>();
-		TrainClientRegistry.forEach((id, trainProperties) -> trainList.add(new DataConverter(TrainClientRegistry.getTrainName(id).getString(), trainProperties.color)));
+		TrainClientRegistry.forEach((id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
 	}
@@ -154,7 +154,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldSavedRailNumber.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
-		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainName(savedRailBase.getTrainId()));
+		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId(), savedRailBase.getBaseTrainType()).name);
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}
 

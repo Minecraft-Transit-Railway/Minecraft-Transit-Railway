@@ -7,7 +7,7 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class ModelR179Train extends ModelTrainBase {
+public class ModelR179 extends ModelTrainBase {
 
 	private final ModelMapper window;
 	private final ModelMapper wall_1_r1;
@@ -226,7 +226,7 @@ public class ModelR179Train extends ModelTrainBase {
 	private final ModelMapper door_light_off;
 	private final ModelMapper light_r2;
 
-	public ModelR179Train() {
+	public ModelR179() {
 		final int textureWidth = 368;
 		final int textureHeight = 368;
 

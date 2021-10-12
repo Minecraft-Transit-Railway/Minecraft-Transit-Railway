@@ -31,9 +31,8 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderTrains implements IGui {
@@ -45,6 +44,10 @@ public class RenderTrains implements IGui {
 	private static int prevSidingCount;
 
 	public static final int TICKS_PER_SPEED_SOUND = 4;
+
+	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
+	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
+
 	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
@@ -77,8 +80,8 @@ public class RenderTrains implements IGui {
 		final float cameraYaw = camera.getYaw();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 
-		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 
 			matrices.push();
 			if (playerOffset == null) {
@@ -91,19 +94,22 @@ public class RenderTrains implements IGui {
 			matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
 			matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion((float) Math.PI + pitch));
 
-			if (trainProperties.model == null) {
+			if (trainProperties.model == null || trainProperties.textureId == null) {
 				matrices.translate(0, 0.5, 0);
 				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				trainProperties.model.render(matrices, vertexConsumers, new Identifier("mtr:textures/entity/" + trainProperties.textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+			if (trainProperties.textureId == null) {
+				return;
+			}
 
 			matrices.push();
 			if (playerOffset == null) {
@@ -114,18 +120,18 @@ public class RenderTrains implements IGui {
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
-			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier(getConnectorTextureString(trainProperties.textureId, "exterior"))));
+			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
 			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
-			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainProperties.textureId, "side"))));
+			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainProperties.textureId, "roof")))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new Identifier(getConnectorTextureString(trainProperties.textureId, "floor")))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 
 			matrices.pop();
 		}), (speed, stopIndex, routeIds) -> {
@@ -257,12 +263,17 @@ public class RenderTrains implements IGui {
 		if (gameTick - lastPlayedTrainSoundsTick >= TICKS_PER_SPEED_SOUND) {
 			lastPlayedTrainSoundsTick = gameTick;
 		}
-		return gameTick == lastPlayedTrainSoundsTick;
+		return gameTick == lastPlayedTrainSoundsTick && !MinecraftClient.getInstance().isPaused();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
 		final Entity camera = MinecraftClient.getInstance().cameraEntity;
 		return shouldNotRender(camera, pos, maxDistance, facing);
+	}
+
+	public static void clearTextureAvailability() {
+		AVAILABLE_TEXTURES.clear();
+		UNAVAILABLE_TEXTURES.clear();
 	}
 
 	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {
@@ -300,8 +311,26 @@ public class RenderTrains implements IGui {
 		IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
 	}
 
-	private static String getConnectorTextureString(String textureId, String connectorPart) {
-		return "mtr:textures/entity/" + textureId + "_connector_" + connectorPart + ".png";
+	private static Identifier resolveTexture(TrainClientRegistry.TrainProperties trainProperties, Function<String, String> formatter) {
+		final String textureString = formatter.apply(trainProperties.textureId);
+		final Identifier id = new Identifier(textureString);
+		final boolean available;
+
+		if (!AVAILABLE_TEXTURES.contains(textureString) && !UNAVAILABLE_TEXTURES.contains(textureString)) {
+			available = MinecraftClient.getInstance().getResourceManager().containsResource(id);
+			(available ? AVAILABLE_TEXTURES : UNAVAILABLE_TEXTURES).add(textureString);
+			if (!available) {
+				System.out.println("Texture " + textureString + " not found, using default");
+			}
+		} else {
+			available = AVAILABLE_TEXTURES.contains(textureString);
+		}
+
+		return available ? id : new Identifier(formatter.apply(TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId));
+	}
+
+	private static Identifier getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {
+		return resolveTexture(trainProperties, textureId -> textureId + "_connector_" + connectorPart + ".png");
 	}
 
 	@FunctionalInterface

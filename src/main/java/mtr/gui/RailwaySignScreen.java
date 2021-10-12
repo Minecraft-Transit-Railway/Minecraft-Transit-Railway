@@ -66,6 +66,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 	private final DashboardList selectedList;
 
 	private static final int SIGN_SIZE = 32;
+	private static final int SIGN_BUTTON_SIZE = 16;
 	private static final int BUTTON_Y_START = SIGN_SIZE + SQUARE_SIZE + SQUARE_SIZE / 2;
 
 	public RailwaySignScreen(BlockPos signPos) {
@@ -154,7 +155,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonsSelection = new ButtonWidget[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
+			buttonsSelection[i] = new ButtonWidget(0, 0, 0, SIGN_BUTTON_SIZE, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
 		}
 
 		buttonClear = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
@@ -177,15 +178,14 @@ public class RailwaySignScreen extends Screen implements IGui {
 			addDrawableChild(buttonsEdit[i]);
 		}
 
-		columns = Math.max((width - SQUARE_SIZE * 3) / (SQUARE_SIZE * 8) * 2, 1);
-		rows = Math.max((height - SIGN_SIZE - SQUARE_SIZE * 4) / SQUARE_SIZE, 1);
-		totalPages = allSignIds.size() / (rows * columns);
+		columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
+		rows = Math.max((height - SIGN_SIZE - SQUARE_SIZE * 4) / SIGN_BUTTON_SIZE, 1);
 
-		final int xOffsetSmall = (width - SQUARE_SIZE * (columns * 4 + 3)) / 2 + SQUARE_SIZE;
-		final int xOffsetBig = xOffsetSmall + SQUARE_SIZE * (columns + 1);
+		final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
+		final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
 
-		loopSigns((index, x, y, isBig) -> {
-			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SQUARE_SIZE * 3 : SQUARE_SIZE);
+		totalPages = loopSigns((index, x, y, isBig) -> {
+			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
 			buttonsSelection[index].visible = false;
 			addDrawableChild(buttonsSelection[index]);
 		}, true);
@@ -249,8 +249,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 				}
 
 				if (editingIndex >= 0) {
-					final int xOffsetSmall = (width - SQUARE_SIZE * (columns * 4 + 3)) / 2 + SQUARE_SIZE;
-					final int xOffsetBig = xOffsetSmall + SQUARE_SIZE * (columns + 1);
+					final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
+					final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
 
 					loopSigns((index, x, y, isBig) -> {
 						final String signId = allSignIds.get(index);
@@ -259,7 +259,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 							final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 							RenderSystem.setShader(GameRenderer::getPositionTexShader);
 							RenderSystem.setShaderTexture(0, sign.textureId);
-							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SQUARE_SIZE * 2 : 0), BUTTON_Y_START + y, SQUARE_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> drawTexture(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+							RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> drawTexture(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 						}
 					}, false);
 
@@ -313,7 +313,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		editingIndex = -1;
 	}
 
-	private void loopSigns(LoopSignsCallback loopSignsCallback, boolean ignorePage) {
+	private int loopSigns(LoopSignsCallback loopSignsCallback, boolean ignorePage) {
 		int pageCount = rows * columns;
 		int indexSmall = 0;
 		int indexBig = 0;
@@ -321,6 +321,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		int columnBig = 0;
 		int rowSmall = 0;
 		int rowBig = 0;
+		int totalPagesSmallCount = 1;
+		int totalPagesBigCount = 1;
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final CustomResources.CustomSign sign = RenderRailwaySign.getSign(allSignIds.get(i));
 			final boolean isBig = sign != null && sign.hasCustomText();
@@ -328,31 +330,40 @@ public class RailwaySignScreen extends Screen implements IGui {
 			final boolean onPage = (isBig ? indexBig : indexSmall) / pageCount == page;
 			buttonsSelection[i].visible = onPage;
 			if (ignorePage || onPage) {
-				loopSignsCallback.loopSignsCallback(i, (isBig ? columnBig * 3 : columnSmall) * SQUARE_SIZE, (isBig ? rowBig : rowSmall) * SQUARE_SIZE, isBig);
+				loopSignsCallback.loopSignsCallback(i, (isBig ? columnBig * 3 : columnSmall) * SIGN_BUTTON_SIZE, (isBig ? rowBig : rowSmall) * SIGN_BUTTON_SIZE, isBig);
 			}
 
 			if (isBig) {
 				columnBig++;
+				if (totalPagesBigCount < 0) {
+					totalPagesBigCount = -totalPagesBigCount + 1;
+				}
 				if (columnBig >= columns) {
 					columnBig = 0;
 					rowBig++;
 					if (rowBig >= rows) {
 						rowBig = 0;
+						totalPagesBigCount = -totalPagesBigCount;
 					}
 				}
 				indexBig++;
 			} else {
 				columnSmall++;
+				if (totalPagesSmallCount < 0) {
+					totalPagesSmallCount = -totalPagesSmallCount + 1;
+				}
 				if (columnSmall >= columns) {
 					columnSmall = 0;
 					rowSmall++;
 					if (rowSmall >= rows) {
 						rowSmall = 0;
+						totalPagesSmallCount = -totalPagesSmallCount;
 					}
 				}
 				indexSmall++;
 			}
 		}
+		return Math.max(Math.abs(totalPagesBigCount), Math.abs(totalPagesSmallCount));
 	}
 
 	private void edit(int editingIndex) {
@@ -444,8 +455,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 	private void setPage(int newPage) {
 		page = MathHelper.clamp(newPage, 0, totalPages - 1);
-		buttonPrevPage.visible = page > 0;
-		buttonNextPage.visible = page < totalPages - 1;
+		buttonPrevPage.visible = editingIndex >= 0 && page > 0;
+		buttonNextPage.visible = editingIndex >= 0 && page < totalPages - 1;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
