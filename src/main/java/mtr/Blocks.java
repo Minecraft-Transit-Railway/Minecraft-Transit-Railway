@@ -113,6 +113,7 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
 	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
+	Block TACTILE_MAP = new BlockTactileMap();
 	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
 	Block TRAIN_SENSOR = new BlockTrainSensor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
 }
