@@ -1402,7 +1402,7 @@ public class ModelSP1900 extends ModelTrainBase {
 
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_sp1900_left.png", "door_overlay_sp1900_right.png");
-	private static final ModelDoorOverlayTop MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTop();
+	private static final ModelDoorOverlayTopSP1900 MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopSP1900();
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1465,7 +1465,7 @@ public class ModelSP1900 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
 					if (!isC1141A) {
-						if (getDoorPositions().length > 3 && (position == getDoorPositions()[1] || position == getDoorPositions()[3])) {
+						if (getDoorPositions().length > 3 && (isIndex(1, position, getDoorPositions()) || isIndex(3, position, getDoorPositions()))) {
 							renderOnce(bb_main, matrices, vertices, light, position);
 						} else {
 							renderOnce(tv_pole, matrices, vertices, light, position);
@@ -1630,7 +1630,7 @@ public class ModelSP1900 extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
 		return MODEL_DOOR_OVERLAY_TOP;
 	}
 

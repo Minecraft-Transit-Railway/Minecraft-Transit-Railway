@@ -3,7 +3,6 @@ package mtr.gui;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -27,7 +26,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected static final int SLIDER_WIDTH = 160;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen) {
+	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Text additionalText) {
 		super(new LiteralText(""));
 		this.savedRailBase = savedRailBase;
 		this.dashboardScreen = dashboardScreen;
@@ -37,7 +36,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldSavedRailNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 
-		textWidth = Math.max(textRenderer.getWidth(savedRailNumberText), textRenderer.getWidth(secondText)) + TEXT_PADDING;
+		textWidth = Math.max(Math.max(textRenderer.getWidth(savedRailNumberText), textRenderer.getWidth(secondText)), additionalText == null ? 0 : textRenderer.getWidth(additionalText)) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
 	}
 
@@ -81,7 +80,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	@Override
 	public void onClose() {
 		super.onClose();
-		savedRailBase.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		if (client != null) {
 			client.openScreen(dashboardScreen);
 		}

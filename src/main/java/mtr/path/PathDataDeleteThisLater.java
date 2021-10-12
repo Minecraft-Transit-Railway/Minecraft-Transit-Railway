@@ -4,6 +4,7 @@ import mtr.data.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Set;
 
@@ -94,7 +95,7 @@ public class PathDataDeleteThisLater extends SerializedDataBase {
 		packet.writeInt(delay);
 	}
 
-	public Pos3f getPosition(float value) {
+	public Vec3d getPosition(float value) {
 		return rail.getPosition(value);
 	}
 
@@ -107,7 +108,7 @@ public class PathDataDeleteThisLater extends SerializedDataBase {
 			return false;
 		}
 
-		final Pos3f pos3f = rail.getPosition(0);
+		final Vec3d pos3f = rail.getPosition(0);
 		final Platform platform = RailwayData.getPlatformByPos(platforms, new BlockPos(pos3f.x, pos3f.y, pos3f.z));
 		return platform != null && platform.id == platformId;
 	}

@@ -692,10 +692,10 @@ public class ModelLightRail extends ModelTrainBase {
 	}
 
 	private static final int DOOR_MAX = 14;
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", true, false);
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_3 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_3_left.png", "door_overlay_light_rail_3_right.png", true, false);
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", true, false);
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5 = new ModelDoorOverlay(DOOR_MAX, 0, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_3 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_3_left.png", "door_overlay_light_rail_3_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", true, false);
 
 	@Override
 	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
@@ -865,7 +865,7 @@ public class ModelLightRail extends ModelTrainBase {
 	}
 
 	@Override
-	protected ModelDoorOverlayTop getModelDoorOverlayTop() {
+	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
 		return null;
 	}
 

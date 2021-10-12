@@ -17,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
@@ -44,13 +45,14 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
+	private static final int MAX_VIEW_DISTANCE = 16;
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);
 		scale = 160 * maxArrivals / maxHeight * textPadding;
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
-		destinationMaxWidth = totalScaledWidth * 0.6F;
+		destinationMaxWidth = totalScaledWidth * 0.7F;
 		platformMaxWidth = showAllPlatforms ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
 		this.maxArrivals = maxArrivals;
@@ -78,7 +80,8 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
+		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
 			return;
 		}
 
@@ -88,13 +91,18 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 			if (showAllPlatforms) {
 				final Station station = ClientData.getStation(pos);
-				if (station == null || !ClientData.platformsInStation.containsKey(station.id)) {
+				if (station == null) {
+					return;
+				}
+
+				final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+				if (platforms.isEmpty()) {
 					return;
 				}
 
 				schedules = new HashSet<>();
-				ClientData.platformsInStation.get(station.id).values().forEach(platform -> {
-					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.schedulesForPlatform.get(platform.id);
+				platforms.values().forEach(platform -> {
+					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {
 							if (!scheduleEntry.isTerminating) {
@@ -110,21 +118,14 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					return;
 				}
 
-				schedules = ClientData.schedulesForPlatform.get(platform.id);
+				schedules = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 				if (schedules == null) {
 					return;
 				}
 			}
 
-			final int worldTime = (int) (world.getLunarTime() % Route.TICKS_PER_DAY);
 			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-			scheduleList.sort((a, b) -> {
-				if (a.arrivalMillis == b.arrivalMillis) {
-					return a.destination.compareTo(b.destination);
-				} else {
-					return a.arrivalMillis > b.arrivalMillis ? 1 : -1;
-				}
-			});
+			Collections.sort(scheduleList);
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
@@ -132,12 +133,12 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
 				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
-					final int trainLength = scheduleEntry.trainLength;
-					if (trainLength > maxCars) {
-						maxCars = trainLength;
+					final int trainCars = scheduleEntry.trainCars;
+					if (trainCars > maxCars) {
+						maxCars = trainCars;
 					}
-					if (trainLength < minCars) {
-						minCars = trainLength;
+					if (trainCars < minCars) {
+						minCars = trainCars;
 					}
 				}
 				showCarLength = minCars != maxCars;
@@ -151,21 +152,21 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
 				final String[] destinationSplit = currentSchedule.destination.split("\\|");
-				final String destinationString = destinationSplit[(worldTime / SWITCH_LANGUAGE_TICKS) % destinationSplit.length];
+				final String destinationString = IGui.textOrUntitled(destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length]);
 
 				final Text arrivalText;
-				final int seconds = (int) Math.floor(currentSchedule.arrivalMillis / 1000);
+				final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 				final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 				if (seconds >= 60) {
 					arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 				} else {
 					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 				}
-				final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainLength);
+				final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING).asRotation()));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
 				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
@@ -214,7 +215,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					} else {
 						matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 					}
-					textRenderer.draw(matrices, arrivalText, 0, 0, seconds > 0 ? textColor : firstTrainColor);
+					textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
 					matrices.pop();
 				}
 

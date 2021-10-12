@@ -4,6 +4,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -72,6 +74,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
+	public Direction.Axis getAxis() {
+		final BlockPos difference = getPosition(0).subtract(getPosition(1));
+		return Math.abs(difference.getX()) > Math.abs(difference.getZ()) ? Direction.Axis.X : Direction.Axis.Z;
+	}
+
 	public boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
@@ -79,7 +86,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos) {
-		return new Box(getPosition(0), getPosition(1)).stretch(-4, 0, -4).stretch(5, 5, 5).contains(pos.getX(), pos.getY(), pos.getZ());
+		return isCloseToSavedRail(pos, 4, 0, 4);
+	}
+
+	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
+		return new Box(getPosition(0), getPosition(1)).stretch(-radius, lower, -radius).stretch(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
@@ -110,5 +121,22 @@ public abstract class SavedRailBase extends NameColorDataBase {
 
 	public static boolean isInvalidSavedRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return !RailwayData.containsRail(rails, pos1, pos2) || !rails.get(pos1).get(pos2).railType.hasSavedRail;
+	}
+
+	@Override
+	public int compareTo(NameColorDataBase compare) {
+		final boolean thisIsNumber = NumberUtils.isParsable(name);
+		final boolean compareIsNumber = NumberUtils.isParsable(compare.name);
+
+		if (thisIsNumber && compareIsNumber) {
+			final int floatCompare = Float.compare(Float.parseFloat(name), Float.parseFloat(compare.name));
+			return floatCompare == 0 ? super.compareTo(compare) : floatCompare;
+		} else if (thisIsNumber) {
+			return -1;
+		} else if (compareIsNumber) {
+			return 1;
+		} else {
+			return super.compareTo(compare);
+		}
 	}
 }

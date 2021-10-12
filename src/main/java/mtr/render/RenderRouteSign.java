@@ -38,15 +38,15 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
+		final BlockState state = world.getBlockState(pos);
+		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			return;
 		}
 
-		final BlockState state = world.getBlockState(pos);
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return;
 		}
-		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
 		final Station station = ClientData.getStation(pos);
@@ -54,7 +54,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final Map<Long, Platform> platformPositions = ClientData.platformsInStation.get(station.id);
+		final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
 		if (platformPositions == null || platformPositions.isEmpty()) {
 			return;
 		}
@@ -74,9 +74,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
 
 		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2)) {
-			routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light);
-		}
+		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
 		matrices.pop();
 		immediate.draw();
 	}

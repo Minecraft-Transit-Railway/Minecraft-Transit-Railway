@@ -30,6 +30,8 @@ import net.minecraft.util.Identifier;
 
 public class MTRClient implements ClientModInitializer, IPacket {
 
+	public static boolean isReplayMod;
+
 	@Override
 	public void onInitializeClient() {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.APG_DOOR, RenderLayer.getCutout());
@@ -48,6 +50,13 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.GLASS_FENCE_WKS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.LOGO, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_INDENTED, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_NA_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_NA_1_INDENTED, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_NA_2, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_NA_2_INDENTED, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_UK_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PLATFORM_UK_1_INDENTED, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_DOOR_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_1, RenderLayer.getCutout());
@@ -55,6 +64,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_2, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_2, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.RAIL, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.RUBBISH_BIN_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_COLOR_STAINED_GLASS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_BLOCK, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_WALL, RenderLayer.getCutout());
@@ -65,6 +75,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENTRANCE, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_EXIT, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENQUIRY, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_ANNOUNCER, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_SENSOR, RenderLayer.getCutout());
 
 		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
 		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
@@ -153,21 +165,27 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTrainAnnouncerScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_ANNOUNCE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.announceS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.generatePathS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createRailS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_NODE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeNodeS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeRailConnectionS2C(minecraftClient, packet));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.stations, Station::new, false));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.platforms, null, false));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.sidings, null, false));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.routes, Route::new, false));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.depots, Depot::new, false));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.stations, Station::new, true));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.platforms, null, true));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.sidings, null, true));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.routes, Route::new, true));
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.depots, Depot::new, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, false));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, true));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, true));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_WRITE_RAILS, (minecraftClient, handler, packet, sender) -> ClientData.writeRails(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.updateTrains(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.deleteTrains(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
 
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
@@ -175,12 +193,13 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
 			if (entity == MinecraftClient.getInstance().player) {
 				Config.refreshProperties();
+				isReplayMod = entity.getClass().toGenericString().toLowerCase().contains("replaymod");
 			}
 		});
 		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 			final MatrixStack matrices = context.matrixStack();
 			matrices.push();
-			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera().getPos());
+			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera());
 			matrices.pop();
 		});
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
@@ -194,7 +213,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
 			final int defaultColor = 0x7F7F7F;
 			if (pos != null) {
-				return ClientData.stations.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
+				return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
 			} else {
 				return defaultColor;
 			}

@@ -9,6 +9,7 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
 public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
@@ -26,6 +27,11 @@ public abstract class BlockPSDAPGBase extends BlockDirectionalDoubleBlockBase {
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final int height = isAPG() && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER ? 9 : 16;
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, height, 4, IBlock.getStatePropertySafe(state, FACING));
+	}
+
+	@Override
+	public VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return VoxelShapes.empty();
 	}
 
 	protected boolean isAPG() {

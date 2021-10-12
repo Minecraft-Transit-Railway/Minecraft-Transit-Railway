@@ -111,7 +111,7 @@ public class ItemRailModifier extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		if (isConnector && railType != null) {
+		if (isConnector && railType != null && railType.canAccelerate) {
 			tooltip.add(new TranslatableText("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
 		}
 

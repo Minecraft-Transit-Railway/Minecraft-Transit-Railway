@@ -35,17 +35,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 		}
 
 		final BlockPos pos = entity.getPos();
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance)) {
-			return;
-		}
-
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
-		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-
-		final Platform platform = ClientData.getClosePlatform(pos);
-		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
 		matrices.push();
 		matrices.translate(0.5, 0, 0.5);
@@ -53,31 +44,36 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		matrices.translate(0, 1, 0);
-		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-		matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+			final Platform platform = ClientData.getClosePlatform(pos);
+			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
-		if (isLeft(state)) {
-			final int glassLength = getGlassLength(world, pos, facing);
-			if (glassLength > 1) {
-				switch (getRenderType(world, pos, state)) {
-					case ARROW:
-						routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-						break;
-					case ROUTE:
-						final boolean flipLine = arrowDirection == 1;
-						if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4)) {
-							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light);
-						}
-						break;
+			matrices.translate(0, 1, 0);
+			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+			matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
+
+			if (isLeft(state)) {
+				final int glassLength = getGlassLength(world, pos, facing);
+				if (glassLength > 1) {
+					switch (getRenderType(world, pos, state)) {
+						case ARROW:
+							routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
+							break;
+						case ROUTE:
+							final boolean flipLine = arrowDirection == 1;
+							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
+							break;
+					}
 				}
 			}
+
+			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
+			immediate.draw();
 		}
 
-		renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-
 		matrices.pop();
-		immediate.draw();
 	}
 
 	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {

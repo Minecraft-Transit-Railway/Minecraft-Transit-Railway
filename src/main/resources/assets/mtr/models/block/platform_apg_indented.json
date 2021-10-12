@@ -1,0 +1,9 @@
+{
+	"parent": "mtr:block/platform_base_indented",
+	"textures": {
+		"main": "mtr:block/rock_2",
+		"front": "mtr:block/rock_2",
+		"inner": "mtr:block/rock_2",
+		"top": "mtr:block/platform_hk_2"
+	}
+}

@@ -41,9 +41,15 @@ public abstract class UnknownPacketMixin implements IPacket {
 			if (PACKET_CHUNK_S2C.equals(channel)) {
 				PacketTrainDataGuiClient.receiveChunk(client, packetByteBuf);
 			} else if (PACKET_UPDATE_SIDING.equals(channel)) {
-				PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(client, packetByteBuf, ClientData.sidings, null, false);
+				PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(client, packetByteBuf, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false);
 			} else if (PACKET_WRITE_RAILS.equals(channel)) {
 				ClientData.writeRails(client, packetByteBuf);
+			} else if (PACKET_UPDATE_SCHEDULE.equals(channel)) {
+				ClientData.updateSchedule(client, packetByteBuf);
+			} else if (PACKET_UPDATE_TRAINS.equals(channel)) {
+				ClientData.updateTrains(client, packetByteBuf);
+			} else if (PACKET_DELETE_TRAINS.equals(channel)) {
+				ClientData.deleteTrains(client, packetByteBuf);
 			} else {
 				System.out.println("Unknown custom packed identifier: " + channel);
 			}

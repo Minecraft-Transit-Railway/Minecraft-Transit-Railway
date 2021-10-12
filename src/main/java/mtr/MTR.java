@@ -7,8 +7,11 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.servlet.ArrivalsServletHandler;
+import mtr.servlet.DataServletHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -22,11 +25,21 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import java.net.URL;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class MTR implements ModInitializer, IPacket {
+
+	private static int gameTick = 0;
 
 	public static final String MOD_ID = "mtr";
 
@@ -60,6 +73,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockStationNameWall.TileEntityStationNameWall> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationNameWall::new, Blocks.STATION_NAME_WALL);
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
+	public static final BlockEntityType<BlockTrainAnnouncer.TileEntityTrainAnnouncer> TRAIN_ANNOUNCER_TILE_ENTITY = registerTileEntity("train_announcer", BlockTrainAnnouncer.TileEntityTrainAnnouncer::new, Blocks.TRAIN_ANNOUNCER);
 
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
@@ -68,40 +82,6 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent TICKET_PROCESSOR_EXIT = registerSoundEvent("ticket_processor_exit");
 	public static final SoundEvent TICKET_PROCESSOR_EXIT_CONCESSIONARY = registerSoundEvent("ticket_processor_exit_concessionary");
 	public static final SoundEvent TICKET_PROCESSOR_FAIL = registerSoundEvent("ticket_processor_fail");
-
-	private static final int SP1900_SPEED_COUNT = 120;
-	private static final int C1141A_SPEED_COUNT = 96;
-	public static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
-	public static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
-	public static final SoundEvent[] C1141A_ACCELERATION = registerSoundEvents(C1141A_SPEED_COUNT, 3, "c1141a_acceleration_");
-	public static final SoundEvent[] C1141A_DECELERATION = registerSoundEvents(C1141A_SPEED_COUNT, 3, "c1141a_deceleration_");
-	public static final SoundEvent SP1900_DOOR_OPEN = registerSoundEvent("sp1900_door_open");
-	public static final SoundEvent SP1900_DOOR_CLOSE = registerSoundEvent("sp1900_door_close");
-	private static final int M_TRAIN_SPEED_COUNT = 90;
-	public static final SoundEvent[] M_TRAIN_ACCELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_acceleration_");
-	public static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
-	public static final SoundEvent M_TRAIN_DOOR_OPEN = registerSoundEvent("m_train_door_open");
-	public static final SoundEvent M_TRAIN_DOOR_CLOSE = registerSoundEvent("m_train_door_close");
-	private static final int K_TRAIN_SPEED_COUNT = 66;
-	public static final SoundEvent[] K_TRAIN_ACCELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_acceleration_");
-	public static final SoundEvent[] K_TRAIN_DECELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_deceleration_");
-	public static final SoundEvent K_TRAIN_DOOR_OPEN = registerSoundEvent("k_train_door_open");
-	public static final SoundEvent K_TRAIN_DOOR_CLOSE = registerSoundEvent("k_train_door_close");
-	private static final int A_TRAIN_SPEED_COUNT = 78;
-	public static final SoundEvent[] A_TRAIN_ACCELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_acceleration_");
-	public static final SoundEvent[] A_TRAIN_DECELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_deceleration_");
-	public static final SoundEvent A_TRAIN_DOOR_OPEN = registerSoundEvent("a_train_door_open");
-	public static final SoundEvent A_TRAIN_DOOR_CLOSE = registerSoundEvent("a_train_door_close");
-	private static final int LIGHT_RAIL_1_SPEED_COUNT = 48;
-	public static final SoundEvent[] LIGHT_RAIL_ACCELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_acceleration_");
-	public static final SoundEvent[] LIGHT_RAIL_DECELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_deceleration_");
-	public static final SoundEvent LIGHT_RAIL_1_DOOR_OPEN = registerSoundEvent("light_rail_1_door_open");
-	public static final SoundEvent LIGHT_RAIL_1_DOOR_CLOSE = registerSoundEvent("light_rail_1_door_close");
-	public static final SoundEvent LIGHT_RAIL_3_DOOR_OPEN = registerSoundEvent("light_rail_3_door_open");
-	public static final SoundEvent LIGHT_RAIL_3_DOOR_CLOSE = registerSoundEvent("light_rail_3_door_close");
-	public static final SoundEvent LIGHT_RAIL_4_DOOR_OPEN = registerSoundEvent("light_rail_4_door_open");
-	public static final SoundEvent LIGHT_RAIL_4_DOOR_CLOSE = registerSoundEvent("light_rail_4_door_close");
-	// TODO phase 4 door sounds
 	public static final SoundEvent TACTILE_MAP_MUSIC = registerSoundEvent("tactile_map_music");
 
 	@Override
@@ -157,10 +137,19 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("tactile_map", Blocks.TACTILE_MAP, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("marble_sandy", Blocks.MARBLE_SANDY, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_3", Blocks.PIDS_3, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_indented", Blocks.PLATFORM_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_1", Blocks.PLATFORM_NA_1, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_1_indented", Blocks.PLATFORM_NA_1_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_2", Blocks.PLATFORM_NA_2, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_na_2_indented", Blocks.PLATFORM_NA_2_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_uk_1", Blocks.PLATFORM_UK_1, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock("platform_uk_1_indented", Blocks.PLATFORM_UK_1_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("psd_door", Blocks.PSD_DOOR_1);
 		registerBlock("psd_glass", Blocks.PSD_GLASS_1);
 		registerBlock("psd_glass_end", Blocks.PSD_GLASS_END_1);
@@ -186,6 +175,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("route_sign_standing_metal", Blocks.ROUTE_SIGN_STANDING_METAL, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("route_sign_wall_light", Blocks.ROUTE_SIGN_WALL_LIGHT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("route_sign_wall_metal", Blocks.ROUTE_SIGN_WALL_METAL, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("rubbish_bin_1", Blocks.RUBBISH_BIN_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -230,27 +220,55 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor_entrance", Blocks.TICKET_PROCESSOR_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ticket_processor_exit", Blocks.TICKET_PROCESSOR_EXIT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("train_announcer", Blocks.TRAIN_ANNOUNCER, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("train_sensor", Blocks.TRAIN_SENSOR, ItemGroups.RAILWAY_FACILITIES);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_CLEAR_TRAINS, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_ADD_BALANCE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveAddBalanceC2S(minecraftServer, player, packet));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, Station::new, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, null, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, null, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, Route::new, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_DEPOT, railwayData -> railwayData.depots, Depot::new, false));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_STATION, railwayData -> railwayData.stations, null, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_PLATFORM, railwayData -> railwayData.platforms, null, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, null, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, null, true));
-		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_TRAIN_ANNOUNCER, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveTrainAnnouncerMessageC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, Depot::new, false));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_STATION, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_PLATFORM, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 
-		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> minecraftServer.getWorlds().forEach(serverWorld -> {
-			final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-			if (railwayData != null) {
-				railwayData.simulateTrains();
+		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
+		final ServerConnector serverConnector = new ServerConnector(webServer);
+		serverConnector.setPort(8888);
+		webServer.setConnectors(new Connector[]{serverConnector});
+		final ServletContextHandler context = new ServletContextHandler();
+		webServer.setHandler(context);
+		final URL url = getClass().getResource("/assets/mtr/website/");
+		if (url != null) {
+			try {
+				context.setBaseResource(Resource.newResource(url.toURI()));
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}));
+		}
+		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
+		servletHolder.setInitParameter("dirAllowed", "true");
+		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
+		context.addServlet(servletHolder, "/");
+		context.addServlet(DataServletHandler.class, "/data");
+		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
+
+		ServerTickEvents.START_SERVER_TICK.register(minecraftServer -> {
+			minecraftServer.getWorlds().forEach(serverWorld -> {
+				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
+				if (railwayData != null) {
+					railwayData.simulateTrains();
+				}
+			});
+			gameTick++;
+		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
 			if (entity instanceof ServerPlayerEntity) {
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
@@ -265,6 +283,26 @@ public class MTR implements ModInitializer, IPacket {
 				railwayData.disconnectPlayer(handler.player);
 			}
 		});
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			DataServletHandler.SERVER = server;
+			ArrivalsServletHandler.SERVER = server;
+			try {
+				webServer.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			try {
+				webServer.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public static boolean isGameTickInterval(int interval) {
+		return gameTick % interval == 0;
 	}
 
 	private static void registerItem(String path, Item item) {
@@ -287,26 +325,5 @@ public class MTR implements ModInitializer, IPacket {
 	private static SoundEvent registerSoundEvent(String path) {
 		final Identifier id = new Identifier(MOD_ID, path);
 		return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
-	}
-
-	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
-		return IntStream.range(0, size).mapToObj(i -> {
-			String group;
-			switch (i % groupSize) {
-				case 0:
-					group = "a";
-					break;
-				case 1:
-					group = "b";
-					break;
-				case 2:
-					group = "c";
-					break;
-				default:
-					group = "";
-					break;
-			}
-			return registerSoundEvent(path + (i / 3) + group);
-		}).toArray(SoundEvent[]::new);
 	}
 }

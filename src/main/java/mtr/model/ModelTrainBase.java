@@ -45,9 +45,9 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 					modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.EXTERIOR, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
 				}
-				final ModelDoorOverlayTop modelDoorOverlayTop = getModelDoorOverlayTop();
+				final ModelDoorOverlayTopBase modelDoorOverlayTop = getModelDoorOverlayTop();
 				if (modelDoorOverlayTop != null) {
-					modelDoorOverlayTop.render(matrices, vertexConsumers, light, position);
+					modelDoorOverlayTop.render(matrices, vertexConsumers, light, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 				}
 			}
 			render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
@@ -91,7 +91,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected abstract ModelDoorOverlay getModelDoorOverlay();
 
-	protected abstract ModelDoorOverlayTop getModelDoorOverlayTop();
+	protected abstract ModelDoorOverlayTopBase getModelDoorOverlayTop();
 
 	protected abstract int[] getWindowPositions();
 
