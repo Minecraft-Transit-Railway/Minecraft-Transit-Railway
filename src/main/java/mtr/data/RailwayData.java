@@ -324,6 +324,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public void broadcastToPlayer(ServerPlayerEntity serverPlayerEntity) {
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots);
+		playerRidingCoolDown.put(serverPlayerEntity, 2);
 	}
 
 	public void updatePlayerRiding(PlayerEntity player) {
