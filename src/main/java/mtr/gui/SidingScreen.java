@@ -1,10 +1,9 @@
 package mtr.gui;
 
-import mtr.config.CustomResources;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Siding;
-import mtr.data.TrainRegistry;
+import mtr.model.TrainClientRegistry;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +16,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SidingScreen extends SavedRailScreenBase<Siding> {
@@ -145,15 +143,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private void onSelectingTrain() {
 		final List<DataConverter> trainList = new ArrayList<>();
-		TrainRegistry.getTrainTypesStream().map(trainType -> new DataConverter(trainType.getName(), trainType.color)).forEach(trainList::add);
-
-		final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
-		Collections.sort(sortedKeys);
-		sortedKeys.forEach(key -> {
-			final CustomResources.CustomTrain customTrain = CustomResources.customTrains.get(key);
-			trainList.add(new DataConverter(customTrain.name, customTrain.color));
-		});
-
+		TrainClientRegistry.forEach((id, trainProperties) -> trainList.add(new DataConverter(TrainClientRegistry.getTrainName(id).getString(), trainProperties.color)));
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
 	}
@@ -164,32 +154,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldSavedRailNumber.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
-		final CustomResources.TrainMapping trainMapping = savedRailBase.getTrainMapping();
-		buttonSelectTrain.setMessage(new LiteralText(CustomResources.customTrains.containsKey(trainMapping.customId) ? CustomResources.customTrains.get(trainMapping.customId).name : trainMapping.trainType.getName()));
+		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainName(savedRailBase.getTrainId()));
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		final int trainTypesCount = TrainRegistry.getTrainTypesCount();
-		final int customTrainCount = CustomResources.customTrains.size();
-
-		if (index < trainTypesCount + customTrainCount) {
-			final String customId;
-			final TrainRegistry.TrainType trainType;
-			if (index < trainTypesCount) {
-				customId = "";
-				trainType = TrainRegistry.getTrainType(index);
-			} else {
-				final List<String> sortedKeys = new ArrayList<>(CustomResources.customTrains.keySet());
-				Collections.sort(sortedKeys);
-				customId = sortedKeys.get(index - trainTypesCount);
-				trainType = customId == null ? null : CustomResources.customTrains.get(customId).baseTrainType;
-			}
-
-			if (trainType != null) {
-				savedRailBase.setTrainMapping(customId, trainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
-			}
-		}
+		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(index), TrainClientRegistry.getTrainProperties(index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
 		setIsSelectingTrain(false);
 	}
 }

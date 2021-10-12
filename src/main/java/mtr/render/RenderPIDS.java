@@ -131,12 +131,12 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
 				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
-					final int trainLength = scheduleEntry.trainLength;
-					if (trainLength > maxCars) {
-						maxCars = trainLength;
+					final int trainCars = scheduleEntry.trainCars;
+					if (trainCars > maxCars) {
+						maxCars = trainCars;
 					}
-					if (trainLength < minCars) {
-						minCars = trainLength;
+					if (trainCars < minCars) {
+						minCars = trainCars;
 					}
 				}
 				showCarLength = minCars != maxCars;
@@ -160,7 +160,7 @@ public class RenderPIDS<T extends BlockEntity> implements IGui, BlockEntityRende
 				} else {
 					arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 				}
-				final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainLength);
+				final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 
 				matrices.push();
 				matrices.translate(0.5, 0, 0.5);
