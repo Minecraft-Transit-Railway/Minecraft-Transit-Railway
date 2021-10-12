@@ -86,7 +86,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
 		}
-		final List<String> sortedKeys = new ArrayList<>(CustomResources.customSigns.keySet());
+		final List<String> sortedKeys = new ArrayList<>(CustomResources.CUSTOM_SIGNS.keySet());
 		Collections.sort(sortedKeys);
 		allSignIds.addAll(sortedKeys);
 

@@ -232,7 +232,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			final BlockRailwaySign.SignType sign = BlockRailwaySign.SignType.valueOf(signId);
 			return new CustomResources.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
 		} catch (Exception ignored) {
-			return signId == null ? null : CustomResources.customSigns.get(signId);
+			return signId == null ? null : CustomResources.CUSTOM_SIGNS.get(signId);
 		}
 	}
 

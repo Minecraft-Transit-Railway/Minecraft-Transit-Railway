@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.config.CustomResources;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
@@ -19,8 +18,9 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	private World world;
 	private Depot depot;
-	private CustomResources.TrainMapping trainMapping;
-	private int trainLength;
+	private String trainId;
+	private TrainType baseTrainType;
+	private int trainCars;
 	private boolean unlimitedTrains;
 	private int maxTrains;
 
@@ -31,8 +31,8 @@ public class Siding extends SavedRailBase implements IPacket {
 	private final Set<TrainServer> trains = new HashSet<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
-	private static final String KEY_TRAIN_TYPE = "train_type";
-	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
+	private static final String KEY_BASE_TRAIN_TYPE = "train_type";
+	private static final String KEY_TRAIN_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
 	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_PATH = "path";
@@ -41,20 +41,20 @@ public class Siding extends SavedRailBase implements IPacket {
 	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainRegistry.getFirstTrain());
+		setTrainDetails("", TrainType.values()[0]);
 	}
 
 	public Siding(BlockPos pos1, BlockPos pos2, float railLength) {
 		super(pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainRegistry.getFirstTrain());
+		setTrainDetails("", TrainType.values()[0]);
 	}
 
 	public Siding(NbtCompound nbtCompound) {
 		super(nbtCompound);
 
 		railLength = nbtCompound.getFloat(KEY_RAIL_LENGTH);
-		setTrainDetails(nbtCompound.getString(KEY_TRAIN_CUSTOM_ID), TrainRegistry.getTrainType(nbtCompound.getString(KEY_TRAIN_TYPE)));
+		setTrainDetails(nbtCompound.getString(KEY_TRAIN_ID), TrainType.getOrDefault(nbtCompound.getString(KEY_BASE_TRAIN_TYPE)));
 		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = nbtCompound.getInt(KEY_MAX_TRAINS);
 
@@ -64,7 +64,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
-		generateTimeSegments(path, timeSegments, trainMapping, trainLength, railLength);
+		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength);
 
 		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
 		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
@@ -74,7 +74,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	public Siding(PacketByteBuf packet) {
 		super(packet);
 		railLength = packet.readFloat();
-		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainRegistry.getTrainType(packet.readInt()));
+		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
 	}
@@ -84,8 +84,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		final NbtCompound nbtCompound = super.toCompoundTag();
 
 		nbtCompound.putFloat(KEY_RAIL_LENGTH, railLength);
-		nbtCompound.putString(KEY_TRAIN_CUSTOM_ID, trainMapping.customId);
-		nbtCompound.putString(KEY_TRAIN_TYPE, trainMapping.trainType.id);
+		nbtCompound.putString(KEY_TRAIN_ID, trainId);
+		nbtCompound.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
 		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
 		nbtCompound.putInt(KEY_MAX_TRAINS, maxTrains);
 
@@ -99,8 +99,8 @@ public class Siding extends SavedRailBase implements IPacket {
 	public void writePacket(PacketByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeFloat(railLength);
-		packet.writeString(trainMapping.customId);
-		packet.writeInt(TrainRegistry.getIndex(trainMapping.trainType.id));
+		packet.writeString(trainId);
+		packet.writeInt(baseTrainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
 	}
@@ -108,8 +108,8 @@ public class Siding extends SavedRailBase implements IPacket {
 	@Override
 	public void update(String key, PacketByteBuf packet) {
 		switch (key) {
-			case KEY_TRAIN_TYPE:
-				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainRegistry.getTrainType(packet.readInt()));
+			case KEY_BASE_TRAIN_TYPE:
+				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readString(PACKET_STRING_READ_LENGTH);
@@ -123,12 +123,12 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	public void setTrainMapping(String customId, TrainRegistry.TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
+	public void setTrainIdAndBaseType(String customId, TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
-		packet.writeString(KEY_TRAIN_TYPE);
+		packet.writeString(KEY_BASE_TRAIN_TYPE);
 		packet.writeString(customId);
-		packet.writeInt(TrainRegistry.getIndex(trainType.id));
+		packet.writeInt(trainType.ordinal());
 		sendPacket.accept(packet);
 		setTrainDetails(customId, trainType);
 	}
@@ -146,8 +146,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		this.maxTrains = maxTrains;
 	}
 
-	public CustomResources.TrainMapping getTrainMapping() {
-		return trainMapping;
+	public String getTrainId() {
+		return trainId;
 	}
 
 	public void setSidingData(World world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
@@ -200,7 +200,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		final List<TimeSegment> tempTimeSegments = new ArrayList<>();
-		generateTimeSegments(tempPath, tempTimeSegments, trainMapping, trainLength, railLength);
+		generateTimeSegments(tempPath, tempTimeSegments, baseTrainType, trainCars, railLength);
 
 		minecraftServer.execute(() -> {
 			try {
@@ -236,7 +236,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				trainsToSync.add(train);
 			}
 
-			if (train.closeToDepot(trainMapping.trainType.getSpacing() * trainLength)) {
+			if (train.closeToDepot(baseTrainType.getSpacing() * trainCars)) {
 				spawnTrain = false;
 			}
 
@@ -259,7 +259,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		if (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains)) {
-			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainMapping, trainLength, path, distances, timeSegments);
+			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, timeSegments);
 			trains.add(train);
 		}
 
@@ -280,9 +280,10 @@ public class Siding extends SavedRailBase implements IPacket {
 		trains.clear();
 	}
 
-	private void setTrainDetails(String customId, TrainRegistry.TrainType trainType) {
-		trainMapping = new CustomResources.TrainMapping(customId, trainType);
-		trainLength = (int) Math.floor(railLength / trainMapping.trainType.getSpacing());
+	private void setTrainDetails(String trainId, TrainType baseTrainType) {
+		this.trainId = trainId;
+		this.baseTrainType = baseTrainType;
+		trainCars = (int) Math.floor(railLength / baseTrainType.getSpacing());
 	}
 
 	private void generateDefaultPath(Map<BlockPos, Map<BlockPos, Rail>> rails) {
@@ -295,7 +296,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(id, id, railLength, trainMapping, trainLength, path, distances, timeSegments));
+		trains.add(new TrainServer(id, id, railLength, trainId, baseTrainType, trainCars, path, distances, timeSegments));
 	}
 
 	private void generateDistances() {
@@ -312,7 +313,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, CustomResources.TrainMapping trainMapping, int trainLength, float railLength) {
+	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, TrainType baseTrainType, int trainCars, float railLength) {
 		timeSegments.clear();
 
 		float distanceSum1 = 0;
@@ -324,7 +325,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		float railProgress = (railLength + trainLength * trainMapping.trainType.getSpacing()) / 2;
+		float railProgress = (railLength + trainCars * baseTrainType.getSpacing()) / 2;
 		float nextStoppingDistance = 0;
 		float speed = 0;
 		float time = 0;
@@ -370,7 +371,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			time += pathData.dwellTime * 10;
 
 			if (i + 1 < path.size() && pathData.isOppositeRail(path.get(i + 1))) {
-				railProgress += trainMapping.trainType.getSpacing() * trainLength;
+				railProgress += baseTrainType.getSpacing() * trainCars;
 			}
 		}
 	}

@@ -1,7 +1,10 @@
 package mtr;
 
 import mtr.block.*;
-import mtr.data.*;
+import mtr.data.Depot;
+import mtr.data.RailwayData;
+import mtr.data.Route;
+import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
@@ -33,7 +36,6 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.net.URL;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class MTR implements ModInitializer, IPacket {
 
@@ -80,50 +82,6 @@ public class MTR implements ModInitializer, IPacket {
 	public static final SoundEvent TICKET_PROCESSOR_EXIT = registerSoundEvent("ticket_processor_exit");
 	public static final SoundEvent TICKET_PROCESSOR_EXIT_CONCESSIONARY = registerSoundEvent("ticket_processor_exit_concessionary");
 	public static final SoundEvent TICKET_PROCESSOR_FAIL = registerSoundEvent("ticket_processor_fail");
-
-	private static final int SP1900_SPEED_COUNT = 120;
-	private static final int C1141A_SPEED_COUNT = 96;
-	private static final SoundEvent[] SP1900_ACCELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_acceleration_");
-	private static final SoundEvent[] SP1900_DECELERATION = registerSoundEvents(SP1900_SPEED_COUNT, 3, "sp1900_deceleration_");
-	private static final SoundEvent[] C1141A_ACCELERATION = registerSoundEvents(C1141A_SPEED_COUNT, 3, "c1141a_acceleration_");
-	private static final SoundEvent[] C1141A_DECELERATION = registerSoundEvents(C1141A_SPEED_COUNT, 3, "c1141a_deceleration_");
-	private static final SoundEvent SP1900_DOOR_OPEN = registerSoundEvent("sp1900_door_open");
-	private static final SoundEvent SP1900_DOOR_CLOSE = registerSoundEvent("sp1900_door_close");
-	private static final int MLR_SPEED_COUNT = 93;
-	private static final SoundEvent[] MLR_ACCELERATION = registerSoundEvents(MLR_SPEED_COUNT, 3, "mlr_acceleration_");
-	private static final SoundEvent[] MLR_DECELERATION = registerSoundEvents(MLR_SPEED_COUNT, 3, "mlr_deceleration_");
-	private static final SoundEvent MLR_DOOR_OPEN = registerSoundEvent("mlr_door_open");
-	private static final SoundEvent MLR_DOOR_CLOSE = registerSoundEvent("mlr_door_close");
-	private static final int M_TRAIN_SPEED_COUNT = 90;
-	private static final SoundEvent[] M_TRAIN_ACCELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_acceleration_");
-	private static final SoundEvent[] M_TRAIN_DECELERATION = registerSoundEvents(M_TRAIN_SPEED_COUNT, 3, "m_train_deceleration_");
-	private static final SoundEvent M_TRAIN_DOOR_OPEN = registerSoundEvent("m_train_door_open");
-	private static final SoundEvent M_TRAIN_DOOR_CLOSE = registerSoundEvent("m_train_door_close");
-	private static final int K_TRAIN_SPEED_COUNT = 66;
-	private static final SoundEvent[] K_TRAIN_ACCELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_acceleration_");
-	private static final SoundEvent[] K_TRAIN_DECELERATION = registerSoundEvents(K_TRAIN_SPEED_COUNT, 3, "k_train_deceleration_");
-	private static final SoundEvent K_TRAIN_DOOR_OPEN = registerSoundEvent("k_train_door_open");
-	private static final SoundEvent K_TRAIN_DOOR_CLOSE = registerSoundEvent("k_train_door_close");
-	private static final int A_TRAIN_SPEED_COUNT = 78;
-	private static final SoundEvent[] A_TRAIN_ACCELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_acceleration_");
-	private static final SoundEvent[] A_TRAIN_DECELERATION = registerSoundEvents(A_TRAIN_SPEED_COUNT, 3, "a_train_deceleration_");
-	private static final SoundEvent A_TRAIN_DOOR_OPEN = registerSoundEvent("a_train_door_open");
-	private static final SoundEvent A_TRAIN_DOOR_CLOSE = registerSoundEvent("a_train_door_close");
-	private static final int R179_SPEED_COUNT = 66;
-	private static final SoundEvent[] R179_ACCELERATION = registerSoundEvents(R179_SPEED_COUNT, 3, "r179_acceleration_");
-	private static final SoundEvent[] R179_DECELERATION = registerSoundEvents(R179_SPEED_COUNT, 3, "r179_deceleration_");
-	private static final SoundEvent R179_DOOR_OPEN = registerSoundEvent("r179_door_open");
-	private static final SoundEvent R179_DOOR_CLOSE = registerSoundEvent("r179_door_close");
-	private static final int LIGHT_RAIL_1_SPEED_COUNT = 48;
-	private static final SoundEvent[] LIGHT_RAIL_ACCELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_acceleration_");
-	private static final SoundEvent[] LIGHT_RAIL_DECELERATION = registerSoundEvents(LIGHT_RAIL_1_SPEED_COUNT, 3, "light_rail_deceleration_");
-	private static final SoundEvent LIGHT_RAIL_1_DOOR_OPEN = registerSoundEvent("light_rail_1_door_open");
-	private static final SoundEvent LIGHT_RAIL_1_DOOR_CLOSE = registerSoundEvent("light_rail_1_door_close");
-	private static final SoundEvent LIGHT_RAIL_3_DOOR_OPEN = registerSoundEvent("light_rail_3_door_open");
-	private static final SoundEvent LIGHT_RAIL_3_DOOR_CLOSE = registerSoundEvent("light_rail_3_door_close");
-	private static final SoundEvent LIGHT_RAIL_4_DOOR_OPEN = registerSoundEvent("light_rail_4_door_open");
-	private static final SoundEvent LIGHT_RAIL_4_DOOR_CLOSE = registerSoundEvent("light_rail_4_door_close");
-	// TODO phase 4 door sounds
 
 	@Override
 	public void onInitialize() {
@@ -263,25 +221,6 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("train_announcer", Blocks.TRAIN_ANNOUNCER, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_sensor", Blocks.TRAIN_SENSOR, ItemGroups.RAILWAY_FACILITIES);
 
-		TrainRegistry.register(0x003399, 24, 12, 2, true, SP1900_ACCELERATION, SP1900_DECELERATION, SP1900_DOOR_OPEN, SP1900_DOOR_CLOSE, 0.5F, false, "sp1900");
-		TrainRegistry.register(0xB42249, 24, 12, 2, true, C1141A_ACCELERATION, C1141A_DECELERATION, SP1900_DOOR_OPEN, SP1900_DOOR_CLOSE, 0.5F, false, "c1141a");
-		TrainRegistry.register(0x999999, 24, 9, 2, true, M_TRAIN_ACCELERATION, M_TRAIN_DECELERATION, M_TRAIN_DOOR_OPEN, M_TRAIN_DOOR_CLOSE, 0.5F, false, "m_train");
-		TrainRegistry.register(0x6CB5E2, 24, 12, 2, true, MLR_ACCELERATION, MLR_DECELERATION, MLR_DOOR_OPEN, MLR_DOOR_CLOSE, 0.5F, true, "mlr");
-		TrainRegistry.register(0xE7AF25, 24, 12, 2, true, MLR_ACCELERATION, MLR_DECELERATION, M_TRAIN_DOOR_OPEN, M_TRAIN_DOOR_CLOSE, 0.5F, true, "e44");
-		TrainRegistry.register(0x0EAB52, 24, 9, 2, true, K_TRAIN_ACCELERATION, K_TRAIN_DECELERATION, K_TRAIN_DOOR_OPEN, K_TRAIN_DOOR_CLOSE, 1, false, "k_train");
-		TrainRegistry.register(0x0EAB52, 24, 9, 2, true, K_TRAIN_ACCELERATION, K_TRAIN_DECELERATION, K_TRAIN_DOOR_OPEN, K_TRAIN_DOOR_CLOSE, 1, false, "k_train_tcl");
-		TrainRegistry.register(0x0EAB52, 24, 9, 2, true, K_TRAIN_ACCELERATION, K_TRAIN_DECELERATION, K_TRAIN_DOOR_OPEN, K_TRAIN_DOOR_CLOSE, 1, false, "k_train_ael");
-		TrainRegistry.register(0xF69447, 24, 9, 2, true, A_TRAIN_ACCELERATION, A_TRAIN_DECELERATION, A_TRAIN_DOOR_OPEN, A_TRAIN_DOOR_CLOSE, 0.5F, false, "a_train_tcl");
-		TrainRegistry.register(0x008D8D, 24, 14, 2, true, A_TRAIN_ACCELERATION, A_TRAIN_DECELERATION, A_TRAIN_DOOR_OPEN, A_TRAIN_DOOR_CLOSE, 0.5F, false, "a_train_ael");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_1_DOOR_OPEN, LIGHT_RAIL_1_DOOR_CLOSE, 1, false, "light_rail_1");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_1_DOOR_OPEN, LIGHT_RAIL_1_DOOR_CLOSE, 1, false, "light_rail_1r");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_3_DOOR_OPEN, LIGHT_RAIL_3_DOOR_CLOSE, 1, false, "light_rail_2");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_3_DOOR_OPEN, LIGHT_RAIL_3_DOOR_CLOSE, 1, false, "light_rail_3");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_4_DOOR_OPEN, LIGHT_RAIL_4_DOOR_CLOSE, 1, false, "light_rail_4");
-		TrainRegistry.register(0xD2A825, 22, -1, 2, false, LIGHT_RAIL_ACCELERATION, LIGHT_RAIL_DECELERATION, LIGHT_RAIL_4_DOOR_OPEN, LIGHT_RAIL_4_DOOR_CLOSE, 1, false, "light_rail_5");
-		TrainRegistry.register(0xD5D5D5, 19, -1, 2, false, R179_ACCELERATION, R179_DECELERATION, R179_DOOR_OPEN, R179_DOOR_CLOSE, 1, false, "r179");
-		TrainRegistry.register(0x666666, 1, -1, 1, false, null, null, null, null, 0.5F, false, "minecart");
-
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CLEAR_TRAINS, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_SIGN_TYPES, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet));
@@ -384,26 +323,5 @@ public class MTR implements ModInitializer, IPacket {
 	private static SoundEvent registerSoundEvent(String path) {
 		final Identifier id = new Identifier(MOD_ID, path);
 		return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
-	}
-
-	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
-		return IntStream.range(0, size).mapToObj(i -> {
-			String group;
-			switch (i % groupSize) {
-				case 0:
-					group = "a";
-					break;
-				case 1:
-					group = "b";
-					break;
-				case 2:
-					group = "c";
-					break;
-				default:
-					group = "";
-					break;
-			}
-			return registerSoundEvent(path + (i / 3) + group);
-		}).toArray(SoundEvent[]::new);
 	}
 }

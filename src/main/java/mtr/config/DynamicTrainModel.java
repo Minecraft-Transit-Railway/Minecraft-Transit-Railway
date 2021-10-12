@@ -205,11 +205,11 @@ public class DynamicTrainModel extends ModelTrainBase {
 		});
 	}
 
-	private static <T> void getArrayFromValue(T[] array, JsonObject jsonObject, String key, Function<JsonElement, T> consumer) {
+	private static <T> void getArrayFromValue(T[] array, JsonObject jsonObject, String key, Function<JsonElement, T> function) {
 		if (jsonObject.has(key)) {
 			final JsonArray jsonArray = jsonObject.getAsJsonArray(key);
 			for (int i = 0; i < array.length; i++) {
-				array[i] = consumer.apply(jsonArray.get(i));
+				array[i] = function.apply(jsonArray.get(i));
 			}
 		}
 	}
