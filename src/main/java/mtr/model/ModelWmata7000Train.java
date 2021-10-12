@@ -132,6 +132,8 @@ private final ModelPart window;
 	private final ModelPart wall_replace;
 	private final ModelPart wall_right_2_r4;
 	private final ModelPart blue_floor;
+	private final ModelPart wall_replace2;
+	private final ModelPart wall_left_r1;
 	private final ModelPart front_seat_handrail;
 	private final ModelPart handrail_head_left;
 	private final ModelPart cube_r56;
@@ -244,6 +246,8 @@ private final ModelPart window;
 	private final ModelPart cube_r81;
 	private final ModelPart cube_r82;
 	private final ModelPart cube_r83;
+	private final ModelPart path_map;
+	private final ModelPart map_path_r1;
 public ModelWmata7000Train() {
 		textureWidth = 544;
 		textureHeight = 544;
@@ -1017,6 +1021,17 @@ public ModelWmata7000Train() {
 		wall_replace.addChild(blue_floor);
 		blue_floor.setTextureOffset(18, 28).addCuboid(-18.0F, -0.125F, -44.0F, 10.0F, 0.0F, 14.0F, 0.0F, false);
 
+		wall_replace2 = new ModelPart(this);
+		wall_replace2.setPivot(0.0F, 0.0F, 0.0F);
+		wall_replace.addChild(wall_replace2);
+		
+
+		wall_left_r1 = new ModelPart(this);
+		wall_left_r1.setPivot(0.0F, 0.0F, 0.0F);
+		wall_replace2.addChild(wall_left_r1);
+		setRotationAngle(wall_left_r1, 0.0F, 0.0F, 0.1309F);
+		wall_left_r1.setTextureOffset(0, 435).addCuboid(-22.9878F, -20.0059F, 41.0F, 0.0F, 9.0F, 12.0F, 0.0F, false);
+
 		front_seat_handrail = new ModelPart(this);
 		front_seat_handrail.setPivot(0.0F, 24.0F, 0.0F);
 		
@@ -1668,6 +1683,16 @@ public ModelWmata7000Train() {
 		seat_3.addChild(cube_r83);
 		setRotationAngle(cube_r83, 0.0F, -1.5708F, -0.0873F);
 		cube_r83.setTextureOffset(99, 82).addCuboid(-12.0074F, -14.0092F, -4.7924F, 18.0F, 1.0F, 7.0F, 0.0F, false);
+
+		path_map = new ModelPart(this);
+		path_map.setPivot(0.0F, 24.0F, 0.0F);
+		
+
+		map_path_r1 = new ModelPart(this);
+		map_path_r1.setPivot(3.2878F, -12.5941F, -9.0F);
+		path_map.addChild(map_path_r1);
+		setRotationAngle(map_path_r1, 0.0F, 0.0F, 0.1309F);
+		map_path_r1.setTextureOffset(0, 457).addCuboid(-22.9878F, -23.2559F, 1.0F, 0.0F, 5.0F, 16.0F, 0.0F, false);
 }
 
 private static final int DOOR_MAX = 12;
@@ -1690,6 +1715,7 @@ private static final int DOOR_MAX = 12;
 					renderOnceFlipped(seat, matrices, vertices, light, 14F, position + 19f);
 					renderOnce(seat, matrices, vertices, light, -14F, position - 19);
 					renderOnce(seat, matrices, vertices, light, 14F, position - 19);
+					renderOnce(path_map, matrices, vertices, light, position);
 
 					if (frontWindow) {
 						renderOnceFlipped(seat_2, matrices, vertices, light, -15.2F, position - 38);
