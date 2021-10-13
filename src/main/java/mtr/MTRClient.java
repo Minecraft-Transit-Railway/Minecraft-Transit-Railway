@@ -1,6 +1,7 @@
 package mtr;
 
 import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
+import mtr.block.BlockTactileMap;
 import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.Depot;
@@ -31,6 +32,7 @@ import net.minecraft.util.Identifier;
 public class MTRClient implements ClientModInitializer, IPacket {
 
 	public static boolean isReplayMod;
+	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
 
 	@Override
 	public void onInitializeClient() {
@@ -186,6 +188,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.deleteTrains(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
+
+		BlockTactileMap.TileEntityTactileMap.callback = TACTILE_MAP_SOUND_INSTANCE::setPos;
 
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);

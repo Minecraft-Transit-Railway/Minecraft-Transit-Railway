@@ -1,0 +1,34 @@
+{
+	"variants": {
+		"facing=north,half=lower": {
+			"model": "mtr:block/tactile_map_bottom"
+		},
+		"facing=east,half=lower": {
+			"model": "mtr:block/tactile_map_bottom",
+			"y": 90
+		},
+		"facing=south,half=lower": {
+			"model": "mtr:block/tactile_map_bottom",
+			"y": 180
+		},
+		"facing=west,half=lower": {
+			"model": "mtr:block/tactile_map_bottom",
+			"y": 270
+		},
+		"facing=north,half=upper": {
+			"model": "mtr:block/tactile_map_top"
+		},
+		"facing=east,half=upper": {
+			"model": "mtr:block/tactile_map_top",
+			"y": 90
+		},
+		"facing=south,half=upper": {
+			"model": "mtr:block/tactile_map_top",
+			"y": 180
+		},
+		"facing=west,half=upper": {
+			"model": "mtr:block/tactile_map_top",
+			"y": 270
+		}
+	}
+}
