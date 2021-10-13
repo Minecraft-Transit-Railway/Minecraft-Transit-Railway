@@ -51,11 +51,11 @@ public class LoopingSoundInstance extends AbstractSoundInstance implements Ticka
 					x = pos.getX();
 					y = pos.getY();
 					z = pos.getZ();
+				}
 
-					final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-					if (soundManager != null && !soundManager.isPlaying(this)) {
-						soundManager.play(this);
-					}
+				final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+				if (soundManager != null && !soundManager.isPlaying(this)) {
+					soundManager.play(this);
 				}
 			}
 		}
