@@ -6,6 +6,15 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
+					"conditions": [
+						{
+							"condition": "minecraft:block_state_property",
+							"block": "mtr:tactile_map",
+							"properties": {
+								"half": "lower"
+							}
+						}
+					],
 					"name": "mtr:tactile_map"
 				}
 			],

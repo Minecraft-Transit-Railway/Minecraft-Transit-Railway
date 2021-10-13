@@ -1,67 +1,73 @@
 package mtr.block;
 
 import mtr.MTR;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 
-import java.util.List;
+import java.util.function.Consumer;
 
-public class BlockTactileMap extends HorizontalFacingBlock {
+public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider {
 
-    public BlockTactileMap() {
-            super(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2));
-        }
-    @Override
-    public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-        // A heads-up to people that they cannot actually make a tactile map of their station, I think
-        tooltip.add(new TranslatableText("tooltip.mtr.tactile_map").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-    }
-        @Override
-        public BlockState getPlacementState(ItemPlacementContext ctx) {
-            return getDefaultState().with(FACING, ctx.getPlayerFacing().getOpposite());
-        }
+	public BlockTactileMap(Settings settings) {
+		super(settings);
+	}
 
-        @Override
-        protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-            builder.add(FACING);
-        }
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
+			return IBlock.getVoxelShapeByDirection(0, 0, 2, 16, 7, 14, facing);
+		} else {
+			return VoxelShapes.union(Block.createCuboidShape(4, 0, 4, 12, 1, 12), IBlock.getVoxelShapeByDirection(6, 1, 7, 10, 16, 9, facing));
+		}
+	}
 
-    public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
-        // You know what? I give up, goodbye! (Please fix)
-        // Never gonna give you up, never gonna let you down!
-        final VoxelShape first = IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 1, 16, state.get(FACING).getOpposite());
-        final VoxelShape second = IBlock.getVoxelShapeByDirection(5.5, 1, 7.5, 10.5, 20, 8.5, state.get(FACING).getOpposite());
-        return VoxelShapes.union(first, second);
-    }
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, HALF);
+	}
 
-    public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity player,Hand hand, BlockHitResult blockHitResult) {
-        if (!world.isClient) {
-            // The music might be copyrighted, please double-check before releasing
-            world.playSound(null, blockPos, MTR.TACTILE_MAP_MUSIC, SoundCategory.BLOCKS, 1f, 1f);
-            // I have no idea how to make the music stop, there's no method for that?
-            // Or instead you can even make it loop the music to make it more realistic
-            // I like to add useless things. Remove if you decide to not trying make it stop
-            player.sendMessage(new TranslatableText("Press again to stop"), true);
-        }
-        return ActionResult.success(false);
-    }
-    }
+	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityTactileMap();
+	}
+
+	public static class TileEntityTactileMap extends BlockEntity implements BlockEntityClientSerializable, Tickable {
+
+		public static Consumer<BlockPos> callback = null;
+
+		public TileEntityTactileMap() {
+			super(MTR.TACTILE_MAP_TILE_ENTITY);
+		}
+
+		@Override
+		public void tick() {
+			if (world != null && world.isClient && callback != null) {
+				callback.accept(pos);
+			}
+		}
+
+		@Override
+		public void fromClientTag(NbtCompound tag) {
+		}
+
+		@Override
+		public NbtCompound toClientTag(NbtCompound tag) {
+			return tag;
+		}
+	}
+}
 

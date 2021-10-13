@@ -55,6 +55,14 @@
 			}
 		]
 	},
+	"tactile_map_music": {
+		"sounds": [
+			{
+				"name": "mtr:tactile_map_music",
+				"pitch": 1
+			}
+		]
+	},
 	"sp1900_door_open": {
 		"sounds": [
 			{
@@ -12004,14 +12012,6 @@
 				"name": "mtr:light_rail/deceleration/speed_15c",
 				"pitch": 1,
 				"attenuation_distance": 32
-			}
-		]
-	},
-	"tactile_map_music": {
-		"sounds": [
-			{
-				"name": "mtr:tactile_map_music",
-				"pitch": 1
 			}
 		]
 	}
