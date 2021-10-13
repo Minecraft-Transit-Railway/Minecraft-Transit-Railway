@@ -238,7 +238,13 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				} else {
 					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
-						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
+						if (nextStation == null) {
+							RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 1, data.routeIds, ClientData.DATA_CACHE, (thisRoute1, nextRoute1, thisStation1, nextStation1, lastStation1) -> {
+								stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation1.name)));
+							});
+						} else {
+							stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation.name)));
+						}
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 					});
 					stationNames.add("-");

@@ -177,6 +177,8 @@
 	"gui.mtr.trains_per_hour": "Trains Per Hour",
 	"gui.mtr.unlimited_trains": "Unlimited Trains",
 	"gui.mtr.untitled": "Untitled",
+	"gui.mtr.welcome_station": "Welcome to %s Station.",
+	"gui.mtr.welcome_station_cjk": "歡迎光臨%s站。",
 	"gui.mtr.zone": "Fare Zone",
 	"gui.mtr.zone_number": "Zone %s",
 	"item.mtr.apg_door": "Automatic Platform Gates",
