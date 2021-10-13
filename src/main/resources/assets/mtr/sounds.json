@@ -55,6 +55,14 @@
 			}
 		]
 	},
+	"tactile_map_music": {
+		"sounds": [
+			{
+				"name": "mtr:tactile_map_music",
+				"pitch": 1
+			}
+		]
+	},
 	"sp1900_door_open": {
 		"sounds": [
 			{

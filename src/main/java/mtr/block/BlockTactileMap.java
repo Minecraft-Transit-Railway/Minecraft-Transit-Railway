@@ -1,0 +1,73 @@
+package mtr.block;
+
+import mtr.MTR;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.state.StateManager;
+import net.minecraft.util.Tickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+
+import java.util.function.Consumer;
+
+public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider {
+
+	public BlockTactileMap(Settings settings) {
+		super(settings);
+	}
+
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
+			return IBlock.getVoxelShapeByDirection(0, 0, 2, 16, 7, 14, facing);
+		} else {
+			return VoxelShapes.union(Block.createCuboidShape(4, 0, 4, 12, 1, 12), IBlock.getVoxelShapeByDirection(6, 1, 7, 10, 16, 9, facing));
+		}
+	}
+
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, HALF);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityTactileMap();
+	}
+
+	public static class TileEntityTactileMap extends BlockEntity implements BlockEntityClientSerializable, Tickable {
+
+		public static Consumer<BlockPos> callback = null;
+
+		public TileEntityTactileMap() {
+			super(MTR.TACTILE_MAP_TILE_ENTITY);
+		}
+
+		@Override
+		public void tick() {
+			if (world != null && world.isClient && callback != null) {
+				callback.accept(pos);
+			}
+		}
+
+		@Override
+		public void fromClientTag(NbtCompound tag) {
+		}
+
+		@Override
+		public NbtCompound toClientTag(NbtCompound tag) {
+			return tag;
+		}
+	}
+}
+
