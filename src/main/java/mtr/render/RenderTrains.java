@@ -79,6 +79,7 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraPos = camera.getPos();
 		final float cameraYaw = camera.getYaw();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
+		final boolean secondF5 = Math.abs(player.getYaw() - client.gameRenderer.getCamera().getYaw()) > 90;
 
 		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
@@ -88,7 +89,7 @@ public class RenderTrains implements IGui {
 				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
 			} else {
 				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.getYaw() - cameraYaw));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.getYaw() - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(x - playerOffset.x, y - playerOffset.y, z - playerOffset.z);
 			}
 			matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
@@ -116,7 +117,7 @@ public class RenderTrains implements IGui {
 				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 			} else {
 				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.getYaw() - cameraYaw));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.getYaw() - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
