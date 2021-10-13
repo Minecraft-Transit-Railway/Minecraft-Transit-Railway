@@ -28,26 +28,34 @@ public class LoopingSoundInstance extends AbstractSoundInstance implements Ticka
 	public void tick() {
 	}
 
-	public void setPos(BlockPos pos) {
-		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player == null) {
-			return;
-		}
+	public void setPos(BlockPos pos, boolean isRemoved) {
+		if (isRemoved) {
+			if (x == pos.getX() && y == pos.getY() && z == pos.getZ()) {
+				x = 0;
+				y = 0;
+				z = 0;
+			}
+		} else {
+			final ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			if (player == null) {
+				return;
+			}
 
-		final BlockPos playerPos = player.getBlockPos();
-		final int distance = playerPos.getManhattanDistance(pos);
+			final BlockPos playerPos = player.getBlockPos();
+			final int distance = playerPos.getManhattanDistance(pos);
 
-		if (distance <= MAX_DISTANCE) {
-			final int currentDistance = playerPos.getManhattanDistance(new BlockPos(x, y, z));
+			if (distance <= MAX_DISTANCE) {
+				final int currentDistance = playerPos.getManhattanDistance(new BlockPos(x, y, z));
 
-			if (distance < currentDistance) {
-				x = pos.getX();
-				y = pos.getY();
-				z = pos.getZ();
+				if (distance < currentDistance) {
+					x = pos.getX();
+					y = pos.getY();
+					z = pos.getZ();
 
-				final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-				if (!soundManager.isPlaying(this)) {
-					soundManager.play(this);
+					final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+					if (!soundManager.isPlaying(this)) {
+						soundManager.play(this);
+					}
 				}
 			}
 		}

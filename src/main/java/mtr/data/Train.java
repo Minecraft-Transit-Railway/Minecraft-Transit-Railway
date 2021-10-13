@@ -178,6 +178,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
+			if (nextStoppingIndex >= path.size()) {
+				return;
+			}
 			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 			if (!isOnRoute) {

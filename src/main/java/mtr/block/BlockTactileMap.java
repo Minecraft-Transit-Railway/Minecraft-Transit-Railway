@@ -17,7 +17,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider {
 
@@ -47,7 +47,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 
 	public static class TileEntityTactileMap extends BlockEntity implements BlockEntityClientSerializable, Tickable {
 
-		public static Consumer<BlockPos> callback = null;
+		public static BiConsumer<BlockPos, Boolean> callback = null;
 
 		public TileEntityTactileMap() {
 			super(MTR.TACTILE_MAP_TILE_ENTITY);
@@ -56,8 +56,16 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		@Override
 		public void tick() {
 			if (world != null && world.isClient && callback != null) {
-				callback.accept(pos);
+				callback.accept(pos, removed);
 			}
+		}
+
+		@Override
+		public void markRemoved() {
+			if (world != null && world.isClient && callback != null) {
+				callback.accept(pos, true);
+			}
+			super.markRemoved();
 		}
 
 		@Override
