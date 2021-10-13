@@ -5,9 +5,11 @@ import mtr.block.BlockTactileMap;
 import mtr.config.Config;
 import mtr.config.CustomResources;
 import mtr.data.Depot;
+import mtr.data.IGui;
 import mtr.data.Route;
 import mtr.data.Station;
 import mtr.gui.ClientData;
+import mtr.gui.IDrawing;
 import mtr.item.ItemRailModifier;
 import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.packet.IPacket;
@@ -189,7 +191,13 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
 
-		BlockTactileMap.TileEntityTactileMap.callback = TACTILE_MAP_SOUND_INSTANCE::setPos;
+		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
+		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
+			final Station station = ClientData.getStation(pos);
+			if (station != null) {
+				IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.name)));
+			}
+		};
 
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);

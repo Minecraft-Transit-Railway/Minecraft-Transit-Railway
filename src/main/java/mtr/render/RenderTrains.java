@@ -1,6 +1,5 @@
 package mtr.render;
 
-import com.mojang.text2speech.Narrator;
 import mtr.MTRClient;
 import mtr.config.Config;
 import mtr.data.IGui;
@@ -194,22 +193,14 @@ public class RenderTrains implements IGui {
 						}
 					}
 
-					final String message = IGui.formatStationName(IGui.mergeStations(messages, " ")).replace("  ", " ");
-					if (!message.isEmpty()) {
-						if (useTTSAnnouncements) {
-							Narrator.getNarrator().say(message, true);
-						}
-						if (showAnnouncementMessages) {
-							player.sendMessage(Text.of(message), false);
-						}
-					}
+					IDrawing.narrateOrAnnounce(IGui.mergeStations(messages, " "));
 				});
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useTTSAnnouncements) {
 				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
-						Narrator.getNarrator().say(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber.replace("", " "), 1, lastStation.name), true);
+						IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
 					}
 				});
 			}

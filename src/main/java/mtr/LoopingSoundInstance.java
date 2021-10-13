@@ -12,10 +12,10 @@ import net.minecraft.util.math.BlockPos;
 
 public class LoopingSoundInstance extends AbstractSoundInstance implements TickableSoundInstance {
 
-	private static final int MAX_DISTANCE = 16;
+	private static final int MAX_DISTANCE = 32;
 
-	protected LoopingSoundInstance(String soundId) {
-		super(new SoundEvent(new Identifier(MTR.MOD_ID, soundId)), SoundCategory.MUSIC);
+	public LoopingSoundInstance(String soundId) {
+		super(new SoundEvent(new Identifier(MTR.MOD_ID, soundId)), SoundCategory.BLOCKS);
 		repeat = true;
 	}
 
@@ -53,7 +53,7 @@ public class LoopingSoundInstance extends AbstractSoundInstance implements Ticka
 					z = pos.getZ();
 
 					final SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-					if (!soundManager.isPlaying(this)) {
+					if (soundManager != null && !soundManager.isPlaying(this)) {
 						soundManager.play(this);
 					}
 				}

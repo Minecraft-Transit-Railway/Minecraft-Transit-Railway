@@ -1,8 +1,10 @@
 package mtr.gui;
 
+import com.mojang.text2speech.Narrator;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -10,9 +12,11 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix3f;
@@ -166,6 +170,21 @@ public interface IDrawing {
 		widget.x = x;
 		widget.y = y;
 		widget.setWidth(widgetWidth);
+	}
+
+	static void narrateOrAnnounce(String message) {
+		String newMessage = IGui.formatStationName(message).replace("  ", " ");
+		if (!newMessage.isEmpty()) {
+			if (Config.useTTSAnnouncements()) {
+				Narrator.getNarrator().say(newMessage, true);
+			}
+			if (Config.showAnnouncementMessages()) {
+				final PlayerEntity player = MinecraftClient.getInstance().player;
+				if (player != null) {
+					player.sendMessage(Text.of(newMessage), false);
+				}
+			}
+		}
 	}
 
 	@FunctionalInterface
