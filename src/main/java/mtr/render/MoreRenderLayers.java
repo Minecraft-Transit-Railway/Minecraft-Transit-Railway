@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class MoreRenderLayers extends RenderLayer {
 
-	private static final Map<Identifier, RenderLayer> LIGHT_CACHE = new HashMap<>();
+	private static final Map<String, RenderLayer> LIGHT_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> INTERIOR_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> INTERIOR_TRANSLUCENT_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> EXTERIOR_CACHE = new HashMap<>();
@@ -20,8 +20,8 @@ public class MoreRenderLayers extends RenderLayer {
 		super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
 	}
 
-	public static RenderLayer getLight(Identifier texture) {
-		return checkCache(texture, () -> getBeaconBeam(texture, true), LIGHT_CACHE);
+	public static RenderLayer getLight(Identifier texture, boolean isTranslucent) {
+		return checkCache(texture.toUnderscoreSeparatedString() + isTranslucent, () -> getBeaconBeam(texture, isTranslucent), LIGHT_CACHE);
 	}
 
 	public static RenderLayer getInterior(Identifier texture) {
@@ -40,7 +40,7 @@ public class MoreRenderLayers extends RenderLayer {
 		return checkCache(texture, () -> getEntityTranslucentCull(texture), EXTERIOR_TRANSLUCENT_CACHE);
 	}
 
-	private static RenderLayer checkCache(Identifier identifier, Supplier<RenderLayer> supplier, Map<Identifier, RenderLayer> cache) {
+	private static <T> RenderLayer checkCache(T identifier, Supplier<RenderLayer> supplier, Map<T, RenderLayer> cache) {
 		if (cache.containsKey(identifier)) {
 			return cache.get(identifier);
 		} else {
