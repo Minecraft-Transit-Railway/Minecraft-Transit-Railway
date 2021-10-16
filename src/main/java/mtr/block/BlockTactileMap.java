@@ -34,8 +34,10 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (world.isClient && TileEntityTactileMap.onUse != null) {
 			TileEntityTactileMap.onUse.accept(pos);
+			return ActionResult.SUCCESS;
+		} else {
+			return ActionResult.CONSUME;
 		}
-		return ActionResult.SUCCESS;
 	}
 
 	@Override
