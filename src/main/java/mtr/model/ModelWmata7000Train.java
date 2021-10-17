@@ -1715,7 +1715,7 @@ private static final int DOOR_MAX = 12;
 					renderOnceFlipped(seat, matrices, vertices, light, 14F, position + 19f);
 					renderOnce(seat, matrices, vertices, light, -14F, position - 19);
 					renderOnce(seat, matrices, vertices, light, 14F, position - 19);
-					renderOnce(path_map, matrices, vertices, light, position);
+					renderMirror(path_map, matrices, vertices, light, position);
 
 					if (frontWindow) {
 						renderOnceFlipped(seat_2, matrices, vertices, light, -15.2F, position - 38);
