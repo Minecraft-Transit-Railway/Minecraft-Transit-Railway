@@ -103,8 +103,8 @@ public class TrainClient extends Train {
 			return;
 		}
 
-		final int trainSpacing = baseTrainType.getSpacing();
-		final int headIndex = getIndex(0, trainSpacing, false);
+		final float trainSpacing = baseTrainType.getSpacing();
+		final int headIndex = getIndex(0, (int) trainSpacing, false);
 		final int stopIndex = path.get(headIndex).stopIndex - 1;
 
 		if (ridingEntities.contains(clientPlayer.getUuid())) {

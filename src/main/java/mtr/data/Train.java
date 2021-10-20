@@ -173,7 +173,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		try {
-			final int trainSpacing = baseTrainType.getSpacing();
+			final float trainSpacing = baseTrainType.getSpacing();
 			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
@@ -190,7 +190,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 				speed = 0;
 
 				if (canDeploy(depot)) {
-					startUp(world, trainCars, trainSpacing, isOppositeRail());
+					startUp(world, trainCars, (int) trainSpacing, isOppositeRail());
 				}
 			} else {
 				oldDoorValue = Math.abs(getDoorValue());
@@ -213,13 +213,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 						if (stopCounter >= dwellTicks) {
 							final boolean isOppositeRail = isOppositeRail();
-							if (!isRailBlocked(getIndex(0, trainSpacing, true) + (isOppositeRail ? 2 : 1))) {
-								startUp(world, trainCars, trainSpacing, isOppositeRail);
+							if (!isRailBlocked(getIndex(0, (int) trainSpacing, true) + (isOppositeRail ? 2 : 1))) {
+								startUp(world, trainCars, (int) trainSpacing, isOppositeRail);
 							}
 						}
 					} else {
 						if (!world.isClient()) {
-							final int checkIndex = getIndex(0, trainSpacing, true) + 1;
+							final int checkIndex = getIndex(0, (int) trainSpacing, true) + 1;
 							if (isRailBlocked(checkIndex)) {
 								nextStoppingIndex = checkIndex - 1;
 							}
@@ -229,7 +229,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						if (stoppingDistance < 0.5F * speed * speed / ACCELERATION) {
 							speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
 						} else {
-							final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
+							final float railSpeed = getRailSpeed(getIndex(0, (int) trainSpacing, false));
 							if (speed < railSpeed) {
 								speed = Math.min(speed + newAcceleration, railSpeed);
 							} else if (speed > railSpeed) {
@@ -251,7 +251,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			if (!path.isEmpty()) {
 				final Vec3d[] positions = new Vec3d[trainCars + 1];
 				for (int i = 0; i <= trainCars; i++) {
-					positions[i] = getRoutePosition(reversed ? trainCars - i : i, trainSpacing);
+					positions[i] = getRoutePosition(reversed ? trainCars - i : i, (int) trainSpacing);
 				}
 
 				handlePositions(world, positions, ticksElapsed, doorValueRaw, oldDoorValue, oldRailProgress);

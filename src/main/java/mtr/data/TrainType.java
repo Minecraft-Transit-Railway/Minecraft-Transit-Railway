@@ -63,14 +63,15 @@ public enum TrainType {
 
 	public final int width;
 	private final int length;
+	public float trainBarriersLength;
 
 	TrainType(int length, int width) {
 		this.length = length;
 		this.width = width;
 	}
 
-	public int getSpacing() {
-		return length + 1;
+	public float getSpacing() {
+		return length + 1 + trainBarriersLength;
 	}
 
 	public static TrainType getOrDefault(String name) {

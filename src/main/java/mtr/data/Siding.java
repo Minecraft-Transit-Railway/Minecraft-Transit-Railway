@@ -240,7 +240,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				trainsToSync.add(train);
 			}
 
-			if (train.closeToDepot(baseTrainType.getSpacing() * trainCars)) {
+			if (train.closeToDepot((int) baseTrainType.getSpacing() * trainCars)) {
 				spawnTrain = false;
 			}
 

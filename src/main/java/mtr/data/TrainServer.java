@@ -253,9 +253,9 @@ public class TrainServer extends Train {
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
 		if (!path.isEmpty()) {
-			final int trainSpacing = baseTrainType.getSpacing();
-			final int headIndex = getIndex(0, trainSpacing, true);
-			final int tailIndex = getIndex(trainCars, trainSpacing, false);
+			final float  trainSpacing = baseTrainType.getSpacing();
+			final int headIndex = getIndex(0, (int) trainSpacing, true);
+			final int tailIndex = getIndex(trainCars, (int) trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 					trainPositions.add(path.get(i).getRailProduct());
