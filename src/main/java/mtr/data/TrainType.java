@@ -28,6 +28,7 @@ public enum TrainType {
 	LIGHT_RAIL_3(22, 2),
 	LIGHT_RAIL_4(22, 2),
 	LIGHT_RAIL_5(22, 2),
+	LONDON_UNDERGROUND_1995(20, 2),
 	R179(19, 2),
 	MINECART(1, 1),
 	BASE_2_2(2, 2),
