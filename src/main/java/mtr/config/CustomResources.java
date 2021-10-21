@@ -85,11 +85,11 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, baseTrainProperties.trainBarrierOption, speedSoundCount, 0.5F, false);
 								customTrains.add(trainId);
 							}));
 						} else {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, baseTrainProperties.trainBarrierOption, speedSoundCount, 0.5F, false);
 							customTrains.add(trainId);
 						}
 					} catch (Exception e) {

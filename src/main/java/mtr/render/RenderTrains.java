@@ -2,10 +2,7 @@ package mtr.render;
 
 import mtr.MTRClient;
 import mtr.config.Config;
-import mtr.data.IGui;
-import mtr.data.RailType;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
@@ -36,6 +33,7 @@ import java.util.stream.Collectors;
 
 public class RenderTrains implements IGui {
 
+	public boolean trainBarrierOption;
 	public static int maxTrainRenderDistance;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
@@ -125,7 +123,13 @@ public class RenderTrains implements IGui {
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
-
+			if (TrainClientRegistry.getTrainProperties(trainId, baseTrainType).trainBarrierOption) {
+				final VertexConsumer vertexConsumerExteriorSide = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "train_barrier")));
+				drawTexture(matrices, vertexConsumerExteriorSide, thisPos2, prevPos3, prevPos4, thisPos1, light);
+				drawTexture(matrices, vertexConsumerExteriorSide, prevPos2, thisPos3, thisPos4, prevPos1, light);
+				drawTexture(matrices, vertexConsumerExteriorSide, thisPos3, prevPos2, prevPos1, thisPos4, light);
+				drawTexture(matrices, vertexConsumerExteriorSide, prevPos3, thisPos2, thisPos1, prevPos4, light);
+			}
 			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);

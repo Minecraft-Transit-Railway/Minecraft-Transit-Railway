@@ -93,6 +93,27 @@ public class TrainClient extends Train {
 
 			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, playerOffset);
 		}
+		if (renderConnectionCallback != null && ridingCar > 0 && TrainClientRegistry.getTrainProperties(trainId, baseTrainType).trainBarrierOption) {
+			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
+			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
+			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
+
+			final float xStart = baseTrainType.width / 1.5F - CONNECTION_X_OFFSET;
+			final float zStart = baseTrainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
+
+			final Vec3d prevPos1 = new Vec3d(xStart + 0.20f, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos2 = new Vec3d(xStart + 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos3 = new Vec3d(-xStart - 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3d prevPos4 = new Vec3d(-xStart - 0.20f, SMALL_OFFSET, zStart).rotateX(prevCarPitch).rotateY(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+
+			final Vec3d thisPos1 = new Vec3d(-xStart - 0.20f, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+			final Vec3d thisPos2 = new Vec3d(-xStart - 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+			final Vec3d thisPos3 = new Vec3d(xStart + 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+			final Vec3d thisPos4 = new Vec3d(xStart + 0.20f, SMALL_OFFSET, -zStart).rotateX(carPitch).rotateY(carYaw).add(newX, newY, newZ);
+
+			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, playerOffset);
+		}
+
 	}
 
 	@Override
@@ -104,7 +125,7 @@ public class TrainClient extends Train {
 		}
 
 		final float trainSpacing = baseTrainType.getSpacing();
-		final int headIndex = getIndex(0, (int) trainSpacing, false);
+		final int headIndex = getIndex(0, trainSpacing, false);
 		final int stopIndex = path.get(headIndex).stopIndex - 1;
 
 		if (ridingEntities.contains(clientPlayer.getUuid())) {
@@ -146,11 +167,12 @@ public class TrainClient extends Train {
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
 			calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean hasGangwayConnection = TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection;
+				final boolean trainBarrierOption = TrainClientRegistry.getTrainProperties(trainId, baseTrainType).trainBarrierOption;
 				final Vec3d movement = new Vec3d(clientPlayer.sidewaysSpeed * ticksElapsed / 4, 0, clientPlayer.forwardSpeed * ticksElapsed / 4).rotateY((float) -Math.toRadians(clientPlayer.yaw) - yaw);
 				clientPercentageX += movement.x / baseTrainType.width;
 				clientPercentageZ += movement.z / realSpacingRender;
 				clientPercentageX = MathHelper.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
-				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
+				clientPercentageZ = MathHelper.clamp(clientPercentageZ, (hasGangwayConnection && trainBarrierOption ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection && trainBarrierOption ? trainCars : currentRidingCar + 0.95F) - 0.01F);
 				final int newRidingCar = (int) Math.floor(clientPercentageZ);
 				if (currentRidingCar == newRidingCar) {
 					moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
