@@ -116,6 +116,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	private final ModelPart window_top_r8;
 	private final ModelPart window_middle_r6;
 	private final ModelPart head_exterior;
+	private final ModelPart small_light_r1;
 	private final ModelPart front_side_right_r1;
 	private final ModelPart front_side_left_r1;
 	private final ModelPart head_exterior_1;
@@ -140,6 +141,17 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	private final ModelPart roof_2_r9;
 	private final ModelPart window_top_r10;
 	private final ModelPart window_middle_r8;
+	private final ModelPart logo;
+	private final ModelPart door_light_on;
+	private final ModelPart light_r1;
+	private final ModelPart door_light_off;
+	private final ModelPart light_r2;
+	private final ModelPart headlights;
+	private final ModelPart light_2_r4;
+	private final ModelPart light_1_r3;
+	private final ModelPart tail_lights;
+	private final ModelPart light_3_r2;
+	private final ModelPart light_2_r5;
 
 	public ModelLondonUnderground1995() {
 		textureWidth = 288;
@@ -787,6 +799,12 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 		head_exterior.setTextureOffset(20, 245).addCuboid(-5.0F, -36.0F, 57.0F, 10.0F, 36.0F, 0.0F, 0.0F, false);
 		head_exterior.setTextureOffset(189, 184).addCuboid(-5.0F, 0.0F, 52.0F, 10.0F, 4.0F, 5.0F, 0.0F, false);
 
+		small_light_r1 = new ModelPart(this);
+		small_light_r1.setPivot(5.0F, -36.0F, 57.0F);
+		head_exterior.addChild(small_light_r1);
+		setRotationAngle(small_light_r1, 0.0F, 0.1745F, 0.0F);
+		small_light_r1.setTextureOffset(0, 189).addCuboid(2.0F, 30.0F, 0.05F, 5.0F, 4.0F, 0.0F, 0.0F, true);
+
 		front_side_right_r1 = new ModelPart(this);
 		front_side_right_r1.setPivot(21.0F, -12.0F, 40.0F);
 		head_exterior.addChild(front_side_right_r1);
@@ -942,6 +960,62 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 		head_exterior_2.addChild(window_middle_r8);
 		setRotationAngle(window_middle_r8, 0.0F, 0.0F, -0.1571F);
 		window_middle_r8.setTextureOffset(70, 64).addCuboid(0.0F, -16.0F, 0.0F, 0.0F, 16.0F, 36.0F, 0.0F, true);
+
+		logo = new ModelPart(this);
+		logo.setPivot(0.0F, 24.0F, 0.0F);
+		logo.setTextureOffset(202, 9).addCuboid(-20.1F, -12.0F, -4.0F, 0.0F, 8.0F, 8.0F, 0.0F, false);
+
+		door_light_on = new ModelPart(this);
+		door_light_on.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r1 = new ModelPart(this);
+		light_r1.setPivot(-14.933F, -29.4388F, 0.0F);
+		door_light_on.addChild(light_r1);
+		setRotationAngle(light_r1, 0.0F, 0.0F, 0.8378F);
+		light_r1.setTextureOffset(3, 0).addCuboid(-1.5F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, 0.0F, false);
+
+		door_light_off = new ModelPart(this);
+		door_light_off.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_r2 = new ModelPart(this);
+		light_r2.setPivot(-14.933F, -29.4388F, 0.0F);
+		door_light_off.addChild(light_r2);
+		setRotationAngle(light_r2, 0.0F, 0.0F, 0.8378F);
+		light_r2.setTextureOffset(3, 3).addCuboid(-1.5F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, 0.0F, false);
+
+		headlights = new ModelPart(this);
+		headlights.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_2_r4 = new ModelPart(this);
+		light_2_r4.setPivot(5.0F, -36.0F, 57.0F);
+		headlights.addChild(light_2_r4);
+		setRotationAngle(light_2_r4, 0.0F, 0.1745F, 0.0F);
+		light_2_r4.setTextureOffset(0, 206).addCuboid(2.0F, 26.0F, 0.1F, 9.0F, 4.0F, 0.0F, 0.0F, true);
+
+		light_1_r3 = new ModelPart(this);
+		light_1_r3.setPivot(-5.0F, -36.0F, 57.0F);
+		headlights.addChild(light_1_r3);
+		setRotationAngle(light_1_r3, 0.0F, -0.1745F, 0.0F);
+		light_1_r3.setTextureOffset(0, 206).addCuboid(-11.0F, 26.0F, 0.1F, 9.0F, 4.0F, 0.0F, 0.0F, false);
+
+		tail_lights = new ModelPart(this);
+		tail_lights.setPivot(0.0F, 24.0F, 0.0F);
+
+
+		light_3_r2 = new ModelPart(this);
+		light_3_r2.setPivot(5.0F, -36.0F, 57.0F);
+		tail_lights.addChild(light_3_r2);
+		setRotationAngle(light_3_r2, 0.0F, 0.1745F, 0.0F);
+		light_3_r2.setTextureOffset(0, 210).addCuboid(2.0F, 26.0F, 0.1F, 9.0F, 4.0F, 0.0F, 0.0F, true);
+
+		light_2_r5 = new ModelPart(this);
+		light_2_r5.setPivot(-5.0F, -36.0F, 57.0F);
+		tail_lights.addChild(light_2_r5);
+		setRotationAngle(light_2_r5, 0.0F, -0.1745F, 0.0F);
+		light_2_r5.setTextureOffset(0, 210).addCuboid(-11.0F, 26.0F, 0.1F, 9.0F, 4.0F, 0.0F, 0.0F, false);
 	}
 
 	private static final int DOOR_MAX = 12;
@@ -992,6 +1066,9 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 				} else {
 					renderMirror(window_exterior, matrices, vertices, light, position);
 				}
+				if (renderDetails && position == 0) {
+					renderMirror(logo, matrices, vertices, light, position);
+				}
 				break;
 		}
 	}
@@ -1004,8 +1081,15 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 
 		final boolean useEnd1 = isIndex(0, position, getDoorPositions());
 		final boolean useEnd2 = isIndex(-1, position, getDoorPositions());
+		final boolean isDoorLight = isIndex(1, position, getDoorPositions());
+		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
+			case LIGHTS:
+				if (isDoorLight && doorOpen && renderDetails) {
+					renderMirror(door_light_on, matrices, vertices, light, position - 48);
+				}
+				break;
 			case INTERIOR:
 				if (!useEnd1) {
 					door_right_part.setPivot(0, 0, -doorRightZ);
@@ -1033,18 +1117,25 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 					door_right_exterior_part.setPivot(0, 0, -doorLeftZ);
 					renderOnceFlipped(door_right_exterior, matrices, vertices, light, position);
 				}
+				if (isDoorLight && !doorOpen && renderDetails) {
+					renderMirror(door_light_off, matrices, vertices, light, position - 48);
+				}
 				break;
 		}
 	}
 
 	@Override
 	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		// TODO headlights and tail lights
+		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
+			renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+		}
 	}
 
 	@Override
 	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		// TODO headlights and tail lights
+		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
+			renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
+		}
 	}
 
 	@Override
