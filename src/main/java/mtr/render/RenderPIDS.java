@@ -1,5 +1,8 @@
 package mtr.render;
 
+import mtr.block.BlockPIDS1;
+import mtr.block.BlockPIDS2;
+import mtr.block.BlockPIDS3;
 import mtr.block.IBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
@@ -86,6 +89,40 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 		}
 
 		try {
+			String tempMsg = "";
+			if(entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
+				tempMsg = ((BlockPIDS1.TileEntityBlockPIDS1) entity).getMessage();
+			}
+
+			if(entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
+				tempMsg = ((BlockPIDS2.TileEntityBlockPIDS2) entity).getMessage();
+			}
+
+			if(entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
+				tempMsg = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
+			}
+			if (!tempMsg.equals("")) {
+				String[] message = tempMsg.split("\\|");
+				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+				int i = 0;
+				for(String msg : message) {
+					matrices.push();
+					matrices.translate(0.5, 0, 0.5);
+					matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
+					matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+					matrices.translate((startX - 8) / 16, -startY / 16 + (i * 16) * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+					matrices.scale(1F / scale, 1F / scale, 1F / scale);
+					final int destinationWidth = textRenderer.getWidth(msg);
+					if (destinationWidth > totalScaledWidth) {
+						matrices.scale(totalScaledWidth / destinationWidth, 1, 1);
+					}
+					textRenderer.draw(matrices, msg, 0, 0, textColor);
+					matrices.pop();
+					i++;
+				}
+				return;
+			}
+
 			final Set<Route.ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 

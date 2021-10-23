@@ -1,13 +1,22 @@
 package mtr.block;
 
 import mtr.MTR;
+import mtr.packet.PacketTrainDataGuiServer;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 public class BlockPIDS3 extends BlockPIDSBase {
 
@@ -19,14 +28,62 @@ public class BlockPIDS3 extends BlockPIDSBase {
 	}
 
 	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			final BlockEntity entity = world.getBlockEntity(pos);
+			if (entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
+				((BlockPIDS3.TileEntityBlockPIDS3) entity).sync();
+				PacketTrainDataGuiServer.openPIDSConfigScreenS2C((ServerPlayerEntity) player, pos);
+			}
+		});
+	}
+
+	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
 		return new TileEntityBlockPIDS3();
 	}
 
-	public static class TileEntityBlockPIDS3 extends BlockEntity {
+	public static class TileEntityBlockPIDS3 extends BlockEntity implements BlockEntityClientSerializable {
 
 		public TileEntityBlockPIDS3() {
 			super(MTR.PIDS_3_TILE_ENTITY);
+		}
+
+		private String message = "";
+		private static final String KEY_MESSAGE = "message";
+
+		@Override
+		public void fromTag(BlockState state, NbtCompound nbtCompound) {
+			super.fromTag(state, nbtCompound);
+			fromClientTag(nbtCompound);
+		}
+
+		@Override
+		public NbtCompound writeNbt(NbtCompound nbtCompound) {
+			super.writeNbt(nbtCompound);
+			toClientTag(nbtCompound);
+			return nbtCompound;
+		}
+
+		@Override
+		public void fromClientTag(NbtCompound nbtCompound) {
+			message = nbtCompound.getString(KEY_MESSAGE);
+		}
+
+		@Override
+		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+			nbtCompound.putString(KEY_MESSAGE, message);
+			return nbtCompound;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+			markDirty();
+			sync();
+		}
+
+		public String getMessage() {
+			return message;
 		}
 	}
 }

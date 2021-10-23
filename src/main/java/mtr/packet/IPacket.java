@@ -9,6 +9,7 @@ public interface IPacket {
 	Identifier PACKET_OPEN_RAILWAY_SIGN_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_railway_sign_screen");
 	Identifier PACKET_OPEN_TICKET_MACHINE_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_ticket_machine_screen");
 	Identifier PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_train_announcer_screen");
+	Identifier PACKET_OPEN_PIDS_CONFIG_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_pids_config_screen");
 	Identifier PACKET_ANNOUNCE = new Identifier(MTR.MOD_ID, "packet_announce");
 
 	Identifier PACKET_CREATE_RAIL = new Identifier(MTR.MOD_ID, "packet_create_rail");
@@ -20,6 +21,7 @@ public interface IPacket {
 	Identifier PACKET_SIGN_TYPES = new Identifier(MTR.MOD_ID, "packet_sign_types");
 	Identifier PACKET_ADD_BALANCE = new Identifier(MTR.MOD_ID, "packet_add_balance");
 	Identifier PACKET_TRAIN_ANNOUNCER = new Identifier(MTR.MOD_ID, "packet_train_announcer");
+	Identifier PACKET_PIDS_UPDATE = new Identifier(MTR.MOD_ID, "packet_pids_update");
 	Identifier PACKET_CHUNK_S2C = new Identifier(MTR.MOD_ID, "packet_chunk_s2c");
 
 	Identifier PACKET_UPDATE_STATION = new Identifier(MTR.MOD_ID, "packet_update_station");
