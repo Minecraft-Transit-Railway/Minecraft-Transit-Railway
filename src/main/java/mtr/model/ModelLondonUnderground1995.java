@@ -980,7 +980,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 		light_r1.setPivot(-14.933F, -29.4388F, 0);
 		door_light_on.addChild(light_r1);
 		setRotationAngle(light_r1, 0, 0, 0.8378F);
-		light_r1.setTextureOffset(3, 0).addCuboid(-1.5F, -1, -1, 1, 1, 2, 0, false);
+		light_r1.setTextureOffset(3, 0).addCuboid(-1, -1, -1, 1, 1, 2, 0, false);
 
 		door_light_off = new ModelMapper(modelPartData);
 		door_light_off.setPivot(0, 24, 0);
@@ -990,7 +990,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 		light_r2.setPivot(-14.933F, -29.4388F, 0);
 		door_light_off.addChild(light_r2);
 		setRotationAngle(light_r2, 0, 0, 0.8378F);
-		light_r2.setTextureOffset(3, 3).addCuboid(-1.5F, -1, -1, 1, 1, 2, 0, false);
+		light_r2.setTextureOffset(3, 3).addCuboid(-1, -1, -1, 1, 1, 2, 0, false);
 
 		headlights = new ModelMapper(modelPartData);
 		headlights.setPivot(0, 24, 0);
@@ -1083,7 +1083,8 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 					renderMirror(window, matrices, vertices, light, position);
 				}
 				if (renderDetails) {
-					renderMirror(isEnd1 || isEnd2 ? seat : seat_wheelchair, matrices, vertices, light, position);
+					renderOnceFlipped(isEnd1 || isEnd2 ? seat : seat_wheelchair, matrices, vertices, light, position + (useHead1 ? 9 : 0));
+					renderOnce(isEnd1 || isEnd2 ? seat : seat_wheelchair, matrices, vertices, light, position - (useHead2 ? 9 : 0));
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
@@ -1114,13 +1115,18 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 
 		final boolean useEnd1 = isIndex(0, position, getDoorPositions());
 		final boolean useEnd2 = isIndex(-1, position, getDoorPositions());
-		final boolean isDoorLight = isIndex(1, position, getDoorPositions());
+		final boolean isDoorLight1 = isIndex(1, position, getDoorPositions());
+		final boolean isDoorLight2 = isIndex(-2, position, getDoorPositions());
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
 		switch (renderStage) {
 			case LIGHTS:
-				if (isDoorLight && doorOpen && renderDetails) {
-					renderMirror(door_light_on, matrices, vertices, light, position - 48);
+				if (doorOpen && renderDetails) {
+					if (isDoorLight1) {
+						renderMirror(door_light_on, matrices, vertices, light, position - 48);
+					} else if (isDoorLight2) {
+						renderMirror(door_light_on, matrices, vertices, light, position + 48);
+					}
 				}
 				break;
 			case INTERIOR:
@@ -1150,8 +1156,12 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 					door_right_exterior_part.setOffset(0, 0, -doorLeftZ);
 					renderOnceFlipped(door_right_exterior, matrices, vertices, light, position);
 				}
-				if (isDoorLight && !doorOpen && renderDetails) {
-					renderMirror(door_light_off, matrices, vertices, light, position - 48);
+				if (!doorOpen && renderDetails) {
+					if (isDoorLight1) {
+						renderMirror(door_light_off, matrices, vertices, light, position - 48);
+					} else if (isDoorLight2) {
+						renderMirror(door_light_off, matrices, vertices, light, position + 48);
+					}
 				}
 				break;
 		}
