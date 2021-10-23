@@ -24,7 +24,7 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	private final TextFieldWidget textFieldMessage;
 	private final Text text = new TranslatableText("gui.mtr.pids_messaage");
 
-	private static final int MAX_MESSAGE_LENGTH = 256;
+	private static final int MAX_MESSAGE_LENGTH = 128;
 
 	public PIDSConfigScreen(BlockPos pos) {
 		super(new LiteralText(""));
@@ -70,7 +70,7 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendPIDSConfigC2S(pos, IGui.formatStationName(textFieldMessage.getText()));
+		PacketTrainDataGuiClient.sendPIDSConfigC2S(pos, textFieldMessage.getText());
 		super.onClose();
 	}
 
