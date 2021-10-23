@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 public class RenderTrains implements IGui {
 
-	public boolean trainBarrierOption;
 	public static int maxTrainRenderDistance;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;

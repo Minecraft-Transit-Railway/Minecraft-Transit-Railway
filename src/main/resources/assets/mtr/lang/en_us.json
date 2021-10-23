@@ -176,6 +176,7 @@
 	"gui.mtr.trains": "Trains",
 	"gui.mtr.trains_per_hour": "Trains Per Hour",
 	"gui.mtr.unlimited_trains": "Unlimited Trains",
+	"gui.mtr.train_barrier_button": "Train Barrier",
 	"gui.mtr.untitled": "Untitled",
 	"gui.mtr.welcome_station": "Welcome to %s Station.",
 	"gui.mtr.welcome_station_cjk": "歡迎光臨%s站。",

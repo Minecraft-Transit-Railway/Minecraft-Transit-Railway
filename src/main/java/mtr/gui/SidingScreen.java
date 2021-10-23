@@ -3,6 +3,7 @@ package mtr.gui;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Siding;
+import mtr.data.TrainType;
 import mtr.model.TrainClientRegistry;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -25,6 +26,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final ButtonWidget buttonSelectTrain;
 	private final DashboardList availableTrainsList;
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
+	private final WidgetBetterCheckbox buttonTrainBarrier;
 	private final TextFieldWidget textFieldMaxTrains;
 
 	private static final Text MAX_TRAINS_TEXT = new TranslatableText("gui.mtr.max_trains");
@@ -42,6 +44,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 			} else if (!checked && textFieldMaxTrains.getText().isEmpty()) {
 				textFieldMaxTrains.setText("1");
 			}
+		});
+		buttonTrainBarrier = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.train_barrier_button"), checked -> {
 		});
 	}
 
@@ -142,9 +146,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	}
 
 	private void onSelectingTrain() {
+
+		IDrawing.setPositionAndWidth(buttonTrainBarrier, startX, height / 2, SLIDER_WIDTH);
 		final List<DataConverter> trainList = new ArrayList<>();
 		TrainClientRegistry.forEach((id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
+		addButton(buttonTrainBarrier);
 		setIsSelectingTrain(true);
 	}
 
@@ -161,4 +168,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(index), TrainClientRegistry.getTrainProperties(index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
 		setIsSelectingTrain(false);
 	}
-}
+	//private void onAddTrainBarriers(String trainId, TrainType baseTrainType) {
+		//savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainProperties(trainId, baseTrainType).trainBarrierOption, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+	}
+
