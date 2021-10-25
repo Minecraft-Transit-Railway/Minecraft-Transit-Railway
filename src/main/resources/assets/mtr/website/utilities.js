@@ -4,22 +4,24 @@ const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
 const getColorStyle = style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16);
 
 {
-	const scaleUpperLimit = 64;
-	const scaleLowerLimit = 1 / 128;
-	const dragThreshold = 10;
-	const steps = 50;
+	var scaleUpperLimit = 64;
+	var scaleLowerLimit = 1 / 128;
+	var dragThreshold = 10;
+	var steps = 50;
 
-	let scale = 1;
-	let dragging = false;
-	let dragCounter = 0;
-	let mouseClickX = 0;
-	let mouseClickY = 0;
+	var scale = 1;
+	var textCache = {};
 
-	let step = 0;
-	let startX = 0;
-	let startY = 0;
-	let targetX = undefined;
-	let targetY = undefined;
+	var dragging = false;
+	var dragCounter = 0;
+	var mouseClickX = 0;
+	var mouseClickY = 0;
+
+	var step = 0;
+	var startX = 0;
+	var startY = 0;
+	var targetX = undefined;
+	var targetY = undefined;
 
 	function convertX(x) {
 		return Math.floor((x + window.innerWidth / 2) * scale / LINE_SIZE) * LINE_SIZE;
@@ -83,7 +85,7 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 	}
 
 	function update(delta, container) {
-		if (targetX !== undefined && targetY !== undefined) {
+		if (typeof targetX !== "undefined" && typeof targetY !== "undefined") {
 			step += delta;
 			const speed = step >= steps / 2 ? 4 - 4 * step / steps : 4 * step / steps;
 			container.x += speed * (targetX - startX) / steps;
@@ -99,7 +101,7 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 }
 
 {
-	const textCache = {};
+
 
 	function drawText(textArray, text, x, y) {
 		const textSplit = text.split("|");
@@ -108,7 +110,7 @@ const getColorStyle = style => parseInt(getComputedStyle(document.body).getPrope
 			const textPart = textSplit[index];
 			const isTextCJK = isCJK(textPart);
 
-			if (textCache[textPart] === undefined) {
+			if (typeof textCache[textPart] === "undefined") {
 				const richText = new PIXI.Text(textPart, {
 					fontFamily: getComputedStyle(document.body).fontFamily,
 					fontSize: (isTextCJK ? 3 : 1.5) * LINE_SIZE,

@@ -1,4 +1,5 @@
 {
+
 	let graphicsRoutesLayer1 = [];
 	let graphicsRoutesLayer2 = [];
 	let graphicsStationsLayer1 = [];
@@ -90,7 +91,7 @@
 		}
 	};
 
-	function drawMap(container, data) {
+	var drawMap = function (container, data) {
 		const getStationElement = (color, name, id) => {
 			const element = document.createElement("div");
 			element.setAttribute("id", id);

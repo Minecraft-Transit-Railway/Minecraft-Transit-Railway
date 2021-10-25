@@ -13,67 +13,75 @@ let dimension = 0; // TODO other dimensions
 let selectedColor = -1;
 let selectedStation = 0;
 
-window.onload = () => {
-	const app = new PIXI.Application({autoResize: true, antialias: true});
-	const searchBoxElement = document.getElementById("search_box");
+(function() {
+    window.onload = () => {
 
-	let json;
-	let refreshDataId = 0;
+        const isSafari = window.safari !== undefined;
+        if(isSafari){
+            PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL;
+        }
 
-	searchBoxElement.onchange = () => onSearch(json[dimension]);
-	searchBoxElement.onpaste = () => onSearch(json[dimension]);
-	searchBoxElement.oninput = () => onSearch(json[dimension]);
+        const app = new PIXI.Application({autoResize: true, antialias: true});
+        const searchBoxElement = document.getElementById("search_box");
 
-	document.getElementById("zoom_in_icon").onclick = () => {
-		onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
-		drawMap(container, json[dimension]);
-	};
-	document.getElementById("zoom_out_icon").onclick = () => {
-		onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
-		drawMap(container, json[dimension]);
-	};
-	document.getElementById("clear_search_icon").onclick = () => onClearSearch(json[dimension], true);
+        let json;
+        let refreshDataId = 0;
 
-	window.addEventListener("resize", resize);
-	const background = new PIXI.Sprite(PIXI.Texture.WHITE);
-	resize();
+        searchBoxElement.onchange = () => onSearch(json[dimension]);
+        searchBoxElement.onpaste = () => onSearch(json[dimension]);
+        searchBoxElement.oninput = () => onSearch(json[dimension]);
 
-	background.tint = getColorStyle("--backgroundColor");
-	background.interactive = true;
-	background.on("pointerdown", onCanvasMouseDown);
-	background.on("pointermove", event => onCanvasMouseMove(event, container));
-	background.on("pointerup", onCanvasMouseUp);
-	app.stage.addChild(background);
+        document.getElementById("zoom_in_icon").onclick = () => {
+            onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
+            drawMap(container, json[dimension]);
+        };
+        document.getElementById("zoom_out_icon").onclick = () => {
+            onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
+            drawMap(container, json[dimension]);
+        };
+        document.getElementById("clear_search_icon").onclick = () => onClearSearch(json[dimension], true);
 
-	const container = new PIXI.Container();
-	app.stage.addChild(container);
+        window.addEventListener("resize", resize);
+        const background = new PIXI.Sprite(PIXI.Texture.WHITE);
+        resize();
 
-	document.body.appendChild(app.view);
-	app.view.addEventListener("wheel", event => {
-		onCanvasScroll(event, container);
-		drawMap(container, json[dimension]);
-	});
-	app.ticker.add(delta => update(delta, container));
+        background.tint = getColorStyle("--backgroundColor");
+        background.interactive = true;
+        background.on("pointerdown", onCanvasMouseDown);
+        background.on("pointermove", event => onCanvasMouseMove(event, container));
+        background.on("pointerup", onCanvasMouseUp);
+        app.stage.addChild(background);
 
-	fetchMainData();
+        const container = new PIXI.Container();
+        app.stage.addChild(container);
 
-	function fetchMainData() {
-		clearTimeout(refreshDataId);
-		fetch(DATA_URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
-			json = result;
-			drawMap(container, json[dimension]);
-			refreshDataId = setTimeout(fetchMainData, REFRESH_DATA_INTERVAL);
-		});
-	}
+        document.body.appendChild(app.view);
+        app.view.addEventListener("wheel", event => {
+            onCanvasScroll(event, container);
+            drawMap(container, json[dimension]);
+        });
+        app.ticker.add(delta => update(delta, container));
 
-	function resize() {
-		app.renderer.resize(window.innerWidth, window.innerHeight);
-		background.width = app.screen.width;
-		background.height = app.screen.height;
-		document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
-		document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
-	}
-}
+        fetchMainData();
+
+        function fetchMainData() {
+            clearTimeout(refreshDataId);
+            fetch(DATA_URL, {cache: "no-cache"}).then(response => response.json()).then(result => {
+                json = result;
+                drawMap(container, json[dimension]);
+                refreshDataId = setTimeout(fetchMainData, REFRESH_DATA_INTERVAL);
+            });
+        }
+
+        function resize() {
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            background.width = app.screen.width;
+            background.height = app.screen.height;
+            document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
+            document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
+        }
+    }
+})();
 
 function onSearch(data) {
 	const searchBox = document.getElementById("search_box");
