@@ -102,7 +102,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				customMessage = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
 			}
 
-			if (!customMessage.equals("")) {
+			if (!customMessage.isEmpty()) {
 				String[] messages = customMessage.split("\\|");
 				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 				int i = 0;

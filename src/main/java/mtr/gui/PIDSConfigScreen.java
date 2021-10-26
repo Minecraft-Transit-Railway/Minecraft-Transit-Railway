@@ -22,9 +22,9 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	private final BlockPos pos;
 	private final String initialMessage;
 	private final TextFieldWidget textFieldMessage;
-	private final Text text = new TranslatableText("gui.mtr.pids_messaage");
+	private final Text text = new TranslatableText("gui.mtr.pids_message");
 
-	private static final int MAX_MESSAGE_LENGTH = 128;
+	private static final int MAX_MESSAGE_LENGTH = 256;
 
 	public PIDSConfigScreen(BlockPos pos) {
 		super(new LiteralText(""));
@@ -36,19 +36,15 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 		final World world = client.world;
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(pos);
-			String msg = "";
 			if(entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
-				msg = ((BlockPIDS1.TileEntityBlockPIDS1) entity).getMessage();
+				initialMessage = ((BlockPIDS1.TileEntityBlockPIDS1) entity).getMessage();
+			} else if (entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
+				initialMessage = ((BlockPIDS2.TileEntityBlockPIDS2) entity).getMessage();
+			} else if (entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
+				initialMessage = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
+			} else {
+				initialMessage = "";
 			}
-
-			if(entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
-				msg = ((BlockPIDS2.TileEntityBlockPIDS2) entity).getMessage();
-			}
-
-			if(entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
-				msg = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
-			}
-			initialMessage = msg;
 		} else {
 			initialMessage = "";
 		}
