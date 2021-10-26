@@ -1,0 +1,40 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"map": "mtr:block/tactile_map",
+		"particle": "mtr:block/metal"
+	},
+	"elements": [
+		{
+			"from": [ 0, 3, 2 ],
+			"to": [ 16, 4, 14 ],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [ 8, 3.5, 8 ]},
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle", "cullface": "east" },
+				"west": { "texture": "#particle", "cullface": "west" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		},
+		{
+			"from": [ 1, 4.05, 3 ],
+			"to": [ 15, 4.05, 13 ],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [ 8, 3.5, 8 ]},
+			"faces": {
+				"up": { "texture": "#map" }
+			}
+		},
+		{
+			"from": [ 6, 0, 7 ],
+			"to": [ 10, 3.5, 9 ],
+			"faces": {
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		}
+	]
+}

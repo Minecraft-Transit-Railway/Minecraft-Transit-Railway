@@ -1,15 +1,12 @@
 package mtr.packet;
 
-import com.mojang.text2speech.Narrator;
 import io.netty.buffer.ByteBuf;
-import mtr.config.Config;
 import mtr.data.*;
 import mtr.gui.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -71,14 +68,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void announceS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final String message = packet.readString();
-		minecraftClient.execute(() -> {
-			if (Config.useTTSAnnouncements()) {
-				Narrator.getNarrator().say(message, true);
-			}
-			if (Config.showAnnouncementMessages() && minecraftClient.player != null) {
-				minecraftClient.player.sendMessage(Text.of(message), false);
-			}
-		});
+		minecraftClient.execute(() -> IDrawing.narrateOrAnnounce(message));
 	}
 
 	public static void createRailS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {

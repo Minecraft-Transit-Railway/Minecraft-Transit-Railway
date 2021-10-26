@@ -15,6 +15,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart handrail_1_r1;
 	private final ModelPart seat_7;
 	private final ModelPart seat_back_r1;
+	private final ModelPart seat_bottom_r1;
 	private final ModelPart seat_8;
 	private final ModelPart seat_back_r2;
 	private final ModelPart door;
@@ -62,14 +63,18 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart upper_wall_1_r1;
 	private final ModelPart seat_1;
 	private final ModelPart seat_back_r3;
+	private final ModelPart seat_bottom_r2;
 	private final ModelPart seat_2;
 	private final ModelPart seat_back_r4;
+	private final ModelPart seat_bottom_r3;
 	private final ModelPart seat_3;
 	private final ModelPart seat_back_r5;
 	private final ModelPart seat_4;
 	private final ModelPart seat_back_r6;
+	private final ModelPart seat_bottom_r4;
 	private final ModelPart seat_5;
 	private final ModelPart seat_back_r7;
+	private final ModelPart seat_bottom_r5;
 	private final ModelPart seat_6;
 	private final ModelPart seat_back_r8;
 	private final ModelPart end_exterior;
@@ -214,13 +219,19 @@ public class ModelE44 extends ModelTrainBase {
 		seat_7 = new ModelPart(this);
 		seat_7.setPivot(0, 0, 0);
 		window_handrails.addChild(seat_7);
-		seat_7.setTextureOffset(0, 85).addCuboid(-18, -6, -14.5F, 12, 1, 7, 0, false);
+
 
 		seat_back_r1 = new ModelPart(this);
 		seat_back_r1.setPivot(0, -6, -13.5F);
 		seat_7.addChild(seat_back_r1);
-		setRotationAngle(seat_back_r1, 0.0524F, 0, 0);
-		seat_back_r1.setTextureOffset(53, 138).addCuboid(-18, -8, -1, 12, 8, 1, 0, false);
+		setRotationAngle(seat_back_r1, -0.0524F, 3.1416F, 0);
+		seat_back_r1.setTextureOffset(53, 138).addCuboid(6, -8, 0, 12, 8, 1, 0, false);
+
+		seat_bottom_r1 = new ModelPart(this);
+		seat_bottom_r1.setPivot(0, 0, 8);
+		seat_7.addChild(seat_bottom_r1);
+		setRotationAngle(seat_bottom_r1, 0, 3.1416F, 0);
+		seat_bottom_r1.setTextureOffset(0, 85).addCuboid(6, -6, 15.5F, 12, 1, 7, 0, false);
 
 		seat_8 = new ModelPart(this);
 		seat_8.setPivot(-24, 0, 2);
@@ -483,24 +494,36 @@ public class ModelE44 extends ModelTrainBase {
 		seat_1 = new ModelPart(this);
 		seat_1.setPivot(0, 0, 0);
 		end.addChild(seat_1);
-		seat_1.setTextureOffset(0, 85).addCuboid(6, -6, -23, 12, 1, 7, 0, false);
+
 
 		seat_back_r3 = new ModelPart(this);
 		seat_back_r3.setPivot(0, -6, -22);
 		seat_1.addChild(seat_back_r3);
-		setRotationAngle(seat_back_r3, 0.0524F, 0, 0);
-		seat_back_r3.setTextureOffset(53, 138).addCuboid(6, -8, -1, 12, 8, 1, 0, false);
+		setRotationAngle(seat_back_r3, -0.0524F, 3.1416F, 0);
+		seat_back_r3.setTextureOffset(53, 138).addCuboid(6, -8, 0, 12, 8, 1, 0, false);
+
+		seat_bottom_r2 = new ModelPart(this);
+		seat_bottom_r2.setPivot(0, 0, 0);
+		seat_1.addChild(seat_bottom_r2);
+		setRotationAngle(seat_bottom_r2, 0, 3.1416F, 0);
+		seat_bottom_r2.setTextureOffset(0, 85).addCuboid(-18, -6, 16, 12, 1, 7, 0, false);
 
 		seat_2 = new ModelPart(this);
 		seat_2.setPivot(0, 0, 0);
 		end.addChild(seat_2);
-		seat_2.setTextureOffset(0, 85).addCuboid(6, -6, -11, 12, 1, 7, 0, false);
+
 
 		seat_back_r4 = new ModelPart(this);
 		seat_back_r4.setPivot(0, -6, -10);
 		seat_2.addChild(seat_back_r4);
-		setRotationAngle(seat_back_r4, 0.0524F, 0, 0);
-		seat_back_r4.setTextureOffset(53, 138).addCuboid(6, -8, -1, 12, 8, 1, 0, false);
+		setRotationAngle(seat_back_r4, -0.0524F, 3.1416F, 0);
+		seat_back_r4.setTextureOffset(53, 138).addCuboid(6, -8, 0, 12, 8, 1, 0, false);
+
+		seat_bottom_r3 = new ModelPart(this);
+		seat_bottom_r3.setPivot(0, 0, 0);
+		seat_2.addChild(seat_bottom_r3);
+		setRotationAngle(seat_bottom_r3, 0, 3.1416F, 0);
+		seat_bottom_r3.setTextureOffset(0, 85).addCuboid(-18, -6, 4, 12, 1, 7, 0, false);
 
 		seat_3 = new ModelPart(this);
 		seat_3.setPivot(0, 0, 0);
@@ -516,24 +539,36 @@ public class ModelE44 extends ModelTrainBase {
 		seat_4 = new ModelPart(this);
 		seat_4.setPivot(0, 0, 0);
 		end.addChild(seat_4);
-		seat_4.setTextureOffset(0, 85).addCuboid(-18, -6, -23, 12, 1, 7, 0, true);
+
 
 		seat_back_r6 = new ModelPart(this);
 		seat_back_r6.setPivot(0, -6, -22);
 		seat_4.addChild(seat_back_r6);
-		setRotationAngle(seat_back_r6, 0.0524F, 0, 0);
-		seat_back_r6.setTextureOffset(53, 138).addCuboid(-18, -8, -1, 12, 8, 1, 0, true);
+		setRotationAngle(seat_back_r6, -0.0524F, 3.1416F, 0);
+		seat_back_r6.setTextureOffset(53, 138).addCuboid(-18, -8, 0, 12, 8, 1, 0, true);
+
+		seat_bottom_r4 = new ModelPart(this);
+		seat_bottom_r4.setPivot(0, 0, 0);
+		seat_4.addChild(seat_bottom_r4);
+		setRotationAngle(seat_bottom_r4, 0, 3.1416F, 0);
+		seat_bottom_r4.setTextureOffset(0, 85).addCuboid(6, -6, 16, 12, 1, 7, 0, true);
 
 		seat_5 = new ModelPart(this);
 		seat_5.setPivot(0, 0, 0);
 		end.addChild(seat_5);
-		seat_5.setTextureOffset(0, 85).addCuboid(-18, -6, -11, 12, 1, 7, 0, true);
+
 
 		seat_back_r7 = new ModelPart(this);
 		seat_back_r7.setPivot(0, -6, -10);
 		seat_5.addChild(seat_back_r7);
-		setRotationAngle(seat_back_r7, 0.0524F, 0, 0);
-		seat_back_r7.setTextureOffset(53, 138).addCuboid(-18, -8, -1, 12, 8, 1, 0, true);
+		setRotationAngle(seat_back_r7, -0.0524F, 3.1416F, 0);
+		seat_back_r7.setTextureOffset(53, 138).addCuboid(-18, -8, 0, 12, 8, 1, 0, true);
+
+		seat_bottom_r5 = new ModelPart(this);
+		seat_bottom_r5.setPivot(0, 0, 0);
+		seat_5.addChild(seat_bottom_r5);
+		setRotationAngle(seat_bottom_r5, 0, 3.1416F, 0);
+		seat_bottom_r5.setTextureOffset(0, 85).addCuboid(6, -6, 4, 12, 1, 7, 0, true);
 
 		seat_6 = new ModelPart(this);
 		seat_6.setPivot(0, 0, 0);

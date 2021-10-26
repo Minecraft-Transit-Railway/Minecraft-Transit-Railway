@@ -3,7 +3,6 @@ package mtr.data;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainSensor;
-import mtr.config.CustomResources;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -14,7 +13,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -36,8 +34,8 @@ public class TrainServer extends Train {
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
-	public TrainServer(long id, long sidingId, float railLength, CustomResources.TrainMapping trainMapping, int trainLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments) {
-		super(id, sidingId, railLength, trainMapping, trainLength, path, distances);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances);
 		this.timeSegments = timeSegments;
 	}
 
@@ -47,13 +45,13 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void startUp(World world, int trainLength, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(World world, int trainCars, int trainSpacing, boolean isOppositeRail) {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
 		speed = ACCELERATION;
 		if (isOppositeRail) {
-			railProgress += trainLength * trainSpacing;
+			railProgress += trainCars * trainSpacing;
 			reversed = !reversed;
 		}
 		nextStoppingIndex = getNextStoppingIndex();
@@ -67,21 +65,10 @@ public class TrainServer extends Train {
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
 			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
 	) {
-		final TrainRegistry.TrainType trainType = trainMapping.trainType;
-		final float doorValue = Math.abs(doorValueRaw);
-		final float halfSpacing = trainType.getSpacing() / 2F;
-		final float halfWidth = trainType.width / 2F;
-
-		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
-		trainType.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
+		final float halfSpacing = baseTrainType.getSpacing() / 2F;
+		final float halfWidth = baseTrainType.width / 2F;
 
 		if (doorLeftOpen || doorRightOpen) {
-			if (oldDoorValue <= 0 && doorValue > 0 && trainType.doorOpenSoundEvent != null) {
-				world.playSound(null, soundPos, trainType.doorOpenSoundEvent, SoundCategory.BLOCKS, 1, 1);
-			} else if (oldDoorValue >= trainType.doorCloseSoundTime && doorValue < trainType.doorCloseSoundTime && trainType.doorCloseSoundEvent != null) {
-				world.playSound(null, soundPos, trainType.doorCloseSoundEvent, SoundCategory.BLOCKS, 1, 1);
-			}
-
 			final float margin = halfSpacing + BOX_PADDING;
 			world.getEntitiesByClass(PlayerEntity.class, new Box(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUuid())).forEach(player -> {
 				final Vec3d positionRotated = player.getPos().subtract(carX, carY, carZ).rotateY(-carYaw).rotateX(-carPitch);
@@ -89,7 +76,7 @@ public class TrainServer extends Train {
 					ridingEntities.add(player.getUuid());
 					final PacketByteBuf packet = PacketByteBufs.create();
 					packet.writeLong(id);
-					packet.writeFloat((float) (positionRotated.x / trainType.width + 0.5));
+					packet.writeFloat((float) (positionRotated.x / baseTrainType.width + 0.5));
 					packet.writeFloat((float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
 					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
 				}
@@ -252,7 +239,7 @@ public class TrainServer extends Train {
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainMapping.trainType, trainLength, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
+					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
 				}
 
 				if (i == timeSegments.size() - 1) {
@@ -266,9 +253,9 @@ public class TrainServer extends Train {
 
 	public void writeTrainPositions(Set<UUID> trainPositions) {
 		if (!path.isEmpty()) {
-			final int trainSpacing = trainMapping.trainType.getSpacing();
+			final int trainSpacing = baseTrainType.getSpacing();
 			final int headIndex = getIndex(0, trainSpacing, true);
-			final int tailIndex = getIndex(trainLength, trainSpacing, false);
+			final int tailIndex = getIndex(trainCars, trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 					trainPositions.add(path.get(i).getRailProduct());

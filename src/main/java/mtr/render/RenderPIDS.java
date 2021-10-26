@@ -126,16 +126,21 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			} else {
 				final Set<Route.ScheduleEntry> schedules;
 				final Map<Long, String> platformIdToName = new HashMap<>();
+			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+			Collections.sort(scheduleList);
 
-				if (showAllPlatforms) {
-					final Station station = ClientData.getStation(pos);
-					if (station == null) {
-						return;
+			final boolean showCarLength;
+			final float carLengthMaxWidth;
+			if (!showAllPlatforms) {
+				int maxCars = 0;
+				int minCars = Integer.MAX_VALUE;
+				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
+					final int trainCars = scheduleEntry.trainCars;
+					if (trainCars > maxCars) {
+						maxCars = trainCars;
 					}
-
-					final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
-					if (platforms.isEmpty()) {
-						return;
+					if (trainCars < minCars) {
+						minCars = trainCars;
 					}
 
 					schedules = new HashSet<>();

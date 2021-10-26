@@ -4,7 +4,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class ModelR179Train extends ModelTrainBase {
+public class ModelR179 extends ModelTrainBase {
 
 	private final ModelPart window;
 	private final ModelPart wall_1_r1;
@@ -223,7 +223,7 @@ public class ModelR179Train extends ModelTrainBase {
 	private final ModelPart door_light_off;
 	private final ModelPart light_r2;
 
-	public ModelR179Train() {
+	public ModelR179() {
 		textureWidth = 368;
 		textureHeight = 368;
 		window = new ModelPart(this);
