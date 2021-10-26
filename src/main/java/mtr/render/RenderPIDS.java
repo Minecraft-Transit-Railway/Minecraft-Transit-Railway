@@ -90,15 +90,15 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 
 		try {
 			String customMessage = "";
-			if(entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
+			if (entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
 				customMessage = ((BlockPIDS1.TileEntityBlockPIDS1) entity).getMessage();
 			}
 
-			if(entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
+			if (entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
 				customMessage = ((BlockPIDS2.TileEntityBlockPIDS2) entity).getMessage();
 			}
 
-			if(entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
+			if (entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
 				customMessage = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
 			}
 
@@ -106,8 +106,8 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 				String[] messages = customMessage.split("\\|");
 				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 				int i = 0;
-				for(String msg : messages) {
-					if(i > maxArrivals - 1) return;
+				for (String msg : messages) {
+					if (i > maxArrivals - 1) return;
 					matrices.push();
 					matrices.translate(0.5, 0, 0.5);
 					matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
@@ -171,12 +171,12 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					int maxCars = 0;
 					int minCars = Integer.MAX_VALUE;
 					for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
-						final int trainLength = scheduleEntry.trainLength;
-						if (trainLength > maxCars) {
-							maxCars = trainLength;
+						final int trainCars = scheduleEntry.trainCars;
+						if (trainCars > maxCars) {
+							maxCars = trainCars;
 						}
-						if (trainLength < minCars) {
-							minCars = trainLength;
+						if (trainCars < minCars) {
+							minCars = trainCars;
 						}
 					}
 					showCarLength = minCars != maxCars;
@@ -200,7 +200,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					} else {
 						arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 					}
-					final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainLength);
+					final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 
 					matrices.push();
 					matrices.translate(0.5, 0, 0.5);
