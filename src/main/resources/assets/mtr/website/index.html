@@ -12,9 +12,9 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<script src="https://pixijs.download/release/pixi.js"></script>
-	<script src="index.js"></script>
-	<script src="drawing.js"></script>
-	<script src="utilities.js"></script>
+	<script type="module" src="index.js"></script>
+	<script type="module" src="drawing.js"></script>
+	<script type="module" src="utilities.js"></script>
 </head>
 <body>
 <div id="search" class="box">
@@ -32,7 +32,7 @@
 		<div id="station_info_top">
 			<span class="material-icons right_align" style="opacity: 0">clear</span>
 			<div id="station_name" class="text"></div>
-			<span class="material-icons clickable_icon right_align" onclick="onClearStationInfo()">clear</span>
+			<span id="clear_station_info_button" class="material-icons clickable_icon right_align">clear</span>
 		</div>
 		<div id="station_line"></div>
 		<div id="station_routes"></div>
