@@ -299,6 +299,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		LOGO("logo", false, false),
 		EXIT_LETTER("exit_letter", true, false, true),
 		EXIT_LETTER_FLIPPED("exit_letter", true, true, true),
+		ESCALATOR_TO_CONCOURSE_UP("escalator", "escalator_to_concourse_up", true, true, false, true, 0),
+		ESCALATOR_TO_CONCOURSE_UP_FLIPPED("escalator", "escalator_to_concourse_up", true, false, true, true, 0),
+		ESCALATOR_TO_CONCOURSE_DOWN("escalator", "escalator_to_concourse_down", true, false, false, true, 0),
+		ESCALATOR_TO_CONCOURSE_DOWN_FLIPPED("escalator", "escalator_to_concourse_down", true, true, true, true, 0),
 		PLATFORM("platform", true, false, true),
 		PLATFORM_FLIPPED("platform", true, true, true),
 		LINE("line", true, false, true),
@@ -378,8 +382,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			this(texture, translation, small, false, flipTexture, hasCustomText, 0);
 		}
 
-		SignType(String texture, boolean small, boolean flipTexture, boolean hasCustomText) {
-			this(texture, texture, small, false, flipTexture, hasCustomText, 0);
+		SignType(String texture, boolean small, boolean flipCustomText, boolean hasCustomText) {
+			this(texture, texture, small, false, flipCustomText, hasCustomText, 0);
 		}
 
 		SignType(String texture, boolean small, boolean flipTexture) {
