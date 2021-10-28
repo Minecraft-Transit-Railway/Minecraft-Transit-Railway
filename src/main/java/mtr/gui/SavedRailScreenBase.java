@@ -58,6 +58,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	@Override
 	public void tick() {
 		textFieldSavedRailNumber.tick();
+		textFieldSavedRailNumber.x = shouldRenderExtra() ? width * 2 : startX + textWidth + TEXT_FIELD_PADDING / 2;
 	}
 
 	@Override

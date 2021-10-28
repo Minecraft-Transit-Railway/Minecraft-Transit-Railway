@@ -75,6 +75,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	private final ModelMapper light_2_r3;
 	private final ModelMapper light_1_r2;
 	private final ModelMapper side_panel;
+	private final ModelMapper side_panel_r1;
 	private final ModelMapper end;
 	private final ModelMapper end_1;
 	private final ModelMapper roof_2_r5;
@@ -537,7 +538,13 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
-		side_panel.setTextureOffset(168, 252).addCuboid(-15, -34, 0, 8, 28, 0, 0, false);
+
+
+		side_panel_r1 = new ModelMapper(modelPartData);
+		side_panel_r1.setPivot(-8, -6, 0);
+		side_panel.addChild(side_panel_r1);
+		setRotationAngle(side_panel_r1, 0, 0, -0.0349F);
+		side_panel_r1.setTextureOffset(168, 252).addCuboid(-8, -28, 0, 8, 28, 0, 0, false);
 
 		end = new ModelMapper(modelPartData);
 		end.setPivot(0, 24, 0);
@@ -1040,6 +1047,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 		window_light.setModelPart(modelPart);
 		window_light_end.setModelPart(modelPart);
 		window_light_head.setModelPart(modelPart);
+		side_panel.setModelPart(modelPart);
 		end.setModelPart(modelPart);
 		end_exterior.setModelPart(modelPart);
 		head.setModelPart(modelPart);
@@ -1054,7 +1062,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	private static final int DOOR_MAX = 12;
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean isEnd1 = isIndex(0, position, getWindowPositions());
 		final boolean isEnd2 = isIndex(-1, position, getWindowPositions());
 		final boolean useHead1 = isEnd1Head && isEnd1;
@@ -1088,7 +1096,14 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				// TODO side panel
+				if (isEnd1 || isEnd2) {
+					if (!useHead1) {
+						renderMirror(side_panel, matrices, vertices, light, position - 31.5F);
+					}
+					if (!useHead2) {
+						renderMirror(side_panel, matrices, vertices, light, position + 31.5F);
+					}
+				}
 				break;
 			case EXTERIOR:
 				if (useHead1) {
@@ -1168,21 +1183,21 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
 			renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 		}
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		if (renderStage == RenderStage.ALWAYS_ON_LIGHTS) {
 			renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position);
 		}
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(window_light_end, matrices, vertices, light, position);
@@ -1197,7 +1212,7 @@ public class ModelLondonUnderground1995 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(window_light_end, matrices, vertices, light, position);

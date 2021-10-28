@@ -110,6 +110,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		switch (key) {
 			case KEY_BASE_TRAIN_TYPE:
 				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+				trains.clear();
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readString(PACKET_STRING_READ_LENGTH);
@@ -262,7 +263,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			}
 		}
 
-		if (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains)) {
+		if (trainCars > 0 && (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains))) {
 			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, timeSegments);
 			trains.add(train);
 		}

@@ -1592,7 +1592,7 @@ public class ModelR179 extends ModelTrainBase {
 	private static final int DOOR_MAX = 12;
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean frontWindow = isIndex(0, position, getWindowPositions());
 		final boolean endWindow = isIndex(-1, position, getWindowPositions());
 
@@ -1666,7 +1666,7 @@ public class ModelR179 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_head_light, matrices, vertices, light, position);
@@ -1688,7 +1688,7 @@ public class ModelR179 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_head_light, matrices, vertices, light, position);
@@ -1709,7 +1709,7 @@ public class ModelR179 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
@@ -1731,7 +1731,7 @@ public class ModelR179 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);

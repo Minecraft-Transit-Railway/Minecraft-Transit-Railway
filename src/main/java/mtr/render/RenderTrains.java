@@ -2,10 +2,7 @@ package mtr.render;
 
 import mtr.MTRClient;
 import mtr.config.Config;
-import mtr.data.IGui;
-import mtr.data.RailType;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
@@ -80,8 +77,11 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 		final boolean secondF5 = Math.abs(player.getYaw() - client.gameRenderer.getCamera().getYaw()) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+			if (trainProperties.model == null && isTranslucent) {
+				return;
+			}
 
 			matrices.push();
 			if (playerOffset == null) {
@@ -101,7 +101,7 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
@@ -205,6 +205,7 @@ public class RenderTrains implements IGui {
 				});
 			}
 		}));
+		ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemRailModifier);

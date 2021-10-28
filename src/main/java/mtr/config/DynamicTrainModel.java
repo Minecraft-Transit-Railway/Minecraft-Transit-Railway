@@ -82,7 +82,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 	}
 
 	@Override
@@ -96,33 +96,33 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
-			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		} else {
-			renderParts("parts_head_1_tail_lights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_1_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		}
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
-			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		} else {
-			renderParts("parts_head_2_tail_lights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_2_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		}
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
-		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
-		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
 	@Override
