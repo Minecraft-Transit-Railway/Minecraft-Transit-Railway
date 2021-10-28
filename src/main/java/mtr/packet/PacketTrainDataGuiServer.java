@@ -1,6 +1,9 @@
 package mtr.packet;
 
-import mtr.block.*;
+import mtr.block.BlockPIDSBase;
+import mtr.block.BlockRailwaySign;
+import mtr.block.BlockRouteSignBase;
+import mtr.block.BlockTrainAnnouncer;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,9 +53,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
 	}
 
-	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
 		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeBlockPos(blockPos);
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		packet.writeInt(maxArrivals);
 		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
@@ -207,20 +212,21 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final int messagesSize = packet.readInt();
+		final String[] messages = new String[messagesSize];
+		for (int i = 0; i < messagesSize; i++) {
+			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		}
 		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(pos);
-			if (entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
-				((BlockPIDS1.TileEntityBlockPIDS1) entity).setMessage(message);
+			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
+			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setMessages(messages);
 			}
-
-			if (entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
-				((BlockPIDS2.TileEntityBlockPIDS2) entity).setMessage(message);
-			}
-
-			if (entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
-				((BlockPIDS3.TileEntityBlockPIDS3) entity).setMessage(message);
+			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
+			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setMessages(messages);
 			}
 		});
 	}

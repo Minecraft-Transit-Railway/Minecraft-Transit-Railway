@@ -1,8 +1,6 @@
 package mtr.render;
 
-import mtr.block.BlockPIDS1;
-import mtr.block.BlockPIDS2;
-import mtr.block.BlockPIDS3;
+import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
@@ -88,108 +86,119 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			return;
 		}
 
+		final String[] customMessages = new String[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				customMessages[i] = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getMessage(i);
+			} else {
+				customMessages[i] = "";
+			}
+		}
+
 		try {
+			final Set<Route.ScheduleEntry> schedules;
+			final Map<Long, String> platformIdToName = new HashMap<>();
 
-			String customMessages = "";
-			if(entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
-				customMessages = ((BlockPIDS1.TileEntityBlockPIDS1) entity).getMessage();
+			if (showAllPlatforms) {
+				final Station station = ClientData.getStation(pos);
+				if (station == null) {
+					return;
+				}
+
+				final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+				if (platforms.isEmpty()) {
+					return;
+				}
+
+				schedules = new HashSet<>();
+				platforms.values().forEach(platform -> {
+					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					if (scheduleForPlatform != null) {
+						scheduleForPlatform.forEach(scheduleEntry -> {
+							if (!scheduleEntry.isTerminating) {
+								schedules.add(scheduleEntry);
+								platformIdToName.put(platform.id, platform.name);
+							}
+						});
+					}
+				});
+			} else {
+				final Platform platform = ClientData.getClosePlatform(pos);
+				if (platform == null) {
+					schedules = new HashSet<>();
+				} else {
+					final Set<Route.ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					schedules = schedulesForPlatform == null ? new HashSet<>() : schedulesForPlatform;
+				}
 			}
 
-			if(entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
-				customMessages = ((BlockPIDS2.TileEntityBlockPIDS2) entity).getMessage();
+			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+			Collections.sort(scheduleList);
+
+			final boolean showCarLength;
+			final float carLengthMaxWidth;
+			if (!showAllPlatforms) {
+				int maxCars = 0;
+				int minCars = Integer.MAX_VALUE;
+				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
+					final int trainCars = scheduleEntry.trainCars;
+					if (trainCars > maxCars) {
+						maxCars = trainCars;
+					}
+					if (trainCars < minCars) {
+						minCars = trainCars;
+					}
+				}
+				showCarLength = minCars != maxCars;
+				carLengthMaxWidth = showCarLength ? scale * 6 / 16 : 0;
+			} else {
+				showCarLength = false;
+				carLengthMaxWidth = 0;
 			}
 
-			if(entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
-				customMessages = ((BlockPIDS3.TileEntityBlockPIDS3) entity).getMessage();
-			}
-			if (!customMessages.isEmpty()) {
-				String[] messages = customMessages.split("\\|");
+			for (int i = 0; i < maxArrivals; i++) {
+				final int languageTicks = (int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS;
+				final String destinationString;
+				final boolean useCustomMessage;
+				if (i < scheduleList.size()) {
+					final String[] destinationSplit = scheduleList.get(i).destination.split("\\|");
+					if (customMessages[i].isEmpty()) {
+						destinationString = IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
+						useCustomMessage = false;
+					} else {
+						final String[] customMessageSplit = customMessages[i].split("\\|");
+						final int indexToUse = languageTicks % (destinationSplit.length + customMessageSplit.length);
+						if (indexToUse < destinationSplit.length) {
+							destinationString = IGui.textOrUntitled(destinationSplit[indexToUse]);
+							useCustomMessage = false;
+						} else {
+							destinationString = customMessageSplit[indexToUse - destinationSplit.length];
+							useCustomMessage = true;
+						}
+					}
+				} else {
+					final String[] destinationSplit = customMessages[i].split("\\|");
+					destinationString = destinationSplit[languageTicks % destinationSplit.length];
+					useCustomMessage = true;
+				}
+
+				matrices.push();
+				matrices.translate(0.5, 0, 0.5);
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
+				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
+				matrices.scale(1F / scale, 1F / scale, 1F / scale);
+
 				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-				int i = 0;
-				for(String msg : messages) {
-					if(i > maxArrivals - 1) return;
-					matrices.push();
-					matrices.translate(0.5, 0, 0.5);
-					matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
-					matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-					matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-					matrices.scale(1F / scale, 1F / scale, 1F / scale);
-					final int destinationWidth = textRenderer.getWidth(msg);
+
+				if (useCustomMessage) {
+					final int destinationWidth = textRenderer.getWidth(destinationString);
 					if (destinationWidth > totalScaledWidth) {
 						matrices.scale(totalScaledWidth / destinationWidth, 1, 1);
 					}
-					textRenderer.draw(matrices, msg, 0, 0, textColor);
-					matrices.pop();
-					i++;
-				}
-			} else {
-				final Set<Route.ScheduleEntry> schedules;
-				final Map<Long, String> platformIdToName = new HashMap<>();
-
-				if (showAllPlatforms) {
-					final Station station = ClientData.getStation(pos);
-					if (station == null) {
-						return;
-					}
-
-					final Map<Long, Platform> platforms = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
-					if (platforms.isEmpty()) {
-						return;
-					}
-
-					schedules = new HashSet<>();
-					platforms.values().forEach(platform -> {
-						final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-						if (scheduleForPlatform != null) {
-							scheduleForPlatform.forEach(scheduleEntry -> {
-								if (!scheduleEntry.isTerminating) {
-									schedules.add(scheduleEntry);
-									platformIdToName.put(platform.id, platform.name);
-								}
-							});
-						}
-					});
+					textRenderer.draw(matrices, destinationString, 0, 0, textColor);
 				} else {
-					final Platform platform = ClientData.getClosePlatform(pos);
-					if (platform == null) {
-						return;
-					}
-
-					schedules = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-					if (schedules == null) {
-						return;
-					}
-				}
-
-				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-				Collections.sort(scheduleList);
-
-				final boolean showCarLength;
-				final float carLengthMaxWidth;
-				if (!showAllPlatforms) {
-					int maxCars = 0;
-					int minCars = Integer.MAX_VALUE;
-					for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
-						final int trainCars = scheduleEntry.trainCars;
-						if (trainCars > maxCars) {
-							maxCars = trainCars;
-						}
-						if (trainCars < minCars) {
-							minCars = trainCars;
-						}
-					}
-					showCarLength = minCars != maxCars;
-					carLengthMaxWidth = showCarLength ? scale * 6 / 16 : 0;
-				} else {
-					showCarLength = false;
-					carLengthMaxWidth = 0;
-				}
-
-				for (int i = 0; i < Math.min(maxArrivals, scheduleList.size()); i++) {
 					final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
-
-					final String[] destinationSplit = currentSchedule.destination.split("\\|");
-					final String destinationString = IGui.textOrUntitled(destinationSplit[((int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS) % destinationSplit.length]);
 
 					final Text arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
@@ -201,14 +210,6 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					}
 					final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 
-					matrices.push();
-					matrices.translate(0.5, 0, 0.5);
-					matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
-					matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-					matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
-					matrices.scale(1F / scale, 1F / scale, 1F / scale);
-
-					final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
 					if (renderArrivalNumber) {
 						textRenderer.draw(matrices, String.valueOf(i + 1), 0, 0, seconds > 0 ? textColor : firstTrainColor);
@@ -255,9 +256,9 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 						textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
 						matrices.pop();
 					}
-
-					matrices.pop();
 				}
+
+				matrices.pop();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
