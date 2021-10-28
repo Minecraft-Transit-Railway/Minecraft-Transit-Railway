@@ -1,8 +1,6 @@
 package mtr.packet;
 
-import mtr.block.BlockRailwaySign;
-import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockTrainAnnouncer;
+import mtr.block.*;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,6 +48,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
+	}
+
+	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(blockPos);
+		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -199,6 +203,25 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
+		});
+	}
+
+	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(pos);
+			if (entity instanceof BlockPIDS1.TileEntityBlockPIDS1) {
+				((BlockPIDS1.TileEntityBlockPIDS1) entity).setMessage(message);
+			}
+
+			if (entity instanceof BlockPIDS2.TileEntityBlockPIDS2) {
+				((BlockPIDS2.TileEntityBlockPIDS2) entity).setMessage(message);
+			}
+
+			if (entity instanceof BlockPIDS3.TileEntityBlockPIDS3) {
+				((BlockPIDS3.TileEntityBlockPIDS3) entity).setMessage(message);
+			}
 		});
 	}
 
