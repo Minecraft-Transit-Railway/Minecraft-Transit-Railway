@@ -57,6 +57,17 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openPIDSConfigScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final int maxArrivals = packet.readInt();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof PIDSConfigScreen)) {
+				minecraftClient.openScreen(new PIDSConfigScreen(pos1, pos2, maxArrivals));
+			}
+		});
+	}
+
 	public static void announceS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final String message = packet.readString();
 		minecraftClient.execute(() -> IDrawing.narrateOrAnnounce(message));
@@ -185,5 +196,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeBlockPos(pos);
 		packet.writeString(message);
 		ClientPlayNetworking.send(PACKET_TRAIN_ANNOUNCER, packet);
+	}
+
+	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		packet.writeInt(messages.length);
+		for (final String message : messages) {
+			packet.writeString(message);
+		}
+		ClientPlayNetworking.send(PACKET_PIDS_UPDATE, packet);
 	}
 }

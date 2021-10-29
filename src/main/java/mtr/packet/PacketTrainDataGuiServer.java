@@ -1,5 +1,6 @@
 package mtr.packet;
 
+import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockTrainAnnouncer;
@@ -50,6 +51,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
+	}
+
+	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		packet.writeInt(maxArrivals);
+		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -199,6 +208,26 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
+		});
+	}
+
+	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final int messagesSize = packet.readInt();
+		final String[] messages = new String[messagesSize];
+		for (int i = 0; i < messagesSize; i++) {
+			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		}
+		minecraftServer.execute(() -> {
+			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
+			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setMessages(messages);
+			}
+			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
+			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setMessages(messages);
+			}
 		});
 	}
 
