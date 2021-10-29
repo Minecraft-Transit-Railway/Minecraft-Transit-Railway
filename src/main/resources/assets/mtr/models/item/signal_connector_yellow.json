@@ -1,0 +1,15 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "item/yellow_dye",
+		"layer1": "mtr:item/signal_connector"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"mtr:selected": 1
+			},
+			"model": "mtr:item/signal_connector_yellow_selected"
+		}
+	]
+}

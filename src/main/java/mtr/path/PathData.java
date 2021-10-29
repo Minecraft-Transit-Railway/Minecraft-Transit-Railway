@@ -1,13 +1,11 @@
 package mtr.path;
 
 import mtr.data.Rail;
-import mtr.data.RailwayData;
 import mtr.data.SerializedDataBase;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class PathData extends SerializedDataBase {
@@ -85,12 +83,12 @@ public class PathData extends SerializedDataBase {
 	}
 
 	public UUID getRailProduct() {
+		return getRailProduct(startingPos, endingPos);
+	}
+
+	public static UUID getRailProduct(BlockPos startingPos, BlockPos endingPos) {
 		final long startingPosLong = startingPos.asLong();
 		final long endingPosLong = endingPos.asLong();
 		return new UUID(Math.min(startingPosLong, endingPosLong), Math.max(startingPosLong, endingPosLong));
-	}
-
-	public Rail getOppositeRail(Map<BlockPos, Map<BlockPos, Rail>> rails) {
-		return RailwayData.containsRail(rails, endingPos, startingPos) ? rails.get(endingPos).get(startingPos) : null;
 	}
 }

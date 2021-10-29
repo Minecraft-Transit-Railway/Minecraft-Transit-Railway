@@ -6,8 +6,9 @@ import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
-import mtr.item.ItemRailModifier;
+import mtr.item.ItemNodeModifierBase;
 import mtr.model.TrainClientRegistry;
+import mtr.path.PathData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -19,6 +20,7 @@ import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -208,7 +210,7 @@ public class RenderTrains implements IGui {
 		ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemRailModifier);
+		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
@@ -216,11 +218,10 @@ public class RenderTrains implements IGui {
 			}
 
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				if (shouldNotRender(new BlockPos(x1, y1, z1), maxRailDistance, null)) {
+				final BlockPos pos2 = new BlockPos(x1, y1, z1);
+				if (shouldNotRender(pos2, maxRailDistance, null)) {
 					return;
 				}
-
-				final BlockPos pos2 = new BlockPos(x1, y1, z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 
 				if (rail.railType == RailType.NONE) {
@@ -237,7 +238,29 @@ public class RenderTrains implements IGui {
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				}
-			});
+			}, -1, 1);
+			if (renderColors) {
+				final List<Integer> colors = ClientData.SIGNAL_BLOCKS.getColorMap(PathData.getRailProduct(startPos, endPos));
+				final float width = 0.5F / DyeColor.values().length;
+
+				for (int i = 0; i < colors.size(); i++) {
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/white_wool.png")));
+					final float u1 = width * i + (1 - width * colors.size()) / 2;
+					final float u2 = u1 + width;
+
+					final int color = ARGB_BLACK + DyeColor.values()[colors.get(i)].getMapColor().color;
+					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+						final BlockPos pos2 = new BlockPos(x1, y1, z1);
+						if (shouldNotRender(pos2, maxRailDistance, null)) {
+							return;
+						}
+						final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+
+						IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
+						IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
+					}, u1 * 2 - 1, u2 * 2 - 1);
+				}
+			}
 		}));
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {

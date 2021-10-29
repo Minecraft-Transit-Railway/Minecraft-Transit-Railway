@@ -251,14 +251,14 @@ public class TrainServer extends Train {
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}
 
-	public void writeTrainPositions(Set<UUID> trainPositions) {
+	public void writeTrainPositions(Set<UUID> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
 			final int trainSpacing = baseTrainType.getSpacing();
 			final int headIndex = getIndex(0, trainSpacing, true);
 			final int tailIndex = getIndex(trainCars, trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
-					trainPositions.add(path.get(i).getRailProduct());
+					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions);
 				}
 			}
 		}

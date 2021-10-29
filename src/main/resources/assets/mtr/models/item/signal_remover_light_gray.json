@@ -1,0 +1,16 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "item/light_gray_dye",
+		"layer1": "mtr:item/signal_connector",
+		"layer2": "mtr:item/rail_remover"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"mtr:selected": 1
+			},
+			"model": "mtr:item/signal_remover_light_gray_selected"
+		}
+	]
+}

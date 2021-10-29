@@ -226,7 +226,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, SignalBlocks signalBlocks, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -259,7 +259,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			railProgressSet.add(roundedRailProgress);
 
 			if (trainPositions != null) {
-				train.writeTrainPositions(trainPositions.get(1));
+				train.writeTrainPositions(trainPositions.get(1), signalBlocks);
 			}
 		}
 
