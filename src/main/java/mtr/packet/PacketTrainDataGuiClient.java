@@ -3,10 +3,12 @@ package mtr.packet;
 import io.netty.buffer.ByteBuf;
 import mtr.data.*;
 import mtr.gui.*;
+import mtr.path.PathData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -85,6 +87,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void createSignalS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final DyeColor dyeColor = DyeColor.values()[packet.readInt()];
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(dyeColor, PathData.getRailProduct(pos1, pos2)));
+	}
+
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> RailwayData.removeNode(null, ClientData.RAILS, pos));
@@ -94,6 +103,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
 		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.RAILS, pos1, pos2));
+	}
+
+	public static void removeSignalS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final DyeColor dyeColor = DyeColor.values()[packet.readInt()];
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.remove(dyeColor, PathData.getRailProduct(pos1, pos2)));
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {

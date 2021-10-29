@@ -5,6 +5,7 @@ import mtr.block.BlockRail;
 import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,6 +14,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -41,6 +43,7 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	private final World world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
+	private final SignalBlocks signalBlocks = new SignalBlocks();
 
 	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -62,6 +65,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private static final String KEY_ROUTES = "routes";
 	private static final String KEY_DEPOTS = "depots";
 	private static final String KEY_RAILS = "rails";
+	private static final String KEY_SIGNAL_BLOCKS = "signal_blocks";
 
 	public RailwayData(World world) {
 		super(NAME);
@@ -116,6 +120,11 @@ public class RailwayData extends PersistentState implements IPacket {
 				rails.put(railEntry.pos, railEntry.connections);
 			}
 
+			final NbtCompound tagNewSignalBlocks = nbtCompound.getCompound(KEY_SIGNAL_BLOCKS);
+			for (final String key : tagNewSignalBlocks.getKeys()) {
+				signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
+			}
+
 			// TODO temporary code start
 			generated = nbtCompound.getBoolean("generated");
 			// TODO temporary code end
@@ -141,6 +150,7 @@ public class RailwayData extends PersistentState implements IPacket {
 			writeTag(nbtCompound, sidings, KEY_SIDINGS);
 			writeTag(nbtCompound, routes, KEY_ROUTES);
 			writeTag(nbtCompound, depots, KEY_DEPOTS);
+			writeTag(nbtCompound, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
 
 			final Set<RailEntry> railSet = new HashSet<>();
 			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
@@ -204,12 +214,13 @@ public class RailwayData extends PersistentState implements IPacket {
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
 		schedulesForPlatform.clear();
+		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
 				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, dataCache, trainPositions, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
+			siding.simulateTrain(1, dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -323,7 +334,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public void broadcastToPlayer(ServerPlayerEntity serverPlayerEntity) {
-		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots);
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots, signalBlocks);
 		playerRidingCoolDown.put(serverPlayerEntity, 2);
 	}
 
@@ -345,6 +356,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		return newId;
 	}
 
+	public void addSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
+		signalBlocks.add(color, PathData.getRailProduct(posStart, posEnd));
+	}
+
 	public void removeNode(BlockPos pos) {
 		removeNode(world, rails, pos);
 		if (generated) {
@@ -361,6 +376,10 @@ public class RailwayData extends PersistentState implements IPacket {
 
 	public boolean hasSavedRail(BlockPos pos) {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
+	}
+
+	public void removeSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
+		signalBlocks.remove(color, PathData.getRailProduct(posStart, posEnd));
 	}
 
 	public void disconnectPlayer(PlayerEntity player) {

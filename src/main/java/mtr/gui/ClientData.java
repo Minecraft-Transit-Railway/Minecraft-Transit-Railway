@@ -25,6 +25,7 @@ public final class ClientData {
 	public static final Set<Siding> SIDINGS = new HashSet<>();
 	public static final Set<Route> ROUTES = new HashSet<>();
 	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final Map<Long, Set<Route.ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
@@ -108,6 +109,7 @@ public final class ClientData {
 		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
 
 		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();

@@ -13,7 +13,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
-import mtr.item.ItemRailModifier;
+import mtr.item.ItemNodeModifierBase;
 import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -85,22 +85,54 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_ANNOUNCER, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_SENSOR, RenderLayer.getCutout());
 
-		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
-		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_2_STONE);
-		registerRailPredicate(Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_3_IRON);
-		registerRailPredicate(Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN);
-		registerRailPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_5_BLAZE);
-		registerRailPredicate(Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_6_DIAMOND);
-		registerRailPredicate(Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_PLATFORM);
-		registerRailPredicate(Items.RAIL_CONNECTOR_SIDING);
-		registerRailPredicate(Items.RAIL_CONNECTOR_TURN_BACK);
-		registerRailPredicate(Items.RAIL_REMOVER);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_2_STONE);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_3_IRON);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_5_BLAZE);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_6_DIAMOND);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_PLATFORM);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_SIDING);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_TURN_BACK);
+		registerNodeModifierPredicate(Items.RAIL_REMOVER);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_WHITE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_ORANGE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_MAGENTA);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIGHT_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_YELLOW);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIME);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_PINK);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIGHT_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_CYAN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_PURPLE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BROWN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_GREEN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_RED);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BLACK);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_WHITE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_ORANGE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_MAGENTA);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIGHT_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_YELLOW);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIME);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_PINK);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIGHT_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_CYAN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_PURPLE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BROWN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_GREEN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_RED);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BLACK);
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 15, 16, 14, 14, false, false, true, 0xFF9900, 0xFF9900));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, -15, 15, 16, 30, 46, false, false, true, 0xFF9900, 0xFF9900));
@@ -177,8 +209,10 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_ANNOUNCE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.announceS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.generatePathS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createRailS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_SIGNAL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createSignalS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_NODE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeNodeS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeRailConnectionS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_SIGNAL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeSignalS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
@@ -221,8 +255,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
 	}
 
-	private static void registerRailPredicate(Item item) {
-		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+	private static void registerNodeModifierPredicate(Item item) {
+		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemNodeModifierBase.TAG_POS) ? 1 : 0);
 	}
 
 	private static void registerStationColor(Block block) {

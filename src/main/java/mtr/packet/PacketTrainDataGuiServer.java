@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -77,6 +78,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
+	public static void createSignalS2C(World world, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_SIGNAL, packet));
+	}
+
 	public static void removeNodeS2C(World world, BlockPos pos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos);
@@ -90,7 +99,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
+	public static void removeSignalS2C(World world, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNAL, packet));
+	}
+
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 
@@ -99,6 +116,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;
 		while (!sendChunk(player, packet, tempPacketId, i)) {

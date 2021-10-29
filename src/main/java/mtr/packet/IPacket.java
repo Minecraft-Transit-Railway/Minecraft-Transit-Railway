@@ -13,8 +13,10 @@ public interface IPacket {
 	Identifier PACKET_ANNOUNCE = new Identifier(MTR.MOD_ID, "packet_announce");
 
 	Identifier PACKET_CREATE_RAIL = new Identifier(MTR.MOD_ID, "packet_create_rail");
+	Identifier PACKET_CREATE_SIGNAL = new Identifier(MTR.MOD_ID, "packet_create_signal");
 	Identifier PACKET_REMOVE_NODE = new Identifier(MTR.MOD_ID, "packet_remove_node");
 	Identifier PACKET_REMOVE_RAIL = new Identifier(MTR.MOD_ID, "packet_remove_rail");
+	Identifier PACKET_REMOVE_SIGNAL = new Identifier(MTR.MOD_ID, "packet_remove_signal");
 
 	Identifier PACKET_GENERATE_PATH = new Identifier(MTR.MOD_ID, "packet_generate_path");
 	Identifier PACKET_CLEAR_TRAINS = new Identifier(MTR.MOD_ID, "packet_clear_trains");
