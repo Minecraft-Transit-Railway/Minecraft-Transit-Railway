@@ -9,8 +9,24 @@ const SETTINGS = {
 	refreshArrivalsInterval: 5000,
 	lineSize: 6,
 	dimension: 0, // TODO other dimensions
+	showText: true,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
+	onClearSearch: (data, focus) => {
+		const searchBox = document.getElementById("search_box");
+		searchBox.value = "";
+		if (focus) {
+			searchBox.focus();
+		}
+		document.getElementById("clear_search_icon").innerText = "";
+		const {stations, routes} = data;
+		for (const stationId in stations) {
+			document.getElementById(stationId).style.display = "none";
+		}
+		for (const index in routes) {
+			document.getElementById(routes[index]["color"]).style.display = "none";
+		}
+	},
 };
 
 const fetchMainData = () => {
@@ -23,22 +39,55 @@ const fetchMainData = () => {
 }
 
 const resize = () => {
-	app.renderer.resize(window.innerWidth, window.innerHeight);
-	background.width = app.screen.width;
-	background.height = app.screen.height;
+	APP.renderer.resize(window.innerWidth, window.innerHeight);
+	background.width = APP.screen.width;
+	background.height = APP.screen.height;
 	document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
 	document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
 }
+
+const APP = new PIXI.Application({autoResize: true, antialias: true});
+
+let json;
+let refreshDataId = 0;
 
 if (window.safari !== undefined) {
 	PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL;
 }
 
-const app = new PIXI.Application({autoResize: true, antialias: true});
+if (getCookie("theme").includes("dark")) {
+	document.body.setAttribute("class", "dark_theme");
+	document.getElementById("toggle_theme_icon").innerText = "light_mode";
+} else {
+	document.getElementById("toggle_theme_icon").innerText = "dark_mode";
+}
 
-let json;
-let refreshDataId = 0;
-
+document.getElementById("toggle_text_icon").onclick = event => {
+	const buttonElement = event.target;
+	if (buttonElement.innerText.includes("off")) {
+		buttonElement.innerText = "font_download";
+		SETTINGS.showText = false;
+	} else {
+		buttonElement.innerText = "font_download_off";
+		SETTINGS.showText = true;
+	}
+	drawMap(container, json[SETTINGS.dimension]);
+};
+document.getElementById("toggle_theme_icon").onclick = event => {
+	const buttonElement = event.target;
+	if (buttonElement.innerText.includes("dark")) {
+		document.body.setAttribute("class", "dark_theme");
+		buttonElement.innerText = "light_mode";
+		setCookie("theme", "dark");
+	} else {
+		document.body.removeAttribute("class");
+		buttonElement.innerText = "dark_mode";
+		setCookie("theme", "light");
+	}
+	background.tint = SETTINGS.getColorStyle("--backgroundColor");
+	CANVAS.clearTextCache();
+	drawMap(container, json[SETTINGS.dimension]);
+};
 document.getElementById("zoom_in_icon").onclick = () => {
 	CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
 	drawMap(container, json[SETTINGS.dimension]);
@@ -47,7 +96,7 @@ document.getElementById("zoom_out_icon").onclick = () => {
 	CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
 	drawMap(container, json[SETTINGS.dimension]);
 };
-document.getElementById("clear_search_icon").onclick = () => onClearSearch(json[SETTINGS.dimension], true);
+document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
 
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -58,18 +107,36 @@ background.interactive = true;
 background.on("pointerdown", CANVAS.onCanvasMouseDown);
 background.on("pointermove", event => CANVAS.onCanvasMouseMove(event, container));
 background.on("pointerup", CANVAS.onCanvasMouseUp);
-app.stage.addChild(background);
+APP.stage.addChild(background);
 
 const container = new PIXI.Container();
-app.stage.addChild(container);
+APP.stage.addChild(container);
 
-document.body.appendChild(app.view);
-app.view.addEventListener("wheel", event => {
+document.body.appendChild(APP.view);
+APP.view.addEventListener("wheel", event => {
 	CANVAS.onCanvasScroll(event, container);
 	drawMap(container, json[SETTINGS.dimension]);
 });
-app.ticker.add(delta => CANVAS.update(delta, container));
+APP.ticker.add(delta => CANVAS.update(delta, container));
 
 fetchMainData();
+
+function setCookie(name, value) {
+	document.cookie = name + "=" + value + ";expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/";
+}
+
+function getCookie(name) {
+	const nameFind = name + "=";
+	const cookiesSplit = document.cookie.split(';');
+	for (let cookie of cookiesSplit) {
+		while (cookie.charAt(0) === " ") {
+			cookie = cookie.substring(1);
+		}
+		if (cookie.indexOf(nameFind) === 0) {
+			return cookie.substring(nameFind.length, cookie.length);
+		}
+	}
+	return "";
+}
 
 export default SETTINGS;

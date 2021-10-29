@@ -132,7 +132,7 @@ function drawMap(container, data) {
 	};
 
 	const onClickStation = id => {
-		onClearSearch(data, false);
+		SETTINGS.onClearSearch(data, false);
 		const {name, color} = stations[id];
 		const stationInfoElement = document.getElementById("station_info");
 		stationInfoElement.removeAttribute("style");
@@ -320,7 +320,7 @@ function drawMap(container, data) {
 			graphicsStation.endFill();
 		}, () => onClickStation(stationId));
 
-		if (shouldDraw) {
+		if (SETTINGS.showText && shouldDraw) {
 			CANVAS.drawText(textStations, blobs[stationId]["name"], (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 		}
 	}
@@ -385,22 +385,6 @@ function onSearch(data) {
 function onClearStationInfo() {
 	selectedStation = 0;
 	document.getElementById("station_info").style.display = "none";
-}
-
-function onClearSearch(data, focus) {
-	const searchBox = document.getElementById("search_box");
-	searchBox.value = "";
-	if (focus) {
-		searchBox.focus();
-	}
-	document.getElementById("clear_search_icon").innerText = "";
-	const {stations, routes} = data;
-	for (const stationId in stations) {
-		document.getElementById(stationId).style.display = "none";
-	}
-	for (const index in routes) {
-		document.getElementById(routes[index]["color"]).style.display = "none";
-	}
 }
 
 export default drawMap;
