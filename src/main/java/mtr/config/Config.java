@@ -14,11 +14,15 @@ public class Config {
 	private static boolean useMTRFont;
 	private static boolean showAnnouncementMessages;
 	private static boolean useTTSAnnouncements;
+	private static boolean hideSpecialRailColors;
+	private static boolean hideTranslucentParts;
 	private static boolean useDynamicFPS = true;
 
 	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().runDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
+	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
+	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
 	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
 
 	public static boolean useMTRFont() {
@@ -31,6 +35,14 @@ public class Config {
 
 	public static boolean useTTSAnnouncements() {
 		return useTTSAnnouncements;
+	}
+
+	public static boolean hideTranslucentParts() {
+		return hideTranslucentParts;
+	}
+
+	public static boolean hideSpecialRailColors() {
+		return hideSpecialRailColors;
 	}
 
 	public static boolean useDynamicFPS() {
@@ -55,6 +67,18 @@ public class Config {
 		return useTTSAnnouncements;
 	}
 
+	public static boolean setHideSpecialRailColors(boolean value) {
+		hideSpecialRailColors = value;
+		writeToFile();
+		return hideSpecialRailColors;
+	}
+
+	public static boolean setHideTranslucentParts(boolean value) {
+		hideTranslucentParts = value;
+		writeToFile();
+		return hideTranslucentParts;
+	}
+
 	public static boolean setUseDynamicFPS(boolean value) {
 		useDynamicFPS = value;
 		writeToFile();
@@ -77,6 +101,14 @@ public class Config {
 				useTTSAnnouncements = jsonConfig.get(USE_TTS_ANNOUNCEMENTS).getAsBoolean();
 			} catch (Exception ignored) {
 			}
+			try {
+				hideSpecialRailColors = jsonConfig.get(HIDE_SPECIAL_RAIL_COLORS).getAsBoolean();
+			} catch (Exception ignored) {
+			}
+			try {
+				hideTranslucentParts = jsonConfig.get(HIDE_TRANSLUCENT_PARTS).getAsBoolean();
+			} catch (Exception ignored) {
+			}
 		} catch (Exception e) {
 			writeToFile();
 			e.printStackTrace();
@@ -89,6 +121,8 @@ public class Config {
 		jsonConfig.addProperty(USE_MTR_FONT_KEY, useMTRFont);
 		jsonConfig.addProperty(SHOW_ANNOUNCEMENT_MESSAGES, showAnnouncementMessages);
 		jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS, useTTSAnnouncements);
+		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
+		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));

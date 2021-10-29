@@ -99,6 +99,15 @@ h2 {
     padding: 0.4em 0.2em 0 0.2em;
 }
 
+#loading.material-icons {
+    color: var(--textColorDisabled);
+    font-size: 4em;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
 .box {
     background: var(--backgroundColor);
     border: 0.2em solid var(--boxBorder);

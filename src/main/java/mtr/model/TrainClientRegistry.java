@@ -91,7 +91,7 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {
-		return new TrainProperties(baseTrainType, null, null, null, null, null, 0, false, 0, 0.5F, false);
+		return new TrainProperties(baseTrainType, null, null, null, null, new TranslatableText(""), 0, false, 0, 0.5F, false);
 	}
 
 	public static class TrainProperties {

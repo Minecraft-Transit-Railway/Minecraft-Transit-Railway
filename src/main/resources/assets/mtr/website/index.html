@@ -11,22 +11,27 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="icon" type="image/png" href="../icon.png"/>
 	<script src="https://pixijs.download/release/pixi.js"></script>
 	<script type="module" src="index.js"></script>
 	<script type="module" src="drawing.js"></script>
 	<script type="module" src="utilities.js"></script>
 </head>
 <body>
+<div id="loading" class="material-icons">refresh</div>
 <div id="search" class="box">
 	<div id="search_top">
 		<span class="material-icons">search</span>
 		<label for="search_box">Search</label>
 		<input id="search_box" class="text" type="text"/>
 		<span id="clear_search_icon" class="material-icons clickable_icon right_align"></span>
-		<span id="toggle_text_icon" class="material-icons clickable_icon right_align">font_download_off</span>
-		<span id="toggle_theme_icon" class="material-icons clickable_icon right_align"></span>
 		<span id="zoom_in_icon" class="material-icons clickable_icon right_align">zoom_in</span>
 		<span id="zoom_out_icon" class="material-icons clickable_icon right_align">zoom_out</span>
+		<span id="toggle_dimension_icon" class="material-icons clickable_icon right_align settings" style="display: none">public</span>
+		<span id="toggle_text_icon" class="material-icons clickable_icon right_align settings" style="display: none">font_download_off</span>
+		<span id="toggle_theme_icon" class="material-icons clickable_icon right_align settings" style="display: none"></span>
+		<span id="download_icon" class="material-icons clickable_icon right_align settings" style="display: none">download</span>
+		<span id="settings_icon" class="material-icons clickable_icon right_align">settings</span>
 	</div>
 	<div id="search_results_stations" class="search_results"></div>
 	<div id="search_results_routes" class="search_results"></div>
