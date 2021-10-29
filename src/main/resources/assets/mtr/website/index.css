@@ -13,15 +13,13 @@
     --textColor: #000000;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --backgroundColor: #000000;
-        --backgroundHover: #333333;
-        --boxBorder: #555555;
-        --textColorDisabled: #666666;
-        --textColorGray: #BBBBBB;
-        --textColor: #FFFFFF;
-    }
+.dark_theme {
+    --backgroundColor: #000000;
+    --backgroundHover: #333333;
+    --boxBorder: #555555;
+    --textColorDisabled: #666666;
+    --textColorGray: #BBBBBB;
+    --textColor: #FFFFFF;
 }
 
 canvas {

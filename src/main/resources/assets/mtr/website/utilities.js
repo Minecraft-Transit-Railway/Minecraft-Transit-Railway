@@ -6,7 +6,6 @@ const DRAG_THRESHOLD = 10;
 const STEPS = 50;
 const MIN_SPEED = 0.0001;
 const SPEED_MULTIPLIER = 3;
-const TEXT_CACHE = {};
 
 const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
 
@@ -21,6 +20,8 @@ let startX = 0;
 let startY = 0;
 let targetX = undefined;
 let targetY = undefined;
+
+let textCache = {};
 
 const CANVAS = {
 	convertX: x => Math.floor((x + window.innerWidth / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
@@ -92,7 +93,7 @@ const CANVAS = {
 			const textPart = textSplit[index];
 			const isTextCJK = SETTINGS.isCJK(textPart);
 
-			if (typeof TEXT_CACHE[textPart] === "undefined") {
+			if (typeof textCache[textPart] === "undefined") {
 				const richText = new PIXI.Text(textPart, {
 					fontFamily: getComputedStyle(document.body).fontFamily,
 					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
@@ -101,15 +102,16 @@ const CANVAS = {
 					strokeThickness: 2,
 				});
 				richText.anchor.set(0.5, 0);
-				TEXT_CACHE[textPart] = richText;
+				textCache[textPart] = richText;
 			}
 
-			const richText = TEXT_CACHE[textPart];
+			const richText = textCache[textPart];
 			richText.position.set(Math.round(x / 2) * 2, yStart);
 			textArray.push(richText);
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
 		}
 	},
+	clearTextCache: () => textCache = {},
 	drawLine: (graphics, x1, y1, vertical1, x2, y2, vertical2) => {
 		const differenceX = Math.abs(x2 - x1);
 		const differenceY = Math.abs(y2 - y1);
