@@ -207,7 +207,9 @@ public class RenderTrains implements IGui {
 				});
 			}
 		}));
-		ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
+		if (!Config.hideTranslucentParts()) {
+			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
+		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
 		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase);
@@ -232,7 +234,7 @@ public class RenderTrains implements IGui {
 					}
 				} else {
 					final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
-					final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
+					final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
 
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);

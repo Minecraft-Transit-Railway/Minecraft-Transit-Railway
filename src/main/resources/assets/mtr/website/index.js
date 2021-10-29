@@ -10,6 +10,7 @@ const SETTINGS = {
 	lineSize: 6,
 	dimension: 0, // TODO other dimensions
 	showText: true,
+	showSettings: false,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
 	onClearSearch: (data, focus) => {
@@ -46,7 +47,7 @@ const resize = () => {
 	document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
 }
 
-const APP = new PIXI.Application({autoResize: true, antialias: true});
+const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true});
 
 let json;
 let refreshDataId = 0;
@@ -62,6 +63,15 @@ if (getCookie("theme").includes("dark")) {
 	document.getElementById("toggle_theme_icon").innerText = "dark_mode";
 }
 
+document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
+document.getElementById("zoom_in_icon").onclick = () => {
+	CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
+	drawMap(container, json[SETTINGS.dimension]);
+};
+document.getElementById("zoom_out_icon").onclick = () => {
+	CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
+	drawMap(container, json[SETTINGS.dimension]);
+};
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("off")) {
@@ -71,6 +81,15 @@ document.getElementById("toggle_text_icon").onclick = event => {
 		buttonElement.innerText = "font_download_off";
 		SETTINGS.showText = true;
 	}
+	drawMap(container, json[SETTINGS.dimension]);
+};
+document.getElementById("toggle_dimension_icon").onclick = event => {
+	do {
+		SETTINGS.dimension++;
+		if (SETTINGS.dimension >= json.length) {
+			SETTINGS.dimension = 0;
+		}
+	} while (SETTINGS.dimension > 0 && json[SETTINGS.dimension]["routes"].length === 0);
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("toggle_theme_icon").onclick = event => {
@@ -88,15 +107,18 @@ document.getElementById("toggle_theme_icon").onclick = event => {
 	CANVAS.clearTextCache();
 	drawMap(container, json[SETTINGS.dimension]);
 };
-document.getElementById("zoom_in_icon").onclick = () => {
-	CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
+document.getElementById("download_icon").onclick = () => {
+	const link = document.createElement("a");
+	link.download = document.title + ".png";
+	link.href = document.getElementById("canvas").toDataURL("image/png");
+	link.click();
 };
-document.getElementById("zoom_out_icon").onclick = () => {
-	CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
+document.getElementById("settings_icon").onclick = () => {
+	SETTINGS.showSettings = !SETTINGS.showSettings;
+	for (const settingsElement of document.getElementsByClassName("settings")) {
+		settingsElement.style.display = SETTINGS.showSettings ? "block" : "none";
+	}
 };
-document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
 
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -117,6 +139,7 @@ APP.view.addEventListener("wheel", event => {
 	CANVAS.onCanvasScroll(event, container);
 	drawMap(container, json[SETTINGS.dimension]);
 });
+APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
 
 fetchMainData();

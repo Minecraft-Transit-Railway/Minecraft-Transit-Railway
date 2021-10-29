@@ -353,6 +353,7 @@ function drawMap(container, data) {
 		elementStations.append(getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId));
 	}
 
+	document.getElementById("loading").style.display = "none";
 	onSearch(data);
 }
 

@@ -74,7 +74,8 @@ const CANVAS = {
 	},
 	update: (delta, container) => {
 		if (typeof targetX !== "undefined" && typeof targetY !== "undefined") {
-			const percentage = Math.sqrt(((container.x - startX) ** 2 + (container.y - startY) ** 2) / ((targetX - startX) ** 2 + (targetY - startY) ** 2));
+			const distanceSquared = (targetX - startX) ** 2 + (targetY - startY) ** 2;
+			const percentage = distanceSquared === 0 ? 1 : Math.sqrt(((container.x - startX) ** 2 + (container.y - startY) ** 2) / distanceSquared);
 			const speed = delta * SPEED_MULTIPLIER * Math.sqrt(percentage < 0.5 ? Math.max(percentage, MIN_SPEED) : 1 - percentage);
 			container.x += speed * (targetX - startX) / STEPS;
 			container.y += speed * (targetY - startY) / STEPS;

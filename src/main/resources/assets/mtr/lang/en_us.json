@@ -245,6 +245,8 @@
 	"itemGroup.mtr.core": "Minecraft Transit Railway Core",
 	"itemGroup.mtr.railway_facilities": "Railway Facilities",
 	"itemGroup.mtr.station_building_blocks": "Station Building Blocks",
+	"options.mtr.hide_special_rail_colors": "Hide special rail colours",
+	"options.mtr.hide_translucent_parts": "Hide translucent parts on trains",
 	"options.mtr.show_announcement_messages": "Show \"next station\" messages in chat",
 	"options.mtr.use_dynamic_fps": "Dynamically boost FPS",
 	"options.mtr.use_mtr_font": "Use custom MTR fonts (might not work on some computers)",
