@@ -99,7 +99,17 @@ public final class ClientData {
 				tempSchedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(packet));
 			}
 		}
-		client.execute(() -> clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform));
+
+		final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
+		final int signalBlockCount = packet.readInt();
+		for (int i = 0; i < signalBlockCount; i++) {
+			signalBlockStatus.put(packet.readLong(), packet.readBoolean());
+		}
+
+		client.execute(() -> {
+			clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform);
+			SIGNAL_BLOCKS.writeSignalBlockStatus(signalBlockStatus);
+		});
 	}
 
 	public static void receivePacket(PacketByteBuf packet) {

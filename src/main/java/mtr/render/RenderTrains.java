@@ -1,6 +1,7 @@
 package mtr.render;
 
 import mtr.MTRClient;
+import mtr.block.BlockSignalLight1;
 import mtr.config.Config;
 import mtr.data.*;
 import mtr.gui.ClientCache;
@@ -9,6 +10,7 @@ import mtr.gui.IDrawing;
 import mtr.item.ItemNodeModifierBase;
 import mtr.model.TrainClientRegistry;
 import mtr.path.PathData;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -49,6 +51,7 @@ public class RenderTrains implements IGui {
 	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
+	private static final int TICKS_PER_SECOND = 20;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>(MinecartEntityModel.getTexturedModelData().createModel());
 
@@ -212,7 +215,7 @@ public class RenderTrains implements IGui {
 		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase);
+		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase || Block.getBlockFromItem(itemStack.getItem()) instanceof BlockSignalLight1);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
@@ -242,25 +245,27 @@ public class RenderTrains implements IGui {
 				}
 			}, -1, 1);
 			if (renderColors) {
-				final List<Integer> colors = ClientData.SIGNAL_BLOCKS.getColorMap(PathData.getRailProduct(startPos, endPos));
-				final float width = 0.5F / DyeColor.values().length;
+				final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
+				final float width = 1F / DyeColor.values().length;
 
-				for (int i = 0; i < colors.size(); i++) {
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/white_wool.png")));
-					final float u1 = width * i + (1 - width * colors.size()) / 2;
+				for (int i = 0; i < signalBlocks.size(); i++) {
+					final SignalBlocks.SignalBlock signalBlock = signalBlocks.get(i);
+					final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(getGameTicks())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
+					final VertexConsumer vertexConsumer = shouldGlow ? vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false)) : vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/white_wool.png")));
+					final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
 					final float u2 = u1 + width;
 
-					final int color = ARGB_BLACK + DyeColor.values()[colors.get(i)].getMapColor().color;
+					final int color = ARGB_BLACK + signalBlock.color.getMapColor().color;
 					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 						final BlockPos pos2 = new BlockPos(x1, y1, z1);
 						if (shouldNotRender(pos2, maxRailDistance, null)) {
 							return;
 						}
-						final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+						final int light2 = shouldGlow ? MAX_LIGHT_GLOWING : LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 
 						IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
 						IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
-					}, u1 * 2 - 1, u2 * 2 - 1);
+					}, u1 - 1, u2 - 1);
 				}
 			}
 		}));

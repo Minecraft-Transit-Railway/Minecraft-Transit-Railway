@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 public class TrainServer extends Train {
 
 	private boolean canDeploy;
-	private Set<UUID> trainPositions;
+	private Map<UUID, Long> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 
 	private final List<Siding.TimeSegment> timeSegments;
@@ -147,7 +147,8 @@ public class TrainServer extends Train {
 	@Override
 	protected boolean isRailBlocked(int checkIndex) {
 		if (trainPositions != null && checkIndex < path.size()) {
-			return trainPositions.contains(path.get(checkIndex).getRailProduct());
+			final UUID railProduct = path.get(checkIndex).getRailProduct();
+			return trainPositions.containsKey(railProduct) && trainPositions.get(railProduct) != id;
 		} else {
 			return false;
 		}
@@ -180,7 +181,7 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, Map<UUID, Long> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -251,14 +252,14 @@ public class TrainServer extends Train {
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}
 
-	public void writeTrainPositions(Set<UUID> trainPositions, SignalBlocks signalBlocks) {
+	public void writeTrainPositions(Map<UUID, Long> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
 			final int trainSpacing = baseTrainType.getSpacing();
 			final int headIndex = getIndex(0, trainSpacing, true);
 			final int tailIndex = getIndex(trainCars, trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
-					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions);
+					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions, id);
 				}
 			}
 		}

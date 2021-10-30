@@ -45,7 +45,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks = new SignalBlocks();
 
-	private final List<Set<UUID>> trainPositions = new ArrayList<>(2);
+	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<PlayerEntity, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<PlayerEntity> playersToSyncSchedules = new ArrayList<>();
 	private final Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
@@ -78,8 +78,8 @@ public class RailwayData extends PersistentState implements IPacket {
 		rails = new HashMap<>();
 		dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
-		trainPositions.add(new HashSet<>());
-		trainPositions.add(new HashSet<>());
+		trainPositions.add(new HashMap<>());
+		trainPositions.add(new HashMap<>());
 
 		// TODO temporary code start
 		generated = true;
@@ -209,7 +209,7 @@ public class RailwayData extends PersistentState implements IPacket {
 		});
 
 		trainPositions.remove(0);
-		trainPositions.add(new HashSet<>());
+		trainPositions.add(new HashMap<>());
 		final Map<PlayerEntity, Set<TrainServer>> newTrainsInPlayerRange = new HashMap<>();
 		final Set<TrainServer> trainsToSync = new HashSet<>();
 		schedulesForPlatform.clear();
@@ -296,15 +296,27 @@ public class RailwayData extends PersistentState implements IPacket {
 		}
 		if (!playersToSyncSchedules.isEmpty()) {
 			final PlayerEntity player = playersToSyncSchedules.remove(0);
+			final BlockPos playerBlockPos = player.getBlockPos();
+			final Vec3d playerPos = player.getPos();
+
 			final Set<Long> platformIds = platforms.stream().filter(platform -> {
-				if (platform.isCloseToSavedRail(player.getBlockPos(), PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
+				if (platform.isCloseToSavedRail(playerBlockPos, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD, PLAYER_MOVE_UPDATE_THRESHOLD)) {
 					return true;
 				}
 				final Station station = dataCache.platformIdToStation.get(platform.id);
-				return station != null && station.inArea(player.getBlockPos().getX(), player.getBlockPos().getZ());
+				return station != null && station.inArea(playerBlockPos.getX(), playerBlockPos.getZ());
 			}).map(platform -> platform.id).collect(Collectors.toSet());
 
-			if (!platformIds.isEmpty()) {
+			final Set<UUID> railsToAdd = new HashSet<>();
+			rails.forEach((startPos, blockPosRailMap) -> blockPosRailMap.forEach((endPos, rail) -> {
+				if (new Box(startPos, endPos).expand(RAIL_UPDATE_DISTANCE).contains(playerPos)) {
+					railsToAdd.add(PathData.getRailProduct(startPos, endPos));
+				}
+			}));
+			final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
+			railsToAdd.forEach(rail -> signalBlocks.getSignalBlockStatus(signalBlockStatus, rail));
+
+			if (!platformIds.isEmpty() || !signalBlockStatus.isEmpty()) {
 				final PacketByteBuf packet = PacketByteBufs.create();
 				packet.writeInt(platformIds.size());
 				platformIds.forEach(platformId -> {
@@ -317,6 +329,13 @@ public class RailwayData extends PersistentState implements IPacket {
 						scheduleEntries.forEach(scheduleEntry -> scheduleEntry.writePacket(packet));
 					}
 				});
+
+				packet.writeInt(signalBlockStatus.size());
+				signalBlockStatus.forEach((id, occupied) -> {
+					packet.writeLong(id);
+					packet.writeBoolean(occupied);
+				});
+
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
 					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_SCHEDULE, packet);
 				}

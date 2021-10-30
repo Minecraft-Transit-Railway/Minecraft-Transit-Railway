@@ -69,6 +69,7 @@ public interface Blocks {
 	Block ROUTE_SIGN_WALL_LIGHT = new BlockRouteSignWallLight();
 	Block ROUTE_SIGN_WALL_METAL = new BlockRouteSignWallMetal();
 	Block RUBBISH_BIN_1 = new BlockRubbishBin(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).hardness(4));
+	Block SIGNAL_LIGHT_1 = new BlockSignalLight1(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BIRCH_WOOD));

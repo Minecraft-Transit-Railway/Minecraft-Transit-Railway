@@ -5,6 +5,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.DyeColor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SignalBlocks {
 
@@ -45,53 +46,65 @@ public class SignalBlocks {
 		signalBlocks.removeIf(signalBlock -> signalBlock.rails.isEmpty());
 	}
 
-	public void occupy(UUID rail, Set<UUID> trainPositions) {
-		if (!trainPositions.contains(rail)) {
-			trainPositions.add(rail);
-			signalBlocks.forEach(signalBlock -> {
-				if (signalBlock.rails.contains(rail)) {
-					trainPositions.addAll(signalBlock.rails);
-					signalBlock.occupied = 2;
-				}
-			});
-		}
+	public void occupy(UUID rail, Map<UUID, Long> trainPositions, long trainId) {
+		trainPositions.put(rail, trainId);
+		signalBlocks.forEach(signalBlock -> {
+			if (signalBlock.rails.contains(rail)) {
+				signalBlock.rails.forEach(rail1 -> trainPositions.put(rail1, trainId));
+				signalBlock.occupied = 2;
+			}
+		});
 	}
 
 	public void resetOccupied() {
-		signalBlocks.forEach(signalBlock -> signalBlock.occupied--);
-	}
-
-	public List<Integer> getColorMap(UUID rail) {
-		final boolean[] hasColors = new boolean[DyeColor.values().length];
 		signalBlocks.forEach(signalBlock -> {
-			if (!hasColors[signalBlock.color.ordinal()] && signalBlock.rails.contains(rail)) {
-				hasColors[signalBlock.color.ordinal()] = true;
+			if (signalBlock.isOccupied()) {
+				signalBlock.occupied--;
 			}
 		});
-		final List<Integer> colors = new ArrayList<>();
-		for (int i = 0; i < DyeColor.values().length; i++) {
-			if (hasColors[i]) {
-				colors.add(i);
-			}
-		}
-		return colors;
 	}
 
-	public static class SignalBlock extends SerializedDataBase {
+	public List<SignalBlock> getSignalBlocksAtTrack(UUID rail) {
+		return signalBlocks.stream().filter(signalBlock -> signalBlock.rails.contains(rail)).sorted(Comparator.comparingInt(signalBlock -> signalBlock.color.ordinal())).collect(Collectors.toList());
+	}
 
-		private final DyeColor color;
+	public boolean isOccupied(UUID rail) {
+		return signalBlocks.stream().anyMatch(signalBlock -> signalBlock.rails.contains(rail) && signalBlock.isOccupied());
+	}
+
+	public void getSignalBlockStatus(Map<Long, Boolean> signalBlockStatus, UUID rail) {
+		signalBlocks.forEach(signalBlock -> {
+			if (signalBlock.rails.contains(rail)) {
+				signalBlockStatus.put(signalBlock.id, signalBlock.isOccupied());
+			}
+		});
+	}
+
+	public void writeSignalBlockStatus(Map<Long, Boolean> signalBlockStatus) {
+		signalBlockStatus.forEach((id, occupied) -> signalBlocks.forEach(signalBlock -> {
+			if (signalBlock.id == id) {
+				signalBlock.occupied = occupied ? 2 : 0;
+			}
+		}));
+	}
+
+	public static class SignalBlock extends NameColorDataBase {
+
+		public final DyeColor color;
 		private final Set<UUID> rails = new HashSet<>();
 		private int occupied = 0;
 
 		private static final String KEY_COLOR = "color";
 		private static final String KEY_RAILS = "rails";
 
-		public SignalBlock(DyeColor color, UUID rail) {
+		private SignalBlock(DyeColor color, UUID rail) {
+			super();
 			this.color = color;
 			rails.add(rail);
 		}
 
 		public SignalBlock(NbtCompound nbtCompound) {
+			super(nbtCompound);
 			DyeColor savedColor;
 			try {
 				savedColor = DyeColor.values()[nbtCompound.getInt(KEY_COLOR)];
@@ -105,6 +118,7 @@ public class SignalBlocks {
 		}
 
 		public SignalBlock(PacketByteBuf packet) {
+			super(packet);
 			DyeColor savedColor;
 			try {
 				savedColor = DyeColor.values()[packet.readInt()];
@@ -121,7 +135,7 @@ public class SignalBlocks {
 
 		@Override
 		public NbtCompound toCompoundTag() {
-			final NbtCompound nbtCompound = new NbtCompound();
+			final NbtCompound nbtCompound = super.toCompoundTag();
 			nbtCompound.putInt(KEY_COLOR, color.ordinal());
 			final NbtCompound nbtCompoundRails = new NbtCompound();
 			int i = 0;
@@ -135,9 +149,14 @@ public class SignalBlocks {
 
 		@Override
 		public void writePacket(PacketByteBuf packet) {
+			super.writePacket(packet);
 			packet.writeInt(color.ordinal());
 			packet.writeInt(rails.size());
 			rails.forEach(packet::writeUuid);
+		}
+
+		public boolean isOccupied() {
+			return occupied > 0;
 		}
 
 		private boolean isConnected(UUID checkRail) {
