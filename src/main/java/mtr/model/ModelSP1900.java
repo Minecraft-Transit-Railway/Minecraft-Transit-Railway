@@ -20,9 +20,11 @@ public class ModelSP1900 extends ModelTrainBase {
 	private final ModelPart handrail_4_r1;
 	private final ModelPart handrail_3_r1;
 	private final ModelPart handrail_2_r1;
+	private final ModelPart side_panel_sp1900_translucent;
 	private final ModelPart side_panel_c1141a;
 	private final ModelPart handrail_5_r1;
 	private final ModelPart handrail_3_r2;
+	private final ModelPart side_panel_c1141a_translucent;
 	private final ModelPart door;
 	private final ModelPart door_left;
 	private final ModelPart door_left_top_r1;
@@ -292,6 +294,10 @@ public class ModelSP1900 extends ModelTrainBase {
 		setRotationAngle(handrail_2_r1, 0, 0, 0.1745F);
 		handrail_2_r1.setTextureOffset(12, 18).addCuboid(0, -1, 0, 0, 2, 0, 0.2F, false);
 
+		side_panel_sp1900_translucent = new ModelPart(this);
+		side_panel_sp1900_translucent.setPivot(0, 24, 0);
+		side_panel_sp1900_translucent.setTextureOffset(34, 289).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
+
 		side_panel_c1141a = new ModelPart(this);
 		side_panel_c1141a.setPivot(0, 24, 0);
 		side_panel_c1141a.setTextureOffset(38, 218).addCuboid(-18, -29, 0, 7, 24, 0, 0, false);
@@ -309,6 +315,10 @@ public class ModelSP1900 extends ModelTrainBase {
 		side_panel_c1141a.addChild(handrail_3_r2);
 		setRotationAngle(handrail_3_r2, 0, 0, -0.7854F);
 		handrail_3_r2.setTextureOffset(8, 24).addCuboid(-0.2F, -2.2F, -0.2F, 0, 1, 0, 0.2F, false);
+
+		side_panel_c1141a_translucent = new ModelPart(this);
+		side_panel_c1141a_translucent.setPivot(0, 24, 0);
+		side_panel_c1141a_translucent.setTextureOffset(34, 295).addCuboid(-18, -29, 0, 7, 24, 0, 0, false);
 
 		door = new ModelPart(this);
 		door.setPivot(0, 24, 0);
@@ -1415,15 +1425,22 @@ public class ModelSP1900 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(isC1141A ? roof_c1141a : roof_sp1900, matrices, vertices, light, position);
 					renderMirror(isC1141A ? top_handrail_c1141a : top_handrail_sp1900, matrices, vertices, light, position);
+					if (isC1141A) {
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position - 12);
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position + 12);
+					} else {
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 12);
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 12);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position - 12);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position + 12);
 				} else {
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position - 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position + 15.9F);
 				}
 				break;
 			case EXTERIOR:
@@ -1511,16 +1528,19 @@ public class ModelSP1900 extends ModelTrainBase {
 				renderOnceFlipped(head, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-					if (!isC1141A) {
+					if (isC1141A) {
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+					} else {
 						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position + 6);
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
 					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position + 16);
 				} else {
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position + 15.9F);
 				}
 				break;
 			case EXTERIOR:
@@ -1543,16 +1563,19 @@ public class ModelSP1900 extends ModelTrainBase {
 				renderOnce(head, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
-					if (!isC1141A) {
+					if (isC1141A) {
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+					} else {
 						renderMirror(top_handrail_head_sp1900, matrices, vertices, light, position - 6);
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
 					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position - 16);
 				} else {
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position - 15.9F);
 				}
 				break;
 			case EXTERIOR:
@@ -1574,16 +1597,18 @@ public class ModelSP1900 extends ModelTrainBase {
 					renderOnce(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
 					if (isC1141A) {
 						renderOnce(top_handrail_head_c1141a, matrices, vertices, light, position);
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
 					} else {
 						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
 					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position + 16);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position + 16);
 				} else {
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position + 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position + 15.9F);
 				}
 				break;
 			case EXTERIOR:
@@ -1605,16 +1630,18 @@ public class ModelSP1900 extends ModelTrainBase {
 					renderOnceFlipped(isC1141A ? roof_end_c1141a : roof_end_sp1900, matrices, vertices, light, position);
 					if (isC1141A) {
 						renderOnceFlipped(top_handrail_head_c1141a, matrices, vertices, light, position);
+						renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
 					} else {
 						renderMirror(top_handrail_sp1900, matrices, vertices, light, position);
+						renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
 					}
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isC1141A) {
-					renderMirror(side_panel_c1141a, matrices, vertices, light, position - 16);
+					renderMirror(side_panel_c1141a_translucent, matrices, vertices, light, position - 16);
 				} else {
-					renderMirror(side_panel_sp1900, matrices, vertices, light, position - 15.9F);
+					renderMirror(side_panel_sp1900_translucent, matrices, vertices, light, position - 15.9F);
 				}
 				break;
 			case EXTERIOR:

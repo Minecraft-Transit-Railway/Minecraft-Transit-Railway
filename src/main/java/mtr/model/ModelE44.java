@@ -35,6 +35,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart side_panel;
 	private final ModelPart handrail_11_r1;
 	private final ModelPart handrail_5_r1;
+	private final ModelPart side_panel_translucent;
 	private final ModelPart roof_window;
 	private final ModelPart inner_roof_4_r1;
 	private final ModelPart inner_roof_2_r1;
@@ -326,7 +327,7 @@ public class ModelE44 extends ModelTrainBase {
 
 		side_panel = new ModelPart(this);
 		side_panel.setPivot(0, 24, 0);
-		side_panel.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 31, 0, 0, false);
+		side_panel.setTextureOffset(287, 164).addCuboid(-18, -15, 0, 13, 15, 0, 0, false);
 
 		handrail_11_r1 = new ModelPart(this);
 		handrail_11_r1.setPivot(0, 0, 0);
@@ -339,6 +340,10 @@ public class ModelE44 extends ModelTrainBase {
 		side_panel.addChild(handrail_5_r1);
 		setRotationAngle(handrail_5_r1, 0, 0, -0.0873F);
 		handrail_5_r1.setTextureOffset(0, 0).addCuboid(-0.2F, 0.2F, 0, 0, 18, 0, 0.2F, false);
+
+		side_panel_translucent = new ModelPart(this);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 16, 0, 0, false);
 
 		roof_window = new ModelPart(this);
 		roof_window.setPivot(0, 24, 0);
@@ -1201,6 +1206,8 @@ public class ModelE44 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(roof_door, matrices, vertices, light, position);
 					renderMirror(door_handrails, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 19);
+					renderMirror(side_panel, matrices, vertices, light, position + 19);
 				}
 				break;
 			case EXTERIOR:
@@ -1220,8 +1227,8 @@ public class ModelE44 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 19);
-				renderMirror(side_panel, matrices, vertices, light, position + 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 19);
 				break;
 		}
 	}

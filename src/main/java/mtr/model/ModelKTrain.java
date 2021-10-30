@@ -26,6 +26,7 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelPart upper_wall_r3;
 	private final ModelPart upper_wall_r4;
 	private final ModelPart side_panel;
+	private final ModelPart side_panel_translucent;
 	private final ModelPart roof_window;
 	private final ModelPart inner_roof_4_r1;
 	private final ModelPart inner_roof_3_r1;
@@ -256,6 +257,10 @@ public class ModelKTrain extends ModelTrainBase {
 		side_panel = new ModelPart(this);
 		side_panel.setPivot(0, 24, 0);
 		side_panel.setTextureOffset(30, 143).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
+
+		side_panel_translucent = new ModelPart(this);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(293, 163).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
 
 		roof_window = new ModelPart(this);
 		roof_window.setPivot(0, 24, 0);
@@ -819,11 +824,13 @@ public class ModelKTrain extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(window_handrail, matrices, vertices, light, position);
 					renderMirror(roof_window, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 22.1F);
+					renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 22.1F);
-				renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22.1F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22.1F);
 				break;
 			case EXTERIOR:
 				if (isTcl && isIndex(0, position, getWindowPositions()) && isEnd1Head) {
