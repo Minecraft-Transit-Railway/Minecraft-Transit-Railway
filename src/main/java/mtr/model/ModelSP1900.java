@@ -1421,7 +1421,9 @@ public class ModelSP1900 extends ModelTrainBase {
 		window_exterior_1.setModelPart(modelPart);
 		window_exterior_2.setModelPart(modelPart);
 		side_panel_sp1900.setModelPart(modelPart);
+		side_panel_sp1900_translucent.setModelPart(modelPart);
 		side_panel_c1141a.setModelPart(modelPart);
+		side_panel_c1141a_translucent.setModelPart(modelPart);
 		door.setModelPart(modelPart);
 		door_left.setModelPart(modelPart.getChild(door.name));
 		door_right.setModelPart(modelPart.getChild(door.name));
