@@ -26,6 +26,7 @@ public class ModelMLR extends ModelTrainBase {
 	private final ModelMapper window_exterior_2;
 	private final ModelMapper upper_wall_r4;
 	private final ModelMapper side_panel;
+	private final ModelMapper side_panel_translucent;
 	private final ModelMapper roof_window;
 	private final ModelMapper inner_roof_5_r1;
 	private final ModelMapper inner_roof_3_r1;
@@ -282,6 +283,10 @@ public class ModelMLR extends ModelTrainBase {
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
 		side_panel.setTextureOffset(206, 123).addCuboid(-18, -34, 0, 7, 31, 0, 0, false);
+
+		side_panel_translucent = new ModelMapper(modelPartData);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(304, 103).addCuboid(-18, -34, 0, 7, 31, 0, 0, false);
 
 		roof_window = new ModelMapper(modelPartData);
 		roof_window.setPivot(0, 24, 0);
@@ -1180,6 +1185,7 @@ public class ModelMLR extends ModelTrainBase {
 		window_exterior_1.setModelPart(modelPart);
 		window_exterior_2.setModelPart(modelPart);
 		side_panel.setModelPart(modelPart);
+		side_panel_translucent.setModelPart(modelPart);
 		roof_window.setModelPart(modelPart);
 		roof_door.setModelPart(modelPart);
 		roof_light.setModelPart(modelPart);
@@ -1231,11 +1237,13 @@ public class ModelMLR extends ModelTrainBase {
 					renderMirror(roof_window, matrices, vertices, light, position);
 					renderMirror(window_handrails, matrices, vertices, light, position);
 					renderMirror(seats, matrices, vertices, light, position + (isEvenWindow ? -0.75F : 0.75F));
+					renderMirror(side_panel, matrices, vertices, light, position - (isEvenWindow ? 15.75F : 14.25F));
+					renderMirror(side_panel, matrices, vertices, light, position + (isEvenWindow ? 14.25F : 15.75F));
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - (isEvenWindow ? 15.75F : 14.25F));
-				renderMirror(side_panel, matrices, vertices, light, position + (isEvenWindow ? 14.25F : 15.75F));
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - (isEvenWindow ? 15.75F : 14.25F));
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + (isEvenWindow ? 14.25F : 15.75F));
 				break;
 			case EXTERIOR:
 				if (isEvenWindow) {

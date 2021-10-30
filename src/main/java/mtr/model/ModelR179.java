@@ -1618,8 +1618,6 @@ public class ModelR179 extends ModelTrainBase {
 				renderMirror(side_panel, matrices, vertices, light, position - 27);
 				renderMirror(side_panel, matrices, vertices, light, position + 27);
 				break;
-			case INTERIOR_TRANSLUCENT:
-				break;
 			case EXTERIOR:
 				renderMirror(window_exterior, matrices, vertices, light, position);
 				renderMirror(roof_exterior_window, matrices, vertices, light, position);
@@ -1719,10 +1717,8 @@ public class ModelR179 extends ModelTrainBase {
 				if (renderDetails) {
 					renderOnce(roof_end, matrices, vertices, light, position);
 					renderOnce(end_handrails, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position + 11);
 				}
-				break;
-			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position + 11);
 				break;
 			case EXTERIOR:
 				renderOnce(end_exterior, matrices, vertices, light, position);
@@ -1741,10 +1737,8 @@ public class ModelR179 extends ModelTrainBase {
 				if (renderDetails) {
 					renderOnceFlipped(roof_end, matrices, vertices, light, position);
 					renderOnceFlipped(end_handrails, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 11);
 				}
-				break;
-			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 11);
 				break;
 			case EXTERIOR:
 				renderOnceFlipped(end_exterior, matrices, vertices, light, position);

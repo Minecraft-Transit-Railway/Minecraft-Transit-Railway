@@ -25,6 +25,7 @@ public class ModelMTrain extends ModelTrainBase {
 	private final ModelMapper window_exterior;
 	private final ModelMapper upper_wall_r2;
 	private final ModelMapper side_panel;
+	private final ModelMapper side_panel_translucent;
 	private final ModelMapper roof_window;
 	private final ModelMapper inner_roof_4_r1;
 	private final ModelMapper inner_roof_2_r1;
@@ -231,6 +232,10 @@ public class ModelMTrain extends ModelTrainBase {
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
 		side_panel.setTextureOffset(153, 283).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
+
+		side_panel_translucent = new ModelMapper(modelPartData);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(285, 273).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
 
 		roof_window = new ModelMapper(modelPartData);
 		roof_window.setPivot(0, 24, 0);
@@ -810,6 +815,7 @@ public class ModelMTrain extends ModelTrainBase {
 		window_handrails.setModelPart(modelPart);
 		window_exterior.setModelPart(modelPart);
 		side_panel.setModelPart(modelPart);
+		side_panel_translucent.setModelPart(modelPart);
 		roof_window.setModelPart(modelPart);
 		roof_door.setModelPart(modelPart);
 		roof_exterior.setModelPart(modelPart);
@@ -849,11 +855,13 @@ public class ModelMTrain extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(window_handrails, matrices, vertices, light, position);
 					renderMirror(roof_window, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 22F);
+					renderMirror(side_panel, matrices, vertices, light, position + 22F);
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 22F);
-				renderMirror(side_panel, matrices, vertices, light, position + 22F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22F);
 				break;
 			case EXTERIOR:
 				renderMirror(window_exterior, matrices, vertices, light, position);

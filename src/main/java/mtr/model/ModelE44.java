@@ -38,6 +38,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelMapper side_panel;
 	private final ModelMapper handrail_11_r1;
 	private final ModelMapper handrail_5_r1;
+	private final ModelMapper side_panel_translucent;
 	private final ModelMapper roof_window;
 	private final ModelMapper inner_roof_4_r1;
 	private final ModelMapper inner_roof_2_r1;
@@ -333,7 +334,7 @@ public class ModelE44 extends ModelTrainBase {
 
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
-		side_panel.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 31, 0, 0, false);
+		side_panel.setTextureOffset(287, 164).addCuboid(-18, -15, 0, 13, 15, 0, 0, false);
 
 		handrail_11_r1 = new ModelMapper(modelPartData);
 		handrail_11_r1.setPivot(0, 0, 0);
@@ -346,6 +347,10 @@ public class ModelE44 extends ModelTrainBase {
 		side_panel.addChild(handrail_5_r1);
 		setRotationAngle(handrail_5_r1, 0, 0, -0.0873F);
 		handrail_5_r1.setTextureOffset(0, 0).addCuboid(-0.2F, 0.2F, 0, 0, 18, 0, 0.2F, false);
+
+		side_panel_translucent = new ModelMapper(modelPartData);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 16, 0, 0, false);
 
 		roof_window = new ModelMapper(modelPartData);
 		roof_window.setPivot(0, 24, 0);
@@ -1169,6 +1174,7 @@ public class ModelE44 extends ModelTrainBase {
 		door_right_exterior.setModelPart(modelPart.getChild(door_exterior.name));
 		door_handrails.setModelPart(modelPart);
 		side_panel.setModelPart(modelPart);
+		side_panel_translucent.setModelPart(modelPart);
 		roof_window.setModelPart(modelPart);
 		roof_door.setModelPart(modelPart);
 		roof_window_light.setModelPart(modelPart);
@@ -1241,6 +1247,8 @@ public class ModelE44 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(roof_door, matrices, vertices, light, position);
 					renderMirror(door_handrails, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 19);
+					renderMirror(side_panel, matrices, vertices, light, position + 19);
 				}
 				break;
 			case EXTERIOR:
@@ -1260,8 +1268,8 @@ public class ModelE44 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 19);
-				renderMirror(side_panel, matrices, vertices, light, position + 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 19);
 				break;
 		}
 	}

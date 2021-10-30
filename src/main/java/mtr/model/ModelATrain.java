@@ -36,7 +36,9 @@ public class ModelATrain extends ModelTrainBase {
 	private final ModelMapper upper_wall_5_r1;
 	private final ModelMapper floor_5_r1;
 	private final ModelMapper side_panel_tcl;
+	private final ModelMapper side_panel_tcl_translucent;
 	private final ModelMapper side_panel_ael;
+	private final ModelMapper side_panel_ael_translucent;
 	private final ModelMapper roof_window_tcl;
 	private final ModelMapper inner_roof_4_r1;
 	private final ModelMapper inner_roof_3_r1;
@@ -407,9 +409,17 @@ public class ModelATrain extends ModelTrainBase {
 		side_panel_tcl.setPivot(0, 24, 0);
 		side_panel_tcl.setTextureOffset(90, 139).addCuboid(-18, -35, 0, 7, 30, 0, 0, false);
 
+		side_panel_tcl_translucent = new ModelMapper(modelPartData);
+		side_panel_tcl_translucent.setPivot(0, 24, 0);
+		side_panel_tcl_translucent.setTextureOffset(76, 139).addCuboid(-18, -35, 0, 7, 30, 0, 0, false);
+
 		side_panel_ael = new ModelMapper(modelPartData);
 		side_panel_ael.setPivot(0, 24, 0);
 		side_panel_ael.setTextureOffset(26, 281).addCuboid(-18, -34, 0, 12, 34, 0, 0, false);
+
+		side_panel_ael_translucent = new ModelMapper(modelPartData);
+		side_panel_ael_translucent.setPivot(0, 24, 0);
+		side_panel_ael_translucent.setTextureOffset(294, 108).addCuboid(-18, -34, 0, 12, 34, 0, 0, false);
 
 		roof_window_tcl = new ModelMapper(modelPartData);
 		roof_window_tcl.setPivot(0, 24, 0);
@@ -1497,7 +1507,9 @@ public class ModelATrain extends ModelTrainBase {
 		window_exterior_end_tcl.setModelPart(modelPart);
 		window_exterior_end_ael.setModelPart(modelPart);
 		side_panel_tcl.setModelPart(modelPart);
+		side_panel_tcl_translucent.setModelPart(modelPart);
 		side_panel_ael.setModelPart(modelPart);
+		side_panel_ael_translucent.setModelPart(modelPart);
 		roof_window_tcl.setModelPart(modelPart);
 		roof_window_ael.setModelPart(modelPart);
 		roof_door_tcl.setModelPart(modelPart);
@@ -1557,14 +1569,16 @@ public class ModelATrain extends ModelTrainBase {
 				if (renderDetails) {
 					if (!isAel) {
 						renderMirror(window_tcl_handrails, matrices, vertices, light, position);
+						renderMirror(side_panel_tcl, matrices, vertices, light, position - 22F);
+						renderMirror(side_panel_tcl, matrices, vertices, light, position + 22F);
 					}
 					renderMirror(isAel ? roof_window_ael : roof_window_tcl, matrices, vertices, light, position);
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (!isAel) {
-					renderMirror(side_panel_tcl, matrices, vertices, light, position - 22F);
-					renderMirror(side_panel_tcl, matrices, vertices, light, position + 22F);
+					renderMirror(side_panel_tcl_translucent, matrices, vertices, light, position - 22F);
+					renderMirror(side_panel_tcl_translucent, matrices, vertices, light, position + 22F);
 				}
 				break;
 			case EXTERIOR:
@@ -1619,6 +1633,10 @@ public class ModelATrain extends ModelTrainBase {
 						renderMirror(roof_door_ael, matrices, vertices, light, position);
 						renderMirror(luggage_rack, matrices, vertices, light, position - 20);
 						renderMirror(luggage_rack, matrices, vertices, light, position + 20);
+						renderMirror(side_panel_ael, matrices, vertices, light, position - 28.1F);
+						renderMirror(side_panel_ael, matrices, vertices, light, position - 11.9F);
+						renderMirror(side_panel_ael, matrices, vertices, light, position + 11.9F);
+						renderMirror(side_panel_ael, matrices, vertices, light, position + 28.1F);
 
 						for (int z = position + 40; z <= position + 74; z += 17) {
 							renderOnce(seat, matrices, vertices, light, 15, z);
@@ -1651,10 +1669,10 @@ public class ModelATrain extends ModelTrainBase {
 				break;
 			case INTERIOR_TRANSLUCENT:
 				if (isAel) {
-					renderMirror(side_panel_ael, matrices, vertices, light, position - 28.1F);
-					renderMirror(side_panel_ael, matrices, vertices, light, position - 11.9F);
-					renderMirror(side_panel_ael, matrices, vertices, light, position + 11.9F);
-					renderMirror(side_panel_ael, matrices, vertices, light, position + 28.1F);
+					renderMirror(side_panel_ael_translucent, matrices, vertices, light, position - 28.1F);
+					renderMirror(side_panel_ael_translucent, matrices, vertices, light, position - 11.9F);
+					renderMirror(side_panel_ael_translucent, matrices, vertices, light, position + 11.9F);
+					renderMirror(side_panel_ael_translucent, matrices, vertices, light, position + 28.1F);
 				}
 				break;
 			case EXTERIOR:

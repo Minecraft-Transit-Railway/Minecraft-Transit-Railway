@@ -29,6 +29,7 @@ public class ModelKTrain extends ModelTrainBase {
 	private final ModelMapper upper_wall_r3;
 	private final ModelMapper upper_wall_r4;
 	private final ModelMapper side_panel;
+	private final ModelMapper side_panel_translucent;
 	private final ModelMapper roof_window;
 	private final ModelMapper inner_roof_4_r1;
 	private final ModelMapper inner_roof_3_r1;
@@ -266,6 +267,10 @@ public class ModelKTrain extends ModelTrainBase {
 		side_panel = new ModelMapper(modelPartData);
 		side_panel.setPivot(0, 24, 0);
 		side_panel.setTextureOffset(30, 143).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
+
+		side_panel_translucent = new ModelMapper(modelPartData);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(293, 163).addCuboid(-18, -34, 0, 7, 30, 0, 0, false);
 
 		roof_window = new ModelMapper(modelPartData);
 		roof_window.setPivot(0, 24, 0);
@@ -820,6 +825,7 @@ public class ModelKTrain extends ModelTrainBase {
 		window_exterior.setModelPart(modelPart);
 		window_exterior_end.setModelPart(modelPart);
 		side_panel.setModelPart(modelPart);
+		side_panel_translucent.setModelPart(modelPart);
 		roof_window.setModelPart(modelPart);
 		roof_door.setModelPart(modelPart);
 		roof_exterior.setModelPart(modelPart);
@@ -862,11 +868,13 @@ public class ModelKTrain extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(window_handrail, matrices, vertices, light, position);
 					renderMirror(roof_window, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 22.1F);
+					renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 22.1F);
-				renderMirror(side_panel, matrices, vertices, light, position + 22.1F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22.1F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22.1F);
 				break;
 			case EXTERIOR:
 				if (isTcl && isIndex(0, position, getWindowPositions()) && isEnd1Head) {

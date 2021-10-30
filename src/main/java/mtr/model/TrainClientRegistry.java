@@ -63,6 +63,15 @@ public class TrainClientRegistry {
 		register("light_rail_3", TrainType.LIGHT_RAIL_3, new ModelLightRail(3), "mtr:textures/entity/light_rail_3", "light_rail", "light_rail_3", null, 0xD2A825, false, 48, 1, false);
 		register("light_rail_4", TrainType.LIGHT_RAIL_4, new ModelLightRail(4), "mtr:textures/entity/light_rail_4", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
 		register("light_rail_5", TrainType.LIGHT_RAIL_5, new ModelLightRail(5), "mtr:textures/entity/light_rail_5", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_1r_old", TrainType.LIGHT_RAIL_1R, new ModelLightRail(4), "mtr:textures/entity/light_rail_1r_old", "light_rail", "light_rail_1", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_4_old", TrainType.LIGHT_RAIL_4, new ModelLightRail(4), "mtr:textures/entity/light_rail_4_old", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_5_old", TrainType.LIGHT_RAIL_5, new ModelLightRail(5), "mtr:textures/entity/light_rail_5_old", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_1_orange", TrainType.LIGHT_RAIL_1, new ModelLightRail(1), "mtr:textures/entity/light_rail_1", "light_rail", "light_rail_1", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_1r_orange", TrainType.LIGHT_RAIL_1R, new ModelLightRail(4), "mtr:textures/entity/light_rail_1r_orange", "light_rail", "light_rail_1", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_2_orange", TrainType.LIGHT_RAIL_2, new ModelLightRail(2), "mtr:textures/entity/light_rail_2_orange", "light_rail", "light_rail_3", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_3_orange", TrainType.LIGHT_RAIL_3, new ModelLightRail(3), "mtr:textures/entity/light_rail_3_orange", "light_rail", "light_rail_3", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_4_orange", TrainType.LIGHT_RAIL_4, new ModelLightRail(4), "mtr:textures/entity/light_rail_4_orange", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_5_orange", TrainType.LIGHT_RAIL_5, new ModelLightRail(5), "mtr:textures/entity/light_rail_5_orange", "light_rail", "light_rail_4", null, 0xD2A825, false, 48, 1, false);
 		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", null, null, null, 0x333333, false, 0, 0.5F, false);
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("minecart", TrainType.MINECART, null, null, null, null, null, 0x666666, false, 0, 0.5F, false);
