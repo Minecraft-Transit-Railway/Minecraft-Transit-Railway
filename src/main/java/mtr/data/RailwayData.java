@@ -375,8 +375,8 @@ public class RailwayData extends PersistentState implements IPacket {
 		return newId;
 	}
 
-	public void addSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
-		signalBlocks.add(color, PathData.getRailProduct(posStart, posEnd));
+	public long addSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
+		return signalBlocks.add(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
 
 	public void removeNode(BlockPos pos) {

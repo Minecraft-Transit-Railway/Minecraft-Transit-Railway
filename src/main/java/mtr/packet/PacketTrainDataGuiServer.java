@@ -78,8 +78,9 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
-	public static void createSignalS2C(World world, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+	public static void createSignalS2C(World world, long id, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
 		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
 		packet.writeInt(dyeColor.ordinal());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
