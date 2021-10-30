@@ -20,8 +20,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 
 	@Override
 	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Direction facingStart, Direction facingEnd, PlayerEntity player, RailwayData railwayData) {
-		railwayData.addSignal(color, posStart, posEnd);
-		PacketTrainDataGuiServer.createSignalS2C(world, color, posStart, posEnd);
+		PacketTrainDataGuiServer.createSignalS2C(world, railwayData.addSignal(color, posStart, posEnd), color, posStart, posEnd);
 	}
 
 	@Override

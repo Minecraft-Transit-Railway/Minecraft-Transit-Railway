@@ -88,10 +88,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void createSignalS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final long id = packet.readLong();
 		final DyeColor dyeColor = DyeColor.values()[packet.readInt()];
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(dyeColor, PathData.getRailProduct(pos1, pos2)));
+		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(id, dyeColor, PathData.getRailProduct(pos1, pos2)));
 	}
 
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {

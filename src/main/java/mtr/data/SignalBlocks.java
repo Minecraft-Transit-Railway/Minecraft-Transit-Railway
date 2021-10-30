@@ -11,7 +11,7 @@ public class SignalBlocks {
 
 	public final Set<SignalBlock> signalBlocks = new HashSet<>();
 
-	public void add(DyeColor color, UUID rail) {
+	public long add(long id, DyeColor color, UUID rail) {
 		final List<SignalBlock> connectedSignalBlocks = new ArrayList<>();
 		signalBlocks.forEach(signalBlock -> {
 			if (signalBlock.color == color && signalBlock.isConnected(rail)) {
@@ -20,12 +20,15 @@ public class SignalBlocks {
 		});
 
 		if (connectedSignalBlocks.isEmpty()) {
-			signalBlocks.add(new SignalBlock(color, rail));
+			final SignalBlock newSignalBlock = new SignalBlock(id, color, rail);
+			signalBlocks.add(newSignalBlock);
+			return newSignalBlock.id;
 		} else {
 			final SignalBlock firstSignalBlock = connectedSignalBlocks.remove(0);
 			firstSignalBlock.rails.add(rail);
 			connectedSignalBlocks.forEach(signalBlock -> firstSignalBlock.rails.addAll(signalBlock.rails));
 			signalBlocks.removeIf(connectedSignalBlocks::contains);
+			return 0;
 		}
 	}
 
@@ -40,7 +43,7 @@ public class SignalBlocks {
 		signalBlocks.removeIf(connectedSignalBlocks::contains);
 		connectedSignalBlocks.forEach(signalBlock -> {
 			signalBlock.rails.remove(rail);
-			signalBlock.rails.forEach(existingRail -> add(color, existingRail));
+			signalBlock.rails.forEach(existingRail -> add(0, color, existingRail));
 		});
 
 		signalBlocks.removeIf(signalBlock -> signalBlock.rails.isEmpty());
@@ -97,8 +100,8 @@ public class SignalBlocks {
 		private static final String KEY_COLOR = "color";
 		private static final String KEY_RAILS = "rails";
 
-		private SignalBlock(DyeColor color, UUID rail) {
-			super();
+		private SignalBlock(long id, DyeColor color, UUID rail) {
+			super(id);
 			this.color = color;
 			rails.add(rail);
 		}
