@@ -309,9 +309,9 @@ public class Rail extends SerializedDataBase {
 		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
-	public void render(RenderRail callback) {
-		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, reverseT1, isStraight1, callback);
-		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), reverseT2, isStraight2, callback);
+	public void render(RenderRail callback, float offsetRadius1, float offsetRadius2) {
+		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, offsetRadius1, offsetRadius2, reverseT1, isStraight1, callback);
+		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, callback);
 	}
 
 	private double getPositionY(double value) {
@@ -339,17 +339,17 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, boolean reverseT, boolean isStraight, RenderRail callback) {
+	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float offsetRadius1, float offsetRadius2, boolean reverseT, boolean isStraight, RenderRail callback) {
 		final double count = Math.abs(tEnd - tStart);
 		final double increment = count / Math.round(count);
 
 		for (double i = 0; i < count - 0.1; i += increment) {
 			final double t1 = (reverseT ? -1 : 1) * i + tStart;
 			final double t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Vec3d corner1 = getPositionXZ(h, k, r, t1, -1, isStraight);
-			final Vec3d corner2 = getPositionXZ(h, k, r, t1, 1, isStraight);
-			final Vec3d corner3 = getPositionXZ(h, k, r, t2, 1, isStraight);
-			final Vec3d corner4 = getPositionXZ(h, k, r, t2, -1, isStraight);
+			final Vec3d corner1 = getPositionXZ(h, k, r, t1, offsetRadius1, isStraight);
+			final Vec3d corner2 = getPositionXZ(h, k, r, t1, offsetRadius2, isStraight);
+			final Vec3d corner3 = getPositionXZ(h, k, r, t2, offsetRadius2, isStraight);
+			final Vec3d corner4 = getPositionXZ(h, k, r, t2, offsetRadius1, isStraight);
 
 			final double y1 = getPositionY(i + rawValueOffset);
 			final double y2 = getPositionY(i + increment + rawValueOffset);

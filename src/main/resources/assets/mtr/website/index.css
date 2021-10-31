@@ -13,15 +13,13 @@
     --textColor: #000000;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --backgroundColor: #000000;
-        --backgroundHover: #333333;
-        --boxBorder: #555555;
-        --textColorDisabled: #666666;
-        --textColorGray: #BBBBBB;
-        --textColor: #FFFFFF;
-    }
+.dark_theme {
+    --backgroundColor: #000000;
+    --backgroundHover: #333333;
+    --boxBorder: #555555;
+    --textColorDisabled: #666666;
+    --textColorGray: #BBBBBB;
+    --textColor: #FFFFFF;
 }
 
 canvas {
@@ -99,6 +97,15 @@ h2 {
 
 #station_arrivals {
     padding: 0.4em 0.2em 0 0.2em;
+}
+
+#loading.material-icons {
+    color: var(--textColorDisabled);
+    font-size: 4em;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 .box {

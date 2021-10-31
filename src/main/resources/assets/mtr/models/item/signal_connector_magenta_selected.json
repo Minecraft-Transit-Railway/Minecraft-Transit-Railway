@@ -1,0 +1,8 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "item/magenta_dye",
+		"layer1": "mtr:item/signal_connector",
+		"layer2": "mtr:item/rail_connector_selected"
+	}
+}

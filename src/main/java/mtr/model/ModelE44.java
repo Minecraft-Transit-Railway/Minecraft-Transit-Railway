@@ -35,6 +35,7 @@ public class ModelE44 extends ModelTrainBase {
 	private final ModelPart side_panel;
 	private final ModelPart handrail_11_r1;
 	private final ModelPart handrail_5_r1;
+	private final ModelPart side_panel_translucent;
 	private final ModelPart roof_window;
 	private final ModelPart inner_roof_4_r1;
 	private final ModelPart inner_roof_2_r1;
@@ -326,7 +327,7 @@ public class ModelE44 extends ModelTrainBase {
 
 		side_panel = new ModelPart(this);
 		side_panel.setPivot(0, 24, 0);
-		side_panel.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 31, 0, 0, false);
+		side_panel.setTextureOffset(287, 164).addCuboid(-18, -15, 0, 13, 15, 0, 0, false);
 
 		handrail_11_r1 = new ModelPart(this);
 		handrail_11_r1.setPivot(0, 0, 0);
@@ -339,6 +340,10 @@ public class ModelE44 extends ModelTrainBase {
 		side_panel.addChild(handrail_5_r1);
 		setRotationAngle(handrail_5_r1, 0, 0, -0.0873F);
 		handrail_5_r1.setTextureOffset(0, 0).addCuboid(-0.2F, 0.2F, 0, 0, 18, 0, 0.2F, false);
+
+		side_panel_translucent = new ModelPart(this);
+		side_panel_translucent.setPivot(0, 24, 0);
+		side_panel_translucent.setTextureOffset(287, 148).addCuboid(-18, -31, 0, 13, 16, 0, 0, false);
 
 		roof_window = new ModelPart(this);
 		roof_window.setPivot(0, 24, 0);
@@ -1156,7 +1161,7 @@ public class ModelE44 extends ModelTrainBase {
 	private static final ModelDoorOverlayTopMLR MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopMLR("mtr:textures/sign/door_overlay_e44_top.png");
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderMirror(roof_window_light, matrices, vertices, light, position);
@@ -1179,7 +1184,7 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
 		final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
 
@@ -1201,6 +1206,8 @@ public class ModelE44 extends ModelTrainBase {
 				if (renderDetails) {
 					renderMirror(roof_door, matrices, vertices, light, position);
 					renderMirror(door_handrails, matrices, vertices, light, position);
+					renderMirror(side_panel, matrices, vertices, light, position - 19);
+					renderMirror(side_panel, matrices, vertices, light, position + 19);
 				}
 				break;
 			case EXTERIOR:
@@ -1220,14 +1227,14 @@ public class ModelE44 extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel, matrices, vertices, light, position - 19);
-				renderMirror(side_panel, matrices, vertices, light, position + 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 19);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 19);
 				break;
 		}
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
@@ -1250,7 +1257,7 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);
@@ -1273,7 +1280,7 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnce(roof_end_light, matrices, vertices, light, position);
@@ -1295,7 +1302,7 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, ModelTrainBase.RenderStage renderStage, int light, int position, boolean renderDetails) {
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
 			case LIGHTS:
 				renderOnceFlipped(roof_end_light, matrices, vertices, light, position);

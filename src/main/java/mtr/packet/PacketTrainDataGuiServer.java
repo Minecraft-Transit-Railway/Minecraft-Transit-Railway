@@ -1,5 +1,6 @@
 package mtr.packet;
 
+import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockTrainAnnouncer;
@@ -15,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -52,6 +54,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
 	}
 
+	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		packet.writeInt(maxArrivals);
+		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
+	}
+
 	public static void announceS2C(ServerPlayerEntity player, String message) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeString(message);
@@ -68,6 +78,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
+	public static void createSignalS2C(World world, long id, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_SIGNAL, packet));
+	}
+
 	public static void removeNodeS2C(World world, BlockPos pos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos);
@@ -81,7 +100,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
+	public static void removeSignalS2C(World world, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNAL, packet));
+	}
+
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 
@@ -90,6 +117,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;
 		while (!sendChunk(player, packet, tempPacketId, i)) {
@@ -199,6 +227,26 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
+		});
+	}
+
+	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final int messagesSize = packet.readInt();
+		final String[] messages = new String[messagesSize];
+		for (int i = 0; i < messagesSize; i++) {
+			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		}
+		minecraftServer.execute(() -> {
+			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
+			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setMessages(messages);
+			}
+			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
+			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setMessages(messages);
+			}
 		});
 	}
 

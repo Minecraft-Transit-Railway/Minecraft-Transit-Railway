@@ -1,0 +1,39 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "north"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_1"
+			}
+		},
+		{
+			"when": {
+				"facing": "east"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_1",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_1",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west"
+			},
+			"apply": {
+				"model": "mtr:block/signal_light_1",
+				"y": 270
+			}
+		}
+	]
+}

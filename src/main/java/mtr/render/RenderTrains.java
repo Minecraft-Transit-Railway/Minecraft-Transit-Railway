@@ -1,16 +1,16 @@
 package mtr.render;
 
 import mtr.MTRClient;
+import mtr.block.BlockSignalLight1;
 import mtr.config.Config;
-import mtr.data.IGui;
-import mtr.data.RailType;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
-import mtr.item.ItemRailModifier;
+import mtr.item.ItemNodeModifierBase;
 import mtr.model.TrainClientRegistry;
+import mtr.path.PathData;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -22,6 +22,7 @@ import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -50,6 +51,7 @@ public class RenderTrains implements IGui {
 	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
+	private static final int TICKS_PER_SECOND = 20;
 
 	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
 
@@ -80,8 +82,11 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
 		final boolean secondF5 = Math.abs(player.yaw - client.gameRenderer.getCamera().getYaw()) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.render(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+			if (trainProperties.model == null && isTranslucent) {
+				return;
+			}
 
 			matrices.push();
 			if (playerOffset == null) {
@@ -101,7 +106,7 @@ public class RenderTrains implements IGui {
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod || posAverage.getSquaredDistance(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.pop();
@@ -205,9 +210,12 @@ public class RenderTrains implements IGui {
 				});
 			}
 		}));
+		if (!Config.hideTranslucentParts()) {
+			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
+		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(item -> item instanceof ItemRailModifier);
+		final boolean renderColors = player.isHolding(item -> item instanceof ItemNodeModifierBase || Block.getBlockFromItem(item) instanceof BlockSignalLight1);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
@@ -215,11 +223,10 @@ public class RenderTrains implements IGui {
 			}
 
 			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				if (shouldNotRender(new BlockPos(x1, y1, z1), maxRailDistance, null)) {
+				final BlockPos pos2 = new BlockPos(x1, y1, z1);
+				if (shouldNotRender(pos2, maxRailDistance, null)) {
 					return;
 				}
-
-				final BlockPos pos2 = new BlockPos(x1, y1, z1);
 				final int light2 = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
 
 				if (rail.railType == RailType.NONE) {
@@ -230,13 +237,37 @@ public class RenderTrains implements IGui {
 					}
 				} else {
 					final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F;
-					final int color = renderColors || rail.railType.hasSavedRail ? rail.railType.color : -1;
+					final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
 
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/rail.png")));
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				}
-			});
+			}, -1, 1);
+			if (renderColors) {
+				final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
+				final float width = 1F / DyeColor.values().length;
+
+				for (int i = 0; i < signalBlocks.size(); i++) {
+					final SignalBlocks.SignalBlock signalBlock = signalBlocks.get(i);
+					final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(getGameTicks())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
+					final VertexConsumer vertexConsumer = shouldGlow ? vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false)) : vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("textures/block/white_wool.png")));
+					final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
+					final float u2 = u1 + width;
+
+					final int color = ARGB_BLACK + signalBlock.color.getMapColor().color;
+					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+						final BlockPos pos2 = new BlockPos(x1, y1, z1);
+						if (shouldNotRender(pos2, maxRailDistance, null)) {
+							return;
+						}
+						final int light2 = shouldGlow ? MAX_LIGHT_GLOWING : LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos2), world.getLightLevel(LightType.SKY, pos2));
+
+						IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
+						IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
+					}, u1 - 1, u2 - 1);
+				}
+			}
 		}));
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {

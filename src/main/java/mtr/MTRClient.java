@@ -1,6 +1,9 @@
 package mtr;
 
 import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
+import mtr.block.BlockPIDS1;
+import mtr.block.BlockPIDS2;
+import mtr.block.BlockPIDS3;
 import mtr.block.BlockTactileMap;
 import mtr.config.Config;
 import mtr.config.CustomResources;
@@ -10,7 +13,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
-import mtr.item.ItemRailModifier;
+import mtr.item.ItemNodeModifierBase;
 import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -69,6 +72,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.PSD_GLASS_END_2, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.RAIL, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.RUBBISH_BIN_1, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SIGNAL_LIGHT_1, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_COLOR_STAINED_GLASS, RenderLayer.getTranslucent());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_BLOCK, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.STATION_NAME_TALL_WALL, RenderLayer.getCutout());
@@ -82,22 +86,54 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_ANNOUNCER, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_SENSOR, RenderLayer.getCutout());
 
-		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
-		registerRailPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_2_STONE);
-		registerRailPredicate(Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_3_IRON);
-		registerRailPredicate(Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN);
-		registerRailPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_5_BLAZE);
-		registerRailPredicate(Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_6_DIAMOND);
-		registerRailPredicate(Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
-		registerRailPredicate(Items.RAIL_CONNECTOR_PLATFORM);
-		registerRailPredicate(Items.RAIL_CONNECTOR_SIDING);
-		registerRailPredicate(Items.RAIL_CONNECTOR_TURN_BACK);
-		registerRailPredicate(Items.RAIL_REMOVER);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_2_STONE);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_3_IRON);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_5_BLAZE);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_6_DIAMOND);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_PLATFORM);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_SIDING);
+		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_TURN_BACK);
+		registerNodeModifierPredicate(Items.RAIL_REMOVER);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_WHITE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_ORANGE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_MAGENTA);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIGHT_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_YELLOW);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIME);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_PINK);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_LIGHT_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_CYAN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_PURPLE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BROWN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_GREEN);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_RED);
+		registerNodeModifierPredicate(Items.SIGNAL_CONNECTOR_BLACK);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_WHITE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_ORANGE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_MAGENTA);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIGHT_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_YELLOW);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIME);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_PINK);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_LIGHT_GRAY);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_CYAN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_PURPLE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BLUE);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BROWN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_GREEN);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_RED);
+		registerNodeModifierPredicate(Items.SIGNAL_REMOVER_BLACK);
 
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 15, 16, 14, 14, false, false, true, 0xFF9900, 0xFF9900));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, -15, 15, 16, 30, 46, false, false, true, 0xFF9900, 0xFF9900));
@@ -105,9 +141,9 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.CLOCK_TILE_ENTITY, RenderClock::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_1_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 1, 1, 3.25F, 6, 2.5F, 30, true, false, false, 0xFF9900, 0xFF9900));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_2_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 3, 1.5F, 7.5F, 6, 6.5F, 29, true, true, false, 0xFF9900, 0xFF9900));
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_3_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 2, 2.5F, 7.5F, 6, 6.5F, 27, true, false, false, 0xFF9900, 0x33CC00, 1.25F, true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_1_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS1.TileEntityBlockPIDS1.MAX_ARRIVALS, 1, 3.25F, 6, 2.5F, 30, true, false, false, 0xFF9900, 0xFF9900));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_2_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS2.TileEntityBlockPIDS2.MAX_ARRIVALS, 1.5F, 7.5F, 6, 6.5F, 29, true, true, false, 0xFF9900, 0xFF9900));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.PIDS_3_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, BlockPIDS3.TileEntityBlockPIDS3.MAX_ARRIVALS, 2.5F, 7.5F, 6, 6.5F, 27, true, false, false, 0xFF9900, 0x33CC00, 1.25F, true));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_EVEN_TILE_ENTITY, RenderRailwaySign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_2_ODD_TILE_ENTITY, RenderRailwaySign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.RAILWAY_SIGN_3_EVEN_TILE_ENTITY, RenderRailwaySign::new);
@@ -124,6 +160,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, RenderRouteSign::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_1, RenderSignalLight1::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, RenderStationNameEntrance::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, RenderStationNameTall::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
@@ -167,14 +204,17 @@ public class MTRClient implements ClientModInitializer, IPacket {
 
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveChunk(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_PIDS_CONFIG_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openPIDSConfigScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTrainAnnouncerScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_ANNOUNCE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.announceS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.generatePathS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createRailS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_SIGNAL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createSignalS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_NODE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeNodeS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeRailConnectionS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_REMOVE_SIGNAL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.removeSignalS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_STATION, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PLATFORM, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SIDING, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(minecraftClient, packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
@@ -217,8 +257,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new CustomResources());
 	}
 
-	private static void registerRailPredicate(Item item) {
-		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemRailModifier.TAG_POS) ? 1 : 0);
+	private static void registerNodeModifierPredicate(Item item) {
+		ModelPredicateRegisterInvoker.invokeRegister(item, new Identifier(MTR.MOD_ID + ":selected"), (itemStack, clientWorld, livingEntity) -> itemStack.getOrCreateTag().contains(ItemNodeModifierBase.TAG_POS) ? 1 : 0);
 	}
 
 	private static void registerStationColor(Block block) {

@@ -110,6 +110,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		switch (key) {
 			case KEY_BASE_TRAIN_TYPE:
 				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+				trains.clear();
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readString(PACKET_STRING_READ_LENGTH);
@@ -225,7 +226,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Set<UUID>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -258,11 +259,11 @@ public class Siding extends SavedRailBase implements IPacket {
 			railProgressSet.add(roundedRailProgress);
 
 			if (trainPositions != null) {
-				train.writeTrainPositions(trainPositions.get(1));
+				train.writeTrainPositions(trainPositions.get(1), signalBlocks);
 			}
 		}
 
-		if (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains)) {
+		if (trainCars > 0 && (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains))) {
 			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, timeSegments);
 			trains.add(train);
 		}

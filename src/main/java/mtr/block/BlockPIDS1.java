@@ -23,10 +23,17 @@ public class BlockPIDS1 extends BlockPIDSBase {
 		return new TileEntityBlockPIDS1();
 	}
 
-	public static class TileEntityBlockPIDS1 extends BlockEntity {
+	public static class TileEntityBlockPIDS1 extends TileEntityBlockPIDSBase {
+
+		public static final int MAX_ARRIVALS = 1;
 
 		public TileEntityBlockPIDS1() {
 			super(MTR.PIDS_1_TILE_ENTITY);
+		}
+
+		@Override
+		protected int getMaxArrivals() {
+			return MAX_ARRIVALS;
 		}
 	}
 }
