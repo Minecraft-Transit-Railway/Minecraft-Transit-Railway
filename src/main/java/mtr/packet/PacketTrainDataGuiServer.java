@@ -1,9 +1,6 @@
 package mtr.packet;
 
-import mtr.block.BlockPIDSBase;
-import mtr.block.BlockRailwaySign;
-import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockTrainAnnouncer;
+import mtr.block.*;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -60,6 +57,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		packet.writeBlockPos(pos2);
 		packet.writeInt(maxArrivals);
 		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
+	}
+
+	public static void openScheduleSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(blockPos);
+		ServerPlayNetworking.send(player, PACKET_OPEN_SCHEDULE_SENSOR_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -188,6 +191,17 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				}
 			}));
 		}
+	}
+
+	public static void receiveScheduleSensorScreenC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(pos);
+			if (entity instanceof BlockScheduleSensor.TileEntityBlockScheduleSensor) {
+				(( BlockScheduleSensor.TileEntityBlockScheduleSensor) entity).setMessage(message);
+			}
+		});
 	}
 
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {

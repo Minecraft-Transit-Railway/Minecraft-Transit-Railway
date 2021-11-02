@@ -76,7 +76,7 @@ public class RenderSignalLight1 extends BlockEntityRenderer<BlockSignalLight1.Ti
 		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false));
 		final float y = isOccupied ? 0.0625F : 0.4375F;
-		IDrawing.drawTexture(matrices, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, facing.getOpposite(), isOccupied ? 0xFFFF0000 : 0xFF0000FF, MAX_LIGHT_GLOWING);
+		IDrawing.drawTexture(matrices, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, facing.getOpposite(), isOccupied ? 0xFFFF0000 : 0xFF00FF00, MAX_LIGHT_GLOWING);
 		matrices.pop();
 	}
 }

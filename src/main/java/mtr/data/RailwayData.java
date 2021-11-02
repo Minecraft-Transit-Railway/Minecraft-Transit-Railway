@@ -86,6 +86,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		// TODO temporary code end
 	}
 
+	public Set<Route.ScheduleEntry> getSchedulesAtPlatform(long platformId) {
+		return schedulesForPlatform.get(platformId);
+	}
+
 	@Override
 	public void fromTag(NbtCompound nbtCompound) {
 		try {
