@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.MTR;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
@@ -90,22 +91,13 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
         @Override
         public void tick() {
             if(!world.isClient) {
-
-                ServerWorld serverworld = (ServerWorld) world;
-                final Block block = serverworld.getBlockState(pos).getBlock();
-                if(getStatus()) {
-                    serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
-                } else {
-                    serverworld.getBlockTickScheduler().schedule(pos, block, 20);
-                }
-            } else if (world != null && world.isClient) {
                 final Set<Route.ScheduleEntry> schedules;
                 BlockPos pos1 = new BlockPos(pos.getX(),pos.getY(), pos.getZ());
                 BlockPos pos2 = new BlockPos(pos.getX(),pos.getY()+1, pos.getZ());
+
                 Platform myPlatform = null;
                 Platform myPlatform2 = null;
-                //final Platform platform = RailwayData.getClosePlatform(pos1);
-                //final Platform platform2 = ClientData.getClosePlatform(pos2);
+
                 final RailwayData railwayData = RailwayData.getInstance(world);
                 if(railwayData != null) {
                     try {
@@ -115,37 +107,37 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                         e.printStackTrace();
                     }
                 }
-//                myPlatform.
-//
-//                if (myPlatform == null && myPlatform2 == null) {
-//                    //System.out.println("No Platform");
-//                    return;
-//                }
-//                if(myPlatform != null) {
-//                    schedules = railwayData.getSchedulesForStation(myPlatform.);
-//                    schedules = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-//                } else {
-//                    schedules = ClientData.SCHEDULES_FOR_PLATFORM.get(platform2.id);
-//                }
 
-//                if (schedules == null) {
-//
-//                    return;
-//                }
+
+                if (myPlatform == null && myPlatform2 == null) {
+                    return;
+                }
+                if(myPlatform != null) {
+                    schedules = railwayData.getSchedulesAtPlatform(myPlatform.id);
+                } else {
+                    schedules = railwayData.getSchedulesAtPlatform(myPlatform2.id);
+                }
+
+                if (schedules == null) {
+                    return;
+                }
+
+                ServerWorld serverworld = (ServerWorld) world;
+                final Block block = serverworld.getBlockState(pos).getBlock();
 
                 if(seconds <= Integer.parseInt(getMessage()) && seconds > 0) {
-
+                    serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
                 } else if(seconds <= 0) {
-
+                    serverworld.getBlockTickScheduler().schedule(pos, block, 20);
                 }
 
                 System.out.println(seconds);
-//
-//                final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-//                Collections.sort(scheduleList);
-//
-//                final Route.ScheduleEntry currentSchedule = scheduleList.get(0);
-//                seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
+
+                final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+                Collections.sort(scheduleList);
+
+                final Route.ScheduleEntry currentSchedule = scheduleList.get(0);
+                seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 
             }
 

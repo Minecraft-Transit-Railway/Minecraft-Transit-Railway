@@ -193,7 +193,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void receiveScheduleSensorScreenC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveScheduleSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 		minecraftServer.execute(() -> {
