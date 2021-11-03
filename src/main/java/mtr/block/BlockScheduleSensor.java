@@ -32,7 +32,6 @@ import java.util.*;
 public class BlockScheduleSensor extends Block implements BlockEntityProvider {
 
     public static final BooleanProperty POWERED = BooleanProperty.of("powered");
-    public static Integer seconds = 9999;
 
     public BlockScheduleSensor(Settings settings) {
         super(settings);
@@ -108,7 +107,6 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                     }
                 }
 
-
                 if (myPlatform == null && myPlatform2 == null) {
                     return;
                 }
@@ -122,6 +120,16 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                     return;
                 }
 
+                int seconds;
+
+                final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+                Collections.sort(scheduleList);
+
+                final Route.ScheduleEntry currentSchedule = scheduleList.get(0);
+                seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
+
+                //System.out.println(seconds);
+
                 ServerWorld serverworld = (ServerWorld) world;
                 final Block block = serverworld.getBlockState(pos).getBlock();
 
@@ -131,18 +139,9 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                     serverworld.getBlockTickScheduler().schedule(pos, block, 20);
                 }
 
-                System.out.println(seconds);
-
-                final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
-                Collections.sort(scheduleList);
-
-                final Route.ScheduleEntry currentSchedule = scheduleList.get(0);
-                seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
-
             }
 
         }
-
 
         public String getMessage() {
             if(message == "") {
