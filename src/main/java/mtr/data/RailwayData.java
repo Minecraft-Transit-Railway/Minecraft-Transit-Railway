@@ -384,6 +384,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData();
 		}
+		final PacketByteBuf packet = signalBlocks.getValidationPacket(rails);
+		if (packet != null) {
+			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_REMOVE_SIGNALS, packet));
+		}
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
@@ -391,14 +395,22 @@ public class RailwayData extends PersistentState implements IPacket {
 		if (generated) {
 			validateData();
 		}
+		final PacketByteBuf packet = signalBlocks.getValidationPacket(rails);
+		if (packet != null) {
+			world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_REMOVE_SIGNALS, packet));
+		}
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
 	}
 
-	public void removeSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
-		signalBlocks.remove(color, PathData.getRailProduct(posStart, posEnd));
+	public boolean containsRail(BlockPos pos1, BlockPos pos2) {
+		return containsRail(rails, pos1, pos2);
+	}
+
+	public long removeSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
+		return signalBlocks.remove(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
 
 	public void disconnectPlayer(PlayerEntity player) {
