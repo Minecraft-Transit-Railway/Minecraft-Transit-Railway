@@ -18,10 +18,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
@@ -81,12 +78,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
-	public static void createSignalS2C(World world, long id, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+	public static void createSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeInt(dyeColor.ordinal());
-		packet.writeBlockPos(pos1);
-		packet.writeBlockPos(pos2);
+		packet.writeUuid(rail);
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_SIGNAL, packet));
 	}
 
@@ -103,12 +99,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void removeSignalS2C(World world, DyeColor dyeColor, BlockPos pos1, BlockPos pos2) {
+	public static void removeSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
 		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(1);
+		packet.writeLong(id);
 		packet.writeInt(dyeColor.ordinal());
-		packet.writeBlockPos(pos1);
-		packet.writeBlockPos(pos2);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNAL, packet));
+		packet.writeUuid(rail);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
 	}
 
 	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {

@@ -3,7 +3,6 @@ package mtr.packet;
 import io.netty.buffer.ByteBuf;
 import mtr.data.*;
 import mtr.gui.*;
-import mtr.path.PathData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -12,10 +11,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiClient extends PacketTrainDataBase {
@@ -99,9 +95,8 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void createSignalS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final long id = packet.readLong();
 		final DyeColor dyeColor = DyeColor.values()[packet.readInt()];
-		final BlockPos pos1 = packet.readBlockPos();
-		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(id, dyeColor, PathData.getRailProduct(pos1, pos2)));
+		final UUID rail = packet.readUuid();
+		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.add(id, dyeColor, rail));
 	}
 
 	public static void removeNodeS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
@@ -115,11 +110,21 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> RailwayData.removeRailConnection(null, ClientData.RAILS, pos1, pos2));
 	}
 
-	public static void removeSignalS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		final DyeColor dyeColor = DyeColor.values()[packet.readInt()];
-		final BlockPos pos1 = packet.readBlockPos();
-		final BlockPos pos2 = packet.readBlockPos();
-		minecraftClient.execute(() -> ClientData.SIGNAL_BLOCKS.remove(dyeColor, PathData.getRailProduct(pos1, pos2)));
+	public static void removeSignalsS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final long removeCount = packet.readInt();
+		final List<Long> ids = new ArrayList<>();
+		final List<DyeColor> colors = new ArrayList<>();
+		final List<UUID> rails = new ArrayList<>();
+		for (int i = 0; i < removeCount; i++) {
+			ids.add(packet.readLong());
+			colors.add(DyeColor.values()[packet.readInt()]);
+			rails.add(packet.readUuid());
+		}
+		minecraftClient.execute(() -> {
+			for (int i = 0; i < removeCount; i++) {
+				ClientData.SIGNAL_BLOCKS.remove(ids.get(i), colors.get(i), rails.get(i));
+			}
+		});
 	}
 
 	public static void receiveChunk(MinecraftClient minecraftClient, PacketByteBuf packet) {

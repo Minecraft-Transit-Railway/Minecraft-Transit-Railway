@@ -1,8 +1,10 @@
 package mtr.data;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class SignalBlocks {
 			signalBlocks.add(newSignalBlock);
 			return newSignalBlock.id;
 		} else {
+			Collections.sort(connectedSignalBlocks);
 			final SignalBlock firstSignalBlock = connectedSignalBlocks.remove(0);
 			firstSignalBlock.rails.add(rail);
 			connectedSignalBlocks.forEach(signalBlock -> firstSignalBlock.rails.addAll(signalBlock.rails));
@@ -32,21 +35,37 @@ public class SignalBlocks {
 		}
 	}
 
-	public void remove(DyeColor color, UUID rail) {
-		final List<SignalBlock> connectedSignalBlocks = new ArrayList<>();
-		signalBlocks.forEach(signalBlock -> {
+	public long remove(long id, DyeColor color, UUID rail) {
+		SignalBlock connectedSignalBlock = null;
+		for (final SignalBlock signalBlock : signalBlocks) {
 			if (signalBlock.color == color && signalBlock.isConnected(rail)) {
-				connectedSignalBlocks.add(signalBlock);
+				connectedSignalBlock = signalBlock;
+				break;
 			}
-		});
+		}
 
-		signalBlocks.removeIf(connectedSignalBlocks::contains);
-		connectedSignalBlocks.forEach(signalBlock -> {
-			signalBlock.rails.remove(rail);
-			signalBlock.rails.forEach(existingRail -> add(0, color, existingRail));
-		});
+		if (connectedSignalBlock != null) {
+			signalBlocks.remove(connectedSignalBlock);
+			connectedSignalBlock.rails.remove(rail);
 
-		signalBlocks.removeIf(signalBlock -> signalBlock.rails.isEmpty());
+			if (!connectedSignalBlock.rails.isEmpty()) {
+				final List<UUID> rails = new ArrayList<>(connectedSignalBlock.rails);
+				Collections.sort(rails);
+				add(connectedSignalBlock.id, color, rails.remove(0));
+
+				long returnId = 0;
+				for (final UUID existingRail : rails) {
+					final long newId = add(id, color, existingRail);
+					if (newId != connectedSignalBlock.id) {
+						returnId = newId;
+					}
+				}
+
+				return returnId;
+			}
+		}
+
+		return 0;
 	}
 
 	public void occupy(UUID rail, Map<UUID, Long> trainPositions, long trainId) {
@@ -89,6 +108,35 @@ public class SignalBlocks {
 				signalBlock.occupied = occupied ? 2 : 0;
 			}
 		}));
+	}
+
+	public PacketByteBuf getValidationPacket(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+		final List<UUID> railsToRemove = new ArrayList<>();
+		final List<DyeColor> colorsToRemove = new ArrayList<>();
+
+		signalBlocks.forEach(signalBlock -> signalBlock.rails.forEach(rail -> {
+			final BlockPos pos1 = BlockPos.fromLong(rail.getLeastSignificantBits());
+			final BlockPos pos2 = BlockPos.fromLong(rail.getMostSignificantBits());
+			if (!RailwayData.containsRail(rails, pos1, pos2)) {
+				railsToRemove.add(rail);
+				colorsToRemove.add(signalBlock.color);
+			}
+		}));
+
+		if (railsToRemove.isEmpty()) {
+			return null;
+		} else {
+			final PacketByteBuf packet = PacketByteBufs.create();
+			packet.writeInt(railsToRemove.size());
+			for (int i = 0; i < railsToRemove.size(); i++) {
+				final DyeColor color = colorsToRemove.get(i);
+				final UUID rail = railsToRemove.get(i);
+				packet.writeLong(remove(0, color, rail));
+				packet.writeInt(color.ordinal());
+				packet.writeUuid(rail);
+			}
+			return packet;
+		}
 	}
 
 	public static class SignalBlock extends NameColorDataBase {
@@ -170,6 +218,11 @@ public class SignalBlocks {
 				final long pos2 = rail.getMostSignificantBits();
 				return checkPos1 == pos1 || checkPos1 == pos2 || checkPos2 == pos1 || checkPos2 == pos2;
 			});
+		}
+
+		@Override
+		public int compareTo(NameColorDataBase compare) {
+			return Long.compare(id, compare.id);
 		}
 	}
 }
