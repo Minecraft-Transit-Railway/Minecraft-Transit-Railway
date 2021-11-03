@@ -6,18 +6,6 @@
 	},
 	"elements": [
 		{
-			"from": [ 5, 0, 5 ],
-			"to": [ 11, 12, 11 ],
-			"faces": {
-				"down": { "texture": "#particle", "cullface": "down" },
-				"up": { "texture": "#particle" },
-				"east": { "texture": "#particle" },
-				"west": { "texture": "#particle" },
-				"north": { "texture": "#particle" },
-				"south": { "texture": "#particle" }
-			}
-		},
-		{
 			"from": [ 2, 0, 10 ],
 			"to": [ 14, 14, 10.5 ],
 			"faces": {

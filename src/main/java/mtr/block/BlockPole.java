@@ -15,10 +15,13 @@ import net.minecraft.world.BlockView;
 
 import java.util.List;
 
-public class BlockStationPole extends Block {
+public class BlockPole extends Block {
 
-	public BlockStationPole(Settings settings) {
+	private final boolean showTooltip;
+
+	public BlockPole(Settings settings, boolean showTooltip) {
 		super(settings);
+		this.showTooltip = showTooltip;
 	}
 
 	@Override
@@ -28,7 +31,9 @@ public class BlockStationPole extends Block {
 
 	@Override
 	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-		tooltip.add(new TranslatableText("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		if (showTooltip) {
+			tooltip.add(new TranslatableText("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+		}
 	}
 
 	public static VoxelShape getStationPoleShape() {
