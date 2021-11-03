@@ -70,6 +70,12 @@ public interface Blocks {
 	Block ROUTE_SIGN_WALL_METAL = new BlockRouteSignWallMetal();
 	Block RUBBISH_BIN_1 = new BlockRubbishBin(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).hardness(4));
 	Block SIGNAL_LIGHT_1 = new BlockSignalLight1(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_LIGHT_2 = new BlockSignalLight2(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_LIGHT_3 = new BlockSignalLight3(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_LIGHT_4 = new BlockSignalLight4(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_SEMAPHORE_1 = new BlockSignalSemaphore1(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_SEMAPHORE_2 = new BlockSignalSemaphore2(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
+	Block SIGNAL_POLE = new BlockPole(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque(), false);
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BIRCH_WOOD));
@@ -106,7 +112,7 @@ public interface Blocks {
 	Block STATION_NAME_TALL_BLOCK = new BlockStationNameTallBlock();
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();
 	Block STATION_NAME_WALL = new BlockStationNameWall(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
-	Block STATION_POLE = new BlockStationPole(FabricBlockSettings.of(Material.STONE, MapColor.STONE_GRAY).requiresTool().hardness(2).nonOpaque());
+	Block STATION_POLE = new BlockPole(FabricBlockSettings.of(Material.STONE, MapColor.STONE_GRAY).requiresTool().hardness(2).nonOpaque(), true);
 	Block TACTILE_MAP = new BlockTactileMap(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).nonOpaque());
 	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
 	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);

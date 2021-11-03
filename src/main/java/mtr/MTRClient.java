@@ -162,7 +162,12 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, RenderRouteSign::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, RenderRouteSign::new);
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_1, RenderSignalLight1::new);
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_1, dispatcher -> new RenderSignalLight<>(dispatcher, true, false, 0xFF0000FF));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_2, dispatcher -> new RenderSignalLight<>(dispatcher, false, false, 0xFF0000FF));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_3, dispatcher -> new RenderSignalLight<>(dispatcher, true, true, 0xFF00FF00));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_4, dispatcher -> new RenderSignalLight<>(dispatcher, false, true, 0xFF00FF00));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_SEMAPHORE_1, dispatcher -> new RenderSignalSemaphore<>(dispatcher, true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_SEMAPHORE_2, dispatcher -> new RenderSignalSemaphore<>(dispatcher, false));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, RenderStationNameEntrance::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, RenderStationNameTall::new);
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
