@@ -37,6 +37,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openScheduleSensorScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof EditScheduleSensorScreen)) {
+				minecraftClient.openScreen(new EditScheduleSensorScreen(pos));
+			}
+		});
+	}
+
 	public static void openTicketMachineScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
@@ -168,6 +177,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		sendUpdate(packetId, packet);
+	}
+
+	public static void sendScheduleSensorC2S(BlockPos pos, String message) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos);
+		packet.writeString(message);
+		ClientPlayNetworking.send(PACKET_SCHEDULE_SENSOR_UPDATE, packet);
 	}
 
 	public static void generatePathS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {

@@ -81,6 +81,7 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = registerTileEntity("station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 	public static final BlockEntityType<BlockTactileMap.TileEntityTactileMap> TACTILE_MAP_TILE_ENTITY = registerTileEntity("tactile_map", BlockTactileMap.TileEntityTactileMap::new, Blocks.TACTILE_MAP);
 	public static final BlockEntityType<BlockTrainAnnouncer.TileEntityTrainAnnouncer> TRAIN_ANNOUNCER_TILE_ENTITY = registerTileEntity("train_announcer", BlockTrainAnnouncer.TileEntityTrainAnnouncer::new, Blocks.TRAIN_ANNOUNCER);
+	public static final BlockEntityType<BlockScheduleSensor.TileEntityBlockScheduleSensor> BLOCK_SCHEDULE_ENTITY = registerTileEntity("sounds_timer", BlockScheduleSensor.TileEntityBlockScheduleSensor::new, Blocks.SCHEDULE_SENSOR);
 
 	public static final SoundEvent TICKET_BARRIER = registerSoundEvent("ticket_barrier");
 	public static final SoundEvent TICKET_BARRIER_CONCESSIONARY = registerSoundEvent("ticket_barrier_concessionary");
@@ -267,6 +268,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_announcer", Blocks.TRAIN_ANNOUNCER, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_sensor", Blocks.TRAIN_SENSOR, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("train_schedule_sensor", Blocks.SCHEDULE_SENSOR, ItemGroups.RAILWAY_FACILITIES);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CLEAR_TRAINS, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet));
@@ -284,6 +286,7 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_SIDING, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_SCHEDULE_SENSOR_UPDATE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveScheduleSensorC2S(minecraftServer, player, packet));
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);

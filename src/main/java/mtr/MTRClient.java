@@ -85,6 +85,8 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TICKET_PROCESSOR_ENQUIRY, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_ANNOUNCER, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.TRAIN_SENSOR, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SCHEDULE_SENSOR, RenderLayer.getCutout());
+
 
 		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN);
 		registerNodeModifierPredicate(Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
@@ -235,6 +237,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_DELETE_TRAINS, (minecraftClient, handler, packet, sender) -> ClientData.deleteTrains(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, (minecraftClient, handler, packet, sender) -> ClientData.updateTrainRidingPosition(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_SCHEDULE, (minecraftClient, handler, packet, sender) -> ClientData.updateSchedule(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_SCHEDULE_SENSOR_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openScheduleSensorScreenS2C(minecraftClient, packet));
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
