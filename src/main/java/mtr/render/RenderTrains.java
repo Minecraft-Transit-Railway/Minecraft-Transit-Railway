@@ -1,7 +1,8 @@
 package mtr.render;
 
 import mtr.MTRClient;
-import mtr.block.BlockSignalLight1;
+import mtr.block.BlockSignalLightBase;
+import mtr.block.BlockSignalSemaphoreBase;
 import mtr.config.Config;
 import mtr.data.*;
 import mtr.gui.ClientCache;
@@ -215,7 +216,7 @@ public class RenderTrains implements IGui {
 		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase || Block.getBlockFromItem(itemStack.getItem()) instanceof BlockSignalLight1);
+		final boolean renderColors = player.isHolding(itemStack -> itemStack.getItem() instanceof ItemNodeModifierBase || Block.getBlockFromItem(itemStack.getItem()) instanceof BlockSignalLightBase || Block.getBlockFromItem(itemStack.getItem()) instanceof BlockSignalSemaphoreBase);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {

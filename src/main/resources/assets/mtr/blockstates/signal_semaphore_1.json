@@ -1,16 +1,11 @@
 {
 	"multipart": [
 		{
-			"apply": {
-				"model": "mtr:block/signal_light_base"
-			}
-		},
-		{
 			"when": {
 				"facing": "north"
 			},
 			"apply": {
-				"model": "mtr:block/signal_light_covers"
+				"model": "mtr:block/signal_semaphore_base"
 			}
 		},
 		{
@@ -18,7 +13,7 @@
 				"facing": "east"
 			},
 			"apply": {
-				"model": "mtr:block/signal_light_covers",
+				"model": "mtr:block/signal_semaphore_base",
 				"y": 90
 			}
 		},
@@ -27,7 +22,7 @@
 				"facing": "south"
 			},
 			"apply": {
-				"model": "mtr:block/signal_light_covers",
+				"model": "mtr:block/signal_semaphore_base",
 				"y": 180
 			}
 		},
@@ -36,7 +31,7 @@
 				"facing": "west"
 			},
 			"apply": {
-				"model": "mtr:block/signal_light_covers",
+				"model": "mtr:block/signal_semaphore_base",
 				"y": 270
 			}
 		}

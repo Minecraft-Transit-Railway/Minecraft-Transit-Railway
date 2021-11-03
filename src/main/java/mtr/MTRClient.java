@@ -160,7 +160,12 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, context -> new RenderRouteSign<>());
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, context -> new RenderRouteSign<>());
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, context -> new RenderRouteSign<>());
-		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_1, context -> new RenderSignalLight1());
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_1, context -> new RenderSignalLight<>(true, false, 0xFF0000FF));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_2, context -> new RenderSignalLight<>(false, false, 0xFF0000FF));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_3, context -> new RenderSignalLight<>(true, true, 0xFF00FF00));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_LIGHT_4, context -> new RenderSignalLight<>(false, true, 0xFF00FF00));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_SEMAPHORE_1, context -> new RenderSignalSemaphore<>(true));
+		BlockEntityRendererRegistry.INSTANCE.register(MTR.SIGNAL_SEMAPHORE_2, context -> new RenderSignalSemaphore<>(false));
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, context -> new RenderStationNameEntrance());
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, context -> new RenderStationNameTall<>());
 		BlockEntityRendererRegistry.INSTANCE.register(MTR.STATION_NAME_TALL_WALL_TILE_ENTITY, context -> new RenderStationNameTall<>());

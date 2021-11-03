@@ -70,6 +70,11 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockRouteSignWallLight.TileEntityRouteSignWallLight> ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY = registerTileEntity("route_sign_wall_light", BlockRouteSignWallLight.TileEntityRouteSignWallLight::new, Blocks.ROUTE_SIGN_WALL_LIGHT);
 	public static final BlockEntityType<BlockRouteSignWallMetal.TileEntityRouteSignWallMetal> ROUTE_SIGN_WALL_METAL_TILE_ENTITY = registerTileEntity("route_sign_wall_metal", BlockRouteSignWallMetal.TileEntityRouteSignWallMetal::new, Blocks.ROUTE_SIGN_WALL_METAL);
 	public static final BlockEntityType<BlockSignalLight1.TileEntitySignalLight1> SIGNAL_LIGHT_1 = registerTileEntity("signal_light_1", BlockSignalLight1.TileEntitySignalLight1::new, Blocks.SIGNAL_LIGHT_1);
+	public static final BlockEntityType<BlockSignalLight2.TileEntitySignalLight2> SIGNAL_LIGHT_2 = registerTileEntity("signal_light_2", BlockSignalLight2.TileEntitySignalLight2::new, Blocks.SIGNAL_LIGHT_2);
+	public static final BlockEntityType<BlockSignalLight3.TileEntitySignalLight3> SIGNAL_LIGHT_3 = registerTileEntity("signal_light_3", BlockSignalLight3.TileEntitySignalLight3::new, Blocks.SIGNAL_LIGHT_3);
+	public static final BlockEntityType<BlockSignalLight4.TileEntitySignalLight4> SIGNAL_LIGHT_4 = registerTileEntity("signal_light_4", BlockSignalLight4.TileEntitySignalLight4::new, Blocks.SIGNAL_LIGHT_4);
+	public static final BlockEntityType<BlockSignalSemaphore1.TileEntitySignalSemaphore1> SIGNAL_SEMAPHORE_1 = registerTileEntity("signal_semaphore_1", BlockSignalSemaphore1.TileEntitySignalSemaphore1::new, Blocks.SIGNAL_SEMAPHORE_1);
+	public static final BlockEntityType<BlockSignalSemaphore2.TileEntitySignalSemaphore2> SIGNAL_SEMAPHORE_2 = registerTileEntity("signal_semaphore_2", BlockSignalSemaphore2.TileEntitySignalSemaphore2::new, Blocks.SIGNAL_SEMAPHORE_2);
 	public static final BlockEntityType<BlockStationNameEntrance.TileEntityStationNameEntrance> STATION_NAME_ENTRANCE_TILE_ENTITY = registerTileEntity("station_name_entrance", BlockStationNameEntrance.TileEntityStationNameEntrance::new, Blocks.STATION_NAME_ENTRANCE);
 	public static final BlockEntityType<BlockStationNameWall.TileEntityStationNameWall> STATION_NAME_WALL_TILE_ENTITY = registerTileEntity("station_name_wall", BlockStationNameWall.TileEntityStationNameWall::new, Blocks.STATION_NAME_WALL);
 	public static final BlockEntityType<BlockStationNameTallBlock.TileEntityStationNameTallBlock> STATION_NAME_TALL_BLOCK_TILE_ENTITY = registerTileEntity("station_name_tall_block", BlockStationNameTallBlock.TileEntityStationNameTallBlock::new, Blocks.STATION_NAME_TALL_BLOCK);
@@ -209,6 +214,12 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("route_sign_wall_metal", Blocks.ROUTE_SIGN_WALL_METAL, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("rubbish_bin_1", Blocks.RUBBISH_BIN_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("signal_light_1", Blocks.SIGNAL_LIGHT_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_light_2", Blocks.SIGNAL_LIGHT_2, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_light_3", Blocks.SIGNAL_LIGHT_3, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_light_4", Blocks.SIGNAL_LIGHT_4, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
