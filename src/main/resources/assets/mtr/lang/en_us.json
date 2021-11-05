@@ -162,6 +162,7 @@
 	"gui.mtr.routes": "Routes",
 	"gui.mtr.s": "s",
 	"gui.mtr.schedule_sensor_label": "Arrival Offset (Seconds)",
+	"gui.mtr.schedule_sensor_label2": "Destination Filter",
 	"gui.mtr.search": "Search",
 	"gui.mtr.selected": "Selected",
 	"gui.mtr.selected_train": "Selected Train",

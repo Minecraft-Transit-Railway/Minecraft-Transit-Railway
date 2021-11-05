@@ -179,10 +179,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		sendUpdate(packetId, packet);
 	}
 
-	public static void sendScheduleSensorC2S(BlockPos pos, String message) {
+	public static void sendScheduleSensorC2S(BlockPos pos, String offset, String dest) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos);
-		packet.writeString(message);
+		packet.writeString(offset);
+		packet.writeString(dest);
 		ClientPlayNetworking.send(PACKET_SCHEDULE_SENSOR_UPDATE, packet);
 	}
 

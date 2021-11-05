@@ -192,11 +192,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	public static void receiveScheduleSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final String offset = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final String dest = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(pos);
 			if (entity instanceof BlockScheduleSensor.TileEntityBlockScheduleSensor) {
-				(( BlockScheduleSensor.TileEntityBlockScheduleSensor) entity).setMessage(message);
+				(( BlockScheduleSensor.TileEntityBlockScheduleSensor) entity).setOffSet(offset);
+				(( BlockScheduleSensor.TileEntityBlockScheduleSensor) entity).setDest(dest);
 			}
 		});
 	}

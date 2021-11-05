@@ -75,8 +75,12 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
     }
 
     public static class TileEntityBlockScheduleSensor extends BlockEntity implements Tickable, BlockEntityClientSerializable {
-        private String message = "";
-        private static final String KEY_MESSAGE = "message";
+        private String offset = "";
+        private String dest = "";
+
+        private static final String KEY_MESSAGE = "offset";
+        private static final String KEY_MESSAGE2 = "dest";
+
 
         public TileEntityBlockScheduleSensor() {
             super(MTR.BLOCK_SCHEDULE_ENTITY);
@@ -121,39 +125,62 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                 }
 
                 int seconds;
+                String destination;
 
                 final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
                 Collections.sort(scheduleList);
 
                 final Route.ScheduleEntry currentSchedule = scheduleList.get(0);
                 seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
+                destination = currentSchedule.destination;
 
-                //System.out.println(seconds);
+                System.out.println(destination);
+                System.out.println(getDest());
 
                 ServerWorld serverworld = (ServerWorld) world;
                 final Block block = serverworld.getBlockState(pos).getBlock();
 
-                if(seconds <= Integer.parseInt(getMessage()) && seconds > 0) {
-                    serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
-                } else if(seconds <= 0) {
-                    serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                if(Objects.equals(getDest(), "") || getDest() == null) {
+                    if(seconds <= Integer.parseInt(getOffSet()) && seconds > 0) {
+                        serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
+                    } else if(seconds <= 0) {
+                        serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                    }
+                    System.out.println("1");
+                } else {
+                    if(seconds <= Integer.parseInt(getOffSet()) && seconds > 0 && Objects.equals(destination, getDest())) {
+                        serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
+                    } else if(seconds <= 0) {
+                        serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                    }
+                    System.out.println("2");
                 }
 
             }
 
         }
 
-        public String getMessage() {
-            if(message == "") {
+        public String getOffSet() {
+            if(offset == "") {
                 return "10";
             } else {
-                return message;
+                return offset;
             }
 
         }
 
-        public void setMessage(String message) {
-            this.message = message;
+        public String getDest() {
+             return dest;
+        }
+
+        public void setOffSet(String offset) {
+            this.offset = offset;
+            markDirty();
+            sync();
+        }
+
+        public void setDest(String dest) {
+            this.dest = dest;
             markDirty();
             sync();
         }
@@ -173,12 +200,14 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
 
         @Override
         public void fromClientTag(NbtCompound nbtCompound) {
-            message = nbtCompound.getString(KEY_MESSAGE);
+            offset = nbtCompound.getString(KEY_MESSAGE);
+            dest = nbtCompound.getString(KEY_MESSAGE2);
         }
 
         @Override
         public NbtCompound toClientTag(NbtCompound nbtCompound) {
-            nbtCompound.putString(KEY_MESSAGE, message);
+            nbtCompound.putString(KEY_MESSAGE, offset);
+            nbtCompound.putString(KEY_MESSAGE2, dest);
             return nbtCompound;
         }
     }
