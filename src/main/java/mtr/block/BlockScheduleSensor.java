@@ -134,9 +134,6 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                 seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
                 destination = currentSchedule.destination;
 
-                System.out.println(destination);
-                System.out.println(getDest());
-
                 ServerWorld serverworld = (ServerWorld) world;
                 final Block block = serverworld.getBlockState(pos).getBlock();
 
@@ -146,14 +143,12 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                     } else if(seconds <= 0) {
                         serverworld.getBlockTickScheduler().schedule(pos, block, 20);
                     }
-                    System.out.println("1");
                 } else {
                     if(seconds <= Integer.parseInt(getOffSet()) && seconds > 0 && Objects.equals(destination, getDest())) {
                         serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
                     } else if(seconds <= 0) {
                         serverworld.getBlockTickScheduler().schedule(pos, block, 20);
                     }
-                    System.out.println("2");
                 }
 
             }
