@@ -18,6 +18,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Tickable;
@@ -138,16 +139,23 @@ public class BlockScheduleSensor extends Block implements BlockEntityProvider {
                 final Block block = serverworld.getBlockState(pos).getBlock();
 
                 if(Objects.equals(getDest(), "") || getDest() == null) {
-                    if(seconds <= Integer.parseInt(getOffSet()) && seconds > 0) {
+                    if(seconds <= Integer.parseInt(getOffSet())) {
                         serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
-                    } else if(seconds <= 0) {
-                        serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                    } else {
+                        Boolean isPowered = serverworld.getBlockState(pos).get(POWERED);
+                        if(isPowered) {
+                            serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                        }
+
                     }
                 } else {
-                    if(seconds <= Integer.parseInt(getOffSet()) && seconds > 0 && Objects.equals(destination, getDest())) {
+                    if(seconds <= Integer.parseInt(getOffSet()) && Objects.equals(destination, getDest())) {
                         serverworld.setBlockState(pos, serverworld.getBlockState(pos).with(BlockScheduleSensor.POWERED, true));
-                    } else if(seconds <= 0) {
-                        serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                    } else {
+                        Boolean isPowered = serverworld.getBlockState(pos).get(POWERED);
+                        if(isPowered) {
+                            serverworld.getBlockTickScheduler().schedule(pos, block, 20);
+                        }
                     }
                 }
 
