@@ -1,5 +1,6 @@
-package mtr;
+package mtr.sound;
 
+import mtr.MTR;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.AbstractSoundInstance;
@@ -32,7 +33,7 @@ public class LoopingSoundInstance extends AbstractSoundInstance implements Ticka
 		if (isRemoved) {
 			if (x == pos.getX() && y == pos.getY() && z == pos.getZ()) {
 				x = 0;
-				y = 0;
+				y = Integer.MAX_VALUE;
 				z = 0;
 			}
 		} else {

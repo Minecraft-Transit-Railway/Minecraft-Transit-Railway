@@ -18,6 +18,7 @@ import mtr.mixin.ModelPredicateRegisterInvoker;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
+import mtr.sound.LoopingSoundInstance;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
