@@ -43,6 +43,10 @@ public interface Blocks {
 	Block PLATFORM_NA_2_INDENTED = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2).nonOpaque(), true);
 	Block PLATFORM_UK_1 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2), false);
 	Block PLATFORM_UK_1_INDENTED = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2).nonOpaque(), true);
+	Block POLE_CLOCK = new BlockPoleClock(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
+	Block POLE_PIDS = new BlockPolePIDS(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
+	Block POLE_SIGN_EVEN = new BlockPoleSignEven(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1).nonOpaque());
+	Block POLE_SIGN_ODD = new BlockPoleSignOdd(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
 	Block PSD_DOOR_1 = new BlockPSDDoor(0);
 	Block PSD_GLASS_1 = new BlockPSDGlass(0);
 	Block PSD_GLASS_END_1 = new BlockPSDGlassEnd(0);

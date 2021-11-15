@@ -1,0 +1,20 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/metal"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 7],
+			"to": [3.25, 16, 9],
+			"faces": {
+				"north": {"uv": [12.75, 0, 14, 16], "texture": "#particle"},
+				"east": {"uv": [7, 0, 9, 16], "texture": "#particle"},
+				"south": {"uv": [2, 0, 3.25, 16], "texture": "#particle"},
+				"west": {"uv": [7, 0, 9, 16], "texture": "#particle"},
+				"up": {"uv": [2, 7, 3.25, 9], "texture": "#particle", "cullface": "up"},
+				"down": {"uv": [2, 7, 3.25, 9], "texture": "#particle", "cullface": "down"}
+			}
+		}
+	]
+}
