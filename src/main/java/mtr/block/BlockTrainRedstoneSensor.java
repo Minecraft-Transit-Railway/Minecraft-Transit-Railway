@@ -11,11 +11,11 @@ import net.minecraft.world.BlockView;
 
 import java.util.Random;
 
-public class BlockTrainSensor extends Block {
+public class BlockTrainRedstoneSensor extends Block {
 
 	public static final BooleanProperty POWERED = BooleanProperty.of("powered");
 
-	public BlockTrainSensor(Settings settings) {
+	public BlockTrainRedstoneSensor(Settings settings) {
 		super(settings);
 		setDefaultState(getStateManager().getDefaultState().with(POWERED, false));
 	}

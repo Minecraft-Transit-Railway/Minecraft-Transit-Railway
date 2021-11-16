@@ -10,6 +10,8 @@ public interface IPacket {
 	Identifier PACKET_OPEN_RAILWAY_SIGN_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_railway_sign_screen");
 	Identifier PACKET_OPEN_TICKET_MACHINE_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_ticket_machine_screen");
 	Identifier PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_train_announcer_screen");
+	Identifier PACKET_OPEN_TRAIN_SCHEDULE_SENSOR_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_train_schedule_sensor_screen");
+
 	Identifier PACKET_ANNOUNCE = new Identifier(MTR.MOD_ID, "packet_announce");
 
 	Identifier PACKET_CREATE_RAIL = new Identifier(MTR.MOD_ID, "packet_create_rail");
@@ -44,6 +46,7 @@ public interface IPacket {
 	Identifier PACKET_DELETE_TRAINS = new Identifier(MTR.MOD_ID, "delete_trains");
 	Identifier PACKET_UPDATE_TRAIN_RIDING_POSITION = new Identifier(MTR.MOD_ID, "update_train_riding_position");
 	Identifier PACKET_UPDATE_SCHEDULE = new Identifier(MTR.MOD_ID, "update_schedule");
+	Identifier PACKET_UPDATE_TRAIN_SCHEDULE_SENSOR = new Identifier(MTR.MOD_ID, "packet_update_train_schedule_sensor");
 
 	int MAX_PACKET_BYTES = 1048576;
 }

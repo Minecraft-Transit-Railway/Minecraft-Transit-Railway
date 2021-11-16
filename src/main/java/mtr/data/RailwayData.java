@@ -440,6 +440,10 @@ public class RailwayData extends PersistentState implements IPacket {
 		});
 	}
 
+	public Set<Route.ScheduleEntry> getSchedulesAtPlatform(long platformId) {
+		return schedulesForPlatform.get(platformId);
+	}
+
 	private void validateData() {
 		removeSavedRailS2C(world, platforms, rails, PACKET_DELETE_PLATFORM);
 		removeSavedRailS2C(world, sidings, rails, PACKET_DELETE_SIDING);
