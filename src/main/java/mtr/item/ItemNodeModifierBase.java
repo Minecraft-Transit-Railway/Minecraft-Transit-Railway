@@ -3,6 +3,9 @@ package mtr.item;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
+import mtr.data.Rail;
+import mtr.data.RailAngle;
+import mtr.data.RailType;
 import mtr.data.RailwayData;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -18,6 +21,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,12 +58,10 @@ public abstract class ItemNodeModifierBase extends Item {
 						final PlayerEntity player = context.getPlayer();
 
 						if (isConnector) {
-							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
-							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
-							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
-							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
+							final RailAngle facingStart = new RailAngle(RailAngle.PropertyToInternal(IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING_ANGLE)));
+							final RailAngle facingEnd = new RailAngle(RailAngle.PropertyToInternal(IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING_ANGLE)));
 
-							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
+							if (isValidStart(posStart, facingStart, posEnd, facingEnd)) {
 								onConnect(world, stateStart, stateEnd, posStart, posEnd, facingStart, facingEnd, player, railwayData);
 							} else {
 								if (player != null) {
@@ -93,7 +96,7 @@ public abstract class ItemNodeModifierBase extends Item {
 		}
 	}
 
-	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Direction facingStart, Direction facingEnd, PlayerEntity player, RailwayData railwayData);
+	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData);
 
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
 
@@ -105,10 +108,9 @@ public abstract class ItemNodeModifierBase extends Item {
 		}
 	}
 
-	private static boolean isValidStart(BlockPos startPos, Direction startFacing, BlockPos endPos) {
-		final BlockPos posDifference = endPos.subtract(startPos);
-		final boolean sameX = startFacing.getOffsetX() == Math.signum(posDifference.getX());
-		final boolean sameZ = startFacing.getOffsetZ() == Math.signum(posDifference.getZ());
-		return startFacing.getAxis() == Direction.Axis.X ? sameX : sameZ;
+	private static boolean isValidStart(BlockPos startPos, RailAngle startFacing, BlockPos endPos, RailAngle endFacing) {
+		// TODO may need a better implantation
+		Rail rail = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
+		return rail.isValid();
 	}
 }
