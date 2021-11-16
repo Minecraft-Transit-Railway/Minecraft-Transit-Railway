@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "mtr:block/pole_pids" },
+    "facing=east": { "model": "mtr:block/pole_pids", "y": 90 },
+    "facing=west": { "model": "mtr:block/pole_pids", "y": 270 },
+    "facing=south": { "model": "mtr:block/pole_pids", "y": 180 }
+  }
+}
