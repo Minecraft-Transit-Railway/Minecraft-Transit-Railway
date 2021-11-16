@@ -113,11 +113,10 @@ public class RailAngle {
         return (float) getRadD();
     }
 
-    private static int NormalizeAngleInt(int ScaledAngle) { // Private due to unsafe for > 360 degrees
+    private static int NormalizeAngleInt(int ScaledAngle) {
+        ScaledAngle = Math.floorMod(ScaledAngle, CircleAngle);
         if (ScaledAngle >= HalfCircleAngle) {
             return (ScaledAngle - CircleAngle);
-        } else if (ScaledAngle < (-HalfCircleAngle)) {
-            return (ScaledAngle + CircleAngle);
         } else {
             return (ScaledAngle);
         }
@@ -126,7 +125,7 @@ public class RailAngle {
     public static int DegreeToProperty(float viewAngle) {
         int angle = ((int) Math.round( viewAngle / PropertyDegree) + ((int) (270 / PropertyDegree)));
         // We use standard Coordinate system, inverting and adding 90 degrees for rotating.
-        return angle % (HalfCircleAngle / PropertyFactor);
+        return Math.floorMod(angle, (HalfCircleAngle / PropertyFactor));
     }
 
     public static int DegreeToInternal(double DegreeAngle) {

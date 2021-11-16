@@ -40,6 +40,7 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_RAIL_TYPE = "rail_type";
 	private static final String KEY_FACING_START = "facing_start";
 	private static final String KEY_FACING_END = "facing_end";
+	public static final double MIN_RADIUS_ALLOWED = 1.2;
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -118,19 +119,28 @@ public class Rail extends SerializedDataBase {
 				isStraight1 = isStraight2 = true;
 				tStart2 = tEnd2 = 0;
 			} else { // 1. b
-				double ar = (deltaV * deltaV + deltaP * deltaP) / (4 * deltaV);
-				r1 = r2 = Math.abs(ar);
-				h1 = xStart - ar * actFacingStart.sin();
-				k1 = zStart + ar * actFacingStart.cos();
-				h2 = xEnd + ar * actFacingEnd.sin();
-				k2 = zEnd - ar * actFacingEnd.cos();
-				reverseT1 = (deltaV < 0);
-				reverseT2 = !reverseT1;
-				tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
-				tEnd1 = getTBounds(xStart + vecDiff.x / 2, h1, zStart + vecDiff.z / 2, k1, r1, tStart1, reverseT1);
-				tStart2 = getTBounds(xStart + vecDiff.x / 2, h2, zStart + vecDiff.z / 2, k2, r2);
-				tEnd2 = getTBounds(xEnd, h2, zEnd, k2, r2, tStart2, reverseT2);
-				isStraight1 = isStraight2 = false;
+				if(Math.abs(deltaP) > ACCEPT_THRESHOLD) {
+					double ar = (deltaV * deltaV + deltaP * deltaP) / (4 * deltaV);
+					r1 = r2 = Math.abs(ar);
+					h1 = xStart - ar * actFacingStart.sin();
+					k1 = zStart + ar * actFacingStart.cos();
+					h2 = xEnd + ar * actFacingEnd.sin();
+					k2 = zEnd - ar * actFacingEnd.cos();
+					reverseT1 = (deltaV < 0);
+					reverseT2 = !reverseT1;
+					tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
+					tEnd1 = getTBounds(xStart + vecDiff.x / 2, h1, zStart + vecDiff.z / 2, k1, r1, tStart1, reverseT1);
+					tStart2 = getTBounds(xStart + vecDiff.x / 2, h2, zStart + vecDiff.z / 2, k2, r2);
+					tEnd2 = getTBounds(xEnd, h2, zEnd, k2, r2, tStart2, reverseT2);
+					isStraight1 = isStraight2 = false;
+				} else {
+					// Banned node perpendicular to the rail nodes direction
+					h1 = k1 = h2 = k2 = r1 = r2 = 0;
+					tStart1 = tStart2 = tEnd1 = tEnd2 = 0;
+					reverseT1 = false;
+					reverseT2 = false;
+					isStraight1 = isStraight2 = true;
+				}
 			}
 		} else { // 3.
 			double angleV = Math.atan2(deltaV, deltaP);
@@ -399,10 +409,13 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public boolean isValid() {
-		return !((h1 == 0) && (k1 == 0) && (h2 == 0) && (k2 == 0) && (r1 == 0) && (r2 == 0)
+		// 			For check the minimum radius
+		return !( ((r1 < MIN_RADIUS_ALLOWED) && (!isStraight1)) || ((r2 < MIN_RADIUS_ALLOWED) && (!isStraight2)) ||
+		//			For check if is valid
+				((h1 == 0) && (k1 == 0) && (h2 == 0) && (k2 == 0) && (r1 == 0) && (r2 == 0)
 				&& (tStart1 == 0) && (tStart2 == 0)&& (tEnd1 == 0)&& (tEnd2 == 0)
 				&& (!reverseT1) && (!reverseT2) //&& (reverseT1 == false) && (reverseT2 == false)
-				&& (isStraight1) && (isStraight2)); //&& (isStraight1 == true) && (isStraight2 == true));
+				&& (isStraight1) && (isStraight2))); //&& (isStraight1 == true) && (isStraight2 == true));
 	}
 
 	@FunctionalInterface
