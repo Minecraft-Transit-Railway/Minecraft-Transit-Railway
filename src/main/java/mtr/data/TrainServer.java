@@ -2,7 +2,7 @@ package mtr.data;
 
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainSensor;
+import mtr.block.BlockTrainRedstoneSensor;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -118,8 +118,8 @@ public class TrainServer extends Train {
 		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
 				final Block block = world.getBlockState(checkPos).getBlock();
-				if (block instanceof BlockTrainSensor) {
-					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
+				if (block instanceof BlockTrainRedstoneSensor) {
+					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainRedstoneSensor.POWERED, true));
 					world.getBlockTickScheduler().schedule(checkPos, block, 20);
 				}
 			});

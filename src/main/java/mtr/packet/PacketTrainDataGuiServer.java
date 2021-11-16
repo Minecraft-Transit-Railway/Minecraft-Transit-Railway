@@ -59,7 +59,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	public static void openScheduleSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_SCHEDULE_SENSOR_SCREEN, packet);
+		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SCHEDULE_SENSOR_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -190,13 +190,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void receiveScheduleSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveTrainScheduleSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final int seconds = packet.readInt();
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(pos);
-			if (entity instanceof BlockScheduleSensor.TileEntityBlockScheduleSensor) {
-				(( BlockScheduleSensor.TileEntityBlockScheduleSensor) entity).setMessage(message);
+			if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) {
+				((BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) entity).setSeconds(seconds);
 			}
 		});
 	}

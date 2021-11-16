@@ -90,7 +90,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
-		return new Box(getPosition(0), getPosition(1)).stretch(-radius, lower, -radius).stretch(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
+		return new Box(getPosition(0), getPosition(1)).stretch(-radius, -lower, -radius).stretch(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
