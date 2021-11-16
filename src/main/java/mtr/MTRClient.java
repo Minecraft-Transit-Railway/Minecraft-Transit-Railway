@@ -208,7 +208,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		registerStationColor(Blocks.STATION_COLOR_WOOL);
 		registerStationColor(Blocks.STATION_NAME_TALL_BLOCK);
 		registerStationColor(Blocks.STATION_NAME_TALL_WALL);
-		registerStationColor(Blocks.STATION_POLE);
+		registerStationColor(Blocks.STATION_COLOR_POLE);
 
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CHUNK_S2C, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.receiveChunk(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_DASHBOARD_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openDashboardScreenS2C(minecraftClient));
