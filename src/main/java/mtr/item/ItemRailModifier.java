@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.block.BlockRail;
 import mtr.data.Rail;
+import mtr.data.RailAngle;
 import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -45,7 +46,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Direction facingStart, Direction facingEnd, PlayerEntity player, RailwayData railwayData) {
+	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData) {
 		if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 			if (player != null) {
 				player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);

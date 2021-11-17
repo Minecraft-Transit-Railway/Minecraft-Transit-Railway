@@ -1,0 +1,21 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/oak_log"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 7 ],
+			"to": [ 16, 1, 9 ],
+			"rotation": { "angle": -22.5, "axis": "y", "origin": [ 8, 0, 8 ] },
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" }
+			}
+		}
+	]
+}

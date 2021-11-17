@@ -1,17 +1,59 @@
 {
 	"variants": {
-		"facing=false,is_connected=false": {
-			"model": "mtr:block/rail_buffer"
-		},
-		"facing=true,is_connected=false": {
+		"facing_angle=0,is_connected=false": {
 			"model": "mtr:block/rail_buffer",
 			"y": 90
 		},
-		"facing=false,is_connected=true": {
+		"facing_angle=1,is_connected=false": {
+			"model": "mtr:block/rail_buffer_n22d5",
+			"y": 90
+		},
+		"facing_angle=2,is_connected=false": {
+			"model": "mtr:block/rail_buffer_45"
+		},
+		"facing_angle=3,is_connected=false": {
+			"model": "mtr:block/rail_buffer_22d5"
+		},
+		"facing_angle=4,is_connected=false": {
+			"model": "mtr:block/rail_buffer"
+		},
+		"facing_angle=5,is_connected=false": {
+			"model": "mtr:block/rail_buffer_n22d5"
+		},
+		"facing_angle=6,is_connected=false": {
+			"model": "mtr:block/rail_buffer_45",
+			"y": 90
+		},
+		"facing_angle=7,is_connected=false": {
+			"model": "mtr:block/rail_buffer_22d5",
+			"y": 90
+		},
+		"facing_angle=0,is_connected=true": {
+			"model": "mtr:block/rail_connection",
+			"y": 90
+		},
+		"facing_angle=1,is_connected=true": {
+			"model": "mtr:block/rail_connection_n22d5",
+			"y": 90
+		},
+		"facing_angle=2,is_connected=true": {
+			"model": "mtr:block/rail_connection_45"
+		},
+		"facing_angle=3,is_connected=true": {
+			"model": "mtr:block/rail_connection_22d5"
+		},
+		"facing_angle=4,is_connected=true": {
 			"model": "mtr:block/rail_connection"
 		},
-		"facing=true,is_connected=true": {
-			"model": "mtr:block/rail_connection",
+		"facing_angle=5,is_connected=true": {
+			"model": "mtr:block/rail_connection_n22d5"
+		},
+		"facing_angle=6,is_connected=true": {
+			"model": "mtr:block/rail_connection_45",
+			"y": 90
+		},
+		"facing_angle=7,is_connected=true": {
+			"model": "mtr:block/rail_connection_22d5",
 			"y": 90
 		}
 	}

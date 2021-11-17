@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.MTR;
 import mtr.data.Rail;
+import mtr.data.RailAngle;
 import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -14,8 +15,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -25,8 +26,9 @@ import java.util.*;
 
 public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
 
-	public static final BooleanProperty FACING = BooleanProperty.of("facing");
+	//public static final BooleanProperty FACING = BooleanProperty.of("facing");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
+	public static final IntProperty FACING_ANGLE = IntProperty.of("facing_angle", 0,(RailAngle.HalfCircleAngle / RailAngle.PropertyFactor - 1));
 
 	public BlockRail(Settings settings) {
 		super(settings);
@@ -34,8 +36,8 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
-		return getDefaultState().with(FACING, facing).with(IS_CONNECTED, false);
+		final int facing = RailAngle.DegreeToProperty(ctx.getPlayerYaw());
+		return getDefaultState().with(FACING_ANGLE, facing).with(IS_CONNECTED, false);
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, IS_CONNECTED);
+		builder.add(FACING_ANGLE, IS_CONNECTED);
 	}
 
 	@Override
@@ -122,7 +124,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			return nbtCompound;
 		}
 
-		public void addRail(Direction facing1, BlockPos newPos, Direction facing2, RailType railType) {
+		public void addRail(RailAngle facing1, BlockPos newPos, RailAngle facing2, RailType railType) {
 			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
 				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2, railType));
 
@@ -157,9 +159,9 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			final Set<BlockPos> positions = new HashSet<>();
 			final Rail railFrom = railMap.get(posFrom);
 			if (railFrom != null) {
-				final Direction findDirection = railFrom.facingStart.getOpposite();
+				final RailAngle findDirection = railFrom.facingStart.getOpposite();
 				railMap.forEach((pos, rail) -> {
-					if (rail.facingStart == findDirection) {
+					if (rail.facingStart.isSame(findDirection)) {
 						positions.add(pos);
 					}
 				});
