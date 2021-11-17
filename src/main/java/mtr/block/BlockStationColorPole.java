@@ -15,11 +15,11 @@ import net.minecraft.world.BlockView;
 
 import java.util.List;
 
-public class BlockPole extends Block {
+public class BlockStationColorPole extends Block {
 
 	private final boolean showTooltip;
 
-	public BlockPole(Settings settings, boolean showTooltip) {
+	public BlockStationColorPole(Settings settings, boolean showTooltip) {
 		super(settings);
 		this.showTooltip = showTooltip;
 	}

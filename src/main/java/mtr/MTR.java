@@ -162,6 +162,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("arrival_projector_1_large", Blocks.ARRIVAL_PROJECTOR_1_LARGE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ceiling", Blocks.CEILING, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("clock", Blocks.CLOCK, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("clock_pole", Blocks.CLOCK_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);
 		registerBlock("escalator_step", Blocks.ESCALATOR_STEP);
 		registerBlock("glass_fence_cio", Blocks.GLASS_FENCE_CIO, ItemGroups.RAILWAY_FACILITIES);
@@ -180,6 +181,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("pids_1", Blocks.PIDS_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("pids_3", Blocks.PIDS_3, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("pids_pole", Blocks.PIDS_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("platform", Blocks.PLATFORM, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("platform_indented", Blocks.PLATFORM_INDENTED, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlock("platform_na_1", Blocks.PLATFORM_NA_1, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -209,6 +211,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("railway_sign_7_even", Blocks.RAILWAY_SIGN_7_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("railway_sign_7_odd", Blocks.RAILWAY_SIGN_7_ODD, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("railway_sign_middle", Blocks.RAILWAY_SIGN_MIDDLE);
+		registerBlock("railway_sign_pole", Blocks.RAILWAY_SIGN_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("route_sign_standing_light", Blocks.ROUTE_SIGN_STANDING_LIGHT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("route_sign_standing_metal", Blocks.ROUTE_SIGN_STANDING_METAL, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("route_sign_wall_light", Blocks.ROUTE_SIGN_WALL_LIGHT, ItemGroups.RAILWAY_FACILITIES);
@@ -257,7 +260,7 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
-		registerBlock("station_pole", Blocks.STATION_POLE, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("station_pole", Blocks.STATION_COLOR_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("tactile_map", Blocks.TACTILE_MAP, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ticket_barrier_exit_1", Blocks.TICKET_BARRIER_EXIT_1, ItemGroups.RAILWAY_FACILITIES);

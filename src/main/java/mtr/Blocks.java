@@ -17,6 +17,7 @@ public interface Blocks {
 	Block ARRIVAL_PROJECTOR_1_LARGE = new BlockArrivalProjector1Large();
 	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(15));
 	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(5));
+	Block CLOCK_POLE = new BlockClockPole(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
 	Block ESCALATOR_STEP = new BlockEscalatorStep();
 	Block GLASS_FENCE_CIO = new BlockGlassFence();
@@ -35,6 +36,7 @@ public interface Blocks {
 	Block PIDS_1 = new BlockPIDS1();
 	Block PIDS_2 = new BlockPIDS2();
 	Block PIDS_3 = new BlockPIDS3();
+	Block PIDS_POLE = new BlockPIDSPole(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
 	Block PLATFORM = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2), false);
 	Block PLATFORM_INDENTED = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2).nonOpaque(), true);
 	Block PLATFORM_NA_1 = new BlockPlatform(FabricBlockSettings.of(Material.METAL, MapColor.YELLOW).requiresTool().hardness(2), false);
@@ -64,6 +66,7 @@ public interface Blocks {
 	Block RAILWAY_SIGN_7_EVEN = new BlockRailwaySign(7, false);
 	Block RAILWAY_SIGN_7_ODD = new BlockRailwaySign(7, true);
 	Block RAILWAY_SIGN_MIDDLE = new BlockRailwaySign(0, false);
+	Block RAILWAY_SIGN_POLE = new BlockRailwaySignPole(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1).nonOpaque());
 	Block ROUTE_SIGN_STANDING_LIGHT = new BlockRouteSignStandingLight();
 	Block ROUTE_SIGN_STANDING_METAL = new BlockRouteSignStandingMetal();
 	Block ROUTE_SIGN_WALL_LIGHT = new BlockRouteSignWallLight();
@@ -75,7 +78,7 @@ public interface Blocks {
 	Block SIGNAL_LIGHT_4 = new BlockSignalLight4(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
 	Block SIGNAL_SEMAPHORE_1 = new BlockSignalSemaphore1(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
 	Block SIGNAL_SEMAPHORE_2 = new BlockSignalSemaphore2(FabricBlockSettings.of(Material.METAL, MapColor.BLACK).hardness(4));
-	Block SIGNAL_POLE = new BlockPole(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque(), false);
+	Block SIGNAL_POLE = new BlockStationColorPole(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque(), false);
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.BIRCH_WOOD));
@@ -94,6 +97,7 @@ public interface Blocks {
 	Block STATION_COLOR_IRON_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.IRON_BLOCK));
 	Block STATION_COLOR_METAL = new BlockStationColor(AbstractBlock.Settings.copy(LOGO));
 	Block STATION_COLOR_PLANKS = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.OAK_PLANKS));
+	Block STATION_COLOR_POLE = new BlockStationColorPole(FabricBlockSettings.of(Material.STONE, MapColor.STONE_GRAY).requiresTool().hardness(2).nonOpaque(), true);
 	Block STATION_COLOR_POLISHED_ANDESITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_ANDESITE));
 	Block STATION_COLOR_POLISHED_DIORITE = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.POLISHED_DIORITE));
 	Block STATION_COLOR_PURPUR_BLOCK = new BlockStationColor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.PURPUR_BLOCK));
@@ -112,7 +116,6 @@ public interface Blocks {
 	Block STATION_NAME_TALL_BLOCK = new BlockStationNameTallBlock();
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();
 	Block STATION_NAME_WALL = new BlockStationNameWall(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).nonOpaque());
-	Block STATION_POLE = new BlockPole(FabricBlockSettings.of(Material.STONE, MapColor.STONE_GRAY).requiresTool().hardness(2).nonOpaque(), true);
 	Block TACTILE_MAP = new BlockTactileMap(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).nonOpaque());
 	Block TICKET_BARRIER_ENTRANCE_1 = new BlockTicketBarrier(true);
 	Block TICKET_BARRIER_EXIT_1 = new BlockTicketBarrier(false);
