@@ -3,7 +3,9 @@ package mtr.item;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
+import mtr.data.Rail;
 import mtr.data.RailAngle;
+import mtr.data.RailType;
 import mtr.data.RailwayData;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -18,9 +20,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -88,7 +88,7 @@ public abstract class ItemNodeModifierBase extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		final NbtCompound nbtCompound = stack.getOrCreateTag();
 		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
@@ -100,18 +100,9 @@ public abstract class ItemNodeModifierBase extends Item {
 
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
 
-	private static Direction getDirectionFromPos(BlockPos startPos, boolean isEastWest, BlockPos endPos) {
-		if (isEastWest) {
-			return endPos.getX() > startPos.getX() ? Direction.EAST : Direction.WEST;
-		} else {
-			return endPos.getZ() > startPos.getZ() ? Direction.SOUTH : Direction.NORTH;
-		}
-	}
-
 	private static boolean isValidStart(BlockPos startPos, RailAngle startFacing, BlockPos endPos, RailAngle endFacing) {
-		// TODO may need a better implantation
-//		Rail rail = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
-//		return rail.isValid();
-		return true;
+		final Rail rail1 = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
+		final Rail rail2 = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
+		return rail1.isValid() && rail2.isValid();
 	}
 }

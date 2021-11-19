@@ -18,55 +18,29 @@ public enum RailAngle {
 	NE(315),
 	NEE(337.5F);
 
-//	public static final int ScaleFactor = 1024;
-//	public static final double PropertyDegree = 22.5;
-//	public static final int PropertyFactor = (int) (ScaleFactor * PropertyDegree);
-//	public static final int RightAngle = 90 * ScaleFactor;
-//	public static final int HalfCircleAngle = 180 * ScaleFactor;
-//	public static final int CircleAngle = 360 * ScaleFactor;
+	public final double angleRadians;
+	public final double sin;
+	public final double cos;
+	public final double tan;
+	public final double halfTan;
+	private final float angleDegrees;
 
-//	public static final RailAngle NORTH = new RailAngle(-90 * ScaleFactor);
-//	public static final RailAngle SOUTH = new RailAngle(90 * ScaleFactor);
-//	public static final RailAngle EAST = new RailAngle(0 * ScaleFactor);
-//	public static final RailAngle WEST = new RailAngle(-180 * ScaleFactor);
-//	public static final RailAngle NE = new RailAngle(-45 * ScaleFactor);
-//	public static final RailAngle NW = new RailAngle(-135 * ScaleFactor);
-//	public static final RailAngle SE = new RailAngle(45 * ScaleFactor);
-//	public static final RailAngle SW = new RailAngle(135 * ScaleFactor);
-//	public static final RailAngle UP = new RailAngle(0 * ScaleFactor);
-//	public static final RailAngle DOWN = new RailAngle(180 * ScaleFactor);
+	private static final int DEGREES_IN_CIRCLE = 360;
+	private static final int QUADRANTS = values().length;
+	private static final float ANGLE_INCREMENT = (float) DEGREES_IN_CIRCLE / QUADRANTS;
 
-//	public static final Vec3d VNORTH = new Vec3d(0, 0, -1);
-//	public static final Vec3d VSOUTH = new Vec3d(0, 0, 1);
-//	public static final Vec3d VEAST = new Vec3d(1, 0, 0);
-//	public static final Vec3d VWEST = new Vec3d(-1, 0, 0);
-//	public static final Vec3d VNE = new Vec3d(1, 0, -1);
-//	public static final Vec3d VNW = new Vec3d(-1, 0, -1);
-//	public static final Vec3d VSE = new Vec3d(1, 0, 1);
-//	public static final Vec3d VSW = new Vec3d(-1, 0, 1);
-
-	private final float angle;
-	public static final int DEGREES_IN_CIRCLE = 360;
-	public static final int QUADRANTS = values().length;
-	public static final float ANGLE_INCREMENT = (float) DEGREES_IN_CIRCLE / QUADRANTS;
-//	public static final double ACCEPT_THRESHOLD = 1E-4;
-//	public static final int ACCEPT_ANGLE_ERROR = 10;
-
-	RailAngle(float angle) {
-		this.angle = angle;
+	RailAngle(float angleDegrees) {
+		this.angleDegrees = normalizeAngle(angleDegrees);
+		angleRadians = Math.toRadians(this.angleDegrees);
+		sin = Math.sin(angleRadians);
+		cos = Math.cos(angleRadians);
+		tan = Math.tan(angleRadians);
+		halfTan = Math.tan(angleRadians / 2);
 	}
 
 	public RailAngle getOpposite() {
 		switch (this) {
-			case N:
-				return S;
-			case NNE:
-				return SSW;
-			case NE:
-				return SW;
-			case NEE:
-				return SWW;
-			case E:
+			default:
 				return W;
 			case SEE:
 				return NWW;
@@ -74,7 +48,7 @@ public enum RailAngle {
 				return NW;
 			case SSE:
 				return NNW;
-			default:
+			case S:
 				return N;
 			case SSW:
 				return NNE;
@@ -90,70 +64,53 @@ public enum RailAngle {
 				return SE;
 			case NNW:
 				return SSE;
+			case N:
+				return S;
+			case NNE:
+				return SSW;
+			case NE:
+				return SW;
+			case NEE:
+				return SWW;
 		}
 	}
 
-	public final double getRadians() {
-		return Math.toRadians(clampAngle());
-	}
-
 	public RailAngle add(RailAngle railAngle) {
-		return fromAngle(angle + railAngle.angle);
+		return fromAngle(angleDegrees + railAngle.angleDegrees);
 	}
 
 	public RailAngle sub(RailAngle railAngle) {
-		return fromAngle(angle - railAngle.angle);
+		return fromAngle(angleDegrees - railAngle.angleDegrees);
 	}
 
 	public boolean isParallel(RailAngle railAngle) {
 		return this == railAngle || this == railAngle.getOpposite();
 	}
 
-	public boolean similarFacing(float newAngle) {
-		return similarFacing(angle, newAngle);
+	public boolean similarFacing(float newAngleDegrees) {
+		return similarFacing(angleDegrees, newAngleDegrees);
 	}
 
-	public double sin() {
-		return Math.sin(getRadians());
+	public static boolean similarFacing(float angleDegrees1, float angleDegrees2) {
+		return Math.abs(normalizeAngle(angleDegrees1 - angleDegrees2)) < DEGREES_IN_CIRCLE / 4F;
 	}
 
-	public double cos() {
-		return Math.cos(getRadians());
+	public static int getQuadrant(float angleDegrees) {
+		return Math.round((normalizeAngle(angleDegrees) + DEGREES_IN_CIRCLE) / ANGLE_INCREMENT) % QUADRANTS;
 	}
 
-	public double tan() {
-		return tanSafe(getRadians());
+	public static RailAngle fromAngle(float angleDegrees) {
+		return RailAngle.values()[getQuadrant(angleDegrees)];
 	}
 
-	public double halfTan() {
-		return tanSafe(clampAngle() / 2);
-	}
-
-	private double clampAngle() {
-		return angle - (angle >= DEGREES_IN_CIRCLE / 2F ? DEGREES_IN_CIRCLE : 0);
-	}
-
-	public static float normalizeAngle(float angle) {
+	private static float normalizeAngle(float angleDegrees) {
 		int additional = 0;
-		while (angle + additional < 0) {
+		while (angleDegrees + additional < -DEGREES_IN_CIRCLE / 2F) {
 			additional += DEGREES_IN_CIRCLE;
 		}
-		while (angle + additional >= DEGREES_IN_CIRCLE) {
+		while (angleDegrees + additional >= DEGREES_IN_CIRCLE / 2F) {
 			additional -= DEGREES_IN_CIRCLE;
 		}
-		return angle + additional;
-	}
-
-	public static boolean similarFacing(float angle1, float angle2) {
-		final float difference = normalizeAngle(angle1 - angle2);
-		return difference < DEGREES_IN_CIRCLE / 4F || difference >= DEGREES_IN_CIRCLE * 3 / 4F;
-	}
-
-	public static RailAngle fromAngle(float angle) {
-		return RailAngle.values()[Math.round(normalizeAngle(angle) / ANGLE_INCREMENT) % QUADRANTS];
-	}
-
-	private static double tanSafe(double angle) {
-		return angle == DEGREES_IN_CIRCLE / 4F || angle == -DEGREES_IN_CIRCLE / 4F ? 1E100 : Math.tan(Math.toRadians(angle));
+		return angleDegrees + additional;
 	}
 }

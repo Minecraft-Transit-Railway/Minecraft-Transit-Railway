@@ -37,7 +37,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final int quadrant = Math.round(RailAngle.normalizeAngle(ctx.getPlayerYaw()) / RailAngle.ANGLE_INCREMENT) % RailAngle.QUADRANTS;
+		final int quadrant = RailAngle.getQuadrant(ctx.getPlayerYaw());
 		return getDefaultState().with(FACING, quadrant % 8 >= 4).with(IS_45, quadrant % 4 >= 2).with(IS_22_5, quadrant % 2 >= 1).with(IS_CONNECTED, false);
 	}
 
