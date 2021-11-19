@@ -58,16 +58,11 @@ public abstract class ItemNodeModifierBase extends Item {
 							final float angle2 = (IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_45) ? 45 : 0);
 
 							final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
-							final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
-							final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
+							final RailAngle railAngleStart = RailAngle.fromAngle(angle1);
+							final RailAngle railAngleEnd = RailAngle.fromAngle(angle2);
 
-							if (isValidStart(posStart, railAngleStart, posEnd, railAngleEnd)) {
-								onConnect(world, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
-							} else {
-								if (player != null) {
-									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
-								}
-							}
+							onConnect(world, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
+
 						} else {
 							onRemove(world, posStart, posEnd, railwayData);
 						}
@@ -108,10 +103,4 @@ public abstract class ItemNodeModifierBase extends Item {
 		}
 	}
 
-	private static boolean isValidStart(BlockPos startPos, RailAngle startFacing, BlockPos endPos, RailAngle endFacing) {
-		// TODO may need a better implantation
-//		Rail rail = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
-//		return rail.isValid();
-		return true;
-	}
 }

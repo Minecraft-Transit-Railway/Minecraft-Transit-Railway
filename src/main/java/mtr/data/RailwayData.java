@@ -402,6 +402,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public boolean hasSavedRail(BlockPos pos) {
+		// TODO railType.hasSavedRail always false
 		return rails.containsKey(pos) && rails.get(pos).values().stream().anyMatch(rail -> rail.railType.hasSavedRail);
 	}
 

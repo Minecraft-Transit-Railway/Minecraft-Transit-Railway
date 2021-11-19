@@ -47,18 +47,25 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 
 	@Override
 	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData) {
+		// TODO hasSavedRail always false
 		if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 			if (player != null) {
 				player.sendMessage(new TranslatableText("gui.mtr.platform_or_siding_exists"), true);
 			}
 		} else {
-			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
 			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
-			railwayData.addRail(posStart, posEnd, rail1, false);
-			final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
-			world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
-			world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
-			PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
+			if (rail2.isValid()) {
+				final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
+				railwayData.addRail(posStart, posEnd, rail1, false);
+				final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
+				world.setBlockState(posStart, stateStart.with(BlockRail.IS_CONNECTED, true));
+				world.setBlockState(posEnd, stateEnd.with(BlockRail.IS_CONNECTED, true));
+				PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
+			} else {
+				if (player != null) {
+					player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
+				}
+			}
 		}
 	}
 

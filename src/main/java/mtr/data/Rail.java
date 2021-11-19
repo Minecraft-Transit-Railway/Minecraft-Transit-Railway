@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.EnumHelper;
+import net.fabricmc.loader.util.sat4j.core.Vec;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -50,8 +51,6 @@ public class Rail extends SerializedDataBase {
 	// z = k*T + h*r
 
 	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType) {
-		this.facingStart = facingStart;
-		this.facingEnd = facingEnd;
 		this.railType = railType;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
@@ -67,7 +66,21 @@ public class Rail extends SerializedDataBase {
 		Vec3d vecDiff = new Vec3d(posEnd.getX() - posStart.getX(), 0, posEnd.getZ() - posStart.getZ());
 		Vec3d vecDiffRotated = vecDiff.rotateY((float) facingStart.getRadians());
 
+		// Check if it needs invert
+		if (vecDiffRotated.x < -ACCEPT_THRESHOLD) {
+			facingStart = facingStart.getOpposite();
+		}
+
+		if ((facingEnd.cos()*vecDiff.x + facingEnd.sin()*vecDiff.z) < -ACCEPT_THRESHOLD) {
+			facingEnd = facingEnd.getOpposite();
+		}
+
+		this.facingStart = facingStart;
+		this.facingEnd = facingEnd;
+
+		vecDiffRotated = vecDiff.rotateY((float) facingStart.getRadians());
 		// dv dp for Delta Vertical and Delta Parallel
+		// First we check the Delta Parallel > 0
 		// 1. If they are same angle
 		// 1. a. If aligned -> Use One Segment
 		// 1. b. If not aligned -> Use two Circle, r = (dv^2 + dp^2) / (4dv).
@@ -76,9 +89,19 @@ public class Rail extends SerializedDataBase {
 		// 3. a. If available -> (Segment First) r2 = dv / ( sin(diff) * tan(diff/2) ) = dv / ( 1 - cos(diff)
 		// 							for case 2, diff = 90 degrees, r = dv
 		//					-> (Circle First) r1 = ( dp - dv / tan(diff) ) / tan (diff/2)
-		// TODO 3. b. If not -> r = very complex one.
+		// TODO 3. b. If not -> r = very complex one. In this case, we need two circles to connect.
 		double deltaV = vecDiffRotated.z;
 		double deltaP = vecDiffRotated.x;
+		if (Math.abs(deltaP) < ACCEPT_THRESHOLD) {
+			// Banned node perpendicular to the rail nodes direction
+			// Banned self connection
+			h1 = k1 = h2 = k2 = r1 = r2 = 0;
+			tStart1 = tStart2 = tEnd1 = tEnd2 = 0;
+			reverseT1 = false;
+			reverseT2 = false;
+			isStraight1 = isStraight2 = true;
+			return;
+		}
 		if (facingStart.isParallel(facingEnd)) { // 1
 			if (Math.abs(deltaV) < ACCEPT_THRESHOLD) { // 1. a.
 				h1 = facingStart.cos();
@@ -99,28 +122,19 @@ public class Rail extends SerializedDataBase {
 				isStraight1 = isStraight2 = true;
 				tStart2 = tEnd2 = 0;
 			} else { // 1. b
-				if (Math.abs(deltaP) > ACCEPT_THRESHOLD) {
-					double ar = (deltaV * deltaV + deltaP * deltaP) / (4 * deltaV);
-					r1 = r2 = Math.abs(ar);
-					h1 = xStart - ar * facingStart.sin();
-					k1 = zStart + ar * facingStart.cos();
-					h2 = xEnd - ar * facingEnd.sin();
-					k2 = zEnd + ar * facingEnd.cos();
-					reverseT1 = deltaV < 0 != deltaP < 0;
-					reverseT2 = !reverseT1;
-					tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
-					tEnd1 = getTBounds(xStart + vecDiff.x / 2, h1, zStart + vecDiff.z / 2, k1, r1, tStart1, reverseT1);
-					tStart2 = getTBounds(xStart + vecDiff.x / 2, h2, zStart + vecDiff.z / 2, k2, r2);
-					tEnd2 = getTBounds(xEnd, h2, zEnd, k2, r2, tStart2, reverseT2);
-					isStraight1 = isStraight2 = false;
-				} else {
-					// Banned node perpendicular to the rail nodes direction
-					h1 = k1 = h2 = k2 = r1 = r2 = 0;
-					tStart1 = tStart2 = tEnd1 = tEnd2 = 0;
-					reverseT1 = false;
-					reverseT2 = false;
-					isStraight1 = isStraight2 = true;
-				}
+				double ar = (deltaV * deltaV + deltaP * deltaP) / (4 * deltaV);
+				r1 = r2 = Math.abs(ar);
+				h1 = xStart - ar * facingStart.sin();
+				k1 = zStart + ar * facingStart.cos();
+				h2 = xEnd + ar * facingEnd.sin();
+				k2 = zEnd - ar * facingEnd.cos();
+				reverseT1 = (deltaV < 0);
+				reverseT2 = !reverseT1;
+				tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
+				tEnd1 = getTBounds(xStart + vecDiff.x / 2, h1, zStart + vecDiff.z / 2, k1, r1, tStart1, reverseT1);
+				tStart2 = getTBounds(xStart + vecDiff.x / 2, h2, zStart + vecDiff.z / 2, k2, r2);
+				tEnd2 = getTBounds(xEnd, h2, zEnd, k2, r2, tStart2, reverseT2);
+				isStraight1 = isStraight2 = false;
 			}
 		} else { // 3.
 			// TODO broken
@@ -369,7 +383,7 @@ public class Rail extends SerializedDataBase {
 	private RailAngle getRailAngle(double start, double end) {
 		final Vec3d pos1 = getPosition(start);
 		final Vec3d pos2 = getPosition(end);
-		return RailAngle.fromAngle((float) Math.toDegrees(Math.atan2(pos2.z - pos1.z, pos1.x - pos2.x)));
+		return RailAngle.fromAngle((float) Math.toDegrees(Math.atan2(pos2.x - pos1.x, pos1.z - pos2.z)) + 180);
 	}
 
 	private static double getTBounds(double x, double h, double z, double k, double r) {

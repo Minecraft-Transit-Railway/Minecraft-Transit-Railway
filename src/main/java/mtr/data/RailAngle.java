@@ -126,7 +126,7 @@ public enum RailAngle {
 	}
 
 	public double halfTan() {
-		return tanSafe(clampAngle() / 2);
+		return tanSafe(getRadians() / 2);
 	}
 
 	private double clampAngle() {
@@ -154,6 +154,6 @@ public enum RailAngle {
 	}
 
 	private static double tanSafe(double angle) {
-		return angle == DEGREES_IN_CIRCLE / 4F || angle == -DEGREES_IN_CIRCLE / 4F ? 1E100 : Math.tan(Math.toRadians(angle));
+		return angle == DEGREES_IN_CIRCLE / 4F || angle == -DEGREES_IN_CIRCLE / 4F ? 1E100 : Math.tan(angle);
 	}
 }
