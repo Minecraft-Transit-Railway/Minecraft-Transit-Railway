@@ -3,9 +3,7 @@ package mtr.item;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
-import mtr.data.Rail;
 import mtr.data.RailAngle;
-import mtr.data.RailType;
 import mtr.data.RailwayData;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -54,19 +52,15 @@ public abstract class ItemNodeModifierBase extends Item {
 						final PlayerEntity player = context.getPlayer();
 
 						if (isConnector) {
-							final float angle1 = (IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_45) ? 45 : 0);
-							final float angle2 = (IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_45) ? 45 : 0);
+							if (!posStart.equals(posEnd)) {
+								final float angle1 = (IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_45) ? 45 : 0);
+								final float angle2 = (IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_45) ? 45 : 0);
 
-							final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
-							final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
-							final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
+								final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
+								final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
+								final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
 
-							if (isValidStart(posStart, railAngleStart, posEnd, railAngleEnd)) {
 								onConnect(world, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
-							} else {
-								if (player != null) {
-									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
-								}
 							}
 						} else {
 							onRemove(world, posStart, posEnd, railwayData);
@@ -99,10 +93,4 @@ public abstract class ItemNodeModifierBase extends Item {
 	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData);
 
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
-
-	private static boolean isValidStart(BlockPos startPos, RailAngle startFacing, BlockPos endPos, RailAngle endFacing) {
-		final Rail rail1 = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
-		final Rail rail2 = new Rail(startPos, startFacing, endPos, endFacing, RailType.NONE);
-		return rail1.isValid() && rail2.isValid();
-	}
 }
