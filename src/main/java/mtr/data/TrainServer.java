@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 public class TrainServer extends Train {
 
 	private boolean canDeploy;
-	private Map<UUID, Long> trainPositions;
+	private List<Map<UUID, Long>> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 
 	private final List<Siding.TimeSegment> timeSegments;
@@ -148,10 +148,13 @@ public class TrainServer extends Train {
 	protected boolean isRailBlocked(int checkIndex) {
 		if (trainPositions != null && checkIndex < path.size()) {
 			final UUID railProduct = path.get(checkIndex).getRailProduct();
-			return trainPositions.containsKey(railProduct) && trainPositions.get(railProduct) != id;
-		} else {
-			return false;
+			for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
+				if (trainPositionsMap.containsKey(railProduct) && trainPositionsMap.get(railProduct) != id) {
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
@@ -181,7 +184,7 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, Map<UUID, Long> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;

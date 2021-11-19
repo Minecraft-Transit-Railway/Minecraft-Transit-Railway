@@ -237,7 +237,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		final Set<Integer> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			if (train.simulateTrain(world, ticksElapsed, depot, dataCache, trainPositions == null ? null : trainPositions.get(0), trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
+			if (train.simulateTrain(world, ticksElapsed, depot, dataCache, trainPositions, trainsInPlayerRange, schedulesForPlatform, unlimitedTrains)) {
 				trainsToSync.add(train);
 			}
 
