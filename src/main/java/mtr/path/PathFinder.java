@@ -57,7 +57,7 @@ public class PathFinder {
 			final List<PathPart> path = new ArrayList<>();
 			final Set<BlockPos> turnBacks = new HashSet<>();
 			final List<BlockPos> startPositions = savedRailBaseStart.getOrderedPositions(savedRailBaseEndMidPos, i == 0);
-			path.add(new PathPart(RailAngle.UP, startPositions.get(0), new ArrayList<>()));
+			path.add(new PathPart(null, startPositions.get(0), new ArrayList<>()));
 			addPathPart(rails, startPositions.get(1), startPositions.get(0), path, turnBacks, comparator);
 
 			while (path.size() >= 2) {
@@ -140,7 +140,7 @@ public class PathFinder {
 		}
 
 		private boolean isSame(BlockPos newPos, RailAngle newDirection) {
-			return newPos.equals(pos) && newDirection.isSame(direction);
+			return newPos.equals(pos) && newDirection == direction;
 		}
 	}
 }

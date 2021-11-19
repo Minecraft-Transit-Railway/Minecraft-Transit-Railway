@@ -6,7 +6,6 @@ import mtr.block.BlockSignalSemaphoreBase;
 import mtr.block.IBlock;
 import mtr.data.IGui;
 import mtr.data.Rail;
-import mtr.data.RailAngle;
 import mtr.gui.ClientData;
 import mtr.path.PathData;
 import net.minecraft.block.BlockState;
@@ -24,8 +23,6 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
 import java.util.Map;
-
-import static mtr.data.RailAngle.GetRailAngle;
 
 public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntityRenderer<T> implements IBlock, IGui {
 
@@ -59,8 +56,7 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 			for (int y = -3; y <= 0; y++) {
 				final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x);
 				final BlockState checkState = world.getBlockState(checkPos);
-				// TODO : Check if EW is meet previous requirement
-				if (checkState.getBlock() instanceof BlockRail && (new RailAngle(RailAngle.PropertyToInternal(IBlock.getStatePropertySafe(checkState, BlockRail.FACING_ANGLE))).isParallel(RailAngle.WEST))) {
+				if (checkState.getBlock() instanceof BlockRail && IBlock.getStatePropertySafe(checkState, BlockRail.FACING) == (facing.getAxis() == Direction.Axis.X)) {
 					startPos = checkPos;
 					break;
 				}
@@ -80,8 +76,7 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 			final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(startPos);
 			if (railMap != null) {
 				for (final BlockPos endPos : railMap.keySet()) {
-					// TODO: Check if isSame meets requirement, another option is isAcuteAngle.
-					if (railMap.get(endPos).facingStart.isSame(GetRailAngle(newFacing)) && ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
+					if (railMap.get(endPos).facingStart.similarFacing(newFacing.asRotation() - 90) && ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
 						isOccupied = true;
 						break;
 					}

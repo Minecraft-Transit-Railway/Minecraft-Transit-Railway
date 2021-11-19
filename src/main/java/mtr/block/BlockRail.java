@@ -15,7 +15,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -26,18 +25,20 @@ import java.util.*;
 
 public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
 
-	//public static final BooleanProperty FACING = BooleanProperty.of("facing");
+	public static final BooleanProperty FACING = BooleanProperty.of("facing");
+	public static final BooleanProperty IS_22_5 = BooleanProperty.of("is_22_5");
+	public static final BooleanProperty IS_45 = BooleanProperty.of("is_45");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
-	public static final IntProperty FACING_ANGLE = IntProperty.of("facing_angle", 0,(RailAngle.HalfCircleAngle / RailAngle.PropertyFactor - 1));
 
 	public BlockRail(Settings settings) {
 		super(settings);
+		setDefaultState(stateManager.getDefaultState().with(FACING, false).with(IS_22_5, false).with(IS_45, false));
 	}
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final int facing = RailAngle.DegreeToProperty(ctx.getPlayerYaw());
-		return getDefaultState().with(FACING_ANGLE, facing).with(IS_CONNECTED, false);
+		final int quadrant = Math.round(RailAngle.normalizeAngle(ctx.getPlayerYaw()) / RailAngle.ANGLE_INCREMENT) % RailAngle.QUADRANTS;
+		return getDefaultState().with(FACING, quadrant % 8 >= 4).with(IS_45, quadrant % 4 >= 2).with(IS_22_5, quadrant % 2 >= 1).with(IS_CONNECTED, false);
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING_ANGLE, IS_CONNECTED);
+		builder.add(FACING, IS_22_5, IS_45, IS_CONNECTED);
 	}
 
 	@Override
@@ -161,7 +162,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 			if (railFrom != null) {
 				final RailAngle findDirection = railFrom.facingStart.getOpposite();
 				railMap.forEach((pos, rail) -> {
-					if (rail.facingStart.isSame(findDirection)) {
+					if (rail.facingStart == findDirection) {
 						positions.add(pos);
 					}
 				});

@@ -4,11 +4,8 @@ import mtr.EnumHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-
-import static mtr.data.RailAngle.ACCEPT_THRESHOLD;
 
 public class Rail extends SerializedDataBase {
 
@@ -21,6 +18,9 @@ public class Rail extends SerializedDataBase {
 	private final boolean reverseT1, isStraight1, reverseT2, isStraight2;
 
 	private static final double TWO_PI = 2 * Math.PI;
+	private static final double ACCEPT_THRESHOLD = 1E-4;
+	private static final double MIN_RADIUS_ALLOWED = 1.2;
+
 	private static final String KEY_H_1 = "h_1";
 	private static final String KEY_K_1 = "k_1";
 	private static final String KEY_H_2 = "h_2";
@@ -38,9 +38,6 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
-	private static final String KEY_FACING_START = "facing_start";
-	private static final String KEY_FACING_END = "facing_end";
-	public static final double MIN_RADIUS_ALLOWED = 1.2;
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -68,25 +65,8 @@ public class Rail extends SerializedDataBase {
 
 		// Coordinate system translation and rotation
 		Vec3d vecDiff = new Vec3d(posEnd.getX() - posStart.getX(), 0, posEnd.getZ() - posStart.getZ());
-		Vec3d vecDiffRotated = vecDiff.rotateY(facingStart.getRadF());
+		Vec3d vecDiffRotated = vecDiff.rotateY((float) facingStart.getRadians());
 
-		RailAngle actFacingStart, actFacingEnd;
-
-		// Check if it needs invert
-		if (vecDiffRotated.x < -ACCEPT_THRESHOLD) {
-			actFacingStart = this.facingStart.getOpposite();
-		} else {
-			actFacingStart = this.facingStart;
-		}
-
-		if (facingEnd.toUnitVec3d().dotProduct(vecDiff) < -ACCEPT_THRESHOLD) {
-			actFacingEnd = this.facingEnd.getOpposite();
-		} else {
-			actFacingEnd = this.facingEnd;
-		}
-
-		RailAngle AngleDiff = actFacingEnd.sub(actFacingStart);
-		vecDiffRotated = vecDiff.rotateY(actFacingStart.getRadF());
 		// dv dp for Delta Vertical and Delta Parallel
 		// 1. If they are same angle
 		// 1. a. If aligned -> Use One Segment
@@ -101,14 +81,14 @@ public class Rail extends SerializedDataBase {
 		double deltaP = vecDiffRotated.x;
 		if (facingStart.isParallel(facingEnd)) { // 1
 			if (Math.abs(deltaV) < ACCEPT_THRESHOLD) { // 1. a.
-				h1 = actFacingStart.cos();
-				k1 = actFacingStart.sin();
+				h1 = facingStart.cos();
+				k1 = facingStart.sin();
 				if ((Math.abs(h1) >= 0.5) && (Math.abs(k1) >= 0.5)) {
 					r1 = (h1 * zStart - k1 * xStart) / h1 / h1;
 					tStart1 = xStart / h1;
 					tEnd1 = xEnd / h1;
 				} else {
-					double div = actFacingStart.add(actFacingStart).cos(); // cos (2*aFS) = (h1^2 - k1^2)
+					double div = facingStart.add(facingStart).cos(); // cos (2*aFS) = (h1^2 - k1^2)
 					r1 = (h1 * zStart - k1 * xStart) / div;
 					tStart1 = (h1 * xStart - k1 * zStart) / div;
 					tEnd1 = (h1 * xEnd - k1 * zEnd) / div;
@@ -119,14 +99,14 @@ public class Rail extends SerializedDataBase {
 				isStraight1 = isStraight2 = true;
 				tStart2 = tEnd2 = 0;
 			} else { // 1. b
-				if(Math.abs(deltaP) > ACCEPT_THRESHOLD) {
+				if (Math.abs(deltaP) > ACCEPT_THRESHOLD) {
 					double ar = (deltaV * deltaV + deltaP * deltaP) / (4 * deltaV);
 					r1 = r2 = Math.abs(ar);
-					h1 = xStart - ar * actFacingStart.sin();
-					k1 = zStart + ar * actFacingStart.cos();
-					h2 = xEnd + ar * actFacingEnd.sin();
-					k2 = zEnd - ar * actFacingEnd.cos();
-					reverseT1 = (deltaV < 0);
+					h1 = xStart - ar * facingStart.sin();
+					k1 = zStart + ar * facingStart.cos();
+					h2 = xEnd - ar * facingEnd.sin();
+					k2 = zEnd + ar * facingEnd.cos();
+					reverseT1 = deltaV < 0 != deltaP < 0;
 					reverseT2 = !reverseT1;
 					tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
 					tEnd1 = getTBounds(xStart + vecDiff.x / 2, h1, zStart + vecDiff.z / 2, k1, r1, tStart1, reverseT1);
@@ -143,61 +123,62 @@ public class Rail extends SerializedDataBase {
 				}
 			}
 		} else { // 3.
+			// TODO broken
 			double angleV = Math.atan2(deltaV, deltaP);
-			double angleT = AngleDiff.getRadD();
+			RailAngle AngleDiff = facingEnd.sub(facingStart);
+			double angleT = AngleDiff.getRadians();
 			double halfT = angleT / 2;
 			if (Math.signum(angleV) == Math.signum(halfT)) {
 				double absAngleV = Math.abs(angleV);
-				double absHalfT = Math.abs(halfT);
-				if ( (absAngleV - absHalfT) < ACCEPT_THRESHOLD ) { // Segment First
-					double offsetP = Math.abs( deltaV / AngleDiff.div(2).tan() );
+				if ((absAngleV - Math.abs(halfT)) < ACCEPT_THRESHOLD) { // Segment First
+					double offsetP = Math.abs(deltaV / AngleDiff.halfTan());
 					double remainP = deltaP - offsetP;
-					double SXEnd = xStart + remainP * actFacingStart.cos();
-					double SZEnd = zStart + remainP * actFacingStart.sin();
-					h1 = actFacingStart.cos();
-					k1 = actFacingStart.sin();
+					double SXEnd = xStart + remainP * facingStart.cos();
+					double SZEnd = zStart + remainP * facingStart.sin();
+					h1 = facingStart.cos();
+					k1 = facingStart.sin();
 					if ((Math.abs(h1) >= 0.5) && (Math.abs(k1) >= 0.5)) {
 						r1 = (h1 * zStart - k1 * xStart) / h1 / h1;
 						tStart1 = xStart / h1;
 						tEnd1 = SXEnd / h1;
 					} else {
-						double div = actFacingStart.add(actFacingStart).cos(); // cos (2*aFS) = (h1^2 - k1^2)
+						double div = facingStart.add(facingStart).cos(); // cos (2*aFS) = (h1^2 - k1^2)
 						r1 = (h1 * zStart - k1 * xStart) / div;
 						tStart1 = (h1 * xStart - k1 * zStart) / div;
 						tEnd1 = (h1 * SXEnd - k1 * SZEnd) / div;
 					}
 					isStraight1 = true;
 					reverseT1 = tStart1 > tEnd1;
-					double ar2 = deltaV / ( 1 - AngleDiff.cos() );
+					double ar2 = deltaV / (1 - AngleDiff.cos());
 					r2 = Math.abs(ar2);
-					h2 = SXEnd - ar2 * actFacingStart.sin();
-					k2 = SZEnd + ar2 * actFacingStart.cos();
+					h2 = SXEnd - ar2 * facingStart.sin();
+					k2 = SZEnd + ar2 * facingStart.cos();
 					reverseT2 = (deltaV < 0);
 					tStart2 = getTBounds(SXEnd, h2, SZEnd, k2, r2);
 					tEnd2 = getTBounds(xEnd, h2, zEnd, k2, r2, tStart2, reverseT2);
 					isStraight2 = false;
-				} else if ( (absAngleV - Math.abs(angleT)) < ACCEPT_THRESHOLD ) { // Circle First
+				} else if ((absAngleV - Math.abs(angleT)) < ACCEPT_THRESHOLD) { // Circle First
 					double crossP = deltaV / AngleDiff.tan();
 					double remainP = (deltaP - crossP) * (1 + AngleDiff.cos());
 					double remainV = (deltaP - crossP) * (AngleDiff.sin());
-					double SXEnd = xStart + remainP * actFacingStart.cos() - remainV * actFacingStart.sin();
-					double SZEnd = zStart + remainP * actFacingStart.sin() + remainV * actFacingStart.cos();
-					double ar1 = ( deltaP - deltaV / AngleDiff.tan() ) / AngleDiff.div(2).tan();
+					double SXEnd = xStart + remainP * facingStart.cos() - remainV * facingStart.sin();
+					double SZEnd = zStart + remainP * facingStart.sin() + remainV * facingStart.cos();
+					double ar1 = (deltaP - deltaV / AngleDiff.tan()) / AngleDiff.halfTan();
 					r1 = Math.abs(ar1);
-					h1 = xStart - ar1 * actFacingStart.sin();
-					k1 = zStart + ar1 * actFacingStart.cos();
+					h1 = xStart - ar1 * facingStart.sin();
+					k1 = zStart + ar1 * facingStart.cos();
 					isStraight1 = false;
 					reverseT1 = (deltaV < 0);
 					tStart1 = getTBounds(xStart, h1, zStart, k1, r1);
 					tEnd1 = getTBounds(SXEnd, h1, SZEnd, k1, r1, tStart1, reverseT1);
-					h2 = actFacingEnd.cos();
-					k2 = actFacingEnd.sin();
+					h2 = facingEnd.cos();
+					k2 = facingEnd.sin();
 					if ((Math.abs(h2) >= 0.5) && (Math.abs(k2) >= 0.5)) {
 						r2 = (h2 * SZEnd - k2 * SXEnd) / h2 / h2;
 						tStart2 = SXEnd / h2;
 						tEnd2 = xEnd / h2;
 					} else {
-						double div = actFacingEnd.add(actFacingEnd).cos(); // cos (2*aFE) = (h1^2 - k1^2)
+						double div = facingEnd.add(facingEnd).cos(); // cos (2*aFE) = (h1^2 - k1^2)
 						r2 = (h2 * SZEnd - k2 * SXEnd) / div;
 						tStart2 = (h2 * SXEnd - k2 * SZEnd) / div;
 						tEnd2 = (h2 * xEnd - k2 * zEnd) / div;
@@ -242,8 +223,9 @@ public class Rail extends SerializedDataBase {
 		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = EnumHelper.valueOf(RailType.IRON, nbtCompound.getString(KEY_RAIL_TYPE));
 
-		facingStart = new RailAngle(nbtCompound.getInt(KEY_FACING_START));
-		facingEnd = new RailAngle(nbtCompound.getInt(KEY_FACING_END));
+		facingStart = getRailAngle(0, 0.1F);
+		final double length = getLength();
+		facingEnd = getRailAngle(length, length - 0.1F);
 	}
 
 	public Rail(PacketByteBuf packet) {
@@ -265,8 +247,9 @@ public class Rail extends SerializedDataBase {
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readString(PACKET_STRING_READ_LENGTH));
 
-		facingStart = new RailAngle(packet.readInt());
-		facingEnd = new RailAngle(packet.readInt());
+		facingStart = getRailAngle(0, 0.1F);
+		final double length = getLength();
+		facingEnd = getRailAngle(length, length - 0.1F);
 	}
 
 	@Override
@@ -289,8 +272,6 @@ public class Rail extends SerializedDataBase {
 		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
 		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
-		nbtCompound.putInt(KEY_FACING_START, facingStart.angle);
-		nbtCompound.putInt(KEY_FACING_END, facingEnd.angle);
 		return nbtCompound;
 	}
 
@@ -313,8 +294,6 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
 		packet.writeString(railType.toString());
-		packet.writeInt(facingStart.angle);
-		packet.writeInt(facingEnd.angle);
 	}
 
 	public Vec3d getPosition(double rawValue) {
@@ -358,7 +337,7 @@ public class Rail extends SerializedDataBase {
 
 	private static Vec3d getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
 		if (isStraight) {
-			if (  (Math.abs(h) >= 0.5) && (Math.abs(k) >= 0.5)  ) {
+			if ((Math.abs(h) >= 0.5) && (Math.abs(k) >= 0.5)) {
 				return new Vec3d(h * t + k * (radiusOffset) + 0.5F, 0, k * t + h * (r - radiusOffset) + 0.5F);
 			} else {
 				return new Vec3d(h * t + k * (r + radiusOffset) + 0.5F, 0, k * t + h * (r - radiusOffset) + 0.5F);
@@ -387,10 +366,10 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	private Direction getDirection(double start, double end) {
+	private RailAngle getRailAngle(double start, double end) {
 		final Vec3d pos1 = getPosition(start);
 		final Vec3d pos2 = getPosition(end);
-		return Direction.fromRotation(Math.toDegrees(Math.atan2(pos2.x - pos1.x, pos1.z - pos2.z)) + 180);
+		return RailAngle.fromAngle((float) Math.toDegrees(Math.atan2(pos2.z - pos1.z, pos1.x - pos2.x)));
 	}
 
 	private static double getTBounds(double x, double h, double z, double k, double r) {
@@ -410,12 +389,12 @@ public class Rail extends SerializedDataBase {
 
 	public boolean isValid() {
 		// 			For check the minimum radius
-		return !( ((r1 < MIN_RADIUS_ALLOWED) && (!isStraight1)) || ((r2 < MIN_RADIUS_ALLOWED) && (!isStraight2)) ||
-		//			For check if is valid
+		return !(((r1 < MIN_RADIUS_ALLOWED) && (!isStraight1)) || ((r2 < MIN_RADIUS_ALLOWED) && (!isStraight2)) ||
+				//			For check if is valid
 				((h1 == 0) && (k1 == 0) && (h2 == 0) && (k2 == 0) && (r1 == 0) && (r2 == 0)
-				&& (tStart1 == 0) && (tStart2 == 0)&& (tEnd1 == 0)&& (tEnd2 == 0)
-				&& (!reverseT1) && (!reverseT2) //&& (reverseT1 == false) && (reverseT2 == false)
-				&& (isStraight1) && (isStraight2))); //&& (isStraight1 == true) && (isStraight2 == true));
+						&& (tStart1 == 0) && (tStart2 == 0) && (tEnd1 == 0) && (tEnd2 == 0)
+						&& (!reverseT1) && (!reverseT2) //&& (reverseT1 == false) && (reverseT2 == false)
+						&& (isStraight1) && (isStraight2))); //&& (isStraight1 == true) && (isStraight2 == true));
 	}
 
 	@FunctionalInterface
