@@ -2,10 +2,7 @@ package mtr.render;
 
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
-import mtr.data.IGui;
-import mtr.data.Platform;
-import mtr.data.Route;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.gui.ClientData;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -102,7 +99,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
 			if (showAllPlatforms) {
-				final Station station = ClientData.getStation(pos);
+				final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 				if (station == null) {
 					return;
 				}
@@ -125,7 +122,7 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> im
 					}
 				});
 			} else {
-				final Platform platform = ClientData.getClosePlatform(pos);
+				final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
 				if (platform == null) {
 					schedules = new HashSet<>();
 				} else {

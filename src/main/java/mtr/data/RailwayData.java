@@ -535,6 +535,28 @@ public class RailwayData extends PersistentState implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
+	public static Station getStation(Set<Station> stations, BlockPos pos) {
+		try {
+			return stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos) {
+		return getClosePlatform(platforms, pos, 4, 0, 4);
+	}
+
+	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos, int radius, int lower, int upper) {
+		try {
+			return platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, radius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().getManhattanDistance(pos))).orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static boolean useRoutesAndStationsFromIndex(int stopIndex, List<Long> routeIds, DataCache dataCache, RouteAndStationsCallback routeAndStationsCallback) {
 		if (stopIndex < 0) {
 			return false;

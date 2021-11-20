@@ -85,10 +85,6 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		return isInvalidSavedRail(rails, pos1, pos2) || isInvalidSavedRail(rails, pos2, pos1);
 	}
 
-	public boolean isCloseToSavedRail(BlockPos pos) {
-		return isCloseToSavedRail(pos, 4, 0, 4);
-	}
-
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
 		return new Box(getPosition(0), getPosition(1)).stretch(-radius, -lower, -radius).stretch(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}

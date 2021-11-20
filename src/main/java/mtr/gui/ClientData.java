@@ -125,24 +125,6 @@ public final class ClientData {
 		ClientData.DATA_CACHE.sync();
 	}
 
-	public static Station getStation(BlockPos pos) {
-		try {
-			return ClientData.STATIONS.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static Platform getClosePlatform(BlockPos pos) {
-		try {
-			return ClientData.PLATFORMS.stream().filter(platform -> platform.isCloseToSavedRail(pos)).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();

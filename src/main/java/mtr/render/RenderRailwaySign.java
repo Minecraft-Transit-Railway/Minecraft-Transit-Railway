@@ -117,7 +117,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
 		if (vertexConsumers != null && isExit) {
-			final Station station = ClientData.getStation(pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 			if (station == null) {
 				return;
 			}
@@ -155,7 +155,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 			matrices.pop();
 		} else if (vertexConsumers != null && isLine) {
-			final Station station = ClientData.getStation(pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 			if (station == null) {
 				return;
 			}
@@ -191,7 +191,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				matrices.pop();
 			}
 		} else if (vertexConsumers != null && isPlatform) {
-			final Station station = ClientData.getStation(pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 			if (station == null) {
 				return;
 			}

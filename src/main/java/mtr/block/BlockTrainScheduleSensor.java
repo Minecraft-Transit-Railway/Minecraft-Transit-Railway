@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.MTR;
-import mtr.data.Depot;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
@@ -97,7 +96,7 @@ public class BlockTrainScheduleSensor extends Block implements BlockEntityProvid
 					return;
 				}
 
-				final Platform platform = railwayData.platforms.stream().filter(platform1 -> platform1.isCloseToSavedRail(pos, 4, 4, 0)).findFirst().orElse(null);
+				final Platform platform = RailwayData.getClosePlatform(railwayData.platforms, pos, 4, 4, 0);
 				if (platform == null) {
 					return;
 				}
@@ -110,11 +109,9 @@ public class BlockTrainScheduleSensor extends Block implements BlockEntityProvid
 				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
 				if (!scheduleList.isEmpty()) {
 					Collections.sort(scheduleList);
-
-					final long millis = scheduleList.get(0).arrivalMillis - System.currentTimeMillis();
-					if (millis / 1000 <= seconds && millis > 0) {
+					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == seconds) {
 						world.setBlockState(pos, state.with(POWERED, true));
-						world.getBlockTickScheduler().schedule(pos, state.getBlock(), (int) Math.max(0, millis / Depot.MILLIS_PER_TICK));
+						world.getBlockTickScheduler().schedule(pos, state.getBlock(), 20);
 					}
 				}
 			}

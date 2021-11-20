@@ -4,6 +4,7 @@ import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.gui.ClientData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -46,7 +47,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-			final Platform platform = ClientData.getClosePlatform(pos);
+			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
 			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 

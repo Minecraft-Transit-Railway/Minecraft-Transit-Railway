@@ -92,7 +92,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		allSignIds.addAll(sortedKeys);
 
 		try {
-			final Station station = ClientData.getStation(signPos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, signPos);
 			if (station != null) {
 				final Map<String, List<String>> exits = station.getGeneratedExits();
 				final List<String> exitParents = new ArrayList<>(exits.keySet());

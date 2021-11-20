@@ -6,6 +6,7 @@ import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.gui.ClientData;
 import net.minecraft.block.BlockState;
@@ -49,7 +50,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Station station = ClientData.getStation(pos);
+		final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 		if (station == null) {
 			return;
 		}
