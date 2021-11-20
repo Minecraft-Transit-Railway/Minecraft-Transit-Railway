@@ -76,7 +76,7 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 			final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(startPos);
 			if (railMap != null) {
 				for (final BlockPos endPos : railMap.keySet()) {
-					if (railMap.get(endPos).facingStart == newFacing && ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
+					if (railMap.get(endPos).facingStart.similarFacing(newFacing.asRotation() - 90) && ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
 						isOccupied = true;
 						break;
 					}

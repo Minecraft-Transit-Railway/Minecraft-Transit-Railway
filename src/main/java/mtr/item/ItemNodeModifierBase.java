@@ -3,6 +3,7 @@ package mtr.item;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.block.IBlock;
+import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -17,9 +18,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -53,17 +52,15 @@ public abstract class ItemNodeModifierBase extends Item {
 						final PlayerEntity player = context.getPlayer();
 
 						if (isConnector) {
-							final boolean isEastWest1 = IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING);
-							final boolean isEastWest2 = IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING);
-							final Direction facingStart = getDirectionFromPos(posStart, isEastWest1, posEnd);
-							final Direction facingEnd = getDirectionFromPos(posEnd, isEastWest2, posStart);
+							if (!posStart.equals(posEnd)) {
+								final float angle1 = (IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_45) ? 45 : 0);
+								final float angle2 = (IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_45) ? 45 : 0);
 
-							if (isValidStart(posStart, facingStart, posEnd) && isValidStart(posEnd, facingEnd, posStart)) {
-								onConnect(world, stateStart, stateEnd, posStart, posEnd, facingStart, facingEnd, player, railwayData);
-							} else {
-								if (player != null) {
-									player.sendMessage(new TranslatableText("gui.mtr.invalid_orientation"), true);
-								}
+								final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
+								final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
+								final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
+
+								onConnect(world, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
 							}
 						} else {
 							onRemove(world, posStart, posEnd, railwayData);
@@ -85,7 +82,7 @@ public abstract class ItemNodeModifierBase extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		final NbtCompound nbtCompound = stack.getOrCreateTag();
 		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
@@ -93,22 +90,7 @@ public abstract class ItemNodeModifierBase extends Item {
 		}
 	}
 
-	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Direction facingStart, Direction facingEnd, PlayerEntity player, RailwayData railwayData);
+	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData);
 
 	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
-
-	private static Direction getDirectionFromPos(BlockPos startPos, boolean isEastWest, BlockPos endPos) {
-		if (isEastWest) {
-			return endPos.getX() > startPos.getX() ? Direction.EAST : Direction.WEST;
-		} else {
-			return endPos.getZ() > startPos.getZ() ? Direction.SOUTH : Direction.NORTH;
-		}
-	}
-
-	private static boolean isValidStart(BlockPos startPos, Direction startFacing, BlockPos endPos) {
-		final BlockPos posDifference = endPos.subtract(startPos);
-		final boolean sameX = startFacing.getOffsetX() == Math.signum(posDifference.getX());
-		final boolean sameZ = startFacing.getOffsetZ() == Math.signum(posDifference.getZ());
-		return startFacing.getAxis() == Direction.Axis.X ? sameX : sameZ;
-	}
 }

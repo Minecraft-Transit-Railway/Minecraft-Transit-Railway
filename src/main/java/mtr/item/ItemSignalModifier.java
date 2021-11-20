@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -21,7 +22,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Direction facingStart, Direction facingEnd, PlayerEntity player, RailwayData railwayData) {
+	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData) {
 		if (railwayData.containsRail(posStart, posEnd)) {
 			PacketTrainDataGuiServer.createSignalS2C(world, railwayData.addSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 		} else if (player != null) {
