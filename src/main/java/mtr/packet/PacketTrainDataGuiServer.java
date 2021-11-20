@@ -244,19 +244,21 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
-		final int messagesSize = packet.readInt();
-		final String[] messages = new String[messagesSize];
-		for (int i = 0; i < messagesSize; i++) {
+		final int maxArrivals = packet.readInt();
+		final String[] messages = new String[maxArrivals];
+		final boolean[] hideArrivals = new boolean[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
 			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+			hideArrivals[i] = packet.readBoolean();
 		}
 		minecraftServer.execute(() -> {
 			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
 			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setMessages(messages);
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals);
 			}
 			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setMessages(messages);
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
 			}
 		});
 	}

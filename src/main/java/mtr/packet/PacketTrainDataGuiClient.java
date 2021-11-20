@@ -236,13 +236,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		ClientPlayNetworking.send(PACKET_TRAIN_ANNOUNCER, packet);
 	}
 
-	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages) {
+	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(messages.length);
-		for (final String message : messages) {
-			packet.writeString(message);
+		for (int i = 0; i < messages.length; i++) {
+			packet.writeString(messages[i]);
+			packet.writeBoolean(hideArrival[i]);
 		}
 		ClientPlayNetworking.send(PACKET_PIDS_UPDATE, packet);
 	}

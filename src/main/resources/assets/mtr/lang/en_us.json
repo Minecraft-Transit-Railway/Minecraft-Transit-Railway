@@ -125,6 +125,7 @@
 	"gui.mtr.game_time": "Game Time",
 	"gui.mtr.generate_map": "Generate route map",
 	"gui.mtr.generating_path": "Generating Path",
+	"gui.mtr.hide_arrival": "Hide Arrival",
 	"gui.mtr.insufficient_balance": "Insufficient balance ($%s)",
 	"gui.mtr.interchange_announcement": "Interchange station for the %s.",
 	"gui.mtr.interchange_announcement_cjk": "乘客可以轉乘%s。",

@@ -20,10 +20,13 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	private final BlockPos pos1;
 	private final BlockPos pos2;
 	private final String[] messages;
+	private final boolean[] hideArrival;
 	private final TextFieldWidget[] textFieldMessages;
-	private final Text text = new TranslatableText("gui.mtr.pids_message");
+	private final WidgetBetterCheckbox[] buttonsHideArrival;
+	private final Text messageText = new TranslatableText("gui.mtr.pids_message");
+	private final Text hideArrivalText = new TranslatableText("gui.mtr.hide_arrival");
 
-	private static final int MAX_MESSAGE_LENGTH = 256;
+	private static final int MAX_MESSAGE_LENGTH = 2048;
 
 	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals) {
 		super(new LiteralText(""));
@@ -33,11 +36,18 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 		for (int i = 0; i < maxArrivals; i++) {
 			messages[i] = "";
 		}
+		hideArrival = new boolean[maxArrivals];
 
 		client = MinecraftClient.getInstance();
 		textFieldMessages = new TextFieldWidget[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
 			textFieldMessages[i] = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		}
+
+		buttonsHideArrival = new WidgetBetterCheckbox[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			buttonsHideArrival[i] = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, hideArrivalText, checked -> {
+			});
 		}
 
 		final World world = client.world;
@@ -46,6 +56,7 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 			if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
 				for (int i = 0; i < maxArrivals; i++) {
 					messages[i] = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getMessage(i);
+					hideArrival[i] = ((BlockPIDSBase.TileEntityBlockPIDSBase) entity).getHideArrival(i);
 				}
 			}
 		}
@@ -54,12 +65,19 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	@Override
 	protected void init() {
 		super.init();
+		final int textWidth = textRenderer.getWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
+
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final TextFieldWidget textFieldMessage = textFieldMessages[i];
-			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
+			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setMaxLength(MAX_MESSAGE_LENGTH);
 			textFieldMessage.setText(messages[i]);
 			addChild(textFieldMessage);
+
+			final WidgetBetterCheckbox buttonHideArrival = buttonsHideArrival[i];
+			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, textWidth);
+			buttonHideArrival.setChecked(hideArrival[i]);
+			addButton(buttonHideArrival);
 		}
 	}
 
@@ -74,8 +92,9 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	public void onClose() {
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			messages[i] = textFieldMessages[i].getText();
+			hideArrival[i] = buttonsHideArrival[i].isChecked();
 		}
-		PacketTrainDataGuiClient.sendPIDSConfigC2S(pos1, pos2, messages);
+		PacketTrainDataGuiClient.sendPIDSConfigC2S(pos1, pos2, messages, hideArrival);
 		super.onClose();
 	}
 
@@ -83,7 +102,7 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			textRenderer.draw(matrices, text, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			textRenderer.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			for (final TextFieldWidget textFieldMessage : textFieldMessages) {
 				textFieldMessage.render(matrices, mouseX, mouseY, delta);
 			}
