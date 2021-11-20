@@ -2,7 +2,6 @@ package mtr.item;
 
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
-import mtr.block.IBlock;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import net.minecraft.block.BlockState;
@@ -53,8 +52,8 @@ public abstract class ItemNodeModifierBase extends Item {
 
 						if (isConnector) {
 							if (!posStart.equals(posEnd)) {
-								final float angle1 = (IBlock.getStatePropertySafe(world, posStart, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posStart, BlockRail.IS_45) ? 45 : 0);
-								final float angle2 = (IBlock.getStatePropertySafe(world, posEnd, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(world, posEnd, BlockRail.IS_45) ? 45 : 0);
+								final float angle1 = BlockRail.getAngle(stateStart);
+								final float angle2 = BlockRail.getAngle(stateEnd);
 
 								final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
 								final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));

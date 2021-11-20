@@ -52,13 +52,15 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 
 		BlockPos startPos = null;
 		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
-		for (final int x : checkDistance) {
-			for (int y = -3; y <= 0; y++) {
-				final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x);
-				final BlockState checkState = world.getBlockState(checkPos);
-				if (checkState.getBlock() instanceof BlockRail && IBlock.getStatePropertySafe(checkState, BlockRail.FACING) == (facing.getAxis() == Direction.Axis.X)) {
-					startPos = checkPos;
-					break;
+		for (final int z : checkDistance) {
+			for (final int x : checkDistance) {
+				for (int y = -5; y <= 0; y++) {
+					final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x).offset(facing, z);
+					final BlockState checkState = world.getBlockState(checkPos);
+					if (checkState.getBlock() instanceof BlockRail) {//&& RailAngle.similarFacing(BlockRail.getAngle(checkState), facing.asRotation() + 90)) {
+						startPos = checkPos;
+						break;
+					}
 				}
 			}
 		}
@@ -73,21 +75,27 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 			final Direction newFacing = (i == 1 ? facing.getOpposite() : facing);
 
 			boolean isOccupied = false;
+			boolean render = false;
 			final Map<BlockPos, Rail> railMap = ClientData.RAILS.get(startPos);
 			if (railMap != null) {
 				for (final BlockPos endPos : railMap.keySet()) {
-					if (railMap.get(endPos).facingStart.similarFacing(newFacing.asRotation() - 90) && ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
-						isOccupied = true;
-						break;
+					if (railMap.get(endPos).facingStart.similarFacing(newFacing.asRotation() + 90)) {
+						render = true;
+						if (ClientData.SIGNAL_BLOCKS.isOccupied(PathData.getRailProduct(startPos, endPos))) {
+							isOccupied = true;
+							break;
+						}
 					}
 				}
 			}
 
-			matrices.push();
-			matrices.multiply(Vec3f.NEGATIVE_Y.getDegreesQuaternion(newFacing.asRotation()));
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false));
-			render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, isOccupied, i == 1);
-			matrices.pop();
+			if (render) {
+				matrices.push();
+				matrices.multiply(Vec3f.NEGATIVE_Y.getDegreesQuaternion(newFacing.asRotation()));
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false));
+				render(matrices, vertexConsumers, vertexConsumer, entity, tickDelta, newFacing, isOccupied, i == 1);
+				matrices.pop();
+			}
 
 			if (isSingleSided) {
 				break;

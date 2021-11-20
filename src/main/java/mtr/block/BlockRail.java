@@ -81,6 +81,10 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		world.setBlockState(pos, world.getBlockState(pos).with(BlockRail.IS_CONNECTED, false));
 	}
 
+	public static float getAngle(BlockState state) {
+		return (IBlock.getStatePropertySafe(state, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRail.IS_45) ? 45 : 0);
+	}
+
 	public static class TileEntityRail extends BlockEntity implements BlockEntityClientSerializable {
 
 		public final Map<BlockPos, Rail> railMap = new HashMap<>();
