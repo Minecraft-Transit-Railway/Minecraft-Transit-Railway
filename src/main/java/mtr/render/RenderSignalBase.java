@@ -50,20 +50,7 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 			return;
 		}
 
-		BlockPos startPos = null;
-		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
-		for (final int z : checkDistance) {
-			for (final int x : checkDistance) {
-				for (int y = -5; y <= 0; y++) {
-					final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x).offset(facing, z);
-					final BlockState checkState = world.getBlockState(checkPos);
-					if (checkState.getBlock() instanceof BlockRail) {//&& RailAngle.similarFacing(BlockRail.getAngle(checkState), facing.asRotation() + 90)) {
-						startPos = checkPos;
-						break;
-					}
-				}
-			}
-		}
+		final BlockPos startPos = getNodePos(world, pos, facing);
 		if (startPos == null) {
 			return;
 		}
@@ -106,4 +93,20 @@ public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntit
 	}
 
 	protected abstract void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide);
+
+	private static BlockPos getNodePos(WorldAccess world, BlockPos pos, Direction facing) {
+		final int[] checkDistance = {0, 1, -1, 2, -2, 3, -3, 4, -4};
+		for (final int z : checkDistance) {
+			for (final int x : checkDistance) {
+				for (int y = -5; y <= 0; y++) {
+					final BlockPos checkPos = pos.up(y).offset(facing.rotateYClockwise(), x).offset(facing, z);
+					final BlockState checkState = world.getBlockState(checkPos);
+					if (checkState.getBlock() instanceof BlockRail) {
+						return checkPos;
+					}
+				}
+			}
+		}
+		return null;
+	}
 }
