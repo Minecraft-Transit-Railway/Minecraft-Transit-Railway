@@ -194,8 +194,11 @@ h2 {
 
 .material-icons {
     color: var(--textColorGray);
-    cursor: default;
     margin: 0;
     padding: 0.2em;
     vertical-align: middle;
+}
+
+.material-icons.tight {
+    padding: 0;
 }

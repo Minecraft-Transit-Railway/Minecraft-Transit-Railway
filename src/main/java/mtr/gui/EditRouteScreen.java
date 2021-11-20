@@ -2,10 +2,12 @@ package mtr.gui;
 
 import mtr.data.IGui;
 import mtr.data.Route;
+import mtr.data.RouteType;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -14,9 +16,12 @@ import net.minecraft.text.TranslatableText;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui, IPacket {
 
+	private RouteType routeType;
+
 	private final Text lightRailRouteNumberText = new TranslatableText("gui.mtr.light_rail_route_number");
 
 	private final TextFieldWidget textFieldLightRailRouteNumber;
+	private final ButtonWidget buttonRouteType;
 	private final WidgetBetterCheckbox buttonIsLightRailRoute;
 	private final WidgetBetterCheckbox buttonIsClockwiseRoute;
 	private final WidgetBetterCheckbox buttonIsAntiClockwiseRoute;
@@ -31,6 +36,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		textFieldLightRailRouteNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		buttonRouteType = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> setRouteTypeText(routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
 		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_clockwise_route"), this::setIsClockwise);
 		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
@@ -48,14 +54,18 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	protected void init() {
 		setPositionsAndInit(SQUARE_SIZE, width / 4 * 3 - SQUARE_SIZE, width - SQUARE_SIZE);
 
-		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 3, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(buttonRouteType, SQUARE_SIZE, SQUARE_SIZE * 3, CHECKBOX_WIDTH);
+		setRouteTypeText(data.routeType);
+
+		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
 		textFieldLightRailRouteNumber.setText(data.lightRailRouteNumber);
 		textFieldLightRailRouteNumber.setMaxLength(LIGHT_RAIL_ROUTE_NUMBER_MAX_LENGTH);
 
-		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 
+		addButton(buttonRouteType);
 		addChild(textFieldLightRailRouteNumber);
 		addButton(buttonIsLightRailRoute);
 		if (isCircular) {
@@ -76,7 +86,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 			textFieldLightRailRouteNumber.render(matrices, mouseX, mouseY, delta);
 			if (textFieldLightRailRouteNumber.visible) {
-				drawTextWithShadow(matrices, textRenderer, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
+				drawTextWithShadow(matrices, textRenderer, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
@@ -89,6 +99,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public void onClose() {
 		super.onClose();
 
+		data.routeType = routeType;
 		data.isLightRailRoute = buttonIsLightRailRoute.isChecked();
 		data.lightRailRouteNumber = textFieldLightRailRouteNumber.getText();
 
@@ -99,6 +110,11 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		}
 
 		data.setExtraData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
+	}
+
+	private void setRouteTypeText(RouteType newRouteType) {
+		routeType = newRouteType;
+		buttonRouteType.setMessage(new TranslatableText(routeType.key));
 	}
 
 	private void setIsLightRailRoute(boolean isLightRailRoute) {

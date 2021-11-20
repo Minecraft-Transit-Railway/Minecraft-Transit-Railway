@@ -117,7 +117,7 @@ function drawMap(container, data) {
 		return element;
 	};
 
-	const getRouteElement = (color, name, visible, id, showColor) => {
+	const getRouteElement = (color, name, type, visible, id, showColor) => {
 		const element = document.createElement("div");
 		element.setAttribute("id", id);
 		element.setAttribute("class", "clickable");
@@ -127,6 +127,7 @@ function drawMap(container, data) {
 		element.onclick = () => onClickLine(color);
 		element.innerHTML =
 			`<span class="line" style="background: ${convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
+			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${type === SETTINGS.routeTypes[2] ? "train" : type === SETTINGS.routeTypes[1] ? "tram" : ""}</span>` +
 			`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
@@ -162,7 +163,7 @@ function drawMap(container, data) {
 			if (!addedRouteColors.includes(route["color"])) {
 				for (const stationIndex in route["stations"]) {
 					if (route["stations"][stationIndex].split("_")[0] === id) {
-						stationRoutesElement.append(getRouteElement(route["color"], route["name"].replace(/\|/g, " "), true, "", true, () => onClickLine(container, data, color)));
+						stationRoutesElement.append(getRouteElement(route["color"], route["name"].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color)));
 						addedRouteColors.push(route["color"]);
 
 						const arrivalElement = document.createElement("div");
@@ -255,6 +256,7 @@ function drawMap(container, data) {
 				name: stations[stationId]["name"],
 				colors: [color],
 			};
+			SETTINGS.routeTypes.forEach(routeType => blobs[stationId][routeType] = false);
 		} else {
 			blob["xMin"] = Math.min(blob["xMin"], newX);
 			blob["yMin"] = Math.min(blob["yMin"], newY);
@@ -267,36 +269,44 @@ function drawMap(container, data) {
 	}
 
 	const routeNames = {};
+	const routeTypes = {};
 	const sortedColors = [];
 	for (const routeKey in routes) {
 		const route = routes[routeKey];
 		const color = route["color"];
 		const shouldDraw = selectedColor < 0 || selectedColor === color;
+		const routeType = route["type"];
+		for (const stationIndex in route["stations"]) {
+			blobs[route["stations"][stationIndex].split("_")[0]][routeType] = true;
+		}
 
-		createClickable(container, graphicsRoute => {
-			(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
-			graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
+		if (routeType === SETTINGS.routeTypes[SETTINGS.routeType]) {
+			createClickable(container, graphicsRoute => {
+				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
+				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
 
-			let prevX = undefined;
-			let prevY = undefined;
-			let prevVertical = undefined;
-			for (const stationIndex in route["stations"]) {
-				const id = route["stations"][stationIndex];
-				const {x2, y2, vertical} = positions[id];
+				let prevX = undefined;
+				let prevY = undefined;
+				let prevVertical = undefined;
+				for (const stationIndex in route["stations"]) {
+					const id = route["stations"][stationIndex];
+					const {x2, y2, vertical} = positions[id];
 
-				if (typeof prevX !== "undefined" && typeof prevY !== "undefined") {
-					CANVAS.drawLine(graphicsRoute, prevX, prevY, prevVertical, x2, y2, vertical);
+					if (typeof prevX !== "undefined" && typeof prevY !== "undefined") {
+						CANVAS.drawLine(graphicsRoute, prevX, prevY, prevVertical, x2, y2, vertical);
+					}
+
+					prevX = x2;
+					prevY = y2;
+					prevVertical = vertical;
 				}
 
-				prevX = x2;
-				prevY = y2;
-				prevVertical = vertical;
-			}
-
-			graphicsRoute.endFill();
-		}, () => onClickLine(color));
+				graphicsRoute.endFill();
+			}, () => onClickLine(color));
+		}
 
 		routeNames[color] = route["name"];
+		routeTypes[color] = routeType;
 		if (!sortedColors.includes(color)) {
 			sortedColors.push(color);
 		}
@@ -304,24 +314,30 @@ function drawMap(container, data) {
 	sortedColors.sort();
 
 	for (const stationId in blobs) {
-		const {xMin, yMin, xMax, yMax, colors} = blobs[stationId];
-		const shouldDraw = selectedColor < 0 || colors.includes(selectedColor);
+		const blob = blobs[stationId];
+		const {xMin, yMin, xMax, yMax, colors, name} = blob;
+		if (blob[SETTINGS.routeTypes[SETTINGS.routeType]]) {
+			const shouldDraw = selectedColor < 0 || colors.includes(selectedColor);
 
-		createClickable(container, graphicsStation => {
-			(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
-			graphicsStation.beginFill(SETTINGS.getColorStyle("--backgroundColor"));
-			graphicsStation.lineStyle(2, SETTINGS.getColorStyle(shouldDraw ? "--textColor" : "--textColorDisabled"), 1);
+			createClickable(container, graphicsStation => {
+				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
+				graphicsStation.beginFill(SETTINGS.getColorStyle("--backgroundColor"));
+				graphicsStation.lineStyle(2, SETTINGS.getColorStyle(shouldDraw ? "--textColor" : "--textColorDisabled"), 1);
 
-			if (xMin === xMax && yMin === yMax) {
-				graphicsStation.drawCircle(xMin, yMin, SETTINGS.lineSize);
-			} else {
-				graphicsStation.drawRoundedRect(xMin - SETTINGS.lineSize, yMin - SETTINGS.lineSize, xMax - xMin + SETTINGS.lineSize * 2, yMax - yMin + SETTINGS.lineSize * 2, SETTINGS.lineSize);
+				if (xMin === xMax && yMin === yMax) {
+					graphicsStation.drawCircle(xMin, yMin, SETTINGS.lineSize);
+				} else {
+					graphicsStation.drawRoundedRect(xMin - SETTINGS.lineSize, yMin - SETTINGS.lineSize, xMax - xMin + SETTINGS.lineSize * 2, yMax - yMin + SETTINGS.lineSize * 2, SETTINGS.lineSize);
+				}
+				graphicsStation.endFill();
+			}, () => onClickStation(stationId));
+
+			if (SETTINGS.showText && shouldDraw) {
+				const hasNormal = SETTINGS.routeType !== 0 && blob[SETTINGS.routeTypes[0]];
+				const hasLightRail = SETTINGS.routeType !== 1 && blob[SETTINGS.routeTypes[1]];
+				const hasHighSpeed = SETTINGS.routeType !== 2 && blob[SETTINGS.routeTypes[2]];
+				CANVAS.drawText(textStations, name, hasNormal, hasLightRail, hasHighSpeed, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 			}
-			graphicsStation.endFill();
-		}, () => onClickStation(stationId));
-
-		if (SETTINGS.showText && shouldDraw) {
-			CANVAS.drawText(textStations, blobs[stationId]["name"], (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 		}
 	}
 
@@ -345,7 +361,7 @@ function drawMap(container, data) {
 	elementRoutes.innerHTML = "";
 	for (const colorIndex in sortedColors) {
 		const color = sortedColors[colorIndex];
-		elementRoutes.append(getRouteElement(color, routeNames[color], false, color, selectedColor < 0 || selectedColor === color));
+		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, selectedColor < 0 || selectedColor === color));
 	}
 	const elementStations = document.getElementById("search_results_stations");
 	elementStations.innerHTML = "";

@@ -7,8 +7,10 @@ const SETTINGS = {
 	arrivalsUrl: URL + "arrivals",
 	refreshDataInterval: 60000,
 	refreshArrivalsInterval: 5000,
+	routeTypes: ["normal", "light_rail", "high_speed"],
 	lineSize: 6,
-	dimension: 0, // TODO other dimensions
+	dimension: 0,
+	routeType: 0,
 	showText: true,
 	showSettings: false,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
@@ -90,6 +92,15 @@ document.getElementById("toggle_dimension_icon").onclick = event => {
 			SETTINGS.dimension = 0;
 		}
 	} while (SETTINGS.dimension > 0 && json[SETTINGS.dimension]["routes"].length === 0);
+	drawMap(container, json[SETTINGS.dimension]);
+};
+document.getElementById("toggle_route_type_icon").onclick = event => {
+	do {
+		SETTINGS.routeType++;
+		if (SETTINGS.routeType >= SETTINGS.routeTypes.length) {
+			SETTINGS.routeType = 0;
+		}
+	} while (SETTINGS.routeType > 0 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]).length === 0);
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("toggle_theme_icon").onclick = event => {

@@ -87,16 +87,15 @@ const CANVAS = {
 			}
 		}
 	},
-	drawText: (textArray, text, x, y) => {
+	drawText: (textArray, text, hasNormal, hasLightRail, hasHighSpeed, x, y) => {
 		const textSplit = text.split("|");
 		let yStart = y;
-		for (const index in textSplit) {
-			const textPart = textSplit[index];
+		for (const textPart of textSplit) {
 			const isTextCJK = SETTINGS.isCJK(textPart);
 
 			if (typeof textCache[textPart] === "undefined") {
 				const richText = new PIXI.Text(textPart, {
-					fontFamily: getComputedStyle(document.body).fontFamily,
+					fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
 					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
 					fill: SETTINGS.getColorStyle("--textColor"),
 					stroke: SETTINGS.getColorStyle("--backgroundColor"),
@@ -110,6 +109,19 @@ const CANVAS = {
 			richText.position.set(Math.round(x / 2) * 2, yStart);
 			textArray.push(richText);
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
+		}
+
+		if (hasNormal || hasLightRail || hasHighSpeed) {
+			const richText = new PIXI.Text((hasNormal ? "directions_train" : "") + (hasLightRail ? "tram" : "") + (hasHighSpeed ? "train" : ""), {
+				fontFamily: "Material Icons",
+				fontSize: 3 * SETTINGS.lineSize,
+				fill: SETTINGS.getColorStyle("--textColor"),
+				stroke: SETTINGS.getColorStyle("--backgroundColor"),
+				strokeThickness: 2,
+			});
+			richText.anchor.set(0.5, 0);
+			richText.position.set(Math.round(x / 2) * 2, yStart + SETTINGS.lineSize);
+			textArray.push(richText);
 		}
 	},
 	clearTextCache: () => textCache = {},
