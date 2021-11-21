@@ -24,6 +24,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -35,6 +36,9 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 public class MTR implements ModInitializer, IPacket {
@@ -293,7 +297,6 @@ public class MTR implements ModInitializer, IPacket {
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);
-		serverConnector.setPort(8888);
 		webServer.setConnectors(new Connector[]{serverConnector});
 		final ServletContextHandler context = new ServletContextHandler();
 		webServer.setHandler(context);
@@ -336,6 +339,18 @@ public class MTR implements ModInitializer, IPacket {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			int port = 8888;
+			final Path path = server.getRunDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
+			try {
+				port = MathHelper.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("[^0-9]", "")), 1025, 65535);
+			} catch (Exception ignored) {
+				try {
+					Files.write(path, Collections.singleton(String.valueOf(port)));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			serverConnector.setPort(port);
 			DataServletHandler.SERVER = server;
 			ArrivalsServletHandler.SERVER = server;
 			try {
