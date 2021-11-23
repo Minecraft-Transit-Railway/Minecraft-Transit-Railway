@@ -44,6 +44,7 @@ public class ModelCTrain extends ModelTrainBase {
     private final ModelPart inner_roof_4_r2;
     private final ModelPart inner_roof_3_r2;
     private final ModelPart inner_roof_2_r1;
+    private final ModelPart inner_roof_1_r1;
     private final ModelPart roof_exterior;
     private final ModelPart outer_roof_4_r1;
     private final ModelPart outer_roof_3_r1;
@@ -336,7 +337,6 @@ public class ModelCTrain extends ModelTrainBase {
 
         roof_door = new ModelPart(this);
         roof_door.setPivot(0.0F, 24.0F, 0.0F);
-        roof_door.setTextureOffset(42, 89).addCuboid(-18.4217F, -32.1212F, -13.0F, 6.0F, 0.0F, 26.0F, 0.0F, false);
         roof_door.setTextureOffset(0, 89).addCuboid(-0.5151F, -35.1216F, -18.0F, 1.0F, 0.0F, 36.0F, 0.0F, false);
 
         inner_roof_8_r1 = new ModelPart(this);
@@ -380,6 +380,12 @@ public class ModelCTrain extends ModelTrainBase {
         roof_door.addChild(inner_roof_2_r1);
         setRotationAngle(inner_roof_2_r1, 0.0F, 3.1416F, -0.5236F);
         inner_roof_2_r1.setTextureOffset(80, 0).addCuboid(-2.0F, 0.0F, -18.0F, 4.0F, 0.0F, 36.0F, 0.0F, true);
+
+        inner_roof_1_r1 = new ModelPart(this);
+        inner_roof_1_r1.setPivot(-12.4217F, -32.1212F, 0.0F);
+        roof_door.addChild(inner_roof_1_r1);
+        setRotationAngle(inner_roof_1_r1, 0.0F, 0.0F, -0.0413F);
+        inner_roof_1_r1.setTextureOffset(42, 89).addCuboid(-6.0F, 0.0F, -13.0F, 6.0F, 0.0F, 26.0F, 0.0F, false);
 
         roof_exterior = new ModelPart(this);
         roof_exterior.setPivot(0.0F, 24.0F, 0.0F);
@@ -470,7 +476,7 @@ public class ModelCTrain extends ModelTrainBase {
         end.setTextureOffset(168, 58).addCuboid(-20.0F, 0.0F, -12.0F, 40.0F, 1.0F, 20.0F, 0.0F, false);
         end.setTextureOffset(0, 233).addCuboid(9.5F, -35.0F, -12.0F, 9.0F, 35.0F, 18.0F, 0.0F, false);
         end.setTextureOffset(200, 221).addCuboid(-18.5F, -35.0F, -12.0F, 9.0F, 35.0F, 18.0F, 0.0F, false);
-        end.setTextureOffset(54, 251).addCuboid(-9.5F, -35.0F, -12.0F, 19.0F, 3.0F, 18.0F, 0.0F, false);
+        end.setTextureOffset(54, 251).addCuboid(-9.5F, -35.1227F, -12.0F, 19.0F, 3.0F, 18.0F, 0.0F, false);
         end.setTextureOffset(135, 91).addCuboid(-20.0F, -14.0F, 6.0F, 3.0F, 14.0F, 5.0F, 0.0F, false);
         end.setTextureOffset(108, 91).addCuboid(17.0F, -14.0F, 6.0F, 3.0F, 14.0F, 5.0F, 0.0F, false);
 
@@ -968,7 +974,7 @@ public class ModelCTrain extends ModelTrainBase {
     }
 
     private static final int DOOR_MAX = 13;
-    private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_k_train_left.png", "door_overlay_k_train_right.png");
+    private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_c_train_left.png", "door_overlay_c_train_right.png");
 
     @Override
     protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
