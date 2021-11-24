@@ -19,6 +19,7 @@ public enum TrainType {
 	K_TRAIN_AEL(24, 2, 0),
 	K_TRAIN_AEL_MINI(9, 2, 0),
 	C_TRAIN(24,2,0),
+	C_TRAIN_MINI(9,2,0),
 	A_TRAIN_TCL(24, 2, 0),
 	A_TRAIN_TCL_MINI(9, 2, 0),
 	A_TRAIN_AEL(24, 2, 0),

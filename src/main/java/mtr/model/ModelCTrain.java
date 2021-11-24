@@ -145,6 +145,10 @@ public class ModelCTrain extends ModelTrainBase {
     private final ModelPart tail_lights;
     private final ModelPart tail_light_2_r1;
     private final ModelPart tail_light_1_r1;
+    private final ModelPart door_light_on;
+    private final ModelPart light_r1;
+    private final ModelPart door_light_off;
+    private final ModelPart light_r2;
     public ModelCTrain() {
         textureWidth = 320;
         textureHeight = 320;
@@ -971,6 +975,26 @@ public class ModelCTrain extends ModelTrainBase {
         tail_lights.addChild(tail_light_1_r1);
         setRotationAngle(tail_light_1_r1, 0.0F, -0.1309F, 0.0F);
         tail_light_1_r1.setTextureOffset(0, 0).addCuboid(-3.5F, -0.5F, 0.0F, 7.0F, 5.0F, 0.0F, 0.0F, false);
+
+        door_light_on = new ModelPart(this);
+        door_light_on.setPivot(0.0F, 24.0F, 0.0F);
+
+
+        light_r1 = new ModelPart(this);
+        light_r1.setPivot(-20.0F, -14.0F, 0.0F);
+        door_light_on.addChild(light_r1);
+        setRotationAngle(light_r1, 0.0F, 0.0F, 0.1107F);
+        light_r1.setTextureOffset(32, 319).addCuboid(-1.0F, -19.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
+
+        door_light_off = new ModelPart(this);
+        door_light_off.setPivot(0.0F, 24.0F, 0.0F);
+
+
+        light_r2 = new ModelPart(this);
+        light_r2.setPivot(-20.0F, -14.0F, 0.0F);
+        door_light_off.addChild(light_r2);
+        setRotationAngle(light_r2, 0.0F, 0.0F, 0.1107F);
+        light_r2.setTextureOffset(30, 319).addCuboid(-1.0F, -19.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, false);
     }
 
     private static final int DOOR_MAX = 13;
@@ -1004,12 +1028,17 @@ public class ModelCTrain extends ModelTrainBase {
 
     @Override
     protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+        final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
+        final boolean doorOpen = doorLeftZ > 0 || doorRightZ > 0;
         final boolean notLastDoor = !isIndex(0, position, getDoorPositions()) && !isIndex(-1, position, getDoorPositions());
 
         switch (renderStage) {
             case LIGHTS:
                 if (notLastDoor) {
                     renderMirror(roof_light, matrices, vertices, light, position);
+                }
+                if (middleDoor && doorOpen && renderDetails) {
+                    renderMirror(door_light_on, matrices, vertices, light, position - 40);
                 }
                 break;
             case INTERIOR:
@@ -1033,6 +1062,11 @@ public class ModelCTrain extends ModelTrainBase {
                 door_right_exterior.setPivot(0, 0, -doorLeftZ);
                 renderOnceFlipped(door_exterior, matrices, vertices, light, position);
                 renderMirror(roof_exterior, matrices, vertices, light, position);
+                if (middleDoor && renderDetails) {
+                    if (!doorOpen) {
+                        renderMirror(door_light_off, matrices, vertices, light, position - 40);
+                    }
+                }
                 break;
         }
     }
