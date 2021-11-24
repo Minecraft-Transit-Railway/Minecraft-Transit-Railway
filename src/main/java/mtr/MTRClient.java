@@ -245,6 +245,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 			}
 		};
 
+		Config.getPatreonList();
 		Config.refreshProperties();
 		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
 

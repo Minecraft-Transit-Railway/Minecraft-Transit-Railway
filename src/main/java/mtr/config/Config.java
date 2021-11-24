@@ -3,11 +3,14 @@ package mtr.config;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mtr.Patreon;
 import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Config {
 
@@ -18,6 +21,7 @@ public class Config {
 	private static boolean hideTranslucentParts;
 	private static boolean useDynamicFPS = true;
 
+	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
 	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().runDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
@@ -113,6 +117,11 @@ public class Config {
 			writeToFile();
 			e.printStackTrace();
 		}
+	}
+
+	public static void getPatreonList() {
+		PATREON_LIST.clear();
+		PATREON_LIST.addAll(Patreon.getPatreonList());
 	}
 
 	private static void writeToFile() {
