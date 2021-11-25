@@ -63,8 +63,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
 
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
-		routeList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
+		addNewList = new DashboardList(null, null, null, null, this::onAdded, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
+		routeList = new DashboardList(null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
 	}
 
 	@Override
@@ -88,8 +88,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sliders[i].setValue(data.getFrequency(i));
 		}
 
-		addNewList.init();
-		routeList.init();
+		addNewList.init(this::addButton);
+		routeList.init(this::addButton);
 		setIsSelecting(false);
 
 		addButton(buttonEditInstructions);
@@ -115,14 +115,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		try {
 			if (addingRoute) {
 				renderBackground(matrices);
-				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				routeList.render(matrices, textRenderer, mouseX, mouseY, delta);
+				addNewList.render(matrices, textRenderer);
+				routeList.render(matrices, textRenderer);
 				super.render(matrices, mouseX, mouseY, delta);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.edit_instructions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
 			} else {
 				renderBackground(matrices);
 				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				renderTextFields(matrices, mouseX, mouseY, delta);
+				renderTextFields(matrices);
 
 				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
 				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {

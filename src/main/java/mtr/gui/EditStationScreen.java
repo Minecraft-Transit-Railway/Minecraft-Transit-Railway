@@ -4,11 +4,8 @@ import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Station;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -25,10 +22,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private final Text exitParentsText = new TranslatableText("gui.mtr.exit_parents");
 	private final Text exitDestinationsText = new TranslatableText("gui.mtr.exit_destinations");
 
-	private final TextFieldWidget textFieldZone;
-	private final TextFieldWidget textFieldExitParentLetter;
-	private final TextFieldWidget textFieldExitParentNumber;
-	private final TextFieldWidget textFieldExitDestination;
+	private final WidgetBetterTextField textFieldZone;
+	private final WidgetBetterTextField textFieldExitParentLetter;
+	private final WidgetBetterTextField textFieldExitParentNumber;
+	private final WidgetBetterTextField textFieldExitDestination;
 
 	private final ButtonWidget buttonAddExitParent;
 	private final ButtonWidget buttonDoneExitParent;
@@ -42,19 +39,18 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	public EditStationScreen(Station station, DashboardScreen dashboardScreen) {
 		super(station, dashboardScreen, "gui.mtr.station_name", "gui.mtr.station_color");
-		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldZone = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldExitParentLetter = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldExitParentNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldExitDestination = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "");
+		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A");
+		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1");
+		textFieldExitDestination = new WidgetBetterTextField(null, "");
 
 		buttonAddExitParent = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
 		buttonDoneExitParent = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitParent());
 		buttonAddExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
 		buttonDoneExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitDestination());
 
-		exitParentList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
-		exitDestinationList = new DashboardList(this::addButton, this::addChild, null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
+		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
+		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
 	}
 
 	@Override
@@ -75,29 +71,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 		textFieldZone.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldZone.setText(String.valueOf(data.zone));
-		textFieldZone.setChangedListener(text -> {
-			final String newText = text.replaceAll("[^0-9-]", "");
-			if (!newText.equals(text)) {
-				textFieldZone.setText(newText);
-			}
-		});
 
 		textFieldExitParentLetter.setMaxLength(1);
-		textFieldExitParentLetter.setChangedListener(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^A-Z]", "");
-			if (!newText.equals(text)) {
-				textFieldExitParentLetter.setText(newText);
-			}
-			textFieldExitParentLetter.setSuggestion(newText.isEmpty() ? "A" : "");
-		});
 		textFieldExitParentNumber.setMaxLength(2);
-		textFieldExitParentNumber.setChangedListener(text -> {
-			final String newText = text.replaceAll("[^0-9]", "");
-			if (!newText.equals(text)) {
-				textFieldExitParentNumber.setText(newText);
-			}
-			textFieldExitParentNumber.setSuggestion(newText.isEmpty() ? "1" : "");
-		});
 		textFieldExitDestination.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 
 		exitParentList.x = 0;
@@ -110,13 +86,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		exitDestinationList.height = height - EXIT_PANELS_START - SQUARE_SIZE;
 		exitDestinationList.width = width / 2;
 
-		exitParentList.init();
-		exitDestinationList.init();
+		exitParentList.init(this::addButton);
+		exitDestinationList.init(this::addButton);
 
-		addChild(textFieldZone);
-		addChild(textFieldExitParentLetter);
-		addChild(textFieldExitParentNumber);
-		addChild(textFieldExitDestination);
+		addButton(textFieldZone);
+		addButton(textFieldExitParentLetter);
+		addButton(textFieldExitParentNumber);
+		addButton(textFieldExitDestination);
 		addButton(buttonAddExitParent);
 		addButton(buttonDoneExitParent);
 		addButton(buttonAddExitDestination);
@@ -151,17 +127,12 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			renderTextFields(matrices, mouseX, mouseY, delta);
-
-			textFieldZone.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentLetter.render(matrices, mouseX, mouseY, delta);
-			textFieldExitParentNumber.render(matrices, mouseX, mouseY, delta);
-			textFieldExitDestination.render(matrices, mouseX, mouseY, delta);
+			renderTextFields(matrices);
 
 			drawVerticalLine(matrices, width / 2, EXIT_PANELS_START - SQUARE_SIZE, height, ARGB_WHITE_TRANSLUCENT);
 
-			exitParentList.render(matrices, textRenderer, mouseX, mouseY, delta);
-			exitDestinationList.render(matrices, textRenderer, mouseX, mouseY, delta);
+			exitParentList.render(matrices, textRenderer);
+			exitDestinationList.render(matrices, textRenderer);
 
 			drawCenteredText(matrices, textRenderer, stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
 			drawCenteredText(matrices, textRenderer, exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);

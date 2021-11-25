@@ -6,11 +6,8 @@ import mtr.data.RouteType;
 import mtr.data.Station;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -20,7 +17,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 	private final Text lightRailRouteNumberText = new TranslatableText("gui.mtr.light_rail_route_number");
 
-	private final TextFieldWidget textFieldLightRailRouteNumber;
+	private final WidgetBetterTextField textFieldLightRailRouteNumber;
 	private final ButtonWidget buttonRouteType;
 	private final WidgetBetterCheckbox buttonIsLightRailRoute;
 	private final WidgetBetterCheckbox buttonIsClockwiseRoute;
@@ -34,8 +31,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
-		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldLightRailRouteNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldLightRailRouteNumber = new WidgetBetterTextField(null, "");
 		buttonRouteType = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> setRouteTypeText(routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
 		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_clockwise_route"), this::setIsClockwise);
@@ -66,7 +62,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 
 		addButton(buttonRouteType);
-		addChild(textFieldLightRailRouteNumber);
+		addButton(textFieldLightRailRouteNumber);
 		addButton(buttonIsLightRailRoute);
 		if (isCircular) {
 			addButton(buttonIsClockwiseRoute);
@@ -82,9 +78,8 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			renderTextFields(matrices, mouseX, mouseY, delta);
+			renderTextFields(matrices);
 
-			textFieldLightRailRouteNumber.render(matrices, mouseX, mouseY, delta);
 			if (textFieldLightRailRouteNumber.visible) {
 				drawTextWithShadow(matrices, textRenderer, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 			}

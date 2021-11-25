@@ -5,7 +5,6 @@ import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -18,7 +17,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected final int textWidth, startX;
 
 	private final DashboardScreen dashboardScreen;
-	private final TextFieldWidget textFieldSavedRailNumber;
+	private final WidgetBetterTextField textFieldSavedRailNumber;
 
 	private final Text savedRailNumberText;
 	private final Text secondText;
@@ -34,7 +33,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		secondText = new TranslatableText(getSecondStringKey());
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldSavedRailNumber = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1");
 
 		textWidth = Math.max(Math.max(textRenderer.getWidth(savedRailNumberText), textRenderer.getWidth(secondText)), additionalText == null ? 0 : textRenderer.getWidth(additionalText)) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
@@ -47,12 +46,9 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
 		textFieldSavedRailNumber.setText(savedRailBase.name);
 		textFieldSavedRailNumber.setMaxLength(MAX_SAVED_RAIL_NUMBER_LENGTH);
-		textFieldSavedRailNumber.setChangedListener(text -> {
-			textFieldSavedRailNumber.setSuggestion(text.isEmpty() ? "1" : "");
-			savedRailBase.name = textFieldSavedRailNumber.getText();
-		});
+		textFieldSavedRailNumber.setChangedListener(text -> savedRailBase.name = textFieldSavedRailNumber.getText());
 
-		addChild(textFieldSavedRailNumber);
+		addButton(textFieldSavedRailNumber);
 	}
 
 	@Override
@@ -68,7 +64,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 			if (shouldRenderExtra()) {
 				renderExtra(matrices, mouseX, mouseY, delta);
 			} else {
-				textFieldSavedRailNumber.render(matrices, mouseX, mouseY, delta);
 				textRenderer.draw(matrices, savedRailNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
 				textRenderer.draw(matrices, secondText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
 			}

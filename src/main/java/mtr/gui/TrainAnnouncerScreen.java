@@ -7,7 +7,6 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -19,7 +18,7 @@ public class TrainAnnouncerScreen extends Screen implements IGui, IPacket {
 
 	private final BlockPos pos;
 	private final String initialMessage;
-	private final TextFieldWidget textFieldMessage;
+	private final WidgetBetterTextField textFieldMessage;
 	private final Text text = new TranslatableText("gui.mtr.announcement_message");
 
 	private static final int MAX_MESSAGE_LENGTH = 256;
@@ -27,11 +26,10 @@ public class TrainAnnouncerScreen extends Screen implements IGui, IPacket {
 	public TrainAnnouncerScreen(BlockPos pos) {
 		super(new LiteralText(""));
 
-		client = MinecraftClient.getInstance();
 		this.pos = pos;
-		textFieldMessage = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldMessage = new WidgetBetterTextField(null, "");
 
-		final World world = client.world;
+		final World world = MinecraftClient.getInstance().world;
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(pos);
 			initialMessage = entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer ? ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).getMessage() : "";
@@ -46,7 +44,7 @@ public class TrainAnnouncerScreen extends Screen implements IGui, IPacket {
 		IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
 		textFieldMessage.setMaxLength(MAX_MESSAGE_LENGTH);
 		textFieldMessage.setText(initialMessage);
-		addChild(textFieldMessage);
+		addButton(textFieldMessage);
 	}
 
 	@Override
@@ -65,7 +63,6 @@ public class TrainAnnouncerScreen extends Screen implements IGui, IPacket {
 		try {
 			renderBackground(matrices);
 			textRenderer.draw(matrices, text, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-			textFieldMessage.render(matrices, mouseX, mouseY, delta);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
