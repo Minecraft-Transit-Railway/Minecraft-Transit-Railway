@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -39,8 +38,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 	private final ButtonWidget buttonZoomOut;
 	private final ButtonWidget buttonOptions;
 
-	private final TextFieldWidget textFieldName;
-	private final TextFieldWidget textFieldColor;
+	private final WidgetBetterTextField textFieldName;
+	private final WidgetBetterTextField textFieldColor;
 
 	private final DashboardList dashboardList;
 
@@ -53,9 +52,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
-		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldName = new WidgetBetterTextField(null, new TranslatableText("gui.mtr.name").getString());
+		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableText("gui.mtr.color").getString());
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
@@ -75,7 +73,7 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			}
 		});
 
-		dashboardList = new DashboardList(this::addButton, this::addChild, this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> ClientData.DASHBOARD_SEARCH, text -> ClientData.DASHBOARD_SEARCH = text);
+		dashboardList = new DashboardList(this::onFind, this::onDrawArea, this::onEdit, this::onSort, null, this::onDelete, this::getList, () -> ClientData.DASHBOARD_SEARCH, text -> ClientData.DASHBOARD_SEARCH = text);
 
 		onSelectTab(SelectedTab.STATIONS);
 	}
@@ -116,18 +114,10 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 
 		textFieldName.setVisible(false);
 		textFieldName.setMaxLength(MAX_NAME_LENGTH);
-		textFieldName.setChangedListener(text -> textFieldName.setSuggestion(text.isEmpty() ? new TranslatableText("gui.mtr.name").getString() : ""));
 		textFieldColor.setVisible(false);
 		textFieldColor.setMaxLength(MAX_COLOR_ZONE_LENGTH);
-		textFieldColor.setChangedListener(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
-			if (!newText.equals(text)) {
-				textFieldColor.setText(newText);
-			}
-			textFieldColor.setSuggestion(newText.isEmpty() ? new TranslatableText("gui.mtr.color").getString() : "");
-		});
 
-		dashboardList.init();
+		dashboardList.init(this::addButton);
 
 		addChild(widgetMap);
 
@@ -144,8 +134,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 		addButton(buttonZoomOut);
 		addButton(buttonOptions);
 
-		addChild(textFieldName);
-		addChild(textFieldColor);
+		addButton(textFieldName);
+		addButton(textFieldColor);
 	}
 
 	@Override
@@ -154,10 +144,8 @@ public class DashboardScreen extends Screen implements IGui, IPacket {
 			renderBackground(matrices);
 			widgetMap.render(matrices, mouseX, mouseY, delta);
 			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			dashboardList.render(matrices, textRenderer, mouseX, mouseY, delta);
+			dashboardList.render(matrices, textRenderer);
 			super.render(matrices, mouseX, mouseY, delta);
-			textFieldName.render(matrices, mouseX, mouseY, delta);
-			textFieldColor.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

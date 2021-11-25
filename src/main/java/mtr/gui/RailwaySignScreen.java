@@ -162,8 +162,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 
-		availableList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
-		selectedList = new DashboardList(this::addButton, this::addChild, null, null, null, null, null, this::onDelete, null, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
+		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
+		selectedList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
 	}
 
 	@Override
@@ -209,8 +209,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 		buttonNextPage.visible = false;
 		addButton(buttonNextPage);
 
-		availableList.init();
-		selectedList.init();
+		availableList.init(this::addButton);
+		selectedList.init(this::addButton);
 	}
 
 	@Override
@@ -225,8 +225,8 @@ public class RailwaySignScreen extends Screen implements IGui {
 			renderBackground(matrices);
 
 			if (isSelectingExitLetter || isSelectingPlatform || isSelectingRoute) {
-				availableList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				selectedList.render(matrices, textRenderer, mouseX, mouseY, delta);
+				availableList.render(matrices, textRenderer);
+				selectedList.render(matrices, textRenderer);
 				super.render(matrices, mouseX, mouseY, delta);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);

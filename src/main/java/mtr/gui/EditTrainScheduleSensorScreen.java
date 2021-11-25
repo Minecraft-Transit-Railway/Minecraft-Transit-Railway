@@ -7,7 +7,6 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -19,7 +18,7 @@ public class EditTrainScheduleSensorScreen extends Screen implements IGui, IPack
 
 	private final BlockPos pos;
 	private final int seconds;
-	private final TextFieldWidget textFieldSeconds;
+	private final WidgetBetterTextField textFieldSeconds;
 	private final Text text = new TranslatableText("gui.mtr.train_schedule_sensor");
 
 	private static final int MAX_SECONDS_LENGTH = 3;
@@ -28,10 +27,9 @@ public class EditTrainScheduleSensorScreen extends Screen implements IGui, IPack
 		super(new LiteralText(""));
 		this.pos = pos;
 
-		client = MinecraftClient.getInstance();
-		textFieldSeconds = new TextFieldWidget(client.textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		textFieldSeconds = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "");
 
-		final World world = client.world;
+		final World world = MinecraftClient.getInstance().world;
 		if (world == null) {
 			seconds = 0;
 		} else {
@@ -46,7 +44,7 @@ public class EditTrainScheduleSensorScreen extends Screen implements IGui, IPack
 		IDrawing.setPositionAndWidth(textFieldSeconds, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
 		textFieldSeconds.setMaxLength(MAX_SECONDS_LENGTH);
 		textFieldSeconds.setText(String.valueOf(seconds));
-		addChild(textFieldSeconds);
+		addButton(textFieldSeconds);
 	}
 
 	@Override
@@ -70,7 +68,6 @@ public class EditTrainScheduleSensorScreen extends Screen implements IGui, IPack
 		try {
 			renderBackground(matrices);
 			textRenderer.draw(matrices, text, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-			textFieldSeconds.render(matrices, mouseX, mouseY, delta);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
