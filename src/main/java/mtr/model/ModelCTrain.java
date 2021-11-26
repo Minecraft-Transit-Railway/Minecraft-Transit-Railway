@@ -155,7 +155,7 @@ public class ModelCTrain extends ModelTrainBase {
         window = new ModelPart(this);
         window.setPivot(0.0F, 24.0F, 0.0F);
         window.setTextureOffset(0, 40).addCuboid(-20.0F, 0.0F, -24.0F, 20.0F, 1.0F, 48.0F, 0.0F, false);
-        window.setTextureOffset(168, 0).addCuboid(-20.0061F, -13.8896F, -22.0F, 2.0F, 14.0F, 44.0F, 0.0F, false);
+        window.setTextureOffset(168, 0).addCuboid(-20.0061F, -14.0F, -22.0F, 2.0F, 14.0F, 44.0F, 0.0F, false);
         window.setTextureOffset(0, 160).addCuboid(-20.0F, -14.0F, 21.99F, 3.0F, 14.0F, 5.0F, 0.0F, false);
         window.setTextureOffset(22, 160).addCuboid(-20.0F, -14.0F, -26.99F, 3.0F, 14.0F, 5.0F, 0.0F, false);
 
@@ -172,7 +172,7 @@ public class ModelCTrain extends ModelTrainBase {
         upper_wall_1_r1.setTextureOffset(268, 44).addCuboid(1.0F, -19.0F, 62.99F, 3.0F, 19.0F, 5.0F, 0.0F, false);
 
         upper_wall_r1 = new ModelPart(this);
-        upper_wall_r1.setPivot(-21.0F, -14.0F, 0.0F);
+        upper_wall_r1.setPivot(-21.0F, -14.1104F, 0.0F);
         window.addChild(upper_wall_r1);
         setRotationAngle(upper_wall_r1, 0.0F, 0.0F, 0.1107F);
         upper_wall_r1.setTextureOffset(0, 163).addCuboid(1.0F, -16.0F, -22.0F, 2.0F, 16.0F, 44.0F, 0.0F, false);
