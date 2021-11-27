@@ -1,0 +1,147 @@
+package mtr.gui;
+
+import mtr.data.IGui;
+import mtr.data.NameColorDataBase;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class DashboardListSelectorScreen extends Screen implements IGui {
+
+	private final DashboardList availableList;
+	private final DashboardList selectedList;
+	private final ButtonWidget buttonDone;
+
+	private final Screen previousScreen;
+	private final Runnable onClose;
+	private final List<NameColorDataBase> allData;
+	private final Collection<Long> selectedIds;
+	private final boolean isSingleSelect;
+	private final boolean canRepeat;
+
+	public DashboardListSelectorScreen(Runnable onClose, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
+		this(null, onClose, allData, selectedIds, isSingleSelect, canRepeat);
+	}
+
+	public DashboardListSelectorScreen(Screen previousScreen, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
+		this(previousScreen, null, allData, selectedIds, isSingleSelect, canRepeat);
+	}
+
+	private DashboardListSelectorScreen(Screen previousScreen, Runnable onClose, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
+		super(new LiteralText(""));
+		this.previousScreen = previousScreen;
+		this.onClose = onClose;
+		this.allData = allData;
+		this.selectedIds = selectedIds;
+		this.isSingleSelect = isSingleSelect;
+		this.canRepeat = canRepeat;
+
+		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
+		selectedList = new DashboardList(null, null, null, this::updateList, null, this::onDelete, () -> selectedIds instanceof ArrayList ? (List<Long>) selectedIds : new ArrayList<>(), () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
+		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onClose());
+	}
+
+	@Override
+	protected void init() {
+		super.init();
+		availableList.x = width / 2 - PANEL_WIDTH - SQUARE_SIZE;
+		selectedList.x = width / 2 + SQUARE_SIZE;
+		availableList.y = selectedList.y = SQUARE_SIZE * 2;
+		availableList.height = selectedList.height = height - SQUARE_SIZE * 5;
+		availableList.width = selectedList.width = PANEL_WIDTH;
+		availableList.init(this::addButton);
+		selectedList.init(this::addButton);
+		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
+		addButton(buttonDone);
+		updateList();
+	}
+
+	@Override
+	public void tick() {
+		availableList.tick();
+		selectedList.tick();
+	}
+
+	@Override
+	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+		try {
+			renderBackground(matrices);
+			availableList.render(matrices, textRenderer);
+			selectedList.render(matrices, textRenderer);
+			super.render(matrices, mouseX, mouseY, delta);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		availableList.mouseMoved(mouseX, mouseY);
+		selectedList.mouseMoved(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		availableList.mouseScrolled(mouseX, mouseY, amount);
+		selectedList.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled(mouseX, mouseY, amount);
+	}
+
+	@Override
+	public void onClose() {
+		super.onClose();
+		if (onClose != null) {
+			onClose.run();
+		}
+		if (client != null && previousScreen != null) {
+			client.openScreen(previousScreen);
+		}
+	}
+
+	@Override
+	public boolean isPauseScreen() {
+		return false;
+	}
+
+	private void updateList() {
+		final List<NameColorDataBase> availableData = new ArrayList<>();
+		for (final NameColorDataBase data : allData) {
+			if (canRepeat || !selectedIds.contains(data.id)) {
+				availableData.add(data);
+			}
+		}
+
+		final List<NameColorDataBase> selectedData = new ArrayList<>();
+		for (final long selectedId : selectedIds) {
+			allData.stream().filter(data -> data.id == selectedId).findFirst().ifPresent(selectedData::add);
+		}
+
+		availableList.setData(availableData, false, false, false, false, true, false);
+		selectedList.setData(selectedData, false, false, false, canRepeat, false, true);
+	}
+
+	private void onAdd(NameColorDataBase data, int index) {
+		if (isSingleSelect) {
+			selectedIds.clear();
+		}
+		selectedIds.add(data.id);
+		updateList();
+	}
+
+	private void onDelete(NameColorDataBase data, int index) {
+		if (canRepeat && selectedIds instanceof ArrayList) {
+			((ArrayList<Long>) selectedIds).remove(index);
+		} else {
+			selectedIds.remove(data.id);
+		}
+		updateList();
+	}
+}
