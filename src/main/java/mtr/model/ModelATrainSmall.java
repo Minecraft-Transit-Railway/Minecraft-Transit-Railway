@@ -2,6 +2,10 @@ package mtr.model;
 
 public class ModelATrainSmall extends ModelATrain {
 
+	public ModelATrainSmall(boolean isAel) {
+		super(isAel);
+	}
+	
 	@Override
 	protected int[] getWindowPositions() {
 		return new int[]{-80, 0, 80};
