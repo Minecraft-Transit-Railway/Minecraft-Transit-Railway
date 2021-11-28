@@ -1,10 +1,14 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import mtr.block.BlockTrainAnnouncer;
+import mtr.block.BlockTrainRedstoneSensor;
+import mtr.block.BlockTrainScheduleSensor;
 import mtr.data.*;
 import mtr.gui.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.DyeColor;
@@ -37,11 +41,20 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
-	public static void openTrainScheduleSensorScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+	public static void openTrainSensorScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {
-			if (!(minecraftClient.currentScreen instanceof EditTrainScheduleSensorScreen)) {
-				minecraftClient.openScreen(new EditTrainScheduleSensorScreen(pos));
+			if (minecraftClient.world != null) {
+				final BlockEntity entity = minecraftClient.world.getBlockEntity(pos);
+				if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && !(minecraftClient.currentScreen instanceof TrainAnnouncerScreen)) {
+					minecraftClient.openScreen(new TrainAnnouncerScreen(pos));
+				}
+				if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && !(minecraftClient.currentScreen instanceof TrainRedstoneSensorScreen)) {
+					minecraftClient.openScreen(new TrainRedstoneSensorScreen(pos));
+				}
+				if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor && !(minecraftClient.currentScreen instanceof TrainScheduleSensorScreen)) {
+					minecraftClient.openScreen(new TrainScheduleSensorScreen(pos));
+				}
 			}
 		});
 	}
@@ -51,15 +64,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof TicketMachineScreen)) {
 				minecraftClient.openScreen(new TicketMachineScreen(balance));
-			}
-		});
-	}
-
-	public static void openTrainAnnouncerScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> {
-			if (!(minecraftClient.currentScreen instanceof TrainAnnouncerScreen)) {
-				minecraftClient.openScreen(new TrainAnnouncerScreen(pos));
 			}
 		});
 	}
@@ -179,11 +183,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		sendUpdate(packetId, packet);
 	}
 
-	public static void sendScheduleSensorC2S(BlockPos pos, int seconds) {
+	public static void sendTrainSensorC2S(BlockPos pos, Set<Long> filterRouteIds, int number, String string) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos);
-		packet.writeInt(seconds);
-		ClientPlayNetworking.send(PACKET_UPDATE_TRAIN_SCHEDULE_SENSOR, packet);
+		packet.writeInt(filterRouteIds.size());
+		filterRouteIds.forEach(packet::writeLong);
+		packet.writeInt(number);
+		packet.writeString(string);
+		ClientPlayNetworking.send(PACKET_UPDATE_TRAIN_SENSOR, packet);
 	}
 
 	public static void generatePathS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
@@ -227,13 +234,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(addAmount);
 		packet.writeInt(emeralds);
 		ClientPlayNetworking.send(PACKET_ADD_BALANCE, packet);
-	}
-
-	public static void sendTrainAnnouncerMessageC2S(BlockPos pos, String message) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeBlockPos(pos);
-		packet.writeString(message);
-		ClientPlayNetworking.send(PACKET_TRAIN_ANNOUNCER, packet);
 	}
 
 	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival) {

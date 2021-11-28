@@ -33,7 +33,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
 		buttonSelectTrain = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
-		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "");
+		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "");
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getText().isEmpty()) {
 				textFieldMaxTrains.setText("");

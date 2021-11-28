@@ -4,47 +4,27 @@ import mtr.MTR;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
-import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Tickable;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 
 import java.util.*;
 
-public class BlockTrainScheduleSensor extends Block implements BlockEntityProvider {
+public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 
 	public static final BooleanProperty POWERED = BooleanProperty.of("powered");
 
-	public BlockTrainScheduleSensor(Settings settings) {
-		super(settings);
+	public BlockTrainScheduleSensor() {
+		super();
 		setDefaultState(getStateManager().getDefaultState().with(POWERED, false));
-	}
-
-	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof TileEntityTrainScheduleSensor) {
-				((TileEntityTrainScheduleSensor) entity).sync();
-				PacketTrainDataGuiServer.openScheduleSensorScreenS2C((ServerPlayerEntity) player, pos);
-			}
-		});
 	}
 
 	@Override
@@ -72,7 +52,7 @@ public class BlockTrainScheduleSensor extends Block implements BlockEntityProvid
 		builder.add(POWERED);
 	}
 
-	public static class TileEntityTrainScheduleSensor extends BlockEntity implements Tickable, BlockEntityClientSerializable {
+	public static class TileEntityTrainScheduleSensor extends TileEntityTrainSensorBase implements Tickable {
 
 		private int seconds = 10;
 		private static final String KEY_SECONDS = "seconds";
@@ -106,7 +86,12 @@ public class BlockTrainScheduleSensor extends Block implements BlockEntityProvid
 					return;
 				}
 
-				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
+				schedules.forEach(scheduleEntry -> {
+					if (matchesFilter(scheduleEntry.routeId)) {
+						scheduleList.add(scheduleEntry);
+					}
+				});
 				if (!scheduleList.isEmpty()) {
 					Collections.sort(scheduleList);
 					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == seconds) {
@@ -117,38 +102,27 @@ public class BlockTrainScheduleSensor extends Block implements BlockEntityProvid
 			}
 		}
 
-		public int getSeconds() {
-			return seconds;
-		}
-
-		public void setSeconds(int seconds) {
-			this.seconds = seconds;
-			markDirty();
-			sync();
-		}
-
-		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
 		@Override
 		public void fromClientTag(NbtCompound nbtCompound) {
+			super.fromClientTag(nbtCompound);
 			seconds = nbtCompound.getInt(KEY_SECONDS);
 		}
 
 		@Override
 		public NbtCompound toClientTag(NbtCompound nbtCompound) {
 			nbtCompound.putInt(KEY_SECONDS, seconds);
-			return nbtCompound;
+			return super.toClientTag(nbtCompound);
 		}
+
+		@Override
+		public void setData(Set<Long> filterRouteIds, int number, String string) {
+			seconds = number;
+			setData(filterRouteIds);
+		}
+
+		public int getSeconds() {
+			return seconds;
+		}
+
 	}
 }

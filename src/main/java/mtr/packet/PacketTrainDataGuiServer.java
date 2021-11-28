@@ -1,6 +1,9 @@
 package mtr.packet;
 
-import mtr.block.*;
+import mtr.block.BlockPIDSBase;
+import mtr.block.BlockRailwaySign;
+import mtr.block.BlockRouteSignBase;
+import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -42,10 +45,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
-	public static void openTrainAnnouncerScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+	public static void openTrainSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
+		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
 	}
 
 	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
@@ -54,12 +57,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		packet.writeBlockPos(pos2);
 		packet.writeInt(maxArrivals);
 		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
-	}
-
-	public static void openScheduleSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SCHEDULE_SENSOR_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -190,13 +187,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void receiveTrainScheduleSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveTrainSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
-		final int seconds = packet.readInt();
+		final Set<Long> filterIds = new HashSet<>();
+		final int filterLength = packet.readInt();
+		for (int i = 0; i < filterLength; i++) {
+			filterIds.add(packet.readLong());
+		}
+		final int number = packet.readInt();
+		final String string = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.world.getBlockEntity(pos);
-			if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) {
-				((BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) entity).setSeconds(seconds);
+			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
+				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, number, string);
 			}
 		});
 	}
@@ -259,17 +262,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
 				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
-			}
-		});
-	}
-
-	public static void receiveTrainAnnouncerMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
-		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(pos);
-			if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
-				((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).setMessage(message);
 			}
 		});
 	}

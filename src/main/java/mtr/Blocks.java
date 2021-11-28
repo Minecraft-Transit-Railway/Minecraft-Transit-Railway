@@ -124,7 +124,7 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_ENTRANCE = new BlockTicketProcessor(true, true, false);
 	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
-	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
-	Block TRAIN_REDSTONE_SENSOR = new BlockTrainRedstoneSensor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
-	Block TRAIN_SCHEDULE_SENSOR = new BlockTrainScheduleSensor(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
+	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer();
+	Block TRAIN_REDSTONE_SENSOR = new BlockTrainRedstoneSensor();
+	Block TRAIN_SCHEDULE_SENSOR = new BlockTrainScheduleSensor();
 }

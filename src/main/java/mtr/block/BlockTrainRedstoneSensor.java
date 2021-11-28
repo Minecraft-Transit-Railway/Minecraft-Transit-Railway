@@ -1,7 +1,9 @@
 package mtr.block;
 
+import mtr.MTR;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -10,13 +12,14 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 
 import java.util.Random;
+import java.util.Set;
 
-public class BlockTrainRedstoneSensor extends Block {
+public class BlockTrainRedstoneSensor extends BlockTrainSensorBase {
 
 	public static final BooleanProperty POWERED = BooleanProperty.of("powered");
 
-	public BlockTrainRedstoneSensor(Settings settings) {
-		super(settings);
+	public BlockTrainRedstoneSensor() {
+		super();
 		setDefaultState(getStateManager().getDefaultState().with(POWERED, false));
 	}
 
@@ -36,7 +39,24 @@ public class BlockTrainRedstoneSensor extends Block {
 	}
 
 	@Override
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityTrainRedstoneSensor();
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(POWERED);
+	}
+
+	public static class TileEntityTrainRedstoneSensor extends TileEntityTrainSensorBase {
+
+		public TileEntityTrainRedstoneSensor() {
+			super(MTR.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
+		}
+
+		@Override
+		public void setData(Set<Long> filterRouteIds, int number, String string) {
+			setData(filterRouteIds);
+		}
 	}
 }
