@@ -27,6 +27,7 @@ public class TrainServer extends Train {
 	private boolean canDeploy;
 	private List<Map<UUID, Long>> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private long routeId;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
@@ -117,10 +118,13 @@ public class TrainServer extends Train {
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
 		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
-				final Block block = world.getBlockState(checkPos).getBlock();
-				if (block instanceof BlockTrainRedstoneSensor) {
-					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainRedstoneSensor.POWERED, true));
-					world.getBlockTickScheduler().schedule(checkPos, block, 20);
+				final BlockState state = world.getBlockState(checkPos);
+				if (state.getBlock() instanceof BlockTrainRedstoneSensor) {
+					final BlockEntity entity = world.getBlockEntity(checkPos);
+					if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && ((BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor) entity).matchesFilter(routeId)) {
+						world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
+						world.getBlockTickScheduler().schedule(checkPos, state.getBlock(), 20);
+					}
 				}
 			});
 		}
@@ -128,7 +132,7 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
+					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId)) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
 					}
 				}
@@ -206,6 +210,7 @@ public class TrainServer extends Train {
 
 		if (currentTime >= 0) {
 			float offsetTime = 0;
+			routeId = 0;
 			for (int i = startingIndex; i < timeSegments.size() + (isUnlimited ? 0 : startingIndex); i++) {
 				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
@@ -244,6 +249,10 @@ public class TrainServer extends Train {
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
 					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
+				}
+
+				if (routeId == 0) {
+					routeId = timeSegment.routeId;
 				}
 
 				if (i == timeSegments.size() - 1) {

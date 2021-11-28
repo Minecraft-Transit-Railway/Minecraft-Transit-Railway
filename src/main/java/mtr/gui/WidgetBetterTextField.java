@@ -52,7 +52,7 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 	}
 
 	public enum TextFieldFilter {
-		POSITIVE_INTEGER("[^-0-9]"), INTEGER("[^0-9]"), HEX("[^0-9A-F]"), LETTER("[^A-Z]");
+		POSITIVE_INTEGER("[^0-9]"), INTEGER("[^-0-9]"), HEX("[^0-9A-F]"), LETTER("[^A-Z]");
 
 		private final String filter;
 
