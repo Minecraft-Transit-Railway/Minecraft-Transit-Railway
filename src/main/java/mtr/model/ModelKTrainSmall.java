@@ -2,7 +2,7 @@ package mtr.model;
 
 public class ModelKTrainSmall extends ModelKTrain {
 
-	public ModelKTrainMini(boolean isTcl) {
+	public ModelKTrainSmall(boolean isTcl) {
 		super(isTcl);
 	}
 	
