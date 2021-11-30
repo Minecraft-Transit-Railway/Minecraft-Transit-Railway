@@ -1,8 +1,8 @@
 package mtr.model;
 
+import mapper.ModelMapper;
 import mtr.data.IGui;
 import mtr.render.MoreRenderLayers;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -108,39 +108,29 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 	protected abstract float getDoorAnimationZ(float value, boolean opening);
 
-	protected static void setRotationAngle(ModelPart bone, float x, float y, float z) {
-		bone.pitch = x;
-		bone.yaw = y;
-		bone.roll = z;
+	protected static void setRotationAngle(ModelMapper bone, float x, float y, float z) {
+		bone.setRotationAngle(x, y, z);
 	}
 
-	protected static void renderMirror(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+	protected static void renderMirror(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
 		renderOnce(bone, matrices, vertices, light, position);
 		renderOnceFlipped(bone, matrices, vertices, light, position);
 	}
 
-	protected static void renderOnce(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.setPivot(0, 0, position);
-		setRotationAngle(bone, 0, 0, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnce(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.setPivot(positionX, 0, positionZ);
-		setRotationAngle(bone, 0, 0, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.setPivot(0, 0, position);
-		setRotationAngle(bone, 0, (float) Math.PI, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
-	protected static void renderOnceFlipped(ModelPart bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.setPivot(-positionX, 0, positionZ);
-		setRotationAngle(bone, 0, (float) Math.PI, 0);
-		bone.render(matrices, vertices, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
 	}
 
 	protected static boolean isIndex(int index, int value, int[] array) {

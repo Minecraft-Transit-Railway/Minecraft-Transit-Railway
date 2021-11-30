@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
 import mtr.MTR;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -19,13 +20,18 @@ public class BlockArrivalProjector1Small extends BlockArrivalProjectorBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityArrivalProjector1Small();
+		return new TileEntityArrivalProjector1Small(null, null);
 	}
 
-	public static class TileEntityArrivalProjector1Small extends BlockEntity {
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityArrivalProjector1Small(pos, state);
+	}
 
-		public TileEntityArrivalProjector1Small() {
-			super(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY);
+	public static class TileEntityArrivalProjector1Small extends BlockEntityMapper {
+
+		public TileEntityArrivalProjector1Small(BlockPos pos, BlockState state) {
+			super(MTR.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, pos, state);
 		}
 	}
 }

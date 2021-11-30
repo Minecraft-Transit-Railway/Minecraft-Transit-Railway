@@ -40,7 +40,12 @@ public class BlockTrainRedstoneSensor extends BlockTrainSensorBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTrainRedstoneSensor();
+		return new TileEntityTrainRedstoneSensor(null, null);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityTrainRedstoneSensor(pos, state);
 	}
 
 	@Override
@@ -50,8 +55,8 @@ public class BlockTrainRedstoneSensor extends BlockTrainSensorBase {
 
 	public static class TileEntityTrainRedstoneSensor extends TileEntityTrainSensorBase {
 
-		public TileEntityTrainRedstoneSensor() {
-			super(MTR.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
+		public TileEntityTrainRedstoneSensor(BlockPos pos, BlockState state) {
+			super(MTR.TRAIN_REDSTONE_SENSOR_TILE_ENTITY, pos, state);
 		}
 
 		@Override

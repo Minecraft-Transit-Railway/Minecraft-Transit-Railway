@@ -1,7 +1,10 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
 import mtr.MTR;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 
 public class BlockSignalLight1 extends BlockSignalLightBase {
@@ -12,13 +15,18 @@ public class BlockSignalLight1 extends BlockSignalLightBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntitySignalLight1();
+		return new TileEntitySignalLight1(null, null);
 	}
 
-	public static class TileEntitySignalLight1 extends BlockEntity {
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntitySignalLight1(pos, state);
+	}
 
-		public TileEntitySignalLight1() {
-			super(MTR.SIGNAL_LIGHT_1);
+	public static class TileEntitySignalLight1 extends BlockEntityMapper {
+
+		public TileEntitySignalLight1(BlockPos pos, BlockState state) {
+			super(MTR.SIGNAL_LIGHT_1, pos, state);
 		}
 	}
 }

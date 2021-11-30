@@ -1,8 +1,9 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.MTR;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
@@ -15,7 +16,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-public class BlockClock extends Block implements BlockEntityProvider {
+public class BlockClock extends Block implements BlockEntityProviderMapper {
 
 	public static final BooleanProperty FACING = BooleanProperty.of("facing");
 
@@ -37,7 +38,12 @@ public class BlockClock extends Block implements BlockEntityProvider {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityClock();
+		return new TileEntityClock(null, null);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityClock(pos, state);
 	}
 
 	@Override
@@ -45,10 +51,10 @@ public class BlockClock extends Block implements BlockEntityProvider {
 		builder.add(FACING);
 	}
 
-	public static class TileEntityClock extends BlockEntity {
+	public static class TileEntityClock extends BlockEntityMapper {
 
-		public TileEntityClock() {
-			super(MTR.CLOCK_TILE_ENTITY);
+		public TileEntityClock(BlockPos pos, BlockState state) {
+			super(MTR.CLOCK_TILE_ENTITY, pos, state);
 		}
 	}
 }

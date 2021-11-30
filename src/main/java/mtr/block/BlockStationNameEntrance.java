@@ -74,7 +74,12 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameEntrance();
+		return new TileEntityStationNameEntrance(null, null);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityStationNameEntrance(pos, state);
 	}
 
 	@Override
@@ -84,8 +89,8 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 
 	public static class TileEntityStationNameEntrance extends TileEntityStationNameBase {
 
-		public TileEntityStationNameEntrance() {
-			super(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, 0, 0.00625F);
+		public TileEntityStationNameEntrance(BlockPos pos, BlockState state) {
+			super(MTR.STATION_NAME_ENTRANCE_TILE_ENTITY, pos, state, 0, 0.00625F);
 		}
 
 		@Override

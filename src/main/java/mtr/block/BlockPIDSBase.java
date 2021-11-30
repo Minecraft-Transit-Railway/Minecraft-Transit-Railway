@@ -1,5 +1,7 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -22,7 +24,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public BlockPIDSBase() {
 		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5));
@@ -92,21 +94,20 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		builder.add(FACING);
 	}
 
-	public abstract static class TileEntityBlockPIDSBase extends BlockEntity implements BlockEntityClientSerializable {
+	public abstract static class TileEntityBlockPIDSBase extends BlockEntityMapper implements BlockEntityClientSerializable {
 
 		private final String[] messages = new String[getMaxArrivals()];
 		private final boolean[] hideArrival = new boolean[getMaxArrivals()];
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
 
-		public TileEntityBlockPIDSBase(BlockEntityType<?> type) {
-			super(type);
+		public TileEntityBlockPIDSBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 
-
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
+		public void readNbt(NbtCompound nbtCompound) {
+			super.readNbt(nbtCompound);
 			fromClientTag(nbtCompound);
 		}
 

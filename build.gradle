@@ -45,6 +45,11 @@ dependencies {
     include "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
 }
 
+task copyMappingFiles(type: Copy) {
+    from is116 ? "src/main/mapper1.16" : "src/main/mapper1.17"
+    into "src/main/java/mapper"
+}
+
 processResources {
     inputs.property "version", project.version
 
@@ -103,5 +108,11 @@ allprojects {
         maven {
             url = "https://maven.terraformersmc.com/"
         }
+    }
+
+    afterEvaluate {
+        for (def task in it.tasks)
+            if (task != rootProject.tasks.copyMappingFiles)
+                task.dependsOn rootProject.tasks.copyMappingFiles
     }
 }

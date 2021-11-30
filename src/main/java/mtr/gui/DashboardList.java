@@ -1,7 +1,6 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import net.minecraft.client.font.TextRenderer;
@@ -10,7 +9,6 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -155,14 +153,10 @@ public class DashboardList implements IGui {
 
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
-				RenderSystem.enableBlend();
-				RenderSystem.disableTexture();
-				RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-				buffer.begin(7, VertexFormats.POSITION_COLOR);
+				UtilitiesClient.beginDrawingRectangle(buffer);
 				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
 				tessellator.draw();
-				RenderSystem.enableTexture();
-				RenderSystem.disableBlend();
+				UtilitiesClient.finishDrawingRectangle();
 
 				final String drawString = IGui.formatStationName(data.name);
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;

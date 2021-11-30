@@ -1,6 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import mapper.UtilitiesClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;
 import mtr.block.BlockTrainScheduleSensor;
@@ -27,7 +28,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void openDashboardScreenS2C(MinecraftClient minecraftClient) {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof DashboardScreen)) {
-				minecraftClient.openScreen(new DashboardScreen());
+				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen());
 			}
 		});
 	}
@@ -36,7 +37,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof RailwaySignScreen)) {
-				minecraftClient.openScreen(new RailwaySignScreen(pos));
+				UtilitiesClient.setScreen(minecraftClient, new RailwaySignScreen(pos));
 			}
 		});
 	}
@@ -47,13 +48,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			if (minecraftClient.world != null) {
 				final BlockEntity entity = minecraftClient.world.getBlockEntity(pos);
 				if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && !(minecraftClient.currentScreen instanceof TrainAnnouncerScreen)) {
-					minecraftClient.openScreen(new TrainAnnouncerScreen(pos));
+					UtilitiesClient.setScreen(minecraftClient, new TrainAnnouncerScreen(pos));
 				}
 				if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && !(minecraftClient.currentScreen instanceof TrainRedstoneSensorScreen)) {
-					minecraftClient.openScreen(new TrainRedstoneSensorScreen(pos));
+					UtilitiesClient.setScreen(minecraftClient, new TrainRedstoneSensorScreen(pos));
 				}
 				if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor && !(minecraftClient.currentScreen instanceof TrainScheduleSensorScreen)) {
-					minecraftClient.openScreen(new TrainScheduleSensorScreen(pos));
+					UtilitiesClient.setScreen(minecraftClient, new TrainScheduleSensorScreen(pos));
 				}
 			}
 		});
@@ -63,7 +64,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof TicketMachineScreen)) {
-				minecraftClient.openScreen(new TicketMachineScreen(balance));
+				UtilitiesClient.setScreen(minecraftClient, new TicketMachineScreen(balance));
 			}
 		});
 	}
@@ -74,7 +75,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		final int maxArrivals = packet.readInt();
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.currentScreen instanceof PIDSConfigScreen)) {
-				minecraftClient.openScreen(new PIDSConfigScreen(pos1, pos2, maxArrivals));
+				UtilitiesClient.setScreen(minecraftClient, new PIDSConfigScreen(pos1, pos2, maxArrivals));
 			}
 		});
 	}

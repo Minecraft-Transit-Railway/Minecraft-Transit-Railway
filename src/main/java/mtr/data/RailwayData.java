@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mapper.PersistentStateMapper;
 import mtr.MTR;
 import mtr.block.BlockRail;
 import mtr.mixin.PlayerTeleportationStateAccessor;
@@ -13,19 +14,17 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RailwayData extends PersistentState implements IPacket {
+public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// TODO temporary code start
 	private boolean generated;
@@ -87,7 +86,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	@Override
-	public void fromTag(NbtCompound nbtCompound) {
+	public void readNbt(NbtCompound nbtCompound) {
 		try {
 			final NbtCompound tagStations = nbtCompound.getCompound(KEY_STATIONS);
 			for (final String key : tagStations.getKeys()) {
@@ -603,11 +602,7 @@ public class RailwayData extends PersistentState implements IPacket {
 	}
 
 	public static RailwayData getInstance(World world) {
-		if (world instanceof ServerWorld) {
-			return ((ServerWorld) world).getPersistentStateManager().getOrCreate(() -> new RailwayData(world), NAME);
-		} else {
-			return null;
-		}
+		return getInstance(world, () -> new RailwayData(world), NAME);
 	}
 
 	public static void benchmark(Runnable runnable, float threshold) {

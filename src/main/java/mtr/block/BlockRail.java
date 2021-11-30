@@ -1,5 +1,7 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.data.Rail;
 import mtr.data.RailAngle;
@@ -7,7 +9,10 @@ import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,7 +28,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvider {
+public class BlockRail extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public static final BooleanProperty FACING = BooleanProperty.of("facing");
 	public static final BooleanProperty IS_22_5 = BooleanProperty.of("is_22_5");
@@ -68,13 +73,18 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, IS_22_5, IS_45, IS_CONNECTED);
+	public BlockEntity createBlockEntity(BlockView world) {
+		return new TileEntityRail(null, null);
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRail();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityRail(pos, state);
+	}
+
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(FACING, IS_22_5, IS_45, IS_CONNECTED);
 	}
 
 	public static void resetRailNode(World world, BlockPos pos) {
@@ -85,19 +95,19 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		return (IBlock.getStatePropertySafe(state, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRail.IS_45) ? 45 : 0);
 	}
 
-	public static class TileEntityRail extends BlockEntity implements BlockEntityClientSerializable {
+	public static class TileEntityRail extends BlockEntityMapper implements BlockEntityClientSerializable {
 
 		public final Map<BlockPos, Rail> railMap = new HashMap<>();
 		private static final String KEY_LIST_LENGTH = "list_length";
 		private static final String KEY_BLOCK_POS = "block_pos";
 
-		public TileEntityRail() {
-			super(MTR.RAIL_TILE_ENTITY);
+		public TileEntityRail(BlockPos pos, BlockState state) {
+			super(MTR.RAIL_TILE_ENTITY, pos, state);
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
+		public void readNbt(NbtCompound nbtCompound) {
+			super.readNbt(nbtCompound);
 			fromClientTag(nbtCompound);
 		}
 

@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.MTR;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
@@ -12,7 +11,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-public class BlockRouteSignWallLight extends BlockRouteSignBase implements BlockEntityProvider, IPropagateBlock, IBlock {
+public class BlockRouteSignWallLight extends BlockRouteSignBase implements IPropagateBlock, IBlock {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
@@ -29,13 +28,18 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements Block
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignWallLight();
+		return new TileEntityRouteSignWallLight(null, null);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityRouteSignWallLight(pos, state);
 	}
 
 	public static class TileEntityRouteSignWallLight extends TileEntityRouteSignBase {
 
-		public TileEntityRouteSignWallLight() {
-			super(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY);
+		public TileEntityRouteSignWallLight(BlockPos pos, BlockState state) {
+			super(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, pos, state);
 		}
 	}
 }

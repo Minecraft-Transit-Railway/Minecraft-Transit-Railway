@@ -1,8 +1,9 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -12,13 +13,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DashboardListSelectorScreen extends Screen implements IGui {
+public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 
 	private final DashboardList availableList;
 	private final DashboardList selectedList;
 	private final ButtonWidget buttonDone;
 
-	private final Screen previousScreen;
+	private final ScreenMapper previousScreen;
 	private final Runnable onClose;
 	private final List<NameColorDataBase> allData;
 	private final Collection<Long> selectedIds;
@@ -29,11 +30,11 @@ public class DashboardListSelectorScreen extends Screen implements IGui {
 		this(null, onClose, allData, selectedIds, isSingleSelect, canRepeat);
 	}
 
-	public DashboardListSelectorScreen(Screen previousScreen, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
+	public DashboardListSelectorScreen(ScreenMapper previousScreen, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
 		this(previousScreen, null, allData, selectedIds, isSingleSelect, canRepeat);
 	}
 
-	private DashboardListSelectorScreen(Screen previousScreen, Runnable onClose, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
+	private DashboardListSelectorScreen(ScreenMapper previousScreen, Runnable onClose, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
 		super(new LiteralText(""));
 		this.previousScreen = previousScreen;
 		this.onClose = onClose;
@@ -55,10 +56,10 @@ public class DashboardListSelectorScreen extends Screen implements IGui {
 		availableList.y = selectedList.y = SQUARE_SIZE * 2;
 		availableList.height = selectedList.height = height - SQUARE_SIZE * 5;
 		availableList.width = selectedList.width = PANEL_WIDTH;
-		availableList.init(this::addButton);
-		selectedList.init(this::addButton);
+		availableList.init(this::addDrawableChild);
+		selectedList.init(this::addDrawableChild);
 		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-		addButton(buttonDone);
+		addDrawableChild(buttonDone);
 		updateList();
 	}
 
@@ -102,7 +103,7 @@ public class DashboardListSelectorScreen extends Screen implements IGui {
 			onClose.run();
 		}
 		if (client != null && previousScreen != null) {
-			client.openScreen(previousScreen);
+			UtilitiesClient.setScreen(client, previousScreen);
 		}
 	}
 

@@ -1,12 +1,12 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -14,7 +14,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class PIDSConfigScreen extends Screen implements IGui, IPacket {
+public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 
 	private final BlockPos pos1;
 	private final BlockPos pos2;
@@ -70,12 +70,12 @@ public class PIDSConfigScreen extends Screen implements IGui, IPacket {
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
 			textFieldMessage.setMaxLength(MAX_MESSAGE_LENGTH);
 			textFieldMessage.setText(messages[i]);
-			addButton(textFieldMessage);
+			addDrawableChild(textFieldMessage);
 
 			final WidgetBetterCheckbox buttonHideArrival = buttonsHideArrival[i];
 			IDrawing.setPositionAndWidth(buttonHideArrival, width - SQUARE_SIZE - textWidth + TEXT_PADDING, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, textWidth);
 			buttonHideArrival.setChecked(hideArrival[i]);
-			addButton(buttonHideArrival);
+			addDrawableChild(buttonHideArrival);
 		}
 	}
 

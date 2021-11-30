@@ -1,5 +1,6 @@
 package mtr.gui;
 
+import mapper.UtilitiesClient;
 import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;
@@ -49,7 +50,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			if (client != null) {
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
 				Collections.sort(routes);
-				client.openScreen(new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
+				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
 			}
 		});
 		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> {
@@ -72,15 +73,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
 
 		for (WidgetShorterSlider slider : sliders) {
-			addButton(slider);
+			addDrawableChild(slider);
 		}
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			sliders[i].setValue(data.getFrequency(i));
 		}
 
-		addButton(buttonEditInstructions);
-		addButton(buttonGenerateRoute);
-		addButton(buttonClearTrains);
+		addDrawableChild(buttonEditInstructions);
+		addDrawableChild(buttonGenerateRoute);
+		addDrawableChild(buttonClearTrains);
 	}
 
 	@Override

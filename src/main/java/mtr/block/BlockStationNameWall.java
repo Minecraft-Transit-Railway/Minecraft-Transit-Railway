@@ -69,7 +69,12 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameWall();
+		return new TileEntityStationNameWall(null, null);
+	}
+
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityStationNameWall(pos, state);
 	}
 
 	@Override
@@ -79,8 +84,8 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	public static class TileEntityStationNameWall extends TileEntityStationNameBase {
 
-		public TileEntityStationNameWall() {
-			super(MTR.STATION_NAME_WALL_TILE_ENTITY, 0, 0);
+		public TileEntityStationNameWall(BlockPos pos, BlockState state) {
+			super(MTR.STATION_NAME_WALL_TILE_ENTITY, pos, state, 0, 0);
 		}
 
 		@Override
