@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import mapper.BlockEntityClientSerializableMapper;
 import mapper.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.data.Rail;
@@ -8,7 +8,6 @@ import mtr.data.RailAngle;
 import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -95,7 +94,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		return (IBlock.getStatePropertySafe(state, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRail.IS_45) ? 45 : 0);
 	}
 
-	public static class TileEntityRail extends BlockEntityMapper implements BlockEntityClientSerializable {
+	public static class TileEntityRail extends BlockEntityClientSerializableMapper {
 
 		public final Map<BlockPos, Rail> railMap = new HashMap<>();
 		private static final String KEY_LIST_LENGTH = "list_length";
@@ -106,20 +105,7 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		}
 
 		@Override
-		public void readNbt(NbtCompound nbtCompound) {
-			super.readNbt(nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			railMap.clear();
 			final int listLength = nbtCompound.getInt(KEY_LIST_LENGTH);
 			for (int i = 0; i < listLength; i++) {
@@ -129,14 +115,13 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putInt(KEY_LIST_LENGTH, railMap.size());
 			final List<BlockPos> keys = new ArrayList<>(railMap.keySet());
 			for (int i = 0; i < railMap.size(); i++) {
 				nbtCompound.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
 				nbtCompound.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
 			}
-			return nbtCompound;
 		}
 
 		public void addRail(RailAngle facing1, BlockPos newPos, RailAngle facing2, RailType railType) {

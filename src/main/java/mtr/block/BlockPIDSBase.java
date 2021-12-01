@@ -1,9 +1,8 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import mapper.BlockEntityClientSerializableMapper;
 import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -94,7 +93,7 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		builder.add(FACING);
 	}
 
-	public abstract static class TileEntityBlockPIDSBase extends BlockEntityMapper implements BlockEntityClientSerializable {
+	public abstract static class TileEntityBlockPIDSBase extends BlockEntityClientSerializableMapper {
 
 		private final String[] messages = new String[getMaxArrivals()];
 		private final boolean[] hideArrival = new boolean[getMaxArrivals()];
@@ -106,20 +105,7 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		}
 
 		@Override
-		public void readNbt(NbtCompound nbtCompound) {
-			super.readNbt(nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				messages[i] = nbtCompound.getString(KEY_MESSAGE + i);
 				hideArrival[i] = nbtCompound.getBoolean(KEY_HIDE_ARRIVAL + i);
@@ -127,12 +113,11 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				nbtCompound.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
 				nbtCompound.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
 			}
-			return nbtCompound;
 		}
 
 		public void setData(String[] messages, boolean[] hideArrival) {

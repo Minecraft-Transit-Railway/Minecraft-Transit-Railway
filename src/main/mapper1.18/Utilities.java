@@ -1,8 +1,8 @@
 package mapper;
 
 import mtr.MTR;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,44 +18,39 @@ import java.util.function.Function;
 
 public interface Utilities {
 
-	static <T extends BlockEntityMapper> BlockEntityType<T> registerTileEntity(String path, TileEntitySupplier<T> supplier, Block block) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MTR.MOD_ID + ":" + path, BlockEntityType.Builder.create(() -> supplier.supplier(null, null), block).build(null));
+	static <T extends BlockEntityMapper> BlockEntityType<T> registerTileEntity(String path, FabricBlockEntityTypeBuilder.Factory<T> factory, Block block) {
+		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MTR.MOD_ID + ":" + path, FabricBlockEntityTypeBuilder.create(factory, block).build());
 	}
 
 	static float getYaw(Entity entity) {
-		return entity.yaw;
+		return entity.getYaw();
 	}
 
 	static void setYaw(Entity entity, float yaw) {
-		entity.yaw = yaw;
+		entity.setYaw(yaw);
 	}
 
 	static void incrementYaw(Entity entity, float yaw) {
-		entity.yaw += yaw;
+		entity.setYaw(entity.getYaw() + yaw);
 	}
 
 	static NbtCompound getOrCreateNbt(ItemStack itemStack) {
-		return itemStack.getOrCreateTag();
+		return itemStack.getOrCreateNbt();
 	}
 
 	static boolean isHolding(PlayerEntity player, Function<Item, Boolean> predicate) {
-		return player.isHolding(predicate::apply);
+		return player.isHolding(itemStack -> predicate.apply(itemStack.getItem()));
 	}
 
 	static Inventory getInventory(PlayerEntity player) {
-		return player.inventory;
+		return player.getInventory();
 	}
 
 	static void scheduleBlockTick(World world, BlockPos pos, Block block, int ticks) {
-		world.getBlockTickScheduler().schedule(pos, block, ticks);
+		world.createAndScheduleBlockTick(pos, block, ticks);
 	}
 
 	static boolean isScheduled(World world, BlockPos pos, Block block) {
-		return world.getBlockTickScheduler().isScheduled(pos, block);
-	}
-
-	@FunctionalInterface
-	interface TileEntitySupplier<T extends BlockEntityMapper> {
-		T supplier(BlockPos pos, BlockState state);
+		return world.getBlockTickScheduler().isTicking(pos, block);
 	}
 }

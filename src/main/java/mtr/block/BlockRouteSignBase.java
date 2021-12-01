@@ -1,9 +1,8 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import mapper.BlockEntityClientSerializableMapper;
 import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -51,7 +50,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		builder.add(FACING, HALF, PROPAGATE_PROPERTY);
 	}
 
-	public static abstract class TileEntityRouteSignBase extends BlockEntityMapper implements BlockEntityClientSerializable {
+	public static abstract class TileEntityRouteSignBase extends BlockEntityClientSerializableMapper {
 
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
@@ -61,27 +60,13 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		}
 
 		@Override
-		public void readNbt(NbtCompound nbtCompound) {
-			super.readNbt(nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putLong(KEY_PLATFORM_ID, platformId);
-			return nbtCompound;
 		}
 
 		public void setPlatformId(long platformId) {

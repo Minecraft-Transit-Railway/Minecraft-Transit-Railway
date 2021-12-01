@@ -1,6 +1,7 @@
 package mtr.block;
 
 import mapper.TickableMapper;
+import mapper.Utilities;
 import mtr.MTR;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
@@ -86,15 +87,13 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
-			super.fromClientTag(nbtCompound);
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			seconds = nbtCompound.getInt(KEY_SECONDS);
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putInt(KEY_SECONDS, seconds);
-			return super.toClientTag(nbtCompound);
 		}
 
 		@Override
@@ -110,7 +109,7 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		public static <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
 			if (world != null && !world.isClient) {
 				final BlockState state = world.getBlockState(pos);
-				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && world.getBlockTickScheduler().isScheduled(pos, state.getBlock());
+				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && Utilities.isScheduled(world, pos, state.getBlock());
 
 				if (isActive || !(state.getBlock() instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
 					return;
@@ -141,7 +140,7 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					Collections.sort(scheduleList);
 					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
 						world.setBlockState(pos, state.with(POWERED, true));
-						world.getBlockTickScheduler().schedule(pos, state.getBlock(), 20);
+						Utilities.scheduleBlockTick(world, pos, state.getBlock(), 20);
 					}
 				}
 			}

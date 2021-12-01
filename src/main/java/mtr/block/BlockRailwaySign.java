@@ -1,10 +1,9 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import mapper.BlockEntityClientSerializableMapper;
 import mapper.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -185,7 +184,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 	}
 
-	public static class TileEntityRailwaySign extends BlockEntityMapper implements BlockEntityClientSerializable {
+	public static class TileEntityRailwaySign extends BlockEntityClientSerializableMapper {
 
 		private final Set<Long> selectedIds;
 		private final String[] signIds;
@@ -199,20 +198,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 
 		@Override
-		public void readNbt(NbtCompound nbtCompound) {
-			super.readNbt(nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			selectedIds.clear();
 			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signIds.length; i++) {
@@ -222,12 +208,11 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
 			for (int i = 0; i < signIds.length; i++) {
 				nbtCompound.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
-			return nbtCompound;
 		}
 
 		public void setData(Set<Long> selectedIds, String[] signTypes) {

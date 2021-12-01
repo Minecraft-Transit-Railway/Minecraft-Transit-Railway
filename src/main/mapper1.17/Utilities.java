@@ -10,7 +10,9 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
 import java.util.function.Function;
 
@@ -42,5 +44,13 @@ public interface Utilities {
 
 	static Inventory getInventory(PlayerEntity player) {
 		return player.getInventory();
+	}
+
+	static void scheduleBlockTick(World world, BlockPos pos, Block block, int ticks) {
+		world.getBlockTickScheduler().schedule(pos, block, ticks);
+	}
+
+	static boolean isScheduled(World world, BlockPos pos, Block block) {
+		return world.getBlockTickScheduler().isScheduled(pos, block);
 	}
 }

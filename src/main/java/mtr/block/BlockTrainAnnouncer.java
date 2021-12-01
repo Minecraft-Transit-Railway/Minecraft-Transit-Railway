@@ -38,15 +38,13 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
-			super.fromClientTag(nbtCompound);
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			message = nbtCompound.getString(KEY_MESSAGE);
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putString(KEY_MESSAGE, message);
-			return super.toClientTag(nbtCompound);
 		}
 
 		@Override

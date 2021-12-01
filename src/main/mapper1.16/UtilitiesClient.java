@@ -12,9 +12,12 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.MinecartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Matrix4f;
 
 import java.util.function.Function;
 
@@ -47,5 +50,13 @@ public interface UtilitiesClient {
 
 	static EntityModel<MinecartEntity> getMinecartModel() {
 		return new MinecartEntityModel<>();
+	}
+
+	static Matrix3f getNormal(MatrixStack.Entry entry) {
+		return entry.getNormal();
+	}
+
+	static Matrix4f getModel(MatrixStack.Entry entry) {
+		return entry.getModel();
 	}
 }

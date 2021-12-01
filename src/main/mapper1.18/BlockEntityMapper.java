@@ -19,10 +19,9 @@ public abstract class BlockEntityMapper extends BlockEntity {
 	}
 
 	@Override
-	public final NbtCompound writeNbt(NbtCompound nbtCompound) {
+	protected final void writeNbt(NbtCompound nbtCompound) {
 		super.writeNbt(nbtCompound);
 		writeNbtCompound(nbtCompound);
-		return nbtCompound;
 	}
 
 	public void readNbtCompound(NbtCompound nbtCompound) {

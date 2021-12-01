@@ -12,16 +12,22 @@ public abstract class BlockEntityMapper extends BlockEntity {
 		super(type);
 	}
 
-	public BlockEntityMapper(BlockEntityType<?> type) {
-		super(type);
+	@Override
+	public final void fromTag(BlockState state, NbtCompound nbtCompound) {
+		super.fromTag(state, nbtCompound);
+		readNbtCompound(nbtCompound);
 	}
 
 	@Override
-	public void fromTag(BlockState state, NbtCompound tag) {
-		super.fromTag(state, tag);
-		readNbt(tag);
+	public final NbtCompound writeNbt(NbtCompound nbtCompound) {
+		super.writeNbt(nbtCompound);
+		writeNbtCompound(nbtCompound);
+		return nbtCompound;
 	}
 
-	public void readNbt(NbtCompound tag) {
+	public void readNbtCompound(NbtCompound nbtCompound) {
+	}
+
+	public void writeNbtCompound(NbtCompound nbtCompound) {
 	}
 }
