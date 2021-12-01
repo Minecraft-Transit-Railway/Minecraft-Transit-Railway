@@ -13,7 +13,7 @@ if (is_1_16) {
     sourceCompatibility = JavaVersion.VERSION_16
     targetCompatibility = JavaVersion.VERSION_16
 }
-archivesBaseName = project.archives_base_name
+
 version = (minecraft_version as String) + "-" + (project.mod_version as String)
 group = project.maven_group as String
 
