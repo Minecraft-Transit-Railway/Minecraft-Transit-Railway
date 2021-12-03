@@ -19,11 +19,6 @@ public class BlockArrivalProjector1Large extends BlockArrivalProjectorBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityArrivalProjector1Large(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityArrivalProjector1Large(pos, state);
 	}

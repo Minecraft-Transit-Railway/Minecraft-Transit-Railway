@@ -8,18 +8,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class BlockTrainAnnouncer extends BlockTrainSensorBase {
-
-	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTrainAnnouncer(null, null);
-	}
 
 	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {

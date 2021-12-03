@@ -19,11 +19,6 @@ public class BlockPIDS2 extends BlockPIDSBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityBlockPIDS2(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityBlockPIDS2(pos, state);
 	}

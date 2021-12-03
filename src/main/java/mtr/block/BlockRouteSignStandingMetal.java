@@ -24,11 +24,6 @@ public class BlockRouteSignStandingMetal extends BlockRouteSignBase implements I
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignStandingMetal(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRouteSignStandingMetal(pos, state);
 	}

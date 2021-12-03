@@ -46,11 +46,6 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTrainScheduleSensor(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityTrainScheduleSensor(pos, state);
 	}

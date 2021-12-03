@@ -73,11 +73,6 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameEntrance(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityStationNameEntrance(pos, state);
 	}

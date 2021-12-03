@@ -4,17 +4,11 @@ import mtr.MTR;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 
 public class BlockSignalSemaphore2 extends BlockSignalSemaphoreBase {
 
 	public BlockSignalSemaphore2(Settings settings) {
 		super(settings);
-	}
-
-	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntitySignalSemaphore2(null, null);
 	}
 
 	@Override

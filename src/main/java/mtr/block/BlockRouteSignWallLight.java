@@ -27,11 +27,6 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements IProp
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignWallLight(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRouteSignWallLight(pos, state);
 	}

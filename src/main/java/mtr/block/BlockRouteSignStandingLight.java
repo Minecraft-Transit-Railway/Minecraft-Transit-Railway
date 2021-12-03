@@ -29,11 +29,6 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements I
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRouteSignStandingLight(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRouteSignStandingLight(pos, state);
 	}

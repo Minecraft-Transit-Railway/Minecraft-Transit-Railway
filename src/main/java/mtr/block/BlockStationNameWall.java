@@ -68,11 +68,6 @@ public class BlockStationNameWall extends BlockStationNameBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameWall(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityStationNameWall(pos, state);
 	}

@@ -37,11 +37,6 @@ public class BlockClock extends Block implements BlockEntityProviderMapper {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityClock(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityClock(pos, state);
 	}

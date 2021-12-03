@@ -128,15 +128,6 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		if (this == mtr.Blocks.RAILWAY_SIGN_MIDDLE) {
-			return null;
-		} else {
-			return new TileEntityRailwaySign(length, isOdd, null, null);
-		}
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		if (this == mtr.Blocks.RAILWAY_SIGN_MIDDLE) {
 			return null;

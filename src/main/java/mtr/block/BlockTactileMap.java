@@ -52,11 +52,6 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTactileMap(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityTactileMap(pos, state);
 	}

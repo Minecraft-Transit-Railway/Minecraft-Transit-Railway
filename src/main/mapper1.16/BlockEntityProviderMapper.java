@@ -10,9 +10,12 @@ import net.minecraft.world.World;
 
 public interface BlockEntityProviderMapper extends BlockEntityProvider {
 
-	BlockEntity createBlockEntity(BlockPos pos, BlockState state);
+	@Override
+	default BlockEntity createBlockEntity(BlockView world) {
+		return createBlockEntity(null, null);
+	}
 
-	BlockEntity createBlockEntity(BlockView world);
+	BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
 	default <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
 	}

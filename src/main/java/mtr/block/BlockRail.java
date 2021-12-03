@@ -72,11 +72,6 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityRail(null, null);
-	}
-
-	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRail(pos, state);
 	}

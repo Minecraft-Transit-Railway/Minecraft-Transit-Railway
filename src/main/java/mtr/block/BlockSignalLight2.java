@@ -5,17 +5,11 @@ import mtr.MTR;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 
 public class BlockSignalLight2 extends BlockSignalLightBase {
 
 	public BlockSignalLight2(Settings settings) {
 		super(settings);
-	}
-
-	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntitySignalLight2(null, null);
 	}
 
 	@Override
