@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.data.IGui;
@@ -11,7 +12,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +19,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.WorldAccess;
 
-public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRenderer<T> implements IGui, IDrawing {
+public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileEntityStationNameBase> extends BlockEntityRendererMapper<T> implements IGui, IDrawing {
 
 	public RenderStationNameBase(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);

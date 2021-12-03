@@ -7,7 +7,6 @@
 		"PlayerTeleportationStateAccessor"
 	],
 	"client": [
-		"ModelPredicateRegisterInvoker",
 		"UnknownPacketMixin"
 	],
 	"server": [],

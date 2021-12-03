@@ -1,10 +1,10 @@
 package mtr.block;
 
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class BlockTrainSensorBase extends Block implements BlockEntityProvider {
+public abstract class BlockTrainSensorBase extends Block implements BlockEntityProviderMapper {
 
 	public BlockTrainSensorBase() {
 		super(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
@@ -38,30 +38,17 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		});
 	}
 
-	public abstract static class TileEntityTrainSensorBase extends BlockEntity implements BlockEntityClientSerializable {
+	public abstract static class TileEntityTrainSensorBase extends BlockEntityClientSerializableMapper {
 
 		private final Set<Long> filterRouteIds = new HashSet<>();
 		private static final String KEY_ROUTE_IDS = "route_ids";
 
-		public TileEntityTrainSensorBase(BlockEntityType<?> type) {
-			super(type);
+		public TileEntityTrainSensorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 
 		@Override
-		public final void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public final NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
@@ -69,9 +56,8 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
-			return nbtCompound;
 		}
 
 		public Set<Long> getRouteIds() {

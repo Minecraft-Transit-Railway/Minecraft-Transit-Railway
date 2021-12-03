@@ -1,5 +1,7 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.Items;
 import mtr.MTR;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -25,7 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
 
-public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProvider, IBlock, IPropagateBlock {
+public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProviderMapper, IBlock, IPropagateBlock {
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.of("door_light", EnumDoorLight.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
@@ -106,8 +108,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityPSDTop();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityPSDTop(pos, state);
 	}
 
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
@@ -141,10 +143,10 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.getDefaultState()).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE_EXTENDED, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 	}
 
-	public static class TileEntityPSDTop extends BlockEntity {
+	public static class TileEntityPSDTop extends BlockEntityMapper {
 
-		public TileEntityPSDTop() {
-			super(MTR.PSD_TOP_TILE_ENTITY);
+		public TileEntityPSDTop(BlockPos pos, BlockState state) {
+			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
 		}
 	}
 

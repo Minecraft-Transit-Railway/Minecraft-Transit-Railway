@@ -1,9 +1,9 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
 import mtr.Patreon;
 import mtr.config.Config;
 import mtr.data.IGui;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 
-public class ConfigScreen extends Screen implements IGui {
+public class ConfigScreen extends ScreenMapper implements IGui {
 
 	private boolean useMTRFont;
 	private boolean showAnnouncementMessages;
@@ -86,13 +86,13 @@ public class ConfigScreen extends Screen implements IGui {
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
 		buttonSupportPatreon.setMessage(new TranslatableText("gui.mtr.support"));
 
-		addButton(buttonUseMTRFont);
-		addButton(buttonShowAnnouncementMessages);
-		addButton(buttonUseTTSAnnouncements);
-		addButton(buttonHideSpecialRailColors);
-		addButton(buttonHideTranslucentParts);
-		addButton(buttonUseDynamicFPS);
-		addButton(buttonSupportPatreon);
+		addDrawableChild(buttonUseMTRFont);
+		addDrawableChild(buttonShowAnnouncementMessages);
+		addDrawableChild(buttonUseTTSAnnouncements);
+		addDrawableChild(buttonHideSpecialRailColors);
+		addDrawableChild(buttonHideTranslucentParts);
+		addDrawableChild(buttonUseDynamicFPS);
+		addDrawableChild(buttonSupportPatreon);
 	}
 
 	@Override

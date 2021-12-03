@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mapper.Utilities;
 import mtr.MTR;
 import mtr.data.TicketSystem;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -42,7 +43,7 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 		if (!world.isClient && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			final TicketSystem.EnumTicketBarrierOpen open = TicketSystem.passThrough(world, pos, player, canEnter, canExit, MTR.TICKET_PROCESSOR_ENTRY, MTR.TICKET_PROCESSOR_ENTRY_CONCESSIONARY, MTR.TICKET_PROCESSOR_EXIT, MTR.TICKET_PROCESSOR_EXIT_CONCESSIONARY, MTR.TICKET_PROCESSOR_FAIL, true);
 			world.setBlockState(pos, state.with(LIGHTS, open.isOpen() ? EnumTicketProcessorLights.GREEN : EnumTicketProcessorLights.RED));
-			world.getBlockTickScheduler().schedule(pos, this, 20);
+			Utilities.scheduleBlockTick(world, pos, this, 20);
 		}
 		return ActionResult.SUCCESS;
 	}

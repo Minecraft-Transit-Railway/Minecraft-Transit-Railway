@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mapper.BlockEntityRendererMapper;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
@@ -12,7 +13,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -20,7 +20,7 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntityRenderer<T> implements IGui {
+public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntityRendererMapper<T> implements IGui {
 
 	private static final float EXTRA_PADDING = 0.0625F;
 

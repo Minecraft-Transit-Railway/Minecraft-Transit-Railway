@@ -1,7 +1,8 @@
 package mtr.block;
 
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -22,7 +23,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockPIDSBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public BlockPIDSBase() {
 		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5));
@@ -92,33 +93,19 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		builder.add(FACING);
 	}
 
-	public abstract static class TileEntityBlockPIDSBase extends BlockEntity implements BlockEntityClientSerializable {
+	public abstract static class TileEntityBlockPIDSBase extends BlockEntityClientSerializableMapper {
 
 		private final String[] messages = new String[getMaxArrivals()];
 		private final boolean[] hideArrival = new boolean[getMaxArrivals()];
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
 
-		public TileEntityBlockPIDSBase(BlockEntityType<?> type) {
-			super(type);
-		}
-
-
-		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
-			fromClientTag(nbtCompound);
+		public TileEntityBlockPIDSBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 
 		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				messages[i] = nbtCompound.getString(KEY_MESSAGE + i);
 				hideArrival[i] = nbtCompound.getBoolean(KEY_HIDE_ARRIVAL + i);
@@ -126,12 +113,11 @@ public abstract class BlockPIDSBase extends HorizontalFacingBlock implements Blo
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			for (int i = 0; i < getMaxArrivals(); i++) {
 				nbtCompound.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
 				nbtCompound.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
 			}
-			return nbtCompound;
 		}
 
 		public void setData(String[] messages, boolean[] hideArrival) {

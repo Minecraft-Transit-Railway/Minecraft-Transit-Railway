@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mapper.Utilities;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.data.RailAngle;
@@ -41,7 +42,7 @@ public abstract class ItemNodeModifierBase extends Item {
 			final BlockState stateStart = world.getBlockState(posStart);
 
 			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
-				final NbtCompound nbtCompound = context.getStack().getOrCreateTag();
+				final NbtCompound nbtCompound = Utilities.getOrCreateNbt(context.getStack());
 
 				if (nbtCompound.contains(TAG_POS)) {
 					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
@@ -82,7 +83,7 @@ public abstract class ItemNodeModifierBase extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		final NbtCompound nbtCompound = stack.getOrCreateTag();
+		final NbtCompound nbtCompound = Utilities.getOrCreateNbt(stack);
 		final long posLong = nbtCompound.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));

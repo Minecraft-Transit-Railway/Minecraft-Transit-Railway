@@ -1,9 +1,11 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.Utilities;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Items;
@@ -11,7 +13,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class TicketMachineScreen extends Screen implements IGui, IPacket {
+public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 
 	private final ButtonWidget[] buttons = new ButtonWidget[BUTTON_COUNT];
 	private final Text balanceText;
@@ -28,7 +30,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 			buttons[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> {
 				PacketTrainDataGuiClient.addBalanceC2S(getAddAmount(index), (int) Math.pow(2, index));
 				if (client != null) {
-					client.openScreen(null);
+					UtilitiesClient.setScreen(client, null);
 				}
 			});
 		}
@@ -45,7 +47,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 		}
 
 		for (final ButtonWidget button : buttons) {
-			addButton(button);
+			addDrawableChild(button);
 		}
 	}
 
@@ -82,7 +84,7 @@ public class TicketMachineScreen extends Screen implements IGui, IPacket {
 
 	private int getEmeraldCount() {
 		if (client != null && client.player != null) {
-			return client.player.inventory.count(Items.EMERALD);
+			return Utilities.getInventory(client.player).count(Items.EMERALD);
 		} else {
 			return 0;
 		}

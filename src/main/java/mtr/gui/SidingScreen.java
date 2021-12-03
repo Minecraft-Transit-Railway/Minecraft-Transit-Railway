@@ -51,13 +51,13 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
 
-		addButton(buttonSelectTrain);
-		addButton(buttonUnlimitedTrains);
+		addDrawableChild(buttonSelectTrain);
+		addDrawableChild(buttonUnlimitedTrains);
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
 		availableTrainsList.width = PANEL_WIDTH;
-		availableTrainsList.init(this::addButton);
+		availableTrainsList.init(this::addDrawableChild);
 
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
 
@@ -66,7 +66,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		textFieldMaxTrains.setMaxLength(MAX_TRAINS_TEXT_LENGTH);
 		textFieldMaxTrains.setChangedListener(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
-		addButton(textFieldMaxTrains);
+		addDrawableChild(textFieldMaxTrains);
 	}
 
 	@Override

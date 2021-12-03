@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockRail;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
@@ -14,7 +15,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -24,7 +24,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.Map;
 
-public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntityRenderer<T> implements IBlock, IGui {
+public abstract class RenderSignalBase<T extends BlockEntity> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
 
 	protected final boolean isSingleSided;
 

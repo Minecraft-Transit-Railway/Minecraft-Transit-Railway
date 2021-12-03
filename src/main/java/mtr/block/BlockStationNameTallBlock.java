@@ -26,14 +26,14 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameTallBlock();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityStationNameTallBlock(pos, state);
 	}
 
 	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
 
-		public TileEntityStationNameTallBlock() {
-			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, 0.6875F);
+		public TileEntityStationNameTallBlock(BlockPos pos, BlockState state) {
+			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, pos, state, 0.6875F);
 		}
 	}
 }

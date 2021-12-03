@@ -1,5 +1,7 @@
 package mtr.block;
 
+import mapper.TickableMapper;
+import mapper.Utilities;
 import mtr.MTR;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
@@ -7,14 +9,15 @@ import mtr.data.Route;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import java.util.*;
 
@@ -43,8 +46,18 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTrainScheduleSensor();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityTrainScheduleSensor(pos, state);
+	}
+
+	@Override
+	public <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
+		TileEntityTrainScheduleSensor.tick(world, pos, blockEntity);
+	}
+
+	@Override
+	public BlockEntityType<? extends BlockEntity> getType() {
+		return MTR.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY;
 	}
 
 	@Override
@@ -52,22 +65,48 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		builder.add(POWERED);
 	}
 
-	public static class TileEntityTrainScheduleSensor extends TileEntityTrainSensorBase implements Tickable {
+	public static class TileEntityTrainScheduleSensor extends TileEntityTrainSensorBase implements TickableMapper {
 
 		private int seconds = 10;
 		private static final String KEY_SECONDS = "seconds";
 
-		public TileEntityTrainScheduleSensor() {
-			super(MTR.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
+		public TileEntityTrainScheduleSensor(BlockPos pos, BlockState state) {
+			super(MTR.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY, pos, state);
 		}
 
 		@Override
 		public void tick() {
+			if (world != null) {
+				tick(world, pos, this);
+			}
+		}
+
+		@Override
+		public void readNbtCompound(NbtCompound nbtCompound) {
+			seconds = nbtCompound.getInt(KEY_SECONDS);
+		}
+
+		@Override
+		public void writeNbtCompound(NbtCompound nbtCompound) {
+			nbtCompound.putInt(KEY_SECONDS, seconds);
+		}
+
+		@Override
+		public void setData(Set<Long> filterRouteIds, int number, String string) {
+			seconds = number;
+			setData(filterRouteIds);
+		}
+
+		public int getSeconds() {
+			return seconds;
+		}
+
+		public static <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
 			if (world != null && !world.isClient) {
 				final BlockState state = world.getBlockState(pos);
-				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && world.getBlockTickScheduler().isScheduled(pos, state.getBlock());
+				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && Utilities.isScheduled(world, pos, state.getBlock());
 
-				if (isActive || !(state.getBlock() instanceof BlockTrainScheduleSensor)) {
+				if (isActive || !(state.getBlock() instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
 					return;
 				}
 
@@ -88,41 +127,18 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 
 				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
 				schedules.forEach(scheduleEntry -> {
-					if (matchesFilter(scheduleEntry.routeId)) {
+					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId)) {
 						scheduleList.add(scheduleEntry);
 					}
 				});
 				if (!scheduleList.isEmpty()) {
 					Collections.sort(scheduleList);
-					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == seconds) {
+					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
 						world.setBlockState(pos, state.with(POWERED, true));
-						world.getBlockTickScheduler().schedule(pos, state.getBlock(), 20);
+						Utilities.scheduleBlockTick(world, pos, state.getBlock(), 20);
 					}
 				}
 			}
 		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
-			super.fromClientTag(nbtCompound);
-			seconds = nbtCompound.getInt(KEY_SECONDS);
-		}
-
-		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
-			nbtCompound.putInt(KEY_SECONDS, seconds);
-			return super.toClientTag(nbtCompound);
-		}
-
-		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
-			seconds = number;
-			setData(filterRouteIds);
-		}
-
-		public int getSeconds() {
-			return seconds;
-		}
-
 	}
 }
