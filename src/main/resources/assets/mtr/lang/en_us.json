@@ -367,6 +367,8 @@
 	"train.mtr.a_train_tcl_small": "CAF Tung Chung Line (Small)",
 	"train.mtr.c1141a": "1141A / TML C-Train",
 	"train.mtr.c1141a_mini": "1141A / TML C-Train (Mini)",
+	"train.mtr.c_train": "C-Train",
+	"train.mtr.c_train_mini": "C-Train (Mini)",
 	"train.mtr.c1141a_small": "1141A / TML C-Train (Small)",
 	"train.mtr.e44": "KCR E44 (Yellow Head)",
 	"train.mtr.e44_mini": "KCR E44 (Yellow Head, Mini)",
