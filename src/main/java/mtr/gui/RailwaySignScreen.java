@@ -1,5 +1,7 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.config.CustomResources;
@@ -9,7 +11,6 @@ import mtr.render.RenderRailwaySign;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -24,7 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RailwaySignScreen extends Screen implements IGui {
+public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 	private int editingIndex;
 	private int page;
@@ -136,7 +137,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			IDrawing.setPositionAndWidth(buttonsEdit[i], (width - SIGN_SIZE * length) / 2 + i * SIGN_SIZE, SIGN_SIZE, SIGN_SIZE);
-			addButton(buttonsEdit[i]);
+			addDrawableChild(buttonsEdit[i]);
 		}
 
 		columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
@@ -148,7 +149,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 		totalPages = loopSigns((index, x, y, isBig) -> {
 			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
 			buttonsSelection[index].visible = false;
-			addButton(buttonsSelection[index]);
+			addDrawableChild(buttonsSelection[index]);
 		}, true);
 
 		final int buttonClearX = (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2;
@@ -156,17 +157,17 @@ public class RailwaySignScreen extends Screen implements IGui {
 
 		IDrawing.setPositionAndWidth(buttonClear, buttonClearX, buttonY, PANEL_WIDTH);
 		buttonClear.visible = false;
-		addButton(buttonClear);
+		addDrawableChild(buttonClear);
 
 		IDrawing.setPositionAndWidth(buttonPrevPage, buttonClearX + PANEL_WIDTH, buttonY, SQUARE_SIZE);
 		buttonPrevPage.visible = false;
-		addButton(buttonPrevPage);
+		addDrawableChild(buttonPrevPage);
 		IDrawing.setPositionAndWidth(buttonNextPage, buttonClearX + PANEL_WIDTH + SQUARE_SIZE * 3, buttonY, SQUARE_SIZE);
 		buttonNextPage.visible = false;
-		addButton(buttonNextPage);
+		addDrawableChild(buttonNextPage);
 
 		if (!isRailwaySign && client != null) {
-			client.openScreen(new DashboardListSelectorScreen(this::onClose, platformsForList, selectedIds, true, false));
+			UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this::onClose, platformsForList, selectedIds, true, false));
 		}
 	}
 
@@ -182,7 +183,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			for (int i = 0; i < signIds.length; i++) {
 				if (signIds[i] != null) {
 					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
-						client.getTextureManager().bindTexture(textureId);
+						UtilitiesClient.beginDrawingTexture(textureId);
 						drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 					});
 				}
@@ -197,7 +198,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 					final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
 					if (sign != null) {
 						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
-						client.getTextureManager().bindTexture(sign.textureId);
+						UtilitiesClient.beginDrawingTexture(sign.textureId);
 						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> drawTexture(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					}
 				}, false);
@@ -330,7 +331,7 @@ public class RailwaySignScreen extends Screen implements IGui {
 			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
 			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
 			if ((isExitLetter || isPlatform || isLine) && client != null) {
-				client.openScreen(new DashboardListSelectorScreen(this, isExitLetter ? exitsForList : isPlatform ? platformsForList : routesForList, selectedIds, false, false));
+				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, isExitLetter ? exitsForList : isPlatform ? platformsForList : routesForList, selectedIds, false, false));
 			}
 		}
 	}

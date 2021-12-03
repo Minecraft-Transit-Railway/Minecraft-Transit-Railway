@@ -1,7 +1,11 @@
 package mtr.block;
 
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.ItemPlacementContext;
@@ -11,7 +15,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-public abstract class BlockSignalSemaphoreBase extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockSignalSemaphoreBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public BlockSignalSemaphoreBase(Settings settings) {
 		super(settings);
@@ -37,13 +41,13 @@ public abstract class BlockSignalSemaphoreBase extends HorizontalFacingBlock imp
 		builder.add(FACING);
 	}
 
-	public static abstract class TileEntitySignalSemaphoreBase extends BlockEntity {
+	public static abstract class TileEntitySignalSemaphoreBase extends BlockEntityMapper {
 
 		public float angle1;
 		public float angle2;
 
-		public TileEntitySignalSemaphoreBase(BlockEntityType<?> type) {
-			super(type);
+		public TileEntitySignalSemaphoreBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 	}
 }

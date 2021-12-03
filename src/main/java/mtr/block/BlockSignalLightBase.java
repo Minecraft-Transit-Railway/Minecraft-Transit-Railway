@@ -1,6 +1,10 @@
 package mtr.block;
 
-import net.minecraft.block.*;
+import mapper.BlockEntityProviderMapper;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -8,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
-public abstract class BlockSignalLightBase extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockSignalLightBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public BlockSignalLightBase(Settings settings) {
 		super(settings);

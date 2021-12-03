@@ -86,17 +86,17 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		exitDestinationList.height = height - EXIT_PANELS_START - SQUARE_SIZE;
 		exitDestinationList.width = width / 2;
 
-		exitParentList.init(this::addButton);
-		exitDestinationList.init(this::addButton);
+		exitParentList.init(this::addDrawableChild);
+		exitDestinationList.init(this::addDrawableChild);
 
-		addButton(textFieldZone);
-		addButton(textFieldExitParentLetter);
-		addButton(textFieldExitParentNumber);
-		addButton(textFieldExitDestination);
-		addButton(buttonAddExitParent);
-		addButton(buttonDoneExitParent);
-		addButton(buttonAddExitDestination);
-		addButton(buttonDoneExitDestination);
+		addDrawableChild(textFieldZone);
+		addDrawableChild(textFieldExitParentLetter);
+		addDrawableChild(textFieldExitParentNumber);
+		addDrawableChild(textFieldExitDestination);
+		addDrawableChild(buttonAddExitParent);
+		addDrawableChild(buttonDoneExitParent);
+		addDrawableChild(buttonAddExitDestination);
+		addDrawableChild(buttonDoneExitDestination);
 
 		changeEditingExit(null, -1);
 	}

@@ -1,9 +1,13 @@
 package mtr.block;
 
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.MapColor;
+import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -18,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider, IPropagateBlock, IBlock {
+public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements BlockEntityProviderMapper, IPropagateBlock, IBlock {
 
 	public BlockRouteSignBase() {
 		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(15).nonOpaque());
@@ -46,37 +50,23 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		builder.add(FACING, HALF, PROPAGATE_PROPERTY);
 	}
 
-	public static abstract class TileEntityRouteSignBase extends BlockEntity implements BlockEntityClientSerializable {
+	public static abstract class TileEntityRouteSignBase extends BlockEntityClientSerializableMapper {
 
 		private long platformId;
 		private static final String KEY_PLATFORM_ID = "platform_id";
 
-		public TileEntityRouteSignBase(BlockEntityType<?> type) {
-			super(type);
+		public TileEntityRouteSignBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putLong(KEY_PLATFORM_ID, platformId);
-			return nbtCompound;
 		}
 
 		public void setPlatformId(long platformId) {

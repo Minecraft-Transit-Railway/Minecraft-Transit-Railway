@@ -1,15 +1,16 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.packet.IPacket;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends Screen implements IGui, IPacket {
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenMapper implements IGui, IPacket {
 
 	private int nameStart;
 	private int colorStart;
@@ -44,7 +45,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			UtilitiesClient.setScreen(client, dashboardScreen);
 		}
 
 		data.name = textFieldName.getText();
@@ -77,8 +78,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 			}
 		});
 
-		addButton(textFieldName);
-		addButton(textFieldColor);
+		addDrawableChild(textFieldName);
+		addDrawableChild(textFieldColor);
 	}
 
 	protected void renderTextFields(MatrixStack matrices) {

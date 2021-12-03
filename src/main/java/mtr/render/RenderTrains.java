@@ -1,5 +1,7 @@
 package mtr.render;
 
+import mapper.Utilities;
+import mapper.UtilitiesClient;
 import mtr.MTRClient;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
@@ -16,7 +18,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.MinecartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.vehicle.MinecartEntity;
@@ -54,7 +55,7 @@ public class RenderTrains implements IGui {
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 	private static final int TICKS_PER_SECOND = 20;
 
-	private static final EntityModel<MinecartEntity> MODEL_MINECART = new MinecartEntityModel<>();
+	private static final EntityModel<MinecartEntity> MODEL_MINECART = UtilitiesClient.getMinecartModel();
 
 	public static void render(World world, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Camera camera) {
 		final MinecraftClient client = MinecraftClient.getInstance();
@@ -81,7 +82,7 @@ public class RenderTrains implements IGui {
 		final Vec3d cameraPos = camera.getPos();
 		final float cameraYaw = camera.getYaw();
 		final Vec3d cameraOffset = client.gameRenderer.getCamera().isThirdPerson() ? player.getCameraPosVec(client.getTickDelta()).subtract(cameraPos) : Vec3d.ZERO;
-		final boolean secondF5 = Math.abs(player.yaw - client.gameRenderer.getCamera().getYaw()) > 90;
+		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - client.gameRenderer.getCamera().getYaw()) > 90;
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
@@ -94,7 +95,7 @@ public class RenderTrains implements IGui {
 				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
 			} else {
 				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.yaw - cameraYaw + (secondF5 ? 180 : 0)));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(x - playerOffset.x, y - playerOffset.y, z - playerOffset.z);
 			}
 			matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI + yaw));
@@ -122,7 +123,7 @@ public class RenderTrains implements IGui {
 				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 			} else {
 				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(player.yaw - cameraYaw + (secondF5 ? 180 : 0)));
+				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
@@ -216,7 +217,7 @@ public class RenderTrains implements IGui {
 		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = player.isHolding(item -> item instanceof ItemNodeModifierBase || Block.getBlockFromItem(item) instanceof BlockSignalLightBase || Block.getBlockFromItem(item) instanceof BlockSignalSemaphoreBase);
+		final boolean renderColors = Utilities.isHolding(player, item -> item instanceof ItemNodeModifierBase || Block.getBlockFromItem(item) instanceof BlockSignalLightBase || Block.getBlockFromItem(item) instanceof BlockSignalSemaphoreBase);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {

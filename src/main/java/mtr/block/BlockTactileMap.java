@@ -1,17 +1,19 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
+import mapper.TickableMapper;
 import mtr.MTR;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -23,7 +25,7 @@ import net.minecraft.world.World;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProvider {
+public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements BlockEntityProviderMapper {
 
 	public BlockTactileMap(Settings settings) {
 		super(settings);
@@ -50,29 +52,37 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 	}
 
 	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityTactileMap(pos, state);
+	}
+
+	@Override
+	public <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
+		TileEntityTactileMap.tick(world, pos);
+	}
+
+	@Override
+	public BlockEntityType<? extends BlockEntity> getType() {
+		return MTR.TACTILE_MAP_TILE_ENTITY;
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HALF);
 	}
 
-	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityTactileMap();
-	}
-
-	public static class TileEntityTactileMap extends BlockEntity implements Tickable {
+	public static class TileEntityTactileMap extends BlockEntityMapper implements TickableMapper {
 
 		public static BiConsumer<BlockPos, Boolean> updateSoundSource = null;
 		public static Consumer<BlockPos> onUse = null;
 
-		public TileEntityTactileMap() {
-			super(MTR.TACTILE_MAP_TILE_ENTITY);
+		public TileEntityTactileMap(BlockPos pos, BlockState state) {
+			super(MTR.TACTILE_MAP_TILE_ENTITY, pos, state);
 		}
 
 		@Override
 		public void tick() {
-			if (world != null && world.isClient && updateSoundSource != null) {
-				updateSoundSource.accept(pos, removed);
-			}
+			tick(world, pos);
 		}
 
 		@Override
@@ -81,6 +91,12 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 				updateSoundSource.accept(pos, true);
 			}
 			super.markRemoved();
+		}
+
+		public static <T extends BlockEntity> void tick(World world, BlockPos pos) {
+			if (world != null && world.isClient && updateSoundSource != null) {
+				updateSoundSource.accept(pos, false);
+			}
 		}
 	}
 }

@@ -1,17 +1,18 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Screen implements IGui, IPacket {
+public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
 
 	protected final T savedRailBase;
 	protected final int textWidth, startX;
@@ -48,7 +49,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		textFieldSavedRailNumber.setMaxLength(MAX_SAVED_RAIL_NUMBER_LENGTH);
 		textFieldSavedRailNumber.setChangedListener(text -> savedRailBase.name = textFieldSavedRailNumber.getText());
 
-		addButton(textFieldSavedRailNumber);
+		addDrawableChild(textFieldSavedRailNumber);
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			UtilitiesClient.setScreen(client, dashboardScreen);
 		}
 	}
 

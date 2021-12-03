@@ -1,7 +1,7 @@
 package mtr.config;
 
-import io.github.prospector.modmenu.api.ConfigScreenFactory;
-import io.github.prospector.modmenu.api.ModMenuApi;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
 import mtr.gui.ConfigScreen;
 
 public class ModMenuConfig implements ModMenuApi {

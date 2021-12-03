@@ -17,8 +17,8 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			for (int y = -1; y <= 1; y++) {
-				BlockState scanState = world.getBlockState(pos.up(y));
-				if (is(scanState.getBlock())) {
+				final BlockState scanState = world.getBlockState(pos.up(y));
+				if (state.isOf(scanState.getBlock())) {
 					connectGlass(world, pos.up(y), scanState);
 				}
 			}
@@ -35,7 +35,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
 		final BlockPos leftPos = pos.offset(facing.rotateYCounterclockwise());
 		final BlockState leftState = world.getBlockState(leftPos);
-		final boolean leftValid = is(leftState.getBlock());
+		final boolean leftValid = state.isOf(leftState.getBlock());
 
 		if (leftValid) {
 			final EnumSide side = IBlock.getStatePropertySafe(leftState, SIDE_EXTENDED);
@@ -54,7 +54,7 @@ public abstract class BlockPSDAPGGlassBase extends BlockPSDAPGBase {
 
 		final BlockPos rightPos = pos.offset(facing.rotateYClockwise());
 		final BlockState rightState = world.getBlockState(rightPos);
-		final boolean rightValid = is(rightState.getBlock());
+		final boolean rightValid = state.isOf(rightState.getBlock());
 
 		if (rightValid) {
 			final EnumSide side = IBlock.getStatePropertySafe(rightState, SIDE_EXTENDED);

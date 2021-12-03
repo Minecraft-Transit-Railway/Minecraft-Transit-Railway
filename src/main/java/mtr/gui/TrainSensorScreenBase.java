@@ -1,5 +1,7 @@
 package mtr.gui;
 
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
@@ -8,7 +10,6 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -19,7 +20,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
-public abstract class TrainSensorScreenBase extends Screen implements IGui, IPacket {
+public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui, IPacket {
 
 	protected final BlockPos pos;
 	protected final WidgetBetterTextField textField;
@@ -47,7 +48,7 @@ public abstract class TrainSensorScreenBase extends Screen implements IGui, IPac
 			if (client != null) {
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
 				Collections.sort(routes);
-				client.openScreen(new DashboardListSelectorScreen(this, routes, filterRouteIds, false, false));
+				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, routes, filterRouteIds, false, false));
 			}
 		});
 
@@ -59,11 +60,11 @@ public abstract class TrainSensorScreenBase extends Screen implements IGui, IPac
 		super.init();
 		if (textField != null) {
 			IDrawing.setPositionAndWidth(textField, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-			addButton(textField);
+			addDrawableChild(textField);
 		}
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, yStart + SQUARE_SIZE * 2, PANEL_WIDTH / 2);
 		filterButton.setMessage(new TranslatableText("selectWorld.edit"));
-		addButton(filterButton);
+		addDrawableChild(filterButton);
 	}
 
 	@Override

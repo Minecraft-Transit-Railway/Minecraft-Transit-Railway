@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.data.*;
@@ -10,7 +11,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -21,7 +21,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 
-public class RenderPIDS<T extends BlockEntity> extends BlockEntityRenderer<T> implements IGui {
+public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper<T> implements IGui {
 
 	private final float scale;
 	private final float totalScaledWidth;

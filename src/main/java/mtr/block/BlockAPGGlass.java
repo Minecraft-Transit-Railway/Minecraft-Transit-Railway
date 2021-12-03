@@ -1,9 +1,10 @@
 package mtr.block;
 
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityProviderMapper;
 import mtr.Items;
 import mtr.MTR;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -14,10 +15,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityProvider, IPropagateBlock {
+public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityProviderMapper, IPropagateBlock {
 
 	@Override
 	public Item asItem() {
@@ -39,8 +39,8 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityAPGGlass();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityAPGGlass(pos, state);
 	}
 
 	@Override
@@ -48,10 +48,10 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 		builder.add(FACING, HALF, SIDE_EXTENDED, PROPAGATE_PROPERTY);
 	}
 
-	public static class TileEntityAPGGlass extends BlockEntity {
+	public static class TileEntityAPGGlass extends BlockEntityMapper {
 
-		public TileEntityAPGGlass() {
-			super(MTR.APG_GLASS_TILE_ENTITY);
+		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
+			super(MTR.APG_GLASS_TILE_ENTITY, pos, state);
 		}
 	}
 }

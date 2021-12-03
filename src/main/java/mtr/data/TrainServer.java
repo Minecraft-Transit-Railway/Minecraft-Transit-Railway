@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mapper.Utilities;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;
@@ -123,7 +124,7 @@ public class TrainServer extends Train {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && ((BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor) entity).matchesFilter(routeId)) {
 						world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
-						world.getBlockTickScheduler().schedule(checkPos, state.getBlock(), 20);
+						Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
 					}
 				}
 			});
@@ -178,8 +179,8 @@ public class TrainServer extends Train {
 					final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 					world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
-					if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(doorPos, doorBlock)) {
-						world.getBlockTickScheduler().schedule(doorPos, doorBlock, dwellTicks);
+					if (doorStateValue > 0 && !Utilities.isScheduled(world, doorPos, doorBlock)) {
+						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
 					}
 				}
 			}

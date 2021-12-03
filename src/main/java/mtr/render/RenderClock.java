@@ -1,5 +1,6 @@
 package mtr.render;
 
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockClock;
 import mtr.block.IBlock;
 import mtr.data.IGui;
@@ -8,7 +9,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -16,7 +16,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 
-public class RenderClock extends BlockEntityRenderer<BlockClock.TileEntityClock> implements IGui, IBlock {
+public class RenderClock extends BlockEntityRendererMapper<BlockClock.TileEntityClock> implements IGui, IBlock {
 
 	public RenderClock(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
