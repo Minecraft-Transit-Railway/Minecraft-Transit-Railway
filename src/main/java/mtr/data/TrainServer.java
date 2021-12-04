@@ -265,7 +265,7 @@ public class TrainServer extends Train {
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}
 
-	public void writeTrainPositions(Map<UUID, Long> trainPositions, SignalBlocks signalBlocks) {
+	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
 			final int trainSpacing = baseTrainType.getSpacing();
 			final int headIndex = getIndex(0, trainSpacing, true);

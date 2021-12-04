@@ -259,7 +259,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			railProgressSet.add(roundedRailProgress);
 
 			if (trainPositions != null) {
-				train.writeTrainPositions(trainPositions.get(1), signalBlocks);
+				train.writeTrainPositions(trainPositions, signalBlocks);
 			}
 		}
 

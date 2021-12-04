@@ -68,14 +68,28 @@ public class SignalBlocks {
 		return 0;
 	}
 
-	public void occupy(UUID rail, Map<UUID, Long> trainPositions, long trainId) {
-		trainPositions.put(rail, trainId);
+	public void occupy(UUID currentRail, List<Map<UUID, Long>> trainPositions, long trainId) {
+		if (trainPositions.size() < 2) {
+			return;
+		}
+
+		final Set<UUID> railsToAdd = new HashSet<>();
+		railsToAdd.add(currentRail);
+
 		signalBlocks.forEach(signalBlock -> {
-			if (signalBlock.rails.contains(rail)) {
-				signalBlock.rails.forEach(rail1 -> trainPositions.put(rail1, trainId));
+			if (signalBlock.rails.contains(currentRail)) {
+				railsToAdd.addAll(signalBlock.rails);
 				signalBlock.occupied = 2;
 			}
 		});
+
+		for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
+			if (railsToAdd.stream().anyMatch(rail -> trainPositionsMap.containsKey(rail) && trainPositionsMap.get(rail) != trainId)) {
+				return;
+			}
+		}
+
+		railsToAdd.forEach(rail -> trainPositions.get(1).put(rail, trainId));
 	}
 
 	public void resetOccupied() {
