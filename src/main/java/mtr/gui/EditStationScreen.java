@@ -39,9 +39,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 	public EditStationScreen(Station station, DashboardScreen dashboardScreen) {
 		super(station, dashboardScreen, "gui.mtr.station_name", "gui.mtr.station_color");
-		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "");
-		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A");
-		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1");
+		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
+		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A", 1);
+		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
 		textFieldExitDestination = new WidgetBetterTextField(null, "");
 
 		buttonAddExitParent = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
@@ -69,12 +69,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		IDrawing.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
-		textFieldZone.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldZone.setText(String.valueOf(data.zone));
-
-		textFieldExitParentLetter.setMaxLength(1);
-		textFieldExitParentNumber.setMaxLength(2);
-		textFieldExitDestination.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 
 		exitParentList.x = 0;
 		exitParentList.y = EXIT_PANELS_START;

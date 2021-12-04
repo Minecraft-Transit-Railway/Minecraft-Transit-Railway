@@ -39,7 +39,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 
 		textFieldMessages = new WidgetBetterTextField[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new WidgetBetterTextField(null, "");
+			textFieldMessages[i] = new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH);
 		}
 
 		buttonsHideArrival = new WidgetBetterCheckbox[maxArrivals];
@@ -68,7 +68,6 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
-			textFieldMessage.setMaxLength(MAX_MESSAGE_LENGTH);
 			textFieldMessage.setText(messages[i]);
 			addDrawableChild(textFieldMessage);
 

@@ -12,13 +12,22 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 
 	private final TextFieldFilter textFieldFilter;
 	private final String suggestion;
+	private final int newMaxLength;
+
+	private static final int DEFAULT_MAX_LENGTH = 128;
 
 	public WidgetBetterTextField(TextFieldFilter textFieldFilter, String suggestion) {
+		this(textFieldFilter, suggestion, DEFAULT_MAX_LENGTH);
+	}
+
+	public WidgetBetterTextField(TextFieldFilter textFieldFilter, String suggestion, int maxLength) {
 		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
 		this.textFieldFilter = textFieldFilter;
 		this.suggestion = suggestion;
+		newMaxLength = maxLength;
 		setChangedListener(text -> {
 		});
+		setMaxLength(0);
 	}
 
 	@Override
@@ -26,9 +35,9 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 		super.setChangedListener(text -> {
 			final String newText;
 			if (textFieldFilter == null) {
-				newText = text;
+				newText = trySetLength(text);
 			} else {
-				newText = text.toUpperCase().replaceAll(textFieldFilter.filter, "");
+				newText = trySetLength(text.toUpperCase().replaceAll(textFieldFilter.filter, ""));
 				if (!newText.equals(text)) {
 					setText(newText);
 				}
@@ -49,6 +58,15 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 			setTextFieldFocused(false);
 			return false;
 		}
+	}
+
+	@Override
+	public void setMaxLength(int maxLength) {
+		super.setMaxLength(Integer.MAX_VALUE);
+	}
+
+	private String trySetLength(String text) {
+		return text.isEmpty() ? "" : text.substring(0, Math.min(newMaxLength, text.length()));
 	}
 
 	public enum TextFieldFilter {

@@ -33,7 +33,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
 		buttonSelectTrain = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
-		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "");
+		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getText().isEmpty()) {
 				textFieldMaxTrains.setText("");
@@ -63,7 +63,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setText(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
-		textFieldMaxTrains.setMaxLength(MAX_TRAINS_TEXT_LENGTH);
 		textFieldMaxTrains.setChangedListener(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
 		addDrawableChild(textFieldMaxTrains);

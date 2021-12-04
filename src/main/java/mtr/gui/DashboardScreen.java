@@ -44,7 +44,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 	private final DashboardList dashboardList;
 
-	public static final int MAX_NAME_LENGTH = 128;
 	public static final int MAX_COLOR_ZONE_LENGTH = 6;
 	private static final int COLOR_WIDTH = 48;
 
@@ -54,7 +53,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
 		textFieldName = new WidgetBetterTextField(null, new TranslatableText("gui.mtr.name").getString());
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableText("gui.mtr.color").getString());
+		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableText("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
 
 		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
@@ -114,9 +113,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonDoneEditingDepot.visible = false;
 
 		textFieldName.setVisible(false);
-		textFieldName.setMaxLength(MAX_NAME_LENGTH);
 		textFieldColor.setVisible(false);
-		textFieldColor.setMaxLength(MAX_COLOR_ZONE_LENGTH);
 
 		dashboardList.init(this::addDrawableChild);
 

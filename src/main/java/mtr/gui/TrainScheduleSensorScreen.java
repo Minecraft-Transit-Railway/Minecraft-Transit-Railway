@@ -15,7 +15,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {
-		super(pos, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, ""), new TranslatableText("gui.mtr.train_schedule_sensor"));
+		super(pos, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableText("gui.mtr.train_schedule_sensor"));
 
 		final World world = MinecraftClient.getInstance().world;
 		if (world == null) {
@@ -29,7 +29,6 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	@Override
 	protected void init() {
 		super.init();
-		textField.setMaxLength(MAX_SECONDS_LENGTH);
 		textField.setText(String.valueOf(seconds));
 	}
 

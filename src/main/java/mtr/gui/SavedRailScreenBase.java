@@ -34,7 +34,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		secondText = new TranslatableText(getSecondStringKey());
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1");
+		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
 		textWidth = Math.max(Math.max(textRenderer.getWidth(savedRailNumberText), textRenderer.getWidth(secondText)), additionalText == null ? 0 : textRenderer.getWidth(additionalText)) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
@@ -46,7 +46,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
 		textFieldSavedRailNumber.setText(savedRailBase.name);
-		textFieldSavedRailNumber.setMaxLength(MAX_SAVED_RAIL_NUMBER_LENGTH);
 		textFieldSavedRailNumber.setChangedListener(text -> savedRailBase.name = textFieldSavedRailNumber.getText());
 
 		addDrawableChild(textFieldSavedRailNumber);

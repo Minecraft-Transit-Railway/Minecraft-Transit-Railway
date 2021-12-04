@@ -32,7 +32,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		colorText = new TranslatableText(colorKey);
 
 		textFieldName = new WidgetBetterTextField(null, "");
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, "");
+		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 	}
 
 	@Override
@@ -67,9 +67,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(textFieldColor, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
-		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
 		textFieldName.setText(data.name);
-		textFieldColor.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldColor.setText(DashboardScreen.colorIntToString(data.color));
 		textFieldColor.setChangedListener(text -> {
 			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
