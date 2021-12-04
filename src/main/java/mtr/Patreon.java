@@ -2,6 +2,7 @@ package mtr;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mapper.Keys;
 import mtr.data.IGui;
 import mtr.data.RailType;
 
@@ -39,7 +40,7 @@ public class Patreon implements Keys, IGui, Comparable<Patreon> {
 		try {
 			final HttpURLConnection connection = (HttpURLConnection) new URL("https://www.patreon.com/api/oauth2/api/campaigns/7782318/pledges").openConnection();
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Authorization", "Bearer " + AUTH_KEY);
+			connection.setRequestProperty("Authorization", "Bearer " + PATREON_API_KEY);
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 

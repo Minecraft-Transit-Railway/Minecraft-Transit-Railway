@@ -1,12 +1,15 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id "fabric-loom" version "0.10-SNAPSHOT"
-    id 'maven-publish'
+    id "maven-publish"
 }
 
 def default_minecraft_version = "1.16.5"
 def minecraft_version = project.properties.containsKey("buildVersion") ? project.getProperties().get("buildVersion") : default_minecraft_version
 def is_1_16 = (minecraft_version as String).startsWith("1.16")
 def is_1_17 = (minecraft_version as String).startsWith("1.17")
+def patreon_api_key = project.properties.containsKey("patreonApiKey") ? project.getProperties().get("patreonApiKey") : ""
 
 if (is_1_16) {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -50,8 +53,16 @@ dependencies {
 }
 
 task copyMappingFiles(type: Copy) {
+    outputs.upToDateWhen { false }
     from is_1_16 ? "src/main/mapper1.16" : is_1_17 ? "src/main/mapper1.17" : "src/main/mapper1.18"
     into "src/main/java/mapper"
+}
+
+task injectKey(type: Copy) {
+    outputs.upToDateWhen { false }
+    from "src/main/keys"
+    into "src/main/java/mapper"
+    filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 }
 
 processResources {
@@ -105,8 +116,9 @@ allprojects {
 
     afterEvaluate {
         for (def task in it.tasks) {
-            if (task != rootProject.tasks.copyMappingFiles) {
+            if (task != rootProject.tasks.copyMappingFiles && task != rootProject.tasks.injectKey) {
                 task.dependsOn rootProject.tasks.copyMappingFiles
+                task.dependsOn rootProject.tasks.injectKey
             }
         }
     }
