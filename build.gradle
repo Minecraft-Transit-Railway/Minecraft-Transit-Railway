@@ -76,17 +76,19 @@ tasks.withType(JavaCompile).configureEach {
         it.options.release = 17
     }
 }
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'org.gradle.sample'
-            artifactId = 'library'
-            version = '1.1'
+            groupId = project.maven_group
+            artifactId = "library"
+            version = minecraft_version
 
             from components.java
         }
     }
 }
+
 allprojects {
     repositories {
         maven {
