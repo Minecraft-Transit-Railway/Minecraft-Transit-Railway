@@ -41,7 +41,7 @@ public class BlockRubbishBin extends HorizontalFacingBlock {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(FILLED, 0)), () -> {
+		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(FILLED, 0)), () -> {
 			final int currentLevel = IBlock.getStatePropertySafe(state, FILLED);
 			if (!player.getMainHandStack().isEmpty() && currentLevel < MAX_LEVEL) {
 				world.setBlockState(pos, state.with(FILLED, currentLevel + 1));
@@ -50,7 +50,6 @@ public class BlockRubbishBin extends HorizontalFacingBlock {
 				}
 			}
 		});
-		return ActionResult.SUCCESS;
 	}
 
 	@Override

@@ -144,11 +144,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				validateData();
 			}
 			markDirty();
-			writeTag(nbtCompound, stations, KEY_STATIONS);
+			writeTag(nbtCompound, stations, KEY_STATIONS, false);
 			writeTag(nbtCompound, platforms, KEY_PLATFORMS);
 			writeTag(nbtCompound, sidings, KEY_SIDINGS);
-			writeTag(nbtCompound, routes, KEY_ROUTES);
-			writeTag(nbtCompound, depots, KEY_DEPOTS);
+			writeTag(nbtCompound, routes, KEY_ROUTES, false);
+			writeTag(nbtCompound, depots, KEY_DEPOTS, false);
 			writeTag(nbtCompound, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
 
 			final Set<RailEntry> railSet = new HashSet<>();
@@ -592,11 +592,17 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static void writeTag(NbtCompound nbtCompound, Collection<? extends SerializedDataBase> dataSet, String key) {
+		writeTag(nbtCompound, dataSet, key, true);
+	}
+
+	public static void writeTag(NbtCompound nbtCompound, Collection<? extends SerializedDataBase> dataSet, String key, boolean skipVerify) {
 		final NbtCompound tagSet = new NbtCompound();
 		int i = 0;
 		for (final SerializedDataBase data : dataSet) {
-			tagSet.put(key + i, data.toCompoundTag());
-			i++;
+			if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+				tagSet.put(key + i, data.toCompoundTag());
+				i++;
+			}
 		}
 		nbtCompound.put(key, tagSet);
 	}
