@@ -246,24 +246,27 @@ function drawMap(container, data) {
 		position["x2"] = newX;
 		position["y2"] = newY;
 
-		let blob = blobs[stationId];
-		if (typeof blob === "undefined") {
-			blobs[stationId] = {
-				xMin: newX,
-				yMin: newY,
-				xMax: newX,
-				yMax: newY,
-				name: stations[stationId]["name"],
-				colors: [color],
-			};
-			SETTINGS.routeTypes.forEach(routeType => blobs[stationId][routeType] = false);
-		} else {
-			blob["xMin"] = Math.min(blob["xMin"], newX);
-			blob["yMin"] = Math.min(blob["yMin"], newY);
-			blob["xMax"] = Math.max(blob["xMax"], newX);
-			blob["yMax"] = Math.max(blob["yMax"], newY);
-			if (!blob["colors"].includes(color)) {
-				blob["colors"].push(color);
+		const route = routes.find(route => route["color"] === color);
+		if (typeof route !== "undefined" && route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]) {
+			let blob = blobs[stationId];
+			if (typeof blob === "undefined") {
+				blobs[stationId] = {
+					xMin: newX,
+					yMin: newY,
+					xMax: newX,
+					yMax: newY,
+					name: stations[stationId]["name"],
+					colors: [color],
+				};
+				SETTINGS.routeTypes.forEach(routeType => blobs[stationId][routeType] = false);
+			} else {
+				blob["xMin"] = Math.min(blob["xMin"], newX);
+				blob["yMin"] = Math.min(blob["yMin"], newY);
+				blob["xMax"] = Math.max(blob["xMax"], newX);
+				blob["yMax"] = Math.max(blob["yMax"], newY);
+				if (!blob["colors"].includes(color)) {
+					blob["colors"].push(color);
+				}
 			}
 		}
 	}
@@ -277,7 +280,10 @@ function drawMap(container, data) {
 		const shouldDraw = selectedColor < 0 || selectedColor === color;
 		const routeType = route["type"];
 		for (const stationIndex in route["stations"]) {
-			blobs[route["stations"][stationIndex].split("_")[0]][routeType] = true;
+			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
+			if (typeof blob !== "undefined") {
+				blob[routeType] = true;
+			}
 		}
 
 		if (routeType === SETTINGS.routeTypes[SETTINGS.routeType]) {

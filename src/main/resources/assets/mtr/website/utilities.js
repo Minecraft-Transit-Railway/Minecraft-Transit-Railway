@@ -93,7 +93,7 @@ const CANVAS = {
 		for (const textPart of textSplit) {
 			const isTextCJK = SETTINGS.isCJK(textPart);
 
-			if (typeof textCache[textPart] === "undefined") {
+			if (typeof textCache[textPart + x + "_" + y] === "undefined") {
 				const richText = new PIXI.Text(textPart, {
 					fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
 					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
@@ -102,10 +102,10 @@ const CANVAS = {
 					strokeThickness: 2,
 				});
 				richText.anchor.set(0.5, 0);
-				textCache[textPart] = richText;
+				textCache[textPart + x + "_" + y] = richText;
 			}
 
-			const richText = textCache[textPart];
+			const richText = textCache[textPart + x + "_" + y];
 			richText.position.set(Math.round(x / 2) * 2, yStart);
 			textArray.push(richText);
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
