@@ -165,6 +165,8 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("arrival_projector_1_medium", Blocks.ARRIVAL_PROJECTOR_1_MEDIUM, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("arrival_projector_1_large", Blocks.ARRIVAL_PROJECTOR_1_LARGE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ceiling", Blocks.CEILING, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ceiling_light", Blocks.CEILING_LIGHT, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("ceiling_no_light", Blocks.CEILING_NO_LIGHT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("clock", Blocks.CLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("clock_pole", Blocks.CLOCK_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("escalator_side", Blocks.ESCALATOR_SIDE);

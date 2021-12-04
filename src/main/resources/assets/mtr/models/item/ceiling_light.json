@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "mtr:item/ceiling"
+		"layer0": "mtr:item/ceiling_light"
 	}
 }

@@ -15,7 +15,9 @@ public interface Blocks {
 	Block ARRIVAL_PROJECTOR_1_SMALL = new BlockArrivalProjector1Small();
 	Block ARRIVAL_PROJECTOR_1_MEDIUM = new BlockArrivalProjector1Medium();
 	Block ARRIVAL_PROJECTOR_1_LARGE = new BlockArrivalProjector1Large();
-	Block CEILING = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(15));
+	Block CEILING = new BlockCeilingAuto(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(15));
+	Block CEILING_LIGHT = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(15));
+	Block CEILING_NO_LIGHT = new BlockCeiling(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2));
 	Block CLOCK = new BlockClock(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).luminance(5));
 	Block CLOCK_POLE = new BlockClockPole(FabricBlockSettings.of(Material.METAL).requiresTool().hardness(1));
 	Block ESCALATOR_SIDE = new BlockEscalatorSide();
