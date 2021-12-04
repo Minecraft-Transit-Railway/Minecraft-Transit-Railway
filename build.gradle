@@ -1,5 +1,6 @@
 plugins {
     id "fabric-loom" version "0.10-SNAPSHOT"
+    id 'maven-publish'
 }
 
 def default_minecraft_version = "1.16.5"
@@ -75,7 +76,17 @@ tasks.withType(JavaCompile).configureEach {
         it.options.release = 17
     }
 }
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'org.gradle.sample'
+            artifactId = 'library'
+            version = '1.1'
 
+            from components.java
+        }
+    }
+}
 allprojects {
     repositories {
         maven {
