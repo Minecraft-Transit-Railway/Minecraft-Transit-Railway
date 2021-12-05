@@ -1,6 +1,6 @@
 package mtr.item;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.data.RailAngle;

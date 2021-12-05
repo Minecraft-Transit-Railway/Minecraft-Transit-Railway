@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.item.ItemPlacementContext;

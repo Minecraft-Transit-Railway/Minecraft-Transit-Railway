@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.TickableMapper;
-import mapper.Utilities;
+import minecraftmappings.TickableMapper;
+import minecraftmappings.Utilities;
 import mtr.MTR;
 import mtr.data.Platform;
 import mtr.data.RailwayData;

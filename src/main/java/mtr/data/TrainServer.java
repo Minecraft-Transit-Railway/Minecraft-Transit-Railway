@@ -1,6 +1,6 @@
 package mtr.data;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;

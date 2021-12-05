@@ -1,7 +1,7 @@
 package mtr.model;
 
-import mapper.ModelDataWrapper;
-import mapper.ModelMapper;
+import minecraftmappings.ModelDataWrapper;
+import minecraftmappings.ModelMapper;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 

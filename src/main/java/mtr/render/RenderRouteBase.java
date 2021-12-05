@@ -1,6 +1,6 @@
 package mtr.render;
 
-import mapper.BlockEntityRendererMapper;
+import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;

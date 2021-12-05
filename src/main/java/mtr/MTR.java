@@ -1,6 +1,6 @@
 package mtr;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.block.*;
 import mtr.data.Depot;
 import mtr.data.RailwayData;

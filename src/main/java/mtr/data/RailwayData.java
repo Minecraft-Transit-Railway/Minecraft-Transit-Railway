@@ -1,6 +1,6 @@
 package mtr.data;
 
-import mapper.PersistentStateMapper;
+import minecraftmappings.PersistentStateMapper;
 import mtr.MTR;
 import mtr.block.BlockRail;
 import mtr.mixin.PlayerTeleportationStateAccessor;

@@ -2,7 +2,6 @@ package mtr;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mapper.Keys;
 import mtr.data.IGui;
 import mtr.data.RailType;
 

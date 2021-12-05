@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityClientSerializableMapper;
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityClientSerializableMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;

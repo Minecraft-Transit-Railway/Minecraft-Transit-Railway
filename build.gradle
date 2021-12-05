@@ -30,6 +30,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${is_1_16 ? project.yarn_mappings_1_16 : is_1_17 ? project.yarn_mappings_1_17 : project.yarn_mappings_1_18}:v2"
     modImplementation "net.fabricmc:fabric-loader:${is_1_16 ? project.loader_version_1_16 : is_1_17 ? project.loader_version_1_17 : project.loader_version_1_18}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${is_1_16 ? project.fabric_version_1_16 : is_1_17 ? project.fabric_version_1_17 : project.fabric_version_1_18}"
+    modImplementation "com.github.jonafanho:Minecraft-Mappings:${is_1_16 ? project.mappings_version_1_16 : is_1_17 ? project.mappings_version_1_17 : project.mappings_version_1_18}"
     modImplementation "com.terraformersmc:modmenu:${is_1_16 ? project.mod_menu_version_1_16 : is_1_17 ? project.mod_menu_version_1_17 : project.mod_menu_version_1_18}"
     modImplementation "com.github.BlueMap-Minecraft:BlueMapAPI:${is_1_16 ? project.blue_map_version_1_16 : is_1_17 ? project.blue_map_version_1_17 : project.blue_map_version_1_18}"
     modImplementation "de.guntram.mcmod:crowdin-translate:${is_1_16 ? project.crowdin_translate_version_1_16 : is_1_17 ? project.crowdin_translate_version_1_17 : project.crowdin_translate_version_1_18}"
@@ -52,16 +53,10 @@ dependencies {
     include "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
 }
 
-task copyMappingFiles(type: Copy) {
-    outputs.upToDateWhen { false }
-    from is_1_16 ? "src/main/mapper1.16" : is_1_17 ? "src/main/mapper1.17" : "src/main/mapper1.18"
-    into "src/main/java/mapper"
-}
-
 task injectKey(type: Copy) {
     outputs.upToDateWhen { false }
     from "src/main/keys"
-    into "src/main/java/mapper"
+    into "src/main/java/mtr"
     filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 }
 
@@ -91,10 +86,6 @@ tasks.withType(JavaCompile).configureEach {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = project.maven_group
-            artifactId = "library"
-            version = minecraft_version
-
             from components.java
         }
     }
@@ -116,8 +107,7 @@ allprojects {
 
     afterEvaluate {
         for (def task in it.tasks) {
-            if (task != rootProject.tasks.copyMappingFiles && task != rootProject.tasks.injectKey) {
-                task.dependsOn rootProject.tasks.copyMappingFiles
+            if (task != rootProject.tasks.injectKey) {
                 task.dependsOn rootProject.tasks.injectKey
             }
         }

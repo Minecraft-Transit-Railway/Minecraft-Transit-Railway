@@ -1,6 +1,6 @@
 package mtr.gui;
 
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.MinecraftClient;

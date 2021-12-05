@@ -1,6 +1,6 @@
 package mtr.render;
 
-import mapper.BlockEntityRendererMapper;
+import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.BlockRail;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;

@@ -1,8 +1,8 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import mapper.SelectableMapper;
-import mapper.UtilitiesClient;
+import minecraftmappings.SelectableMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;

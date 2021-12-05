@@ -1,7 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;
 import mtr.block.BlockTrainScheduleSensor;

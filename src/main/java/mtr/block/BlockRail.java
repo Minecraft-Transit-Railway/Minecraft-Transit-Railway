@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityClientSerializableMapper;
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityClientSerializableMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.data.Rail;
 import mtr.data.RailAngle;

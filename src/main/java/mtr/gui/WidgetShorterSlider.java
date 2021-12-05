@@ -1,6 +1,6 @@
 package mtr.gui;
 
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.SliderWidget;

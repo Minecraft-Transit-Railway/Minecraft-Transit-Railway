@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import mtr.Items;
 import mtr.MTR;
 import net.minecraft.block.Block;

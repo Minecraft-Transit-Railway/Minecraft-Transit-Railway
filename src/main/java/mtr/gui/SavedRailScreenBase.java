@@ -1,7 +1,7 @@
 package mtr.gui;
 
-import mapper.ScreenMapper;
-import mapper.UtilitiesClient;
+import minecraftmappings.ScreenMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;

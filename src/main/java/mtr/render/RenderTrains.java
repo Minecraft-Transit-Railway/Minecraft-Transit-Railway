@@ -1,7 +1,7 @@
 package mtr.render;
 
-import mapper.Utilities;
-import mapper.UtilitiesClient;
+import minecraftmappings.Utilities;
+import minecraftmappings.UtilitiesClient;
 import mtr.MTRClient;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;

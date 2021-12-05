@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.MTR;
 import mtr.data.TicketSystem;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;

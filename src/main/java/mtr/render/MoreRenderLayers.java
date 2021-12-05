@@ -1,6 +1,6 @@
 package mtr.render;
 
-import mapper.RenderLayerMapper;
+import minecraftmappings.RenderLayerMapper;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 

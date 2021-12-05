@@ -1,6 +1,6 @@
 package mtr.packet;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;

@@ -1,7 +1,7 @@
 package mtr.gui;
 
 import com.mojang.text2speech.Narrator;
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;

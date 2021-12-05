@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.HorizontalFacingBlockMapper;
+import minecraftmappings.HorizontalFacingBlockMapper;
 import mtr.Items;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;

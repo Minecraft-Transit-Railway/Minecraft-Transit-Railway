@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import minecraftmappings.BlockEntityMapper;
 import mtr.MTR;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;

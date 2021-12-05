@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityClientSerializableMapper;
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityClientSerializableMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;

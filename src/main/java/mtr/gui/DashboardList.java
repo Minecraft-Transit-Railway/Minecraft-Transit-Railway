@@ -1,6 +1,6 @@
 package mtr.gui;
 
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import net.minecraft.client.font.TextRenderer;

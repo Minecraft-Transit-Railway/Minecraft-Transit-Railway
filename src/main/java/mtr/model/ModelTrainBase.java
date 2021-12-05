@@ -1,6 +1,6 @@
 package mtr.model;
 
-import mapper.ModelMapper;
+import minecraftmappings.ModelMapper;
 import mtr.data.IGui;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.render.OverlayTexture;

@@ -1,6 +1,6 @@
 package mtr.render;
 
-import mapper.BlockEntityRendererMapper;
+import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;

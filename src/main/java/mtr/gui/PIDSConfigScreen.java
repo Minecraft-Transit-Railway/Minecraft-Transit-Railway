@@ -1,6 +1,6 @@
 package mtr.gui;
 
-import mapper.ScreenMapper;
+import minecraftmappings.ScreenMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.data.IGui;
 import mtr.packet.IPacket;

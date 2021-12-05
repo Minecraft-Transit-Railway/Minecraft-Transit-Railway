@@ -1,6 +1,6 @@
 package mtr.data;
 
-import mapper.Utilities;
+import minecraftmappings.Utilities;
 import mtr.gui.ClientData;
 import mtr.model.TrainClientRegistry;
 import net.minecraft.block.Block;

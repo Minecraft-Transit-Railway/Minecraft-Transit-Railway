@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityProviderMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
