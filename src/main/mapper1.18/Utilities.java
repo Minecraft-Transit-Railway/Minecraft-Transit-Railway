@@ -1,6 +1,5 @@
 package mapper;
 
-import mtr.MTR;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
@@ -19,7 +18,7 @@ import java.util.function.Function;
 public interface Utilities {
 
 	static <T extends BlockEntityMapper> BlockEntityType<T> registerTileEntity(String path, FabricBlockEntityTypeBuilder.Factory<T> factory, Block block) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, MTR.MOD_ID + ":" + path, FabricBlockEntityTypeBuilder.create(factory, block).build());
+		return Registry.register(Registry.BLOCK_ENTITY_TYPE, path, FabricBlockEntityTypeBuilder.create(factory, block).build());
 	}
 
 	static float getYaw(Entity entity) {
