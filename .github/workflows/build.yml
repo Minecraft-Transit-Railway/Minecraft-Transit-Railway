@@ -5,8 +5,8 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [ 17 ]
-        os: [ ubuntu-20.04, windows-latest ]
+        java: [ 16, 17 ]
+        os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -25,6 +25,7 @@ jobs:
       - name: Build 1.17.1
         run: ./gradlew build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build 1.18
+        if: ${{ matrix.java == '17' }}
         run: ./gradlew build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
