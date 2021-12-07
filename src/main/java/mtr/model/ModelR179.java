@@ -1763,18 +1763,15 @@ public class ModelR179 extends ModelTrainBase {
 		return new int[]{-120, -40, 40, 120};
 	}
 
-
 	@Override
 	protected int[] getEndPositions() {
 		return new int[]{-144, 144};
 	}
 
-
 	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}
-
 
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {

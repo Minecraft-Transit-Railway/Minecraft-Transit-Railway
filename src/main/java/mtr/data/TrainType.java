@@ -50,6 +50,7 @@ public enum TrainType {
 	LIGHT_RAIL_5_ORANGE(22, 2, 0),
 	LONDON_UNDERGROUND_1995(19, 2, 0.5F),
 	R179(19, 2, 0),
+	R179_MINI(9, 2, 0),
 	MINECART(1, 1, 0),
 	BASE_2_2(2, 2, 0),
 	BASE_3_2(3, 2, 0),
