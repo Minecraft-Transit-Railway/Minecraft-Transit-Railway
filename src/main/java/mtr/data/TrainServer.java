@@ -1,9 +1,7 @@
 package mtr.data;
 
+import mtr.block.*;
 import minecraftmappings.Utilities;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainRedstoneSensor;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -11,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -120,11 +119,29 @@ public class TrainServer extends Train {
 		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
-				if (state.getBlock() instanceof BlockTrainRedstoneSensor) {
+				final Block block = state.getBlock();
+				if (block instanceof BlockTrainRedstoneSensor) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && ((BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor) entity).matchesFilter(routeId)) {
 						world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
 						Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
+					}
+				}
+				// Repeat with dwellTicks in simulateTrain of Train.java
+				final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+				if ((stopCounter > 0) && (stopCounter < dwellTicks / 2)) {
+					if (block instanceof BlockCargoLoader) {
+						nearBlock(frontPos, nearPos -> {
+							final BlockEntity entity = world.getBlockEntity(nearPos);
+							if (entity instanceof Inventory) {
+								final Inventory entityInventory = (Inventory) entity;
+								if (IBlock.getStatePropertySafe(state, BlockCargoLoader.UNLOAD)) {
+									extract(entityInventory);
+								} else {
+									insert(entityInventory);
+								}
+							}
+						});
 					}
 				}
 			});
@@ -302,4 +319,13 @@ public class TrainServer extends Train {
 			}
 		}
 	}
+
+	private void nearBlock(BlockPos pos, Consumer<BlockPos> callback) {
+		// Follow the South-east rule
+		callback.accept(pos.add( 1, -1,  0));
+		callback.accept(pos.add( 0, -1,  1));
+		callback.accept(pos.add(-1, -1,  0));
+		callback.accept(pos.add( 0, -1, -1));
+	}
+
 }

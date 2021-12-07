@@ -87,6 +87,7 @@ public class TrainClientRegistry {
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("minecart", TrainType.MINECART, null, null, null, null, null, 0x666666, false, 0, 0.5F, false);
+		register("chest_minecart", TrainType.CHEST_MINECART, null, null, null, null, null, 0x666666, false, 0, 0.5F, false);
 	}
 
 	public static TrainProperties getTrainProperties(String key, TrainType baseTrainType) {
