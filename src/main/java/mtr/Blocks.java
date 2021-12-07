@@ -129,4 +129,5 @@ public interface Blocks {
 	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer();
 	Block TRAIN_REDSTONE_SENSOR = new BlockTrainRedstoneSensor();
 	Block TRAIN_SCHEDULE_SENSOR = new BlockTrainScheduleSensor();
+	Block CARGO_LOADER = new BlockCargoLoader();
 }
