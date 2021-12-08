@@ -87,7 +87,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		final NbtCompound tagRidingEntities = nbtCompound.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUuid(key)));
 
-		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot, ItemStack.EMPTY);
+		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
 		if (nbtCompound.contains(KEY_CARGOS, 10)) {
 			Inventories.readNbt(nbtCompound.getCompound(KEY_CARGOS), this.cargo);
 		}
@@ -121,7 +121,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			ridingEntities.add(packet.readUuid());
 		}
 
-		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot, ItemStack.EMPTY);
+		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
 		Inventories.readNbt(packet.readNbt().getCompound(KEY_CARGOS), this.cargo);
 	}
 
@@ -466,7 +466,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					final int takeNum = Math.min(numAvail, numItem);
 					if (slot.isEmpty()) {
 						slot = new ItemStack(putItem.getItem(), takeNum);
-						to.setStack(i, slot);
+						to.setStack(j, slot);
 					} else {
 						slot.increment(takeNum);
 					}
