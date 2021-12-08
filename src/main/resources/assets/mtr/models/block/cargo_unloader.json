@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "minecraft:block/black_wool",
+    "bottom": "minecraft:block/black_wool",
+    "side": "mtr:block/cargo_unloader"
+  }
+}
