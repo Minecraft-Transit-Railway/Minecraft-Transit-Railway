@@ -84,11 +84,13 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		@Override
 		public void readNbtCompound(NbtCompound nbtCompound) {
 			seconds = nbtCompound.getInt(KEY_SECONDS);
+			super.readNbtCompound(nbtCompound);
 		}
 
 		@Override
 		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putInt(KEY_SECONDS, seconds);
+			super.writeNbtCompound(nbtCompound);
 		}
 
 		@Override
