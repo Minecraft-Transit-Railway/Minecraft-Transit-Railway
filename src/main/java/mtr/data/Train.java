@@ -62,7 +62,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
-		this.cargo = DefaultedList.ofSize(baseTrainType.cargo_slot, ItemStack.EMPTY);
+		this.cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -444,7 +444,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					final int numAvail = baseTrainType.cargo_num - slot.getCount();
 					final int takeNum = Math.min(numAvail, numItem);
 					if (slot.isEmpty()) {
-						cargo.set(i, new ItemStack(putItem.getItem(), takeNum));
+						slot = new ItemStack(putItem.getItem(), takeNum);
+						cargo.set(i, slot);
 					} else {
 						slot.increment(takeNum);
 					}
@@ -464,7 +465,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					final int numAvail = slot.getMaxCount() - slot.getCount();
 					final int takeNum = Math.min(numAvail, numItem);
 					if (slot.isEmpty()) {
-						to.setStack(i, new ItemStack(putItem.getItem(), takeNum));
+						slot = new ItemStack(putItem.getItem(), takeNum);
+						to.setStack(i, slot);
 					} else {
 						slot.increment(takeNum);
 					}
