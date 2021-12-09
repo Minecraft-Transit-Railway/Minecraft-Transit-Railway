@@ -3,6 +3,6 @@ Toei 10-300 series 10-650F
 Models,textures:OTSShimajiro
 https://github.com/ShimajiroOTS
 
-Sounds: Simulation Country GAPAN Gepponkoku
+Traction motor sounds: Simulation Country GAPAN Gepponkoku
 https://gepponkoku.nation.jp
 Modified for MTR MOD. 
