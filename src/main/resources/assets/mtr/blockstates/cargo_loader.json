@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"unload=false": {
+			"model": "mtr:block/cargo_loader"
+		},
+		"unload=true": {
+			"model": "mtr:block/cargo_unloader"
+		}
+	}
+}
