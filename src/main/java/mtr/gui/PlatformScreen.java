@@ -9,8 +9,8 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 	private final WidgetShorterSlider sliderDwellTime;
 
 	public PlatformScreen(Platform savedRailBase, DashboardScreen dashboardScreen) {
-		super(savedRailBase, dashboardScreen);
-		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> savedRailBase.setDwellTime(value + 1, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet)), value -> String.format("%ss", (value + 1) / 2F));
+		super(savedRailBase, dashboardScreen, null);
+		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> String.format("%ss", (value + 1) / 2F));
 	}
 
 	@Override
@@ -19,7 +19,13 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 		sliderDwellTime.y = height / 2 + TEXT_FIELD_PADDING / 2;
 		sliderDwellTime.setHeight(SQUARE_SIZE);
 		sliderDwellTime.setValue(savedRailBase.getDwellTime() - 1);
-		addButton(sliderDwellTime);
+		addDrawableChild(sliderDwellTime);
+	}
+
+	@Override
+	public void onClose() {
+		savedRailBase.setDwellTime(sliderDwellTime.getIntValue() + 1, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_PLATFORM, packet));
+		super.onClose();
 	}
 
 	@Override

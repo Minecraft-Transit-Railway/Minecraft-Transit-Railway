@@ -1,30 +1,31 @@
 package mtr.gui;
 
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
+import java.util.function.Function;
+
 public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	private final int maxValue;
-	private final OnSlide onSlide;
-	private final SetMessage setMessage;
+	private final Function<Integer, String> setMessage;
 
 	private static final int SLIDER_WIDTH = 6;
 
-	public WidgetShorterSlider(int x, int width, int maxValue, OnSlide onSlide, SetMessage setMessage) {
+	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage) {
 		super(x, 0, width, 0, new LiteralText(""), 0);
 		this.maxValue = maxValue;
-		this.onSlide = onSlide;
 		this.setMessage = setMessage;
 	}
 
 	@Override
 	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final MinecraftClient client = MinecraftClient.getInstance();
-		client.getTextureManager().bindTexture(WIDGETS_TEXTURE);
+		UtilitiesClient.beginDrawingTexture(WIDGETS_TEXTURE);
 
 		drawTexture(matrices, x, y, 0, 46, width / 2, height / 2);
 		drawTexture(matrices, x, y + height / 2, 0, 66 - height / 2, width / 2, height / 2);
@@ -43,12 +44,11 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 
 	@Override
 	protected void updateMessage() {
-		setMessage(new LiteralText(setMessage.setMessage(getIntValue())));
+		setMessage(new LiteralText(setMessage.apply(getIntValue())));
 	}
 
 	@Override
 	protected void applyValue() {
-		onSlide.onSlide(getIntValue());
 	}
 
 	public void setValue(int valueInt) {
@@ -60,17 +60,7 @@ public class WidgetShorterSlider extends SliderWidget implements IGui {
 		this.height = height;
 	}
 
-	private int getIntValue() {
+	public int getIntValue() {
 		return (int) Math.round(value * maxValue);
-	}
-
-	@FunctionalInterface
-	public interface OnSlide {
-		void onSlide(int value);
-	}
-
-	@FunctionalInterface
-	public interface SetMessage {
-		String setMessage(int value);
 	}
 }

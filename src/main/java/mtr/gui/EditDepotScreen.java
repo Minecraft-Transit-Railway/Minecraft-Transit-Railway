@@ -1,245 +1,135 @@
 package mtr.gui;
 
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
-import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.RenderTrains;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public class EditDepotScreen extends Screen implements IGui, IPacket {
+public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
-	private boolean addingTrain;
-
-	private final Depot depot;
-	private final DashboardScreen dashboardScreen;
 	private final int sliderX;
 	private final int sliderWidthWithText;
 	private final int rightPanelsX;
 	private final Map<Long, Siding> sidingsInDepot;
 
-	private final Text depotNameText = new TranslatableText("gui.mtr.depot_name");
-	private final Text depotColorText = new TranslatableText("gui.mtr.depot_color");
-
-	private final TextFieldWidget textFieldName;
-	private final TextFieldWidget textFieldColor;
-
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final ButtonWidget buttonEditInstructions;
 	private final ButtonWidget buttonGenerateRoute;
-	private final ButtonWidget buttonDone;
-
-	private final DashboardList addNewList;
-	private final DashboardList trainList;
+	private final ButtonWidget buttonClearTrains;
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
-	private static final int FIND_PATH_WIDTH = 80;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
 	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
-		super(new LiteralText(""));
-		this.depot = depot;
-		this.dashboardScreen = dashboardScreen;
-		sidingsInDepot = ClientData.sidingsInDepot.containsKey(depot.id) ? ClientData.sidingsInDepot.get(depot.id) : new HashMap<>();
+		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
+
+		sidingsInDepot = ClientData.DATA_CACHE.requestDepotIdToSidings(depot.id);
 
 		textRenderer = MinecraftClient.getInstance().textRenderer;
-		textFieldName = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-		textFieldColor = new TextFieldWidget(textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
-
-		client = MinecraftClient.getInstance();
-		sliderX = client.textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
-		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + client.textRenderer.getWidth(getSliderString(0));
-		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + client.textRenderer.getWidth(getSliderString(1));
+		sliderX = textRenderer.getWidth(getTimeString(0)) + TEXT_PADDING * 2;
+		sliderWidthWithText = SLIDER_WIDTH + TEXT_PADDING + textRenderer.getWidth(getSliderString(0));
+		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + textRenderer.getWidth(getSliderString(1));
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			final int index = i;
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, value -> depot.setFrequencies(value, index, packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet)), EditDepotScreen::getSliderString);
+			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString);
 		}
 
-		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> setIsSelecting(true));
+		buttonEditInstructions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.edit_instructions"), button -> {
+			if (client != null) {
+				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
+				Collections.sort(routes);
+				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
+			}
+		});
 		buttonGenerateRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.refresh_path"), button -> {
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
-		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> setIsSelecting(false));
-
-		addNewList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdded, null, null);
-		trainList = new DashboardList(this::addButton, this::addChild, null, null, null, this::onSort, null, this::onRemove, () -> depot.routeIds);
+		buttonClearTrains = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.clear_trains"), button -> {
+			sidingsInDepot.values().forEach(Siding::clearTrains);
+			PacketTrainDataGuiClient.clearTrainsC2S(sidingsInDepot.values());
+		});
 	}
 
 	@Override
 	protected void init() {
-		super.init();
-		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
-		IDrawing.setPositionAndWidth(textFieldName, rightPanelsX + TEXT_FIELD_PADDING / 2, yStart, width / 4 * 3 - TEXT_FIELD_PADDING - rightPanelsX);
-		IDrawing.setPositionAndWidth(textFieldColor, width / 4 * 3 + TEXT_FIELD_PADDING / 2, yStart, width / 4 - TEXT_FIELD_PADDING);
+		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
-		textFieldName.setMaxLength(DashboardScreen.MAX_NAME_LENGTH);
-		textFieldName.setText(depot.name);
-		textFieldColor.setMaxLength(DashboardScreen.MAX_COLOR_ZONE_LENGTH);
-		textFieldColor.setText(DashboardScreen.colorIntToString(depot.color));
-		textFieldColor.setChangedListener(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
-			if (!newText.equals(text)) {
-				textFieldColor.setText(newText);
-			}
-		});
-
-		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, width - rightPanelsX - FIND_PATH_WIDTH);
-		IDrawing.setPositionAndWidth(buttonGenerateRoute, width - FIND_PATH_WIDTH, PANELS_START, FIND_PATH_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDone, (width - PANEL_WIDTH) / 2, height - SQUARE_SIZE * 2, PANEL_WIDTH);
-
-		addNewList.y = SQUARE_SIZE * 2;
-		addNewList.height = height - SQUARE_SIZE * 5;
-		addNewList.width = PANEL_WIDTH;
-
-		trainList.y = SQUARE_SIZE * 2;
-		trainList.height = height - SQUARE_SIZE * 5;
-		trainList.width = PANEL_WIDTH;
+		final int buttonWidth = (width - rightPanelsX) / 2;
+		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
+		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth);
+		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
 
 		for (WidgetShorterSlider slider : sliders) {
-			addButton(slider);
+			addDrawableChild(slider);
 		}
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			sliders[i].setValue(depot.getFrequency(i));
+			sliders[i].setValue(data.getFrequency(i));
 		}
 
-		addNewList.init();
-		trainList.init();
-		setIsSelecting(false);
-
-		addChild(textFieldName);
-		addChild(textFieldColor);
-		addButton(buttonEditInstructions);
-		addButton(buttonGenerateRoute);
-		addButton(buttonDone);
+		addDrawableChild(buttonEditInstructions);
+		addDrawableChild(buttonGenerateRoute);
+		addDrawableChild(buttonClearTrains);
 	}
 
 	@Override
 	public void tick() {
-		textFieldName.tick();
-		textFieldColor.tick();
-		addNewList.tick();
-		trainList.tick();
-
-		addNewList.setData(ClientData.routes, false, false, false, false, true, false);
-		trainList.setData(depot.routeIds.stream().map(ClientData.routeIdMap::get).filter(Objects::nonNull).collect(Collectors.toList()), false, false, false, true, false, true);
-
-		buttonGenerateRoute.active = depot.clientPathGenerationSuccessfulSegments >= 0;
+		super.tick();
+		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 	}
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		try {
-			if (addingTrain) {
-				renderBackground(matrices);
-				addNewList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				trainList.render(matrices, textRenderer, mouseX, mouseY, delta);
-				super.render(matrices, mouseX, mouseY, delta);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.edit_instructions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_LIGHT_GRAY);
-			} else {
-				renderBackground(matrices);
-				drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
-				textFieldName.render(matrices, mouseX, mouseY, delta);
-				textFieldColor.render(matrices, mouseX, mouseY, delta);
+			renderBackground(matrices);
+			drawVerticalLine(matrices, rightPanelsX - 1, -1, height, ARGB_WHITE_TRANSLUCENT);
+			renderTextFields(matrices);
 
-				final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
-				for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-					drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
-					sliders[i].y = SQUARE_SIZE + lineHeight * i;
-					sliders[i].setHeight(lineHeight);
-				}
-				super.render(matrices, mouseX, mouseY, delta);
-
-				drawCenteredText(matrices, textRenderer, depotNameText, width / 8 * 3 + rightPanelsX / 2, TEXT_PADDING, ARGB_WHITE);
-				drawCenteredText(matrices, textRenderer, depotColorText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
-
-				textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-
-				final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
-				for (int i = 0; i < stringSplit.length; i++) {
-					textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
-				}
-
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			final int lineHeight = Math.min(SQUARE_SIZE, (height - SQUARE_SIZE) / Depot.HOURS_IN_DAY);
+			for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+				drawStringWithShadow(matrices, textRenderer, getTimeString(i), TEXT_PADDING, SQUARE_SIZE + lineHeight * i + (int) ((lineHeight - TEXT_HEIGHT) / 2F), ARGB_WHITE);
+				sliders[i].y = SQUARE_SIZE + lineHeight * i;
+				sliders[i].setHeight(lineHeight);
 			}
+			super.render(matrices, mouseX, mouseY, delta);
+
+			textRenderer.draw(matrices, new TranslatableText("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+
+			final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
+			for (int i = 0; i < stringSplit.length; i++) {
+				textRenderer.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+			}
+
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
-		addNewList.mouseMoved(mouseX, mouseY);
-		trainList.mouseMoved(mouseX, mouseY);
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		addNewList.mouseScrolled(mouseX, mouseY, amount);
-		trainList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled(mouseX, mouseY, amount);
-	}
-
-	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			client.openScreen(dashboardScreen);
+		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+			data.setFrequency(sliders[i].getIntValue(), i);
 		}
-
-		depot.name = textFieldName.getText();
-		depot.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
-		depot.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
-	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return false;
-	}
-
-	private void setIsSelecting(boolean isSelecting) {
-		addingTrain = isSelecting;
-
-		for (final WidgetShorterSlider slider : sliders) {
-			slider.visible = !addingTrain;
-		}
-		addNewList.x = addingTrain ? width / 2 - PANEL_WIDTH - SQUARE_SIZE : width;
-		trainList.x = addingTrain ? width / 2 + SQUARE_SIZE : width;
-		buttonEditInstructions.visible = !addingTrain;
-		buttonGenerateRoute.visible = !addingTrain;
-		buttonDone.visible = addingTrain;
-	}
-
-	private void onAdded(NameColorDataBase data, int index) {
-		depot.routeIds.add(data.id);
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
-	}
-
-	private void onSort() {
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
-	}
-
-	private void onRemove(NameColorDataBase data, int index) {
-		depot.routeIds.remove(index);
-		depot.setRouteIds(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
+		data.setData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 
 	private Text getSuccessfulSegmentsText() {
-		final int successfulSegments = depot.clientPathGenerationSuccessfulSegments;
+		final int successfulSegments = data.clientPathGenerationSuccessfulSegments;
 
 		if (successfulSegments < 0) {
 			return new TranslatableText("gui.mtr.generating_path");
@@ -248,10 +138,10 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 		} else {
 			final List<String> stationNames = new ArrayList<>();
 			final List<String> routeNames = new ArrayList<>();
-			final String depotName = IGui.textOrUntitled(IGui.formatStationName(depot.name));
+			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RenderTrains.useRoutesAndStationsFromIndex(0, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -261,9 +151,9 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				return new TranslatableText("gui.mtr.path_not_found_between", routeNames.get(0), depotName, stationNames.get(0));
 			} else {
 				int sum = 0;
-				for (int i = 0; i < depot.routeIds.size(); i++) {
-					final Route thisRoute = ClientData.routeIdMap.get(depot.routeIds.get(i));
-					final Route nextRoute = i < depot.routeIds.size() - 1 ? ClientData.routeIdMap.get(depot.routeIds.get(i + 1)) : null;
+				for (int i = 0; i < data.routeIds.size(); i++) {
+					final Route thisRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(i));
+					final Route nextRoute = i < data.routeIds.size() - 1 ? ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(i + 1)) : null;
 					if (thisRoute != null) {
 						sum += thisRoute.platformIds.size();
 						if (!thisRoute.platformIds.isEmpty() && nextRoute != null && !nextRoute.platformIds.isEmpty() && thisRoute.platformIds.get(thisRoute.platformIds.size() - 1).equals(nextRoute.platformIds.get(0))) {
@@ -275,9 +165,13 @@ public class EditDepotScreen extends Screen implements IGui, IPacket {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableText("gui.mtr.path_found");
 				} else {
-					RenderTrains.useRoutesAndStationsFromIndex(successfulSegments - 2, depot.routeIds, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
-						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation == null ? "" : nextStation.name)));
+						if (nextStation == null) {
+							RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 1, data.routeIds, ClientData.DATA_CACHE, (thisRoute1, nextRoute1, thisStation1, nextStation1, lastStation1) -> stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation1.name))));
+						} else {
+							stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation.name)));
+						}
 						routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 					});
 					stationNames.add("-");

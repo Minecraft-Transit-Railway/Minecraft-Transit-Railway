@@ -1,0 +1,30 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"tag": "c:iron_ingots"
+		},
+		{
+			"tag": "c:iron_ingots"
+		},
+		{
+			"tag": "c:redstone_dusts"
+		},
+		{
+			"item": "minecraft:smooth_stone"
+		},
+		{
+			"item": "minecraft:smooth_stone"
+		},
+		{
+			"item": "minecraft:smooth_stone"
+		},
+		{
+			"item": "mtr:rail"
+		}
+	],
+	"result": {
+		"item": "mtr:train_announcer",
+		"count": 3
+	}
+}

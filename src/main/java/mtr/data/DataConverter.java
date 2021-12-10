@@ -6,4 +6,10 @@ public final class DataConverter extends NameColorDataBase {
 		this.name = name;
 		this.color = color;
 	}
+
+	public DataConverter(long id, String name, int color) {
+		super(id);
+		this.name = name;
+		this.color = color;
+	}
 }

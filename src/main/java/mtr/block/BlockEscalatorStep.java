@@ -76,11 +76,6 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
-	public void onLandedUpon(World world, BlockPos pos, Entity entity, float distance) {
-		super.onLandedUpon(world, pos, entity, distance * 0.5F);
-	}
-
-	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean direction = !IBlock.getStatePropertySafe(state, DIRECTION);
@@ -96,6 +91,11 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 				block.update(world, sidePos, blockFacing.getOpposite(), direction);
 			}
 		});
+	}
+
+	@Override
+	public boolean softenLanding() {
+		return true;
 	}
 
 	@Override

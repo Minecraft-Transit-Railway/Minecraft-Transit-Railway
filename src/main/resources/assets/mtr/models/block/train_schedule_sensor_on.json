@@ -1,0 +1,32 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/smooth_stone",
+		"side": "mtr:block/train_schedule_sensor_on"
+	},
+	"elements": [
+		{
+			"from": [ 0, 0, 0 ],
+			"to": [ 16, 16, 16 ],
+			"faces": {
+				"down": { "texture": "#particle", "cullface": "down" },
+				"up": { "texture": "#particle", "cullface": "up" },
+				"east": { "texture": "#particle", "cullface": "east" },
+				"west": { "texture": "#particle", "cullface": "west" },
+				"north": { "texture": "#particle", "cullface": "north" },
+				"south": { "texture": "#particle", "cullface": "south" }
+			}
+		},
+		{
+			"from": [ -0.05, 0, -0.05 ],
+			"to": [ 16.05, 16, 16.05 ],
+			"shade": false,
+			"faces": {
+				"east": { "texture": "#side", "cullface": "east" },
+				"west": { "texture": "#side", "cullface": "west" },
+				"north": { "texture": "#side", "cullface": "north" },
+				"south": { "texture": "#side", "cullface": "south" }
+			}
+		}
+	]
+}

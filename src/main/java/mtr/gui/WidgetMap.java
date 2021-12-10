@@ -1,7 +1,8 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import minecraftmappings.SelectableMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,7 +13,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.TranslatableText;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class WidgetMap implements Drawable, Element, IGui {
+public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 
 	private int x;
 	private int y;
@@ -76,10 +76,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final Tessellator tessellator = Tessellator.getInstance();
 		final BufferBuilder buffer = tessellator.getBuffer();
+		UtilitiesClient.beginDrawingRectangle(buffer);
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-		buffer.begin(7, VertexFormats.POSITION_COLOR);
 
 		final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
 		final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
@@ -97,16 +95,16 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 		try {
 			if (showStations) {
-				ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
-				for (final Station station : ClientData.stations) {
+				ClientData.DATA_CACHE.posToPlatforms.forEach((platformPos, platforms) -> drawRectangleFromWorldCoords(buffer, platformPos.getX(), platformPos.getZ(), platformPos.getX() + 1, platformPos.getZ() + 1, ARGB_WHITE));
+				for (final Station station : ClientData.STATIONS) {
 					if (AreaBase.nonNullCorners(station)) {
 						drawRectangleFromWorldCoords(buffer, station.corner1, station.corner2, ARGB_BLACK_TRANSLUCENT + station.color);
 					}
 				}
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> drawRectangleFromWorldCoords(buffer, x1, z1, x2, z2, ARGB_WHITE), true);
 			} else {
-				ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
-				for (final Depot depot : ClientData.depots) {
+				ClientData.DATA_CACHE.posToSidings.forEach((sidingPos, sidings) -> drawRectangleFromWorldCoords(buffer, sidingPos.getX(), sidingPos.getZ(), sidingPos.getX() + 1, sidingPos.getZ() + 1, ARGB_WHITE));
+				for (final Depot depot : ClientData.DEPOTS) {
 					if (AreaBase.nonNullCorners(depot)) {
 						drawRectangleFromWorldCoords(buffer, depot.corner1, depot.corner2, ARGB_BLACK_TRANSLUCENT + depot.color);
 					}
@@ -130,9 +128,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 
 		tessellator.draw();
-		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
-
+		UtilitiesClient.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
@@ -142,9 +139,9 @@ public class WidgetMap implements Drawable, Element, IGui {
 		if (scale >= 8) {
 			try {
 				if (showStations) {
-					ClientData.platformsWithOffset.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+					ClientData.DATA_CACHE.posToPlatforms.forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
 				} else {
-					ClientData.sidingsWithOffset.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
+					ClientData.DATA_CACHE.posToSidings.forEach((sidingPos, sidings) -> drawSavedRail(matrices, sidingPos, sidings));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -153,7 +150,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		if (scale >= 2) {
 			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 			if (showStations) {
-				for (final Station station : ClientData.stations) {
+				for (final Station station : ClientData.STATIONS) {
 					final BlockPos pos = station.getCenter();
 					if (pos != null) {
 						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
@@ -161,7 +158,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 					}
 				}
 			} else {
-				for (final Depot depot : ClientData.depots) {
+				for (final Depot depot : ClientData.DEPOTS) {
 					final BlockPos pos = depot.getCenter();
 					if (pos != null) {
 						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
@@ -284,7 +281,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 
 	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		try {
-			(isPlatform ? ClientData.platformsWithOffset : ClientData.sidingsWithOffset).forEach((savedRailPos, savedRails) -> {
+			(isPlatform ? ClientData.DATA_CACHE.posToPlatforms : ClientData.DATA_CACHE.posToSidings).forEach((savedRailPos, savedRails) -> {
 				final int savedRailCount = savedRails.size();
 				for (int i = 0; i < savedRailCount; i++) {
 					final float left = savedRailPos.getX();
@@ -337,7 +334,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final double x2 = Math.max(xA, xB);
 		final double y2 = Math.max(yA, yB);
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			IDrawing.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
+			IDrawing.drawRectangle(buffer, x + Math.max(0, x1), y + y1, x + x2, y + y2, color);
 		}
 	}
 

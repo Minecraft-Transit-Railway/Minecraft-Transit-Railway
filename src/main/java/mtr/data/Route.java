@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.EnumHelper;
 import mtr.block.BlockRail;
 import mtr.path.PathDataDeleteThisLater;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -15,20 +16,20 @@ import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
 
-	private String customDestination;
-	private boolean shuffleTrains;
+	public RouteType routeType;
+	public boolean isLightRailRoute;
+	public CircularState circularState;
+	public String lightRailRouteNumber;
 
 	public final List<Long> platformIds;
 
 	private final List<PathDataDeleteThisLater> path;
 
-	public static final int HOURS_IN_DAY = 24;
-	public static final int TICKS_PER_HOUR = 1000;
-	public static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
-
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
-	private static final String KEY_CUSTOM_DESTINATION = "custom_destination";
-	private static final String KEY_SHUFFLE_TRAINS = "shuffle_trains";
+	private static final String KEY_ROUTE_TYPE = "route_type";
+	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
+	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
+	private static final String KEY_CIRCULAR_STATE = "circular_state";
 	private static final String KEY_PATH = "path";
 
 	public Route() {
@@ -39,8 +40,10 @@ public final class Route extends NameColorDataBase implements IGui {
 		super(id);
 		platformIds = new ArrayList<>();
 		path = new ArrayList<>();
-		customDestination = "";
-		shuffleTrains = true;
+		routeType = RouteType.NORMAL;
+		isLightRailRoute = false;
+		circularState = CircularState.NONE;
+		lightRailRouteNumber = "";
 	}
 
 	public Route(NbtCompound nbtCompound) {
@@ -52,8 +55,10 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(platformId);
 		}
 
-		customDestination = nbtCompound.getString(KEY_CUSTOM_DESTINATION);
-		shuffleTrains = nbtCompound.getBoolean(KEY_SHUFFLE_TRAINS);
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, nbtCompound.getString(KEY_ROUTE_TYPE));
+		isLightRailRoute = nbtCompound.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		lightRailRouteNumber = nbtCompound.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
+		circularState = EnumHelper.valueOf(CircularState.NONE, nbtCompound.getString(KEY_CIRCULAR_STATE));
 
 		path = new ArrayList<>();
 		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
@@ -71,8 +76,10 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(packet.readLong());
 		}
 
-		customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
-		shuffleTrains = packet.readBoolean();
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readString(PACKET_STRING_READ_LENGTH));
+		isLightRailRoute = packet.readBoolean();
+		lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
+		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readString(PACKET_STRING_READ_LENGTH));
 
 		path = new ArrayList<>();
 		final int pathLength = packet.readInt();
@@ -86,8 +93,10 @@ public final class Route extends NameColorDataBase implements IGui {
 		final NbtCompound nbtCompound = super.toCompoundTag();
 		nbtCompound.putLongArray(KEY_PLATFORM_IDS, platformIds);
 
-		nbtCompound.putString(KEY_CUSTOM_DESTINATION, customDestination);
-		nbtCompound.putBoolean(KEY_SHUFFLE_TRAINS, shuffleTrains);
+		nbtCompound.putString(KEY_ROUTE_TYPE, routeType.toString());
+		nbtCompound.putBoolean(KEY_IS_LIGHT_RAIL_ROUTE, isLightRailRoute);
+		nbtCompound.putString(KEY_LIGHT_RAIL_ROUTE_NUMBER, lightRailRouteNumber);
+		nbtCompound.putString(KEY_CIRCULAR_STATE, circularState.toString());
 
 		final NbtCompound tagPath = new NbtCompound();
 		for (int i = 0; i < path.size(); i++) {
@@ -104,8 +113,10 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
 
-		packet.writeString(customDestination);
-		packet.writeBoolean(shuffleTrains);
+		packet.writeString(routeType.toString());
+		packet.writeBoolean(isLightRailRoute);
+		packet.writeString(lightRailRouteNumber);
+		packet.writeString(circularState.toString());
 
 		packet.writeInt(path.size());
 		path.forEach(pathDataDeleteThisLater -> pathDataDeleteThisLater.writePacket(packet));
@@ -121,11 +132,13 @@ public final class Route extends NameColorDataBase implements IGui {
 					platformIds.add(packet.readLong());
 				}
 				break;
-			case KEY_CUSTOM_DESTINATION:
-				customDestination = packet.readString(PACKET_STRING_READ_LENGTH);
-				break;
-			case KEY_SHUFFLE_TRAINS:
-				shuffleTrains = packet.readBoolean();
+			case KEY_IS_LIGHT_RAIL_ROUTE:
+				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readString(PACKET_STRING_READ_LENGTH));
+				isLightRailRoute = packet.readBoolean();
+				lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
+				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readString(PACKET_STRING_READ_LENGTH));
 				break;
 			default:
 				super.update(key, packet);
@@ -142,11 +155,23 @@ public final class Route extends NameColorDataBase implements IGui {
 		sendPacket.accept(packet);
 	}
 
+	public void setExtraData(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(KEY_IS_LIGHT_RAIL_ROUTE);
+		packet.writeString(name);
+		packet.writeInt(color);
+		packet.writeString(routeType.toString());
+		packet.writeBoolean(isLightRailRoute);
+		packet.writeString(lightRailRouteNumber);
+		packet.writeString(circularState.toString());
+		sendPacket.accept(packet);
+	}
+
 	// TODO temporary code start
 	public void generateRails(World world, RailwayData railwayData) {
 		path.forEach(pathDataDeleteThisLater -> {
-			final Pos3f pos3f = pathDataDeleteThisLater.getPosition(0);
-			final BlockEntity entity = world.getBlockEntity(new BlockPos(pos3f.x, pos3f.y, pos3f.z));
+			final BlockEntity entity = world.getBlockEntity(new BlockPos(pathDataDeleteThisLater.getPosition(0)));
 			if (entity instanceof BlockRail.TileEntityRail) {
 				((BlockRail.TileEntityRail) entity).railMap.forEach((blockPos, rail) -> {
 					railwayData.addRail(entity.getPos(), blockPos, rail, false);
@@ -157,22 +182,51 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 	// TODO temporary code end
 
-	public static class ScheduleEntry {
+	public static class ScheduleEntry implements Comparable<ScheduleEntry> {
 
-		public final float arrivalMillis;
-		public final float departureMillis;
-		public final TrainType trainType;
+		public final long arrivalMillis;
+		public final int trainCars;
 		public final long platformId;
+		public final long routeId;
 		public final String destination;
 		public final boolean isTerminating;
 
-		public ScheduleEntry(float arrivalMillis, float departureMillis, TrainType trainType, long platformId, String destination, boolean isTerminating) {
+		public ScheduleEntry(long arrivalMillis, int trainCars, long platformId, long routeId, String destination, boolean isTerminating) {
 			this.arrivalMillis = arrivalMillis;
-			this.departureMillis = departureMillis;
-			this.trainType = trainType;
+			this.trainCars = trainCars;
 			this.platformId = platformId;
+			this.routeId = routeId;
 			this.destination = destination;
 			this.isTerminating = isTerminating;
 		}
+
+		public ScheduleEntry(PacketByteBuf packet) {
+			arrivalMillis = packet.readLong();
+			trainCars = packet.readInt();
+			platformId = packet.readLong();
+			routeId = packet.readLong();
+			destination = packet.readString(PACKET_STRING_READ_LENGTH);
+			isTerminating = packet.readBoolean();
+		}
+
+		public void writePacket(PacketByteBuf packet) {
+			packet.writeLong(arrivalMillis);
+			packet.writeInt(trainCars);
+			packet.writeLong(platformId);
+			packet.writeLong(routeId);
+			packet.writeString(destination);
+			packet.writeBoolean(isTerminating);
+		}
+
+		@Override
+		public int compareTo(ScheduleEntry o) {
+			if (arrivalMillis == o.arrivalMillis) {
+				return destination.compareTo(o.destination);
+			} else {
+				return arrivalMillis > o.arrivalMillis ? 1 : -1;
+			}
+		}
 	}
+
+	public enum CircularState {NONE, CLOCKWISE, ANTICLOCKWISE}
 }

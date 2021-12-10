@@ -1,8 +1,11 @@
 package mtr.gui;
 
+import com.mojang.text2speech.Narrator;
+import minecraftmappings.UtilitiesClient;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -10,9 +13,11 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix3f;
@@ -28,15 +33,15 @@ public interface IDrawing {
 		drawStringWithFont(matrices, textRenderer, immediate, text, IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, x, y, 1, IGui.ARGB_WHITE, true, light, null);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float scale, int textColor, boolean shadow, int light, IGui.DrawingCallback drawingCallback) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float scale, int textColor, boolean shadow, int light, DrawingCallback drawingCallback) {
 		drawStringWithFont(matrices, textRenderer, immediate, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, -1, -1, scale, textColor, shadow, light, drawingCallback);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, IGui.DrawingCallback drawingCallback) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, DrawingCallback drawingCallback) {
 		drawStringWithFont(matrices, textRenderer, immediate, text, horizontalAlignment, verticalAlignment, horizontalAlignment, x, y, maxWidth, maxHeight, scale, textColor, shadow, light, drawingCallback);
 	}
 
-	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, IGui.DrawingCallback drawingCallback) {
+	static void drawStringWithFont(MatrixStack matrices, TextRenderer textRenderer, VertexConsumerProvider.Immediate immediate, String text, IGui.HorizontalAlignment horizontalAlignment, IGui.VerticalAlignment verticalAlignment, IGui.HorizontalAlignment xAlignment, float x, float y, float maxWidth, float maxHeight, float scale, int textColor, boolean shadow, int light, DrawingCallback drawingCallback) {
 		final Style style = Config.useMTRFont() ? Style.EMPTY.withFont(new Identifier(MTR.MOD_ID, "mtr")) : Style.EMPTY;
 
 		while (text.contains("||")) {
@@ -95,7 +100,9 @@ public interface IDrawing {
 			final int g = (int) (((textColor >> 8) & 0xFF) * shade);
 			final int b = (int) ((textColor & 0xFF) * shade);
 
-			textRenderer.draw(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, matrices.peek().getModel(), immediate, false, 0, light);
+			if (immediate != null) {
+				textRenderer.draw(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, UtilitiesClient.getModel(matrices.peek()), immediate, false, 0, light);
+			}
 
 			if (isCJK) {
 				matrices.pop();
@@ -145,8 +152,8 @@ public interface IDrawing {
 
 	static void drawTexture(MatrixStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		final Vec3i vec3i = facing.getVector();
-		final Matrix4f matrix4f = matrices.peek().getModel();
-		final Matrix3f matrix3f = matrices.peek().getNormal();
+		final Matrix4f matrix4f = UtilitiesClient.getModel(matrices.peek());
+		final Matrix3f matrix3f = UtilitiesClient.getNormal(matrices.peek());
 		final int a = (color >> 24) & 0xFF;
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;
@@ -164,5 +171,25 @@ public interface IDrawing {
 		widget.x = x;
 		widget.y = y;
 		widget.setWidth(widgetWidth);
+	}
+
+	static void narrateOrAnnounce(String message) {
+		String newMessage = IGui.formatStationName(message).replace("  ", " ");
+		if (!newMessage.isEmpty()) {
+			if (Config.useTTSAnnouncements()) {
+				Narrator.getNarrator().say(newMessage, true);
+			}
+			if (Config.showAnnouncementMessages()) {
+				final PlayerEntity player = MinecraftClient.getInstance().player;
+				if (player != null) {
+					player.sendMessage(Text.of(newMessage), false);
+				}
+			}
+		}
+	}
+
+	@FunctionalInterface
+	interface DrawingCallback {
+		void drawingCallback(float x1, float y1, float x2, float y2);
 	}
 }

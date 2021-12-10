@@ -1,25 +1,23 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class DashboardList implements IGui {
 
@@ -28,7 +26,7 @@ public class DashboardList implements IGui {
 	public int width;
 	public int height;
 
-	private final TextFieldWidget textFieldSearch;
+	private final WidgetBetterTextField textFieldSearch;
 
 	private final TexturedButtonWidget buttonPrevPage;
 	private final TexturedButtonWidget buttonNextPage;
@@ -41,8 +39,8 @@ public class DashboardList implements IGui {
 	private final TexturedButtonWidget buttonAdd;
 	private final TexturedButtonWidget buttonDelete;
 
-	private final RegisterButton registerButton;
-	private final AddChild addChild;
+	private final Supplier<String> getSearch;
+	private final Consumer<String> setSearch;
 
 	private List<NameColorDataBase> dataSorted = new ArrayList<>();
 	private final Map<Integer, NameColorDataBase> dataFiltered = new HashMap<>();
@@ -57,10 +55,10 @@ public class DashboardList implements IGui {
 
 	private static final int TOP_OFFSET = SQUARE_SIZE + TEXT_FIELD_PADDING;
 
-	public <T> DashboardList(RegisterButton registerButton, AddChild addChild, OnClick onFind, OnClick onDrawArea, OnClick onEdit, Runnable onSort, OnClick onAdd, OnClick onDelete, GetList<T> getList) {
-		this.registerButton = registerButton;
-		this.addChild = addChild;
-		textFieldSearch = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+	public <T> DashboardList(BiConsumer<NameColorDataBase, Integer> onFind, BiConsumer<NameColorDataBase, Integer> onDrawArea, BiConsumer<NameColorDataBase, Integer> onEdit, Runnable onSort, BiConsumer<NameColorDataBase, Integer> onAdd, BiConsumer<NameColorDataBase, Integer> onDelete, Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch) {
+		this.getSearch = getSearch;
+		this.setSearch = setSearch;
+		textFieldSearch = new WidgetBetterTextField(null, new TranslatableText("gui.mtr.search").getString());
 		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
@@ -78,10 +76,13 @@ public class DashboardList implements IGui {
 		buttonDelete = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}
 
-	public void init() {
+	public void init(Consumer<ClickableWidget> addDrawableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
+
+		textFieldSearch.setChangedListener(setSearch);
+		textFieldSearch.setText(getSearch.get());
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -91,18 +92,18 @@ public class DashboardList implements IGui {
 		buttonAdd.visible = false;
 		buttonDelete.visible = false;
 
-		registerButton.registerButton(buttonPrevPage);
-		registerButton.registerButton(buttonNextPage);
+		addDrawableChild.accept(buttonPrevPage);
+		addDrawableChild.accept(buttonNextPage);
 
-		registerButton.registerButton(buttonFind);
-		registerButton.registerButton(buttonDrawArea);
-		registerButton.registerButton(buttonEdit);
-		registerButton.registerButton(buttonUp);
-		registerButton.registerButton(buttonDown);
-		registerButton.registerButton(buttonAdd);
-		registerButton.registerButton(buttonDelete);
+		addDrawableChild.accept(buttonFind);
+		addDrawableChild.accept(buttonDrawArea);
+		addDrawableChild.accept(buttonEdit);
+		addDrawableChild.accept(buttonUp);
+		addDrawableChild.accept(buttonDown);
+		addDrawableChild.accept(buttonAdd);
+		addDrawableChild.accept(buttonDelete);
 
-		addChild.addChild(textFieldSearch);
+		addDrawableChild.accept(textFieldSearch);
 	}
 
 	public void tick() {
@@ -112,7 +113,6 @@ public class DashboardList implements IGui {
 		textFieldSearch.x = x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2;
 
 		final String text = textFieldSearch.getText();
-		textFieldSearch.setSuggestion(text.isEmpty() ? new TranslatableText("gui.mtr.search").getString() : "");
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
 			if (dataSorted.get(i).name.toLowerCase().contains(text.toLowerCase())) {
@@ -141,9 +141,8 @@ public class DashboardList implements IGui {
 		this.hasDelete = hasDelete;
 	}
 
-	public void render(MatrixStack matrices, TextRenderer textRenderer, int mouseX, int mouseY, float delta) {
+	public void render(MatrixStack matrices, TextRenderer textRenderer) {
 		DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
-		textFieldSearch.render(matrices, mouseX, mouseY, delta);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
@@ -154,14 +153,10 @@ public class DashboardList implements IGui {
 
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
-				RenderSystem.enableBlend();
-				RenderSystem.disableTexture();
-				RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-				buffer.begin(7, VertexFormats.POSITION_COLOR);
+				UtilitiesClient.beginDrawingRectangle(buffer);
 				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
 				tessellator.draw();
-				RenderSystem.enableTexture();
-				RenderSystem.disableBlend();
+				UtilitiesClient.finishDrawingRectangle();
 
 				final String drawString = IGui.formatStationName(data.name);
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
@@ -222,14 +217,17 @@ public class DashboardList implements IGui {
 		}
 	}
 
+	public void clearSearch() {
+		textFieldSearch.setText("");
+	}
+
 	private void setPage(int newPage) {
 		page = MathHelper.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = page > 0;
 		buttonNextPage.visible = page < totalPages - 1;
 	}
 
-	private void onClick(OnClick onClick) {
-		textFieldSearch.setText("");
+	private void onClick(BiConsumer<NameColorDataBase, Integer> onClick) {
 		final List<Integer> sortedKeys = new ArrayList<>(dataFiltered.keySet());
 		Collections.sort(sortedKeys);
 
@@ -237,15 +235,15 @@ public class DashboardList implements IGui {
 		if (sortedIndex >= 0 && sortedIndex < sortedKeys.size()) {
 			final int index = sortedKeys.get(sortedIndex);
 			if (index >= 0 && index < dataSorted.size()) {
-				onClick.onClick(dataSorted.get(index), index);
+				onClick.accept(dataSorted.get(index), index);
 			}
 		}
 	}
 
-	private <T> void onUp(GetList<T> getList) {
+	private <T> void onUp(Supplier<List<T>> getList) {
 		if (textFieldSearch.getText().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
-			final List<T> list = getList.getList();
+			final List<T> list = getList.get();
 			final T aboveItem = list.get(index - 1);
 			final T thisItem = list.get(index);
 			list.set(index - 1, thisItem);
@@ -253,10 +251,10 @@ public class DashboardList implements IGui {
 		}
 	}
 
-	private <T> void onDown(GetList<T> getList) {
+	private <T> void onDown(Supplier<List<T>> getList) {
 		if (textFieldSearch.getText().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
-			final List<T> list = getList.getList();
+			final List<T> list = getList.get();
 			final T thisItem = list.get(index);
 			final T belowItem = list.get(index + 1);
 			list.set(index, belowItem);
@@ -266,25 +264,5 @@ public class DashboardList implements IGui {
 
 	private int itemsToShow() {
 		return (height - TOP_OFFSET) / SQUARE_SIZE;
-	}
-
-	@FunctionalInterface
-	public interface RegisterButton {
-		void registerButton(ClickableWidget button);
-	}
-
-	@FunctionalInterface
-	public interface AddChild {
-		void addChild(TextFieldWidget textField);
-	}
-
-	@FunctionalInterface
-	public interface OnClick {
-		void onClick(NameColorDataBase data, int index);
-	}
-
-	@FunctionalInterface
-	public interface GetList<T> {
-		List<T> getList();
 	}
 }

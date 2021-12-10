@@ -2,37 +2,35 @@ package mtr.gui;
 
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class ClientData {
 
-	public static Set<Station> stations = new HashSet<>();
-	public static Set<Platform> platforms = new HashSet<>();
-	public static Set<Siding> sidings = new HashSet<>();
-	public static Set<Route> routes = new HashSet<>();
-	public static Set<Depot> depots = new HashSet<>();
-	public static Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
+	public static String DASHBOARD_SEARCH = "";
+	public static String ROUTES_PLATFORMS_SEARCH = "";
+	public static String ROUTES_PLATFORMS_SELECTED_SEARCH = "";
+	public static String TRAINS_SEARCH = "";
+	public static String EXIT_PARENTS_SEARCH = "";
+	public static String EXIT_DESTINATIONS_SEARCH = "";
 
-	public static Map<Long, Route> routeIdMap = new HashMap<>();
-	public static Map<Long, Station> platformIdToStation = new HashMap<>();
-	public static Map<Long, Map<Long, Platform>> platformsInStation = new HashMap<>();
-	public static Map<Long, Map<Long, Siding>> sidingsInDepot = new HashMap<>();
-	public static Map<BlockPos, List<Platform>> platformsWithOffset = new HashMap<>();
-	public static Map<BlockPos, List<Siding>> sidingsWithOffset = new HashMap<>();
-	public static Map<Long, Map<Integer, ColorNamePair>> routesInStation = new HashMap<>();
-	public static Map<Long, String> stationNames = new HashMap<>();
-	public static Map<Platform, List<PlatformRouteDetails>> platformToRoute = new HashMap<>();
-	public static Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	public static final Set<Station> STATIONS = new HashSet<>();
+	public static final Set<Platform> PLATFORMS = new HashSet<>();
+	public static final Set<Siding> SIDINGS = new HashSet<>();
+	public static final Set<Route> ROUTES = new HashSet<>();
+	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
+	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
+	public static final Set<TrainClient> TRAINS = new HashSet<>();
+	public static final Map<Long, Set<Route.ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	private static long lastUpdatedIndex;
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
 
 	public static void writeRails(MinecraftClient client, PacketByteBuf packet) {
 		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
@@ -48,99 +46,83 @@ public final class ClientData {
 			railsTemp.put(startPos, railMap);
 		}
 
-		client.execute(() -> rails = railsTemp);
+		client.execute(() -> clearAndAddAll(RAILS, railsTemp));
+	}
+
+	public static void updateTrains(MinecraftClient client, PacketByteBuf packet) {
+		final Set<TrainClient> trainsToUpdate = new HashSet<>();
+
+		while (packet.isReadable()) {
+			trainsToUpdate.add(new TrainClient(packet));
+		}
+
+		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
+			final TrainClient existingTrain = getTrainById(newTrain.id);
+			if (existingTrain == null) {
+				TRAINS.add(newTrain);
+			} else {
+				existingTrain.copyFromTrain(newTrain);
+			}
+		}));
+	}
+
+	public static void deleteTrains(MinecraftClient client, PacketByteBuf packet) {
+		final Set<Long> trainIdsToKeep = new HashSet<>();
+
+		final int trainsCount = packet.readInt();
+		for (int i = 0; i < trainsCount; i++) {
+			trainIdsToKeep.add(packet.readLong());
+		}
+
+		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
+	}
+
+	public static void updateTrainRidingPosition(MinecraftClient client, PacketByteBuf packet) {
+		final TrainClient train = getTrainById(packet.readLong());
+		final float clientPercentageX = packet.readFloat();
+		final float clientPercentageZ = packet.readFloat();
+		if (train != null) {
+			client.execute(() -> train.updateClientPercentages(client.player, clientPercentageX, clientPercentageZ));
+		}
+	}
+
+	public static void updateSchedule(MinecraftClient client, PacketByteBuf packet) {
+		final Map<Long, Set<Route.ScheduleEntry>> tempSchedulesForPlatform = new HashMap<>();
+		final int platformCount = packet.readInt();
+		for (int i = 0; i < platformCount; i++) {
+			final long platformId = packet.readLong();
+			final int scheduleCount = packet.readInt();
+			for (int j = 0; j < scheduleCount; j++) {
+				if (!tempSchedulesForPlatform.containsKey(platformId)) {
+					tempSchedulesForPlatform.put(platformId, new HashSet<>());
+				}
+				tempSchedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(packet));
+			}
+		}
+
+		final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
+		final int signalBlockCount = packet.readInt();
+		for (int i = 0; i < signalBlockCount; i++) {
+			signalBlockStatus.put(packet.readLong(), packet.readBoolean());
+		}
+
+		client.execute(() -> {
+			clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform);
+			SIGNAL_BLOCKS.writeSignalBlockStatus(signalBlockStatus);
+		});
 	}
 
 	public static void receivePacket(PacketByteBuf packet) {
 		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
-		stations = deserializeData(packetCopy, Station::new);
-		platforms = deserializeData(packetCopy, Platform::new);
-		sidings = deserializeData(packetCopy, Siding::new);
-		routes = deserializeData(packetCopy, Route::new);
-		depots = deserializeData(packetCopy, Depot::new);
+		clearAndAddAll(STATIONS, deserializeData(packetCopy, Station::new));
+		clearAndAddAll(PLATFORMS, deserializeData(packetCopy, Platform::new));
+		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
+		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
+		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
 
-		final ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if (player != null) {
-			player.sendMessage(new TranslatableText("gui.mtr.railway_loading_complete"), true);
-		}
-	}
-
-	public static void updateReferences() {
-		final int index = (int) (System.currentTimeMillis() / 1000) % 3;
-		if (lastUpdatedIndex == index) {
-			return;
-		}
-
-		try {
-			switch (index) {
-				case 0:
-					routeIdMap = routes.stream().collect(Collectors.toMap(route -> route.id, route -> route));
-					platformIdToStation = platforms.stream().map(platform -> new Pair<>(platform.id, RailwayData.getAreaBySavedRail(stations, platform))).filter(pair -> pair.getRight() != null).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-
-					routesInStation.clear();
-					routes.forEach(route -> {
-						route.platformIds.forEach(platformId -> {
-							final Station station = platformIdToStation.get(platformId);
-							if (station != null) {
-								if (!routesInStation.containsKey(station.id)) {
-									routesInStation.put(station.id, new HashMap<>());
-								}
-								routesInStation.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
-							}
-						});
-						route.platformIds.removeIf(platformId -> RailwayData.getDataById(platforms, platformId) == null);
-					});
-
-					depots.forEach(depot -> depot.routeIds.removeIf(routeId -> RailwayData.getDataById(routes, routeId) == null));
-
-					stationNames = stations.stream().collect(Collectors.toMap(station -> station.id, station -> station.name));
-					platformToRoute = platforms.stream().collect(Collectors.toMap(platform -> platform, platform -> routes.stream().filter(route -> route.platformIds.contains(platform.id)).map(route -> {
-						final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId -> {
-							final Station station = platformIdToStation.get(platformId);
-							if (station == null) {
-								return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
-							} else {
-								return new PlatformRouteDetails.StationDetails(station.name, routesInStation.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
-							}
-						}).collect(Collectors.toList());
-						return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.platformIds.indexOf(platform.id), stationDetails);
-					}).collect(Collectors.toList())));
-
-					sidings.forEach(siding -> siding.setSidingData(MinecraftClient.getInstance().world, depots.stream().filter(depot -> {
-						final BlockPos sidingMidPos = siding.getMidPos();
-						return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
-					}).findFirst().orElse(null), rails));
-					break;
-				case 1:
-					writeSavedRailMaps(stations, platforms, platformsWithOffset, platformsInStation);
-					break;
-				case 2:
-					writeSavedRailMaps(depots, sidings, sidingsWithOffset, sidingsInDepot);
-					break;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		lastUpdatedIndex = index;
-	}
-
-	public static Station getStation(BlockPos pos) {
-		try {
-			return ClientData.stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static Platform getClosePlatform(BlockPos pos) {
-		try {
-			return ClientData.platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos)).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		TRAINS.clear();
+		ClientData.DATA_CACHE.sync();
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
@@ -152,59 +134,22 @@ public final class ClientData {
 		return objects;
 	}
 
-	private static <T extends AreaBase, U extends SavedRailBase> void writeSavedRailMaps(Set<T> areas, Set<U> savedRails, Map<BlockPos, List<U>> savedRailsWithOffset, Map<Long, Map<Long, U>> savedRailsInAreaMap) {
-		savedRailsWithOffset.clear();
-		savedRailsInAreaMap.clear();
-		savedRails.forEach(savedRail -> {
-			final T area = RailwayData.getAreaBySavedRail(areas, savedRail);
-			if (area != null) {
-				if (!savedRailsInAreaMap.containsKey(area.id)) {
-					savedRailsInAreaMap.put(area.id, new HashMap<>());
-				}
-				savedRailsInAreaMap.get(area.id).put(savedRail.id, savedRail);
-			}
-
-			final BlockPos midPos = savedRail.getMidPos(true);
-			if (!savedRailsWithOffset.containsKey(midPos)) {
-				savedRailsWithOffset.put(midPos, savedRails.stream().filter(savedRail1 -> savedRail1.getMidPos().getX() == midPos.getX() && savedRail1.getMidPos().getZ() == midPos.getZ()).sorted(Comparator.comparingInt(savedRail1 -> savedRail1.getMidPos().getY())).collect(Collectors.toList()));
-			}
-		});
+	private static <U> void clearAndAddAll(Set<U> target, Set<U> source) {
+		target.clear();
+		target.addAll(source);
 	}
 
-	public static class PlatformRouteDetails {
-
-		public final String routeName;
-		public final int routeColor;
-		public final int currentStationIndex;
-		public final List<StationDetails> stationDetails;
-
-		public PlatformRouteDetails(String routeName, int routeColor, int currentStationIndex, List<StationDetails> stationDetails) {
-			this.routeName = routeName;
-			this.routeColor = routeColor;
-			this.currentStationIndex = currentStationIndex;
-			this.stationDetails = stationDetails;
-		}
-
-		public static class StationDetails {
-
-			public final String stationName;
-			public final List<ColorNamePair> interchangeRoutes;
-
-			public StationDetails(String stationName, List<ColorNamePair> interchangeRoutes) {
-				this.stationName = stationName;
-				this.interchangeRoutes = interchangeRoutes;
-			}
-		}
+	private static <U, V> void clearAndAddAll(Map<U, V> target, Map<U, V> source) {
+		target.clear();
+		target.putAll(source);
 	}
 
-	public static class ColorNamePair {
-
-		public final int color;
-		public final String name;
-
-		public ColorNamePair(int color, String name) {
-			this.color = color;
-			this.name = name;
+	private static TrainClient getTrainById(long id) {
+		try {
+			return TRAINS.stream().filter(item -> item.id == id).findFirst().orElse(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 }

@@ -17,7 +17,7 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Pair<Integer, Integer> bounds = getBounds(state);
-		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 5, 14, bounds.getRight(), 11, IBlock.getStatePropertySafe(state, FACING)), BlockStationPole.getStationPoleShape());
+		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.getLeft(), 5, 14, bounds.getRight(), 11, IBlock.getStatePropertySafe(state, FACING)), BlockStationColorPole.getStationPoleShape());
 	}
 
 	@Override
@@ -26,14 +26,14 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityStationNameTallBlock();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityStationNameTallBlock(pos, state);
 	}
 
 	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
 
-		public TileEntityStationNameTallBlock() {
-			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, 0.6875F);
+		public TileEntityStationNameTallBlock(BlockPos pos, BlockState state) {
+			super(MTR.STATION_NAME_TALL_BLOCK_TILE_ENTITY, pos, state, 0.6875F);
 		}
 	}
 }

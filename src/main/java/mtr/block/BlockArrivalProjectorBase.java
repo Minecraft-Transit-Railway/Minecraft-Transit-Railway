@@ -1,12 +1,13 @@
 package mtr.block;
 
+import minecraftmappings.BlockEntityProviderMapper;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.Direction;
 
-public abstract class BlockArrivalProjectorBase extends HorizontalFacingBlock implements BlockEntityProvider {
+public abstract class BlockArrivalProjectorBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
 
 	public BlockArrivalProjectorBase() {
 		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5));

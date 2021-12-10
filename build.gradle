@@ -1,24 +1,64 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
-    id "fabric-loom" version "0.8-SNAPSHOT"
+    id "fabric-loom" version "0.10-SNAPSHOT"
     id "maven-publish"
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+def default_minecraft_version = "1.16.5"
+def minecraft_version = project.properties.containsKey("buildVersion") ? project.getProperties().get("buildVersion") : default_minecraft_version
+def is_1_16 = (minecraft_version as String).startsWith("1.16")
+def is_1_17 = (minecraft_version as String).startsWith("1.17")
+def patreon_api_key = project.properties.containsKey("patreonApiKey") ? project.getProperties().get("patreonApiKey") : ""
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+if (is_1_16) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+} else if (is_1_17) {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+} else {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+version = (minecraft_version as String) + "-" + (project.mod_version as String)
+group = project.maven_group as String
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "io.github.prospector:modmenu:${project.mod_menu_version}"
-    modImplementation "com.github.BlueMap-Minecraft:BlueMapAPI:${project.blue_map_version}"
-    modImplementation "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
-    include "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${is_1_16 ? project.yarn_mappings_1_16 : is_1_17 ? project.yarn_mappings_1_17 : project.yarn_mappings_1_18}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${is_1_16 ? project.loader_version_1_16 : is_1_17 ? project.loader_version_1_17 : project.loader_version_1_18}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${is_1_16 ? project.fabric_version_1_16 : is_1_17 ? project.fabric_version_1_17 : project.fabric_version_1_18}"
+    modImplementation "com.github.jonafanho:Minecraft-Mappings:${is_1_16 ? project.mappings_version_1_16 : is_1_17 ? project.mappings_version_1_17 : project.mappings_version_1_18}"
+    modImplementation "com.terraformersmc:modmenu:${is_1_16 ? project.mod_menu_version_1_16 : is_1_17 ? project.mod_menu_version_1_17 : project.mod_menu_version_1_18}"
+    modImplementation "com.github.BlueMap-Minecraft:BlueMapAPI:${is_1_16 ? project.blue_map_version_1_16 : is_1_17 ? project.blue_map_version_1_17 : project.blue_map_version_1_18}"
+    modImplementation "de.guntram.mcmod:crowdin-translate:${is_1_16 ? project.crowdin_translate_version_1_16 : is_1_17 ? project.crowdin_translate_version_1_17 : project.crowdin_translate_version_1_18}"
+    modImplementation "org.eclipse.jetty:jetty-http:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-io:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-security:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-server:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-servlet:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-util:${project.jetty_version}"
+    modImplementation "org.eclipse.jetty:jetty-util-ajax:${project.jetty_version}"
+    modImplementation "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
+    include "com.github.jonafanho:Minecraft-Mappings:${is_1_16 ? project.mappings_version_1_16 : is_1_17 ? project.mappings_version_1_17 : project.mappings_version_1_18}"
+    include "de.guntram.mcmod:crowdin-translate:${is_1_16 ? project.crowdin_translate_version_1_16 : is_1_17 ? project.crowdin_translate_version_1_17 : project.crowdin_translate_version_1_18}"
+    include "org.eclipse.jetty:jetty-http:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-io:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-security:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-server:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-servlet:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-util:${project.jetty_version}"
+    include "org.eclipse.jetty:jetty-util-ajax:${project.jetty_version}"
+    include "javax.servlet:javax.servlet-api:${project.servlet_api_version}"
+}
+
+task injectKey(type: Copy) {
+    outputs.upToDateWhen { false }
+    from "src/main/keys"
+    into "src/main/java/mtr"
+    filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 }
 
 processResources {
@@ -32,42 +72,44 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
-    it.options.release = 16
-}
-
-java {
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+    if (is_1_16) {
+        def targetVersion = 8
+        if (JavaVersion.current().isJava9Compatible()) {
+            it.options.release = targetVersion
+        }
+    } else if (is_1_17) {
+        it.options.release = 16
+    } else {
+        it.options.release = 17
     }
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
     }
-
-    repositories {}
 }
 
 allprojects {
     repositories {
         maven {
-            name = "BlueMap"
             url = "https://jitpack.io/"
         }
         maven {
             url = "https://minecraft.guntram.de/maven/"
+        }
+        maven {
+            url = "https://maven.terraformersmc.com/"
+        }
+    }
+
+    afterEvaluate {
+        for (def task in it.tasks) {
+            if (task != rootProject.tasks.injectKey) {
+                task.dependsOn rootProject.tasks.injectKey
+            }
         }
     }
 }
