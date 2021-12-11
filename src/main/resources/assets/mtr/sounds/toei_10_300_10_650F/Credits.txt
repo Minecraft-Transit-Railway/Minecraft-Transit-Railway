@@ -1,4 +1,4 @@
-Toei 10-300 series 10-650F
+ï»¿Toei 10-300 series 10-650F
 
 Models,textures:OTSShimajiro
 https://github.com/ShimajiroOTS
@@ -8,5 +8,5 @@ https://gepponkoku.nation.jp
 Modified for MTR MOD. 
 
 Door Sounds:
-9702(Discord name:ƒiƒrƒB#7036)
+9702(Discord name:ãƒŠãƒ“ã‚£#7036)
 https://www.youtube.com/channel/UCl8rl2iRjvKgWVV7qGOT5Aw
