@@ -35,18 +35,16 @@ Crowdin is a cloud-based platform for translators to contribute to a project. Wi
 
 ### Building
 
-**NOTE: JDK 16+ is required to build on the 1.17 branch**
-
 To build the mod, run the following command in the root directory of the project:
 
 ```
-gradlew build
+gradlew build -PbuildVersion=<minecraft version>
 ```
 
 The mod jar file should be generated in the following directory:
 
 ```
-<root>/build/libs/MTR-<file>.jar
+<root>/build/libs/Minecraft-Transit-Railway-<minecraft version>-<mod version>.jar
 ```
 
 ## License
