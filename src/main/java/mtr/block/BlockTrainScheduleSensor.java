@@ -122,7 +122,7 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					return;
 				}
 
-				final Set<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platform.id);
+				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platform.id);
 				if (schedules == null) {
 					return;
 				}
