@@ -1,6 +1,7 @@
 package mtr.render;
 
 import minecraftmappings.BlockEntityRendererMapper;
+import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
@@ -49,7 +50,8 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
 			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
+
+			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false, entity instanceof BlockPSDTop.TileEntityPSDTop ? ((BlockPSDTop.TileEntityPSDTop) entity).getRouteIds() : null);
 
 			matrices.translate(0, 1, 0);
 			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));

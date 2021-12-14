@@ -2,6 +2,7 @@ package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import minecraftmappings.UtilitiesClient;
+import mtr.block.BlockPSDTop;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;
 import mtr.block.BlockTrainScheduleSensor;
@@ -56,6 +57,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 				if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor && !(minecraftClient.currentScreen instanceof TrainScheduleSensorScreen)) {
 					UtilitiesClient.setScreen(minecraftClient, new TrainScheduleSensorScreen(pos));
 				}
+			}
+		});
+	}
+
+	public static void openPSDFilterScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (minecraftClient.world != null) {
+				UtilitiesClient.setScreen(minecraftClient, new PSDFilterScreen(pos) {
+				});
 			}
 		});
 	}
@@ -192,6 +203,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(number);
 		packet.writeString(string);
 		ClientPlayNetworking.send(PACKET_UPDATE_TRAIN_SENSOR, packet);
+	}
+
+	public static void sendPSDFilterC2S(BlockPos pos, Set<Long> filterRouteIds) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos);
+		packet.writeInt(filterRouteIds.size());
+		filterRouteIds.forEach(packet::writeLong);
+		ClientPlayNetworking.send(PACKET_UPDATE_PSD_FILTER, packet);
 	}
 
 	public static void generatePathS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {

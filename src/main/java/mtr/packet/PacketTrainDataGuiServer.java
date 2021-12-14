@@ -1,10 +1,7 @@
 package mtr.packet;
 
 import minecraftmappings.Utilities;
-import mtr.block.BlockPIDSBase;
-import mtr.block.BlockRailwaySign;
-import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockTrainSensorBase;
+import mtr.block.*;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,6 +47,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
+	}
+
+	public static void openPSDFilterScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(blockPos);
+		ServerPlayNetworking.send(player, PACKET_OPEN_PSD_FILTER_SCREEN, packet);
 	}
 
 	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
@@ -204,6 +207,21 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			}
 		});
 	}
+
+	public static void receivePSDFilterC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final Set<Long> filterIds = new HashSet<>();
+		final int filterLength = packet.readInt();
+		for (int i = 0; i < filterLength; i++) {
+			filterIds.add(packet.readLong());
+		}
+
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(pos);
+			((BlockPSDTop.TileEntityPSDTop) entity).setData(filterIds);
+		});
+	}
+
 
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();

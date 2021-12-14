@@ -44,6 +44,8 @@ public interface IPacket {
 	Identifier PACKET_UPDATE_TRAIN_RIDING_POSITION = new Identifier(MTR.MOD_ID, "update_train_riding_position");
 	Identifier PACKET_UPDATE_SCHEDULE = new Identifier(MTR.MOD_ID, "update_schedule");
 	Identifier PACKET_UPDATE_TRAIN_SENSOR = new Identifier(MTR.MOD_ID, "packet_update_train_announcer");
+	Identifier PACKET_UPDATE_PSD_FILTER = new Identifier(MTR.MOD_ID, "packet_update_psd_filter");
+	Identifier PACKET_OPEN_PSD_FILTER_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_psd_filter_screen");
 
 	int MAX_PACKET_BYTES = 1048576;
 }

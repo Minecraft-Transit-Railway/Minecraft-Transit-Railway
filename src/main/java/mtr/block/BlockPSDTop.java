@@ -1,9 +1,10 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.BlockEntityClientSerializableMapper;
 import minecraftmappings.BlockEntityProviderMapper;
 import mtr.Items;
 import mtr.MTR;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -11,6 +12,8 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -27,6 +30,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProviderMapper, IBlock, IPropagateBlock {
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.of("door_light", EnumDoorLight.class);
@@ -40,9 +47,15 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
+			if(player.isSneaking()) {
+				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
+			} else {
+				final BlockEntity entity = world.getBlockEntity(pos);
+				PacketTrainDataGuiServer.openPSDFilterScreenS2C((ServerPlayerEntity) player, pos);
+				((BlockPSDTop.TileEntityPSDTop) entity).sync();
+			}
 		});
 	}
 
@@ -112,6 +125,15 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		return new TileEntityPSDTop(pos, state);
 	}
 
+//	public static void update(World world, BlockPos pos, Direction offset, Set<Long> data) {
+//		BlockPos offsetPos = pos.offset(offset);
+//
+//		if(world.getBlockState(offsetPos).getBlock() instanceof BlockPSDTop) {
+//			((TileEntityPSDTop) world.getBlockEntity(offsetPos)).setData(data);
+//			update(world, offsetPos, offset, data);
+//		}
+//	}
+
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
 		Direction facing = Direction.NORTH;
@@ -143,10 +165,37 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.getDefaultState()).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE_EXTENDED, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
 	}
 
-	public static class TileEntityPSDTop extends BlockEntityMapper {
+	public static class TileEntityPSDTop extends BlockEntityClientSerializableMapper {
 
 		public TileEntityPSDTop(BlockPos pos, BlockState state) {
 			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
+		}
+
+		private final Set<Long> filterRouteIds = new HashSet<>();
+		private static final String KEY_ROUTE_IDS = "route_ids";
+
+		@Override
+		public void readNbtCompound(NbtCompound nbtCompound) {
+			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
+			for (final long routeId : routeIdsArray) {
+				filterRouteIds.add(routeId);
+			}
+		}
+
+		@Override
+		public void writeNbtCompound(NbtCompound nbtCompound) {
+			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+		}
+
+		public Set<Long> getRouteIds() {
+			return filterRouteIds;
+		}
+
+		public void setData(Set<Long> filterRouteIds) {
+			this.filterRouteIds.clear();
+			this.filterRouteIds.addAll(filterRouteIds);
+			markDirty();
+			sync();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package mtr.render;
 
+import ca.weblite.objc.Client;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Route;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RouteRenderer implements IGui {
@@ -30,6 +32,7 @@ public class RouteRenderer implements IGui {
 	private final String platformNumber;
 	private final boolean vertical;
 	private final boolean glowing;
+	private final Set<Long> filteredRoute;
 
 	private static final int PASSED_STATION_COLOR = 0xFF999999;
 	private static final int STATION_CIRCLE_SIZE = 16;
@@ -41,22 +44,27 @@ public class RouteRenderer implements IGui {
 	private static final float PLATFORM_NUMBER_OFFSET_TOP = 0.63F;
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
 
-	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, Platform platform, boolean vertical, boolean glowing) {
+	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, Platform platform, boolean vertical, boolean glowing, Set<Long> filteredRouteIds) {
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
 		this.immediate = immediate;
 
 		final List<ClientCache.PlatformRouteDetails> platformRouteDetails = platform == null ? null : ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id);
 		routeData = platformRouteDetails == null ? new ArrayList<>() : platformRouteDetails;
-
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		this.glowing = glowing;
+		this.filteredRoute = filteredRouteIds;
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 	}
 
+	public RouteRenderer(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumerProvider.Immediate immediate, Platform platform, boolean vertical, boolean glowing) {
+		this(matrices, vertexConsumers, immediate, platform, vertical, glowing, null);
+	}
+
 	public void renderColorStrip(float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int light) {
-		final int routeCount = routeData.size();
+		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.routeIds)).collect(Collectors.toList());
+		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
 		}
@@ -66,14 +74,14 @@ public class RouteRenderer implements IGui {
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight, false));
 		final float lineHeightSmall = (y2 - y1) / routeCount;
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).routeColor + ARGB_BLACK;
+			final int routeColor = filteredRouteData.get(i).routeColor + ARGB_BLACK;
 			IDrawing.drawTexture(matrices, vertexConsumer, x1, y1 + lineHeightSmall * i, z1, x2, y1 + lineHeightSmall * (i + 1), z2, facing, routeColor, newLight);
 		}
 		matrices.pop();
 	}
 
 	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light, boolean skipText) {
-		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).collect(Collectors.toList());
+		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).filter(platformRouteDetails -> routeFiltered(platformRouteDetails.routeIds)).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
@@ -171,7 +179,8 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, Direction facing, int light, boolean visibleArrow) {
-		final int routeCount = routeData.size();
+		List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.routeIds)).collect(Collectors.toList());
+		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
 		}
@@ -179,7 +188,7 @@ public class RouteRenderer implements IGui {
 		final float arrowSize = bottom - top;
 		final float arrowPadding = arrowSize / 4;
 
-		String destinationString = IGui.mergeStations(routeData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> {
+		String destinationString = IGui.mergeStations(filteredRouteData.stream().filter(route -> route.currentStationIndex < route.stationDetails.size() - 1).map(route -> {
 			if (route.circularState == Route.CircularState.NONE) {
 				return route.stationDetails.get(route.stationDetails.size() - 1).stationName;
 			} else {
@@ -216,7 +225,7 @@ public class RouteRenderer implements IGui {
 			final float chunkHeight = arrowSize / routeCount;
 			final VertexConsumer vertexConsumerCircle = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/circle.png", newLight, true));
 			for (int i = 0; i < routeCount; i++) {
-				IDrawing.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + filteredRouteData.get(i).routeColor, newLight);
 			}
 
 			matrices.push();
@@ -251,7 +260,7 @@ public class RouteRenderer implements IGui {
 				final float chunkHeight = arrowSize / routeCount;
 				final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
 				for (int i = 0; i < routeCount; i++) {
-					IDrawing.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + filteredRouteData.get(i).routeColor, newLight);
 				}
 
 				matrices.push();
@@ -262,6 +271,11 @@ public class RouteRenderer implements IGui {
 		}
 
 		matrices.pop();
+	}
+
+	private boolean routeFiltered(long routeIds) {
+		if(filteredRoute == null || filteredRoute.isEmpty()) return true;
+		return filteredRoute.contains(routeIds);
 	}
 
 	private float getStationPosition(int stationIndex, int routeLength, float startScaled, float endScaled) {

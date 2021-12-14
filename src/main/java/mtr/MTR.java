@@ -296,6 +296,8 @@ public class MTR implements ModInitializer, IPacket {
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_TRAIN_SENSOR, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receiveTrainSensorC2S(minecraftServer, player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PACKET_UPDATE_PSD_FILTER, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.receivePSDFilterC2S(minecraftServer, player, packet));
+
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);
