@@ -2,6 +2,7 @@ package mtr.data;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -139,4 +140,5 @@ public abstract class SavedRailBase extends NameColorDataBase {
 			return super.compareTo(compare);
 		}
 	}
+
 }

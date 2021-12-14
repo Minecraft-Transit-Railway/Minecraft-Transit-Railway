@@ -63,8 +63,8 @@ public enum TrainType {
 
 	public final int width;
 	private final int length;
-	private final float trainBarrierLength;
-
+	public float trainBarrierLength;
+	
 	TrainType(int length, int width, float trainBarrierLength) {
 		this.length = length;
 		this.width = width;
@@ -73,6 +73,7 @@ public enum TrainType {
 
 	public float getSpacing() {
 		return length + 1 + trainBarrierLength;
+
 	}
 
 	public static TrainType getOrDefault(String name) {
@@ -80,6 +81,15 @@ public enum TrainType {
 			return TrainType.valueOf(name.toUpperCase());
 		} catch (Exception ignored) {
 			return SP1900;
+		}
+	}
+
+	public static void TrainBarrierRemove(boolean Switch) {
+		TrainType R179 = TrainType.R179;
+		if(Switch) {
+			R179.trainBarrierLength = 0f;
+		} else if (!Switch) {
+			R179.trainBarrierLength = 0.2f;
 		}
 	}
 }

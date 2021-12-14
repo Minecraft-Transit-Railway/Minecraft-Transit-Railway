@@ -25,12 +25,13 @@ public class TrainClientRegistry {
 	private static final String SOUND_DOOR_OPEN = "_door_open";
 	private static final String SOUND_DOOR_CLOSE = "_door_close";
 
-	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, boolean hasGangwayConnection, boolean trainBarrierOption, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+	public static boolean register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, boolean hasGangwayConnection, boolean trainBarrierOption, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 		final String keyLower = key.toLowerCase();
 		if (!KEY_ORDER.contains(keyLower)) {
 			KEY_ORDER.add(keyLower);
 		}
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableText(name == null ? "train.mtr." + keyLower : name), color, hasGangwayConnection, trainBarrierOption, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
+		return hasGangwayConnection;
 	}
 
 	public static void reset() {

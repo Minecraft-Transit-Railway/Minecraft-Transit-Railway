@@ -145,6 +145,15 @@ public class Siding extends SavedRailBase implements IPacket {
 		this.unlimitedTrains = unlimitedTrains;
 		this.maxTrains = maxTrains;
 	}
+	public void setTrainBarrier(Consumer<PacketByteBuf> sendPacket) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeString(name);
+		packet.writeInt(color);
+		packet.writeBoolean(unlimitedTrains);
+		packet.writeInt(maxTrains);
+		sendPacket.accept(packet);
+	}
 
 	public String getTrainId() {
 		return trainId;
@@ -279,6 +288,8 @@ public class Siding extends SavedRailBase implements IPacket {
 	public boolean getUnlimitedTrains() {
 		return unlimitedTrains;
 	}
+
+
 
 	public void clearTrains() {
 		trains.clear();
