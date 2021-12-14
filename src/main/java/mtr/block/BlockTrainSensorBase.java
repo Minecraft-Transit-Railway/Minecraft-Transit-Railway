@@ -38,6 +38,11 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		});
 	}
 
+	public static boolean matchesFilter(World world, BlockPos pos, long routeId) {
+		final BlockEntity entity = world.getBlockEntity(pos);
+		return entity instanceof TileEntityTrainSensorBase && ((TileEntityTrainSensorBase) entity).matchesFilter(routeId);
+	}
+
 	public abstract static class TileEntityTrainSensorBase extends BlockEntityClientSerializableMapper {
 
 		private final Set<Long> filterRouteIds = new HashSet<>();

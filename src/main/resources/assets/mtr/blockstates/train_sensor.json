@@ -1,10 +1,10 @@
 {
 	"variants": {
 		"powered=false": {
-			"model": "mtr:block/train_sensor_off"
+			"model": "mtr:block/train_redstone_sensor_off"
 		},
 		"powered=true": {
-			"model": "mtr:block/train_sensor_on"
+			"model": "mtr:block/train_redstone_sensor_on"
 		}
 	}
 }

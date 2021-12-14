@@ -84,6 +84,8 @@ public class MTR implements ModInitializer, IPacket {
 	public static final BlockEntityType<BlockStationNameTallWall.TileEntityStationNameTallWall> STATION_NAME_TALL_WALL_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":station_name_tall_wall", BlockStationNameTallWall.TileEntityStationNameTallWall::new, Blocks.STATION_NAME_TALL_WALL);
 	public static final BlockEntityType<BlockTactileMap.TileEntityTactileMap> TACTILE_MAP_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":tactile_map", BlockTactileMap.TileEntityTactileMap::new, Blocks.TACTILE_MAP);
 	public static final BlockEntityType<BlockTrainAnnouncer.TileEntityTrainAnnouncer> TRAIN_ANNOUNCER_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":train_announcer", BlockTrainAnnouncer.TileEntityTrainAnnouncer::new, Blocks.TRAIN_ANNOUNCER);
+	public static final BlockEntityType<BlockTrainCargoLoader.TileEntityTrainCargoLoader> TRAIN_CARGO_LOADER_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":train_cargo_loader", BlockTrainCargoLoader.TileEntityTrainCargoLoader::new, Blocks.TRAIN_CARGO_LOADER);
+	public static final BlockEntityType<BlockTrainCargoUnloader.TileEntityTrainCargoUnloader> TRAIN_CARGO_UNLOADER_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":train_cargo_unloader", BlockTrainCargoUnloader.TileEntityTrainCargoUnloader::new, Blocks.TRAIN_CARGO_UNLOADER);
 	public static final BlockEntityType<BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor> TRAIN_REDSTONE_SENSOR_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":train_redstone_sensor", BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor::new, Blocks.TRAIN_REDSTONE_SENSOR);
 	public static final BlockEntityType<BlockTrainScheduleSensor.TileEntityTrainScheduleSensor> TRAIN_SCHEDULE_SENSOR_TILE_ENTITY = Utilities.registerTileEntity(MOD_ID + ":train_schedule_sensor", BlockTrainScheduleSensor.TileEntityTrainScheduleSensor::new, Blocks.TRAIN_SCHEDULE_SENSOR);
 
@@ -276,9 +278,10 @@ public class MTR implements ModInitializer, IPacket {
 		registerBlock("ticket_processor_exit", Blocks.TICKET_PROCESSOR_EXIT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("ticket_processor_enquiry", Blocks.TICKET_PROCESSOR_ENQUIRY, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_announcer", Blocks.TRAIN_ANNOUNCER, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("train_cargo_loader", Blocks.TRAIN_CARGO_LOADER, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock("train_cargo_unloader", Blocks.TRAIN_CARGO_UNLOADER, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_sensor", Blocks.TRAIN_REDSTONE_SENSOR, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock("train_schedule_sensor", Blocks.TRAIN_SCHEDULE_SENSOR, ItemGroups.RAILWAY_FACILITIES);
-		registerBlock("cargo_loader", Blocks.CARGO_LOADER, ItemGroups.RAILWAY_FACILITIES);
 
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(PACKET_CLEAR_TRAINS, (minecraftServer, player, handler, packet, sender) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet));

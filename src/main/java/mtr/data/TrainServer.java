@@ -1,26 +1,22 @@
 package mtr.data;
 
-import mtr.block.*;
 import minecraftmappings.Utilities;
 import mtr.TrigCache;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainRedstoneSensor;
+import mtr.block.*;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -124,28 +120,22 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
-				if (block instanceof BlockTrainRedstoneSensor) {
-					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && ((BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor) entity).matchesFilter(routeId)) {
-						world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
-						Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
-					}
+
+				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+					world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
+					Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
 				}
-				// Repeat with dwellTicks in simulateTrain of Train.java
-				final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
-				if ((stopCounter > 0) && (stopCounter < dwellTicks / 2)) {
-					if (block instanceof BlockCargoLoader) {
-						nearBlock(frontPos, nearPos -> {
-							final BlockEntity entity = world.getBlockEntity(nearPos);
-							if (entity instanceof Inventory) {
-								final Inventory entityInventory = (Inventory) entity;
-								if (IBlock.getStatePropertySafe(state, BlockCargoLoader.UNLOAD)) {
-									extract(entityInventory);
-								} else {
-									insert(entityInventory);
-								}
+
+				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+					for (final Direction direction : Direction.values()) {
+						final Inventory nearbyInventory = HopperBlockEntity.getInventoryAt(world, checkPos.offset(direction));
+						if (nearbyInventory != null) {
+							if (block instanceof BlockTrainCargoLoader) {
+								transferItems(nearbyInventory, inventory);
+							} else {
+								transferItems(inventory, nearbyInventory);
 							}
-						});
+						}
 					}
 				}
 			});
@@ -329,12 +319,16 @@ public class TrainServer extends Train {
 		}
 	}
 
-	private void nearBlock(BlockPos pos, Consumer<BlockPos> callback) {
-		// Follow the South-east rule
-		callback.accept(pos.add( 1, -1,  0));
-		callback.accept(pos.add( 0, -1,  1));
-		callback.accept(pos.add(-1, -1,  0));
-		callback.accept(pos.add( 0, -1, -1));
+	private static void transferItems(Inventory inventoryFrom, Inventory inventoryTo) {
+		for (int i = 0; i < inventoryFrom.size(); i++) {
+			if (!inventoryFrom.getStack(i).isEmpty()) {
+				final ItemStack insertItem = new ItemStack(inventoryFrom.getStack(i).getItem(), 1);
+				final ItemStack remainingStack = HopperBlockEntity.transfer(null, inventoryTo, insertItem, null);
+				if (remainingStack.isEmpty()) {
+					inventoryFrom.removeStack(i, 1);
+					return;
+				}
+			}
+		}
 	}
-
 }

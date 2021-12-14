@@ -1,9 +1,5 @@
 {
 	"parent": "block/block",
-	"textures": {
-		"particle": "block/smooth_stone",
-		"side": "mtr:block/train_sensor_on"
-	},
 	"elements": [
 		{
 			"from": [ 0, 0, 0 ],
