@@ -1,10 +1,10 @@
 package mtr.data;
 
-import mtr.block.*;
 import minecraftmappings.Utilities;
 import mtr.TrigCache;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
+import mtr.block.BlockTrainCargo;
 import mtr.block.BlockTrainRedstoneSensor;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -132,21 +132,18 @@ public class TrainServer extends Train {
 					}
 				}
 				// Repeat with dwellTicks in simulateTrain of Train.java
-				final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
-				if ((stopCounter > 0) && (stopCounter < dwellTicks / 2)) {
-					if (block instanceof BlockCargoLoader) {
-						nearBlock(frontPos, nearPos -> {
-							final BlockEntity entity = world.getBlockEntity(nearPos);
-							if (entity instanceof Inventory) {
-								final Inventory entityInventory = (Inventory) entity;
-								if (IBlock.getStatePropertySafe(state, BlockCargoLoader.UNLOAD)) {
-									extract(entityInventory);
-								} else {
-									insert(entityInventory);
-								}
+				if (block instanceof BlockTrainCargo) {
+					nearBlock(frontPos, nearPos -> {
+						final BlockEntity entity = world.getBlockEntity(nearPos);
+						if (entity instanceof Inventory) {
+							final Inventory entityInventory = (Inventory) entity;
+							if (((BlockTrainCargo) block).isLoader) {
+								insert(entityInventory);
+							} else {
+								extract(entityInventory);
 							}
-						});
-					}
+						}
+					});
 				}
 			});
 		}
@@ -331,10 +328,10 @@ public class TrainServer extends Train {
 
 	private void nearBlock(BlockPos pos, Consumer<BlockPos> callback) {
 		// Follow the South-east rule
-		callback.accept(pos.add( 1, -1,  0));
-		callback.accept(pos.add( 0, -1,  1));
-		callback.accept(pos.add(-1, -1,  0));
-		callback.accept(pos.add( 0, -1, -1));
+		callback.accept(pos.add(1, -1, 0));
+		callback.accept(pos.add(0, -1, 1));
+		callback.accept(pos.add(-1, -1, 0));
+		callback.accept(pos.add(0, -1, -1));
 	}
 
 }

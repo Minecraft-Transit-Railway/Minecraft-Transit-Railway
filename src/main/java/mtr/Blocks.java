@@ -127,7 +127,8 @@ public interface Blocks {
 	Block TICKET_PROCESSOR_EXIT = new BlockTicketProcessor(true, false, true);
 	Block TICKET_PROCESSOR_ENQUIRY = new BlockTicketProcessorEnquiry();
 	Block TRAIN_ANNOUNCER = new BlockTrainAnnouncer();
+	Block TRAIN_CARGO_LOADER = new BlockTrainCargo(true);
+	Block TRAIN_CARGO_UNLOADER = new BlockTrainCargo(false);
 	Block TRAIN_REDSTONE_SENSOR = new BlockTrainRedstoneSensor();
 	Block TRAIN_SCHEDULE_SENSOR = new BlockTrainScheduleSensor();
-	Block CARGO_LOADER = new BlockCargoLoader();
 }

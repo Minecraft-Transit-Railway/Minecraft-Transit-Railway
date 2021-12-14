@@ -79,6 +79,8 @@
 	"block.mtr.ticket_processor_entrance": "Ticket Processor (Entrance)",
 	"block.mtr.ticket_processor_exit": "Ticket Processor (Exit)",
 	"block.mtr.train_announcer": "Train Announcer",
+	"block.mtr.train_cargo_loader": "Train Cargo Loader",
+	"block.mtr.train_cargo_unloader": "Train Cargo Unloader",
 	"block.mtr.train_schedule_sensor": "Train Schedule Sensor",
 	"block.mtr.train_sensor": "Train Redstone Sensor",
 	"gui.mtr.add_balance_for_emeralds": "Add $%s for %s emerald(s)",
