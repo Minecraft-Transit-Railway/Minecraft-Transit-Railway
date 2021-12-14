@@ -2,10 +2,7 @@ package mtr.data;
 
 import minecraftmappings.Utilities;
 import mtr.TrigCache;
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainCargo;
-import mtr.block.BlockTrainRedstoneSensor;
+import mtr.block.*;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -123,19 +120,17 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
-				if (block instanceof BlockTrainRedstoneSensor) {
-					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && ((BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor) entity).matchesFilter(routeId)) {
-						world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
-						Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
-					}
+
+				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+					world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
+					Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
 				}
 
-				if (block instanceof BlockTrainCargo) {
+				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
 					for (final Direction direction : Direction.values()) {
 						final Inventory nearbyInventory = HopperBlockEntity.getInventoryAt(world, checkPos.offset(direction));
 						if (nearbyInventory != null) {
-							if (((BlockTrainCargo) block).isLoader) {
+							if (block instanceof BlockTrainCargoLoader) {
 								transferItems(nearbyInventory, inventory);
 							} else {
 								transferItems(inventory, nearbyInventory);

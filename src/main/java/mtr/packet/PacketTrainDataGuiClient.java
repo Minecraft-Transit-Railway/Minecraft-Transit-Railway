@@ -3,8 +3,8 @@ package mtr.packet;
 import io.netty.buffer.ByteBuf;
 import minecraftmappings.UtilitiesClient;
 import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainRedstoneSensor;
 import mtr.block.BlockTrainScheduleSensor;
+import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
 import mtr.gui.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -45,16 +45,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void openTrainSensorScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		minecraftClient.execute(() -> {
-			if (minecraftClient.world != null) {
+			if (minecraftClient.world != null && !(minecraftClient.currentScreen instanceof TrainSensorScreenBase)) {
 				final BlockEntity entity = minecraftClient.world.getBlockEntity(pos);
-				if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && !(minecraftClient.currentScreen instanceof TrainAnnouncerScreen)) {
+				if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
 					UtilitiesClient.setScreen(minecraftClient, new TrainAnnouncerScreen(pos));
-				}
-				if (entity instanceof BlockTrainRedstoneSensor.TileEntityTrainRedstoneSensor && !(minecraftClient.currentScreen instanceof TrainRedstoneSensorScreen)) {
-					UtilitiesClient.setScreen(minecraftClient, new TrainRedstoneSensorScreen(pos));
-				}
-				if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor && !(minecraftClient.currentScreen instanceof TrainScheduleSensorScreen)) {
+				} else if (entity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor) {
 					UtilitiesClient.setScreen(minecraftClient, new TrainScheduleSensorScreen(pos));
+				} else if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
+					UtilitiesClient.setScreen(minecraftClient, new TrainBasicSensorScreen(pos));
 				}
 			}
 		});
