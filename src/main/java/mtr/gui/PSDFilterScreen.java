@@ -95,7 +95,7 @@ public abstract class PSDFilterScreen extends ScreenMapper implements IGui, IPac
 		BlockPos offsetPos = pos.offset(offset);
 		BlockEntity entity = world.getBlockEntity(offsetPos);
 		if(entity instanceof BlockPSDTop.TileEntityPSDTop) {
-			/* Temp fix; I can get the client to sync */
+			/* Temp fix to clear the filtered list from the client; I can't get the client to sync route deletion */
 			((BlockPSDTop.TileEntityPSDTop) entity).clearData();
 			PacketTrainDataGuiClient.sendPSDFilterC2S(pos, data);
 			updateFilter(world, offsetPos, offset, data);
