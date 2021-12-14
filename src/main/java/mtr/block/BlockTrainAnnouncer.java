@@ -34,11 +34,13 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		@Override
 		public void readNbtCompound(NbtCompound nbtCompound) {
 			message = nbtCompound.getString(KEY_MESSAGE);
+			super.readNbtCompound(nbtCompound);
 		}
 
 		@Override
 		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putString(KEY_MESSAGE, message);
+			super.writeNbtCompound(nbtCompound);
 		}
 
 		@Override

@@ -2,6 +2,10 @@ package mtr.data;
 
 import mtr.block.*;
 import minecraftmappings.Utilities;
+import mtr.TrigCache;
+import mtr.block.BlockPSDAPGDoorBase;
+import mtr.block.BlockTrainAnnouncer;
+import mtr.block.BlockTrainRedstoneSensor;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -206,7 +210,12 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	@Override
+	protected double asin(double value) {
+		return TrigCache.asin(value);
+	}
+
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -262,7 +271,7 @@ public class TrainServer extends Train {
 
 					final long platformId = timeSegment.savedRailBaseId;
 					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashSet<>());
+						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);

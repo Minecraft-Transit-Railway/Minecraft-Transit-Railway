@@ -20,13 +20,13 @@ jobs:
       - name: Make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      - name: Build 1.16.5
+      - name: Build 1.16
         run: ./gradlew build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.17.1
+      - name: Build 1.17
         run: ./gradlew build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build 1.18
         if: ${{ matrix.java == '17' }}
-        run: ./gradlew build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew build -PbuildVersion="1.18.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
         uses: actions/upload-artifact@v2

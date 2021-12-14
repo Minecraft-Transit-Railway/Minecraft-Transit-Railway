@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.Patreon;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.MathHelper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,14 +21,17 @@ public class Config {
 	private static boolean hideSpecialRailColors;
 	private static boolean hideTranslucentParts;
 	private static boolean useDynamicFPS = true;
+	private static int trackTextureOffset;
 
 	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
+	public static final int TRACK_OFFSET_COUNT = 32;
 	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().runDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
 	private static final String HIDE_TRANSLUCENT_PARTS = "hide_translucent_parts";
 	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
+	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 
 	public static boolean useMTRFont() {
 		return useMTRFont;
@@ -51,6 +55,10 @@ public class Config {
 
 	public static boolean useDynamicFPS() {
 		return useDynamicFPS;
+	}
+
+	public static int trackTextureOffset() {
+		return trackTextureOffset;
 	}
 
 	public static boolean setUseMTRFont(boolean value) {
@@ -89,6 +97,11 @@ public class Config {
 		return useDynamicFPS;
 	}
 
+	public static void setTrackTextureOffset(int value) {
+		trackTextureOffset = MathHelper.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
+		writeToFile();
+	}
+
 	public static void refreshProperties() {
 		System.out.println("Refreshed MTR mod config");
 		try {
@@ -113,6 +126,10 @@ public class Config {
 				hideTranslucentParts = jsonConfig.get(HIDE_TRANSLUCENT_PARTS).getAsBoolean();
 			} catch (Exception ignored) {
 			}
+			try {
+				trackTextureOffset = MathHelper.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
+			} catch (Exception ignored) {
+			}
 		} catch (Exception e) {
 			writeToFile();
 			e.printStackTrace();
@@ -132,6 +149,7 @@ public class Config {
 		jsonConfig.addProperty(USE_TTS_ANNOUNCEMENTS, useTTSAnnouncements);
 		jsonConfig.addProperty(HIDE_SPECIAL_RAIL_COLORS, hideSpecialRailColors);
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
+		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
