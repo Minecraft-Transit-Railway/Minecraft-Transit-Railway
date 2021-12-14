@@ -127,6 +127,8 @@
 	"gui.mtr.filtered_routes": "Filtered Routes (%s)",
 	"gui.mtr.filtered_routes_condition": "Only trains running on the following routes will activate this block",
 	"gui.mtr.filtered_routes_empty": "All trains will activate this block",
+	"gui.mtr.filtered_routes_condition_psd": "Only the following routes will be shown on the PSD",
+	"gui.mtr.filtered_routes_empty_psd": "All routes will be shown on the PSD",
 	"gui.mtr.game_time": "Game Time",
 	"gui.mtr.generate_map": "Generate route map",
 	"gui.mtr.generating_path": "Generating Path",
