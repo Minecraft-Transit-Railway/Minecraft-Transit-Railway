@@ -3,6 +3,7 @@ package mtr.gui;
 import minecraftmappings.ScreenMapper;
 import minecraftmappings.UtilitiesClient;
 import mtr.block.BlockPSDTop;
+import mtr.block.IBlock;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Route;
@@ -64,7 +65,7 @@ public abstract class PSDFilterScreen extends ScreenMapper implements IGui, IPac
 		try {
 			renderBackground(matrices);
 			textRenderer.draw(matrices, new TranslatableText("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
-			textRenderer.draw(matrices, new TranslatableText(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			textRenderer.draw(matrices, new TranslatableText(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty_psd" : "gui.mtr.filtered_routes_condition_psd"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
 				final Route route = ClientData.DATA_CACHE.routeIdMap.get(routeId);
@@ -82,19 +83,22 @@ public abstract class PSDFilterScreen extends ScreenMapper implements IGui, IPac
 	@Override
 	public void onClose() {
 		PacketTrainDataGuiClient.sendPSDFilterC2S(pos, filterRouteIds);
-		update(MinecraftClient.getInstance().world, pos, Direction.EAST, filterRouteIds);
-		update(MinecraftClient.getInstance().world, pos, Direction.WEST, filterRouteIds);
-		update(MinecraftClient.getInstance().world, pos, Direction.NORTH, filterRouteIds);
-		update(MinecraftClient.getInstance().world, pos, Direction.SOUTH, filterRouteIds);
+		World world = MinecraftClient.getInstance().world;
+		if(world != null) {
+			updateFilter(world, pos, IBlock.getStatePropertySafe(world.getBlockState(pos), BlockPSDTop.FACING).rotateYClockwise(), filterRouteIds);
+			updateFilter(world, pos, IBlock.getStatePropertySafe(world.getBlockState(pos), BlockPSDTop.FACING).rotateYCounterclockwise(), filterRouteIds);
+		}
 		super.onClose();
 	}
 
-	public static void update(World world, BlockPos pos, Direction offset, Set<Long> data) {
+	public static void updateFilter(World world, BlockPos pos, Direction offset, Set<Long> data) {
 		BlockPos offsetPos = pos.offset(offset);
-
-		if(world.getBlockState(offsetPos).getBlock() instanceof BlockPSDTop) {
+		BlockEntity entity = world.getBlockEntity(offsetPos);
+		if(entity instanceof BlockPSDTop.TileEntityPSDTop) {
+			/* Temp fix; I can get the client to sync */
+			((BlockPSDTop.TileEntityPSDTop) entity).clearData();
 			PacketTrainDataGuiClient.sendPSDFilterC2S(pos, data);
-			update(world, offsetPos, offset, data);
+			updateFilter(world, offsetPos, offset, data);
 		}
 	}
 

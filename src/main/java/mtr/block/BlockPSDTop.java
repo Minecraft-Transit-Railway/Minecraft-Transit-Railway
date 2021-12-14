@@ -54,7 +54,6 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos);
 				PacketTrainDataGuiServer.openPSDFilterScreenS2C((ServerPlayerEntity) player, pos);
-				((BlockPSDTop.TileEntityPSDTop) entity).sync();
 			}
 		});
 	}
@@ -91,6 +90,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+		System.out.println(((TileEntityPSDTop)world.getBlockEntity(pos)).getRouteIds());
 		if (direction == Direction.DOWN && !(newState.getBlock() instanceof BlockPSDAPGBase)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
@@ -124,15 +124,6 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityPSDTop(pos, state);
 	}
-
-//	public static void update(World world, BlockPos pos, Direction offset, Set<Long> data) {
-//		BlockPos offsetPos = pos.offset(offset);
-//
-//		if(world.getBlockState(offsetPos).getBlock() instanceof BlockPSDTop) {
-//			((TileEntityPSDTop) world.getBlockEntity(offsetPos)).setData(data);
-//			update(world, offsetPos, offset, data);
-//		}
-//	}
 
 	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
@@ -171,7 +162,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
 		}
 
-		private final Set<Long> filterRouteIds = new HashSet<>();
+		public final Set<Long> filterRouteIds = new HashSet<>();
 		private static final String KEY_ROUTE_IDS = "route_ids";
 
 		@Override
@@ -188,6 +179,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		}
 
 		public Set<Long> getRouteIds() {
+
 			return filterRouteIds;
 		}
 
@@ -196,6 +188,10 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 			this.filterRouteIds.addAll(filterRouteIds);
 			markDirty();
 			sync();
+		}
+
+		public void clearData() {
+			this.filterRouteIds.clear();
 		}
 	}
 
