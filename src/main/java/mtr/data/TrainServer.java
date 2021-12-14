@@ -1,6 +1,7 @@
 package mtr.data;
 
 import minecraftmappings.Utilities;
+import mtr.TrigCache;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainRedstoneSensor;
@@ -187,6 +188,11 @@ public class TrainServer extends Train {
 		}
 
 		return false;
+	}
+
+	@Override
+	protected double asin(double value) {
+		return TrigCache.asin(value);
 	}
 
 	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {

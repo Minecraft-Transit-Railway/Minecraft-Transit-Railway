@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.TrigCache;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
 import mtr.packet.IPacket;
@@ -299,7 +298,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			final double realSpacing = pos2.distanceTo(pos1);
 			final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
-			final float pitch = realSpacing == 0 ? 0 : (float) TrigCache.asin((pos2.y - pos1.y) / realSpacing);
+			final float pitch = realSpacing == 0 ? 0 : (float) asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = scanDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
 			final boolean doorRightOpen = scanDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
 
@@ -353,6 +352,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected abstract boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ);
 
 	protected abstract boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks);
+
+	protected abstract double asin(double value);
 
 	private boolean isOppositeRail() {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
