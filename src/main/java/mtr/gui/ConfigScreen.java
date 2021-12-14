@@ -26,6 +26,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private final ButtonWidget buttonHideSpecialRailColors;
 	private final ButtonWidget buttonHideTranslucentParts;
 	private final ButtonWidget buttonUseDynamicFPS;
+	private final WidgetShorterSlider sliderTrackTextureOffset;
 	private final ButtonWidget buttonSupportPatreon;
 
 	private static final int BUTTON_WIDTH = 60;
@@ -57,6 +58,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			useDynamicFPS = Config.setUseDynamicFPS(!useDynamicFPS);
 			setButtonText(button, useDynamicFPS);
 		});
+		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString);
 		buttonSupportPatreon = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> Util.getOperatingSystem().open("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
@@ -77,13 +79,16 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 5 - TEXT_PADDING, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 6 - TEXT_PADDING, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 7 - TEXT_PADDING, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 8 - TEXT_PADDING, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 8 - TEXT_PADDING, BUTTON_WIDTH - TEXT_PADDING - textRenderer.getWidth(String.valueOf(Config.TRACK_OFFSET_COUNT - 1)));
+		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE * 9 - TEXT_PADDING, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
 		setButtonText(buttonShowAnnouncementMessages, showAnnouncementMessages);
 		setButtonText(buttonUseTTSAnnouncements, useTTSAnnouncements);
 		setButtonText(buttonHideSpecialRailColors, hideSpecialRailColors);
 		setButtonText(buttonHideTranslucentParts, hideTranslucentParts);
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
+		sliderTrackTextureOffset.setHeight(SQUARE_SIZE);
+		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
 		buttonSupportPatreon.setMessage(new TranslatableText("gui.mtr.support"));
 
 		addDrawableChild(buttonUseMTRFont);
@@ -92,6 +97,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		addDrawableChild(buttonHideSpecialRailColors);
 		addDrawableChild(buttonHideTranslucentParts);
 		addDrawableChild(buttonUseDynamicFPS);
+		addDrawableChild(sliderTrackTextureOffset);
 		addDrawableChild(buttonSupportPatreon);
 	}
 
@@ -106,9 +112,10 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.hide_special_rail_colors"), SQUARE_SIZE, SQUARE_SIZE * 5, ARGB_WHITE);
 			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.hide_translucent_parts"), SQUARE_SIZE, SQUARE_SIZE * 6, ARGB_WHITE);
 			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.use_dynamic_fps"), SQUARE_SIZE, SQUARE_SIZE * 7, ARGB_WHITE);
-			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.support_patreon"), SQUARE_SIZE, SQUARE_SIZE * 8, ARGB_WHITE);
+			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.track_texture_offset"), SQUARE_SIZE, SQUARE_SIZE * 8, ARGB_WHITE);
+			drawTextWithShadow(matrices, textRenderer, new TranslatableText("options.mtr.support_patreon"), SQUARE_SIZE, SQUARE_SIZE * 9, ARGB_WHITE);
 
-			final int yStart = SQUARE_SIZE * 9;
+			final int yStart = SQUARE_SIZE * 10;
 			String tierTitle = "";
 			int y = 0;
 			int x = 0;
@@ -137,6 +144,12 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onClose() {
+		super.onClose();
+		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 	}
 
 	private static void setButtonText(ButtonWidget button, boolean state) {
