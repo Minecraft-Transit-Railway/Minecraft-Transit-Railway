@@ -104,7 +104,12 @@ public class RenderTrains implements IGui {
 			if (trainProperties.model == null || trainProperties.textureId == null) {
 				matrices.translate(0, 0.5, 0);
 				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
+				final VertexConsumer vertexConsumer;
+				if ( baseTrainType == TrainType.CHEST_MINECART ) {
+					vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/squid.png")));
+				} else {
+					vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.getLayer(new Identifier("textures/entity/minecart.png")));
+				}
 				MODEL_MINECART.setAngles(null, 0, 0, -0.1F, 0, 0);
 				MODEL_MINECART.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 			} else {

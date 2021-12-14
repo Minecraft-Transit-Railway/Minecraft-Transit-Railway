@@ -5,8 +5,13 @@ import mtr.block.BlockPlatform;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIntArray;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -31,6 +36,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final List<Float> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 	private final float railLength;
+	protected final DefaultedList<ItemStack> cargo;
 
 	public static final float ACCELERATION = 0.01F;
 	protected static final int MAX_CHECK_DISTANCE = 32;
@@ -46,6 +52,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
+	private static final String KEY_CARGOS = "cargos";
+	private static final String KEY_CARGOS_NUMS = "cargos_nums";
 
 	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -56,6 +64,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
+		this.cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -79,6 +88,15 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		isOnRoute = nbtCompound.getBoolean(KEY_IS_ON_ROUTE);
 		final NbtCompound tagRidingEntities = nbtCompound.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUuid(key)));
+
+		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
+		if (nbtCompound.contains(KEY_CARGOS, 10)) {
+			Inventories.readNbt(nbtCompound.getCompound(KEY_CARGOS), this.cargo);
+			final int[] cargo_nums = nbtCompound.getIntArray(KEY_CARGOS_NUMS);
+			for(int i = 0; i < cargo_nums.length; i++) {
+				cargo.get(i).setCount(cargo_nums[i]);
+			}
+		}
 	}
 
 	public Train(PacketByteBuf packet) {
@@ -108,6 +126,16 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		for (int i = 0; i < ridingEntitiesCount; i++) {
 			ridingEntities.add(packet.readUuid());
 		}
+
+		cargo = DefaultedList.ofSize(baseTrainType.cargo_slot * trainCars, ItemStack.EMPTY);
+		final int num = cargo.size();
+		if (num > 0) {
+			Inventories.readNbt(packet.readNbt().getCompound(KEY_CARGOS), this.cargo);
+			final int[] cargo_nums = packet.readIntArray(cargo.size());
+			for (int i = 0; i < cargo_nums.length; i++) {
+				cargo.get(i).setCount(cargo_nums[i]);
+			}
+		}
 	}
 
 	@Override
@@ -126,6 +154,16 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		final NbtCompound tagRidingEntities = new NbtCompound();
 		ridingEntities.forEach(uuid -> tagRidingEntities.putUuid(KEY_RIDING_ENTITIES + uuid, uuid));
 		nbtCompound.put(KEY_RIDING_ENTITIES, tagRidingEntities);
+
+		final int num = cargo.size();
+		if (num > 0) {
+			nbtCompound.put(KEY_CARGOS, Inventories.writeNbt(new NbtCompound(), this.cargo));
+			int[] cargo_nums = new int[num];
+			for (int i = 0; i < cargo.size(); i++) {
+				cargo_nums[i] = cargo.get(i).getCount();
+			}
+			nbtCompound.putIntArray(KEY_CARGOS_NUMS, cargo_nums);
+		}
 
 		return nbtCompound;
 	}
@@ -153,6 +191,17 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUuid);
+
+		final int num = cargo.size();
+		if (num > 0) {
+			packet.writeNbt(Inventories.writeNbt(new NbtCompound(), this.cargo));
+			int[] cargo_nums = new int[num];
+			for (int i = 0; i < cargo.size(); i++) {
+				cargo_nums[i] = cargo.get(i).getCount();
+			}
+			packet.writeIntArray(cargo_nums);
+		}
+
 	}
 
 	public final boolean getIsOnRoute() {
@@ -415,6 +464,48 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		return hasPlatform;
+	}
+
+	public void insert(Inventory from) {
+		for ( int i = 0; i < cargo.size(); i++ ) {
+			ItemStack slot = cargo.get(i);
+			for ( int j = 0; j < from.size(); j++ ) {
+				ItemStack putItem = from.getStack(j);
+				if ( !putItem.isEmpty() && ( ItemStack.areItemsEqual(slot, putItem) || slot.isEmpty() ) ) {
+					final int numItem = putItem.getCount();
+					final int numAvail = baseTrainType.cargo_num - slot.getCount();
+					final int takeNum = Math.min(numAvail, numItem);
+					if (slot.isEmpty()) {
+						slot = new ItemStack(putItem.getItem(), takeNum);
+						cargo.set(i, slot);
+					} else {
+						slot.increment(takeNum);
+					}
+					putItem.decrement(takeNum);
+				}
+			}
+		}
+	}
+
+	public void extract(Inventory to) {
+		for ( int i = 0; i < cargo.size(); i++ ) {
+			ItemStack putItem = cargo.get(i);
+			for ( int j = 0; j < to.size(); j++ ) {
+				ItemStack slot = to.getStack(j);
+				if ( !putItem.isEmpty() && ( ItemStack.areItemsEqual(slot, putItem) || slot.isEmpty() ) ) {
+					final int numItem = putItem.getCount();
+					final int numAvail = slot.getMaxCount() - slot.getCount();
+					final int takeNum = Math.min(numAvail, numItem);
+					if (slot.isEmpty()) {
+						slot = new ItemStack(putItem.getItem(), takeNum);
+						to.setStack(j, slot);
+					} else {
+						slot.increment(takeNum);
+					}
+					putItem.decrement(takeNum);
+				}
+			}
+		}
 	}
 
 	public static double getAverage(double a, double b) {
