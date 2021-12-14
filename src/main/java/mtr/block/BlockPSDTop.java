@@ -90,7 +90,6 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		System.out.println(((TileEntityPSDTop)world.getBlockEntity(pos)).getRouteIds());
 		if (direction == Direction.DOWN && !(newState.getBlock() instanceof BlockPSDAPGBase)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
