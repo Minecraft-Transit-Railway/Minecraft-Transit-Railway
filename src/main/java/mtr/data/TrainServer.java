@@ -12,15 +12,14 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -131,19 +130,18 @@ public class TrainServer extends Train {
 						Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
 					}
 				}
-				// Repeat with dwellTicks in simulateTrain of Train.java
+
 				if (block instanceof BlockTrainCargo) {
-					nearBlock(frontPos, nearPos -> {
-						final BlockEntity entity = world.getBlockEntity(nearPos);
-						if (entity instanceof Inventory) {
-							final Inventory entityInventory = (Inventory) entity;
+					for (final Direction direction : Direction.values()) {
+						final Inventory nearbyInventory = HopperBlockEntity.getInventoryAt(world, checkPos.offset(direction));
+						if (nearbyInventory != null) {
 							if (((BlockTrainCargo) block).isLoader) {
-								insert(entityInventory);
+								transferItems(nearbyInventory, inventory);
 							} else {
-								extract(entityInventory);
+								transferItems(inventory, nearbyInventory);
 							}
 						}
-					});
+					}
 				}
 			});
 		}
@@ -326,12 +324,16 @@ public class TrainServer extends Train {
 		}
 	}
 
-	private void nearBlock(BlockPos pos, Consumer<BlockPos> callback) {
-		// Follow the South-east rule
-		callback.accept(pos.add(1, -1, 0));
-		callback.accept(pos.add(0, -1, 1));
-		callback.accept(pos.add(-1, -1, 0));
-		callback.accept(pos.add(0, -1, -1));
+	private static void transferItems(Inventory inventoryFrom, Inventory inventoryTo) {
+		for (int i = 0; i < inventoryFrom.size(); i++) {
+			if (!inventoryFrom.getStack(i).isEmpty()) {
+				final ItemStack insertItem = new ItemStack(inventoryFrom.getStack(i).getItem(), 1);
+				final ItemStack remainingStack = HopperBlockEntity.transfer(null, inventoryTo, insertItem, null);
+				if (remainingStack.isEmpty()) {
+					inventoryFrom.removeStack(i, 1);
+					return;
+				}
+			}
+		}
 	}
-
 }
