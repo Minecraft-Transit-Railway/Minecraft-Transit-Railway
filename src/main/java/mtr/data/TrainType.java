@@ -30,15 +30,15 @@ public enum TrainType {
 	C_TRAIN_MINI(9, 2, 0, 0),
 	A_TRAIN_TCL(24, 2, 0, 0),
 	A_TRAIN_TCL_SMALL(19, 2, 0, 0),
-	A_TRAIN_TCL_MINI(9, 2, 0),
-	A_TRAIN_AEL(24, 2, 0),
-	A_TRAIN_AEL_MINI(14, 2, 0),
-	LIGHT_RAIL_1(22, 2, 0),
-	LIGHT_RAIL_1R(22, 2, 0),
-	LIGHT_RAIL_2(22, 2, 0),
-	LIGHT_RAIL_3(22, 2, 0),
-	LIGHT_RAIL_4(22, 2, 0),
-	LIGHT_RAIL_5(22, 2, 0),
+	A_TRAIN_TCL_MINI(9, 2, 0, 0),
+	A_TRAIN_AEL(24, 2, 0, 0),
+	A_TRAIN_AEL_MINI(14, 2, 0, 0),
+	LIGHT_RAIL_1(22, 2, 0, 0),
+	LIGHT_RAIL_1R(22, 2, 0, 0),
+	LIGHT_RAIL_2(22, 2, 0, 0),
+	LIGHT_RAIL_3(22, 2, 0, 0),
+	LIGHT_RAIL_4(22, 2, 0, 0),
+	LIGHT_RAIL_5(22, 2, 0, 0),
 	LIGHT_RAIL_1R_OLD(22, 2, 0, 0),
 	LIGHT_RAIL_4_OLD(22, 2, 0, 0),
 	LIGHT_RAIL_5_OLD(22, 2, 0, 0),
@@ -91,7 +91,7 @@ public enum TrainType {
 		this.length = length;
 		this.width = width;
 		this.trainBarrierLength = trainBarrierLength;
-    this.offset = offset;
+		this.offset = offset;
 	}
 
 	public float getSpacing() {

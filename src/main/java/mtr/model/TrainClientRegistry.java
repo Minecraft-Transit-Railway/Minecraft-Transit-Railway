@@ -69,7 +69,7 @@ public class TrainClientRegistry {
 		register("a_train_tcl_mini", TrainType.A_TRAIN_TCL_MINI, new ModelATrainMini(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", null, 0xF69447, true, false, 78, 0.5F, false);
 		register("a_train_ael", TrainType.A_TRAIN_AEL, new ModelATrain(true), "mtr:textures/entity/a_train_ael", "a_train", "a_train", null, 0x008D8D, true, false, 78, 0.5F, false);
 		register("a_train_ael_mini", TrainType.A_TRAIN_AEL_MINI, new ModelATrainMini(true), "mtr:textures/entity/a_train_ael", "a_train", "a_train", null, 0x008D8D, true, false, 78, 0.5F, false);
-		register("light_rail_1", TrainType.LIGHT_RAIL_1, new ModelLightRail(1), "mtr:textures/entity/light_rail_1", "light_rail", "light_rail_1", null, 0xD2A825, false, 48, 1, false);
+		register("light_rail_1", TrainType.LIGHT_RAIL_1, new ModelLightRail(1), "mtr:textures/entity/light_rail_1", "light_rail", "light_rail_1", null, 0xD2A825, false, false, 48, 1, false);
 		register("light_rail_1r", TrainType.LIGHT_RAIL_1R, new ModelLightRail(4), "mtr:textures/entity/light_rail_1r", "light_rail", "light_rail_1", null, 0xD2A825, false, false, 48, 1, false);
 		register("light_rail_2", TrainType.LIGHT_RAIL_2, new ModelLightRail(2), "mtr:textures/entity/light_rail_2", "light_rail", "light_rail_3", null, 0xD2A825, false, false, 48, 1, false);
 		register("light_rail_3", TrainType.LIGHT_RAIL_3, new ModelLightRail(3), "mtr:textures/entity/light_rail_3", "light_rail", "light_rail_3", null, 0xD2A825, false, false, 48, 1, false);
