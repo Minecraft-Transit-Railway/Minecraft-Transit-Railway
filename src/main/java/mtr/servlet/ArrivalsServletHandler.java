@@ -45,7 +45,7 @@ public class ArrivalsServletHandler extends HttpServlet {
 					final RailwayData railwayData = RailwayData.getInstance(world);
 
 					if (railwayData != null) {
-						final Map<Long, Set<Route.ScheduleEntry>> schedulesForStation = new HashMap<>();
+						final Map<Long, List<Route.ScheduleEntry>> schedulesForStation = new HashMap<>();
 						railwayData.getSchedulesForStation(schedulesForStation, stationIdFinal);
 
 						final List<Route.ScheduleEntry> scheduleEntries = new ArrayList<>();

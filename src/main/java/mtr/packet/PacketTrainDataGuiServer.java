@@ -1,8 +1,10 @@
 package mtr.packet;
 
+import minecraftmappings.Utilities;
+import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
-import mtr.block.BlockTrainAnnouncer;
+import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -15,14 +17,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
@@ -46,10 +46,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
-	public static void openTrainAnnouncerScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
+	public static void openTrainSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_ANNOUNCER_SCREEN, packet);
+		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
+	}
+
+	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeBlockPos(pos1);
+		packet.writeBlockPos(pos2);
+		packet.writeInt(maxArrivals);
+		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
 	public static void announceS2C(ServerPlayerEntity player, String message) {
@@ -68,6 +76,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
+	public static void createSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeLong(id);
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeUuid(rail);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_SIGNAL, packet));
+	}
+
 	public static void removeNodeS2C(World world, BlockPos pos) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos);
@@ -81,7 +97,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
+	public static void removeSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		packet.writeInt(1);
+		packet.writeLong(id);
+		packet.writeInt(dyeColor.ordinal());
+		packet.writeUuid(rail);
+		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
+	}
+
+	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
 		final PacketByteBuf packet = PacketByteBufs.create();
 
@@ -90,6 +115,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		serializeData(packet, sidings);
 		serializeData(packet, routes);
 		serializeData(packet, depots);
+		serializeData(packet, signalBlocks.signalBlocks);
 
 		int i = 0;
 		while (!sendChunk(player, packet, tempPacketId, i)) {
@@ -162,6 +188,23 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void receiveTrainSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final Set<Long> filterIds = new HashSet<>();
+		final int filterLength = packet.readInt();
+		for (int i = 0; i < filterLength; i++) {
+			filterIds.add(packet.readLong());
+		}
+		final int number = packet.readInt();
+		final String string = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.world.getBlockEntity(pos);
+			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
+				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, number, string);
+			}
+		});
+	}
+
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
 		final int selectedIdsLength = packet.readInt();
@@ -181,7 +224,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
-				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.size() == 0 ? 0 : (long) selectedIds.toArray()[0]);
+				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0]);
 			}
 		});
 	}
@@ -197,18 +240,29 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			ScoreboardPlayerScore balanceScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE);
 			balanceScore.setScore(balanceScore.getScore() + addAmount);
 
-			Inventories.remove(player.inventory, itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
+			Inventories.remove(Utilities.getInventory(player), itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
 			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
 		});
 	}
 
-	public static void receiveTrainAnnouncerMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		final String message = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+		final BlockPos pos1 = packet.readBlockPos();
+		final BlockPos pos2 = packet.readBlockPos();
+		final int maxArrivals = packet.readInt();
+		final String[] messages = new String[maxArrivals];
+		final boolean[] hideArrivals = new boolean[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+			hideArrivals[i] = packet.readBoolean();
+		}
 		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(pos);
-			if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
-				((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).setMessage(message);
+			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
+			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals);
+			}
+			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
+			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
 			}
 		});
 	}

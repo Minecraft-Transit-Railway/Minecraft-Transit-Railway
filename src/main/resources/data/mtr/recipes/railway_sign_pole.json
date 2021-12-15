@@ -1,0 +1,20 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"B B",
+		"B B",
+		"I I"
+	],
+	"key": {
+		"B": {
+			"item": "minecraft:iron_bars"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		}
+	},
+	"result": {
+		"item": "mtr:railway_sign_pole",
+		"count": 16
+	}
+}

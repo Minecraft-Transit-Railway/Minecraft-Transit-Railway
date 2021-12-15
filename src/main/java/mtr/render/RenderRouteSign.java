@@ -1,11 +1,13 @@
 package mtr.render;
 
+import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
+import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.gui.ClientData;
 import net.minecraft.block.BlockState;
@@ -13,7 +15,6 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -22,7 +23,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.Map;
 
-public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRenderer<T> implements IBlock, IGui {
+public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
 
 	private static final int SCALE = 480;
 
@@ -49,7 +50,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Station station = ClientData.getStation(pos);
+		final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 		if (station == null) {
 			return;
 		}

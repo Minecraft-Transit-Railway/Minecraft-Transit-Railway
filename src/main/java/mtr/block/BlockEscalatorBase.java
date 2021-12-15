@@ -1,5 +1,6 @@
 package mtr.block;
 
+import minecraftmappings.HorizontalFacingBlockMapper;
 import mtr.Items;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
@@ -16,7 +17,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
-public abstract class BlockEscalatorBase extends HorizontalFacingBlock implements IBlock {
+public abstract class BlockEscalatorBase extends HorizontalFacingBlockMapper implements IBlock {
 
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
 
@@ -70,11 +71,11 @@ public abstract class BlockEscalatorBase extends HorizontalFacingBlock implement
 		final BlockPos posAhead = pos.offset(facing);
 		final BlockPos posBehind = pos.offset(facing, -1);
 
-		final boolean isAhead = is(world.getBlockState(posAhead).getBlock());
-		final boolean isAheadUp = is(world.getBlockState(posAhead.up()).getBlock());
+		final boolean isAhead = state.isOf(world.getBlockState(posAhead).getBlock());
+		final boolean isAheadUp = state.isOf(world.getBlockState(posAhead.up()).getBlock());
 
-		final boolean isBehind = is(world.getBlockState(posBehind).getBlock());
-		final boolean isBehindDown = is(world.getBlockState(posBehind.down()).getBlock());
+		final boolean isBehind = state.isOf(world.getBlockState(posBehind).getBlock());
+		final boolean isBehindDown = state.isOf(world.getBlockState(posBehind.down()).getBlock());
 
 		if (isAhead && isBehind) {
 			return EnumEscalatorOrientation.FLAT;

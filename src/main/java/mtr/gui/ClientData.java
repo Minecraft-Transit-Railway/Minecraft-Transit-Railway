@@ -25,6 +25,7 @@ public final class ClientData {
 	public static final Set<Siding> SIDINGS = new HashSet<>();
 	public static final Set<Route> ROUTES = new HashSet<>();
 	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final Map<Long, Set<Route.ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
@@ -98,7 +99,17 @@ public final class ClientData {
 				tempSchedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(packet));
 			}
 		}
-		client.execute(() -> clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform));
+
+		final Map<Long, Boolean> signalBlockStatus = new HashMap<>();
+		final int signalBlockCount = packet.readInt();
+		for (int i = 0; i < signalBlockCount; i++) {
+			signalBlockStatus.put(packet.readLong(), packet.readBoolean());
+		}
+
+		client.execute(() -> {
+			clearAndAddAll(SCHEDULES_FOR_PLATFORM, tempSchedulesForPlatform);
+			SIGNAL_BLOCKS.writeSignalBlockStatus(signalBlockStatus);
+		});
 	}
 
 	public static void receivePacket(PacketByteBuf packet) {
@@ -108,27 +119,10 @@ public final class ClientData {
 		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
 		clearAndAddAll(ROUTES, deserializeData(packetCopy, Route::new));
 		clearAndAddAll(DEPOTS, deserializeData(packetCopy, Depot::new));
+		clearAndAddAll(SIGNAL_BLOCKS.signalBlocks, deserializeData(packetCopy, SignalBlocks.SignalBlock::new));
 
 		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
-	}
-
-	public static Station getStation(BlockPos pos) {
-		try {
-			return ClientData.STATIONS.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static Platform getClosePlatform(BlockPos pos) {
-		try {
-			return ClientData.PLATFORMS.stream().filter(platform -> platform.isCloseToSavedRail(pos)).findFirst().orElse(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {

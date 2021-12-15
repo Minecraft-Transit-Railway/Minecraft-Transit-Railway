@@ -1,6 +1,5 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +14,7 @@ public interface IPropagateBlock {
 		for (int i = 1; i <= maxBlocksAway; i++) {
 			final BlockPos offsetPos = pos.offset(direction, i);
 			final BlockState offsetState = world.getBlockState(offsetPos);
-			if (((Block) this).is(offsetState.getBlock())) {
+			if (this == offsetState.getBlock()) {
 				world.setBlockState(offsetPos, offsetState.with(PROPAGATE_PROPERTY, IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY)));
 				propagate(world, offsetPos, direction, maxBlocksAway);
 				return;

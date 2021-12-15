@@ -2,7 +2,6 @@ package mtr.path;
 
 import mtr.data.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 import java.util.*;
 import java.util.function.Function;
@@ -58,7 +57,7 @@ public class PathFinder {
 			final List<PathPart> path = new ArrayList<>();
 			final Set<BlockPos> turnBacks = new HashSet<>();
 			final List<BlockPos> startPositions = savedRailBaseStart.getOrderedPositions(savedRailBaseEndMidPos, i == 0);
-			path.add(new PathPart(Direction.UP, startPositions.get(0), new ArrayList<>()));
+			path.add(new PathPart(null, startPositions.get(0), new ArrayList<>()));
 			addPathPart(rails, startPositions.get(1), startPositions.get(0), path, turnBacks, comparator);
 
 			while (path.size() >= 2) {
@@ -107,7 +106,7 @@ public class PathFinder {
 			return;
 		}
 
-		final Direction newDirection = oldRail.facingEnd.getOpposite();
+		final RailAngle newDirection = oldRail.facingEnd.getOpposite();
 		final List<BlockPos> otherOptions = new ArrayList<>();
 
 		if (newConnections != null) {
@@ -130,17 +129,17 @@ public class PathFinder {
 
 	private static class PathPart {
 
-		private final Direction direction;
+		private final RailAngle direction;
 		private final BlockPos pos;
 		private final List<BlockPos> otherOptions;
 
-		private PathPart(Direction direction, BlockPos pos, List<BlockPos> otherOptions) {
+		private PathPart(RailAngle direction, BlockPos pos, List<BlockPos> otherOptions) {
 			this.direction = direction;
 			this.pos = pos;
 			this.otherOptions = otherOptions;
 		}
 
-		private boolean isSame(BlockPos newPos, Direction newDirection) {
+		private boolean isSame(BlockPos newPos, RailAngle newDirection) {
 			return newPos.equals(pos) && newDirection == direction;
 		}
 	}

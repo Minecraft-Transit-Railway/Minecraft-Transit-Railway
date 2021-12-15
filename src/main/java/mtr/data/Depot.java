@@ -112,23 +112,19 @@ public class Depot extends AreaBase {
 
 	@Override
 	public void update(String key, PacketByteBuf packet) {
-		switch (key) {
-			case KEY_ROUTE_IDS:
-				routeIds.clear();
-				final int routeIdCount = packet.readInt();
-				for (int i = 0; i < routeIdCount; i++) {
-					routeIds.add(packet.readLong());
-				}
-				break;
-			case KEY_FREQUENCIES:
-				name = packet.readString(PACKET_STRING_READ_LENGTH);
-				color = packet.readInt();
-				for (int i = 0; i < HOURS_IN_DAY; i++) {
-					frequencies[i] = packet.readInt();
-				}
-				break;
-			default:
-				super.update(key, packet);
+		if (KEY_FREQUENCIES.equals(key)) {
+			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			color = packet.readInt();
+			for (int i = 0; i < HOURS_IN_DAY; i++) {
+				frequencies[i] = packet.readInt();
+			}
+			routeIds.clear();
+			final int routeIdCount = packet.readInt();
+			for (int i = 0; i < routeIdCount; i++) {
+				routeIds.add(packet.readLong());
+			}
+		} else {
+			super.update(key, packet);
 		}
 	}
 
@@ -146,7 +142,7 @@ public class Depot extends AreaBase {
 		}
 	}
 
-	public void setFrequencies(Consumer<PacketByteBuf> sendPacket) {
+	public void setData(Consumer<PacketByteBuf> sendPacket) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
 		packet.writeString(KEY_FREQUENCIES);
@@ -155,13 +151,6 @@ public class Depot extends AreaBase {
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
 		}
-		sendPacket.accept(packet);
-	}
-
-	public void setRouteIds(Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeLong(id);
-		packet.writeString(KEY_ROUTE_IDS);
 		packet.writeInt(routeIds.size());
 		routeIds.forEach(packet::writeLong);
 		sendPacket.accept(packet);

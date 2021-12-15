@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:signal_pole"
+		},
+		{
+			"tag": "c:wood_sticks"
+		},
+		{
+			"tag": "c:green_dyes"
+		},
+		{
+			"tag": "c:red_dyes"
+		},
+		{
+			"tag": "c:redstone_dusts"
+		},
+		{
+			"tag": "c:glowstone_dusts"
+		}
+	],
+	"result": {
+		"item": "mtr:signal_semaphore_1",
+		"count": 2
+	}
+}

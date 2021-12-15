@@ -1,0 +1,33 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "block/coal_block",
+		"pole": "mtr:block/metal"
+	},
+	"elements": [
+		{
+			"from": [ 6, 0, 6 ],
+			"to": [ 10, 12, 10 ],
+			"faces": {
+				"down": { "texture": "#pole", "cullface": "down" },
+				"up": { "texture": "#pole" },
+				"east": { "texture": "#pole" },
+				"west": { "texture": "#pole" },
+				"north": { "texture": "#pole" },
+				"south": { "texture": "#pole" }
+			}
+		},
+		{
+			"from": [ 4, 4, 5 ],
+			"to": [ 12, 8, 11 ],
+			"faces": {
+				"down": { "texture": "#particle" },
+				"up": { "texture": "#particle" },
+				"east": { "texture": "#particle" },
+				"west": { "texture": "#particle" },
+				"north": { "texture": "#particle" },
+				"south": { "texture": "#particle" }
+			}
+		}
+	]
+}

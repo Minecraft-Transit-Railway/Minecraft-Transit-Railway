@@ -39,6 +39,7 @@ public class DataServletHandler extends HttpServlet {
 						final JsonObject routeObject = new JsonObject();
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name.split("\\|\\|")[0]);
+						routeObject.addProperty("type", route.routeType.toString().toLowerCase());
 						final JsonArray routeStationsArray = new JsonArray();
 						routeObject.add("stations", routeStationsArray);
 

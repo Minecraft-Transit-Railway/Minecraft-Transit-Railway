@@ -5,8 +5,12 @@ import mtr.block.BlockPlatform;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -30,6 +34,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final List<PathData> path;
 	protected final List<Float> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
+	protected final SimpleInventory inventory;
 	private final float railLength;
 
 	public static final float ACCELERATION = 0.01F;
@@ -46,6 +51,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
+	private static final String KEY_CARGO = "cargo";
 
 	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -56,6 +62,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
+		inventory = new SimpleInventory(trainCars);
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, NbtCompound nbtCompound) {
@@ -79,6 +86,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		isOnRoute = nbtCompound.getBoolean(KEY_IS_ON_ROUTE);
 		final NbtCompound tagRidingEntities = nbtCompound.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUuid(key)));
+
+		final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(trainCars, ItemStack.EMPTY);
+		Inventories.readNbt(nbtCompound.getCompound(KEY_CARGO), stacks);
+		inventory = new SimpleInventory(stacks.toArray(new ItemStack[0]));
 	}
 
 	public Train(PacketByteBuf packet) {
@@ -108,6 +119,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		for (int i = 0; i < ridingEntitiesCount; i++) {
 			ridingEntities.add(packet.readUuid());
 		}
+
+		inventory = null;
 	}
 
 	@Override
@@ -126,6 +139,12 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		final NbtCompound tagRidingEntities = new NbtCompound();
 		ridingEntities.forEach(uuid -> tagRidingEntities.putUuid(KEY_RIDING_ENTITIES + uuid, uuid));
 		nbtCompound.put(KEY_RIDING_ENTITIES, tagRidingEntities);
+
+		final DefaultedList<ItemStack> stacks = DefaultedList.ofSize(inventory.size(), ItemStack.EMPTY);
+		for (int i = 0; i < inventory.size(); i++) {
+			stacks.set(i, inventory.getStack(0));
+		}
+		nbtCompound.put(KEY_CARGO, Inventories.writeNbt(new NbtCompound(), stacks));
 
 		return nbtCompound;
 	}
@@ -298,7 +317,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			final double realSpacing = pos2.distanceTo(pos1);
 			final float yaw = (float) MathHelper.atan2(pos2.x - pos1.x, pos2.z - pos1.z);
-			final float pitch = realSpacing == 0 ? 0 : (float) Math.asin((pos2.y - pos1.y) / realSpacing);
+			final float pitch = realSpacing == 0 ? 0 : (float) asin((pos2.y - pos1.y) / realSpacing);
 			final boolean doorLeftOpen = scanDoors(world, x, y, z, (float) Math.PI + yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
 			final boolean doorRightOpen = scanDoors(world, x, y, z, yaw, pitch, realSpacing / 2, doorValue, dwellTicks) && doorValue > 0;
 
@@ -353,6 +372,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	protected abstract boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks);
 
+	protected abstract double asin(double value);
+
 	private boolean isOppositeRail() {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
 	}
@@ -360,10 +381,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private float getRailProgress(int car, float trainSpacing) {
 		return railProgress - car * trainSpacing;
 	}
-
+  
 	private Vec3d getRoutePosition(int car, float trainSpacing) {
-		final int index = getIndex(car, trainSpacing, false);
-		return path.get(index).rail.getPosition(getRailProgress(car, trainSpacing) - (index == 0 ? 0 : distances.get(index - 1)));
+		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.offset, 0);
+		final int index = getIndex(tempRailProgress, false);
+		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1)));
 	}
 
 	private float getDoorValue() {

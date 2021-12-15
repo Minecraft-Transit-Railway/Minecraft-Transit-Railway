@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/block_overlay_base",
+	"textures": {
+		"particle": "block/smooth_stone",
+		"side": "mtr:block/train_schedule_sensor_off"
+	}
+}

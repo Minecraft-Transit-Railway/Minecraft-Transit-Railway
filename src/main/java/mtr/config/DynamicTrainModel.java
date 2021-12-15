@@ -3,10 +3,11 @@ package mtr.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import minecraftmappings.ModelDataWrapper;
+import minecraftmappings.ModelMapper;
 import mtr.model.ModelDoorOverlay;
 import mtr.model.ModelDoorOverlayTopBase;
 import mtr.model.ModelTrainBase;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -16,19 +17,28 @@ import java.util.function.Function;
 
 public class DynamicTrainModel extends ModelTrainBase {
 
-	private final Map<String, ModelPart> parts = new HashMap<>();
+	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
 	private final int doorMax;
 
 	public DynamicTrainModel(JsonObject model, JsonObject properties) {
 		final JsonObject resolution = model.getAsJsonObject("resolution");
-		textureWidth = resolution.get("width").getAsInt();
-		textureHeight = resolution.get("height").getAsInt();
+		final int textureWidth = resolution.get("width").getAsInt();
+		final int textureHeight = resolution.get("height").getAsInt();
 
-		final Map<String, ModelPart> elementsByKey = new HashMap<>();
+		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
+
+		final Map<String, ModelMapper> elementsByKey = new HashMap<>();
+		model.getAsJsonArray("elements").forEach(element -> elementsByKey.put(element.getAsJsonObject().get("uuid").getAsString(), new ModelMapper(modelDataWrapper)));
+
+		model.getAsJsonArray("outliner").forEach(element -> {
+			final JsonObject elementObject = element.getAsJsonObject();
+			parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey, modelDataWrapper));
+		});
+
 		model.getAsJsonArray("elements").forEach(element -> {
 			final JsonObject elementObject = element.getAsJsonObject();
-			final ModelPart child = new ModelPart(this);
+			final ModelMapper child = elementsByKey.get(elementObject.get("uuid").getAsString());
 
 			final Double[] origin = {0D, 0D, 0D};
 			getArrayFromValue(origin, elementObject, "origin", JsonElement::getAsDouble);
@@ -51,23 +61,24 @@ public class DynamicTrainModel extends ModelTrainBase {
 
 			child.setTextureOffset(uvOffset[0], uvOffset[1]).addCuboid(
 					origin[0].floatValue() - posTo[0].floatValue(), origin[1].floatValue() - posTo[1].floatValue(), posFrom[2].floatValue() - origin[2].floatValue(),
-					posTo[0].floatValue() - posFrom[0].floatValue(), posTo[1].floatValue() - posFrom[1].floatValue(), posTo[2].floatValue() - posFrom[2].floatValue(),
+					Math.round(posTo[0].floatValue() - posFrom[0].floatValue()), Math.round(posTo[1].floatValue() - posFrom[1].floatValue()), Math.round(posTo[2].floatValue() - posFrom[2].floatValue()),
 					(float) inflate, mirror
 			);
-			elementsByKey.put(elementObject.get("uuid").getAsString(), child);
-		});
-
-		model.getAsJsonArray("outliner").forEach(element -> {
-			final JsonObject elementObject = element.getAsJsonObject();
-			parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey));
 		});
 
 		this.properties = properties;
 		doorMax = properties.get("door_max").getAsInt();
+
+		modelDataWrapper.setModelPart(textureWidth, textureHeight);
+		parts.values().forEach(part -> {
+			part.setPivot(0, 0, 0);
+			part.setTextureOffset(0, 0).addCuboid(0, 0, 0, 0, 0, 0, 0, false);
+			part.setModelPart();
+		});
 	}
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 	}
 
 	@Override
@@ -81,33 +92,33 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
-			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		} else {
-			renderParts("parts_head_1_tail_lights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_1_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		}
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, boolean useHeadlights) {
-		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
-			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		} else {
-			renderParts("parts_head_2_tail_lights", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+			renderParts("parts_head_2_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		}
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
-		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails) {
-		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, 0, 0);
+	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
 	@Override
@@ -145,11 +156,9 @@ public class DynamicTrainModel extends ModelTrainBase {
 		return smoothEnds(0, doorMax, 0, 0.5F, value);
 	}
 
-	private ModelPart addChildren(JsonObject jsonObject, Map<String, ModelPart> children) {
-		final ModelPart part = new ModelPart(this);
-		part.setPivot(0, 0, 0);
-		part.setTextureOffset(0, 0).addCuboid(0, 0, 0, 0, 0, 0);
-		jsonObject.getAsJsonArray("children").forEach(child -> part.addChild(child.isJsonObject() ? addChildren(child.getAsJsonObject(), children) : children.get(child.getAsString())));
+	private ModelMapper addChildren(JsonObject jsonObject, Map<String, ModelMapper> children, ModelDataWrapper modelDataWrapper) {
+		final ModelMapper part = new ModelMapper(modelDataWrapper);
+		jsonObject.getAsJsonArray("children").forEach(child -> part.addChild(child.isJsonObject() ? addChildren(child.getAsJsonObject(), children, modelDataWrapper) : children.get(child.getAsString())));
 		return part;
 	}
 
@@ -159,7 +168,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();
 
 			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase())) {
-				final ModelPart part = parts.get(partObject.get("part_name").getAsString());
+				final ModelMapper part = parts.get(partObject.get("part_name").getAsString());
 
 				if (part != null) {
 					final float zOffset;

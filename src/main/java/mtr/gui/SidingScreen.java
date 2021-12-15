@@ -5,9 +5,7 @@ import mtr.model.ModelR179;
 import mtr.model.TrainClientRegistry;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -26,7 +24,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
 	private final WidgetBetterCheckbox buttonTrainBarrier;
-	private final TextFieldWidget textFieldMaxTrains;
+	private final WidgetBetterTextField textFieldMaxTrains;
 
 	private static final Text MAX_TRAINS_TEXT = new TranslatableText("gui.mtr.max_trains");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
@@ -35,8 +33,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public SidingScreen(Siding siding, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
 		buttonSelectTrain = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> onSelectingTrain());
-		availableTrainsList = new DashboardList(this::addButton, this::addChild, null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
-		textFieldMaxTrains = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
+		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getText().isEmpty()) {
 				textFieldMaxTrains.setText("");
@@ -65,28 +63,21 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
 
-		addButton(buttonSelectTrain);
-		addButton(buttonUnlimitedTrains);
+		addDrawableChild(buttonSelectTrain);
+		addDrawableChild(buttonUnlimitedTrains);
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
 		availableTrainsList.width = PANEL_WIDTH;
-		availableTrainsList.init();
+		availableTrainsList.init(this::addDrawableChild);
 
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setText(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
-		textFieldMaxTrains.setMaxLength(MAX_TRAINS_TEXT_LENGTH);
-		textFieldMaxTrains.setChangedListener(text -> {
-			final String newText = text.replaceAll("[^0-9]", "");
-			if (!newText.equals(text)) {
-				textFieldMaxTrains.setText(newText);
-			}
-			buttonUnlimitedTrains.setChecked(newText.isEmpty());
-		});
+		textFieldMaxTrains.setChangedListener(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
-		addChild(textFieldMaxTrains);
+		addDrawableChild(textFieldMaxTrains);
 	}
 
 	@Override
@@ -99,7 +90,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
-		textFieldMaxTrains.render(matrices, mouseX, mouseY, delta);
 		if (!isSelectingTrain) {
 			textRenderer.draw(matrices, MAX_TRAINS_TEXT, startX, height / 2F + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE, ARGB_WHITE);
 		}
@@ -136,7 +126,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	@Override
 	protected void renderExtra(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		availableTrainsList.render(matrices, textRenderer, mouseX, mouseY, delta);
+		availableTrainsList.render(matrices, textRenderer);
 	}
 
 	@Override

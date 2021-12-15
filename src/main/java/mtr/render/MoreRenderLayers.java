@@ -1,24 +1,20 @@
 package mtr.render;
 
+import minecraftmappings.RenderLayerMapper;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class MoreRenderLayers extends RenderLayer {
+public class MoreRenderLayers extends RenderLayerMapper {
 
 	private static final Map<String, RenderLayer> LIGHT_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> INTERIOR_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> INTERIOR_TRANSLUCENT_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> EXTERIOR_CACHE = new HashMap<>();
 	private static final Map<Identifier, RenderLayer> EXTERIOR_TRANSLUCENT_CACHE = new HashMap<>();
-
-	public MoreRenderLayers(String name, VertexFormat vertexFormat, int drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
-		super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
-	}
 
 	public static RenderLayer getLight(Identifier texture, boolean isTranslucent) {
 		return checkCache(texture.toString() + isTranslucent, () -> getBeaconBeam(texture, isTranslucent), LIGHT_CACHE);

@@ -10,12 +10,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
 
 public class BlockCeiling extends Block {
 
 	public static final BooleanProperty FACING = BooleanProperty.of("facing");
-	public static final BooleanProperty LIGHT = BooleanProperty.of("light");
 
 	public BlockCeiling(Settings settings) {
 		super(settings);
@@ -23,8 +21,7 @@ public class BlockCeiling extends Block {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
-		return getDefaultState().with(FACING, facing).with(LIGHT, hasLight(facing, ctx.getBlockPos()));
+		return getDefaultState().with(FACING, ctx.getPlayerFacing().getAxis() == Direction.Axis.X);
 	}
 
 	@Override
@@ -33,20 +30,7 @@ public class BlockCeiling extends Block {
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		return state.with(LIGHT, hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
-	}
-
-	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING, LIGHT);
-	}
-
-	private boolean hasLight(boolean facing, BlockPos pos) {
-		if (facing) {
-			return pos.getZ() % 3 == 0;
-		} else {
-			return pos.getX() % 3 == 0;
-		}
+		builder.add(FACING);
 	}
 }

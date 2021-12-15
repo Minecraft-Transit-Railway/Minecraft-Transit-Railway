@@ -1,7 +1,8 @@
 package mtr.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import minecraftmappings.SelectableMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,7 +13,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.TranslatableText;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class WidgetMap implements Drawable, Element, IGui {
+public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 
 	private int x;
 	private int y;
@@ -76,10 +76,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		final Tessellator tessellator = Tessellator.getInstance();
 		final BufferBuilder buffer = tessellator.getBuffer();
+		UtilitiesClient.beginDrawingRectangle(buffer);
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-		buffer.begin(7, VertexFormats.POSITION_COLOR);
 
 		final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
 		final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
@@ -130,9 +128,8 @@ public class WidgetMap implements Drawable, Element, IGui {
 		}
 
 		tessellator.draw();
-		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
-
+		UtilitiesClient.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
 			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
@@ -337,7 +334,7 @@ public class WidgetMap implements Drawable, Element, IGui {
 		final double x2 = Math.max(xA, xB);
 		final double y2 = Math.max(yA, yB);
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
-			IDrawing.drawRectangle(buffer, x + x1, y + y1, x + x2, y + y2, color);
+			IDrawing.drawRectangle(buffer, x + Math.max(0, x1), y + y1, x + x2, y + y2, color);
 		}
 	}
 

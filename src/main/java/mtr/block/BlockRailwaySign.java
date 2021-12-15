@@ -1,8 +1,9 @@
 package mtr.block;
 
+import minecraftmappings.BlockEntityClientSerializableMapper;
+import minecraftmappings.BlockEntityProviderMapper;
 import mtr.MTR;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,7 +34,7 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.*;
 
-public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEntityProvider, IBlock {
+public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEntityProviderMapper, IBlock {
 
 	public final int length;
 	public final boolean isOdd;
@@ -63,7 +64,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		final boolean isNext = direction == facing.rotateYClockwise() || is(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && direction == facing.rotateYCounterclockwise();
+		final boolean isNext = direction == facing.rotateYClockwise() || state.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE) && direction == facing.rotateYCounterclockwise();
 		if (isNext && !(newState.getBlock() instanceof BlockRailwaySign)) {
 			return Blocks.AIR.getDefaultState();
 		} else {
@@ -105,7 +106,7 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		if (is(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
+		if (state.isOf(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
 			return IBlock.getVoxelShapeByDirection(0, 0, 7, 16, 12, 9, facing);
 		} else {
 			final int xStart = getXStart();
@@ -127,11 +128,11 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		if (is(mtr.Blocks.RAILWAY_SIGN_MIDDLE)) {
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		if (this == mtr.Blocks.RAILWAY_SIGN_MIDDLE) {
 			return null;
 		} else {
-			return new TileEntityRailwaySign(length, isOdd);
+			return new TileEntityRailwaySign(length, isOdd, pos, state);
 		}
 	}
 
@@ -174,34 +175,21 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 	}
 
-	public static class TileEntityRailwaySign extends BlockEntity implements BlockEntityClientSerializable {
+	public static class TileEntityRailwaySign extends BlockEntityClientSerializableMapper {
 
 		private final Set<Long> selectedIds;
 		private final String[] signIds;
 		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
 
-		public TileEntityRailwaySign(int length, boolean isOdd) {
-			super(getType(length, isOdd));
+		public TileEntityRailwaySign(int length, boolean isOdd, BlockPos pos, BlockState state) {
+			super(getType(length, isOdd), pos, state);
 			signIds = new String[length];
 			selectedIds = new HashSet<>();
 		}
 
 		@Override
-		public void fromTag(BlockState state, NbtCompound nbtCompound) {
-			super.fromTag(state, nbtCompound);
-			fromClientTag(nbtCompound);
-		}
-
-		@Override
-		public NbtCompound writeNbt(NbtCompound nbtCompound) {
-			super.writeNbt(nbtCompound);
-			toClientTag(nbtCompound);
-			return nbtCompound;
-		}
-
-		@Override
-		public void fromClientTag(NbtCompound nbtCompound) {
+		public void readNbtCompound(NbtCompound nbtCompound) {
 			selectedIds.clear();
 			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(selectedIds::add);
 			for (int i = 0; i < signIds.length; i++) {
@@ -211,12 +199,11 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		}
 
 		@Override
-		public NbtCompound toClientTag(NbtCompound nbtCompound) {
+		public void writeNbtCompound(NbtCompound nbtCompound) {
 			nbtCompound.putLongArray(KEY_SELECTED_IDS, new ArrayList<>(selectedIds));
 			for (int i = 0; i < signIds.length; i++) {
 				nbtCompound.putString(KEY_SIGN_LENGTH + i, signIds[i] == null ? "" : signIds[i]);
 			}
-			return nbtCompound;
 		}
 
 		public void setData(Set<Long> selectedIds, String[] signTypes) {
@@ -299,6 +286,10 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 		LOGO("logo", false, false),
 		EXIT_LETTER("exit_letter", true, false, true),
 		EXIT_LETTER_FLIPPED("exit_letter", true, true, true),
+		ESCALATOR_TO_CONCOURSE_UP("escalator", "escalator_to_concourse_up", true, true, false, true, 0),
+		ESCALATOR_TO_CONCOURSE_UP_FLIPPED("escalator", "escalator_to_concourse_up", true, false, true, true, 0),
+		ESCALATOR_TO_CONCOURSE_DOWN("escalator", "escalator_to_concourse_down", true, false, false, true, 0),
+		ESCALATOR_TO_CONCOURSE_DOWN_FLIPPED("escalator", "escalator_to_concourse_down", true, true, true, true, 0),
 		PLATFORM("platform", true, false, true),
 		PLATFORM_FLIPPED("platform", true, true, true),
 		LINE("line", true, false, true),
@@ -378,8 +369,8 @@ public class BlockRailwaySign extends HorizontalFacingBlock implements BlockEnti
 			this(texture, translation, small, false, flipTexture, hasCustomText, 0);
 		}
 
-		SignType(String texture, boolean small, boolean flipTexture, boolean hasCustomText) {
-			this(texture, texture, small, false, flipTexture, hasCustomText, 0);
+		SignType(String texture, boolean small, boolean flipCustomText, boolean hasCustomText) {
+			this(texture, texture, small, false, flipCustomText, hasCustomText, 0);
 		}
 
 		SignType(String texture, boolean small, boolean flipTexture) {

@@ -1,22 +1,22 @@
 package mtr.data;
 
-import mtr.block.BlockPSDAPGDoorBase;
-import mtr.block.BlockTrainAnnouncer;
-import mtr.block.BlockTrainSensor;
+import minecraftmappings.Utilities;
+import mtr.TrigCache;
+import mtr.block.*;
 import mtr.path.PathData;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -25,8 +25,9 @@ import java.util.function.Consumer;
 public class TrainServer extends Train {
 
 	private boolean canDeploy;
-	private Set<UUID> trainPositions;
+	private List<Map<UUID, Long>> trainPositions;
 	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private long routeId;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
@@ -117,10 +118,25 @@ public class TrainServer extends Train {
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
 		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
-				final Block block = world.getBlockState(checkPos).getBlock();
-				if (block instanceof BlockTrainSensor) {
-					world.setBlockState(checkPos, world.getBlockState(checkPos).with(BlockTrainSensor.POWERED, true));
-					world.getBlockTickScheduler().schedule(checkPos, block, 20);
+				final BlockState state = world.getBlockState(checkPos);
+				final Block block = state.getBlock();
+
+				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+					world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
+					Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
+				}
+
+				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+					for (final Direction direction : Direction.values()) {
+						final Inventory nearbyInventory = HopperBlockEntity.getInventoryAt(world, checkPos.offset(direction));
+						if (nearbyInventory != null) {
+							if (block instanceof BlockTrainCargoLoader) {
+								transferItems(nearbyInventory, inventory);
+							} else {
+								transferItems(inventory, nearbyInventory);
+							}
+						}
+					}
 				}
 			});
 		}
@@ -128,7 +144,7 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer) {
+					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId)) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
 					}
 				}
@@ -147,10 +163,14 @@ public class TrainServer extends Train {
 	@Override
 	protected boolean isRailBlocked(int checkIndex) {
 		if (trainPositions != null && checkIndex < path.size()) {
-			return trainPositions.contains(path.get(checkIndex).getRailProduct());
-		} else {
-			return false;
+			final UUID railProduct = path.get(checkIndex).getRailProduct();
+			for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
+				if (trainPositionsMap.containsKey(railProduct) && trainPositionsMap.get(railProduct) != id) {
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 
 	@Override
@@ -170,8 +190,8 @@ public class TrainServer extends Train {
 					final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 					world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
-					if (doorStateValue > 0 && !world.getBlockTickScheduler().isScheduled(doorPos, doorBlock)) {
-						world.getBlockTickScheduler().schedule(doorPos, doorBlock, dwellTicks);
+					if (doorStateValue > 0 && !Utilities.isScheduled(world, doorPos, doorBlock)) {
+						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
 					}
 				}
 			}
@@ -180,7 +200,12 @@ public class TrainServer extends Train {
 		return false;
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, Set<UUID> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, Set<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	@Override
+	protected double asin(double value) {
+		return TrigCache.asin(value);
+	}
+
+	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -202,6 +227,7 @@ public class TrainServer extends Train {
 
 		if (currentTime >= 0) {
 			float offsetTime = 0;
+			routeId = 0;
 			for (int i = startingIndex; i < timeSegments.size() + (isUnlimited ? 0 : startingIndex); i++) {
 				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
@@ -235,11 +261,15 @@ public class TrainServer extends Train {
 
 					final long platformId = timeSegment.savedRailBaseId;
 					if (!schedulesForPlatform.containsKey(platformId)) {
-						schedulesForPlatform.put(platformId, new HashSet<>());
+						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
 					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
+				}
+
+				if (routeId == 0) {
+					routeId = timeSegment.routeId;
 				}
 
 				if (i == timeSegments.size() - 1) {
@@ -251,14 +281,14 @@ public class TrainServer extends Train {
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}
 
-	public void writeTrainPositions(Set<UUID> trainPositions) {
+	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
 			final float trainSpacing = baseTrainType.getSpacing();
 			final int headIndex = getIndex(0,  trainSpacing, true);
 			final int tailIndex = getIndex(trainCars,  trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
-					trainPositions.add(path.get(i).getRailProduct());
+					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions, id);
 				}
 			}
 		}
@@ -284,6 +314,19 @@ public class TrainServer extends Train {
 			for (int z = -checkRadius; z <= checkRadius; z++) {
 				for (int y = 0; y <= 3; y++) {
 					callback.accept(pos.add(x, -y, z));
+				}
+			}
+		}
+	}
+
+	private static void transferItems(Inventory inventoryFrom, Inventory inventoryTo) {
+		for (int i = 0; i < inventoryFrom.size(); i++) {
+			if (!inventoryFrom.getStack(i).isEmpty()) {
+				final ItemStack insertItem = new ItemStack(inventoryFrom.getStack(i).getItem(), 1);
+				final ItemStack remainingStack = HopperBlockEntity.transfer(null, inventoryTo, insertItem, null);
+				if (remainingStack.isEmpty()) {
+					inventoryFrom.removeStack(i, 1);
+					return;
 				}
 			}
 		}

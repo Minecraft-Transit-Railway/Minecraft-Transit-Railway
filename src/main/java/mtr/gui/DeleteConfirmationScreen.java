@@ -1,13 +1,14 @@
 package mtr.gui;
 
+import minecraftmappings.ScreenMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
-public class DeleteConfirmationScreen extends Screen implements IGui {
+public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 
 	private final Runnable deleteCallback;
 	private final String name;
@@ -34,8 +35,8 @@ public class DeleteConfirmationScreen extends Screen implements IGui {
 		super.init();
 		IDrawing.setPositionAndWidth(buttonYes, width / 2 - BUTTON_WIDTH - BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonNo, width / 2 + BUTTON_HALF_PADDING, height / 2, BUTTON_WIDTH);
-		addButton(buttonYes);
-		addButton(buttonNo);
+		addDrawableChild(buttonYes);
+		addDrawableChild(buttonNo);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class DeleteConfirmationScreen extends Screen implements IGui {
 	public void onClose() {
 		super.onClose();
 		if (client != null) {
-			client.openScreen(dashboardScreen);
+			UtilitiesClient.setScreen(client, dashboardScreen);
 		}
 	}
 

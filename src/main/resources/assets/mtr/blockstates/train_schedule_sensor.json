@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"powered=false": {
+			"model": "mtr:block/train_schedule_sensor_off"
+		},
+		"powered=true": {
+			"model": "mtr:block/train_schedule_sensor_on"
+		}
+	}
+}

@@ -19,14 +19,21 @@ public class BlockPIDS1 extends BlockPIDSBase {
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView world) {
-		return new TileEntityBlockPIDS1();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityBlockPIDS1(pos, state);
 	}
 
-	public static class TileEntityBlockPIDS1 extends BlockEntity {
+	public static class TileEntityBlockPIDS1 extends TileEntityBlockPIDSBase {
 
-		public TileEntityBlockPIDS1() {
-			super(MTR.PIDS_1_TILE_ENTITY);
+		public static final int MAX_ARRIVALS = 1;
+
+		public TileEntityBlockPIDS1(BlockPos pos, BlockState state) {
+			super(MTR.PIDS_1_TILE_ENTITY, pos, state);
+		}
+
+		@Override
+		protected int getMaxArrivals() {
+			return MAX_ARRIVALS;
 		}
 	}
 }

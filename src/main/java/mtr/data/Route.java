@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
 
+	public RouteType routeType;
 	public boolean isLightRailRoute;
 	public CircularState circularState;
 	public String lightRailRouteNumber;
@@ -25,6 +26,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	private final List<PathDataDeleteThisLater> path;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
+	private static final String KEY_ROUTE_TYPE = "route_type";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
 	private static final String KEY_CIRCULAR_STATE = "circular_state";
@@ -38,6 +40,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		super(id);
 		platformIds = new ArrayList<>();
 		path = new ArrayList<>();
+		routeType = RouteType.NORMAL;
 		isLightRailRoute = false;
 		circularState = CircularState.NONE;
 		lightRailRouteNumber = "";
@@ -52,6 +55,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(platformId);
 		}
 
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, nbtCompound.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = nbtCompound.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
 		lightRailRouteNumber = nbtCompound.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, nbtCompound.getString(KEY_CIRCULAR_STATE));
@@ -72,6 +76,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			platformIds.add(packet.readLong());
 		}
 
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readString(PACKET_STRING_READ_LENGTH));
 		isLightRailRoute = packet.readBoolean();
 		lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
 		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readString(PACKET_STRING_READ_LENGTH));
@@ -88,6 +93,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		final NbtCompound nbtCompound = super.toCompoundTag();
 		nbtCompound.putLongArray(KEY_PLATFORM_IDS, platformIds);
 
+		nbtCompound.putString(KEY_ROUTE_TYPE, routeType.toString());
 		nbtCompound.putBoolean(KEY_IS_LIGHT_RAIL_ROUTE, isLightRailRoute);
 		nbtCompound.putString(KEY_LIGHT_RAIL_ROUTE_NUMBER, lightRailRouteNumber);
 		nbtCompound.putString(KEY_CIRCULAR_STATE, circularState.toString());
@@ -107,6 +113,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
 
+		packet.writeString(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
 		packet.writeString(lightRailRouteNumber);
 		packet.writeString(circularState.toString());
@@ -128,6 +135,7 @@ public final class Route extends NameColorDataBase implements IGui {
 			case KEY_IS_LIGHT_RAIL_ROUTE:
 				name = packet.readString(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
+				routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readString(PACKET_STRING_READ_LENGTH));
 				isLightRailRoute = packet.readBoolean();
 				lightRailRouteNumber = packet.readString(PACKET_STRING_READ_LENGTH);
 				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readString(PACKET_STRING_READ_LENGTH));
@@ -153,6 +161,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeString(KEY_IS_LIGHT_RAIL_ROUTE);
 		packet.writeString(name);
 		packet.writeInt(color);
+		packet.writeString(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
 		packet.writeString(lightRailRouteNumber);
 		packet.writeString(circularState.toString());
