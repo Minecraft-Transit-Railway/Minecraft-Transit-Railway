@@ -154,35 +154,36 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
 		}
 
-		public final Set<Long> filterRouteIds = new HashSet<>();
+		private final Set<Long> filteredRouteIds = new HashSet<>();
 		private static final String KEY_ROUTE_IDS = "route_ids";
 
 		@Override
 		public void readNbtCompound(NbtCompound nbtCompound) {
 			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
+			filteredRouteIds.clear();
 			for (final long routeId : routeIdsArray) {
-				filterRouteIds.add(routeId);
+				filteredRouteIds.add(routeId);
 			}
 		}
 
 		@Override
 		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filteredRouteIds));
 		}
 
 		public Set<Long> getRouteIds() {
-			return filterRouteIds;
+			return filteredRouteIds;
 		}
 
 		public void setData(Set<Long> filterRouteIds) {
-			this.filterRouteIds.clear();
-			this.filterRouteIds.addAll(filterRouteIds);
+			this.filteredRouteIds.clear();
+			this.filteredRouteIds.addAll(filterRouteIds);
 			markDirty();
 			sync();
 		}
 
 		public void clearData() {
-			this.filterRouteIds.clear();
+			this.filteredRouteIds.clear();
 		}
 	}
 
