@@ -4,7 +4,6 @@ import minecraftmappings.BlockEntityClientSerializableMapper;
 import minecraftmappings.BlockEntityProviderMapper;
 import mtr.Items;
 import mtr.MTR;
-import mtr.packet.PacketTrainDataGuiServer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,7 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -47,14 +45,9 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			if(player.isSneaking()) {
-				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
-			} else {
-				final BlockEntity entity = world.getBlockEntity(pos);
-				PacketTrainDataGuiServer.openPSDFilterScreenS2C((ServerPlayerEntity) player, pos);
-			}
+			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
 		});
 	}
 
@@ -178,7 +171,6 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		}
 
 		public Set<Long> getRouteIds() {
-
 			return filterRouteIds;
 		}
 
