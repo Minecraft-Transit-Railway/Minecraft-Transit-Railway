@@ -106,7 +106,6 @@ public enum TrainType {
 			return SP1900;
 		}
 	}
-    //Train Barrier Spacing Changing
 	public static void TrainBarrierRemove(boolean Switch) {
 		TrainType R179 = TrainType.R179;
 		if(Switch) {
