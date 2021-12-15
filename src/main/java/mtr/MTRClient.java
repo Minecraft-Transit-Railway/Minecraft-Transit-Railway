@@ -211,6 +211,7 @@ public class MTRClient implements ClientModInitializer, IPacket {
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_TRAIN_SENSOR_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openTrainSensorScreenS2C(minecraftClient, packet));
+		ClientPlayNetworking.registerGlobalReceiver(PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.openResourcePackCreatorScreen(minecraftClient));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_ANNOUNCE, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.announceS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_GENERATE_PATH, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.generatePathS2C(minecraftClient, packet));
 		ClientPlayNetworking.registerGlobalReceiver(PACKET_CREATE_RAIL, (minecraftClient, handler, packet, sender) -> PacketTrainDataGuiClient.createRailS2C(minecraftClient, packet));

@@ -78,6 +78,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openResourcePackCreatorScreen(MinecraftClient minecraftClient) {
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.currentScreen instanceof ResourcePackCreatorScreen)) {
+				UtilitiesClient.setScreen(minecraftClient, new ResourcePackCreatorScreen());
+			}
+		});
+	}
+
 	public static void announceS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final String message = packet.readString();
 		minecraftClient.execute(() -> IDrawing.narrateOrAnnounce(message));

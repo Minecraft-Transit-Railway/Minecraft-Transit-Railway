@@ -1,5 +1,6 @@
 package mtr.render;
 
+import com.google.gson.JsonObject;
 import minecraftmappings.Utilities;
 import minecraftmappings.UtilitiesClient;
 import mtr.MTRClient;
@@ -40,6 +41,11 @@ import java.util.stream.Collectors;
 public class RenderTrains implements IGui {
 
 	public static int maxTrainRenderDistance;
+	public static String creatorModelFileName = "";
+	public static JsonObject creatorModel = new JsonObject();
+	public static String creatorPropertiesFileName = "";
+	public static JsonObject creatorProperties = new JsonObject();
+
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 	private static int prevPlatformCount;

@@ -10,6 +10,7 @@ public interface IPacket {
 	Identifier PACKET_OPEN_RAILWAY_SIGN_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_railway_sign_screen");
 	Identifier PACKET_OPEN_TICKET_MACHINE_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_ticket_machine_screen");
 	Identifier PACKET_OPEN_TRAIN_SENSOR_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_train_sensor_screen");
+	Identifier PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN = new Identifier(MTR.MOD_ID, "packet_open_resource_pack_creator_screen");
 
 	Identifier PACKET_ANNOUNCE = new Identifier(MTR.MOD_ID, "packet_announce");
 

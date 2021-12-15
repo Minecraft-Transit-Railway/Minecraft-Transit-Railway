@@ -60,6 +60,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
+	public static void openResourcePackCreatorScreenS2C(ServerPlayerEntity player) {
+		final PacketByteBuf packet = PacketByteBufs.create();
+		ServerPlayNetworking.send(player, PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet);
+	}
+
 	public static void announceS2C(ServerPlayerEntity player, String message) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeString(message);
