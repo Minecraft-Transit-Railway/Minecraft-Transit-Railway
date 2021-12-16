@@ -49,12 +49,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
 	}
 
-	public static void openPSDFilterScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_PSD_FILTER_SCREEN, packet);
-	}
-
 	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeBlockPos(pos1);
@@ -205,20 +199,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
 				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, number, string);
 			}
-		});
-	}
-
-	public static void receivePSDFilterC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		final Set<Long> filterIds = new HashSet<>();
-		final int filterLength = packet.readInt();
-		for (int i = 0; i < filterLength; i++) {
-			filterIds.add(packet.readLong());
-		}
-
-		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(pos);
-			((BlockPSDTop.TileEntityPSDTop) entity).setData(filterIds);
 		});
 	}
 

@@ -32,7 +32,6 @@ public class RouteRenderer implements IGui {
 	private final String platformNumber;
 	private final boolean vertical;
 	private final boolean glowing;
-	private final Set<Long> filteredRoute;
 
 	private static final int PASSED_STATION_COLOR = 0xFF999999;
 	private static final int STATION_CIRCLE_SIZE = 16;
@@ -54,7 +53,6 @@ public class RouteRenderer implements IGui {
 		platformNumber = platform == null ? "1" : platform.name;
 		this.vertical = vertical;
 		this.glowing = glowing;
-		this.filteredRoute = filteredRouteIds;
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 	}
 
@@ -63,7 +61,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderColorStrip(float x1, float y1, float z1, float x2, float y2, float z2, Direction facing, int light) {
-		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.routeIds)).collect(Collectors.toList());
+		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.hidden)).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
@@ -81,7 +79,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderLine(float start, float end, float side1, float side2, int scale, Direction facing, int light, boolean skipText) {
-		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).filter(platformRouteDetails -> routeFiltered(platformRouteDetails.routeIds)).collect(Collectors.toList());
+		final List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(platformRouteDetails -> platformRouteDetails.currentStationIndex < platformRouteDetails.stationDetails.size() - 1).filter(platformRouteDetails -> routeFiltered(platformRouteDetails.hidden)).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
@@ -179,7 +177,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, Direction facing, int light, boolean visibleArrow) {
-		List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.routeIds)).collect(Collectors.toList());
+		List<ClientCache.PlatformRouteDetails> filteredRouteData = routeData.stream().filter(route -> routeFiltered(route.hidden)).collect(Collectors.toList());
 		final int routeCount = filteredRouteData.size();
 		if (routeCount <= 0) {
 			return;
@@ -273,9 +271,8 @@ public class RouteRenderer implements IGui {
 		matrices.pop();
 	}
 
-	private boolean routeFiltered(long routeIds) {
-		if(filteredRoute == null || filteredRoute.isEmpty()) return true;
-		return filteredRoute.contains(routeIds);
+	private boolean routeFiltered(boolean hidden) {
+		return !hidden;
 	}
 
 	private float getStationPosition(int stationIndex, int routeLength, float startScaled, float endScaled) {

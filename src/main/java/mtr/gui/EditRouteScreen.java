@@ -20,6 +20,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	private final WidgetBetterTextField textFieldLightRailRouteNumber;
 	private final ButtonWidget buttonRouteType;
 	private final WidgetBetterCheckbox buttonIsLightRailRoute;
+	private final WidgetBetterCheckbox buttonIsRouteHidden;
 	private final WidgetBetterCheckbox buttonIsClockwiseRoute;
 	private final WidgetBetterCheckbox buttonIsAntiClockwiseRoute;
 
@@ -34,6 +35,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		textFieldLightRailRouteNumber = new WidgetBetterTextField(null, "");
 		buttonRouteType = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> setRouteTypeText(routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
+		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_route_hidden"), this::setIsRouteHidden);
 		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_clockwise_route"), this::setIsClockwise);
 		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
 
@@ -54,6 +56,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		setRouteTypeText(data.routeType);
 
 		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsRouteHidden, SQUARE_SIZE, SQUARE_SIZE * 5, CHECKBOX_WIDTH);
 		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
 		textFieldLightRailRouteNumber.setText(data.lightRailRouteNumber);
 
@@ -63,12 +66,15 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		addDrawableChild(buttonRouteType);
 		addDrawableChild(textFieldLightRailRouteNumber);
 		addDrawableChild(buttonIsLightRailRoute);
+		addDrawableChild(buttonIsRouteHidden);
+
 		if (isCircular) {
 			addDrawableChild(buttonIsClockwiseRoute);
 			addDrawableChild(buttonIsAntiClockwiseRoute);
 		}
 
 		setIsLightRailRoute(data.isLightRailRoute);
+		setIsRouteHidden(data.routeHidden);
 		setIsClockwise(data.circularState == Route.CircularState.CLOCKWISE);
 		setIsAntiClockwise(data.circularState == Route.CircularState.ANTICLOCKWISE);
 	}
@@ -96,6 +102,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		data.routeType = routeType;
 		data.isLightRailRoute = buttonIsLightRailRoute.isChecked();
 		data.lightRailRouteNumber = textFieldLightRailRouteNumber.getText();
+		data.routeHidden = buttonIsRouteHidden.isChecked();
 
 		if (isCircular) {
 			data.circularState = buttonIsClockwiseRoute.isChecked() ? Route.CircularState.CLOCKWISE : buttonIsAntiClockwiseRoute.isChecked() ? Route.CircularState.ANTICLOCKWISE : Route.CircularState.NONE;
@@ -114,6 +121,10 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	private void setIsLightRailRoute(boolean isLightRailRoute) {
 		buttonIsLightRailRoute.setChecked(isLightRailRoute);
 		textFieldLightRailRouteNumber.visible = isLightRailRoute;
+	}
+
+	private void setIsRouteHidden(boolean isRouteHidden) {
+		buttonIsRouteHidden.setChecked(isRouteHidden);
 	}
 
 	private void setIsClockwise(boolean isClockwise) {

@@ -92,7 +92,7 @@ public class ClientCache extends DataCache {
 						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
 					}
 				}).collect(Collectors.toList());
-				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), route.id, stationDetails);
+				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), route.id, route.routeHidden, stationDetails);
 			}).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
@@ -140,14 +140,16 @@ public class ClientCache extends DataCache {
 		public final int currentStationIndex;
 		public final List<StationDetails> stationDetails;
 		public final long routeIds;
+		public final boolean hidden;
 
-		public PlatformRouteDetails(String routeName, int routeColor, Route.CircularState circularState, int currentStationIndex, long routeId, List<StationDetails> stationDetails) {
+		public PlatformRouteDetails(String routeName, int routeColor, Route.CircularState circularState, int currentStationIndex, long routeId, boolean hidden, List<StationDetails> stationDetails) {
 			this.routeName = routeName;
 			this.routeColor = routeColor;
 			this.circularState = circularState;
 			this.currentStationIndex = currentStationIndex;
 			this.stationDetails = stationDetails;
 			this.routeIds = routeId;
+			this.hidden = hidden;
 		}
 
 		public static class StationDetails {

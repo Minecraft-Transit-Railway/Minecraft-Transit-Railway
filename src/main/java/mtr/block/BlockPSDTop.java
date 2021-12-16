@@ -11,7 +11,6 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -27,10 +26,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProviderMapper, IBlock, IPropagateBlock {
 
@@ -149,41 +144,8 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	}
 
 	public static class TileEntityPSDTop extends BlockEntityClientSerializableMapper {
-
 		public TileEntityPSDTop(BlockPos pos, BlockState state) {
 			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
-		}
-
-		private final Set<Long> filteredRouteIds = new HashSet<>();
-		private static final String KEY_ROUTE_IDS = "route_ids";
-
-		@Override
-		public void readNbtCompound(NbtCompound nbtCompound) {
-			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
-			filteredRouteIds.clear();
-			for (final long routeId : routeIdsArray) {
-				filteredRouteIds.add(routeId);
-			}
-		}
-
-		@Override
-		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filteredRouteIds));
-		}
-
-		public Set<Long> getRouteIds() {
-			return filteredRouteIds;
-		}
-
-		public void setData(Set<Long> filterRouteIds) {
-			this.filteredRouteIds.clear();
-			this.filteredRouteIds.addAll(filterRouteIds);
-			markDirty();
-			sync();
-		}
-
-		public void clearData() {
-			this.filteredRouteIds.clear();
 		}
 	}
 

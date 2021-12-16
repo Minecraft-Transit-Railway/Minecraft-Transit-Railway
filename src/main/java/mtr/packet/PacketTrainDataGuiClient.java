@@ -61,16 +61,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
-	public static void openPSDFilterScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
-		final BlockPos pos = packet.readBlockPos();
-		minecraftClient.execute(() -> {
-			if (minecraftClient.world != null) {
-				UtilitiesClient.setScreen(minecraftClient, new PSDFilterScreen(pos) {
-				});
-			}
-		});
-	}
-
 	public static void openTicketMachineScreenS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
@@ -203,14 +193,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(number);
 		packet.writeString(string);
 		ClientPlayNetworking.send(PACKET_UPDATE_TRAIN_SENSOR, packet);
-	}
-
-	public static void sendPSDFilterC2S(BlockPos pos, Set<Long> filterRouteIds) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeBlockPos(pos);
-		packet.writeInt(filterRouteIds.size());
-		filterRouteIds.forEach(packet::writeLong);
-		ClientPlayNetworking.send(PACKET_UPDATE_PSD_FILTER, packet);
 	}
 
 	public static void generatePathS2C(MinecraftClient minecraftClient, PacketByteBuf packet) {

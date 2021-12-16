@@ -51,7 +51,7 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
 			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false, entity instanceof BlockPSDTop.TileEntityPSDTop ? ((BlockPSDTop.TileEntityPSDTop) entity).getRouteIds() : null);
+			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false, null);
 
 			matrices.translate(0, 1, 0);
 			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
