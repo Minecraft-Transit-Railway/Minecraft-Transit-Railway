@@ -120,7 +120,7 @@ public class RouteRenderer implements IGui {
 				final boolean onOrAfterStation = j >= currentStationIndex;
 				final boolean onStation = j == currentStationIndex;
 				final boolean bottomText = (j % 2) == 0;
-				final List<ClientCache.ColorNamePair> interchangeRoutes = stationDetails.get(j).interchangeRoutes;
+				final List<ClientCache.ColorNamePair> interchangeRoutes = stationDetails.get(j).interchangeRoutes.stream().filter(stationDetail -> !stationDetail.hidden).collect(Collectors.toList());
 				final int interchangeCount = interchangeRoutes.size();
 
 				final VertexConsumer vertexConsumerStationCircle = vertexConsumers.getBuffer(getRenderLayer(onOrAfterStation ? "mtr:textures/block/station_circle.png" : "mtr:textures/block/station_circle_passed.png", newLight, true));

@@ -74,7 +74,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		}
 
 		setIsLightRailRoute(data.isLightRailRoute);
-		setIsRouteHidden(data.routeHidden);
+		setIsRouteHidden(data.isHidden);
 		setIsClockwise(data.circularState == Route.CircularState.CLOCKWISE);
 		setIsAntiClockwise(data.circularState == Route.CircularState.ANTICLOCKWISE);
 	}
@@ -102,7 +102,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		data.routeType = routeType;
 		data.isLightRailRoute = buttonIsLightRailRoute.isChecked();
 		data.lightRailRouteNumber = textFieldLightRailRouteNumber.getText();
-		data.routeHidden = buttonIsRouteHidden.isChecked();
+		data.isHidden = buttonIsRouteHidden.isChecked();
 
 		if (isCircular) {
 			data.circularState = buttonIsClockwiseRoute.isChecked() ? Route.CircularState.CLOCKWISE : buttonIsAntiClockwiseRoute.isChecked() ? Route.CircularState.ANTICLOCKWISE : Route.CircularState.NONE;

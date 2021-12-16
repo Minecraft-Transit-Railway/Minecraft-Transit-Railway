@@ -36,7 +36,7 @@ public class ClientCache extends DataCache {
 				if (!stationIdToRoutes.containsKey(station.id)) {
 					stationIdToRoutes.put(station.id, new HashMap<>());
 				}
-				stationIdToRoutes.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+				stationIdToRoutes.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0], route.isHidden));
 			}
 		}));
 
@@ -92,7 +92,7 @@ public class ClientCache extends DataCache {
 						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
 					}
 				}).collect(Collectors.toList());
-				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), route.id, route.routeHidden, stationDetails);
+				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), route.id, route.isHidden, stationDetails);
 			}).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
@@ -165,13 +165,14 @@ public class ClientCache extends DataCache {
 	}
 
 	public static class ColorNamePair {
-
 		public final int color;
 		public final String name;
+		public final boolean hidden;
 
-		public ColorNamePair(int color, String name) {
+		public ColorNamePair(int color, String name, boolean routeHidden) {
 			this.color = color;
 			this.name = name;
+			this.hidden = routeHidden;
 		}
 	}
 }
