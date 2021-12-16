@@ -141,9 +141,12 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		try {
 			renderBackground(matrices);
 			widgetMap.render(matrices, mouseX, mouseY, delta);
+			matrices.push();
+			matrices.translate(0, 0, 500);
 			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
 			dashboardList.render(matrices, textRenderer);
 			super.render(matrices, mouseX, mouseY, delta);
+			matrices.pop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

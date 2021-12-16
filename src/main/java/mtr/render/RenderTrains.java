@@ -45,6 +45,8 @@ public class RenderTrains implements IGui {
 	public static JsonObject creatorModel = new JsonObject();
 	public static String creatorPropertiesFileName = "";
 	public static JsonObject creatorProperties = new JsonObject();
+	public static String creatorTextureFileName = "";
+	public static Identifier creatorTexture;
 
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
