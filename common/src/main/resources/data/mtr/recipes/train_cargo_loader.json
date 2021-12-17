@@ -2,10 +2,10 @@
 	"type": "minecraft:crafting_shapeless",
 	"ingredients": [
 		{
-			"tag": "minecraft:hopper"
+			"item": "minecraft:hopper"
 		},
 		{
-			"tag": "minecraft:piston"
+			"item": "minecraft:piston"
 		},
 		{
 			"tag": "c:redstone_dusts"
