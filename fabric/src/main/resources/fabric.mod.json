@@ -12,25 +12,25 @@
 		"sources": "https://github.com/jonafanho/Minecraft-Transit-Railway"
 	},
 	"license": "MIT",
-	"icon": "assets/mtr/icon.png",
+	"icon": "icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"mtr.MTR"
+			"mtr.MTRFabric"
 		],
 		"client": [
-			"mtr.MTRClient"
+			"mtr.MTRFabricClient"
 		],
 		"modmenu": [
-			"mtr.config.ModMenuConfig"
+			"mtr.ModMenuConfig"
 		]
 	},
 	"mixins": [
 		"mtr.mixins.json"
 	],
 	"depends": {
-		"fabricloader": "*",
 		"fabric": "*",
-		"minecraft": "*"
+		"minecraft": "*",
+		"architectury": "*"
 	}
 }

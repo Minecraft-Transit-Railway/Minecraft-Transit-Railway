@@ -1,0 +1,8 @@
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+    modApi "me.shedaniel:architectury:${rootProject.architectury_version}"
+}
+
+architectury {
+    common()
+}
