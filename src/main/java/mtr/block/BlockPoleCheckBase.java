@@ -1,29 +1,29 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.world.BlockView;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public abstract class BlockPoleCheckBase extends HorizontalFacingBlock {
+public abstract class BlockPoleCheckBase extends HorizontalDirectionalBlock {
 
-	public BlockPoleCheckBase(Settings settings) {
+	public BlockPoleCheckBase(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		BlockState stateBelow = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		BlockState stateBelow = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
 		if (isBlock(stateBelow.getBlock())) {
 			return placeWithState(stateBelow);
 		} else {
@@ -32,18 +32,18 @@ public abstract class BlockPoleCheckBase extends HorizontalFacingBlock {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-		final String[] strings = new TranslatableText("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
+	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		final String[] strings = new TranslatableComponent("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
 		for (final String string : strings) {
-			tooltip.add(new LiteralText(string).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+			tooltip.add(new TextComponent(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
 	}
 
 	protected BlockState placeWithState(BlockState stateBelow) {
-		return getDefaultState().with(FACING, IBlock.getStatePropertySafe(stateBelow, FACING));
+		return defaultBlockState().setValue(FACING, IBlock.getStatePropertySafe(stateBelow, FACING));
 	}
 
 	protected abstract boolean isBlock(Block block);
 
-	protected abstract Text getTooltipBlockText();
+	protected abstract Component getTooltipBlockText();
 }

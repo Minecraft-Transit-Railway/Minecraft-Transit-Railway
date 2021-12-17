@@ -1,6 +1,9 @@
 package mtr.render;
 
-import minecraftmappings.BlockEntityRendererMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Vector3f;
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
@@ -10,16 +13,13 @@ import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.gui.ClientData;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 import java.util.Map;
 
@@ -32,13 +32,13 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		final WorldAccess world = entity.getWorld();
+	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+		final BlockGetter world = entity.getLevel();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getPos();
+		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
@@ -65,23 +65,23 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, true, false);
 
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
 
 		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
 		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
-		matrices.pop();
-		immediate.draw();
+		matrices.popPose();
+		immediate.endBatch();
 	}
 
 	@Override
-	public boolean rendersOutsideBoundingBox(T blockEntity) {
+	public boolean shouldRenderOffScreen(T blockEntity) {
 		return true;
 	}
 }

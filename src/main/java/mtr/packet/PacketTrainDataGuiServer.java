@@ -1,26 +1,26 @@
 package mtr.packet;
 
-import minecraftmappings.Utilities;
+import io.netty.buffer.Unpooled;
+import mapper.Utilities;
+import me.shedaniel.architectury.networking.NetworkManager;
 import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.scores.Score;
 
 import java.util.*;
 import java.util.function.Function;
@@ -29,91 +29,91 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
 
-	public static void openDashboardScreenS2C(ServerPlayerEntity player) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		ServerPlayNetworking.send(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
+	public static void openDashboardScreenS2C(ServerPlayer player) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
 	}
 
-	public static void openRailwaySignScreenS2C(ServerPlayerEntity player, BlockPos signPos) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void openRailwaySignScreenS2C(ServerPlayer player, BlockPos signPos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(signPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet);
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet);
 	}
 
-	public static void openTicketMachineScreenS2C(World world, ServerPlayerEntity player) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void openTicketMachineScreenS2C(Level world, ServerPlayer player) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeInt(TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore());
-		ServerPlayNetworking.send(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_TICKET_MACHINE_SCREEN, packet);
 	}
 
-	public static void openTrainSensorScreenS2C(ServerPlayerEntity player, BlockPos blockPos) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void openTrainSensorScreenS2C(ServerPlayer player, BlockPos blockPos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(blockPos);
-		ServerPlayNetworking.send(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
 	}
 
-	public static void openPIDSConfigScreenS2C(ServerPlayerEntity player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(maxArrivals);
-		ServerPlayNetworking.send(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_PIDS_CONFIG_SCREEN, packet);
 	}
 
-	public static void openResourcePackCreatorScreenS2C(ServerPlayerEntity player) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		ServerPlayNetworking.send(player, PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet);
+	public static void openResourcePackCreatorScreenS2C(ServerPlayer player) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		NetworkManager.sendToPlayer(player, PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet);
 	}
 
-	public static void announceS2C(ServerPlayerEntity player, String message) {
-		final PacketByteBuf packet = PacketByteBufs.create();
-		packet.writeString(message);
-		ServerPlayNetworking.send(player, PACKET_ANNOUNCE, packet);
+	public static void announceS2C(ServerPlayer player, String message) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUtf(message);
+		NetworkManager.sendToPlayer(player, PACKET_ANNOUNCE, packet);
 	}
 
-	public static void createRailS2C(World world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void createRailS2C(Level world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		rail1.writePacket(packet);
 		rail2.writePacket(packet);
 		packet.writeLong(savedRailId);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_RAIL, packet));
+		world.players().forEach(worldPlayer -> NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, PACKET_CREATE_RAIL, packet));
 	}
 
-	public static void createSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void createSignalS2C(Level world, long id, DyeColor dyeColor, UUID rail) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
 		packet.writeInt(dyeColor.ordinal());
-		packet.writeUuid(rail);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_CREATE_SIGNAL, packet));
+		packet.writeUUID(rail);
+		world.players().forEach(worldPlayer -> NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, PACKET_CREATE_SIGNAL, packet));
 	}
 
-	public static void removeNodeS2C(World world, BlockPos pos) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void removeNodeS2C(Level world, BlockPos pos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_NODE, packet));
+		world.players().forEach(worldPlayer -> NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_NODE, packet));
 	}
 
-	public static void removeRailConnectionS2C(World world, BlockPos pos1, BlockPos pos2) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void removeRailConnectionS2C(Level world, BlockPos pos1, BlockPos pos2) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_RAIL, packet));
+		world.players().forEach(worldPlayer -> NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_RAIL, packet));
 	}
 
-	public static void removeSignalS2C(World world, long id, DyeColor dyeColor, UUID rail) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void removeSignalS2C(Level world, long id, DyeColor dyeColor, UUID rail) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeInt(1);
 		packet.writeLong(id);
 		packet.writeInt(dyeColor.ordinal());
-		packet.writeUuid(rail);
-		world.getPlayers().forEach(worldPlayer -> ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
+		packet.writeUUID(rail);
+		world.players().forEach(worldPlayer -> NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, PACKET_REMOVE_SIGNALS, packet));
 	}
 
-	public static void sendAllInChunks(ServerPlayerEntity player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
+	public static void sendAllInChunks(ServerPlayer player, Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, SignalBlocks signalBlocks) {
 		final long tempPacketId = new Random().nextLong();
-		final PacketByteBuf packet = PacketByteBufs.create();
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 
 		serializeData(packet, stations);
 		serializeData(packet, platforms);
@@ -128,16 +128,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet, Identifier packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
-		final World world = player.world;
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet, ResourceLocation packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
+		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
 			return;
 		}
 
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> world.getPlayers().forEach(worldPlayer -> {
-			if (!worldPlayer.getUuid().equals(player.getUuid())) {
-				ServerPlayNetworking.send((ServerPlayerEntity) worldPlayer, packetId, fullPacket);
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> world.players().forEach(worldPlayer -> {
+			if (!worldPlayer.getUUID().equals(player.getUUID())) {
+				NetworkManager.sendToPlayer((ServerPlayer) worldPlayer, packetId, fullPacket);
 			}
 			railwayData.dataCache.sync();
 		});
@@ -159,15 +159,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void generatePathS2C(World world, long depotId, int successfulSegments) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public static void generatePathS2C(Level world, long depotId, int successfulSegments) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(depotId);
 		packet.writeInt(successfulSegments);
-		world.getPlayers().forEach(player -> ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_GENERATE_PATH, packet));
+		world.players().forEach(player -> NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_GENERATE_PATH, packet));
 	}
 
-	public static void generatePathC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final World world = player.world;
+	public static void generatePathC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long depotId = packet.readLong();
@@ -175,8 +175,8 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void clearTrainsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
-		final World world = player.world;
+	public static void clearTrainsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final int sidingCount = packet.readInt();
@@ -193,7 +193,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static void receiveTrainSensorC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveTrainSensorC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		final Set<Long> filterIds = new HashSet<>();
 		final int filterLength = packet.readInt();
@@ -201,16 +201,17 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			filterIds.add(packet.readLong());
 		}
 		final int number = packet.readInt();
-		final String string = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final String string = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(pos);
+			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
 				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, number, string);
 			}
 		});
 	}
 
-	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		System.out.println("receive sign ids");
 		final BlockPos signPos = packet.readBlockPos();
 		final int selectedIdsLength = packet.readInt();
 		final Set<Long> selectedIds = new HashSet<>();
@@ -220,12 +221,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final int signLength = packet.readInt();
 		final String[] signIds = new String[signLength];
 		for (int i = 0; i < signLength; i++) {
-			final String signId = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+			final String signId = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 			signIds[i] = signId.isEmpty() ? null : signId;
 		}
 
 		minecraftServer.execute(() -> {
-			final BlockEntity entity = player.world.getBlockEntity(signPos);
+			final BlockEntity entity = player.level.getBlockEntity(signPos);
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
@@ -234,51 +235,51 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
-	public static void receiveAddBalanceC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receiveAddBalanceC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final int addAmount = packet.readInt();
 		final int emeralds = packet.readInt();
 
 		minecraftServer.execute(() -> {
-			final World world = player.world;
+			final Level world = player.level;
 
 			TicketSystem.addObjectivesIfMissing(world);
-			ScoreboardPlayerScore balanceScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE);
+			Score balanceScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE);
 			balanceScore.setScore(balanceScore.getScore() + addAmount);
 
-			Inventories.remove(Utilities.getInventory(player), itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
-			world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1);
+			ContainerHelper.clearOrCountMatchingItems(Utilities.getInventory(player), itemStack -> itemStack.getItem() == Items.EMERALD, emeralds, false);
+			world.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1, 1);
 		});
 	}
 
-	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void receivePIDSMessageC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
 		final int maxArrivals = packet.readInt();
 		final String[] messages = new String[maxArrivals];
 		final boolean[] hideArrivals = new boolean[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			messages[i] = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+			messages[i] = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 			hideArrivals[i] = packet.readBoolean();
 		}
 		minecraftServer.execute(() -> {
-			final BlockEntity entity1 = player.world.getBlockEntity(pos1);
+			final BlockEntity entity1 = player.level.getBlockEntity(pos1);
 			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
 				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals);
 			}
-			final BlockEntity entity2 = player.world.getBlockEntity(pos2);
+			final BlockEntity entity2 = player.level.getBlockEntity(pos2);
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
 				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
 			}
 		});
 	}
 
-	private static <T extends SerializedDataBase> void serializeData(PacketByteBuf packet, Set<T> objects) {
+	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Set<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));
 	}
 
-	private static boolean sendChunk(ServerPlayerEntity player, PacketByteBuf packet, long tempPacketId, int chunk) {
-		final PacketByteBuf packetChunk = PacketByteBufs.create();
+	private static boolean sendChunk(ServerPlayer player, FriendlyByteBuf packet, long tempPacketId, int chunk) {
+		final FriendlyByteBuf packetChunk = new FriendlyByteBuf(Unpooled.buffer());
 		packetChunk.writeLong(tempPacketId);
 		packetChunk.writeInt(chunk);
 
@@ -289,7 +290,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 
 		try {
-			ServerPlayNetworking.send(player, PACKET_CHUNK_S2C, packetChunk);
+			NetworkManager.sendToPlayer(player, PACKET_CHUNK_S2C, packetChunk);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

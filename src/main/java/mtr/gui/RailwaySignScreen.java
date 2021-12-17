@@ -1,26 +1,26 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.config.CustomResources;
 import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderRailwaySign;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,21 +43,21 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 	private final List<NameColorDataBase> routesForList = new ArrayList<>();
 	private final List<String> allSignIds = new ArrayList<>();
 
-	private final ButtonWidget[] buttonsEdit;
-	private final ButtonWidget[] buttonsSelection;
-	private final ButtonWidget buttonClear;
-	private final TexturedButtonWidget buttonPrevPage;
-	private final TexturedButtonWidget buttonNextPage;
+	private final Button[] buttonsEdit;
+	private final Button[] buttonsSelection;
+	private final Button buttonClear;
+	private final ImageButton buttonPrevPage;
+	private final ImageButton buttonNextPage;
 
 	private static final int SIGN_SIZE = 32;
 	private static final int SIGN_BUTTON_SIZE = 16;
 	private static final int BUTTON_Y_START = SIGN_SIZE + SQUARE_SIZE + SQUARE_SIZE / 2;
 
 	public RailwaySignScreen(BlockPos signPos) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		editingIndex = -1;
 		this.signPos = signPos;
-		final ClientWorld world = MinecraftClient.getInstance().world;
+		final ClientLevel world = Minecraft.getInstance().level;
 
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
@@ -81,7 +81,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 				Collections.sort(platforms);
 				platforms.stream().map(platform -> new DataConverter(platform.id, platform.name + " " + IGui.mergeStations(ClientData.DATA_CACHE.requestPlatformIdToRoutes(platform.id).stream().map(route -> route.stationDetails.get(route.stationDetails.size() - 1).stationName).collect(Collectors.toList())), 0)).forEach(platformsForList::add);
 
-				final Map<Integer, ClientCache.ColorNamePair> routeMap = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
+				final Map<Integer, ClientCache.ColorNameTuple> routeMap = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
 				routeMap.forEach((color, route) -> routesForList.add(new DataConverter(route.color, route.name, route.color)));
 			}
 		} catch (Exception e) {
@@ -114,21 +114,21 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 			isRailwaySign = false;
 		}
 
-		buttonsEdit = new ButtonWidget[length];
+		buttonsEdit = new Button[length];
 		for (int i = 0; i < buttonsEdit.length; i++) {
 			final int index = i;
-			buttonsEdit[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("selectWorld.edit"), button -> edit(index));
+			buttonsEdit[i] = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("selectWorld.edit"), button -> edit(index));
 		}
 
-		buttonsSelection = new ButtonWidget[allSignIds.size()];
+		buttonsSelection = new Button[allSignIds.size()];
 		for (int i = 0; i < allSignIds.size(); i++) {
 			final int index = i;
-			buttonsSelection[i] = new ButtonWidget(0, 0, 0, SIGN_BUTTON_SIZE, new LiteralText(""), button -> setNewSignId(allSignIds.get(index)));
+			buttonsSelection[i] = new Button(0, 0, 0, SIGN_BUTTON_SIZE, new TextComponent(""), button -> setNewSignId(allSignIds.get(index)));
 		}
 
-		buttonClear = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.reset_sign"), button -> setNewSignId(null));
-		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonClear = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.reset_sign"), button -> setNewSignId(null));
+		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
+		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 	}
 
 	@Override
@@ -166,25 +166,25 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		buttonNextPage.visible = false;
 		addDrawableChild(buttonNextPage);
 
-		if (!isRailwaySign && client != null) {
-			UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this::onClose, platformsForList, selectedIds, true, false));
+		if (!isRailwaySign && minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this::onClose, platformsForList, selectedIds, true, false));
 		}
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
-			if (client == null) {
+			if (minecraft == null) {
 				return;
 			}
 
 			for (int i = 0; i < signIds.length; i++) {
 				if (signIds[i] != null) {
-					RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
+					RenderRailwaySign.drawSign(matrices, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
 						UtilitiesClient.beginDrawingTexture(textureId);
-						drawTexture(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
+						blit(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 					});
 				}
 			}
@@ -199,11 +199,11 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 					if (sign != null) {
 						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 						UtilitiesClient.beginDrawingTexture(sign.textureId);
-						RenderRailwaySign.drawSign(matrices, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> drawTexture(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						RenderRailwaySign.drawSign(matrices, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					}
 				}, false);
 
-				DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+				Gui.drawCenteredString(matrices, font, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -228,12 +228,12 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
-	public void resize(MinecraftClient client, int width, int height) {
+	public void resize(Minecraft client, int width, int height) {
 		super.resize(client, width, height);
-		for (ButtonWidget button : buttonsEdit) {
+		for (Button button : buttonsEdit) {
 			button.active = true;
 		}
-		for (ButtonWidget button : buttonsSelection) {
+		for (Button button : buttonsSelection) {
 			button.visible = false;
 		}
 		editingIndex = -1;
@@ -294,7 +294,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 	private void edit(int editingIndex) {
 		this.editingIndex = editingIndex;
-		for (ButtonWidget button : buttonsEdit) {
+		for (Button button : buttonsEdit) {
 			button.active = true;
 		}
 		buttonClear.visible = true;
@@ -330,14 +330,14 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 			final boolean isExitLetter = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString()));
 			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
 			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));
-			if ((isExitLetter || isPlatform || isLine) && client != null) {
-				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, isExitLetter ? exitsForList : isPlatform ? platformsForList : routesForList, selectedIds, false, false));
+			if ((isExitLetter || isPlatform || isLine) && minecraft != null) {
+				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, isExitLetter ? exitsForList : isPlatform ? platformsForList : routesForList, selectedIds, false, false));
 			}
 		}
 	}
 
 	private void setPage(int newPage) {
-		page = MathHelper.clamp(newPage, 0, totalPages - 1);
+		page = Mth.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = editingIndex >= 0 && page > 0;
 		buttonNextPage.visible = editingIndex >= 0 && page < totalPages - 1;
 	}

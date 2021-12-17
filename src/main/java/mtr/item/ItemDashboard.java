@@ -1,25 +1,25 @@
 package mtr.item;
 
 import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class ItemDashboard extends Item {
 
-	public ItemDashboard(Settings settings) {
+	public ItemDashboard(Item.Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		if (!world.isClient()) {
-			PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayerEntity) user);
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand interactionHand) {
+		if (!world.isClientSide()) {
+			PacketTrainDataGuiServer.openDashboardScreenS2C((ServerPlayer) player);
 		}
-		return super.use(world, user, hand);
+		return super.use(world, player, interactionHand);
 	}
 }

@@ -1,9 +1,9 @@
 package mtr.data;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Consumer;
 
@@ -25,33 +25,33 @@ public final class Platform extends SavedRailBase {
 		dwellTime = DEFAULT_DWELL_TIME;
 	}
 
-	public Platform(NbtCompound nbtCompound) {
-		super(nbtCompound);
-		dwellTime = nbtCompound.getInt(KEY_DWELL_TIME);
+	public Platform(CompoundTag compoundTag) {
+		super(compoundTag);
+		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
 	}
 
-	public Platform(PacketByteBuf packet) {
+	public Platform(FriendlyByteBuf packet) {
 		super(packet);
 		dwellTime = packet.readInt();
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = super.toCompoundTag();
-		nbtCompound.putInt(KEY_DWELL_TIME, dwellTime);
-		return nbtCompound;
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
+		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeInt(dwellTime);
 	}
 
 	@Override
-	public void update(String key, PacketByteBuf packet) {
+	public void update(String key, FriendlyByteBuf packet) {
 		if (KEY_DWELL_TIME.equals(key)) {
-			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
 			dwellTime = packet.readInt();
 		} else {
@@ -66,17 +66,17 @@ public final class Platform extends SavedRailBase {
 		return dwellTime;
 	}
 
-	public void setDwellTime(int newDwellTime, Consumer<PacketByteBuf> sendPacket) {
+	public void setDwellTime(int newDwellTime, Consumer<FriendlyByteBuf> sendPacket) {
 		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
 			dwellTime = DEFAULT_DWELL_TIME;
 		} else {
 			dwellTime = newDwellTime;
 		}
 
-		final PacketByteBuf packet = PacketByteBufs.create();
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_DWELL_TIME);
-		packet.writeString(name);
+		packet.writeUtf(KEY_DWELL_TIME);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 		packet.writeInt(dwellTime);
 		sendPacket.accept(packet);

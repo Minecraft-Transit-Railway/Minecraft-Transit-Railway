@@ -1,22 +1,22 @@
 package mtr.data;
 
+import io.netty.buffer.Unpooled;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class Siding extends SavedRailBase implements IPacket {
 
-	private World world;
+	private Level world;
 	private Depot depot;
 	private String trainId;
 	private TrainType baseTrainType;
@@ -50,70 +50,70 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails("", TrainType.values()[0]);
 	}
 
-	public Siding(NbtCompound nbtCompound) {
-		super(nbtCompound);
+	public Siding(CompoundTag compoundTag) {
+		super(compoundTag);
 
-		railLength = nbtCompound.getFloat(KEY_RAIL_LENGTH);
-		setTrainDetails(nbtCompound.getString(KEY_TRAIN_ID), TrainType.getOrDefault(nbtCompound.getString(KEY_BASE_TRAIN_TYPE)));
-		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
-		maxTrains = nbtCompound.getInt(KEY_MAX_TRAINS);
+		railLength = compoundTag.getFloat(KEY_RAIL_LENGTH);
+		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), TrainType.getOrDefault(compoundTag.getString(KEY_BASE_TRAIN_TYPE)));
+		unlimitedTrains = compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
+		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 
-		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
-		final int pathCount = tagPath.getKeys().size();
+		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
+		final int pathCount = tagPath.getAllKeys().size();
 		for (int i = 0; i < pathCount; i++) {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
 		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength);
 
-		final NbtCompound tagTrains = nbtCompound.getCompound(KEY_TRAINS);
-		tagTrains.getKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
+		final CompoundTag tagTrains = compoundTag.getCompound(KEY_TRAINS);
+		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
 		generateDistances();
 	}
 
-	public Siding(PacketByteBuf packet) {
+	public Siding(FriendlyByteBuf packet) {
 		super(packet);
 		railLength = packet.readFloat();
-		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = super.toCompoundTag();
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
 
-		nbtCompound.putFloat(KEY_RAIL_LENGTH, railLength);
-		nbtCompound.putString(KEY_TRAIN_ID, trainId);
-		nbtCompound.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
-		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
-		nbtCompound.putInt(KEY_MAX_TRAINS, maxTrains);
+		compoundTag.putFloat(KEY_RAIL_LENGTH, railLength);
+		compoundTag.putString(KEY_TRAIN_ID, trainId);
+		compoundTag.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
+		compoundTag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
+		compoundTag.putInt(KEY_MAX_TRAINS, maxTrains);
 
-		RailwayData.writeTag(nbtCompound, path, KEY_PATH);
-		RailwayData.writeTag(nbtCompound, trains, KEY_TRAINS);
+		RailwayData.writeTag(compoundTag, path, KEY_PATH);
+		RailwayData.writeTag(compoundTag, trains, KEY_TRAINS);
 
-		return nbtCompound;
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeFloat(railLength);
-		packet.writeString(trainId);
+		packet.writeUtf(trainId);
 		packet.writeInt(baseTrainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
 	}
 
 	@Override
-	public void update(String key, PacketByteBuf packet) {
+	public void update(String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_BASE_TRAIN_TYPE:
-				setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
+				setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				trains.clear();
 				break;
 			case KEY_UNLIMITED_TRAINS:
-				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();
@@ -124,21 +124,21 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	public void setTrainIdAndBaseType(String customId, TrainType trainType, Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public void setTrainIdAndBaseType(String customId, TrainType trainType, Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_BASE_TRAIN_TYPE);
-		packet.writeString(customId);
+		packet.writeUtf(KEY_BASE_TRAIN_TYPE);
+		packet.writeUtf(customId);
 		packet.writeInt(trainType.ordinal());
 		sendPacket.accept(packet);
 		setTrainDetails(customId, trainType);
 	}
 
-	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_UNLIMITED_TRAINS);
-		packet.writeString(name);
+		packet.writeUtf(KEY_UNLIMITED_TRAINS);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
@@ -155,7 +155,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return baseTrainType;
 	}
 
-	public void setSidingData(World world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public void setSidingData(Level world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		this.world = world;
 		this.depot = depot;
 
@@ -226,7 +226,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<Player, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}

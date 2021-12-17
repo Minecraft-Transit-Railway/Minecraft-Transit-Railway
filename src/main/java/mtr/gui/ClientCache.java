@@ -1,7 +1,7 @@
 package mtr.gui;
 
 import mtr.data.*;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,7 +10,7 @@ public class ClientCache extends DataCache {
 
 	public final Map<BlockPos, List<Platform>> posToPlatforms = new HashMap<>();
 	public final Map<BlockPos, List<Siding>> posToSidings = new HashMap<>();
-	public final Map<Long, Map<Integer, ColorNamePair>> stationIdToRoutes = new HashMap<>();
+	public final Map<Long, Map<Integer, ColorNameTuple>> stationIdToRoutes = new HashMap<>();
 
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
 	private final Map<Long, Map<Long, Siding>> depotIdToSidings = new HashMap<>();
@@ -36,7 +36,7 @@ public class ClientCache extends DataCache {
 				if (!stationIdToRoutes.containsKey(station.id)) {
 					stationIdToRoutes.put(station.id, new HashMap<>());
 				}
-				stationIdToRoutes.get(station.id).put(route.color, new ColorNamePair(route.color, route.name.split("\\|\\|")[0]));
+				stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
 			}
 		}));
 
@@ -89,7 +89,7 @@ public class ClientCache extends DataCache {
 					if (station == null) {
 						return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
 					} else {
-						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNamePair -> colorNamePair.color != route.color).collect(Collectors.toList()));
+						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
 					}
 				}).collect(Collectors.toList());
 				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), stationDetails);
@@ -151,21 +151,21 @@ public class ClientCache extends DataCache {
 		public static class StationDetails {
 
 			public final String stationName;
-			public final List<ColorNamePair> interchangeRoutes;
+			public final List<ColorNameTuple> interchangeRoutes;
 
-			public StationDetails(String stationName, List<ColorNamePair> interchangeRoutes) {
+			public StationDetails(String stationName, List<ColorNameTuple> interchangeRoutes) {
 				this.stationName = stationName;
 				this.interchangeRoutes = interchangeRoutes;
 			}
 		}
 	}
 
-	public static class ColorNamePair {
+	public static class ColorNameTuple {
 
 		public final int color;
 		public final String name;
 
-		public ColorNamePair(int color, String name) {
+		public ColorNameTuple(int color, String name) {
 			this.color = color;
 			this.name = name;
 		}

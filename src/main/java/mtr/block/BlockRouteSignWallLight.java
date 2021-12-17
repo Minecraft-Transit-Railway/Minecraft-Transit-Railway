@@ -1,20 +1,20 @@
 package mtr.block;
 
-import mtr.MTR;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import mapper.BlockEntityMapper;
+import mtr.BlockEntityTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BlockRouteSignWallLight extends BlockRouteSignBase implements IPropagateBlock, IBlock {
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
 		final boolean isLower = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER;
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		final VoxelShape main = IBlock.getVoxelShapeByDirection(1.5, isLower ? 10 : 0, 0, 14.5, 16, 1, facing);
@@ -22,19 +22,19 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements IProp
 			return main;
 		} else {
 			final VoxelShape light = IBlock.getVoxelShapeByDirection(1.5, 15, 0, 14.5, 16, 4, facing);
-			return VoxelShapes.union(main, light);
+			return Shapes.or(main, light);
 		}
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRouteSignWallLight(pos, state);
 	}
 
 	public static class TileEntityRouteSignWallLight extends TileEntityRouteSignBase {
 
 		public TileEntityRouteSignWallLight(BlockPos pos, BlockState state) {
-			super(MTR.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, pos, state);
 		}
 	}
 }

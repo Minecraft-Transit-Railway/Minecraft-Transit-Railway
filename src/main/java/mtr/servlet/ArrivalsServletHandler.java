@@ -40,7 +40,7 @@ public class ArrivalsServletHandler extends HttpServlet {
 			final JsonArray dataArray = new JsonArray();
 
 			final int[] worldIndexCounter = {0};
-			SERVER.getWorlds().forEach(world -> {
+			SERVER.getAllLevels().forEach(world -> {
 				if (worldIndexCounter[0] == worldIndexFinal) {
 					final RailwayData railwayData = RailwayData.getInstance(world);
 

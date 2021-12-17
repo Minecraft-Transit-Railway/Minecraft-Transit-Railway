@@ -1,6 +1,10 @@
 package mtr.render;
 
-import minecraftmappings.BlockEntityRendererMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
@@ -9,19 +13,15 @@ import mtr.data.*;
 import mtr.gui.ClientCache;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,13 +35,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		final WorldAccess world = entity.getWorld();
+	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+		final BlockGetter world = entity.getLevel();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getPos();
+		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
 		if (!(state.getBlock() instanceof BlockRailwaySign)) {
 			return;
@@ -68,34 +68,34 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			}
 		}
 
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(0.5, 0.53125, 0.5);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
-		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 		matrices.translate(block.getXStart() / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 3);
 
 		if (renderBackground) {
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false));
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
 			IDrawing.drawTexture(matrices, vertexConsumer, 0, 0, SMALL_OFFSET * 2, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, MAX_LIGHT_GLOWING);
 		}
 		for (int i = 0; i < signIds.length; i++) {
 			if (signIds[i] != null) {
-				drawSign(matrices, vertexConsumers, MinecraftClient.getInstance().textRenderer, pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> {
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier(textureId.toString()), true));
+				drawSign(matrices, vertexConsumers, Minecraft.getInstance().font, pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, (textureId, x, y, size, flipTexture) -> {
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation(textureId.toString()), true));
 					IDrawing.drawTexture(matrices, vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				});
 			}
 		}
 
-		matrices.pop();
+		matrices.popPose();
 	}
 
 	@Override
-	public boolean rendersOutsideBoundingBox(T blockEntity) {
+	public boolean shouldRenderOffScreen(T blockEntity) {
 		return true;
 	}
 
-	public static void drawSign(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> selectedIds, Direction facing, DrawTexture drawTexture) {
+	public static void drawSign(PoseStack matrices, MultiBufferSource vertexConsumers, Font textRenderer, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> selectedIds, Direction facing, DrawTexture drawTexture) {
 		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			return;
 		}
@@ -115,7 +115,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
 		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
 
-		final VertexConsumerProvider.Immediate immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+		final MultiBufferSource.BufferSource immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
 		if (vertexConsumers != null && isExit) {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
@@ -126,13 +126,13 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			final Map<String, List<String>> exits = station.getGeneratedExits();
 			final List<String> selectedExitsSorted = selectedIds.stream().map(Station::deserializeExit).filter(exits::containsKey).sorted(String::compareTo).collect(Collectors.toList());
 
-			matrices.push();
+			matrices.pushPose();
 			matrices.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
 			final float maxWidth = ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2;
 			final float exitWidth = signSize * selectedExitsSorted.size();
 			matrices.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
 
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/sign/exit_letter_blank.png"), true));
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/sign/exit_letter_blank.png"), true));
 
 			for (int i = 0; i < selectedExitsSorted.size(); i++) {
 				final String selectedExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
@@ -154,25 +154,25 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				}
 			}
 
-			matrices.pop();
+			matrices.popPose();
 		} else if (vertexConsumers != null && isLine) {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
 			if (station == null) {
 				return;
 			}
 
-			final Map<Integer, ClientCache.ColorNamePair> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
+			final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
 			if (routesInStation != null) {
-				final List<ClientCache.ColorNamePair> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
+				final List<ClientCache.ColorNameTuple> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
 				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);
 				final List<Float> textWidths = new ArrayList<>();
-				for (final ClientCache.ColorNamePair route : selectedIdsSorted) {
+				for (final ClientCache.ColorNameTuple route : selectedIdsSorted) {
 					IDrawing.drawStringWithFont(matrices, textRenderer, null, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), 0, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> textWidths.add(x2));
 				}
 
-				matrices.push();
+				matrices.pushPose();
 				matrices.translate(flipCustomText ? x + size - margin : x + margin, 0, 0);
 
 				final float totalTextWidth = textWidths.stream().reduce(Float::sum).orElse(0F) + 1.5F * margin * selectedCount;
@@ -180,16 +180,16 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 					matrices.scale((maxWidth - margin / 2) / (totalTextWidth - margin / 2), 1, 1);
 				}
 
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new Identifier("mtr:textures/block/white.png"), false));
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
 
 				float xOffset = margin * 0.5F;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
-					final ClientCache.ColorNamePair route = selectedIdsSorted.get(i);
+					final ClientCache.ColorNameTuple route = selectedIdsSorted.get(i);
 					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.CENTER, flipCustomText ? -xOffset : xOffset, y + size / 2, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y + margin, SMALL_OFFSET, x2 + margin / 2, y + size - margin, SMALL_OFFSET, facing, route.color + ARGB_BLACK, MAX_LIGHT_GLOWING));
 					xOffset += textWidths.get(i) + margin * 1.5F;
 				}
 
-				matrices.pop();
+				matrices.popPose();
 			}
 		} else if (vertexConsumers != null && isPlatform) {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
@@ -224,7 +224,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		}
 
 		if (immediate != null) {
-			immediate.draw();
+			immediate.endBatch();
 		}
 	}
 
@@ -239,6 +239,6 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 	@FunctionalInterface
 	public interface DrawTexture {
-		void drawTexture(Identifier textureId, float x, float y, float size, boolean flipTexture);
+		void drawTexture(ResourceLocation textureId, float x, float y, float size, boolean flipTexture);
 	}
 }

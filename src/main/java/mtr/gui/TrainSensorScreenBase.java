@@ -1,22 +1,22 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Route;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
 
@@ -26,17 +26,17 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 	protected final WidgetBetterTextField textField;
 
 	private final Set<Long> filterRouteIds;
-	private final Text textFieldLabel;
-	private final ButtonWidget filterButton;
+	private final Component textFieldLabel;
+	private final Button filterButton;
 	private final int yStart;
 
-	public TrainSensorScreenBase(BlockPos pos, WidgetBetterTextField textField, Text textFieldLabel) {
-		super(new LiteralText(""));
+	public TrainSensorScreenBase(BlockPos pos, WidgetBetterTextField textField, Component textFieldLabel) {
+		super(new TextComponent(""));
 		this.pos = pos;
 		this.textField = textField;
 		this.textFieldLabel = textFieldLabel;
 
-		final World world = MinecraftClient.getInstance().world;
+		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
 			filterRouteIds = new HashSet<>();
 		} else {
@@ -44,11 +44,11 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			filterRouteIds = entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase ? ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getRouteIds() : new HashSet<>();
 		}
 
-		filterButton = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> {
-			if (client != null) {
+		filterButton = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> {
+			if (minecraft != null) {
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
 				Collections.sort(routes);
-				UtilitiesClient.setScreen(client, new DashboardListSelectorScreen(this, routes, filterRouteIds, false, false));
+				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, filterRouteIds, false, false));
 			}
 		});
 
@@ -63,7 +63,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			addDrawableChild(textField);
 		}
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, yStart + SQUARE_SIZE * 2, PANEL_WIDTH / 2);
-		filterButton.setMessage(new TranslatableText("selectWorld.edit"));
+		filterButton.setMessage(new TranslatableComponent("selectWorld.edit"));
 		addDrawableChild(filterButton);
 	}
 
@@ -75,19 +75,19 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			if (textFieldLabel != null) {
-				textRenderer.draw(matrices, textFieldLabel, SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				font.draw(matrices, textFieldLabel, SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			}
-			textRenderer.draw(matrices, new TranslatableText("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
-			textRenderer.draw(matrices, new TranslatableText(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, new TranslatableComponent("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, new TranslatableComponent(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
 				final Route route = ClientData.DATA_CACHE.routeIdMap.get(routeId);
 				if (route != null) {
-					textRenderer.draw(matrices, new LiteralText(IGui.formatStationName(route.name)), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE);
+					font.draw(matrices, new TextComponent(IGui.formatStationName(route.name)), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE);
 				}
 				i += TEXT_HEIGHT;
 			}

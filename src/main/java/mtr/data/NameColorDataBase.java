@@ -1,8 +1,8 @@
 package mtr.data;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Random;
 import java.util.function.Consumer;
@@ -26,46 +26,46 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		name = "";
 	}
 
-	public NameColorDataBase(NbtCompound nbtCompound) {
-		id = nbtCompound.getLong(KEY_ID);
-		name = nbtCompound.getString(KEY_NAME);
-		color = nbtCompound.getInt(KEY_COLOR);
+	public NameColorDataBase(CompoundTag compoundTag) {
+		id = compoundTag.getLong(KEY_ID);
+		name = compoundTag.getString(KEY_NAME);
+		color = compoundTag.getInt(KEY_COLOR);
 	}
 
-	public NameColorDataBase(PacketByteBuf packet) {
+	public NameColorDataBase(FriendlyByteBuf packet) {
 		id = packet.readLong();
-		name = packet.readString(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
+		name = packet.readUtf(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
 		color = packet.readInt();
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = new NbtCompound();
-		nbtCompound.putLong(KEY_ID, id);
-		nbtCompound.putString(KEY_NAME, name);
-		nbtCompound.putInt(KEY_COLOR, color);
-		return nbtCompound;
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = new CompoundTag();
+		compoundTag.putLong(KEY_ID, id);
+		compoundTag.putString(KEY_NAME, name);
+		compoundTag.putInt(KEY_COLOR, color);
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		packet.writeLong(id);
-		packet.writeString(name);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 	}
 
-	public void update(String key, PacketByteBuf packet) {
+	public void update(String key, FriendlyByteBuf packet) {
 		if (key.equals(KEY_NAME)) {
-			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
 		}
 	}
 
-	public void setNameColor(Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public void setNameColor(Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_NAME);
-		packet.writeString(name);
+		packet.writeUtf(KEY_NAME);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 		if (sendPacket != null) {
 			sendPacket.accept(packet);

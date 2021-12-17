@@ -1,11 +1,11 @@
 package mtr.gui;
 
 import mtr.block.BlockTrainAnnouncer;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
@@ -14,9 +14,9 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	private static final int MAX_MESSAGE_LENGTH = 256;
 
 	public TrainAnnouncerScreen(BlockPos pos) {
-		super(pos, new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableText("gui.mtr.announcement_message"));
+		super(pos, new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message"));
 
-		final World world = MinecraftClient.getInstance().world;
+		final Level world = Minecraft.getInstance().level;
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(pos);
 			initialMessage = entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer ? ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).getMessage() : "";
@@ -28,11 +28,11 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	@Override
 	protected void init() {
 		super.init();
-		textField.setText(initialMessage);
+		textField.setValue(initialMessage);
 	}
 
 	@Override
 	protected String getString() {
-		return textField.getText();
+		return textField.getValue();
 	}
 }

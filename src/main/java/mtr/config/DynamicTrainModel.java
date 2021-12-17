@@ -3,13 +3,13 @@ package mtr.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import minecraftmappings.ModelDataWrapper;
-import minecraftmappings.ModelMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import mapper.ModelDataWrapper;
+import mapper.ModelMapper;
 import mtr.model.ModelDoorOverlay;
 import mtr.model.ModelDoorOverlayTopBase;
 import mtr.model.ModelTrainBase;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 
 			final Double[] origin = {0D, 0D, 0D};
 			getArrayFromValue(origin, elementObject, "origin", JsonElement::getAsDouble);
-			child.setPivot(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
+			child.setPos(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
 
 			final Double[] rotation = {0D, 0D, 0D};
 			getArrayFromValue(rotation, elementObject, "rotation", JsonElement::getAsDouble);
@@ -59,7 +59,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 			final double inflate = elementObject.has("inflate") ? elementObject.get("inflate").getAsDouble() : 0;
 			final boolean mirror = elementObject.has("shade") && !elementObject.get("shade").getAsBoolean();
 
-			child.setTextureOffset(uvOffset[0], uvOffset[1]).addCuboid(
+			child.texOffs(uvOffset[0], uvOffset[1]).addBox(
 					origin[0].floatValue() - posTo[0].floatValue(), origin[1].floatValue() - posTo[1].floatValue(), posFrom[2].floatValue() - origin[2].floatValue(),
 					Math.round(posTo[0].floatValue() - posFrom[0].floatValue()), Math.round(posTo[1].floatValue() - posFrom[1].floatValue()), Math.round(posTo[2].floatValue() - posFrom[2].floatValue()),
 					(float) inflate, mirror
@@ -71,18 +71,18 @@ public class DynamicTrainModel extends ModelTrainBase {
 
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		parts.values().forEach(part -> {
-			part.setPivot(0, 0, 0);
-			part.setTextureOffset(0, 0).addCuboid(0, 0, 0, 0, 0, 0, 0, false);
+			part.setPos(0, 0, 0);
+			part.texOffs(0, 0).addBox(0, 0, 0, 0, 0, 0, 0, false);
 			part.setModelPart();
 		});
 	}
 
 	@Override
-	protected void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 	}
 
 	@Override
-	protected void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
+	protected void renderDoorPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		renderParts("parts_normal", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (doorLeftZ > 0 || doorRightZ > 0) {
 			renderParts("parts_door_opened", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
@@ -92,7 +92,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+	protected void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
 			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
@@ -102,7 +102,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
+	protected void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 		if (useHeadlights) {
 			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
@@ -112,12 +112,12 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
 	@Override
-	protected void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
+	protected void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
 	}
 
@@ -162,7 +162,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 		return part;
 	}
 
-	private void renderParts(String category, MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, boolean renderDetails, float doorLeftZ, float doorRightZ) {
+	private void renderParts(String category, PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, boolean renderDetails, float doorLeftZ, float doorRightZ) {
 		properties.getAsJsonArray(category).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
 			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();

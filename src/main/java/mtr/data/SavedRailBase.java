@@ -1,10 +1,10 @@
 package mtr.data;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
@@ -32,14 +32,14 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(NbtCompound nbtCompound) {
-		super(nbtCompound);
+	public SavedRailBase(CompoundTag compoundTag) {
+		super(compoundTag);
 		positions = new HashSet<>();
-		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_1)));
-		positions.add(BlockPos.fromLong(nbtCompound.getLong(KEY_POS_2)));
+		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_1)));
+		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_2)));
 	}
 
-	public SavedRailBase(PacketByteBuf packet) {
+	public SavedRailBase(FriendlyByteBuf packet) {
 		super(packet);
 		positions = new HashSet<>();
 		positions.add(packet.readBlockPos());
@@ -47,15 +47,15 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = super.toCompoundTag();
-		nbtCompound.putLong(KEY_POS_1, getPosition(0).asLong());
-		nbtCompound.putLong(KEY_POS_2, getPosition(1).asLong());
-		return nbtCompound;
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
+		compoundTag.putLong(KEY_POS_1, getPosition(0).asLong());
+		compoundTag.putLong(KEY_POS_2, getPosition(1).asLong());
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeBlockPos(getPosition(0));
 		packet.writeBlockPos(getPosition(1));
@@ -70,7 +70,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public BlockPos getMidPos(boolean zeroY) {
-		final BlockPos pos = getPosition(0).add(getPosition(1));
+		final BlockPos pos = getPosition(0).offset(getPosition(1));
 		return new BlockPos(pos.getX() / 2, zeroY ? 0 : pos.getY() / 2, pos.getZ() / 2);
 	}
 
@@ -86,14 +86,14 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
-		return new Box(getPosition(0), getPosition(1)).stretch(-radius, -lower, -radius).stretch(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
+		return new AABB(getPosition(0), getPosition(1)).inflate(-radius, -lower, -radius).inflate(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
 		final BlockPos pos1 = getPosition(0);
 		final BlockPos pos2 = getPosition(1);
-		final double d1 = pos1.getSquaredDistance(pos);
-		final double d2 = pos2.getSquaredDistance(pos);
+		final double d1 = pos1.distSqr(pos);
+		final double d2 = pos2.distSqr(pos);
 		final List<BlockPos> orderedPositions = new ArrayList<>();
 		if (d2 > d1 == reverse) {
 			orderedPositions.add(pos2);

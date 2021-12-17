@@ -1,22 +1,22 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Random;
 
@@ -24,49 +24,49 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 
 	public static final int MAX_OPEN_VALUE = 32;
 
-	public static final BooleanProperty END = BooleanProperty.of("end");
-	public static final IntProperty OPEN = IntProperty.of("open", 0, MAX_OPEN_VALUE);
+	public static final BooleanProperty END = BooleanProperty.create("end");
+	public static final IntegerProperty OPEN = IntegerProperty.create("open", 0, MAX_OPEN_VALUE);
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		if (IBlock.getSideDirection(state) == direction && !newState.isOf(this)) {
-			return Blocks.AIR.getDefaultState();
+	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
+		if (IBlock.getSideDirection(state) == direction && !newState.is(this)) {
+			return Blocks.AIR.defaultBlockState();
 		} else {
-			final BlockState superState = super.getStateForNeighborUpdate(state, direction, newState, world, pos, posFrom);
+			final BlockState superState = super.updateShape(state, direction, newState, world, pos, posFrom);
 			if (superState.getBlock() == Blocks.AIR) {
 				return superState;
 			} else {
-				final boolean end = world.getBlockState(pos.offset(IBlock.getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
-				return superState.with(END, end);
+				final boolean end = world.getBlockState(pos.relative(IBlock.getSideDirection(state).getOpposite())).getBlock() instanceof BlockPSDAPGGlassEndBase;
+				return superState.setValue(END, end);
 			}
 		}
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
 		BlockPos offsetPos = pos;
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-			offsetPos = offsetPos.down();
+			offsetPos = offsetPos.below();
 		}
 		if (IBlock.getStatePropertySafe(state, SIDE) == EnumSide.RIGHT) {
-			offsetPos = offsetPos.offset(IBlock.getSideDirection(state));
+			offsetPos = offsetPos.relative(IBlock.getSideDirection(state));
 		}
 		IBlock.onBreakCreative(world, player, offsetPos);
-		super.onBreak(world, pos, state, player);
+		super.playerWillDestroy(world, pos, state, player);
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		world.setBlockState(pos, state.with(OPEN, 0));
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+		world.setBlockAndUpdate(pos, state.setValue(OPEN, 0));
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return IBlock.getStatePropertySafe(state, OPEN) > 0 ? VoxelShapes.empty() : super.getCollisionShape(state, world, pos, context);
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
+		return IBlock.getStatePropertySafe(state, OPEN) > 0 ? Shapes.empty() : super.getCollisionShape(state, world, pos, collisionContext);
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(END, FACING, HALF, OPEN, SIDE);
 	}
 }

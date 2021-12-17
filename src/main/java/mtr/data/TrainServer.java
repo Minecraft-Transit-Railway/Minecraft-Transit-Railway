@@ -1,23 +1,26 @@
 package mtr.data;
 
-import minecraftmappings.Utilities;
+import io.netty.buffer.Unpooled;
+import me.shedaniel.architectury.networking.NetworkManager;
 import mtr.TrigCache;
 import mtr.block.*;
 import mtr.path.PathData;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -26,7 +29,7 @@ public class TrainServer extends Train {
 
 	private boolean canDeploy;
 	private List<Map<UUID, Long>> trainPositions;
-	private Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
+	private Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private long routeId;
 
 	private final List<Siding.TimeSegment> timeSegments;
@@ -40,13 +43,13 @@ public class TrainServer extends Train {
 		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, NbtCompound nbtCompound) {
-		super(sidingId, railLength, path, distances, nbtCompound);
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
+		super(sidingId, railLength, path, distances, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 
 	@Override
-	protected void startUp(World world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
@@ -60,7 +63,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected void simulateCar(
-			World world, int ridingCar, float ticksElapsed,
+			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
@@ -71,15 +74,15 @@ public class TrainServer extends Train {
 
 		if (doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
-			world.getEntitiesByClass(PlayerEntity.class, new Box(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUuid())).forEach(player -> {
-				final Vec3d positionRotated = player.getPos().subtract(carX, carY, carZ).rotateY(-carYaw).rotateX(-carPitch);
+			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID())).forEach(player -> {
+				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
-					ridingEntities.add(player.getUuid());
-					final PacketByteBuf packet = PacketByteBufs.create();
+					ridingEntities.add(player.getUUID());
+					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
 					packet.writeFloat((float) (positionRotated.x / baseTrainType.width + 0.5));
 					packet.writeFloat((float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
-					ServerPlayNetworking.send((ServerPlayerEntity) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
+					NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
 				}
 			});
 		}
@@ -87,10 +90,10 @@ public class TrainServer extends Train {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		final Set<UUID> entitiesToRemove = new HashSet<>();
 		ridingEntities.forEach(uuid -> {
-			final PlayerEntity player = world.getPlayerByUuid(uuid);
+			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
-				final Vec3d positionRotated = player.getPos().subtract(carX, carY, carZ).rotateY(-carYaw).rotateX(-carPitch);
-				if (player.isSpectator() || player.isSneaking() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
+				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
+				if (player.isSpectator() || player.isCrouching() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
 					entitiesToRemove.add(uuid);
 				}
 				if (railwayData != null) {
@@ -104,10 +107,10 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void handlePositions(World world, Vec3d[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
-		final Box trainBox = new Box(positions[0], positions[positions.length - 1]).expand(TRAIN_UPDATE_DISTANCE);
-		world.getPlayers().forEach(player -> {
-			if (trainBox.contains(player.getPos())) {
+	protected void handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
+		world.players().forEach(player -> {
+			if (trainAABB.contains(player.position())) {
 				if (!trainsInPlayerRange.containsKey(player)) {
 					trainsInPlayerRange.put(player, new HashSet<>());
 				}
@@ -116,19 +119,19 @@ public class TrainServer extends Train {
 		});
 
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
-		if (world.isChunkLoaded(frontPos.getX() / 16, frontPos.getZ() / 16)) {
+		if (world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
 
 				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
-					world.setBlockState(checkPos, state.with(BlockTrainRedstoneSensor.POWERED, true));
-					Utilities.scheduleBlockTick(world, checkPos, state.getBlock(), 20);
+					world.setBlockAndUpdate(checkPos, state.setValue(BlockTrainRedstoneSensor.POWERED, true));
+					world.getBlockTicks().scheduleTick(checkPos, block, 20);
 				}
 
 				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
 					for (final Direction direction : Direction.values()) {
-						final Inventory nearbyInventory = HopperBlockEntity.getInventoryAt(world, checkPos.offset(direction));
+						final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
 						if (nearbyInventory != null) {
 							if (block instanceof BlockTrainCargoLoader) {
 								transferItems(nearbyInventory, inventory);
@@ -145,7 +148,7 @@ public class TrainServer extends Train {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
 					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId)) {
-						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUuid(uuid)));
+						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUUID(uuid)));
 					}
 				}
 			});
@@ -174,24 +177,24 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected boolean skipScanBlocks(World world, double trainX, double trainY, double trainZ) {
-		return world.getClosestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null;
+	protected boolean skipScanBlocks(Level world, double trainX, double trainY, double trainZ) {
+		return world.getNearestPlayer(trainX, trainY, trainZ, MAX_CHECK_DISTANCE, entity -> true) == null;
 	}
 
 	@Override
-	protected boolean openDoors(World world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
+	protected boolean openDoors(Level world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
 		if (block instanceof BlockPSDAPGDoorBase) {
 			for (int i = -1; i <= 1; i++) {
-				final BlockPos doorPos = checkPos.up(i);
+				final BlockPos doorPos = checkPos.above(i);
 				final BlockState state = world.getBlockState(doorPos);
 				final Block doorBlock = state.getBlock();
 
 				if (doorBlock instanceof BlockPSDAPGDoorBase) {
-					final int doorStateValue = (int) MathHelper.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
-					world.setBlockState(doorPos, state.with(BlockPSDAPGDoorBase.OPEN, doorStateValue));
+					final int doorStateValue = (int) Mth.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
+					world.setBlockAndUpdate(doorPos, state.setValue(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
-					if (doorStateValue > 0 && !Utilities.isScheduled(world, doorPos, doorBlock)) {
-						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
+					if (doorStateValue > 0 && !world.getBlockTicks().hasScheduledTick(doorPos, doorBlock)) {
+						world.getBlockTicks().scheduleTick(doorPos, doorBlock, dwellTicks);
 					}
 				}
 			}
@@ -205,7 +208,7 @@ public class TrainServer extends Train {
 		return TrigCache.asin(value);
 	}
 
-	public boolean simulateTrain(World world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<PlayerEntity, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -313,19 +316,19 @@ public class TrainServer extends Train {
 		for (int x = -checkRadius; x <= checkRadius; x++) {
 			for (int z = -checkRadius; z <= checkRadius; z++) {
 				for (int y = 0; y <= 3; y++) {
-					callback.accept(pos.add(x, -y, z));
+					callback.accept(pos.offset(x, -y, z));
 				}
 			}
 		}
 	}
 
-	private static void transferItems(Inventory inventoryFrom, Inventory inventoryTo) {
-		for (int i = 0; i < inventoryFrom.size(); i++) {
-			if (!inventoryFrom.getStack(i).isEmpty()) {
-				final ItemStack insertItem = new ItemStack(inventoryFrom.getStack(i).getItem(), 1);
-				final ItemStack remainingStack = HopperBlockEntity.transfer(null, inventoryTo, insertItem, null);
+	private static void transferItems(Container inventoryFrom, Container inventoryTo) {
+		for (int i = 0; i < inventoryFrom.getContainerSize(); i++) {
+			if (!inventoryFrom.getItem(i).isEmpty()) {
+				final ItemStack insertItem = new ItemStack(inventoryFrom.getItem(i).getItem(), 1);
+				final ItemStack remainingStack = HopperBlockEntity.addItem(null, inventoryTo, insertItem, null);
 				if (remainingStack.isEmpty()) {
-					inventoryFrom.removeStack(i, 1);
+					inventoryFrom.removeItem(i, 1);
 					return;
 				}
 			}

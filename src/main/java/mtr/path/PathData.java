@@ -2,9 +2,9 @@ package mtr.path;
 
 import mtr.data.Rail;
 import mtr.data.SerializedDataBase;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
 
@@ -34,38 +34,38 @@ public class PathData extends SerializedDataBase {
 		this.stopIndex = stopIndex;
 	}
 
-	public PathData(NbtCompound nbtCompound) {
-		rail = new Rail(nbtCompound.getCompound(KEY_RAIL));
-		savedRailBaseId = nbtCompound.getLong(KEY_SAVED_RAIL_BASE_ID);
-		dwellTime = nbtCompound.getInt(KEY_DWELL_TIME);
-		stopIndex = nbtCompound.getInt(KEY_STOP_INDEX);
-		startingPos = BlockPos.fromLong(nbtCompound.getLong(KEY_STARTING_POS));
-		endingPos = BlockPos.fromLong(nbtCompound.getLong(KEY_ENDING_POS));
+	public PathData(CompoundTag compoundTag) {
+		rail = new Rail(compoundTag.getCompound(KEY_RAIL));
+		savedRailBaseId = compoundTag.getLong(KEY_SAVED_RAIL_BASE_ID);
+		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
+		stopIndex = compoundTag.getInt(KEY_STOP_INDEX);
+		startingPos = BlockPos.of(compoundTag.getLong(KEY_STARTING_POS));
+		endingPos = BlockPos.of(compoundTag.getLong(KEY_ENDING_POS));
 	}
 
-	public PathData(PacketByteBuf packet) {
+	public PathData(FriendlyByteBuf packet) {
 		rail = new Rail(packet);
 		savedRailBaseId = packet.readLong();
 		dwellTime = packet.readInt();
 		stopIndex = packet.readInt();
-		startingPos = BlockPos.fromLong(packet.readLong());
-		endingPos = BlockPos.fromLong(packet.readLong());
+		startingPos = BlockPos.of(packet.readLong());
+		endingPos = BlockPos.of(packet.readLong());
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = new NbtCompound();
-		nbtCompound.put(KEY_RAIL, rail.toCompoundTag());
-		nbtCompound.putLong(KEY_SAVED_RAIL_BASE_ID, savedRailBaseId);
-		nbtCompound.putInt(KEY_DWELL_TIME, dwellTime);
-		nbtCompound.putInt(KEY_STOP_INDEX, stopIndex);
-		nbtCompound.putLong(KEY_STARTING_POS, startingPos.asLong());
-		nbtCompound.putLong(KEY_ENDING_POS, endingPos.asLong());
-		return nbtCompound;
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = new CompoundTag();
+		compoundTag.put(KEY_RAIL, rail.toCompoundTag());
+		compoundTag.putLong(KEY_SAVED_RAIL_BASE_ID, savedRailBaseId);
+		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
+		compoundTag.putInt(KEY_STOP_INDEX, stopIndex);
+		compoundTag.putLong(KEY_STARTING_POS, startingPos.asLong());
+		compoundTag.putLong(KEY_ENDING_POS, endingPos.asLong());
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		rail.writePacket(packet);
 		packet.writeLong(savedRailBaseId);
 		packet.writeInt(dwellTime);

@@ -1,14 +1,14 @@
 package mtr.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import mapper.BlockEntityMapper;
 import mtr.gui.IDrawing;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
 
-public class RenderSignalLight<T extends BlockEntity> extends RenderSignalBase<T> {
+public class RenderSignalLight<T extends BlockEntityMapper> extends RenderSignalBase<T> {
 
 	final boolean redOnTop;
 	final int proceedColor;
@@ -20,7 +20,7 @@ public class RenderSignalLight<T extends BlockEntity> extends RenderSignalBase<T
 	}
 
 	@Override
-	protected void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide) {
+	protected void render(PoseStack matrices, MultiBufferSource vertexConsumers, VertexConsumer vertexConsumer, T entity, float tickDelta, Direction facing, boolean isOccupied, boolean isBackSide) {
 		final float y = isOccupied == redOnTop ? 0.4375F : 0.0625F;
 		IDrawing.drawTexture(matrices, vertexConsumer, -0.125F, y, -0.19375F, 0.125F, y + 0.25F, -0.19375F, facing.getOpposite(), isOccupied ? 0xFFFF0000 : proceedColor, MAX_LIGHT_GLOWING);
 	}

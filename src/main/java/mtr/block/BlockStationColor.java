@@ -1,29 +1,29 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.world.BlockView;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 
 public class BlockStationColor extends Block {
 
-	public BlockStationColor(Settings settings) {
+	public BlockStationColor(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public String getTranslationKey() {
-		return super.getTranslationKey().replace("block.mtr.station_color_", "block.minecraft.");
+	public String getDescriptionId() {
+		return super.getDescriptionId().replace("block.mtr.station_color_", "block.minecraft.");
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-		tooltip.add(new TranslatableText("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		tooltip.add(new TranslatableComponent("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 }

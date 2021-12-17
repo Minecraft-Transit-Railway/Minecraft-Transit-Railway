@@ -1,53 +1,57 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.BlockEntityProviderMapper;
+import mapper.BlockEntityMapper;
+import mapper.EntityBlockMapper;
+import mtr.BlockEntityTypes;
 import mtr.Items;
-import mtr.MTR;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityProviderMapper, IBlock, IPropagateBlock {
+public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock, IPropagateBlock {
 
-	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.of("door_light", EnumDoorLight.class);
-	public static final BooleanProperty AIR_LEFT = BooleanProperty.of("air_left");
-	public static final BooleanProperty AIR_RIGHT = BooleanProperty.of("air_right");
+	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.create("door_light", EnumDoorLight.class);
+	public static final BooleanProperty AIR_LEFT = BooleanProperty.create("air_left");
+	public static final BooleanProperty AIR_RIGHT = BooleanProperty.create("air_right");
 
 	public BlockPSDTop() {
-		super(FabricBlockSettings.of(Material.METAL, MapColor.OFF_WHITE).requiresTool().hardness(2).nonOpaque());
+		super(Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion());
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 1);
+			world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 1);
 		});
 	}
 
 	@Override
-	public BlockState rotate(BlockState state, BlockRotation rotation) {
+	public BlockState rotate(BlockState state, Rotation rotation) {
 		return state;
 	}
 
@@ -57,36 +61,36 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	}
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getCloneItemStack(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
 		return new ItemStack(asItem());
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		final Block blockDown = world.getBlockState(pos.down()).getBlock();
+	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+		final Block blockDown = world.getBlockState(pos.below()).getBlock();
 		if (blockDown instanceof BlockPSDAPGBase) {
-			blockDown.onBreak(world, pos.down(), world.getBlockState(pos.down()), player);
-			world.setBlockState(pos.down(), Blocks.AIR.getDefaultState());
+			blockDown.playerWillDestroy(world, pos.below(), world.getBlockState(pos.below()), player);
+			world.setBlockAndUpdate(pos.below(), Blocks.AIR.defaultBlockState());
 		}
-		super.onBreak(world, pos, state, player);
+		super.playerWillDestroy(world, pos, state, player);
 	}
 
 	@Override
-	public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-		onBreak(world, pos, null, null);
+	public void wasExploded(Level world, BlockPos pos, Explosion explosion) {
+		playerWillDestroy(world, pos, null, null);
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
 		if (direction == Direction.DOWN && !(newState.getBlock() instanceof BlockPSDAPGBase)) {
-			return Blocks.AIR.getDefaultState();
+			return Blocks.AIR.defaultBlockState();
 		} else {
 			return getActualState(world, pos);
 		}
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
 		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
 		final boolean airLeft = IBlock.getStatePropertySafe(state, AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, AIR_RIGHT);
@@ -98,27 +102,27 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 	}
 
 	@Override
-	public PistonBehavior getPistonBehavior(BlockState state) {
-		return PistonBehavior.BLOCK;
+	public PushReaction getPistonPushReaction(BlockState blockState) {
+		return PushReaction.BLOCK;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, PROPAGATE_PROPERTY);
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityPSDTop(pos, state);
 	}
 
-	public static BlockState getActualState(WorldAccess world, BlockPos pos) {
+	public static BlockState getActualState(BlockGetter world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
 		Direction facing = Direction.NORTH;
 		EnumSide side = EnumSide.SINGLE;
 		boolean airLeft = false, airRight = false;
 
-		final BlockState stateBelow = world.getBlockState(pos.down());
+		final BlockState stateBelow = world.getBlockState(pos.below());
 		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
 			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
 				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
@@ -140,17 +144,17 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.getDefaultState()).with(DOOR_LIGHT, doorLight).with(FACING, facing).with(SIDE_EXTENDED, side).with(AIR_LEFT, airLeft).with(AIR_RIGHT, airRight);
+		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(FACING, facing).setValue(SIDE_EXTENDED, side).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
 	}
 
 	public static class TileEntityPSDTop extends BlockEntityMapper {
 
 		public TileEntityPSDTop(BlockPos pos, BlockState state) {
-			super(MTR.PSD_TOP_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.PSD_TOP_TILE_ENTITY, pos, state);
 		}
 	}
 
-	public enum EnumDoorLight implements StringIdentifiable {
+	public enum EnumDoorLight implements StringRepresentable {
 
 		ON("on"), OFF("off"), NONE("none");
 		private final String name;
@@ -160,7 +164,7 @@ public class BlockPSDTop extends HorizontalFacingBlock implements BlockEntityPro
 		}
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return name;
 		}
 	}

@@ -1,13 +1,13 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,7 @@ public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 
 	private final DashboardList availableList;
 	private final DashboardList selectedList;
-	private final ButtonWidget buttonDone;
+	private final Button buttonDone;
 
 	private final ScreenMapper previousScreen;
 	private final Runnable onClose;
@@ -35,7 +35,7 @@ public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 	}
 
 	private DashboardListSelectorScreen(ScreenMapper previousScreen, Runnable onClose, List<NameColorDataBase> allData, Collection<Long> selectedIds, boolean isSingleSelect, boolean canRepeat) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		this.previousScreen = previousScreen;
 		this.onClose = onClose;
 		this.allData = allData;
@@ -45,7 +45,7 @@ public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 
 		availableList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.ROUTES_PLATFORMS_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SEARCH = text);
 		selectedList = new DashboardList(null, null, null, this::updateList, null, this::onDelete, () -> selectedIds instanceof ArrayList ? (List<Long>) selectedIds : new ArrayList<>(), () -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH, text -> ClientData.ROUTES_PLATFORMS_SELECTED_SEARCH = text);
-		buttonDone = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onClose());
+		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onClose());
 	}
 
 	@Override
@@ -70,14 +70,14 @@ public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			availableList.render(matrices, textRenderer);
-			selectedList.render(matrices, textRenderer);
+			availableList.render(matrices, font);
+			selectedList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.available"), width / 2 - PANEL_WIDTH / 2 - SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.selected"), width / 2 + PANEL_WIDTH / 2 + SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -102,8 +102,8 @@ public class DashboardListSelectorScreen extends ScreenMapper implements IGui {
 		if (onClose != null) {
 			onClose.run();
 		}
-		if (client != null && previousScreen != null) {
-			UtilitiesClient.setScreen(client, previousScreen);
+		if (minecraft != null && previousScreen != null) {
+			UtilitiesClient.setScreen(minecraft, previousScreen);
 		}
 	}
 

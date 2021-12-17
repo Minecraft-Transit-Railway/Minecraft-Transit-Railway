@@ -1,11 +1,11 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -17,32 +17,32 @@ public class FileUploaderScreen extends ScreenMapper implements IGui {
 	private final Consumer<List<Path>> filesCallback;
 
 	public FileUploaderScreen(ScreenMapper screen, Consumer<List<Path>> filesCallback) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		this.screen = screen;
 		this.filesCallback = filesCallback;
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.drag_file_to_upload"), width / 2, (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.drag_file_to_upload"), width / 2, (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void filesDragged(List<Path> paths) {
+	public void onFilesDrop(List<Path> paths) {
 		filesCallback.accept(paths);
 		onClose();
 	}
 
 	@Override
 	public void onClose() {
-		if (client != null) {
-			UtilitiesClient.setScreen(client, screen);
+		if (minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, screen);
 		}
 	}
 

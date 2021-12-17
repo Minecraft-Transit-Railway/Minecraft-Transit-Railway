@@ -1,27 +1,27 @@
 package mtr.render;
 
-import minecraftmappings.BlockEntityRendererMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityRendererMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.data.*;
 import mtr.gui.ClientData;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 
 import java.util.*;
 
-public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper<T> implements IGui {
+public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui {
 
 	private final float scale;
 	private final float totalScaledWidth;
@@ -71,14 +71,14 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		final WorldAccess world = entity.getWorld();
+	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+		final BlockGetter world = entity.getLevel();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getPos();
-		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalFacingBlock.FACING);
+		final BlockPos pos = entity.getBlockPos();
+		final Direction facing = IBlock.getStatePropertySafe(world, pos, HorizontalDirectionalBlock.FACING);
 		if (RenderTrains.shouldNotRender(pos, Math.min(MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), rotate90 ? null : facing)) {
 			return;
 		}
@@ -181,17 +181,17 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper
 					useCustomMessage = true;
 				}
 
-				matrices.push();
+				matrices.pushPose();
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((rotate90 ? 90 : 0) - facing.asRotation()));
-				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+				matrices.mulPose(Vector3f.YP.rotationDegrees((rotate90 ? 90 : 0) - facing.toYRot()));
+				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 				matrices.translate((startX - 8) / 16, -startY / 16 + i * maxHeight / maxArrivals / 16, (startZ - 8) / 16 - SMALL_OFFSET * 2);
 				matrices.scale(1F / scale, 1F / scale, 1F / scale);
 
-				final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+				final Font textRenderer = Minecraft.getInstance().font;
 
 				if (useCustomMessage) {
-					final int destinationWidth = textRenderer.getWidth(destinationString);
+					final int destinationWidth = textRenderer.width(destinationString);
 					if (destinationWidth > totalScaledWidth) {
 						matrices.scale(totalScaledWidth / destinationWidth, 1, 1);
 					}
@@ -199,15 +199,15 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper
 				} else {
 					final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
 
-					final Text arrivalText;
+					final Component arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 					final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
 					if (seconds >= 60) {
-						arrivalText = new TranslatableText(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
+						arrivalText = new TranslatableComponent(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 					} else {
-						arrivalText = seconds > 0 ? new TranslatableText(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
+						arrivalText = seconds > 0 ? new TranslatableComponent(isCJK ? "gui.mtr.arrival_sec_cjk" : "gui.mtr.arrival_sec", seconds).append(appendDotAfterMin && !isCJK ? "." : "") : null;
 					}
-					final Text carText = new TranslatableText(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
+					final Component carText = new TranslatableComponent(isCJK ? "gui.mtr.arrival_car_cjk" : "gui.mtr.arrival_car", currentSchedule.trainCars);
 
 
 					if (renderArrivalNumber) {
@@ -224,28 +224,28 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper
 					}
 
 					if (showCarLength) {
-						matrices.push();
+						matrices.pushPose();
 						matrices.translate(destinationStart + newDestinationMaxWidth + platformMaxWidth, 0, 0);
-						final int carTextWidth = textRenderer.getWidth(carText);
+						final int carTextWidth = textRenderer.width(carText);
 						if (carTextWidth > carLengthMaxWidth) {
 							matrices.scale(carLengthMaxWidth / carTextWidth, 1, 1);
 						}
 						textRenderer.draw(matrices, carText, 0, 0, CAR_TEXT_COLOR);
-						matrices.pop();
+						matrices.popPose();
 					}
 
-					matrices.push();
+					matrices.pushPose();
 					matrices.translate(destinationStart, 0, 0);
-					final int destinationWidth = textRenderer.getWidth(destinationString);
+					final int destinationWidth = textRenderer.width(destinationString);
 					if (destinationWidth > newDestinationMaxWidth) {
 						matrices.scale(newDestinationMaxWidth / destinationWidth, 1, 1);
 					}
 					textRenderer.draw(matrices, destinationString, 0, 0, seconds > 0 ? textColor : firstTrainColor);
-					matrices.pop();
+					matrices.popPose();
 
 					if (arrivalText != null) {
-						matrices.push();
-						final int arrivalWidth = textRenderer.getWidth(arrivalText);
+						matrices.pushPose();
+						final int arrivalWidth = textRenderer.width(arrivalText);
 						if (arrivalWidth > arrivalMaxWidth) {
 							matrices.translate(destinationStart + newDestinationMaxWidth + platformMaxWidth + carLengthMaxWidth, 0, 0);
 							matrices.scale(arrivalMaxWidth / arrivalWidth, 1, 1);
@@ -253,11 +253,11 @@ public class RenderPIDS<T extends BlockEntity> extends BlockEntityRendererMapper
 							matrices.translate(totalScaledWidth - arrivalWidth, 0, 0);
 						}
 						textRenderer.draw(matrices, arrivalText, 0, 0, textColor);
-						matrices.pop();
+						matrices.popPose();
 					}
 				}
 
-				matrices.pop();
+				matrices.popPose();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

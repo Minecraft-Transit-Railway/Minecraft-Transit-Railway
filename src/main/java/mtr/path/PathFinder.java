@@ -1,7 +1,7 @@
 package mtr.path;
 
 import mtr.data.*;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.*;
 import java.util.function.Function;
@@ -47,7 +47,7 @@ public class PathFinder {
 		final BlockPos savedRailBaseEndMidPos = savedRailBaseEnd.getMidPos();
 		final Function<Map<BlockPos, Rail>, Comparator<BlockPos>> comparator = newConnections -> (pos1, pos2) -> {
 			if (newConnections.get(pos1).railType.speedLimit == newConnections.get(pos2).railType.speedLimit) {
-				return pos1.getSquaredDistance(savedRailBaseEndMidPos) > pos2.getSquaredDistance(savedRailBaseEndMidPos) ? 1 : -1;
+				return pos1.distSqr(savedRailBaseEndMidPos) > pos2.distSqr(savedRailBaseEndMidPos) ? 1 : -1;
 			} else {
 				return newConnections.get(pos2).railType.speedLimit - newConnections.get(pos1).railType.speedLimit;
 			}

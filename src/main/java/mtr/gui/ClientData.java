@@ -1,9 +1,9 @@
 package mtr.gui;
 
 import mtr.data.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +32,7 @@ public final class ClientData {
 
 	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
 
-	public static void writeRails(MinecraftClient client, PacketByteBuf packet) {
+	public static void writeRails(Minecraft client, FriendlyByteBuf packet) {
 		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
 
 		final int railsCount = packet.readInt();
@@ -49,7 +49,7 @@ public final class ClientData {
 		client.execute(() -> clearAndAddAll(RAILS, railsTemp));
 	}
 
-	public static void updateTrains(MinecraftClient client, PacketByteBuf packet) {
+	public static void updateTrains(Minecraft client, FriendlyByteBuf packet) {
 		final Set<TrainClient> trainsToUpdate = new HashSet<>();
 
 		while (packet.isReadable()) {
@@ -66,7 +66,7 @@ public final class ClientData {
 		}));
 	}
 
-	public static void deleteTrains(MinecraftClient client, PacketByteBuf packet) {
+	public static void deleteTrains(Minecraft client, FriendlyByteBuf packet) {
 		final Set<Long> trainIdsToKeep = new HashSet<>();
 
 		final int trainsCount = packet.readInt();
@@ -77,7 +77,7 @@ public final class ClientData {
 		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
 	}
 
-	public static void updateTrainRidingPosition(MinecraftClient client, PacketByteBuf packet) {
+	public static void updateTrainRidingPosition(Minecraft client, FriendlyByteBuf packet) {
 		final TrainClient train = getTrainById(packet.readLong());
 		final float clientPercentageX = packet.readFloat();
 		final float clientPercentageZ = packet.readFloat();
@@ -86,7 +86,7 @@ public final class ClientData {
 		}
 	}
 
-	public static void updateSchedule(MinecraftClient client, PacketByteBuf packet) {
+	public static void updateSchedule(Minecraft client, FriendlyByteBuf packet) {
 		final Map<Long, Set<Route.ScheduleEntry>> tempSchedulesForPlatform = new HashMap<>();
 		final int platformCount = packet.readInt();
 		for (int i = 0; i < platformCount; i++) {
@@ -112,8 +112,8 @@ public final class ClientData {
 		});
 	}
 
-	public static void receivePacket(PacketByteBuf packet) {
-		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
+	public static void receivePacket(FriendlyByteBuf packet) {
+		final FriendlyByteBuf packetCopy = new FriendlyByteBuf(packet.copy());
 		clearAndAddAll(STATIONS, deserializeData(packetCopy, Station::new));
 		clearAndAddAll(PLATFORMS, deserializeData(packetCopy, Platform::new));
 		clearAndAddAll(SIDINGS, deserializeData(packetCopy, Siding::new));
@@ -125,7 +125,7 @@ public final class ClientData {
 		ClientData.DATA_CACHE.sync();
 	}
 
-	private static <T extends SerializedDataBase> Set<T> deserializeData(PacketByteBuf packet, Function<PacketByteBuf, T> supplier) {
+	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();
 		for (int i = 0; i < dataCount; i++) {

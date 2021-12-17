@@ -6,9 +6,9 @@ import mtr.data.DataCache;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +26,7 @@ public class DataServletHandler extends HttpServlet {
 		SERVER.execute(() -> {
 			final JsonArray dataArray = new JsonArray();
 
-			SERVER.getWorlds().forEach(world -> {
+			SERVER.getAllLevels().forEach(world -> {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				final JsonArray routesArray = new JsonArray();
 				final JsonObject stationPositionsObject = new JsonObject();

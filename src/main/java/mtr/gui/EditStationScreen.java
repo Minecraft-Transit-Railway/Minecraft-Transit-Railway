@@ -1,13 +1,13 @@
 package mtr.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Station;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,19 +18,19 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	String editingExit;
 	int editingDestinationIndex;
 
-	private final Text stationZoneText = new TranslatableText("gui.mtr.zone");
-	private final Text exitParentsText = new TranslatableText("gui.mtr.exit_parents");
-	private final Text exitDestinationsText = new TranslatableText("gui.mtr.exit_destinations");
+	private final Component stationZoneText = new TranslatableComponent("gui.mtr.zone");
+	private final Component exitParentsText = new TranslatableComponent("gui.mtr.exit_parents");
+	private final Component exitDestinationsText = new TranslatableComponent("gui.mtr.exit_destinations");
 
 	private final WidgetBetterTextField textFieldZone;
 	private final WidgetBetterTextField textFieldExitParentLetter;
 	private final WidgetBetterTextField textFieldExitParentNumber;
 	private final WidgetBetterTextField textFieldExitDestination;
 
-	private final ButtonWidget buttonAddExitParent;
-	private final ButtonWidget buttonDoneExitParent;
-	private final ButtonWidget buttonAddExitDestination;
-	private final ButtonWidget buttonDoneExitDestination;
+	private final Button buttonAddExitParent;
+	private final Button buttonDoneExitParent;
+	private final Button buttonAddExitDestination;
+	private final Button buttonDoneExitDestination;
 
 	private final DashboardList exitParentList;
 	private final DashboardList exitDestinationList;
@@ -44,10 +44,10 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
 		textFieldExitDestination = new WidgetBetterTextField(null, "");
 
-		buttonAddExitParent = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
-		buttonDoneExitParent = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitParent());
-		buttonAddExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
-		buttonDoneExitDestination = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneExitDestination());
+		buttonAddExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
+		buttonDoneExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitParent());
+		buttonAddExitDestination = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
+		buttonDoneExitDestination = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitDestination());
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
 		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
@@ -69,7 +69,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		IDrawing.setPositionAndWidth(buttonAddExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
-		textFieldZone.setText(String.valueOf(data.zone));
+		textFieldZone.setValue(String.valueOf(data.zone));
 
 		exitParentList.x = 0;
 		exitParentList.y = EXIT_PANELS_START;
@@ -119,20 +119,20 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			renderTextFields(matrices);
 
-			drawVerticalLine(matrices, width / 2, EXIT_PANELS_START - SQUARE_SIZE, height, ARGB_WHITE_TRANSLUCENT);
+			vLine(matrices, width / 2, EXIT_PANELS_START - SQUARE_SIZE, height, ARGB_WHITE_TRANSLUCENT);
 
-			exitParentList.render(matrices, textRenderer);
-			exitDestinationList.render(matrices, textRenderer);
+			exitParentList.render(matrices, font);
+			exitDestinationList.render(matrices, font);
 
-			drawCenteredText(matrices, textRenderer, stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
-			drawCenteredText(matrices, textRenderer, exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, stationZoneText, width / 8 * 7, TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, exitParentsText, width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			if (parentExists()) {
-				drawCenteredText(matrices, textRenderer, exitDestinationsText, 3 * width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				drawCenteredString(matrices, font, exitDestinationsText, 3 * width / 4, EXIT_PANELS_START - SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
@@ -158,7 +158,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	public void onClose() {
 		super.onClose();
 		try {
-			data.zone = Integer.parseInt(textFieldZone.getText());
+			data.zone = Integer.parseInt(textFieldZone.getValue());
 		} catch (Exception ignored) {
 			data.zone = 0;
 		}
@@ -170,13 +170,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		this.editingDestinationIndex = parentExists() ? editingDestinationIndex : -1;
 
 		if (editingExit != null) {
-			textFieldExitParentLetter.setText(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setText(editingExit.replaceAll("[^0-9]", ""));
+			textFieldExitParentLetter.setValue(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
+			textFieldExitParentNumber.setValue(editingExit.replaceAll("[^0-9]", ""));
 		}
 		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {
-			textFieldExitDestination.setText(data.exits.get(editingExit).get(editingDestinationIndex));
+			textFieldExitDestination.setValue(data.exits.get(editingExit).get(editingDestinationIndex));
 		} else {
-			textFieldExitDestination.setText("");
+			textFieldExitDestination.setValue("");
 		}
 
 		textFieldExitParentLetter.visible = editingExit != null;
@@ -192,8 +192,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onDoneExitParent() {
-		final String parentLetter = textFieldExitParentLetter.getText();
-		final String parentNumber = textFieldExitParentNumber.getText();
+		final String parentLetter = textFieldExitParentLetter.getValue();
+		final String parentNumber = textFieldExitParentNumber.getValue();
 		if (!parentLetter.isEmpty() && !parentNumber.isEmpty()) {
 			try {
 				final String exitParent = parentLetter + Integer.parseInt(parentNumber);
@@ -206,7 +206,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	private void onDoneExitDestination() {
-		final String destination = textFieldExitDestination.getText();
+		final String destination = textFieldExitDestination.getValue();
 		if (parentExists() && editingDestinationIndex >= 0 && !destination.isEmpty()) {
 			final List<String> destinations = data.exits.get(editingExit);
 			if (editingDestinationIndex < destinations.size()) {

@@ -1,18 +1,18 @@
 package mtr.gui;
 
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -28,16 +28,16 @@ public class DashboardList implements IGui {
 
 	private final WidgetBetterTextField textFieldSearch;
 
-	private final TexturedButtonWidget buttonPrevPage;
-	private final TexturedButtonWidget buttonNextPage;
+	private final ImageButton buttonPrevPage;
+	private final ImageButton buttonNextPage;
 
-	private final TexturedButtonWidget buttonFind;
-	private final TexturedButtonWidget buttonDrawArea;
-	private final TexturedButtonWidget buttonEdit;
-	private final TexturedButtonWidget buttonUp;
-	private final TexturedButtonWidget buttonDown;
-	private final TexturedButtonWidget buttonAdd;
-	private final TexturedButtonWidget buttonDelete;
+	private final ImageButton buttonFind;
+	private final ImageButton buttonDrawArea;
+	private final ImageButton buttonEdit;
+	private final ImageButton buttonUp;
+	private final ImageButton buttonDown;
+	private final ImageButton buttonAdd;
+	private final ImageButton buttonDelete;
 
 	private final Supplier<String> getSearch;
 	private final Consumer<String> setSearch;
@@ -58,31 +58,31 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(BiConsumer<NameColorDataBase, Integer> onFind, BiConsumer<NameColorDataBase, Integer> onDrawArea, BiConsumer<NameColorDataBase, Integer> onEdit, Runnable onSort, BiConsumer<NameColorDataBase, Integer> onAdd, BiConsumer<NameColorDataBase, Integer> onDelete, Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new WidgetBetterTextField(null, new TranslatableText("gui.mtr.search").getString());
-		buttonPrevPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
-		buttonNextPage = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
-		buttonFind = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
-		buttonDrawArea = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
-		buttonEdit = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
-		buttonUp = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
+		textFieldSearch = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.search").getString());
+		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
+		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
+		buttonFind = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind));
+		buttonDrawArea = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_draw_area.png"), 20, 40, button -> onClick(onDrawArea));
+		buttonEdit = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_edit.png"), 20, 40, button -> onClick(onEdit));
+		buttonUp = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_up.png"), 20, 40, button -> {
 			onUp(getList);
 			onSort.run();
 		});
-		buttonDown = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_down.png"), 20, 40, button -> {
+		buttonDown = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_down.png"), 20, 40, button -> {
 			onDown(getList);
 			onSort.run();
 		});
-		buttonAdd = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
-		buttonDelete = new TexturedButtonWidget(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new Identifier("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
+		buttonAdd = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_add.png"), 20, 40, button -> onClick(onAdd));
+		buttonDelete = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_delete.png"), 20, 40, button -> onClick(onDelete));
 	}
 
-	public void init(Consumer<ClickableWidget> addDrawableChild) {
+	public void init(Consumer<AbstractWidget> addDrawableChild) {
 		IDrawing.setPositionAndWidth(buttonPrevPage, x, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonNextPage, x + SQUARE_SIZE * 3, y + TEXT_FIELD_PADDING / 2, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(textFieldSearch, x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, y + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 4 - TEXT_FIELD_PADDING);
 
-		textFieldSearch.setChangedListener(setSearch);
-		textFieldSearch.setText(getSearch.get());
+		textFieldSearch.setResponder(setSearch);
+		textFieldSearch.setValue(getSearch.get());
 
 		buttonFind.visible = false;
 		buttonDrawArea.visible = false;
@@ -112,7 +112,7 @@ public class DashboardList implements IGui {
 		buttonNextPage.x = x + SQUARE_SIZE * 3;
 		textFieldSearch.x = x + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2;
 
-		final String text = textFieldSearch.getText();
+		final String text = textFieldSearch.getValue();
 		dataFiltered.clear();
 		for (int i = 0; i < dataSorted.size(); i++) {
 			if (dataSorted.get(i).name.toLowerCase().contains(text.toLowerCase())) {
@@ -141,8 +141,8 @@ public class DashboardList implements IGui {
 		this.hasDelete = hasDelete;
 	}
 
-	public void render(MatrixStack matrices, TextRenderer textRenderer) {
-		DrawableHelper.drawCenteredText(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
+	public void render(PoseStack matrices, Font textRenderer) {
+		Gui.drawCenteredString(matrices, textRenderer, String.format("%s/%s", page + 1, totalPages), x + SQUARE_SIZE * 2, y + TEXT_PADDING + TEXT_FIELD_PADDING / 2, ARGB_WHITE);
 		final int itemsToShow = itemsToShow();
 		for (int i = 0; i < itemsToShow; i++) {
 			if (i + itemsToShow * page < dataFiltered.size()) {
@@ -151,24 +151,24 @@ public class DashboardList implements IGui {
 				Collections.sort(sortedKeys);
 				final NameColorDataBase data = dataFiltered.get(sortedKeys.get(i + itemsToShow * page));
 
-				Tessellator tessellator = Tessellator.getInstance();
-				BufferBuilder buffer = tessellator.getBuffer();
+				Tesselator tesselator = Tesselator.getInstance();
+				BufferBuilder buffer = tesselator.getBuilder();
 				UtilitiesClient.beginDrawingRectangle(buffer);
 				IDrawing.drawRectangle(buffer, x + TEXT_PADDING, y + drawY, x + TEXT_PADDING + TEXT_HEIGHT, y + drawY + TEXT_HEIGHT, ARGB_BLACK + data.color);
-				tessellator.draw();
+				tesselator.end();
 				UtilitiesClient.finishDrawingRectangle();
 
 				final String drawString = IGui.formatStationName(data.name);
 				final int textStart = TEXT_PADDING * 2 + TEXT_HEIGHT;
-				final int textWidth = textRenderer.getWidth(drawString);
+				final int textWidth = textRenderer.width(drawString);
 				final int availableSpace = width - textStart;
-				matrices.push();
+				matrices.pushPose();
 				matrices.translate(x + textStart, 0, 0);
 				if (textWidth > availableSpace) {
 					matrices.scale((float) availableSpace / textWidth, 1, 1);
 				}
 				textRenderer.draw(matrices, drawString, 0, y + drawY, ARGB_WHITE);
-				matrices.pop();
+				matrices.popPose();
 			}
 		}
 	}
@@ -218,11 +218,11 @@ public class DashboardList implements IGui {
 	}
 
 	public void clearSearch() {
-		textFieldSearch.setText("");
+		textFieldSearch.setValue("");
 	}
 
 	private void setPage(int newPage) {
-		page = MathHelper.clamp(newPage, 0, totalPages - 1);
+		page = Mth.clamp(newPage, 0, totalPages - 1);
 		buttonPrevPage.visible = page > 0;
 		buttonNextPage.visible = page < totalPages - 1;
 	}
@@ -241,7 +241,7 @@ public class DashboardList implements IGui {
 	}
 
 	private <T> void onUp(Supplier<List<T>> getList) {
-		if (textFieldSearch.getText().isEmpty()) {
+		if (textFieldSearch.getValue().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			final T aboveItem = list.get(index - 1);
@@ -252,7 +252,7 @@ public class DashboardList implements IGui {
 	}
 
 	private <T> void onDown(Supplier<List<T>> getList) {
-		if (textFieldSearch.getText().isEmpty()) {
+		if (textFieldSearch.getValue().isEmpty()) {
 			final int index = hoverIndex + itemsToShow() * page;
 			final List<T> list = getList.get();
 			final T thisItem = list.get(index);

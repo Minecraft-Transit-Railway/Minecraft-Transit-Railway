@@ -1,23 +1,23 @@
 package mtr.block;
 
-import mtr.MTR;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
+import mapper.BlockEntityMapper;
+import mtr.BlockEntityTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Set;
 
 public class BlockTrainCargoLoader extends BlockTrainSensorBase {
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityTrainCargoLoader(pos, state);
 	}
 
 	public static class TileEntityTrainCargoLoader extends TileEntityTrainSensorBase {
 
 		public TileEntityTrainCargoLoader(BlockPos pos, BlockState state) {
-			super(MTR.TRAIN_CARGO_LOADER_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_CARGO_LOADER_TILE_ENTITY, pos, state);
 		}
 
 		@Override

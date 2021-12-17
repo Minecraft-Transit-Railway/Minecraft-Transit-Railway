@@ -1,13 +1,13 @@
 package mtr.data;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public abstract class SerializedDataBase {
 
 	public static final int PACKET_STRING_READ_LENGTH = 32767;
 
-	public abstract NbtCompound toCompoundTag();
+	public abstract CompoundTag toCompoundTag();
 
-	public abstract void writePacket(PacketByteBuf packet);
+	public abstract void writePacket(FriendlyByteBuf packet);
 }

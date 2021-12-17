@@ -1,33 +1,33 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.BlockEntityProviderMapper;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
+import mapper.BlockEntityMapper;
+import mapper.EntityBlockMapper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 import java.util.List;
 
-public abstract class BlockStationNameBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
+public abstract class BlockStationNameBase extends HorizontalDirectionalBlock implements EntityBlockMapper {
 
-	public static final IntProperty COLOR = IntProperty.of("color", 0, 2);
+	public static final IntegerProperty COLOR = IntegerProperty.create("color", 0, 2);
 
-	protected BlockStationNameBase(Settings settings) {
+	protected BlockStationNameBase(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, BlockView world, List<Text> tooltip, TooltipContext options) {
-		tooltip.add(new TranslatableText("tooltip.mtr.station_color_name").setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		tooltip.add(new TranslatableComponent("tooltip.mtr.station_color_name").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 
 	public abstract static class TileEntityStationNameBase extends BlockEntityMapper {

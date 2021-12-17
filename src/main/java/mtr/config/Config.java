@@ -4,8 +4,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.Patreon;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +25,7 @@ public class Config {
 
 	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
 	public static final int TRACK_OFFSET_COUNT = 32;
-	private static final Path CONFIG_FILE_PATH = MinecraftClient.getInstance().runDirectory.toPath().resolve("config").resolve("mtr.json");
+	private static final Path CONFIG_FILE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
 	private static final String HIDE_SPECIAL_RAIL_COLORS = "hide_special_rail_colors";
@@ -98,7 +98,7 @@ public class Config {
 	}
 
 	public static void setTrackTextureOffset(int value) {
-		trackTextureOffset = MathHelper.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
+		trackTextureOffset = Mth.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
 		writeToFile();
 	}
 
@@ -127,7 +127,7 @@ public class Config {
 			} catch (Exception ignored) {
 			}
 			try {
-				trackTextureOffset = MathHelper.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
+				trackTextureOffset = Mth.clamp(jsonConfig.get(TRACK_TEXTURE_OFFSET).getAsInt(), 0, TRACK_OFFSET_COUNT - 1);
 			} catch (Exception ignored) {
 			}
 		} catch (Exception e) {

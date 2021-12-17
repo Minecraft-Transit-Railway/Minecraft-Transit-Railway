@@ -1,33 +1,33 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 
 	private final Runnable deleteCallback;
 	private final String name;
 	private final DashboardScreen dashboardScreen;
-	private final ButtonWidget buttonYes;
-	private final ButtonWidget buttonNo;
+	private final Button buttonYes;
+	private final Button buttonNo;
 
 	private static final int BUTTON_WIDTH = 100;
 	private static final int BUTTON_HALF_PADDING = 10;
 
 	public DeleteConfirmationScreen(Runnable deleteCallback, String name, DashboardScreen dashboardScreen) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 
 		this.deleteCallback = deleteCallback;
 		this.name = name;
 		this.dashboardScreen = dashboardScreen;
 
-		buttonYes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.yes"), button -> onYes());
-		buttonNo = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.no"), button -> onNo());
+		buttonYes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.yes"), button -> onYes());
+		buttonNo = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.no"), button -> onNo());
 	}
 
 	@Override
@@ -40,11 +40,11 @@ public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredText(matrices, textRenderer, new TranslatableText("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,8 +53,8 @@ public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			UtilitiesClient.setScreen(client, dashboardScreen);
+		if (minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, dashboardScreen);
 		}
 	}
 

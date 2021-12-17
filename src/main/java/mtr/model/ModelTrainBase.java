@@ -1,28 +1,28 @@
 package mtr.model;
 
-import minecraftmappings.ModelMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import mapper.ModelMapper;
 import mtr.data.IGui;
 import mtr.render.MoreRenderLayers;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
 	@Override
-	public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+	public void setupAnim(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
 
 	@Override
-	public final void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+	public final void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 	}
 
-	public final void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, float doorLeftValue, float doorRightValue, boolean opening, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails) {
+	public final void render(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int light, float doorLeftValue, float doorRightValue, boolean opening, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean lightsOn, boolean isTranslucent, boolean renderDetails) {
 		final float doorLeftX = getDoorAnimationX(doorLeftValue, opening);
 		final float doorRightX = getDoorAnimationX(doorRightValue, opening);
 		final float doorLeftZ = getDoorAnimationZ(doorLeftValue, opening);
@@ -33,12 +33,12 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 
 		if (isTranslucent) {
 			if (renderDetails) {
-				final RenderLayer renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
+				final RenderType renderLayerInteriorTranslucent = lightsOn ? MoreRenderLayers.getInteriorTranslucent(texture) : MoreRenderLayers.getExteriorTranslucent(texture);
 				render(matrices, vertexConsumers.getBuffer(renderLayerInteriorTranslucent), RenderStage.INTERIOR_TRANSLUCENT, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 			}
 		} else {
-			final RenderLayer renderLayerLight = lightsOn ? MoreRenderLayers.getLight(texture, false) : MoreRenderLayers.getExterior(texture);
-			final RenderLayer renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
+			final RenderType renderLayerLight = lightsOn ? MoreRenderLayers.getLight(texture, false) : MoreRenderLayers.getExterior(texture);
+			final RenderType renderLayerInterior = lightsOn ? MoreRenderLayers.getInterior(texture) : MoreRenderLayers.getExterior(texture);
 			render(matrices, vertexConsumers.getBuffer(renderLayerLight), RenderStage.LIGHTS, lightOnGlowingLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 			render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 
@@ -61,7 +61,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	private void render(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
+	private void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
 		for (int position : getWindowPositions()) {
 			renderWindowPositions(matrices, vertices, renderStage, light, position, renderDetails, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head);
 		}
@@ -82,17 +82,17 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		}
 	}
 
-	protected abstract void renderWindowPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
+	protected abstract void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderDoorPositions(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
+	protected abstract void renderDoorPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head);
 
-	protected abstract void renderHeadPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights);
+	protected abstract void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights);
 
-	protected abstract void renderHeadPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights);
+	protected abstract void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights);
 
-	protected abstract void renderEndPosition1(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
+	protected abstract void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
 
-	protected abstract void renderEndPosition2(MatrixStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
+	protected abstract void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ);
 
 	protected abstract ModelDoorOverlay getModelDoorOverlay();
 
@@ -112,25 +112,25 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 		bone.setRotationAngle(x, y, z);
 	}
 
-	protected static void renderMirror(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
+	protected static void renderMirror(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
 		renderOnce(bone, matrices, vertices, light, position);
 		renderOnceFlipped(bone, matrices, vertices, light, position);
 	}
 
-	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, 0, light, OverlayTexture.NO_OVERLAY);
 	}
 
-	protected static void renderOnce(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnce(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, positionX, positionZ, 0, light, OverlayTexture.NO_OVERLAY);
 	}
 
-	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float position) {
-		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float position) {
+		bone.render(matrices, vertices, 0, position, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
 	}
 
-	protected static void renderOnceFlipped(ModelMapper bone, MatrixStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
-		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.DEFAULT_UV);
+	protected static void renderOnceFlipped(ModelMapper bone, PoseStack matrices, VertexConsumer vertices, int light, float positionX, float positionZ) {
+		bone.render(matrices, vertices, -positionX, positionZ, (float) Math.PI, light, OverlayTexture.NO_OVERLAY);
 	}
 
 	protected static boolean isIndex(int index, int value, int[] array) {

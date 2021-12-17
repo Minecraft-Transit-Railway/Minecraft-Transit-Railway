@@ -1,24 +1,23 @@
 package mtr.item;
 
-import minecraftmappings.Utilities;
 import mtr.ItemGroups;
 import mtr.block.BlockRail;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
@@ -29,27 +28,27 @@ public abstract class ItemNodeModifierBase extends Item {
 	public static final String TAG_POS = "pos";
 
 	public ItemNodeModifierBase(boolean isConnector) {
-		super(new Item.Settings().group(ItemGroups.CORE).maxCount(1));
+		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
 		this.isConnector = isConnector;
 	}
 
 	@Override
-	public final ActionResult useOnBlock(ItemUsageContext context) {
-		final World world = context.getWorld();
-		if (!world.isClient) {
+	public InteractionResult useOn(UseOnContext context) {
+		final Level world = context.getLevel();
+		if (!world.isClientSide) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
-			final BlockPos posStart = context.getBlockPos();
+			final BlockPos posStart = context.getClickedPos();
 			final BlockState stateStart = world.getBlockState(posStart);
 
 			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
-				final NbtCompound nbtCompound = Utilities.getOrCreateNbt(context.getStack());
+				final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
 
-				if (nbtCompound.contains(TAG_POS)) {
-					final BlockPos posEnd = BlockPos.fromLong(nbtCompound.getLong(TAG_POS));
+				if (compoundTag.contains(TAG_POS)) {
+					final BlockPos posEnd = BlockPos.of(compoundTag.getLong(TAG_POS));
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
 					if (stateEnd.getBlock() instanceof BlockRail) {
-						final PlayerEntity player = context.getPlayer();
+						final Player player = context.getPlayer();
 
 						if (isConnector) {
 							if (!posStart.equals(posEnd)) {
@@ -67,30 +66,30 @@ public abstract class ItemNodeModifierBase extends Item {
 						}
 					}
 
-					nbtCompound.remove(TAG_POS);
+					compoundTag.remove(TAG_POS);
 				} else {
-					nbtCompound.putLong(TAG_POS, posStart.asLong());
+					compoundTag.putLong(TAG_POS, posStart.asLong());
 				}
 
-				return ActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			} else {
-				return ActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 		} else {
-			return super.useOnBlock(context);
+			return super.useOn(context);
 		}
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		final NbtCompound nbtCompound = Utilities.getOrCreateNbt(stack);
-		final long posLong = nbtCompound.getLong(TAG_POS);
+	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		final CompoundTag compoundTag = itemStack.getOrCreateTag();
+		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(new TranslatableText("tooltip.mtr.selected_block", BlockPos.fromLong(posLong).toShortString()).setStyle(Style.EMPTY.withColor(Formatting.GOLD)));
+			tooltip.add(new TranslatableComponent("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 		}
 	}
 
-	protected abstract void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData);
+	protected abstract void onConnect(Level world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
 
-	protected abstract void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
+	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
 }

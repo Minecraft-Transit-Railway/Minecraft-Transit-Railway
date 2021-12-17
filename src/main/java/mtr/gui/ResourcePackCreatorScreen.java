@@ -2,24 +2,24 @@ package mtr.gui;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.MTR;
 import mtr.config.DynamicTrainModel;
 import mtr.data.DataConverter;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.render.RenderTrains;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,27 +39,27 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
 	private final List<DataConverter> partsListData = new ArrayList<>();
 	private final DashboardList partsList;
-	private final ButtonWidget buttonChooseBlockbenchFile;
-	private final ButtonWidget buttonChoosePropertiesFile;
-	private final ButtonWidget buttonChooseTextureFile;
+	private final Button buttonChooseBlockbenchFile;
+	private final Button buttonChoosePropertiesFile;
+	private final Button buttonChooseTextureFile;
 
 	private static final int ARGB_INTERIOR = 0xFBBC04;
 	private static final int ARGB_EXTERIOR = 0x34A853;
 
 	public ResourcePackCreatorScreen() {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		partsList = new DashboardList(null, null, this::onEdit, null, null, null, null, () -> "", text -> {
 		});
-		buttonChooseBlockbenchFile = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> buttonCallback(path -> readJson(path, (fileName, jsonObject) -> {
+		buttonChooseBlockbenchFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> readJson(path, (fileName, jsonObject) -> {
 			jsonObject.remove("textures");
 			updateModelFile(fileName, jsonObject);
 		})));
-		buttonChoosePropertiesFile = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> buttonCallback(path -> readJson(path, this::updatePropertiesFile)));
-		buttonChooseTextureFile = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText(""), button -> buttonCallback(path -> {
-			if (client != null) {
+		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> readJson(path, this::updatePropertiesFile)));
+		buttonChooseTextureFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+			if (minecraft != null) {
 				try {
 					final NativeImage nativeImage = NativeImage.read(Files.newInputStream(path, StandardOpenOption.READ));
-					final Identifier identifier = client.getTextureManager().registerDynamicTexture(MTR.MOD_ID, new NativeImageBackedTexture(nativeImage));
+					final ResourceLocation identifier = minecraft.getTextureManager().register(MTR.MOD_ID, new DynamicTexture(nativeImage));
 					updateTextureFile(path.getFileName().toString(), identifier);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -89,28 +89,28 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 
-			if (model != null && RenderTrains.creatorTexture != null && client != null) {
-				matrices.push();
+			if (model != null && RenderTrains.creatorTexture != null && minecraft != null) {
+				matrices.pushPose();
 				matrices.translate((width - PANEL_WIDTH) / 2F + PANEL_WIDTH + translation, height / 2F, 250);
 				matrices.scale(scale, scale, -scale);
-				matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
-				matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(pitch));
-				final VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+				matrices.mulPose(Vector3f.ZP.rotation(pitch));
+				final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
 				model.render(matrices, immediate, RenderTrains.creatorTexture, MAX_LIGHT_INTERIOR, 0, 0, true, true, false, true, true, false, true);
-				immediate.draw();
-				matrices.pop();
+				immediate.endBatch();
+				matrices.popPose();
 			}
 
-			matrices.push();
+			matrices.pushPose();
 			matrices.translate(0, 0, 500);
-			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			partsList.render(matrices, textRenderer);
+			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+			partsList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
-			matrices.pop();
+			matrices.popPose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -151,7 +151,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
 	private void updateModelFile(String fileName, JsonObject jsonObject) {
 		jsonObject.remove("textures");
-		buttonChooseBlockbenchFile.setMessage(fileName.isEmpty() ? new TranslatableText("gui.mtr.choose_blockbench_file") : new LiteralText(fileName));
+		buttonChooseBlockbenchFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_blockbench_file") : new TextComponent(fileName));
 		RenderTrains.creatorModelFileName = fileName;
 		RenderTrains.creatorModel = jsonObject;
 		updateModel();
@@ -169,14 +169,14 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 	}
 
 	private void updatePropertiesFile(String fileName, JsonObject jsonObject) {
-		buttonChoosePropertiesFile.setMessage(fileName.isEmpty() ? new TranslatableText("gui.mtr.choose_properties_file") : new LiteralText(fileName));
+		buttonChoosePropertiesFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_properties_file") : new TextComponent(fileName));
 		RenderTrains.creatorPropertiesFileName = fileName;
 		RenderTrains.creatorProperties = jsonObject;
 		updateModel();
 	}
 
-	private void updateTextureFile(String fileName, Identifier identifier) {
-		buttonChooseTextureFile.setMessage(fileName.isEmpty() ? new TranslatableText("gui.mtr.choose_texture_file") : new LiteralText(fileName));
+	private void updateTextureFile(String fileName, ResourceLocation identifier) {
+		buttonChooseTextureFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_texture_file") : new TextComponent(fileName));
 		RenderTrains.creatorTextureFileName = fileName;
 		RenderTrains.creatorTexture = identifier;
 	}
@@ -192,8 +192,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 	}
 
 	private void buttonCallback(Consumer<Path> callback) {
-		if (client != null) {
-			UtilitiesClient.setScreen(client, new FileUploaderScreen(this, paths -> {
+		if (minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, new FileUploaderScreen(this, paths -> {
 				if (!paths.isEmpty()) {
 					try {
 						callback.accept(paths.get(0));

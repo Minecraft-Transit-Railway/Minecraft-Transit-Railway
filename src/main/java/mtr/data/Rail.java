@@ -1,11 +1,11 @@
 package mtr.data;
 
 import mtr.EnumHelper;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class Rail extends SerializedDataBase {
 
@@ -61,8 +61,8 @@ public class Rail extends SerializedDataBase {
 		final int zEnd = posEnd.getZ();
 
 		// Coordinate system translation and rotation
-		final Vec3d vecDifference = new Vec3d(posEnd.getX() - posStart.getX(), 0, posEnd.getZ() - posStart.getZ());
-		final Vec3d vecDifferenceRotated = vecDifference.rotateY((float) facingStart.angleRadians);
+		final Vec3 vecDifference = new Vec3(posEnd.getX() - posStart.getX(), 0, posEnd.getZ() - posStart.getZ());
+		final Vec3 vecDifferenceRotated = vecDifference.yRot((float) facingStart.angleRadians);
 
 		// First we check the Delta Side > 0
 		// 1. If they are same angle
@@ -204,30 +204,30 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	public Rail(NbtCompound nbtCompound) {
-		h1 = nbtCompound.getDouble(KEY_H_1);
-		k1 = nbtCompound.getDouble(KEY_K_1);
-		h2 = nbtCompound.getDouble(KEY_H_2);
-		k2 = nbtCompound.getDouble(KEY_K_2);
-		r1 = nbtCompound.getDouble(KEY_R_1);
-		r2 = nbtCompound.getDouble(KEY_R_2);
-		tStart1 = nbtCompound.getDouble(KEY_T_START_1);
-		tEnd1 = nbtCompound.getDouble(KEY_T_END_1);
-		tStart2 = nbtCompound.getDouble(KEY_T_START_2);
-		tEnd2 = nbtCompound.getDouble(KEY_T_END_2);
-		yStart = nbtCompound.getInt(KEY_Y_START);
-		yEnd = nbtCompound.getInt(KEY_Y_END);
-		reverseT1 = nbtCompound.getBoolean(KEY_REVERSE_T_1);
-		isStraight1 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_1);
-		reverseT2 = nbtCompound.getBoolean(KEY_REVERSE_T_2);
-		isStraight2 = nbtCompound.getBoolean(KEY_IS_STRAIGHT_2);
-		railType = EnumHelper.valueOf(RailType.IRON, nbtCompound.getString(KEY_RAIL_TYPE));
+	public Rail(CompoundTag compoundTag) {
+		h1 = compoundTag.getDouble(KEY_H_1);
+		k1 = compoundTag.getDouble(KEY_K_1);
+		h2 = compoundTag.getDouble(KEY_H_2);
+		k2 = compoundTag.getDouble(KEY_K_2);
+		r1 = compoundTag.getDouble(KEY_R_1);
+		r2 = compoundTag.getDouble(KEY_R_2);
+		tStart1 = compoundTag.getDouble(KEY_T_START_1);
+		tEnd1 = compoundTag.getDouble(KEY_T_END_1);
+		tStart2 = compoundTag.getDouble(KEY_T_START_2);
+		tEnd2 = compoundTag.getDouble(KEY_T_END_2);
+		yStart = compoundTag.getInt(KEY_Y_START);
+		yEnd = compoundTag.getInt(KEY_Y_END);
+		reverseT1 = compoundTag.getBoolean(KEY_REVERSE_T_1);
+		isStraight1 = compoundTag.getBoolean(KEY_IS_STRAIGHT_1);
+		reverseT2 = compoundTag.getBoolean(KEY_REVERSE_T_2);
+		isStraight2 = compoundTag.getBoolean(KEY_IS_STRAIGHT_2);
+		railType = EnumHelper.valueOf(RailType.IRON, compoundTag.getString(KEY_RAIL_TYPE));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
 	}
 
-	public Rail(PacketByteBuf packet) {
+	public Rail(FriendlyByteBuf packet) {
 		h1 = packet.readDouble();
 		k1 = packet.readDouble();
 		h2 = packet.readDouble();
@@ -244,37 +244,37 @@ public class Rail extends SerializedDataBase {
 		isStraight1 = packet.readBoolean();
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
-		railType = EnumHelper.valueOf(RailType.IRON, packet.readString(PACKET_STRING_READ_LENGTH));
+		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = new NbtCompound();
-		nbtCompound.putDouble(KEY_H_1, h1);
-		nbtCompound.putDouble(KEY_K_1, k1);
-		nbtCompound.putDouble(KEY_H_2, h2);
-		nbtCompound.putDouble(KEY_K_2, k2);
-		nbtCompound.putDouble(KEY_R_1, r1);
-		nbtCompound.putDouble(KEY_R_2, r2);
-		nbtCompound.putDouble(KEY_T_START_1, tStart1);
-		nbtCompound.putDouble(KEY_T_END_1, tEnd1);
-		nbtCompound.putDouble(KEY_T_START_2, tStart2);
-		nbtCompound.putDouble(KEY_T_END_2, tEnd2);
-		nbtCompound.putInt(KEY_Y_START, yStart);
-		nbtCompound.putInt(KEY_Y_END, yEnd);
-		nbtCompound.putBoolean(KEY_REVERSE_T_1, reverseT1);
-		nbtCompound.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
-		nbtCompound.putBoolean(KEY_REVERSE_T_2, reverseT2);
-		nbtCompound.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
-		nbtCompound.putString(KEY_RAIL_TYPE, railType.toString());
-		return nbtCompound;
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = new CompoundTag();
+		compoundTag.putDouble(KEY_H_1, h1);
+		compoundTag.putDouble(KEY_K_1, k1);
+		compoundTag.putDouble(KEY_H_2, h2);
+		compoundTag.putDouble(KEY_K_2, k2);
+		compoundTag.putDouble(KEY_R_1, r1);
+		compoundTag.putDouble(KEY_R_2, r2);
+		compoundTag.putDouble(KEY_T_START_1, tStart1);
+		compoundTag.putDouble(KEY_T_END_1, tEnd1);
+		compoundTag.putDouble(KEY_T_START_2, tStart2);
+		compoundTag.putDouble(KEY_T_END_2, tEnd2);
+		compoundTag.putInt(KEY_Y_START, yStart);
+		compoundTag.putInt(KEY_Y_END, yEnd);
+		compoundTag.putBoolean(KEY_REVERSE_T_1, reverseT1);
+		compoundTag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
+		compoundTag.putBoolean(KEY_REVERSE_T_2, reverseT2);
+		compoundTag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
+		compoundTag.putString(KEY_RAIL_TYPE, railType.toString());
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		packet.writeDouble(h1);
 		packet.writeDouble(k1);
 		packet.writeDouble(h2);
@@ -291,13 +291,13 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(isStraight1);
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
-		packet.writeString(railType.toString());
+		packet.writeUtf(railType.toString());
 	}
 
-	public Vec3d getPosition(double rawValue) {
+	public Vec3 getPosition(double rawValue) {
 		final double count1 = Math.abs(tEnd1 - tStart1);
 		final double count2 = Math.abs(tEnd2 - tStart2);
-		final double value = MathHelper.clamp(rawValue, 0, count1 + count2);
+		final double value = Mth.clamp(rawValue, 0, count1 + count2);
 		final double y = getPositionY(value);
 
 		if (value <= count1) {
@@ -341,11 +341,11 @@ public class Rail extends SerializedDataBase {
 		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 	}
 
-	private static Vec3d getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
+	private static Vec3 getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
 		if (isStraight) {
-			return new Vec3d(h * t + k * ((Math.abs(h) >= 0.5 && Math.abs(k) >= 0.5 ? 0 : r) + radiusOffset) + 0.5F, 0, k * t + h * (r - radiusOffset) + 0.5F);
+			return new Vec3(h * t + k * ((Math.abs(h) >= 0.5 && Math.abs(k) >= 0.5 ? 0 : r) + radiusOffset) + 0.5F, 0, k * t + h * (r - radiusOffset) + 0.5F);
 		} else {
-			return new Vec3d(h + (r + radiusOffset) * Math.cos(t / r) + 0.5F, 0, k + (r + radiusOffset) * Math.sin(t / r) + 0.5F);
+			return new Vec3(h + (r + radiusOffset) * Math.cos(t / r) + 0.5F, 0, k + (r + radiusOffset) * Math.sin(t / r) + 0.5F);
 		}
 	}
 
@@ -356,10 +356,10 @@ public class Rail extends SerializedDataBase {
 		for (double i = 0; i < count - 0.1; i += increment) {
 			final double t1 = (reverseT ? -1 : 1) * i + tStart;
 			final double t2 = (reverseT ? -1 : 1) * (i + increment) + tStart;
-			final Vec3d corner1 = getPositionXZ(h, k, r, t1, offsetRadius1, isStraight);
-			final Vec3d corner2 = getPositionXZ(h, k, r, t1, offsetRadius2, isStraight);
-			final Vec3d corner3 = getPositionXZ(h, k, r, t2, offsetRadius2, isStraight);
-			final Vec3d corner4 = getPositionXZ(h, k, r, t2, offsetRadius1, isStraight);
+			final Vec3 corner1 = getPositionXZ(h, k, r, t1, offsetRadius1, isStraight);
+			final Vec3 corner2 = getPositionXZ(h, k, r, t1, offsetRadius2, isStraight);
+			final Vec3 corner3 = getPositionXZ(h, k, r, t2, offsetRadius2, isStraight);
+			final Vec3 corner4 = getPositionXZ(h, k, r, t2, offsetRadius1, isStraight);
 
 			final double y1 = getPositionY(i + rawValueOffset);
 			final double y2 = getPositionY(i + increment + rawValueOffset);
@@ -378,13 +378,13 @@ public class Rail extends SerializedDataBase {
 			start = 0;
 			end = ACCEPT_THRESHOLD;
 		}
-		final Vec3d pos1 = getPosition(start);
-		final Vec3d pos2 = getPosition(end);
+		final Vec3 pos1 = getPosition(start);
+		final Vec3 pos2 = getPosition(end);
 		return RailAngle.fromAngle((float) Math.toDegrees(Math.atan2(pos2.z - pos1.z, pos2.x - pos1.x)));
 	}
 
 	private static double getTBounds(double x, double h, double z, double k, double r) {
-		return MathHelper.atan2(z - k, x - h) * r;
+		return Mth.atan2(z - k, x - h) * r;
 	}
 
 	private static double getTBounds(double x, double h, double z, double k, double r, double tStart, boolean reverse) {

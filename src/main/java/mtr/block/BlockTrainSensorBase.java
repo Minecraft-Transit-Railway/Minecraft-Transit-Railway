@@ -1,44 +1,45 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityClientSerializableMapper;
-import minecraftmappings.BlockEntityProviderMapper;
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class BlockTrainSensorBase extends Block implements BlockEntityProviderMapper {
+public abstract class BlockTrainSensorBase extends Block implements EntityBlockMapper {
 
 	public BlockTrainSensorBase() {
-		super(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE));
+		super(BlockBehaviour.Properties.copy(Blocks.SMOOTH_STONE));
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockEntity entity = world.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
-				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).sync();
-				PacketTrainDataGuiServer.openTrainSensorScreenS2C((ServerPlayerEntity) player, pos);
+				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).syncData();
+				PacketTrainDataGuiServer.openTrainSensorScreenS2C((ServerPlayer) player, pos);
 			}
 		});
 	}
 
-	public static boolean matchesFilter(World world, BlockPos pos, long routeId) {
+	public static boolean matchesFilter(Level world, BlockPos pos, long routeId) {
 		final BlockEntity entity = world.getBlockEntity(pos);
 		return entity instanceof TileEntityTrainSensorBase && ((TileEntityTrainSensorBase) entity).matchesFilter(routeId);
 	}
@@ -53,16 +54,16 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		}
 
 		@Override
-		public void readNbtCompound(NbtCompound nbtCompound) {
-			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
+		public void readCompoundTag(CompoundTag compoundTag) {
+			final long[] routeIdsArray = compoundTag.getLongArray(KEY_ROUTE_IDS);
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
 			}
 		}
 
 		@Override
-		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
 		}
 
 		public Set<Long> getRouteIds() {
@@ -76,8 +77,8 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		protected void setData(Set<Long> filterRouteIds) {
 			this.filterRouteIds.clear();
 			this.filterRouteIds.addAll(filterRouteIds);
-			markDirty();
-			sync();
+			setChanged();
+			syncData();
 		}
 
 		public abstract void setData(Set<Long> filterRouteIds, int number, String string);

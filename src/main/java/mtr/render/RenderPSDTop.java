@@ -1,27 +1,27 @@
 package mtr.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
 import mtr.gui.IDrawing;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
 
-	private static final float END_FRONT_OFFSET = 1 / (MathHelper.SQUARE_ROOT_OF_TWO * 16);
+	private static final float END_FRONT_OFFSET = 1 / (Mth.SQRT_OF_TWO * 16);
 	private static final float BOTTOM_DIAGONAL_OFFSET = ((float) Math.sqrt(3) - 1) / 32;
-	private static final float ROOT_TWO_SCALED = MathHelper.SQUARE_ROOT_OF_TWO / 16;
-	private static final float BOTTOM_END_DIAGONAL_OFFSET = END_FRONT_OFFSET - BOTTOM_DIAGONAL_OFFSET / MathHelper.SQUARE_ROOT_OF_TWO;
+	private static final float ROOT_TWO_SCALED = Mth.SQRT_OF_TWO / 16;
+	private static final float BOTTOM_END_DIAGONAL_OFFSET = END_FRONT_OFFSET - BOTTOM_DIAGONAL_OFFSET / Mth.SQRT_OF_TWO;
 	private static final float COLOR_STRIP_START = 0.90625F;
 	private static final float COLOR_STRIP_END = 0.9375F;
 
@@ -65,10 +65,10 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	}
 
 	@Override
-	protected RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state) {
-		if (world.getBlockState(pos.down()).getBlock() instanceof BlockPSDAPGDoorBase) {
+	protected RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state) {
+		if (world.getBlockState(pos.below()).getBlock() instanceof BlockPSDAPGDoorBase) {
 			return RenderType.ARROW;
-		} else if (!(world.getBlockState(pos.down()).getBlock() instanceof BlockPSDAPGGlassEndBase)) {
+		} else if (!(world.getBlockState(pos.below()).getBlock() instanceof BlockPSDAPGGlassEndBase)) {
 			return RenderType.ROUTE;
 		} else {
 			return RenderType.NONE;
@@ -76,14 +76,14 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	}
 
 	@Override
-	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
+	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
 		final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
 		if (!airLeft && !airRight) {
 			return;
 		}
 
-		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new Identifier("mtr:textures/block/psd_top.png")));
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/psd_top.png")));
 
 		if (airLeft) {
 			// back
@@ -128,7 +128,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	}
 
 	@Override
-	protected void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light) {
+	protected void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light) {
 		final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
 		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, light);

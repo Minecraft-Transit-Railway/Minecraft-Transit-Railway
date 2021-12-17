@@ -1,63 +1,63 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPlatform extends HorizontalFacingBlock {
+public class BlockPlatform extends HorizontalDirectionalBlock {
 
 	private final boolean isIndented;
 
-	public static final EnumProperty<EnumDoorType> DOOR_TYPE = EnumProperty.of("door_type", EnumDoorType.class);
-	public static final IntProperty SIDE = IntProperty.of("side", 0, 4);
+	public static final EnumProperty<EnumDoorType> DOOR_TYPE = EnumProperty.create("door_type", EnumDoorType.class);
+	public static final IntegerProperty SIDE = IntegerProperty.create("side", 0, 4);
 
-	public BlockPlatform(Settings settings, boolean isIndented) {
+	public BlockPlatform(Properties settings, boolean isIndented) {
 		super(settings);
 		this.isIndented = isIndented;
-		setDefaultState(stateManager.getDefaultState().with(DOOR_TYPE, EnumDoorType.NONE));
+		registerDefaultState(defaultBlockState().setValue(DOOR_TYPE, EnumDoorType.NONE));
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
 		return getActualState(world, pos, state);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return getDefaultState().with(FACING, ctx.getPlayerFacing());
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		if (isIndented) {
 			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-			return VoxelShapes.union(IBlock.getVoxelShapeByDirection(0, 0, 6, 16, 13, 16, facing), Block.createCuboidShape(0, 13, 0, 16, 16, 16));
+			return Shapes.or(IBlock.getVoxelShapeByDirection(0, 0, 6, 16, 13, 16, facing), Block.box(0, 13, 0, 16, 16, 16));
 		} else {
-			return super.getOutlineShape(state, world, pos, context);
+			return super.getShape(state, world, pos, context);
 		}
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, DOOR_TYPE, SIDE);
 	}
 
-	private BlockState getActualState(WorldAccess world, BlockPos pos, BlockState state) {
+	private BlockState getActualState(BlockGetter world, BlockPos pos, BlockState state) {
 		Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
-		final BlockState stateAbove = world.getBlockState(pos.up());
+		final BlockState stateAbove = world.getBlockState(pos.above());
 		final Block blockAbove = stateAbove.getBlock();
 
 		EnumDoorType doorType;
@@ -73,10 +73,10 @@ public class BlockPlatform extends HorizontalFacingBlock {
 
 		final boolean aboveIsDoor = blockAbove instanceof BlockPSDAPGDoorBase;
 
-		final BlockState stateLeftAbove = world.getBlockState(pos.up().offset(facing.rotateYCounterclockwise()));
+		final BlockState stateLeftAbove = world.getBlockState(pos.above().relative(facing.getCounterClockWise()));
 		final boolean leftAboveIsDoor = stateLeftAbove.getBlock() instanceof BlockPSDAPGDoorBase;
 
-		final BlockState stateRightAbove = world.getBlockState(pos.up().offset(facing.rotateYClockwise()));
+		final BlockState stateRightAbove = world.getBlockState(pos.above().relative(facing.getClockWise()));
 		final boolean rightAboveIsDoor = stateRightAbove.getBlock() instanceof BlockPSDAPGDoorBase;
 
 		final int side;
@@ -94,10 +94,10 @@ public class BlockPlatform extends HorizontalFacingBlock {
 			side = 0;
 		}
 
-		return state.with(FACING, facing).with(DOOR_TYPE, doorType).with(SIDE, side);
+		return state.setValue(FACING, facing).setValue(DOOR_TYPE, doorType).setValue(SIDE, side);
 	}
 
-	private enum EnumDoorType implements StringIdentifiable {
+	private enum EnumDoorType implements StringRepresentable {
 
 		NONE("none"), PSD("psd"), APG("apg");
 		private final String name;
@@ -107,7 +107,7 @@ public class BlockPlatform extends HorizontalFacingBlock {
 		}
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return name;
 		}
 	}

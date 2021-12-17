@@ -1,26 +1,26 @@
 package mtr.render;
 
-import minecraftmappings.BlockEntityRendererMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Vector3f;
+import mapper.BlockEntityMapper;
+import mapper.BlockEntityRendererMapper;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.gui.ClientData;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntityRendererMapper<T> implements IGui {
+public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui {
 
 	private static final float EXTRA_PADDING = 0.0625F;
 
@@ -29,30 +29,30 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 	}
 
 	@Override
-	public final void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		final World world = entity.getWorld();
+	public final void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+		final Level world = entity.getLevel();
 		if (world == null) {
 			return;
 		}
 
-		final BlockPos pos = entity.getPos();
+		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalFacingBlock.FACING);
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
 
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-facing.asRotation()));
+		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
 		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
 			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
 
 			matrices.translate(0, 1, 0);
-			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 			matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
 
 			if (isLeft(state)) {
@@ -71,13 +71,13 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 			}
 
 			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-			immediate.draw();
+			immediate.endBatch();
 		}
 
-		matrices.pop();
+		matrices.popPose();
 	}
 
-	protected void renderAdditionalUnmodified(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockState state, Direction facing, int light) {
+	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
 	protected abstract float getZ();
@@ -94,15 +94,15 @@ public abstract class RenderRouteBase<T extends BlockEntity> extends BlockEntity
 
 	protected abstract boolean isRight(BlockState state);
 
-	protected abstract RenderType getRenderType(WorldAccess world, BlockPos pos, BlockState state);
+	protected abstract RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(MatrixStack matrices, VertexConsumerProvider vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
+	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
 
-	private int getGlassLength(WorldAccess world, BlockPos pos, Direction facing) {
+	private int getGlassLength(BlockGetter world, BlockPos pos, Direction facing) {
 		int glassLength = 1;
 
 		while (true) {
-			final BlockState state = world.getBlockState(pos.offset(facing.rotateYClockwise(), glassLength));
+			final BlockState state = world.getBlockState(pos.relative(facing.getClockWise(), glassLength));
 			if (state.getBlock() == world.getBlockState(pos).getBlock() && !isLeft(state)) {
 				glassLength++;
 				if (isRight(state)) {

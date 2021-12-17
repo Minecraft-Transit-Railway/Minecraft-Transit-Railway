@@ -1,41 +1,41 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.Utilities;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.Utilities;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 
-	private final ButtonWidget[] buttons = new ButtonWidget[BUTTON_COUNT];
-	private final Text balanceText;
+	private final Button[] buttons = new Button[BUTTON_COUNT];
+	private final Component balanceText;
 
 	private static final int EMERALD_TO_DOLLAR = 10;
 	private static final int BUTTON_COUNT = 10;
 	private static final int BUTTON_WIDTH = 80;
 
 	public TicketMachineScreen(int balance) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			final int index = i;
-			buttons[i] = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_value"), button -> {
+			buttons[i] = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> {
 				PacketTrainDataGuiClient.addBalanceC2S(getAddAmount(index), (int) Math.pow(2, index));
-				if (client != null) {
-					UtilitiesClient.setScreen(client, null);
+				if (minecraft != null) {
+					UtilitiesClient.setScreen(minecraft, null);
 				}
 			});
 		}
 
-		balanceText = new TranslatableText("gui.mtr.balance", balance);
+		balanceText = new TranslatableComponent("gui.mtr.balance", balance);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 			IDrawing.setPositionAndWidth(buttons[i], width - BUTTON_WIDTH, SQUARE_SIZE * (i + 1), BUTTON_WIDTH - TEXT_FIELD_PADDING);
 		}
 
-		for (final ButtonWidget button : buttons) {
+		for (final Button button : buttons) {
 			addDrawableChild(button);
 		}
 	}
@@ -60,15 +60,15 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			final Text emeraldsText = new TranslatableText("gui.mtr.emeralds", getEmeraldCount());
-			textRenderer.draw(matrices, balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE);
-			textRenderer.draw(matrices, emeraldsText, width - TEXT_PADDING - textRenderer.getWidth(emeraldsText), TEXT_PADDING, ARGB_WHITE);
+			final Component emeraldsText = new TranslatableComponent("gui.mtr.emeralds", getEmeraldCount());
+			font.draw(matrices, balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, emeraldsText, width - TEXT_PADDING - font.width(emeraldsText), TEXT_PADDING, ARGB_WHITE);
 
 			for (int i = 0; i < BUTTON_COUNT; i++) {
-				textRenderer.draw(matrices, new TranslatableText("gui.mtr.add_balance_for_emeralds", getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				font.draw(matrices, new TranslatableComponent("gui.mtr.add_balance_for_emeralds", getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
@@ -83,8 +83,8 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	private int getEmeraldCount() {
-		if (client != null && client.player != null) {
-			return Utilities.getInventory(client.player).count(Items.EMERALD);
+		if (minecraft != null && minecraft.player != null) {
+			return Utilities.getInventory(minecraft.player).countItem(Items.EMERALD);
 		} else {
 			return 0;
 		}

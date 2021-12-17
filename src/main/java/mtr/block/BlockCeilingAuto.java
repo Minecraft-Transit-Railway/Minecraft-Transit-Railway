@@ -1,51 +1,51 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 import java.util.Random;
 
 public class BlockCeilingAuto extends BlockCeiling {
 
-	public static final BooleanProperty LIGHT = BooleanProperty.of("light");
+	public static final BooleanProperty LIGHT = BooleanProperty.create("light");
 
-	public BlockCeilingAuto(Settings settings) {
+	public BlockCeilingAuto(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final boolean facing = ctx.getPlayerFacing().getAxis() == Direction.Axis.X;
-		return getDefaultState().with(FACING, facing).with(LIGHT, hasLight(facing, ctx.getBlockPos()));
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		final boolean facing = ctx.getHorizontalDirection().getAxis() == Direction.Axis.X;
+		return defaultBlockState().setValue(FACING, facing).setValue(LIGHT, hasLight(facing, ctx.getClickedPos()));
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState newState, WorldAccess world, BlockPos pos, BlockPos posFrom) {
-		return state.with(LIGHT, hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
+	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
+		return state.setValue(LIGHT, hasLight(IBlock.getStatePropertySafe(state, FACING), pos));
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+	public void randomTick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
 		final boolean light = hasLight(IBlock.getStatePropertySafe(state, FACING), pos);
 		if (IBlock.getStatePropertySafe(state, LIGHT) != light) {
-			world.setBlockState(pos, state.with(LIGHT, light));
+			world.setBlockAndUpdate(pos, state.setValue(LIGHT, light));
 		}
 	}
 
 	@Override
-	public boolean hasRandomTicks(BlockState state) {
+	public boolean isRandomlyTicking(BlockState blockState) {
 		return true;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, LIGHT);
 	}
 

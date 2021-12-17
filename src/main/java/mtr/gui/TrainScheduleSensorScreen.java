@@ -1,11 +1,11 @@
 package mtr.gui;
 
 import mtr.block.BlockTrainScheduleSensor;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 
@@ -15,9 +15,9 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {
-		super(pos, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableText("gui.mtr.train_schedule_sensor"));
+		super(pos, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableComponent("gui.mtr.train_schedule_sensor"));
 
-		final World world = MinecraftClient.getInstance().world;
+		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
 			seconds = 0;
 		} else {
@@ -29,14 +29,14 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	@Override
 	protected void init() {
 		super.init();
-		textField.setText(String.valueOf(seconds));
+		textField.setValue(String.valueOf(seconds));
 	}
 
 	@Override
 	protected int getNumber() {
 		int secondsParsed = 10;
 		try {
-			secondsParsed = Integer.parseInt(textField.getText());
+			secondsParsed = Integer.parseInt(textField.getValue());
 		} catch (Exception ignored) {
 		}
 		return secondsParsed;

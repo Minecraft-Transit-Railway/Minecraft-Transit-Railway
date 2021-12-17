@@ -1,32 +1,31 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import minecraftmappings.SelectableMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import mapper.UtilitiesClient;
 import mtr.data.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Heightmap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.function.Consumer;
 
 
-public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
+public class WidgetMap implements Widget, GuiEventListener, IGui {
 
 	private int x;
 	private int y;
@@ -35,7 +34,7 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 	private double scale;
 	private double centerX;
 	private double centerY;
-	private Pair<Integer, Integer> drawArea1, drawArea2;
+	private Tuple<Integer, Integer> drawArea1, drawArea2;
 	private MapState mapState;
 	private boolean showStations;
 
@@ -43,9 +42,9 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 	private final Runnable onDrawCornersMouseRelease;
 	private final Consumer<Long> onClickAddPlatformToRoute;
 	private final Consumer<SavedRailBase> onClickEditSavedRail;
-	private final ClientWorld world;
-	private final ClientPlayerEntity player;
-	private final TextRenderer textRenderer;
+	private final ClientLevel world;
+	private final LocalPlayer player;
+	private final Font textRenderer;
 
 	private static final int ARGB_BLUE = 0xFF4285F4;
 	private static final int SCALE_UPPER_LIMIT = 64;
@@ -57,10 +56,10 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 		this.onClickAddPlatformToRoute = onClickAddPlatformToRoute;
 		this.onClickEditSavedRail = onClickEditSavedRail;
 
-		final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		world = minecraftClient.world;
+		final Minecraft minecraftClient = Minecraft.getInstance();
+		world = minecraftClient.level;
 		player = minecraftClient.player;
-		textRenderer = minecraftClient.textRenderer;
+		textRenderer = minecraftClient.font;
 		if (player == null) {
 			centerX = 0;
 			centerY = 0;
@@ -73,25 +72,25 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		final Tessellator tessellator = Tessellator.getInstance();
-		final BufferBuilder buffer = tessellator.getBuffer();
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		final Tesselator tesselator = Tesselator.getInstance();
+		final BufferBuilder buffer = tesselator.getBuilder();
 		UtilitiesClient.beginDrawingRectangle(buffer);
 		RenderSystem.enableBlend();
 
-		final Pair<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
-		final Pair<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
+		final Tuple<Integer, Integer> topLeft = coordsToWorldPos(0, 0);
+		final Tuple<Integer, Integer> bottomRight = coordsToWorldPos(width, height);
 		final int increment = scale >= 1 ? 1 : (int) Math.ceil(1 / scale);
-		for (int i = topLeft.getLeft(); i <= bottomRight.getLeft(); i += increment) {
-			for (int j = topLeft.getRight(); j <= bottomRight.getRight(); j += increment) {
+		for (int i = topLeft.getA(); i <= bottomRight.getA(); i += increment) {
+			for (int j = topLeft.getB(); j <= bottomRight.getB(); j += increment) {
 				if (world != null) {
-					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getTopY(Heightmap.Type.MOTION_BLOCKING, i, j) - 1, j)).getBlock().getDefaultMapColor().color, 2);
+					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getHeight(Heightmap.Types.MOTION_BLOCKING, i, j) - 1, j)).getBlock().defaultMaterialColor().col, 2);
 					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
 				}
 			}
 		}
 
-		final Pair<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
+		final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos((double) mouseX - x, mouseY - y);
 
 		try {
 			if (showStations) {
@@ -127,14 +126,14 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 			});
 		}
 
-		tessellator.draw();
+		tesselator.end();
 		RenderSystem.disableBlend();
 		UtilitiesClient.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
-			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+			Gui.drawString(matrices, textRenderer, new TranslatableComponent("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		} else if (mapState == MapState.EDITING_ROUTE) {
-			DrawableHelper.drawStringWithShadow(matrices, textRenderer, new TranslatableText("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+			Gui.drawString(matrices, textRenderer, new TranslatableComponent("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 		if (scale >= 8) {
 			try {
@@ -148,12 +147,12 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 			}
 		}
 		if (scale >= 2) {
-			final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 			if (showStations) {
 				for (final Station station : ClientData.STATIONS) {
 					final BlockPos pos = station.getCenter();
 					if (pos != null) {
-						final String stationString = String.format("%s|(%s)", station.name, new TranslatableText("gui.mtr.zone_number", station.zone).getString());
+						final String stationString = String.format("%s|(%s)", station.name, new TranslatableComponent("gui.mtr.zone_number", station.zone).getString());
 						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 					}
 				}
@@ -165,22 +164,22 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 					}
 				}
 			}
-			immediate.draw();
+			immediate.endBatch();
 		}
 
-		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getLeft() * 10) / 10F, Math.round(mouseWorldPos.getRight() * 10) / 10F);
-		DrawableHelper.drawStringWithShadow(matrices, textRenderer, mousePosText, x + width - TEXT_PADDING - textRenderer.getWidth(mousePosText), y + TEXT_PADDING, ARGB_WHITE);
+		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getA() * 10) / 10F, Math.round(mouseWorldPos.getB() * 10) / 10F);
+		Gui.drawString(matrices, textRenderer, mousePosText, x + width - TEXT_PADDING - textRenderer.width(mousePosText), y + TEXT_PADDING, ARGB_WHITE);
 	}
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (mapState == MapState.EDITING_AREA) {
 			drawArea2 = coordsToWorldPos((int) Math.round(mouseX - x), (int) Math.round(mouseY - y));
-			if (drawArea1.getLeft().equals(drawArea2.getLeft())) {
-				drawArea2 = new Pair<>(drawArea2.getLeft() + 1, drawArea2.getRight());
+			if (drawArea1.getA().equals(drawArea2.getA())) {
+				drawArea2 = new Tuple<>(drawArea2.getA() + 1, drawArea2.getB());
 			}
-			if (drawArea1.getRight().equals(drawArea2.getRight())) {
-				drawArea2 = new Pair<>(drawArea2.getLeft(), drawArea2.getRight() + 1);
+			if (drawArea1.getB().equals(drawArea2.getB())) {
+				drawArea2 = new Tuple<>(drawArea2.getA(), drawArea2.getB() + 1);
 			}
 			onDrawCorners.onDrawCorners(drawArea1, drawArea2);
 		} else {
@@ -205,10 +204,10 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 				drawArea1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
 				drawArea2 = null;
 			} else if (mapState == MapState.EDITING_ROUTE) {
-				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+				final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
 			} else {
-				final Pair<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+				final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
 				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
 			}
 			return true;
@@ -246,7 +245,7 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 
 	public void scale(double amount) {
 		scale *= Math.pow(2, amount);
-		scale = MathHelper.clamp(scale, SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
+		scale = Mth.clamp(scale, SCALE_LOWER_LIMIT, SCALE_UPPER_LIMIT);
 	}
 
 	public void find(double x1, double z1, double x2, double z2) {
@@ -279,7 +278,7 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 		this.showStations = showStations;
 	}
 
-	private void mouseOnSavedRail(Pair<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
+	private void mouseOnSavedRail(Tuple<Double, Double> mouseWorldPos, MouseOnSavedRailCallback mouseOnSavedRailCallback, boolean isPlatform) {
 		try {
 			(isPlatform ? ClientData.DATA_CACHE.posToPlatforms : ClientData.DATA_CACHE.posToSidings).forEach((savedRailPos, savedRails) -> {
 				final int savedRailCount = savedRails.size();
@@ -288,7 +287,7 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 					final float right = savedRailPos.getX() + 1;
 					final float top = savedRailPos.getZ() + (float) i / savedRailCount;
 					final float bottom = savedRailPos.getZ() + (i + 1F) / savedRailCount;
-					if (RailwayData.isBetween(mouseWorldPos.getLeft(), left, right) && RailwayData.isBetween(mouseWorldPos.getRight(), top, bottom)) {
+					if (RailwayData.isBetween(mouseWorldPos.getA(), left, right) && RailwayData.isBetween(mouseWorldPos.getB(), top, bottom)) {
 						mouseOnSavedRailCallback.mouseOnSavedRailCallback(savedRails.get(i), left, top, right, bottom);
 					}
 				}
@@ -299,15 +298,15 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 		}
 	}
 
-	private Pair<Integer, Integer> coordsToWorldPos(int mouseX, int mouseY) {
-		final Pair<Double, Double> worldPos = coordsToWorldPos((double) mouseX, mouseY);
-		return new Pair<>((int) Math.floor(worldPos.getLeft()), (int) Math.floor(worldPos.getRight()));
+	private Tuple<Integer, Integer> coordsToWorldPos(int mouseX, int mouseY) {
+		final Tuple<Double, Double> worldPos = coordsToWorldPos((double) mouseX, mouseY);
+		return new Tuple<>((int) Math.floor(worldPos.getA()), (int) Math.floor(worldPos.getB()));
 	}
 
-	private Pair<Double, Double> coordsToWorldPos(double mouseX, double mouseY) {
+	private Tuple<Double, Double> coordsToWorldPos(double mouseX, double mouseY) {
 		final double left = (mouseX - width / 2D) / scale + centerX;
 		final double right = (mouseY - height / 2D) / scale + centerY;
-		return new Pair<>(left, right);
+		return new Tuple<>(left, right);
 	}
 
 	private void drawFromWorldCoords(double worldX, double worldZ, DrawFromWorldCoords callback) {
@@ -316,8 +315,8 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 		callback.drawFromWorldCoords(coordsX, coordsY);
 	}
 
-	private void drawRectangleFromWorldCoords(BufferBuilder buffer, Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2, int color) {
-		drawRectangleFromWorldCoords(buffer, corner1.getLeft(), corner1.getRight(), corner2.getLeft(), corner2.getRight(), color);
+	private void drawRectangleFromWorldCoords(BufferBuilder buffer, Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2, int color) {
+		drawRectangleFromWorldCoords(buffer, corner1.getA(), corner1.getB(), corner2.getA(), corner2.getB(), color);
 	}
 
 	private void drawRectangleFromWorldCoords(BufferBuilder buffer, double posX1, double posZ1, double posX2, double posZ2, int color) {
@@ -338,11 +337,11 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 		}
 	}
 
-	private void drawSavedRail(MatrixStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
+	private void drawSavedRail(PoseStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
 		final int savedRailCount = savedRails.size();
 		for (int i = 0; i < savedRailCount; i++) {
 			final int index = i;
-			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> DrawableHelper.drawCenteredText(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
+			drawFromWorldCoords(savedRailPos.getX() + 0.5, savedRailPos.getZ() + (i + 0.5) / savedRailCount, (x1, y1) -> Gui.drawCenteredString(matrices, textRenderer, savedRails.get(index).name, x + (int) x1, y + (int) y1 - TEXT_HEIGHT / 2, ARGB_WHITE));
 		}
 	}
 
@@ -355,7 +354,7 @@ public class WidgetMap implements Drawable, SelectableMapper, Element, IGui {
 
 	@FunctionalInterface
 	public interface OnDrawCorners {
-		void onDrawCorners(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2);
+		void onDrawCorners(Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2);
 	}
 
 	@FunctionalInterface

@@ -1,17 +1,17 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Pair;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -26,18 +26,18 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 	private final WidgetMap widgetMap;
 
-	private final ButtonWidget buttonTabStations;
-	private final ButtonWidget buttonTabRoutes;
-	private final ButtonWidget buttonTabDepots;
-	private final ButtonWidget buttonAddStation;
-	private final ButtonWidget buttonAddRoute;
-	private final ButtonWidget buttonAddDepot;
-	private final ButtonWidget buttonDoneEditingStation;
-	private final ButtonWidget buttonDoneEditingRoute;
-	private final ButtonWidget buttonDoneEditingDepot;
-	private final ButtonWidget buttonZoomIn;
-	private final ButtonWidget buttonZoomOut;
-	private final ButtonWidget buttonOptions;
+	private final Button buttonTabStations;
+	private final Button buttonTabRoutes;
+	private final Button buttonTabDepots;
+	private final Button buttonAddStation;
+	private final Button buttonAddRoute;
+	private final Button buttonAddDepot;
+	private final Button buttonDoneEditingStation;
+	private final Button buttonDoneEditingRoute;
+	private final Button buttonDoneEditingDepot;
+	private final Button buttonZoomIn;
+	private final Button buttonZoomOut;
+	private final Button buttonOptions;
 
 	private final WidgetBetterTextField textFieldName;
 	private final WidgetBetterTextField textFieldColor;
@@ -48,28 +48,28 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private static final int COLOR_WIDTH = 48;
 
 	public DashboardScreen() {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 
 		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
-		textFieldName = new WidgetBetterTextField(null, new TranslatableText("gui.mtr.name").getString());
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableText("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
+		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
+		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableComponent("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
 
-		buttonTabStations = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
-		buttonTabRoutes = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
-		buttonTabDepots = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
+		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
+		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
+		buttonTabDepots = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
-		buttonAddRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
-		buttonAddDepot = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.mtr.add_depot"), button -> startEditingArea(new Depot(), true));
-		buttonDoneEditingStation = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingArea(true));
-		buttonDoneEditingRoute = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingRoute());
-		buttonDoneEditingDepot = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("gui.done"), button -> onDoneEditingArea(false));
-		buttonZoomIn = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("+"), button -> widgetMap.scale(1));
-		buttonZoomOut = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new LiteralText("-"), button -> widgetMap.scale(-1));
-		buttonOptions = new ButtonWidget(0, 0, 0, SQUARE_SIZE, new TranslatableText("menu.options"), button -> {
-			if (client != null) {
-				UtilitiesClient.setScreen(client, new ConfigScreen());
+		buttonAddStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
+		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
+		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_depot"), button -> startEditingArea(new Depot(), true));
+		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(true));
+		buttonDoneEditingRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingRoute());
+		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(false));
+		buttonZoomIn = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("+"), button -> widgetMap.scale(1));
+		buttonZoomOut = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("-"), button -> widgetMap.scale(-1));
+		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("menu.options"), button -> {
+			if (minecraft != null) {
+				UtilitiesClient.setScreen(minecraft, new ConfigScreen());
 			}
 		});
 
@@ -117,7 +117,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 		dashboardList.init(this::addDrawableChild);
 
-		addChild(widgetMap);
+		addWidget(widgetMap);
 
 		addDrawableChild(buttonTabStations);
 		addDrawableChild(buttonTabRoutes);
@@ -137,16 +137,16 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			widgetMap.render(matrices, mouseX, mouseY, delta);
-			matrices.push();
+			matrices.pushPose();
 			matrices.translate(0, 0, 500);
-			DrawableHelper.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			dashboardList.render(matrices, textRenderer);
+			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
+			dashboardList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
-			matrices.pop();
+			matrices.popPose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -227,7 +227,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 			if (editingArea == null) {
 				final AreaBase area = (AreaBase) data;
 				if (AreaBase.nonNullCorners(area)) {
-					widgetMap.find(area.corner1.getLeft(), area.corner1.getRight(), area.corner2.getLeft(), area.corner2.getRight());
+					widgetMap.find(area.corner1.getA(), area.corner1.getB(), area.corner2.getA(), area.corner2.getB());
 				}
 			} else if (selectedTab == SelectedTab.STATIONS) {
 				final Platform platform = (Platform) data;
@@ -252,30 +252,30 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	private void onEdit(NameColorDataBase data, int index) {
-		if (client != null) {
+		if (minecraft != null) {
 			switch (selectedTab) {
 				case STATIONS:
 					if (editingArea == null) {
 						if (data instanceof Station) {
-							UtilitiesClient.setScreen(client, new EditStationScreen((Station) data, this));
+							UtilitiesClient.setScreen(minecraft, new EditStationScreen((Station) data, this));
 						}
 					} else {
 						if (data instanceof Platform) {
-							UtilitiesClient.setScreen(client, new PlatformScreen((Platform) data, this));
+							UtilitiesClient.setScreen(minecraft, new PlatformScreen((Platform) data, this));
 						}
 					}
 					break;
 				case ROUTES:
-					UtilitiesClient.setScreen(client, new EditRouteScreen((Route) data, this));
+					UtilitiesClient.setScreen(minecraft, new EditRouteScreen((Route) data, this));
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
 						if (data instanceof Depot) {
-							UtilitiesClient.setScreen(client, new EditDepotScreen((Depot) data, this));
+							UtilitiesClient.setScreen(minecraft, new EditDepotScreen((Depot) data, this));
 						}
 					} else {
 						if (data instanceof Siding) {
-							UtilitiesClient.setScreen(client, new SidingScreen((Siding) data, this));
+							UtilitiesClient.setScreen(minecraft, new SidingScreen((Siding) data, this));
 						}
 					}
 					break;
@@ -293,9 +293,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		try {
 			switch (selectedTab) {
 				case STATIONS:
-					if (client != null) {
+					if (minecraft != null) {
 						final Station station = (Station) data;
-						UtilitiesClient.setScreen(client, new DeleteConfirmationScreen(() -> {
+						UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_STATION, station.id);
 							ClientData.STATIONS.remove(station);
 						}, IGui.formatStationName(station.name), this));
@@ -303,9 +303,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						if (client != null) {
+						if (minecraft != null) {
 							final Route route = (Route) data;
-							UtilitiesClient.setScreen(client, new DeleteConfirmationScreen(() -> {
+							UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
 								PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_ROUTE, route.id);
 								ClientData.ROUTES.remove(route);
 							}, IGui.formatStationName(route.name), this));
@@ -316,9 +316,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					}
 					break;
 				case DEPOTS:
-					if (client != null) {
+					if (minecraft != null) {
 						final Depot depot = (Depot) data;
-						UtilitiesClient.setScreen(client, new DeleteConfirmationScreen(() -> {
+						UtilitiesClient.setScreen(minecraft, new DeleteConfirmationScreen(() -> {
 							PacketTrainDataGuiClient.sendDeleteData(PACKET_DELETE_DEPOT, depot.id);
 							ClientData.DEPOTS.remove(depot);
 						}, IGui.formatStationName(depot.name), this));
@@ -339,8 +339,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		editingRoute = null;
 		this.isNew = isNew;
 
-		textFieldName.setText(editingArea.name);
-		textFieldColor.setText(colorIntToString(editingArea.color));
+		textFieldName.setValue(editingArea.name);
+		textFieldColor.setValue(colorIntToString(editingArea.color));
 
 		widgetMap.startEditingArea(editingArea);
 		toggleButtons();
@@ -351,14 +351,14 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.editingRoute = editingRoute;
 		this.isNew = isNew;
 
-		textFieldName.setText(editingRoute.name);
-		textFieldColor.setText(colorIntToString(editingRoute.color));
+		textFieldName.setValue(editingRoute.name);
+		textFieldColor.setValue(colorIntToString(editingRoute.color));
 
 		widgetMap.startEditingRoute();
 		toggleButtons();
 	}
 
-	private void onDrawCorners(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
+	private void onDrawCorners(Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2) {
 		editingArea.corner1 = corner1;
 		editingArea.corner2 = corner2;
 		toggleButtons();
@@ -375,9 +375,9 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 	private void onClickEditSavedRail(SavedRailBase savedRail) {
 		if (savedRail instanceof Platform) {
-			UtilitiesClient.setScreen(MinecraftClient.getInstance(), new PlatformScreen((Platform) savedRail, this));
+			UtilitiesClient.setScreen(Minecraft.getInstance(), new PlatformScreen((Platform) savedRail, this));
 		} else if (savedRail instanceof Siding) {
-			UtilitiesClient.setScreen(MinecraftClient.getInstance(), new SidingScreen((Siding) savedRail, this));
+			UtilitiesClient.setScreen(Minecraft.getInstance(), new SidingScreen((Siding) savedRail, this));
 		}
 	}
 
@@ -393,8 +393,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 				e.printStackTrace();
 			}
 		}
-		editingArea.name = IGui.textOrUntitled(textFieldName.getText());
-		editingArea.color = colorStringToInt(textFieldColor.getText());
+		editingArea.name = IGui.textOrUntitled(textFieldName.getValue());
+		editingArea.color = colorStringToInt(textFieldColor.getValue());
 		editingArea.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(isStation ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
 		stopEditing();
 	}
@@ -407,8 +407,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 				e.printStackTrace();
 			}
 		}
-		editingRoute.name = IGui.textOrUntitled(textFieldName.getText());
-		editingRoute.color = colorStringToInt(textFieldColor.getText());
+		editingRoute.name = IGui.textOrUntitled(textFieldName.getValue());
+		editingRoute.color = colorStringToInt(textFieldColor.getValue());
 		editingRoute.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 		stopEditing();
 	}

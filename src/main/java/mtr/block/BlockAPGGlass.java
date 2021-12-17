@@ -1,23 +1,22 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.BlockEntityProviderMapper;
+import mapper.BlockEntityMapper;
+import mapper.EntityBlockMapper;
+import mtr.BlockEntityTypes;
 import mtr.Items;
-import mtr.MTR;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityProviderMapper, IPropagateBlock {
+public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMapper, IPropagateBlock {
 
 	@Override
 	public Item asItem() {
@@ -25,33 +24,33 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		final double y = hit.getPos().y;
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+		final double y = blockHitResult.getBlockPos().getY();
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && y - (int) y > 0.21875) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
-				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYClockwise(), 3);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).rotateYCounterclockwise(), 3);
+				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 3);
 			});
 		} else {
-			return super.onUse(state, world, pos, player, hand, hit);
+			return super.use(state, world, pos, player, interactionHand, blockHitResult);
 		}
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityAPGGlass(pos, state);
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HALF, SIDE_EXTENDED, PROPAGATE_PROPERTY);
 	}
 
 	public static class TileEntityAPGGlass extends BlockEntityMapper {
 
 		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
-			super(MTR.APG_GLASS_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY, pos, state);
 		}
 	}
 }

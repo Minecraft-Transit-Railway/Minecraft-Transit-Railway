@@ -4,13 +4,13 @@ import mtr.MTR;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.render.RenderTrains;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -30,7 +30,7 @@ public class TrainClientRegistry {
 		if (!KEY_ORDER.contains(keyLower)) {
 			KEY_ORDER.add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableText(name == null ? "train.mtr." + keyLower : name), color, hasGangwayConnection, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, hasGangwayConnection, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
 
 	public static void reset() {
@@ -112,7 +112,7 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {
-		return new TrainProperties(baseTrainType, null, null, null, null, new TranslatableText(""), 0, false, 0, 0.5F, false);
+		return new TrainProperties(baseTrainType, null, null, null, null, new TranslatableComponent(""), 0, false, 0, 0.5F, false);
 	}
 
 	public static class TrainProperties {
@@ -122,7 +122,7 @@ public class TrainClientRegistry {
 		public final String textureId;
 		public final String speedSoundBaseId;
 		public final String doorSoundBaseId;
-		public final TranslatableText name;
+		public final TranslatableComponent name;
 		public final int color;
 		public final boolean hasGangwayConnection;
 		public final int speedSoundCount;
@@ -132,7 +132,7 @@ public class TrainClientRegistry {
 		private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
 		private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
 
-		private TrainProperties(TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, TranslatableText name, int color, boolean hasGangwayConnection, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+		private TrainProperties(TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, TranslatableComponent name, int color, boolean hasGangwayConnection, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.baseTrainType = baseTrainType;
 			this.model = model;
 			this.textureId = resolvePath(textureId);
@@ -146,20 +146,20 @@ public class TrainClientRegistry {
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
 		}
 
-		public void playSpeedSoundEffect(World world, BlockPos pos, float oldSpeed, float speed) {
-			if (world instanceof ClientWorld && RenderTrains.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
+		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
+			if (world instanceof ClientLevel && RenderTrains.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
 				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / RenderTrains.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
 					final String soundId = speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-					((ClientWorld) world).playSound(pos, new SoundEvent(new Identifier(MTR.MOD_ID, soundId)), SoundCategory.BLOCKS, 1, 1, true);
+					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
 				}
 			}
 		}
 
-		public void playDoorSoundEffect(World world, BlockPos pos, float oldDoorValue, float doorValue) {
-			if (world instanceof ClientWorld && doorSoundBaseId != null) {
+		public void playDoorSoundEffect(Level world, BlockPos pos, float oldDoorValue, float doorValue) {
+			if (world instanceof ClientLevel && doorSoundBaseId != null) {
 				final String soundId;
 				if (oldDoorValue <= 0 && doorValue > 0) {
 					soundId = doorSoundBaseId + SOUND_DOOR_OPEN;
@@ -169,7 +169,7 @@ public class TrainClientRegistry {
 					soundId = null;
 				}
 				if (soundId != null) {
-					((ClientWorld) world).playSound(pos, new SoundEvent(new Identifier(MTR.MOD_ID, soundId)), SoundCategory.BLOCKS, 1, 1, true);
+					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
 				}
 			}
 		}

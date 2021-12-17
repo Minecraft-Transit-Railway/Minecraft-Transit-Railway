@@ -1,28 +1,28 @@
 package mtr.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
-	public static final IntProperty TYPE = IntProperty.of("type", 0, 3);
+	public static final IntegerProperty TYPE = IntegerProperty.create("type", 0, 3);
 
-	public BlockRailwaySignPole(Settings settings) {
+	public BlockRailwaySignPole(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 		switch (IBlock.getStatePropertySafe(state, TYPE)) {
 			case 0:
@@ -34,7 +34,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 			case 3:
 				return IBlock.getVoxelShapeByDirection(2, 0, 7, 3.25, 16, 9, facing);
 			default:
-				return VoxelShapes.fullCube();
+				return Shapes.block();
 		}
 	}
 
@@ -47,7 +47,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 		} else {
 			type = IBlock.getStatePropertySafe(stateBelow, TYPE);
 		}
-		return super.placeWithState(stateBelow).with(TYPE, type);
+		return super.placeWithState(stateBelow).setValue(TYPE, type);
 	}
 
 	@Override
@@ -56,12 +56,12 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 	}
 
 	@Override
-	protected Text getTooltipBlockText() {
-		return new TranslatableText("block.mtr.railway_sign");
+	protected Component getTooltipBlockText() {
+		return new TranslatableComponent("block.mtr.railway_sign");
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, TYPE);
 	}
 }

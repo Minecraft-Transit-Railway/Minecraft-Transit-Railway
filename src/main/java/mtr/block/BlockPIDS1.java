@@ -1,25 +1,25 @@
 package mtr.block;
 
-import mtr.MTR;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import mapper.BlockEntityMapper;
+import mtr.BlockEntityTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BlockPIDS1 extends BlockPIDSBase {
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
 		VoxelShape shape1 = IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 11, 16, IBlock.getStatePropertySafe(state, FACING));
 		VoxelShape shape2 = IBlock.getVoxelShapeByDirection(7.5, 11, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, FACING));
-		return VoxelShapes.union(shape1, shape2);
+		return Shapes.or(shape1, shape2);
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityBlockPIDS1(pos, state);
 	}
 
@@ -28,7 +28,7 @@ public class BlockPIDS1 extends BlockPIDSBase {
 		public static final int MAX_ARRIVALS = 1;
 
 		public TileEntityBlockPIDS1(BlockPos pos, BlockState state) {
-			super(MTR.PIDS_1_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.PIDS_1_TILE_ENTITY, pos, state);
 		}
 
 		@Override

@@ -2,13 +2,13 @@ package mtr.gui;
 
 import mtr.data.IGui;
 import mtr.data.RailwayData;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 
-public class WidgetBetterTextField extends TextFieldWidget implements IGui {
+public class WidgetBetterTextField extends EditBox implements IGui {
 
 	private final TextFieldFilter textFieldFilter;
 	private final String suggestion;
@@ -21,25 +21,25 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 	}
 
 	public WidgetBetterTextField(TextFieldFilter textFieldFilter, String suggestion, int maxLength) {
-		super(MinecraftClient.getInstance().textRenderer, 0, 0, 0, SQUARE_SIZE, new LiteralText(""));
+		super(Minecraft.getInstance().font, 0, 0, 0, SQUARE_SIZE, new TextComponent(""));
 		this.textFieldFilter = textFieldFilter;
 		this.suggestion = suggestion;
 		newMaxLength = maxLength;
-		setChangedListener(text -> {
+		setResponder(text -> {
 		});
 		setMaxLength(0);
 	}
 
 	@Override
-	public void setChangedListener(Consumer<String> changedListener) {
-		super.setChangedListener(text -> {
+	public void setResponder(Consumer<String> changedListener) {
+		super.setResponder(text -> {
 			final String newText;
 			if (textFieldFilter == null) {
 				newText = trySetLength(text);
 			} else {
 				newText = trySetLength(text.toUpperCase().replaceAll(textFieldFilter.filter, ""));
 				if (!newText.equals(text)) {
-					setText(newText);
+					setValue(newText);
 				}
 			}
 			setSuggestion(newText.isEmpty() && suggestion != null ? suggestion : "");
@@ -51,11 +51,11 @@ public class WidgetBetterTextField extends TextFieldWidget implements IGui {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isVisible() && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
 			if (button == 1) {
-				setText("");
+				setValue("");
 			}
 			return super.mouseClicked(mouseX, mouseY, 0);
 		} else {
-			setTextFieldFocused(false);
+			setFocused(false);
 			return false;
 		}
 	}

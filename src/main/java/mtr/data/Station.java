@@ -1,8 +1,8 @@
 package mtr.data;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,90 +32,90 @@ public final class Station extends AreaBase {
 		exits = new HashMap<>();
 	}
 
-	public Station(NbtCompound nbtCompound) {
-		super(nbtCompound);
-		zone = nbtCompound.getInt(KEY_ZONE);
+	public Station(CompoundTag compoundTag) {
+		super(compoundTag);
+		zone = compoundTag.getInt(KEY_ZONE);
 
 		exits = new HashMap<>();
-		final NbtCompound tagExits = nbtCompound.getCompound(KEY_EXITS);
-		for (final String keyParent : tagExits.getKeys()) {
+		final CompoundTag tagExits = compoundTag.getCompound(KEY_EXITS);
+		for (final String keyParent : tagExits.getAllKeys()) {
 			final List<String> destinations = new ArrayList<>();
-			final NbtCompound tagDestinations = tagExits.getCompound(keyParent);
-			for (final String keyDestination : tagDestinations.getKeys()) {
+			final CompoundTag tagDestinations = tagExits.getCompound(keyParent);
+			for (final String keyDestination : tagDestinations.getAllKeys()) {
 				destinations.add(tagDestinations.getString(keyDestination));
 			}
 			exits.put(keyParent, destinations);
 		}
 	}
 
-	public Station(PacketByteBuf packet) {
+	public Station(FriendlyByteBuf packet) {
 		super(packet);
 		zone = packet.readInt();
 		exits = new HashMap<>();
 		final int exitCount = packet.readInt();
 		for (int i = 0; i < exitCount; i++) {
-			final String parent = packet.readString(PACKET_STRING_READ_LENGTH);
+			final String parent = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			final List<String> destinations = new ArrayList<>();
 			final int destinationCount = packet.readInt();
 			for (int j = 0; j < destinationCount; j++) {
-				destinations.add(packet.readString(PACKET_STRING_READ_LENGTH));
+				destinations.add(packet.readUtf(PACKET_STRING_READ_LENGTH));
 			}
 			exits.put(parent, destinations);
 		}
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = super.toCompoundTag();
-		nbtCompound.putInt(KEY_ZONE, zone);
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
+		compoundTag.putInt(KEY_ZONE, zone);
 
-		final NbtCompound tagExits = new NbtCompound();
+		final CompoundTag tagExits = new CompoundTag();
 		exits.forEach((parent, destinations) -> {
-			final NbtCompound tagDestinations = new NbtCompound();
+			final CompoundTag tagDestinations = new CompoundTag();
 			for (int i = 0; i < destinations.size(); i++) {
 				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
 			}
 			tagExits.put(parent, tagDestinations);
 		});
-		nbtCompound.put(KEY_EXITS, tagExits);
-		return nbtCompound;
+		compoundTag.put(KEY_EXITS, tagExits);
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 		packet.writeInt(zone);
 		packet.writeInt(exits.size());
 		exits.forEach((parent, destinations) -> {
-			packet.writeString(parent);
+			packet.writeUtf(parent);
 			packet.writeInt(destinations.size());
-			destinations.forEach(packet::writeString);
+			destinations.forEach(packet::writeUtf);
 		});
 	}
 
 	@Override
-	public void update(String key, PacketByteBuf packet) {
+	public void update(String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_EXIT_EDIT_PARENT:
-				final String oldParent = packet.readString(PACKET_STRING_READ_LENGTH);
-				final String newParent = packet.readString(PACKET_STRING_READ_LENGTH);
+				final String oldParent = packet.readUtf(PACKET_STRING_READ_LENGTH);
+				final String newParent = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				setExitParent(oldParent, newParent);
 				break;
 			case KEY_EXIT_DELETE_PARENT:
-				exits.remove(packet.readString(PACKET_STRING_READ_LENGTH));
+				exits.remove(packet.readUtf(PACKET_STRING_READ_LENGTH));
 				break;
 			case KEY_EXIT_DESTINATIONS:
-				final String parent = packet.readString(PACKET_STRING_READ_LENGTH);
+				final String parent = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				if (parentExists(parent)) {
 					exits.get(parent).clear();
 					final int destinationCount = packet.readInt();
 					for (int i = 0; i < destinationCount; i++) {
-						exits.get(parent).add(packet.readString(PACKET_STRING_READ_LENGTH));
+						exits.get(parent).add(packet.readUtf(PACKET_STRING_READ_LENGTH));
 					}
 				}
 				break;
 			case KEY_ZONE:
-				name = packet.readString(PACKET_STRING_READ_LENGTH);
+				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
 				zone = packet.readInt();
 				break;
@@ -125,43 +125,43 @@ public final class Station extends AreaBase {
 		}
 	}
 
-	public void setZone(Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public void setZone(Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_ZONE);
-		packet.writeString(name);
+		packet.writeUtf(KEY_ZONE);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 		packet.writeInt(zone);
 		sendPacket.accept(packet);
 	}
 
-	public void setExitParent(String oldParent, String newParent, Consumer<PacketByteBuf> sendPacket) {
+	public void setExitParent(String oldParent, String newParent, Consumer<FriendlyByteBuf> sendPacket) {
 		setExitParent(oldParent, newParent);
-		final PacketByteBuf packet = PacketByteBufs.create();
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_EXIT_EDIT_PARENT);
-		packet.writeString(oldParent);
-		packet.writeString(newParent);
+		packet.writeUtf(KEY_EXIT_EDIT_PARENT);
+		packet.writeUtf(oldParent);
+		packet.writeUtf(newParent);
 		sendPacket.accept(packet);
 	}
 
-	public void deleteExitParent(String parent, Consumer<PacketByteBuf> sendPacket) {
+	public void deleteExitParent(String parent, Consumer<FriendlyByteBuf> sendPacket) {
 		exits.remove(parent);
-		final PacketByteBuf packet = PacketByteBufs.create();
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_EXIT_DELETE_PARENT);
-		packet.writeString(parent);
+		packet.writeUtf(KEY_EXIT_DELETE_PARENT);
+		packet.writeUtf(parent);
 		sendPacket.accept(packet);
 	}
 
-	public void setExitDestinations(String parent, Consumer<PacketByteBuf> sendPacket) {
+	public void setExitDestinations(String parent, Consumer<FriendlyByteBuf> sendPacket) {
 		if (parentExists(parent)) {
-			final PacketByteBuf packet = PacketByteBufs.create();
+			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeLong(id);
-			packet.writeString(KEY_EXIT_DESTINATIONS);
-			packet.writeString(parent);
+			packet.writeUtf(KEY_EXIT_DESTINATIONS);
+			packet.writeUtf(parent);
 			packet.writeInt(exits.get(parent).size());
-			exits.get(parent).forEach(packet::writeString);
+			exits.get(parent).forEach(packet::writeUtf);
 			sendPacket.accept(packet);
 		}
 	}

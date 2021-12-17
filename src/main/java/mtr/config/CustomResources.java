@@ -8,10 +8,9 @@ import mtr.data.TrainType;
 import mtr.gui.DashboardScreen;
 import mtr.model.TrainClientRegistry;
 import mtr.render.RenderTrains;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.sounds.SoundEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-public class CustomResources implements SimpleSynchronousResourceReloadListener {
+public class CustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
 
@@ -54,13 +53,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 	private static final String CUSTOM_SIGNS_SMALL = "small";
 	private static final String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
-	@Override
-	public Identifier getFabricId() {
-		return new Identifier(MTR.MOD_ID, CUSTOM_RESOURCES_ID);
-	}
-
-	@Override
-	public void reload(ResourceManager manager) {
+	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
 		RenderTrains.clearTextureAvailability();
 		CUSTOM_SIGNS.clear();
@@ -110,7 +103,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 						final boolean small = getOrDefault(jsonObject, CUSTOM_SIGNS_SMALL, false, JsonElement::getAsBoolean);
 						final int backgroundColor = getOrDefault(jsonObject, CUSTOM_SIGNS_BACKGROUND_COLOR, 0, jsonElement -> DashboardScreen.colorStringToInt(jsonElement.getAsString()));
 
-						CUSTOM_SIGNS.put(CUSTOM_SIGN_ID_PREFIX + entry.getKey(), new CustomSign(new Identifier(jsonObject.get(CUSTOM_SIGNS_TEXTURE_ID).getAsString()), flipTexture, customText, flipCustomText, small, backgroundColor));
+						CUSTOM_SIGNS.put(CUSTOM_SIGN_ID_PREFIX + entry.getKey(), new CustomSign(new ResourceLocation(jsonObject.get(CUSTOM_SIGNS_TEXTURE_ID).getAsString()), flipTexture, customText, flipCustomText, small, backgroundColor));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -127,7 +120,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 
 	private static void readResource(ResourceManager manager, String path, Consumer<JsonObject> callback) {
 		try {
-			manager.getAllResources(new Identifier(path)).forEach(resource -> {
+			manager.getResources(new ResourceLocation(path)).forEach(resource -> {
 				try (final InputStream stream = resource.getInputStream()) {
 					callback.accept(new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
 				} catch (Exception e) {
@@ -160,7 +153,7 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 					group = "";
 					break;
 			}
-			return new SoundEvent(new Identifier(path + (i / 3) + group));
+			return new SoundEvent(new ResourceLocation(path + (i / 3) + group));
 		}).toArray(SoundEvent[]::new);
 	}
 
@@ -174,14 +167,14 @@ public class CustomResources implements SimpleSynchronousResourceReloadListener 
 
 	public static class CustomSign {
 
-		public final Identifier textureId;
+		public final ResourceLocation textureId;
 		public final boolean flipTexture;
 		public final String customText;
 		public final boolean flipCustomText;
 		public final boolean small;
 		public final int backgroundColor;
 
-		public CustomSign(Identifier textureId, boolean flipTexture, String customText, boolean flipCustomText, boolean small, int backgroundColor) {
+		public CustomSign(ResourceLocation textureId, boolean flipTexture, String customText, boolean flipCustomText, boolean small, int backgroundColor) {
 			this.textureId = textureId;
 			this.flipTexture = flipTexture;
 			this.customText = customText;

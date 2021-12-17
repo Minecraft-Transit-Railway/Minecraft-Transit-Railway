@@ -1,15 +1,14 @@
 package mtr.data;
 
+import io.netty.buffer.Unpooled;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
 import mtr.path.PathFinder;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -47,23 +46,23 @@ public class Depot extends AreaBase {
 		super(id);
 	}
 
-	public Depot(NbtCompound nbtCompound) {
-		super(nbtCompound);
+	public Depot(CompoundTag compoundTag) {
+		super(compoundTag);
 
-		final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
+		final long[] routeIdsArray = compoundTag.getLongArray(KEY_ROUTE_IDS);
 		for (final long routeId : routeIdsArray) {
 			routeIds.add(routeId);
 		}
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			frequencies[i] = nbtCompound.getInt(KEY_FREQUENCIES + i);
+			frequencies[i] = compoundTag.getInt(KEY_FREQUENCIES + i);
 		}
 
-		lastDeployedMillis = System.currentTimeMillis() - nbtCompound.getLong(KEY_LAST_DEPLOYED);
-		deployIndex = nbtCompound.getInt(KEY_DEPLOY_INDEX);
+		lastDeployedMillis = System.currentTimeMillis() - compoundTag.getLong(KEY_LAST_DEPLOYED);
+		deployIndex = compoundTag.getInt(KEY_DEPLOY_INDEX);
 	}
 
-	public Depot(PacketByteBuf packet) {
+	public Depot(FriendlyByteBuf packet) {
 		super(packet);
 
 		final int routeIdCount = packet.readInt();
@@ -80,23 +79,23 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
-	public NbtCompound toCompoundTag() {
-		final NbtCompound nbtCompound = super.toCompoundTag();
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
 
-		nbtCompound.putLongArray(KEY_ROUTE_IDS, routeIds);
+		compoundTag.putLongArray(KEY_ROUTE_IDS, routeIds);
 
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			nbtCompound.putInt(KEY_FREQUENCIES + i, frequencies[i]);
+			compoundTag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
 		}
 
-		nbtCompound.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
-		nbtCompound.putInt(KEY_DEPLOY_INDEX, deployIndex);
+		compoundTag.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
+		compoundTag.putInt(KEY_DEPLOY_INDEX, deployIndex);
 
-		return nbtCompound;
+		return compoundTag;
 	}
 
 	@Override
-	public void writePacket(PacketByteBuf packet) {
+	public void writePacket(FriendlyByteBuf packet) {
 		super.writePacket(packet);
 
 		packet.writeInt(routeIds.size());
@@ -111,9 +110,9 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
-	public void update(String key, PacketByteBuf packet) {
+	public void update(String key, FriendlyByteBuf packet) {
 		if (KEY_FREQUENCIES.equals(key)) {
-			name = packet.readString(PACKET_STRING_READ_LENGTH);
+			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
 			for (int i = 0; i < HOURS_IN_DAY; i++) {
 				frequencies[i] = packet.readInt();
@@ -142,11 +141,11 @@ public class Depot extends AreaBase {
 		}
 	}
 
-	public void setData(Consumer<PacketByteBuf> sendPacket) {
-		final PacketByteBuf packet = PacketByteBufs.create();
+	public void setData(Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
-		packet.writeString(KEY_FREQUENCIES);
-		packet.writeString(name);
+		packet.writeUtf(KEY_FREQUENCIES);
+		packet.writeUtf(name);
 		packet.writeInt(color);
 		for (final int frequency : frequencies) {
 			packet.writeInt(frequency);
@@ -156,7 +155,7 @@ public class Depot extends AreaBase {
 		sendPacket.accept(packet);
 	}
 
-	public void generateMainRoute(MinecraftServer minecraftServer, World world, DataCache dataCache, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Siding> sidings, Consumer<Thread> callback) {
+	public void generateMainRoute(MinecraftServer minecraftServer, Level world, DataCache dataCache, Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Siding> sidings, Consumer<Thread> callback) {
 		final List<SavedRailBase> platformsInRoute = new ArrayList<>();
 
 		routeIds.forEach(routeId -> {
@@ -245,8 +244,8 @@ public class Depot extends AreaBase {
 		return -1;
 	}
 
-	public static int getHour(WorldAccess world) {
-		return (int) wrapTime(world.getLunarTime()) / TICKS_PER_HOUR;
+	public static int getHour(Level world) {
+		return (int) wrapTime(world.getDayTime()) / TICKS_PER_HOUR;
 	}
 
 	private static float wrapTime(float time) {

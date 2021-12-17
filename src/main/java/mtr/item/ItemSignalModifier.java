@@ -4,13 +4,12 @@ import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ItemSignalModifier extends ItemNodeModifierBase {
 
@@ -22,16 +21,16 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(World world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, PlayerEntity player, RailwayData railwayData) {
+	protected void onConnect(Level world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (railwayData.containsRail(posStart, posEnd)) {
 			PacketTrainDataGuiServer.createSignalS2C(world, railwayData.addSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 		} else if (player != null) {
-			player.sendMessage(new TranslatableText("gui.mtr.rail_not_found"), true);
+			player.displayClientMessage(new TranslatableComponent("gui.mtr.rail_not_found"), true);
 		}
 	}
 
 	@Override
-	protected void onRemove(World world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
 		PacketTrainDataGuiServer.removeSignalS2C(world, railwayData.removeSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 	}
 }

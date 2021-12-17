@@ -8,8 +8,8 @@ import de.bluecolored.bluemap.api.marker.Shape;
 import de.bluecolored.bluemap.api.marker.ShapeMarker;
 import mtr.data.RailwayData;
 import mtr.data.Station;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.awt.*;
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class UpdateBlueMap {
 	private static final String BLUE_MAP_MARKER_SET_STATIONS_ID = "mtr_stations";
 	private static final String BLUE_MAP_MARKER_SET_STATIONS_TITLE = "Minecraft Transit Railway Stations";
 
-	public static void updateBlueMap(World world) throws IOException {
+	public static void updateBlueMap(Level world) throws IOException {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
 			return;
@@ -31,7 +31,7 @@ public class UpdateBlueMap {
 			return;
 		}
 
-		final BlueMapMap map = api.getMaps().stream().filter(map1 -> world.getRegistryKey().getValue().getPath().contains(map1.getId())).findFirst().orElse(null);
+		final BlueMapMap map = api.getMaps().stream().filter(map1 -> world.dimension().location().getPath().contains(map1.getId())).findFirst().orElse(null);
 		if (map == null) {
 			return;
 		}
@@ -53,7 +53,7 @@ public class UpdateBlueMap {
 				marker.setLabel(station.name.replace("|", "\n"));
 				final Color stationColor = new Color(station.color);
 				marker.setFillColor(stationColor);
-				marker.setBorderColor(stationColor.darker());
+				marker.setLineColor(stationColor.darker());
 			}
 		});
 

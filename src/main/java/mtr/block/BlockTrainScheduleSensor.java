@@ -1,67 +1,66 @@
 package mtr.block;
 
-import minecraftmappings.TickableMapper;
-import minecraftmappings.Utilities;
-import mtr.MTR;
+import mapper.BlockEntityMapper;
+import mapper.TickableMapper;
+import mtr.BlockEntityTypes;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 import java.util.*;
 
 public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 
-	public static final BooleanProperty POWERED = BooleanProperty.of("powered");
+	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
 	public BlockTrainScheduleSensor() {
 		super();
-		setDefaultState(getStateManager().getDefaultState().with(POWERED, false));
+		registerDefaultState(defaultBlockState().setValue(POWERED, false));
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		world.setBlockState(pos, state.with(POWERED, false));
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+		world.setBlockAndUpdate(pos, state.setValue(POWERED, false));
 	}
 
 	@Override
-	public boolean emitsRedstonePower(BlockState state) {
+	public boolean isSignalSource(BlockState blockState) {
 		return true;
 	}
 
 	@Override
-	public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
-		return state.get(POWERED) ? 15 : 0;
+	public int getDirectSignal(BlockState state, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
+		return state.getValue(POWERED) ? 15 : 0;
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityTrainScheduleSensor(pos, state);
 	}
 
 	@Override
-	public <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
+	public <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
 		TileEntityTrainScheduleSensor.tick(world, pos, blockEntity);
 	}
 
 	@Override
-	public BlockEntityType<? extends BlockEntity> getType() {
-		return MTR.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY;
+	public BlockEntityType<? extends BlockEntityMapper> getType() {
+		return BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(POWERED);
 	}
 
@@ -71,26 +70,26 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		private static final String KEY_SECONDS = "seconds";
 
 		public TileEntityTrainScheduleSensor(BlockPos pos, BlockState state) {
-			super(MTR.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY, pos, state);
 		}
 
 		@Override
 		public void tick() {
-			if (world != null) {
-				tick(world, pos, this);
+			if (level != null) {
+				tick(level, worldPosition, this);
 			}
 		}
 
 		@Override
-		public void readNbtCompound(NbtCompound nbtCompound) {
-			seconds = nbtCompound.getInt(KEY_SECONDS);
-			super.readNbtCompound(nbtCompound);
+		public void readCompoundTag(CompoundTag compoundTag) {
+			seconds = compoundTag.getInt(KEY_SECONDS);
+			super.readCompoundTag(compoundTag);
 		}
 
 		@Override
-		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putInt(KEY_SECONDS, seconds);
-			super.writeNbtCompound(nbtCompound);
+		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putInt(KEY_SECONDS, seconds);
+			super.writeCompoundTag(compoundTag);
 		}
 
 		@Override
@@ -103,10 +102,10 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 			return seconds;
 		}
 
-		public static <T extends BlockEntity> void tick(World world, BlockPos pos, T blockEntity) {
-			if (world != null && !world.isClient) {
+		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
+			if (world != null && !world.isClientSide) {
 				final BlockState state = world.getBlockState(pos);
-				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && Utilities.isScheduled(world, pos, state.getBlock());
+				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && world.getBlockTicks().hasScheduledTick(pos, state.getBlock());
 
 				if (isActive || !(state.getBlock() instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
 					return;
@@ -136,8 +135,8 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 				if (!scheduleList.isEmpty()) {
 					Collections.sort(scheduleList);
 					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
-						world.setBlockState(pos, state.with(POWERED, true));
-						Utilities.scheduleBlockTick(world, pos, state.getBlock(), 20);
+						world.setBlockAndUpdate(pos, state.setValue(POWERED, true));
+						world.getBlockTicks().scheduleTick(pos, state.getBlock(), 20);
 					}
 				}
 			}

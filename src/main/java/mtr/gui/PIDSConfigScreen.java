@@ -1,18 +1,18 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 
@@ -22,13 +22,13 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	private final boolean[] hideArrival;
 	private final WidgetBetterTextField[] textFieldMessages;
 	private final WidgetBetterCheckbox[] buttonsHideArrival;
-	private final Text messageText = new TranslatableText("gui.mtr.pids_message");
-	private final Text hideArrivalText = new TranslatableText("gui.mtr.hide_arrival");
+	private final Component messageText = new TranslatableComponent("gui.mtr.pids_message");
+	private final Component hideArrivalText = new TranslatableComponent("gui.mtr.hide_arrival");
 
 	private static final int MAX_MESSAGE_LENGTH = 2048;
 
 	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		messages = new String[maxArrivals];
@@ -48,7 +48,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 			});
 		}
 
-		final World world = MinecraftClient.getInstance().world;
+		final Level world = Minecraft.getInstance().level;
 		if (world != null) {
 			final BlockEntity entity = world.getBlockEntity(pos1);
 			if (entity instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
@@ -63,12 +63,12 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	protected void init() {
 		super.init();
-		final int textWidth = textRenderer.getWidth(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
+		final int textWidth = font.width(hideArrivalText) + SQUARE_SIZE + TEXT_PADDING * 2;
 
 		for (int i = 0; i < textFieldMessages.length; i++) {
 			final WidgetBetterTextField textFieldMessage = textFieldMessages[i];
 			IDrawing.setPositionAndWidth(textFieldMessage, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2 + (SQUARE_SIZE + TEXT_FIELD_PADDING) * i, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
-			textFieldMessage.setText(messages[i]);
+			textFieldMessage.setValue(messages[i]);
 			addDrawableChild(textFieldMessage);
 
 			final WidgetBetterCheckbox buttonHideArrival = buttonsHideArrival[i];
@@ -88,18 +88,18 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	public void onClose() {
 		for (int i = 0; i < textFieldMessages.length; i++) {
-			messages[i] = textFieldMessages[i].getText();
-			hideArrival[i] = buttonsHideArrival[i].isChecked();
+			messages[i] = textFieldMessages[i].getValue();
+			hideArrival[i] = buttonsHideArrival[i].selected();
 		}
 		PacketTrainDataGuiClient.sendPIDSConfigC2S(pos1, pos2, messages, hideArrival);
 		super.onClose();
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			textRenderer.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, messageText, SQUARE_SIZE + TEXT_PADDING, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();

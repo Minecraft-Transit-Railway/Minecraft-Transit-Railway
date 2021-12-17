@@ -1,53 +1,53 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityClientSerializableMapper;
-import minecraftmappings.BlockEntityProviderMapper;
-import mtr.MTR;
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.BlockEntityMapper;
+import mapper.EntityBlockMapper;
+import mtr.BlockEntityTypes;
 import mtr.data.Rail;
 import mtr.data.RailAngle;
 import mtr.data.RailType;
 import mtr.data.RailwayData;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
-public class BlockRail extends HorizontalFacingBlock implements BlockEntityProviderMapper {
+public class BlockRail extends HorizontalDirectionalBlock implements EntityBlockMapper {
 
-	public static final BooleanProperty FACING = BooleanProperty.of("facing");
-	public static final BooleanProperty IS_22_5 = BooleanProperty.of("is_22_5");
-	public static final BooleanProperty IS_45 = BooleanProperty.of("is_45");
-	public static final BooleanProperty IS_CONNECTED = BooleanProperty.of("is_connected");
+	public static final BooleanProperty FACING = BooleanProperty.create("facing");
+	public static final BooleanProperty IS_22_5 = BooleanProperty.create("is_22_5");
+	public static final BooleanProperty IS_45 = BooleanProperty.create("is_45");
+	public static final BooleanProperty IS_CONNECTED = BooleanProperty.create("is_connected");
 
-	public BlockRail(Settings settings) {
+	public BlockRail(Properties settings) {
 		super(settings);
-		setDefaultState(stateManager.getDefaultState().with(FACING, false).with(IS_22_5, false).with(IS_45, false));
+		registerDefaultState(defaultBlockState().setValue(FACING, false).setValue(IS_22_5, false).setValue(IS_45, false));
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final int quadrant = RailAngle.getQuadrant(ctx.getPlayerYaw());
-		return getDefaultState().with(FACING, quadrant % 8 >= 4).with(IS_45, quadrant % 4 >= 2).with(IS_22_5, quadrant % 2 >= 1).with(IS_CONNECTED, false);
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		final int quadrant = RailAngle.getQuadrant(ctx.getRotation());
+		return defaultBlockState().setValue(FACING, quadrant % 8 >= 4).setValue(IS_45, quadrant % 4 >= 2).setValue(IS_22_5, quadrant % 2 >= 1).setValue(IS_CONNECTED, false);
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		if (!world.isClient) {
+	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+		if (!world.isClientSide) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
 				railwayData.removeNode(pos);
@@ -57,32 +57,32 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return Block.createCuboidShape(0, 0, 0, 16, 1, 16);
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+		return Block.box(0, 0, 0, 16, 1, 16);
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.empty();
+	public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+		return Shapes.empty();
 	}
 
 	@Override
-	public PistonBehavior getPistonBehavior(BlockState state) {
-		return PistonBehavior.BLOCK;
+	public PushReaction getPistonPushReaction(BlockState blockState) {
+		return PushReaction.BLOCK;
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new TileEntityRail(pos, state);
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, IS_22_5, IS_45, IS_CONNECTED);
 	}
 
-	public static void resetRailNode(World world, BlockPos pos) {
-		world.setBlockState(pos, world.getBlockState(pos).with(BlockRail.IS_CONNECTED, false));
+	public static void resetRailNode(Level world, BlockPos pos) {
+		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(BlockRail.IS_CONNECTED, false));
 	}
 
 	public static float getAngle(BlockState state) {
@@ -96,52 +96,52 @@ public class BlockRail extends HorizontalFacingBlock implements BlockEntityProvi
 		private static final String KEY_BLOCK_POS = "block_pos";
 
 		public TileEntityRail(BlockPos pos, BlockState state) {
-			super(MTR.RAIL_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.RAIL_TILE_ENTITY, pos, state);
 		}
 
 		@Override
-		public void readNbtCompound(NbtCompound nbtCompound) {
+		public void readCompoundTag(CompoundTag compoundTag) {
 			railMap.clear();
-			final int listLength = nbtCompound.getInt(KEY_LIST_LENGTH);
+			final int listLength = compoundTag.getInt(KEY_LIST_LENGTH);
 			for (int i = 0; i < listLength; i++) {
-				final BlockPos newPos = BlockPos.fromLong(nbtCompound.getLong(KEY_BLOCK_POS + i));
-				railMap.put(newPos, new Rail(nbtCompound.getCompound(KEY_LIST_LENGTH + i)));
+				final BlockPos newPos = BlockPos.of(compoundTag.getLong(KEY_BLOCK_POS + i));
+				railMap.put(newPos, new Rail(compoundTag.getCompound(KEY_LIST_LENGTH + i)));
 			}
 		}
 
 		@Override
-		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putInt(KEY_LIST_LENGTH, railMap.size());
+		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putInt(KEY_LIST_LENGTH, railMap.size());
 			final List<BlockPos> keys = new ArrayList<>(railMap.keySet());
 			for (int i = 0; i < railMap.size(); i++) {
-				nbtCompound.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
-				nbtCompound.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
+				compoundTag.putLong(KEY_BLOCK_POS + i, keys.get(i).asLong());
+				compoundTag.put(KEY_LIST_LENGTH + i, railMap.get(keys.get(i)).toCompoundTag());
 			}
 		}
 
 		public void addRail(RailAngle facing1, BlockPos newPos, RailAngle facing2, RailType railType) {
-			if (world != null && world.getBlockState(newPos).getBlock() instanceof BlockRail) {
-				railMap.put(newPos, new Rail(pos, facing1, newPos, facing2, railType));
+			if (level != null && level.getBlockState(newPos).getBlock() instanceof BlockRail) {
+				railMap.put(newPos, new Rail(worldPosition, facing1, newPos, facing2, railType));
 
-				markDirty();
-				sync();
+				setChanged();
+				syncData();
 
-				final BlockState state = world.getBlockState(pos);
+				final BlockState state = level.getBlockState(worldPosition);
 				if (state.getBlock() instanceof BlockRail) {
-					world.setBlockState(pos, state.with(IS_CONNECTED, true));
+					level.setBlockAndUpdate(worldPosition, state.setValue(IS_CONNECTED, true));
 				}
 			}
 		}
 
 		public void removeRail(BlockPos newPos) {
 			railMap.remove(newPos);
-			markDirty();
-			sync();
+			setChanged();
+			syncData();
 
-			if (world != null) {
-				final BlockState state = world.getBlockState(pos);
+			if (level != null) {
+				final BlockState state = level.getBlockState(worldPosition);
 				if (state.getBlock() instanceof BlockRail) {
-					world.setBlockState(pos, state.with(IS_CONNECTED, !railMap.isEmpty()));
+					level.setBlockAndUpdate(worldPosition, state.setValue(IS_CONNECTED, !railMap.isEmpty()));
 				}
 			}
 		}

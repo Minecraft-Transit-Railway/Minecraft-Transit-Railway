@@ -2,8 +2,8 @@ package mtr.packet;
 
 import mtr.data.NameColorDataBase;
 import mtr.data.SerializedDataBase;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.thread.ReentrantThreadExecutor;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 
 import java.util.Map;
 import java.util.Set;
@@ -11,11 +11,11 @@ import java.util.function.Function;
 
 public abstract class PacketTrainDataBase implements IPacket {
 
-	protected static <T extends NameColorDataBase, U extends ReentrantThreadExecutor<? extends Runnable>> void updateData(Set<T> dataSet, Map<Long, T> cacheMap, U minecraft, PacketByteBuf packet, PacketCallback packetCallback, Function<Long, T> createDataWithId) {
-		final PacketByteBuf packetFullCopy = new PacketByteBuf(packet.copy());
+	protected static <T extends NameColorDataBase, U extends ReentrantBlockableEventLoop<? extends Runnable>> void updateData(Set<T> dataSet, Map<Long, T> cacheMap, U minecraft, FriendlyByteBuf packet, PacketCallback packetCallback, Function<Long, T> createDataWithId) {
+		final FriendlyByteBuf packetFullCopy = new FriendlyByteBuf(packet.copy());
 		final long id = packet.readLong();
-		final String key = packet.readString(SerializedDataBase.PACKET_STRING_READ_LENGTH);
-		final PacketByteBuf packetCopy = new PacketByteBuf(packet.copy());
+		final String key = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final FriendlyByteBuf packetCopy = new FriendlyByteBuf(packet.copy());
 		minecraft.execute(() -> {
 			final T data = cacheMap.get(id);
 			if (data == null) {
@@ -31,8 +31,8 @@ public abstract class PacketTrainDataBase implements IPacket {
 		});
 	}
 
-	protected static <T extends NameColorDataBase, U extends ReentrantThreadExecutor<? extends Runnable>> void deleteData(Set<T> dataSet, U minecraft, PacketByteBuf packet, PacketCallback packetCallback) {
-		final PacketByteBuf packetFullCopy = new PacketByteBuf(packet.copy());
+	protected static <T extends NameColorDataBase, U extends ReentrantBlockableEventLoop<? extends Runnable>> void deleteData(Set<T> dataSet, U minecraft, FriendlyByteBuf packet, PacketCallback packetCallback) {
+		final FriendlyByteBuf packetFullCopy = new FriendlyByteBuf(packet.copy());
 		final long id = packet.readLong();
 		minecraft.execute(() -> {
 			dataSet.removeIf(data -> data.id == id);
@@ -42,6 +42,6 @@ public abstract class PacketTrainDataBase implements IPacket {
 
 	@FunctionalInterface
 	protected interface PacketCallback {
-		void packetCallback(PacketByteBuf updatePacket, PacketByteBuf fullPacket);
+		void packetCallback(FriendlyByteBuf updatePacket, FriendlyByteBuf fullPacket);
 	}
 }

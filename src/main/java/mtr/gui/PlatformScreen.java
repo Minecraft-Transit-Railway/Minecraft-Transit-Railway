@@ -2,7 +2,7 @@ package mtr.gui;
 
 import mtr.data.Platform;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class PlatformScreen extends SavedRailScreenBase<Platform> {
 
@@ -39,7 +39,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 	}
 
 	@Override
-	protected Identifier getPacketIdentifier() {
+	protected ResourceLocation getPacketIdentifier() {
 		return PACKET_UPDATE_PLATFORM;
 	}
 }

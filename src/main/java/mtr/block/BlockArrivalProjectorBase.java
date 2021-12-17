@@ -1,30 +1,33 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityProviderMapper;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.math.Direction;
+import mapper.EntityBlockMapper;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 
-public abstract class BlockArrivalProjectorBase extends HorizontalFacingBlock implements BlockEntityProviderMapper {
+public abstract class BlockArrivalProjectorBase extends HorizontalDirectionalBlock implements EntityBlockMapper {
 
 	public BlockArrivalProjectorBase() {
-		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(5));
+		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5));
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		final Direction side = ctx.getSide();
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		final Direction side = ctx.getClickedFace();
 		if (side != Direction.UP && side != Direction.DOWN) {
-			return getDefaultState().with(FACING, side.getOpposite());
+			return defaultBlockState().setValue(FACING, side.getOpposite());
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 	}
 }

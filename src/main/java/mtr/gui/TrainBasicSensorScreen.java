@@ -1,6 +1,6 @@
 package mtr.gui;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class TrainBasicSensorScreen extends TrainSensorScreenBase {
 

@@ -1,16 +1,16 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.packet.IPacket;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
 
@@ -20,23 +20,23 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	private final DashboardScreen dashboardScreen;
 	private final WidgetBetterTextField textFieldSavedRailNumber;
 
-	private final Text savedRailNumberText;
-	private final Text secondText;
+	private final Component savedRailNumberText;
+	private final Component secondText;
 
 	protected static final int SLIDER_WIDTH = 160;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Text additionalText) {
-		super(new LiteralText(""));
+	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component additionalText) {
+		super(new TextComponent(""));
 		this.savedRailBase = savedRailBase;
 		this.dashboardScreen = dashboardScreen;
-		savedRailNumberText = new TranslatableText(getNumberStringKey());
-		secondText = new TranslatableText(getSecondStringKey());
+		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
+		secondText = new TranslatableComponent(getSecondStringKey());
 
-		textRenderer = MinecraftClient.getInstance().textRenderer;
+		font = Minecraft.getInstance().font;
 		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
-		textWidth = Math.max(Math.max(textRenderer.getWidth(savedRailNumberText), textRenderer.getWidth(secondText)), additionalText == null ? 0 : textRenderer.getWidth(additionalText)) + TEXT_PADDING;
+		textWidth = Math.max(Math.max(font.width(savedRailNumberText), font.width(secondText)), additionalText == null ? 0 : font.width(additionalText)) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
 	}
 
@@ -45,8 +45,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		super.init();
 
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
-		textFieldSavedRailNumber.setText(savedRailBase.name);
-		textFieldSavedRailNumber.setChangedListener(text -> savedRailBase.name = textFieldSavedRailNumber.getText());
+		textFieldSavedRailNumber.setValue(savedRailBase.name);
+		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
 
 		addDrawableChild(textFieldSavedRailNumber);
 	}
@@ -58,14 +58,14 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
 			if (shouldRenderExtra()) {
 				renderExtra(matrices, mouseX, mouseY, delta);
 			} else {
-				textRenderer.draw(matrices, savedRailNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
-				textRenderer.draw(matrices, secondText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+				font.draw(matrices, savedRailNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
+				font.draw(matrices, secondText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
 			}
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
@@ -76,8 +76,8 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			UtilitiesClient.setScreen(client, dashboardScreen);
+		if (minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, dashboardScreen);
 		}
 	}
 
@@ -90,12 +90,12 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		return false;
 	}
 
-	protected void renderExtra(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	protected void renderExtra(PoseStack matrices, int mouseX, int mouseY, float delta) {
 	}
 
 	protected abstract String getNumberStringKey();
 
 	protected abstract String getSecondStringKey();
 
-	protected abstract Identifier getPacketIdentifier();
+	protected abstract ResourceLocation getPacketIdentifier();
 }

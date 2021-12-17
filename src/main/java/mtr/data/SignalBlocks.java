@@ -1,10 +1,10 @@
 package mtr.data;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.DyeColor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -124,13 +124,13 @@ public class SignalBlocks {
 		}));
 	}
 
-	public PacketByteBuf getValidationPacket(Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public FriendlyByteBuf getValidationPacket(Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final List<UUID> railsToRemove = new ArrayList<>();
 		final List<DyeColor> colorsToRemove = new ArrayList<>();
 
 		signalBlocks.forEach(signalBlock -> signalBlock.rails.forEach(rail -> {
-			final BlockPos pos1 = BlockPos.fromLong(rail.getLeastSignificantBits());
-			final BlockPos pos2 = BlockPos.fromLong(rail.getMostSignificantBits());
+			final BlockPos pos1 = BlockPos.of(rail.getLeastSignificantBits());
+			final BlockPos pos2 = BlockPos.of(rail.getMostSignificantBits());
 			if (!RailwayData.containsRail(rails, pos1, pos2)) {
 				railsToRemove.add(rail);
 				colorsToRemove.add(signalBlock.color);
@@ -140,14 +140,14 @@ public class SignalBlocks {
 		if (railsToRemove.isEmpty()) {
 			return null;
 		} else {
-			final PacketByteBuf packet = PacketByteBufs.create();
+			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeInt(railsToRemove.size());
 			for (int i = 0; i < railsToRemove.size(); i++) {
 				final DyeColor color = colorsToRemove.get(i);
 				final UUID rail = railsToRemove.get(i);
 				packet.writeLong(remove(0, color, rail));
 				packet.writeInt(color.ordinal());
-				packet.writeUuid(rail);
+				packet.writeUUID(rail);
 			}
 			return packet;
 		}
@@ -168,21 +168,21 @@ public class SignalBlocks {
 			rails.add(rail);
 		}
 
-		public SignalBlock(NbtCompound nbtCompound) {
-			super(nbtCompound);
+		public SignalBlock(CompoundTag compoundTag) {
+			super(compoundTag);
 			DyeColor savedColor;
 			try {
-				savedColor = DyeColor.values()[nbtCompound.getInt(KEY_COLOR)];
+				savedColor = DyeColor.values()[compoundTag.getInt(KEY_COLOR)];
 			} catch (Exception e) {
 				e.printStackTrace();
 				savedColor = DyeColor.RED;
 			}
 			color = savedColor;
-			final NbtCompound nbtCompoundRails = nbtCompound.getCompound(KEY_RAILS);
-			nbtCompoundRails.getKeys().forEach(key -> rails.add(nbtCompoundRails.getUuid(key)));
+			final CompoundTag compoundTagRails = compoundTag.getCompound(KEY_RAILS);
+			compoundTagRails.getAllKeys().forEach(key -> rails.add(compoundTagRails.getUUID(key)));
 		}
 
-		public SignalBlock(PacketByteBuf packet) {
+		public SignalBlock(FriendlyByteBuf packet) {
 			super(packet);
 			DyeColor savedColor;
 			try {
@@ -194,30 +194,30 @@ public class SignalBlocks {
 			color = savedColor;
 			final int railCount = packet.readInt();
 			for (int i = 0; i < railCount; i++) {
-				rails.add(packet.readUuid());
+				rails.add(packet.readUUID());
 			}
 		}
 
 		@Override
-		public NbtCompound toCompoundTag() {
-			final NbtCompound nbtCompound = super.toCompoundTag();
-			nbtCompound.putInt(KEY_COLOR, color.ordinal());
-			final NbtCompound nbtCompoundRails = new NbtCompound();
+		public CompoundTag toCompoundTag() {
+			final CompoundTag compoundTag = super.toCompoundTag();
+			compoundTag.putInt(KEY_COLOR, color.ordinal());
+			final CompoundTag compoundTagRails = new CompoundTag();
 			int i = 0;
 			for (final UUID rail : rails) {
-				nbtCompoundRails.putUuid(KEY_RAILS + i, rail);
+				compoundTagRails.putUUID(KEY_RAILS + i, rail);
 				i++;
 			}
-			nbtCompound.put(KEY_RAILS, nbtCompoundRails);
-			return nbtCompound;
+			compoundTag.put(KEY_RAILS, compoundTagRails);
+			return compoundTag;
 		}
 
 		@Override
-		public void writePacket(PacketByteBuf packet) {
+		public void writePacket(FriendlyByteBuf packet) {
 			super.writePacket(packet);
 			packet.writeInt(color.ordinal());
 			packet.writeInt(rails.size());
-			rails.forEach(packet::writeUuid);
+			rails.forEach(packet::writeUUID);
 		}
 
 		public boolean isOccupied() {

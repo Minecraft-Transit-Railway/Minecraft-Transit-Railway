@@ -1,14 +1,14 @@
 package mtr.gui;
 
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mapper.ScreenMapper;
+import mapper.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.packet.IPacket;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenMapper implements IGui, IPacket {
 
@@ -18,18 +18,18 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 	protected final T data;
 	private final DashboardScreen dashboardScreen;
-	private final Text nameText;
-	private final Text colorText;
+	private final Component nameText;
+	private final Component colorText;
 
 	private final WidgetBetterTextField textFieldName;
 	private final WidgetBetterTextField textFieldColor;
 
 	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		this.data = data;
 		this.dashboardScreen = dashboardScreen;
-		nameText = new TranslatableText(nameKey);
-		colorText = new TranslatableText(colorKey);
+		nameText = new TranslatableComponent(nameKey);
+		colorText = new TranslatableComponent(colorKey);
 
 		textFieldName = new WidgetBetterTextField(null, "");
 		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
@@ -44,12 +44,12 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	@Override
 	public void onClose() {
 		super.onClose();
-		if (client != null) {
-			UtilitiesClient.setScreen(client, dashboardScreen);
+		if (minecraft != null) {
+			UtilitiesClient.setScreen(minecraft, dashboardScreen);
 		}
 
-		data.name = textFieldName.getText();
-		data.color = DashboardScreen.colorStringToInt(textFieldColor.getText());
+		data.name = textFieldName.getValue();
+		data.color = DashboardScreen.colorStringToInt(textFieldColor.getValue());
 	}
 
 	@Override
@@ -67,12 +67,12 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
 		IDrawing.setPositionAndWidth(textFieldColor, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
-		textFieldName.setText(data.name);
-		textFieldColor.setText(DashboardScreen.colorIntToString(data.color));
-		textFieldColor.setChangedListener(text -> {
+		textFieldName.setValue(data.name);
+		textFieldColor.setValue(DashboardScreen.colorIntToString(data.color));
+		textFieldColor.setResponder(text -> {
 			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
 			if (!newText.equals(text)) {
-				textFieldColor.setText(newText);
+				textFieldColor.setValue(newText);
 			}
 		});
 
@@ -80,8 +80,8 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		addDrawableChild(textFieldColor);
 	}
 
-	protected void renderTextFields(MatrixStack matrices) {
-		drawCenteredText(matrices, textRenderer, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
-		drawCenteredText(matrices, textRenderer, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
+	protected void renderTextFields(PoseStack matrices) {
+		drawCenteredString(matrices, font, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
+		drawCenteredString(matrices, font, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
 	}
 }

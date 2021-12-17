@@ -1,52 +1,51 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityClientSerializableMapper;
-import minecraftmappings.BlockEntityProviderMapper;
+import mapper.BlockEntityClientSerializableMapper;
+import mapper.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.MapColor;
-import net.minecraft.block.Material;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.phys.BlockHitResult;
 
-public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements BlockEntityProviderMapper, IPropagateBlock, IBlock {
+public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IPropagateBlock, IBlock {
 
 	public BlockRouteSignBase() {
-		super(FabricBlockSettings.of(Material.METAL, MapColor.IRON_GRAY).requiresTool().hardness(2).luminance(15).nonOpaque());
+		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 15).noOcclusion());
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		final double y = hit.getPos().y;
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult hit) {
+		final double y = hit.getBlockPos().getY();
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			if (isUpper && y - (int) y > 0.8125) {
-				world.setBlockState(pos, state.cycle(PROPAGATE_PROPERTY));
+				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
 				propagate(world, pos, Direction.DOWN, 1);
 			} else {
-				final BlockEntity entity = world.getBlockEntity(pos.down(isUpper ? 1 : 0));
+				final BlockEntity entity = world.getBlockEntity(pos.below(isUpper ? 1 : 0));
 				if (entity instanceof TileEntityRouteSignBase) {
-					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayerEntity) player, entity.getPos());
+					PacketTrainDataGuiServer.openRailwaySignScreenS2C((ServerPlayer) player, entity.getBlockPos());
 				}
 			}
 		});
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, HALF, PROPAGATE_PROPERTY);
 	}
 
@@ -60,19 +59,19 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		}
 
 		@Override
-		public void readNbtCompound(NbtCompound nbtCompound) {
-			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
+		public void readCompoundTag(CompoundTag compoundTag) {
+			platformId = compoundTag.getLong(KEY_PLATFORM_ID);
 		}
 
 		@Override
-		public void writeNbtCompound(NbtCompound nbtCompound) {
-			nbtCompound.putLong(KEY_PLATFORM_ID, platformId);
+		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putLong(KEY_PLATFORM_ID, platformId);
 		}
 
 		public void setPlatformId(long platformId) {
 			this.platformId = platformId;
-			markDirty();
-			sync();
+			setChanged();
+			syncData();
 		}
 
 		public long getPlatformId() {
