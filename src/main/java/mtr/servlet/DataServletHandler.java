@@ -36,6 +36,7 @@ public class DataServletHandler extends HttpServlet {
 					final DataCache dataCache = railwayData.dataCache;
 
 					railwayData.routes.forEach(route -> {
+						if(route.isHidden) return;
 						final JsonObject routeObject = new JsonObject();
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name.split("\\|\\|")[0]);
