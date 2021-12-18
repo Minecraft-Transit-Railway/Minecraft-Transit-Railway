@@ -1,7 +1,8 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
-import mapper.TickableMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.TickableMapper;
+import minecraftmappings.Utilities;
 import mtr.BlockEntityTypes;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
@@ -136,7 +137,7 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					Collections.sort(scheduleList);
 					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
 						world.setBlockAndUpdate(pos, state.setValue(POWERED, true));
-						world.getBlockTicks().scheduleTick(pos, state.getBlock(), 20);
+						Utilities.scheduleBlockTick(world, pos, state.getBlock(), 20);
 					}
 				}
 			}

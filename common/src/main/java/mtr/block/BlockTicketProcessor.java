@@ -1,5 +1,6 @@
 package mtr.block;
 
+import minecraftmappings.Utilities;
 import mtr.SoundEvents;
 import mtr.data.TicketSystem;
 import net.minecraft.core.BlockPos;
@@ -45,7 +46,7 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 		if (!world.isClientSide && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			final TicketSystem.EnumTicketBarrierOpen open = TicketSystem.passThrough(world, pos, player, canEnter, canExit, SoundEvents.TICKET_PROCESSOR_ENTRY, SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY, SoundEvents.TICKET_PROCESSOR_EXIT, SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY, SoundEvents.TICKET_PROCESSOR_FAIL, true);
 			world.setBlockAndUpdate(pos, state.setValue(LIGHTS, open.isOpen() ? EnumTicketProcessorLights.GREEN : EnumTicketProcessorLights.RED));
-			world.getBlockTicks().scheduleTick(pos, this, 20);
+			Utilities.scheduleBlockTick(world, pos, this, 20);
 		}
 		return InteractionResult.SUCCESS;
 	}

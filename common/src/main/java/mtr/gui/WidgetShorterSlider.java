@@ -1,7 +1,7 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -25,14 +25,14 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 	@Override
 	public void renderButton(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		final Minecraft client = Minecraft.getInstance();
-		UtilitiesClient.beginDrawingTexture(BACKGROUND_LOCATION);
+		UtilitiesClient.beginDrawingTexture(WIDGETS_LOCATION);
 
 		blit(matrices, x, y, 0, 46, width / 2, height / 2);
 		blit(matrices, x, y + height / 2, 0, 66 - height / 2, width / 2, height / 2);
 		blit(matrices, x + width / 2, y, 200 - width / 2, 46, width / 2, height / 2);
 		blit(matrices, x + width / 2, y + height / 2, 200 - width / 2, 66 - height / 2, width / 2, height / 2);
 
-		final int v = isHovered() ? 86 : 66;
+		final int v = UtilitiesClient.isHovered(this) ? 86 : 66;
 		final int xOffset = (width - SLIDER_WIDTH) * getIntValue() / maxValue;
 		blit(matrices, x + xOffset, y, 0, v, SLIDER_WIDTH / 2, height / 2);
 		blit(matrices, x + xOffset, y + height / 2, 0, v + 20 - height / 2, SLIDER_WIDTH / 2, height / 2);

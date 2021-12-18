@@ -1,10 +1,10 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import me.shedaniel.architectury.networking.NetworkManager;
+import minecraftmappings.NetworkUtilities;
+import minecraftmappings.PersistentStateMapper;
 import mtr.MTR;
 import mtr.block.BlockRail;
-import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -13,19 +13,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RailwayData extends SavedData implements IPacket {
+public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public final Set<Station> stations;
 	public final Set<Platform> platforms;
@@ -174,7 +172,7 @@ public class RailwayData extends SavedData implements IPacket {
 				});
 
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_WRITE_RAILS, packet);
+					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_WRITE_RAILS, packet);
 				}
 				playerLastUpdatedPositions.put(player, playerBlockPos);
 			}
@@ -219,7 +217,7 @@ public class RailwayData extends SavedData implements IPacket {
 					}
 
 					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-						NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_DELETE_TRAINS, packet);
+						NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_DELETE_TRAINS, packet);
 					}
 
 					break;
@@ -252,7 +250,7 @@ public class RailwayData extends SavedData implements IPacket {
 					}
 				}
 
-				NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAINS, packet);
+				NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAINS, packet);
 			}
 		});
 
@@ -309,7 +307,7 @@ public class RailwayData extends SavedData implements IPacket {
 				});
 
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_SCHEDULE, packet);
+					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_SCHEDULE, packet);
 				}
 			}
 		}
@@ -355,7 +353,7 @@ public class RailwayData extends SavedData implements IPacket {
 		validateData();
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
-			world.players().forEach(player -> NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
+			world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
 		}
 	}
 
@@ -364,7 +362,7 @@ public class RailwayData extends SavedData implements IPacket {
 		validateData();
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
-			world.players().forEach(player -> NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
+			world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
 		}
 	}
 
@@ -576,11 +574,7 @@ public class RailwayData extends SavedData implements IPacket {
 	}
 
 	public static RailwayData getInstance(Level world) {
-		if (world instanceof ServerLevel) {
-			return ((ServerLevel) world).getDataStorage().computeIfAbsent(() -> new RailwayData(world), NAME);
-		} else {
-			return null;
-		}
+		return getInstance(world, () -> new RailwayData(world), NAME);
 	}
 
 	public static void benchmark(Runnable runnable, float threshold) {
@@ -613,7 +607,7 @@ public class RailwayData extends SavedData implements IPacket {
 			if (delete) {
 				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 				packet.writeLong(savedRailBase.id);
-				world.players().forEach(player -> NetworkManager.sendToPlayer((ServerPlayer) player, packetId, packet));
+				world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, packetId, packet));
 			}
 			return delete;
 		});
@@ -623,7 +617,6 @@ public class RailwayData extends SavedData implements IPacket {
 		player.fallDistance = 0;
 		player.setNoGravity(isRiding);
 		player.noPhysics = isRiding;
-		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

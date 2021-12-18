@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.text2speech.Narrator;
-import mapper.UtilitiesClient;
 import mtr.MTR;
 import mtr.config.Config;
 import mtr.data.IGui;
@@ -100,7 +99,7 @@ public interface IDrawing {
 			final int b = (int) ((textColor & 0xFF) * shade);
 
 			if (immediate != null) {
-				textRenderer.drawInBatch(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, UtilitiesClient.getModel(matrices.last()), immediate, false, 0, light);
+				textRenderer.drawInBatch(orderedTexts.get(i), xOffset / extraScale, offset / extraScale, (a << 24) + (r << 16) + (g << 8) + b, shadow, matrices.last().pose(), immediate, false, 0, light);
 			}
 
 			if (isCJK) {
@@ -151,8 +150,8 @@ public interface IDrawing {
 
 	static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		final Vec3i vec3i = facing.getNormal();
-		final Matrix4f matrix4f = UtilitiesClient.getModel(matrices.last());
-		final Matrix3f matrix3f = UtilitiesClient.getNormal(matrices.last());
+		final Matrix4f matrix4f = matrices.last().pose();
+		final Matrix3f matrix3f = matrices.last().normal();
 		final int a = (color >> 24) & 0xFF;
 		final int r = (color >> 16) & 0xFF;
 		final int g = (color >> 8) & 0xFF;

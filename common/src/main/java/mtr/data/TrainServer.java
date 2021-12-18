@@ -1,7 +1,8 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import me.shedaniel.architectury.networking.NetworkManager;
+import minecraftmappings.NetworkUtilities;
+import minecraftmappings.Utilities;
 import mtr.TrigCache;
 import mtr.block.*;
 import mtr.path.PathData;
@@ -82,7 +83,7 @@ public class TrainServer extends Train {
 					packet.writeLong(id);
 					packet.writeFloat((float) (positionRotated.x / baseTrainType.width + 0.5));
 					packet.writeFloat((float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
-					NetworkManager.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
+					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
 				}
 			});
 		}
@@ -126,7 +127,7 @@ public class TrainServer extends Train {
 
 				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
 					world.setBlockAndUpdate(checkPos, state.setValue(BlockTrainRedstoneSensor.POWERED, true));
-					world.getBlockTicks().scheduleTick(checkPos, block, 20);
+					Utilities.scheduleBlockTick(world, checkPos, block, 20);
 				}
 
 				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
@@ -194,7 +195,7 @@ public class TrainServer extends Train {
 					world.setBlockAndUpdate(doorPos, state.setValue(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
 					if (doorStateValue > 0 && !world.getBlockTicks().hasScheduledTick(doorPos, doorBlock)) {
-						world.getBlockTicks().scheduleTick(doorPos, doorBlock, dwellTicks);
+						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
 					}
 				}
 			}

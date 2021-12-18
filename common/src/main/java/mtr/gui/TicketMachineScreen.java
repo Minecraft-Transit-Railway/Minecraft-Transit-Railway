@@ -1,9 +1,9 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mapper.ScreenMapper;
-import mapper.Utilities;
-import mapper.UtilitiesClient;
+import minecraftmappings.ScreenMapper;
+import minecraftmappings.Utilities;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;

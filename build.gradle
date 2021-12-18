@@ -3,6 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "0.10.0-SNAPSHOT" apply false
+    id "de.undercouch.download" version "4.1.2"
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
 def default_minecraft_version = "1.16.5"
@@ -11,6 +13,8 @@ def is_1_16 = (minecraft_version as String).startsWith("1.16")
 def is_1_17 = (minecraft_version as String).startsWith("1.17")
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
 
+rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : rootProject.architectury_version_1_18
+rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
 rootProject.ext.fabric_loader_version = is_1_16 ? rootProject.fabric_loader_version_1_16 : is_1_17 ? rootProject.fabric_loader_version_1_17 : rootProject.fabric_loader_version_1_18
 rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : rootProject.fabric_version_1_18
 rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : rootProject.forge_version_1_18
@@ -27,13 +31,13 @@ subprojects {
         silentMojangMappingsLicense()
     }
 
+    configurations {
+        shadowCommon
+    }
+
     dependencies {
         minecraft "com.mojang:minecraft:${minecraft_version}"
         mappings loom.officialMojangMappings()
-//        mappings "net.fabricmc:yarn:${is_1_16 ? rootProject.yarn_mappings_1_16 : is_1_17 ? rootProject.yarn_mappings_1_17 : rootProject.yarn_mappings_1_18}:v2"
-//        modImplementation "net.fabricmc:fabric-loader:${is_1_16 ? rootProject.loader_version_1_16 : is_1_17 ? rootProject.loader_version_1_17 : rootProject.loader_version_1_18}"
-//        modImplementation "net.fabricmc.fabric-api:fabric-api:${is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : rootProject.fabric_version_1_18}"
-//        implementation "com.github.jonafanho:Minecraft-Mappings:${is_1_16 ? rootProject.mappings_version_1_16 : is_1_17 ? rootProject.mappings_version_1_17 : rootProject.mappings_version_1_18}"
         implementation "com.github.BlueMap-Minecraft:BlueMapAPI:${rootProject.blue_map_version}"
         implementation "de.guntram.mcmod:crowdin-translate:${is_1_16 ? rootProject.crowdin_translate_version_1_16 : is_1_17 ? rootProject.crowdin_translate_version_1_17 : rootProject.crowdin_translate_version_1_18}"
         implementation "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
@@ -44,24 +48,44 @@ subprojects {
         implementation "org.eclipse.jetty:jetty-util:${rootProject.jetty_version}"
         implementation "org.eclipse.jetty:jetty-util-ajax:${rootProject.jetty_version}"
         implementation "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
-//        modApi "com.github.jonafanho:Minecraft-Mappings:${is_1_16 ? rootProject.mappings_version_1_16 : is_1_17 ? rootProject.mappings_version_1_17 : rootProject.mappings_version_1_18}"
-//        modApi "de.guntram.mcmod:crowdin-translate:${is_1_16 ? rootProject.crowdin_translate_version_1_16 : is_1_17 ? rootProject.crowdin_translate_version_1_17 : rootProject.crowdin_translate_version_1_18}"
-//        modApi "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-server:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-servlet:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-util:${rootProject.jetty_version}"
-//        modApi "org.eclipse.jetty:jetty-util-ajax:${rootProject.jetty_version}"
-//        modApi "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
+        shadowCommon "de.guntram.mcmod:crowdin-translate:${is_1_16 ? rootProject.crowdin_translate_version_1_16 : is_1_17 ? rootProject.crowdin_translate_version_1_17 : rootProject.crowdin_translate_version_1_18}"
+        shadowCommon "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-server:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-servlet:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-util:${rootProject.jetty_version}"
+        shadowCommon "org.eclipse.jetty:jetty-util-ajax:${rootProject.jetty_version}"
+        shadowCommon "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
     }
 }
 
-task injectKey(type: Copy) {
+task downloadMappings(type: Download) {
+    src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : "1.18"}.zip"
+    dest "common/src/main/java/minecraftmappings/files.zip"
+    overwrite true
+}
+
+task extractMappings(dependsOn: downloadMappings, type: Copy) {
     outputs.upToDateWhen { false }
-    from "common/src/main/keys"
+    from(zipTree("common/src/main/java/minecraftmappings/files.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+    into "common/src/main/java/minecraftmappings"
+}
+
+task injectForge(dependsOn: extractMappings, type: Copy) {
+    outputs.upToDateWhen { false }
+    from "forge/src/main/MTRForgeTemplate.java"
+    into "forge/src/main/java/mtr"
+    filter(ReplaceTokens, tokens: ["import": is_1_16 ? "me.shedaniel" : "dev"])
+    rename "(.+)Template.java", "\$1.java"
+}
+
+task injectKey(dependsOn: injectForge, type: Copy) {
+    outputs.upToDateWhen { false }
+    from "common/src/main/KeysTemplate.java"
     into "common/src/main/java/mtr"
     filter(ReplaceTokens, tokens: ["key": patreon_api_key])
+    rename "(.+)Template.java", "\$1.java"
 }
 
 allprojects {
@@ -93,7 +117,7 @@ allprojects {
 
     afterEvaluate {
         for (def task in it.tasks) {
-            if (task != rootProject.tasks.injectKey) {
+            if (task != rootProject.tasks.downloadMappings && task != rootProject.tasks.extractMappings && task != rootProject.tasks.injectForge && task != rootProject.tasks.injectKey) {
                 task.dependsOn rootProject.tasks.injectKey
             }
         }

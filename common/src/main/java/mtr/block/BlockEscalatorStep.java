@@ -94,8 +94,8 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
-	public void fallOn(Level world, BlockPos pos, Entity entity, float distance) {
-		super.fallOn(world, pos, entity, distance * 0.5F);
+	public boolean softenLanding() {
+		return true;
 	}
 
 	@Override

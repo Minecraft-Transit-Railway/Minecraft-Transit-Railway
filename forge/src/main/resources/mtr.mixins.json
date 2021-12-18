@@ -3,7 +3,6 @@
 	"package": "mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-		"PlayerTeleportationStateAccessor"
 	],
 	"client": [
 		"LevelRendererMixin"

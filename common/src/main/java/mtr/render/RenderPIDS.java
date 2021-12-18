@@ -2,8 +2,8 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import mapper.BlockEntityMapper;
-import mapper.BlockEntityRendererMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.data.*;

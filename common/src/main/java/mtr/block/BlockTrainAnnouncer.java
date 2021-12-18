@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import minecraftmappings.BlockEntityMapper;
 import mtr.BlockEntityTypes;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.core.BlockPos;

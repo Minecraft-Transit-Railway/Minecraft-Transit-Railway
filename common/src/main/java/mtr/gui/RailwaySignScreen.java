@@ -1,8 +1,8 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mapper.ScreenMapper;
-import mapper.UtilitiesClient;
+import minecraftmappings.ScreenMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.config.CustomResources;

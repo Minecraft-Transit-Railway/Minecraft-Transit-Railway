@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
-import mapper.EntityBlockMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.EntityBlockMapper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

@@ -3,7 +3,7 @@ package mtr.gui;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import mapper.UtilitiesClient;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import net.minecraft.client.gui.Font;

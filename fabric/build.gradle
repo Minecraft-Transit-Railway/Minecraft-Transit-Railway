@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.0"
+    id "com.github.johnrengelman.shadow"
 }
 
 architectury {
@@ -18,7 +18,7 @@ configurations {
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
-    modApi "me.shedaniel:architectury-fabric:${rootProject.architectury_version}"
+    modApi "${rootProject.architectury_id}:architectury-fabric:${rootProject.architectury_version}"
     modApi "com.terraformersmc:modmenu:${rootProject.mod_menu_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }

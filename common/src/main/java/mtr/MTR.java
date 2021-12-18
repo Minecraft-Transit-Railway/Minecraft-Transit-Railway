@@ -1,11 +1,9 @@
 package mtr;
 
-import mapper.BlockEntityMapper;
-import me.shedaniel.architectury.event.events.LifecycleEvent;
-import me.shedaniel.architectury.event.events.PlayerEvent;
-import me.shedaniel.architectury.event.events.TickEvent;
-import me.shedaniel.architectury.networking.NetworkManager;
-import me.shedaniel.architectury.registry.DeferredRegister;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.DeferredRegisterHolder;
+import minecraftmappings.NetworkUtilities;
+import minecraftmappings.RegistryUtilities;
 import mtr.data.Depot;
 import mtr.data.RailwayData;
 import mtr.data.Route;
@@ -15,11 +13,9 @@ import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
 import net.minecraft.core.Registry;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -45,10 +41,10 @@ public class MTR implements IPacket {
 
 	public static final String MOD_ID = "mtr";
 
-	private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, Registry.ITEM_REGISTRY);
-	private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(MOD_ID, Registry.BLOCK_REGISTRY);
-	private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
-	private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(MOD_ID, Registry.SOUND_EVENT_REGISTRY);
+	private static final DeferredRegisterHolder<Item> ITEMS = new DeferredRegisterHolder<>(MOD_ID, Registry.ITEM_REGISTRY);
+	private static final DeferredRegisterHolder<Block> BLOCKS = new DeferredRegisterHolder<>(MOD_ID, Registry.BLOCK_REGISTRY);
+	private static final DeferredRegisterHolder<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new DeferredRegisterHolder<>(MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
+	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MOD_ID, Registry.SOUND_EVENT_REGISTRY);
 
 	public static void init() {
 		registerItem("apg_door", Items.APG_DOOR);
@@ -292,22 +288,22 @@ public class MTR implements IPacket {
 		BLOCK_ENTITY_TYPES.register();
 		SOUND_EVENTS.register();
 
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_GENERATE_PATH, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.generatePathC2S(minecraftServer, player, packet)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_CLEAR_TRAINS, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.clearTrainsC2S(minecraftServer, player, packet)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_SIGN_TYPES, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveSignIdsC2S(minecraftServer, player, packet)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_ADD_BALANCE, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveAddBalanceC2S(minecraftServer, player, packet)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_PIDS_UPDATE, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receivePIDSMessageC2S(minecraftServer, player, packet)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_STATION, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_PLATFORM, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_SIDING, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_ROUTE, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_DEPOT, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, Depot::new, false)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_DELETE_STATION, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, null, true)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_DELETE_PLATFORM, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, true)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_DELETE_SIDING, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, true)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_DELETE_ROUTE, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_DELETE_DEPOT, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true)));
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PACKET_UPDATE_TRAIN_SENSOR, (packet, context) -> handlePacket(context, (minecraftServer, player) -> PacketTrainDataGuiServer.receiveTrainSensorC2S(minecraftServer, player, packet)));
+		NetworkUtilities.registerReceiverC2S(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
+		NetworkUtilities.registerReceiverC2S(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
+		NetworkUtilities.registerReceiverC2S(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
+		NetworkUtilities.registerReceiverC2S(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
+		NetworkUtilities.registerReceiverC2S(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false));
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false));
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_DEPOT, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, Depot::new, false));
+		NetworkUtilities.registerReceiverC2S(PACKET_DELETE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, null, true));
+		NetworkUtilities.registerReceiverC2S(PACKET_DELETE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, true));
+		NetworkUtilities.registerReceiverC2S(PACKET_DELETE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, true));
+		NetworkUtilities.registerReceiverC2S(PACKET_DELETE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
+		NetworkUtilities.registerReceiverC2S(PACKET_DELETE_DEPOT, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
+		NetworkUtilities.registerReceiverC2S(PACKET_UPDATE_TRAIN_SENSOR, PacketTrainDataGuiServer::receiveTrainSensorC2S);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);
@@ -329,7 +325,7 @@ public class MTR implements IPacket {
 		context.addServlet(DataServletHandler.class, "/data");
 		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
 
-		TickEvent.SERVER_PRE.register(minecraftServer -> {
+		RegistryUtilities.registerTickEvent(minecraftServer -> {
 			minecraftServer.getAllLevels().forEach(serverWorld -> {
 				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
 				if (railwayData != null) {
@@ -338,15 +334,15 @@ public class MTR implements IPacket {
 			});
 			gameTick++;
 		});
-		PlayerEvent.CHANGE_DIMENSION.register((player, resourceKey1, resourceKey2) -> broadcastRailwayData(player));
-		PlayerEvent.PLAYER_JOIN.register(MTR::broadcastRailwayData);
-		PlayerEvent.PLAYER_QUIT.register(player -> {
+		RegistryUtilities.registerPlayerChangeDimensionEvent(MTR::broadcastRailwayData);
+		RegistryUtilities.registerPlayerJoinEvent(MTR::broadcastRailwayData);
+		RegistryUtilities.registerPlayerQuitEvent(player -> {
 			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
 			if (railwayData != null) {
 				railwayData.disconnectPlayer(player);
 			}
 		});
-		LifecycleEvent.SERVER_STARTED.register(server -> {
+		RegistryUtilities.registerServerStartingEvent(server -> {
 			int port = 8888;
 			final Path path = server.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
 			try {
@@ -367,7 +363,7 @@ public class MTR implements IPacket {
 				e.printStackTrace();
 			}
 		});
-		LifecycleEvent.SERVER_STOPPING.register(server -> {
+		RegistryUtilities.registerServerStoppingEvent(server -> {
 			try {
 				webServer.stop();
 			} catch (Exception e) {
@@ -406,17 +402,5 @@ public class MTR implements IPacket {
 		if (railwayData != null) {
 			railwayData.broadcastToPlayer(player);
 		}
-	}
-
-	private static void handlePacket(NetworkManager.PacketContext context, PacketCallback packetCallback) {
-		final Player player = context.getPlayer();
-		if (player != null) {
-			packetCallback.packetCallback(player.getServer(), (ServerPlayer) player);
-		}
-	}
-
-	@FunctionalInterface
-	private interface PacketCallback {
-		void packetCallback(MinecraftServer server, ServerPlayer player);
 	}
 }

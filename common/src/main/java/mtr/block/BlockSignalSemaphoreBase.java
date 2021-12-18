@@ -1,7 +1,7 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
-import mapper.EntityBlockMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;

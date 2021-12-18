@@ -1,7 +1,7 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mapper.ScreenMapper;
+import minecraftmappings.ScreenMapper;
 import mtr.Patreon;
 import mtr.config.Config;
 import mtr.data.IGui;

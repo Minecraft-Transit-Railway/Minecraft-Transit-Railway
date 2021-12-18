@@ -1,6 +1,6 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
+import minecraftmappings.BlockEntityMapper;
 import mtr.BlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;

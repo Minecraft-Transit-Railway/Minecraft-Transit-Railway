@@ -1,8 +1,8 @@
 package mtr.block;
 
-import mapper.BlockEntityMapper;
-import mapper.EntityBlockMapper;
-import mapper.TickableMapper;
+import minecraftmappings.BlockEntityMapper;
+import minecraftmappings.EntityBlockMapper;
+import minecraftmappings.TickableMapper;
 import mtr.BlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

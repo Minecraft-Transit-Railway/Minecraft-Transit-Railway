@@ -4,7 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import mapper.UtilitiesClient;
+import minecraftmappings.SelectableMapper;
+import minecraftmappings.UtilitiesClient;
 import mtr.data.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class WidgetMap implements Widget, GuiEventListener, IGui {
+public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IGui {
 
 	private int x;
 	private int y;
