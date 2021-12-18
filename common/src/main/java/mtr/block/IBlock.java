@@ -94,7 +94,12 @@ public interface IBlock {
 
 	@SuppressWarnings("unchecked")
 	static <T extends Comparable<T>> T getStatePropertySafe(BlockState state, Property<T> property) {
-		return state.hasProperty(property) ? state.getValue(property) : (T) property.getAllValues().toArray()[0];
+		final T defaultProperty = (T) property.getPossibleValues().toArray()[0];
+		try {
+			return state.hasProperty(property) ? state.getValue(property) : defaultProperty;
+		} catch (Exception ignored) {
+		}
+		return defaultProperty;
 	}
 
 	enum EnumThird implements StringRepresentable {

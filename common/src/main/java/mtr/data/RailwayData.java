@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import me.shedaniel.architectury.networking.NetworkManager;
 import mtr.MTR;
 import mtr.block.BlockRail;
+import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -622,8 +623,7 @@ public class RailwayData extends SavedData implements IPacket {
 		player.fallDistance = 0;
 		player.setNoGravity(isRiding);
 		player.noPhysics = isRiding;
-		// TODO
-//		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
+		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

@@ -93,7 +93,7 @@ public class TrainServer extends Train {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (player.isSpectator() || player.isCrouching() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
+				if (player.isSpectator() || player.isShiftKeyDown() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
 					entitiesToRemove.add(uuid);
 				}
 				if (railwayData != null) {

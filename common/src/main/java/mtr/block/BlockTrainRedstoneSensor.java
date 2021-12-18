@@ -34,7 +34,7 @@ public class BlockTrainRedstoneSensor extends BlockTrainSensorBase {
 	}
 
 	@Override
-	public int getDirectSignal(BlockState state, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
+	public int getSignal(BlockState state, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
 		return state.getValue(POWERED) ? 15 : 0;
 	}
 

@@ -151,8 +151,7 @@ public class TrainClient extends Train {
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
 			calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				final boolean hasGangwayConnection = TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection;
-				// TODO sideways and forwards speed
-				final Vec3 movement = new Vec3(clientPlayer.moveDist * ticksElapsed / 4, 0, clientPlayer.pushthrough * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
+				final Vec3 movement = new Vec3(clientPlayer.xxa * ticksElapsed / 4, 0, clientPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
 				clientPercentageX += movement.x / baseTrainType.width;
 				clientPercentageZ += movement.z / realSpacingRender;
 				clientPercentageX = Mth.clamp(clientPercentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);

@@ -77,7 +77,7 @@ public class RenderTrains implements IGui {
 		}
 
 		final int renderDistanceChunks = client.options.renderDistance;
-		final float lastFrameDuration = MTRClient.isReplayMod ? 20F / 60 : client.getFrameTime();
+		final float lastFrameDuration = MTRClient.isReplayMod ? 20F / 60 : client.getDeltaFrameTime();
 		gameTick += lastFrameDuration;
 
 		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
@@ -93,7 +93,7 @@ public class RenderTrains implements IGui {
 
 		final Vec3 cameraPos = camera.getPosition();
 		final float cameraYaw = camera.getYRot();
-		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getPosition(client.getDeltaFrameTime()).subtract(cameraPos) : Vec3.ZERO;
+		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getPosition(client.getFrameTime()).subtract(cameraPos) : Vec3.ZERO;
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - client.gameRenderer.getMainCamera().getYRot()) > 90;
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
