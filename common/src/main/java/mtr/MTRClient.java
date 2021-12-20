@@ -245,7 +245,11 @@ public class MTRClient implements IPacket {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
 		});
-		RegistryUtilitiesClient.registerTextureStitchEvent(textureAtlas -> CustomResources.reload(Minecraft.getInstance().getResourceManager()));
+		RegistryUtilitiesClient.registerTextureStitchEvent(textureAtlas -> {
+			if (textureAtlas.location().getPath().equals("textures/atlas/blocks.png")) {
+				CustomResources.reload(Minecraft.getInstance().getResourceManager());
+			}
+		});
 	}
 
 	private static class StationColor implements BlockColor {

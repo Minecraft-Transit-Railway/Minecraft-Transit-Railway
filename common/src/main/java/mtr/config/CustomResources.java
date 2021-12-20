@@ -28,7 +28,7 @@ public class CustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
 
-	private static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
+	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
 	private static final String CUSTOM_TRAIN_ID_PREFIX = "mtr_custom_train_";
 	private static final String CUSTOM_SIGN_ID_PREFIX = "mtr_custom_sign_";
 
