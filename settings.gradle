@@ -11,4 +11,4 @@ include("common")
 include("fabric")
 include("forge")
 
-rootProject.name = "Minecraft Transit Railway"
+rootProject.name = "Minecraft-Transit-Railway"

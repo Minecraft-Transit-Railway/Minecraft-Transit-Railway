@@ -2,13 +2,13 @@ package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.UtilitiesClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainScheduleSensor;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
 import mtr.gui.*;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

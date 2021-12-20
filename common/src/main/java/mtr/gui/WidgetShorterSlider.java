@@ -1,8 +1,8 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.TextComponent;

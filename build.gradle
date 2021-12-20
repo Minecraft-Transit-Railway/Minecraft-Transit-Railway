@@ -62,14 +62,15 @@ subprojects {
 
 task downloadMappings(type: Download) {
     src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : "1.18"}.zip"
-    dest "common/src/main/java/minecraftmappings/files.zip"
+    dest "common/src/main/java/mtr/mappings/files.zip"
     overwrite true
 }
 
 task extractMappings(dependsOn: downloadMappings, type: Copy) {
     outputs.upToDateWhen { false }
-    from(zipTree("common/src/main/java/minecraftmappings/files.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
-    into "common/src/main/java/minecraftmappings"
+    from(zipTree("common/src/main/java/mtr/mappings/files.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+    into "common/src/main/java/mtr/mappings"
+    filter(ReplaceTokens, tokens: ["package": "mtr.mappings"])
 }
 
 task injectForge(dependsOn: extractMappings, type: Copy) {

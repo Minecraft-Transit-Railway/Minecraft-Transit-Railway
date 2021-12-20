@@ -1,7 +1,7 @@
 package mtr.data;
 
-import minecraftmappings.Utilities;
 import mtr.gui.ClientData;
+import mtr.mappings.Utilities;
 import mtr.model.TrainClientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

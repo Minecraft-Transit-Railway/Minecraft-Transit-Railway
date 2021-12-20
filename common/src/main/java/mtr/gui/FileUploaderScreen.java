@@ -1,9 +1,9 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
+import mtr.mappings.ScreenMapper;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 

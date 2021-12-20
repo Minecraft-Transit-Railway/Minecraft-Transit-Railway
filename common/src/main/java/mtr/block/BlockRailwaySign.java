@@ -1,9 +1,9 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityClientSerializableMapper;
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.EntityBlockMapper;
 import mtr.BlockEntityTypes;
+import mtr.mappings.BlockEntityClientSerializableMapper;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;

@@ -1,10 +1,10 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.PersistentStateMapper;
 import mtr.MTR;
 import mtr.block.BlockRail;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;

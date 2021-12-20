@@ -1,13 +1,13 @@
 package mtr;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.DeferredRegisterHolder;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.RegistryUtilities;
 import mtr.data.Depot;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.DeferredRegisterHolder;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.RegistryUtilities;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;

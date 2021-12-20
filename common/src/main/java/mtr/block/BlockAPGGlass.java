@@ -1,9 +1,9 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.EntityBlockMapper;
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

@@ -1,12 +1,12 @@
 package mtr.block;
 
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.TickableMapper;
-import minecraftmappings.Utilities;
 import mtr.BlockEntityTypes;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.TickableMapper;
+import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

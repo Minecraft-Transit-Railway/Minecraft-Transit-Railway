@@ -1,6 +1,6 @@
 package mtr;
 
-import minecraftmappings.RegistryUtilities;
+import mtr.mappings.RegistryUtilities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;

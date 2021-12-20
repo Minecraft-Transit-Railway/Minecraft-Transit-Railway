@@ -1,10 +1,10 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.Utilities;
 import mtr.TrigCache;
 import mtr.block.*;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.Utilities;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

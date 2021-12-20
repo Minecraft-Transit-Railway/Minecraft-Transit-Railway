@@ -1,8 +1,8 @@
 package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import minecraftmappings.ModelDataWrapper;
-import minecraftmappings.ModelMapper;
+import mtr.mappings.ModelDataWrapper;
+import mtr.mappings.ModelMapper;
 import mtr.render.MoreRenderLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;

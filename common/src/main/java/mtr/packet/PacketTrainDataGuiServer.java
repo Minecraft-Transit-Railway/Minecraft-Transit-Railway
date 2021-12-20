@@ -1,13 +1,13 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.Utilities;
 import mtr.block.BlockPIDSBase;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

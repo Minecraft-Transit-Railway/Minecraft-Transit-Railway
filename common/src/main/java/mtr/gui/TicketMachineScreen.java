@@ -1,10 +1,10 @@
 package mtr.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import minecraftmappings.ScreenMapper;
-import minecraftmappings.Utilities;
-import minecraftmappings.UtilitiesClient;
 import mtr.data.IGui;
+import mtr.mappings.ScreenMapper;
+import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;

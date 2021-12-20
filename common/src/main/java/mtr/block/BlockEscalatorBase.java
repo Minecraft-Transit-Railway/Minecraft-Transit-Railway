@@ -1,7 +1,7 @@
 package mtr.block;
 
-import minecraftmappings.HorizontalBlockWithSoftLanding;
 import mtr.Items;
+import mtr.mappings.HorizontalBlockWithSoftLanding;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;

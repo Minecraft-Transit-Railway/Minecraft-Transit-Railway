@@ -5,7 +5,7 @@ public class ModelKTrainSmall extends ModelKTrain {
 	public ModelKTrainSmall(boolean isTcl) {
 		super(isTcl);
 	}
-	
+
 	@Override
 	protected int[] getWindowPositions() {
 		return new int[]{-80, 0, 80};

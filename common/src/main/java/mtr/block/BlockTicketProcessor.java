@@ -1,8 +1,8 @@
 package mtr.block;
 
-import minecraftmappings.Utilities;
 import mtr.SoundEvents;
 import mtr.data.TicketSystem;
+import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

@@ -2,8 +2,8 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import minecraftmappings.ModelDataWrapper;
-import minecraftmappings.ModelMapper;
+import mtr.mappings.ModelDataWrapper;
+import mtr.mappings.ModelMapper;
 
 public class ModelSP1900 extends ModelTrainBase {
 

@@ -2,12 +2,12 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import minecraftmappings.BlockEntityMapper;
-import minecraftmappings.BlockEntityRendererMapper;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.data.*;
 import mtr.gui.ClientData;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;

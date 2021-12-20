@@ -1,8 +1,6 @@
 package mtr;
 
 import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
-import minecraftmappings.NetworkUtilities;
-import minecraftmappings.RegistryUtilitiesClient;
 import mtr.block.BlockPIDS1;
 import mtr.block.BlockPIDS2;
 import mtr.block.BlockPIDS3;
@@ -13,6 +11,8 @@ import mtr.data.*;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
 import mtr.item.ItemNodeModifierBase;
+import mtr.mappings.NetworkUtilities;
+import mtr.mappings.RegistryUtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
