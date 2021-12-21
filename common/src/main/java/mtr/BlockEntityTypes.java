@@ -15,7 +15,6 @@ public interface BlockEntityTypes {
 	BlockEntityType<BlockPIDS1.TileEntityBlockPIDS1> PIDS_1_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockPIDS1.TileEntityBlockPIDS1::new, Blocks.PIDS_1);
 	BlockEntityType<BlockPIDS2.TileEntityBlockPIDS2> PIDS_2_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockPIDS2.TileEntityBlockPIDS2::new, Blocks.PIDS_2);
 	BlockEntityType<BlockPIDS3.TileEntityBlockPIDS3> PIDS_3_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockPIDS3.TileEntityBlockPIDS3::new, Blocks.PIDS_3);
-	BlockEntityType<BlockRail.TileEntityRail> RAIL_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockRail.TileEntityRail::new, Blocks.RAIL);
 	BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_EVEN_TILE_ENTITY = RegistryUtilities.getBlockEntityType((pos, state) -> new BlockRailwaySign.TileEntityRailwaySign(2, false, pos, state), Blocks.RAILWAY_SIGN_2_EVEN);
 	BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_2_ODD_TILE_ENTITY = RegistryUtilities.getBlockEntityType((pos, state) -> new BlockRailwaySign.TileEntityRailwaySign(2, true, pos, state), Blocks.RAILWAY_SIGN_2_ODD);
 	BlockEntityType<BlockRailwaySign.TileEntityRailwaySign> RAILWAY_SIGN_3_EVEN_TILE_ENTITY = RegistryUtilities.getBlockEntityType((pos, state) -> new BlockRailwaySign.TileEntityRailwaySign(3, false, pos, state), Blocks.RAILWAY_SIGN_3_EVEN);

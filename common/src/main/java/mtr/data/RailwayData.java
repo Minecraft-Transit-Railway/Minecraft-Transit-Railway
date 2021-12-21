@@ -2,8 +2,8 @@ package mtr.data;
 
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
+import mtr.Registry;
 import mtr.block.BlockRail;
-import mtr.mappings.NetworkUtilities;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -172,7 +172,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				});
 
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_WRITE_RAILS, packet);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_WRITE_RAILS, packet);
 				}
 				playerLastUpdatedPositions.put(player, playerBlockPos);
 			}
@@ -217,7 +217,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 					}
 
 					if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-						NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_DELETE_TRAINS, packet);
+						Registry.sendToPlayer((ServerPlayer) player, PACKET_DELETE_TRAINS, packet);
 					}
 
 					break;
@@ -250,7 +250,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 					}
 				}
 
-				NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAINS, packet);
+				Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAINS, packet);
 			}
 		});
 
@@ -307,7 +307,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				});
 
 				if (packet.readableBytes() <= MAX_PACKET_BYTES) {
-					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_SCHEDULE, packet);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_SCHEDULE, packet);
 				}
 			}
 		}
@@ -353,7 +353,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		validateData();
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
-			world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
+			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
 		}
 	}
 
@@ -362,7 +362,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		validateData();
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
-			world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
+			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
 		}
 	}
 
@@ -607,7 +607,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (delete) {
 				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 				packet.writeLong(savedRailBase.id);
-				world.players().forEach(player -> NetworkUtilities.sendToPlayer((ServerPlayer) player, packetId, packet));
+				world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, packetId, packet));
 			}
 			return delete;
 		});

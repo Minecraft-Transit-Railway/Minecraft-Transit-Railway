@@ -2,12 +2,12 @@ package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import mtr.RegistryClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainScheduleSensor;
 import mtr.block.BlockTrainSensorBase;
 import mtr.data.*;
 import mtr.gui.*;
-import mtr.mappings.NetworkUtilities;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -180,7 +180,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void sendUpdate(ResourceLocation packetId, FriendlyByteBuf packet) {
-		NetworkUtilities.sendToServer(packetId, packet);
+		RegistryClient.sendToServer(packetId, packet);
 		ClientData.DATA_CACHE.sync();
 	}
 
@@ -197,7 +197,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		filterRouteIds.forEach(packet::writeLong);
 		packet.writeInt(number);
 		packet.writeUtf(string);
-		NetworkUtilities.sendToServer(PACKET_UPDATE_TRAIN_SENSOR, packet);
+		RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_SENSOR, packet);
 	}
 
 	public static void generatePathS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
@@ -214,14 +214,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void generatePathC2S(long sidingId) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(sidingId);
-		NetworkUtilities.sendToServer(PACKET_GENERATE_PATH, packet);
+		RegistryClient.sendToServer(PACKET_GENERATE_PATH, packet);
 	}
 
 	public static void clearTrainsC2S(Collection<Siding> sidings) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeInt(sidings.size());
 		sidings.forEach(siding -> packet.writeLong(siding.id));
-		NetworkUtilities.sendToServer(PACKET_CLEAR_TRAINS, packet);
+		RegistryClient.sendToServer(PACKET_CLEAR_TRAINS, packet);
 	}
 
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
@@ -233,14 +233,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		for (final String signType : signIds) {
 			packet.writeUtf(signType == null ? "" : signType);
 		}
-		NetworkUtilities.sendToServer(PACKET_SIGN_TYPES, packet);
+		RegistryClient.sendToServer(PACKET_SIGN_TYPES, packet);
 	}
 
 	public static void addBalanceC2S(int addAmount, int emeralds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeInt(addAmount);
 		packet.writeInt(emeralds);
-		NetworkUtilities.sendToServer(PACKET_ADD_BALANCE, packet);
+		RegistryClient.sendToServer(PACKET_ADD_BALANCE, packet);
 	}
 
 	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival) {
@@ -252,6 +252,6 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeUtf(messages[i]);
 			packet.writeBoolean(hideArrival[i]);
 		}
-		NetworkUtilities.sendToServer(PACKET_PIDS_UPDATE, packet);
+		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
 	}
 }

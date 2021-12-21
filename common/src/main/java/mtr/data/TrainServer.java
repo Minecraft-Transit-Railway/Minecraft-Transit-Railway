@@ -1,9 +1,9 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
+import mtr.Registry;
 import mtr.TrigCache;
 import mtr.block.*;
-import mtr.mappings.NetworkUtilities;
 import mtr.mappings.Utilities;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -83,7 +83,7 @@ public class TrainServer extends Train {
 					packet.writeLong(id);
 					packet.writeFloat((float) (positionRotated.x / baseTrainType.width + 0.5));
 					packet.writeFloat((float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
-					NetworkUtilities.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
 				}
 			});
 		}
