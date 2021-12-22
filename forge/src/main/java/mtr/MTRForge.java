@@ -55,8 +55,8 @@ public class MTRForge {
 		BLOCK_ENTITY_TYPES.register(path, () -> blockEntityType);
 	}
 
-	private static void registerSoundEvent(String path, SoundEvent soundEvent) {
-		SOUND_EVENTS.register(path, () -> soundEvent);
+	private static void registerSoundEvent(SoundEvent soundEvent) {
+		SOUND_EVENTS.register(soundEvent.getLocation().getPath(), () -> soundEvent);
 	}
 
 	private static class MTRForgeRegistry {

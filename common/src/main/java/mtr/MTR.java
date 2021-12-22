@@ -9,9 +9,6 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.CreativeModeTab;
@@ -32,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MTR implements IPacket {
 
@@ -44,7 +42,7 @@ public class MTR implements IPacket {
 			BiConsumer<String, Block> registerBlock,
 			RegisterBlockItem registerBlockItem,
 			BiConsumer<String, BlockEntityType<? extends BlockEntityMapper>> registerBlockEntityType,
-			BiConsumer<String, SoundEvent> registerSoundEvent
+			Consumer<SoundEvent> registerSoundEvent
 	) {
 		registerItem.accept("apg_door", Items.APG_DOOR);
 		registerItem.accept("apg_glass", Items.APG_GLASS);
@@ -273,13 +271,13 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_redstone_sensor", BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
-		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
-		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
-		registerSoundEvent.accept("ticket_processor_entry", SoundEvents.TICKET_PROCESSOR_ENTRY);
-		registerSoundEvent.accept("ticket_processor_entry_concessionary", SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
-		registerSoundEvent.accept("ticket_processor_exit", SoundEvents.TICKET_PROCESSOR_EXIT);
-		registerSoundEvent.accept("ticket_processor_exit_concessionary", SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
-		registerSoundEvent.accept("ticket_processor_fail", SoundEvents.TICKET_PROCESSOR_FAIL);
+		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER);
+		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER_CONCESSIONARY);
+		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY);
+		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
+		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT);
+		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
+		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_FAIL);
 
 		Registry.registerNetworkReceiver(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
 		Registry.registerNetworkReceiver(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
@@ -376,10 +374,5 @@ public class MTR implements IPacket {
 	@FunctionalInterface
 	public interface RegisterBlockItem {
 		void accept(String string, Block block, CreativeModeTab tab);
-	}
-
-	@FunctionalInterface
-	public interface SendToPlayer {
-		void sendToPlayer(ServerPlayer player, ResourceLocation id, FriendlyByteBuf packet);
 	}
 }

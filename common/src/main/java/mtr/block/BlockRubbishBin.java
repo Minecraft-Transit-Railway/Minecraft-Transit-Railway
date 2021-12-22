@@ -35,8 +35,8 @@ public class BlockRubbishBin extends HorizontalDirectionalBlock {
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return super.getShape(blockState, blockGetter, blockPos, collisionContext);
+	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.getValue(FACING));
 	}
 
 	@Override

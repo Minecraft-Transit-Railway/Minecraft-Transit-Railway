@@ -35,7 +35,7 @@ public class MTRFabric implements ModInitializer {
 		Registry.register(Registry.BLOCK_ENTITY_TYPE, new ResourceLocation(MTR.MOD_ID, path), blockEntityType);
 	}
 
-	private static void registerSoundEvent(String path, SoundEvent soundEvent) {
-		Registry.register(Registry.SOUND_EVENT, new ResourceLocation(MTR.MOD_ID, path), soundEvent);
+	private static void registerSoundEvent(SoundEvent soundEvent) {
+		Registry.register(Registry.SOUND_EVENT, soundEvent.getLocation(), soundEvent);
 	}
 }
