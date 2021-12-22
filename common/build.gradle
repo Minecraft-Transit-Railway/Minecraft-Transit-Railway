@@ -1,8 +1,23 @@
+plugins {
+	id "maven-publish"
+}
+
 dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 	modApi "${rootProject.architectury_id}:architectury:${rootProject.architectury_version}"
 }
 
+archivesBaseName = rootProject.archives_base_name
+
 architectury {
 	common()
+}
+
+publishing {
+	publications {
+		mavenCommon(MavenPublication) {
+			artifactId = rootProject.archives_base_name
+			from components.java
+		}
+	}
 }
