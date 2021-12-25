@@ -89,6 +89,23 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 		rename "(.+)Template.java", "\$1.java"
 	}
+
+	if (is_1_16 || is_1_17) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "fabric/src/main/BlockEntityExtensionTemplate.java"
+			into "fabric/src/main/java/" + (is_1_16 ? "me/shedaniel" : "dev") + "/architectury/extensions"
+			filter(ReplaceTokens, tokens: ["package": is_1_16 ? "me.shedaniel" : "dev"])
+			rename "(.+)Template.java", "\$1.java"
+		}
+	}
+
+	if (!is_1_16) {
+		ant.delete(dir: "fabric/src/main/java/me")
+	}
+	if (!is_1_17) {
+		ant.delete(dir: "fabric/src/main/java/dev")
+	}
 }
 
 allprojects {
