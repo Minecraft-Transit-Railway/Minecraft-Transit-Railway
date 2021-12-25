@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Railway System Map</title>
+	<link rel="stylesheet" href="index.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+TC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+SC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="icon" type="image/png" href="../../../../../../../forge/src/main/resources/icon.png"/>
+	<script src="https://pixijs.download/release/pixi.js"></script>
+	<script type="module" src="index.js"></script>
+	<script type="module" src="drawing.js"></script>
+	<script type="module" src="utilities.js"></script>
+</head>
+<body>
+<div id="loading" class="material-icons">refresh</div>
+<div id="search" class="box">
+	<div id="search_top">
+		<span class="material-icons">search</span>
+		<label for="search_box">Search</label>
+		<input id="search_box" class="text" type="text"/>
+		<span id="clear_search_icon" class="material-icons clickable_icon right_align"></span>
+		<span id="zoom_in_icon" class="material-icons clickable_icon right_align">zoom_in</span>
+		<span id="zoom_out_icon" class="material-icons clickable_icon right_align">zoom_out</span>
+		<span id="toggle_dimension_icon" class="material-icons clickable_icon right_align settings" style="display: none">public</span>
+		<span id="toggle_route_type_icon" class="material-icons clickable_icon right_align settings" style="display: none">tram</span>
+		<span id="toggle_text_icon" class="material-icons clickable_icon right_align settings" style="display: none">font_download_off</span>
+		<span id="toggle_theme_icon" class="material-icons clickable_icon right_align settings" style="display: none"></span>
+		<span id="download_icon" class="material-icons clickable_icon right_align settings" style="display: none">download</span>
+		<span id="settings_icon" class="material-icons clickable_icon right_align">settings</span>
+	</div>
+	<div id="search_results_stations" class="search_results"></div>
+	<div id="search_results_routes" class="search_results"></div>
+	<div id="station_info" class="search_results" style="display: none">
+		<div id="station_info_top">
+			<span class="material-icons right_align" style="opacity: 0">clear</span>
+			<div id="station_name" class="text"></div>
+			<span id="clear_station_info_button" class="material-icons clickable_icon right_align">clear</span>
+		</div>
+		<div id="station_line"></div>
+		<div id="station_routes"></div>
+	</div>
+</div>
+</body>
+</html>
