@@ -15,7 +15,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {
-		super(pos, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableComponent("gui.mtr.train_schedule_sensor"));
+		super(pos, false, new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableComponent("gui.mtr.train_schedule_sensor"));
 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {

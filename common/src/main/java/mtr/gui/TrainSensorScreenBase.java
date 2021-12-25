@@ -22,15 +22,21 @@ import java.util.*;
 
 public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui, IPacket {
 
+	private boolean stoppedOnly;
+	private boolean movingOnly;
+
 	protected final BlockPos pos;
 	protected final WidgetBetterTextField textField;
 
 	private final Set<Long> filterRouteIds;
 	private final Component textFieldLabel;
+	private final WidgetBetterCheckbox stoppedOnlyCheckbox;
+	private final WidgetBetterCheckbox movingOnlyCheckbox;
 	private final Button filterButton;
+	private final boolean hasSpeedCheckboxes;
 	private final int yStart;
 
-	public TrainSensorScreenBase(BlockPos pos, WidgetBetterTextField textField, Component textFieldLabel) {
+	public TrainSensorScreenBase(BlockPos pos, boolean hasSpeedCheckboxes, WidgetBetterTextField textField, Component textFieldLabel) {
 		super(new TextComponent(""));
 		this.pos = pos;
 		this.textField = textField;
@@ -41,8 +47,17 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			filterRouteIds = new HashSet<>();
 		} else {
 			final BlockEntity entity = world.getBlockEntity(pos);
-			filterRouteIds = entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase ? ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getRouteIds() : new HashSet<>();
+			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
+				filterRouteIds = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getRouteIds();
+				stoppedOnly = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getStoppedOnly();
+				movingOnly = ((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).getMovingOnly();
+			} else {
+				filterRouteIds = new HashSet<>();
+			}
 		}
+
+		stoppedOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stopped_only"), checked -> setChecked(checked, movingOnly));
+		movingOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.moving_only"), checked -> setChecked(stoppedOnly, checked));
 
 		filterButton = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> {
 			if (minecraft != null) {
@@ -52,16 +67,27 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			}
 		});
 
-		yStart = textField == null ? SQUARE_SIZE : SQUARE_SIZE * 4 + TEXT_FIELD_PADDING;
+		this.hasSpeedCheckboxes = hasSpeedCheckboxes;
+		yStart = (textField == null ? SQUARE_SIZE : SQUARE_SIZE * 4 + TEXT_FIELD_PADDING) + (hasSpeedCheckboxes ? 2 * SQUARE_SIZE : 0);
 	}
 
 	@Override
 	protected void init() {
 		super.init();
+
 		if (textField != null) {
 			IDrawing.setPositionAndWidth(textField, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
 			addDrawableChild(textField);
 		}
+
+		if (hasSpeedCheckboxes) {
+			IDrawing.setPositionAndWidth(stoppedOnlyCheckbox, SQUARE_SIZE, yStart - SQUARE_SIZE * 2, PANEL_WIDTH);
+			IDrawing.setPositionAndWidth(movingOnlyCheckbox, SQUARE_SIZE, yStart - SQUARE_SIZE, PANEL_WIDTH);
+			addDrawableChild(stoppedOnlyCheckbox);
+			addDrawableChild(movingOnlyCheckbox);
+			setChecked(stoppedOnly, movingOnly);
+		}
+
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, yStart + SQUARE_SIZE * 2, PANEL_WIDTH / 2);
 		filterButton.setMessage(new TranslatableComponent("selectWorld.edit"));
 		addDrawableChild(filterButton);
@@ -99,7 +125,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendTrainSensorC2S(pos, filterRouteIds, getNumber(), getString());
+		PacketTrainDataGuiClient.sendTrainSensorC2S(pos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), getString());
 		super.onClose();
 	}
 
@@ -114,5 +140,20 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 
 	protected String getString() {
 		return "";
+	}
+
+	private void setChecked(boolean newStoppedOnly, boolean newMovingOnly) {
+		if (newMovingOnly && stoppedOnly) {
+			stoppedOnly = false;
+		} else {
+			stoppedOnly = newStoppedOnly;
+		}
+		if (newStoppedOnly && movingOnly) {
+			movingOnly = false;
+		} else {
+			movingOnly = newMovingOnly;
+		}
+		stoppedOnlyCheckbox.setChecked(stoppedOnly);
+		movingOnlyCheckbox.setChecked(movingOnly);
 	}
 }

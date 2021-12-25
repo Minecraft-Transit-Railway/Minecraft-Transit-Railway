@@ -125,12 +125,12 @@ public class TrainServer extends Train {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
 
-				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
 					world.setBlockAndUpdate(checkPos, state.setValue(BlockTrainRedstoneSensor.POWERED, true));
 					Utilities.scheduleBlockTick(world, checkPos, block, 20);
 				}
 
-				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
 					for (final Direction direction : Direction.values()) {
 						final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
 						if (nearbyInventory != null) {
@@ -148,7 +148,7 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId)) {
+					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId, speed)) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUUID(uuid)));
 					}
 				}

@@ -14,7 +14,7 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 	private static final int MAX_MESSAGE_LENGTH = 256;
 
 	public TrainAnnouncerScreen(BlockPos pos) {
-		super(pos, new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message"));
+		super(pos, true, new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message"));
 
 		final Level world = Minecraft.getInstance().level;
 		if (world != null) {

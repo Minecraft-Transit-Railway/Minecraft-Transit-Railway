@@ -94,9 +94,9 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
 			seconds = number;
-			setData(filterRouteIds);
+			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
 		public int getSeconds() {
@@ -129,7 +129,7 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 
 				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
 				schedules.forEach(scheduleEntry -> {
-					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId)) {
+					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId, -1)) {
 						scheduleList.add(scheduleEntry);
 					}
 				});

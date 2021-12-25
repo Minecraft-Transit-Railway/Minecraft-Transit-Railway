@@ -44,9 +44,9 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
 			message = string;
-			setData(filterRouteIds);
+			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
 		public String getMessage() {

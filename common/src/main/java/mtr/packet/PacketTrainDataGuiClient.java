@@ -190,11 +190,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		sendUpdate(packetId, packet);
 	}
 
-	public static void sendTrainSensorC2S(BlockPos pos, Set<Long> filterRouteIds, int number, String string) {
+	public static void sendTrainSensorC2S(BlockPos pos, Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
 		packet.writeInt(filterRouteIds.size());
 		filterRouteIds.forEach(packet::writeLong);
+		packet.writeBoolean(stoppedOnly);
+		packet.writeBoolean(movingOnly);
 		packet.writeInt(number);
 		packet.writeUtf(string);
 		RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_SENSOR, packet);

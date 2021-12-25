@@ -200,12 +200,14 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		for (int i = 0; i < filterLength; i++) {
 			filterIds.add(packet.readLong());
 		}
+		final boolean stoppedOnly = packet.readBoolean();
+		final boolean movingOnly = packet.readBoolean();
 		final int number = packet.readInt();
 		final String string = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
-				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, number, string);
+				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, stoppedOnly, movingOnly, number, string);
 			}
 		});
 	}
