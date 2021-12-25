@@ -1,0 +1,84 @@
+package mtr.data;
+
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.util.function.Consumer;
+
+public final class Platform extends SavedRailBase {
+
+	private int dwellTime;
+
+	public static final int MAX_DWELL_TIME = 120;
+	private static final int DEFAULT_DWELL_TIME = 20;
+	private static final String KEY_DWELL_TIME = "dwell_time";
+
+	public Platform(long id, BlockPos pos1, BlockPos pos2) {
+		super(id, pos1, pos2);
+		dwellTime = DEFAULT_DWELL_TIME;
+	}
+
+	public Platform(BlockPos pos1, BlockPos pos2) {
+		super(pos1, pos2);
+		dwellTime = DEFAULT_DWELL_TIME;
+	}
+
+	public Platform(CompoundTag compoundTag) {
+		super(compoundTag);
+		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
+	}
+
+	public Platform(FriendlyByteBuf packet) {
+		super(packet);
+		dwellTime = packet.readInt();
+	}
+
+	@Override
+	public CompoundTag toCompoundTag() {
+		final CompoundTag compoundTag = super.toCompoundTag();
+		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
+		return compoundTag;
+	}
+
+	@Override
+	public void writePacket(FriendlyByteBuf packet) {
+		super.writePacket(packet);
+		packet.writeInt(dwellTime);
+	}
+
+	@Override
+	public void update(String key, FriendlyByteBuf packet) {
+		if (KEY_DWELL_TIME.equals(key)) {
+			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
+			color = packet.readInt();
+			dwellTime = packet.readInt();
+		} else {
+			super.update(key, packet);
+		}
+	}
+
+	public int getDwellTime() {
+		if (dwellTime <= 0 || dwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
+		}
+		return dwellTime;
+	}
+
+	public void setDwellTime(int newDwellTime, Consumer<FriendlyByteBuf> sendPacket) {
+		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
+			dwellTime = DEFAULT_DWELL_TIME;
+		} else {
+			dwellTime = newDwellTime;
+		}
+
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		packet.writeUtf(KEY_DWELL_TIME);
+		packet.writeUtf(name);
+		packet.writeInt(color);
+		packet.writeInt(dwellTime);
+		sendPacket.accept(packet);
+	}
+}

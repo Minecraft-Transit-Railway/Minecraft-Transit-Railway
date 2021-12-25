@@ -1,6 +1,6 @@
 # Minecraft Transit Railway 3.0
 
-_Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.gamepedia.com/Mods) based on the Hong Kong [MTR](https://en.wikipedia.org/wiki/MTR) and other train systems around the world. It adds trains into the game along with other miscellaneous blocks and items. With this mod, it is possible to build a fully functional railway system in your world!
+_Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.gamepedia.com/Mods) based on Hong Kong's MTR, the London Underground, and the New York Subway. It adds trains into the game along with other miscellaneous blocks and items. With this mod, it is possible to build a fully functional railway system in your world!
 
 [![Video Trailer](https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/video-preview.png)](https://www.youtube.com/watch?v=1cZfU7t4cAk)
 
@@ -35,18 +35,16 @@ Crowdin is a cloud-based platform for translators to contribute to a project. Wi
 
 ### Building
 
-**NOTE: JDK 16+ is required to build on the 1.17 branch**
-
 To build the mod, run the following command in the root directory of the project:
 
 ```
-gradlew build
+gradlew build -PbuildVersion=<minecraft version>
 ```
 
 The mod jar file should be generated in the following directory:
 
 ```
-<root>/build/libs/MTR-<file>.jar
+<root>/build/libs/Minecraft-Transit-Railway-<minecraft version>-<mod version>.jar
 ```
 
 ## License
