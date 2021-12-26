@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "mtr.mixin",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+	],
+	"client": [
+		"UnknownPacketMixin"
+	],
+	"server": [],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

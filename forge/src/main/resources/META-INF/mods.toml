@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+license = "MIT"
+
+[[mods]]
+modId = "mtr"
+version = "${version}"
+displayName = "Minecraft Transit Railway"
+authors = "Jonathan Ho"
+description = "A Minecraft mod that adds automated train systems into the game."
+logoFile = "icon.png"
+
+[[dependencies.mtr]]
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mtr]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mtr]]
+modId = "architectury"
+mandatory = true
+versionRange = "[1.26.37,)"
+ordering = "AFTER"
+side = "BOTH"

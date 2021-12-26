@@ -21,16 +21,29 @@ jobs:
       - name: Make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      - name: Build 1.16
-        run: ./gradlew build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.17
-        run: ./gradlew build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.18
+      - name: Build 1.16 Fabric
+        run: ./gradlew fabric:build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build 1.16 Forge
+        run: ./gradlew forge:build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build 1.17 Fabric
+        run: ./gradlew fabric:build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build 1.17 Forge
+        run: ./gradlew forge:build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build 1.18 Fabric
         if: ${{ matrix.java == '17' }}
-        run: ./gradlew build -PbuildVersion="1.18.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Capture build artifacts
+        run: ./gradlew fabric:build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build 1.18 Forge
+        if: ${{ matrix.java == '17' }}
+        run: ./gradlew forge:build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Capture Fabric build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts
-          path: build/libs/
+          name: Artifacts Fabric
+          path: fabric/build/libs/
+      - name: Capture Forge build artifacts
+        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts Forge
+          path: forge/build/libs/
