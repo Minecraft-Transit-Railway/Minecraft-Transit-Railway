@@ -2,6 +2,8 @@ package mtr.gui;
 
 import mtr.data.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +21,9 @@ public class ClientCache extends DataCache {
 	private final List<Long> clearStationIdToPlatforms = new ArrayList<>();
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
+	private final List<String> clearRouteMaps = new ArrayList<>();
+
+	private final Map<String, ResourceLocation> routeMaps = new HashMap<>();
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -53,6 +58,11 @@ public class ClientCache extends DataCache {
 		platformIdToRoutes.keySet().forEach(id -> {
 			if (!clearPlatformIdToRoutes.contains(id)) {
 				clearPlatformIdToRoutes.add(id);
+			}
+		});
+		routeMaps.keySet().forEach(id -> {
+			if (!clearRouteMaps.contains(id)) {
+				clearRouteMaps.add(id);
 			}
 		});
 	}
@@ -98,6 +108,20 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
+	public ResourceLocation getRouteMap(long platformId, boolean flip) {
+		final String key = String.valueOf(platformId) + flip;
+		if (routeMaps.containsKey(key)) {
+			return routeMaps.get(key);
+		} else {
+			final ResourceLocation identifier = RouteMapGenerator.generate(routes.stream().map(route -> {
+				final int currentIndex = route.platformIds.indexOf(platformId);
+				return currentIndex >= 0 && currentIndex + 1 < route.platformIds.size() ? new Tuple<>(route, route.platformIds.indexOf(platformId)) : null;
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
+			routeMaps.put(key, identifier);
+			return identifier;
+		}
+	}
+
 	public void clearDataIfNeeded() {
 		if (!clearStationIdToPlatforms.isEmpty()) {
 			stationIdToPlatforms.remove(clearStationIdToPlatforms.remove(0));
@@ -107,6 +131,9 @@ public class ClientCache extends DataCache {
 		}
 		if (!clearPlatformIdToRoutes.isEmpty()) {
 			platformIdToRoutes.remove(clearPlatformIdToRoutes.remove(0));
+		}
+		if (!clearRouteMaps.isEmpty()) {
+			routeMaps.remove(clearRouteMaps.remove(0));
 		}
 	}
 
