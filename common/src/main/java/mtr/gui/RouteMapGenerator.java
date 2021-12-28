@@ -9,15 +9,16 @@ import mtr.data.Station;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 
 import java.util.*;
 
 public class RouteMapGenerator implements IGui {
 
-	private static final int SCALE = 32;
+	private static final int SCALE = 128;
+	private static final int LINE_HEIGHT = SCALE / 8;
 	private static final int PADDING = 1;
-	private static final float LINE_OFFSET = 1F / 8;
 
 	public static ResourceLocation generate(List<Tuple<Route, Integer>> routeDetails) {
 		final int routeCount = routeDetails.size();
@@ -40,11 +41,10 @@ public class RouteMapGenerator implements IGui {
 					final Tuple<Route, Integer> routeDetail = routeDetails.get(routeIndex);
 					final List<Long> platformIds = routeDetail.getA().platformIds;
 					final int currentIndex = routeDetail.getB();
-					for (int stationindex = 0; stationindex < platformIds.size(); stationindex++) {
-						if (stationindex != currentIndex) {
-							final Station station = ClientData.DATA_CACHE.platformIdToStation.get(platformIds.get(stationindex));
-							final long stationId = station == null ? -1 : station.id;
-							if (stationindex < currentIndex) {
+					for (int stationIndex = 0; stationIndex < platformIds.size(); stationIndex++) {
+						if (stationIndex != currentIndex) {
+							final long stationId = getStationId(platformIds.get(stationIndex));
+							if (stationIndex < currentIndex) {
 								stationsIdsBefore.get(stationsIdsBefore.size() - 1).add(0, stationId);
 							} else {
 								stationsIdsAfter.get(stationsIdsAfter.size() - 1).add(stationId);
@@ -76,24 +76,35 @@ public class RouteMapGenerator implements IGui {
 				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
 				nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
 
+				final Map<Long, Map<StationPosition, Boolean>> stationPositionsGrouped = new HashMap<>();
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
 					final Route route = routeDetails.get(routeIndex).getA();
 					final int currentIndex = routeDetails.get(routeIndex).getB();
 					final Map<Integer, StationPosition> routeStationPositions = stationPositions.get(routeIndex);
 
-					for (int stationIndex = 0; stationIndex < route.platformIds.size() - 1; stationIndex++) {
-						final StationPosition stationPosition1 = routeStationPositions.get(stationIndex - currentIndex);
-						final StationPosition stationPosition2 = routeStationPositions.get(stationIndex + 1 - currentIndex);
-						drawLine(nativeImage, stationPosition1, stationPosition2, xOffset, yOffset, route.color);
-					}
+					for (int stationIndex = 0; stationIndex < route.platformIds.size(); stationIndex++) {
+						final StationPosition stationPosition = routeStationPositions.get(stationIndex - currentIndex);
+						if (stationIndex < route.platformIds.size() - 1) {
+							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : route.color);
+						}
 
-					routeStationPositions.forEach((stationOffsetIndex, stationPosition) -> {
+						final long stationId = getStationId(route.platformIds.get(stationIndex));
+						if (!stationPositionsGrouped.containsKey(stationId)) {
+							stationPositionsGrouped.put(stationId, new HashMap<>());
+						}
+						if (!stationPosition.isCommon || stationPositionsGrouped.get(stationId).keySet().stream().noneMatch(stationPosition2 -> stationPosition2.isCommon)) {
+							stationPositionsGrouped.get(stationId).put(stationPosition, stationIndex < currentIndex);
+						}
+					}
+				}
+
+				stationPositionsGrouped.forEach((stationId, stationPositionGrouped) -> {
+					stationPositionGrouped.forEach((stationPosition, passed) -> {
 						final int x = Math.round((stationPosition.x + xOffset) * SCALE);
 						final int y = Math.round((stationPosition.y + yOffset) * SCALE);
-						final int color = getColor(route.platformIds.get(stationOffsetIndex + currentIndex));
-						nativeImage.fillRect(x - 2, y - 2, 4, 4, color);
+						drawStation(nativeImage, x, y, stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0, passed);
 					});
-				}
+				});
 
 				return Minecraft.getInstance().getTextureManager().register(MTR.MOD_ID, new DynamicTexture(nativeImage));
 			} catch (Exception e) {
@@ -165,12 +176,12 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static float getLineOffset(int routeIndex, int[] colorIndices) {
-		return LINE_OFFSET * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
+		return LINE_HEIGHT * 1.5F / SCALE * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
 	}
 
-	private static int getColor(long platformId) {
+	private static long getStationId(long platformId) {
 		final Station station = ClientData.DATA_CACHE.platformIdToStation.get(platformId);
-		return formatColor(station == null ? ARGB_BLACK : (station.color | ARGB_BLACK));
+		return station == null ? -1 : station.id;
 	}
 
 	private static void drawLine(NativeImage nativeImage, StationPosition stationPosition1, StationPosition stationPosition2, float xOffset, float yOffset, int color) {
@@ -178,10 +189,65 @@ public class RouteMapGenerator implements IGui {
 		final int x2 = Math.round((stationPosition2.x + xOffset) * SCALE);
 		final int y1 = Math.round((stationPosition1.y + yOffset) * SCALE);
 		final int y2 = Math.round((stationPosition2.y + yOffset) * SCALE);
+		final int xChange = x2 - x1;
+		final int yChange = y2 - y1;
+		final int xChangeAbs = Math.abs(xChange);
+		final int yChangeAbs = Math.abs(yChange);
+		final int changeDifference = Math.abs(yChangeAbs - xChangeAbs);
 
-		final int steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
-		for (int i = 0; i < steps; i++) {
-			drawPixelSafe(nativeImage, x1 + (x2 - x1) * i / steps, y1 + (y2 - y1) * i / steps, color);
+		if (xChangeAbs > yChangeAbs) {
+			final boolean y1OffsetGreater = Math.abs(y1 - yOffset * SCALE) > Math.abs(y2 - yOffset * SCALE);
+			drawLine(nativeImage, x1, y1, x2 - x1, y1OffsetGreater ? 0 : y2 - y1, y1OffsetGreater ? changeDifference : yChangeAbs, color);
+			drawLine(nativeImage, x2, y2, x1 - x2, y1OffsetGreater ? y1 - y2 : 0, y1OffsetGreater ? yChangeAbs : changeDifference, color);
+		} else {
+			final int halfXChangeAbs = xChangeAbs / 2;
+			drawLine(nativeImage, x1, y1, x2 - x1, y2 - y1, halfXChangeAbs, color);
+			drawLine(nativeImage, x2, y2, x1 - x2, y1 - y2, halfXChangeAbs, color);
+			drawLine(nativeImage, (x1 + x2) / 2, y1 + (int) Math.copySign(halfXChangeAbs, y2 - y1), 0, y2 - y1, changeDifference, color);
+		}
+	}
+
+	private static void drawLine(NativeImage nativeImage, int x, int y, int directionX, int directionY, int length, int color) {
+		final int halfLineHeight = LINE_HEIGHT / 2;
+		final int xWidth = directionX == 0 ? halfLineHeight : 0;
+		final int yWidth = directionX == 0 ? 0 : directionY == 0 ? halfLineHeight : Math.round(LINE_HEIGHT * Mth.SQRT_OF_TWO / 2);
+		final int yMin = y - halfLineHeight - (directionY < 0 ? length : 0) + 1;
+		final int yMax = y + halfLineHeight + (directionY > 0 ? length : 0) - 1;
+		final int drawOffset = directionX != 0 && directionY != 0 ? halfLineHeight : 0;
+
+		for (int i = -drawOffset; i < Math.abs(length) + drawOffset; i++) {
+			final int drawX = x + (directionX == 0 ? 0 : (int) Math.copySign(i, directionX)) + (directionX < 0 ? -1 : 0);
+			final int drawY = y + (directionY == 0 ? 0 : (int) Math.copySign(i, directionY)) + (directionY < 0 ? -1 : 0);
+
+			for (int xOffset = 0; xOffset < xWidth; xOffset++) {
+				drawPixelSafe(nativeImage, drawX - xOffset - 1, drawY, color);
+				drawPixelSafe(nativeImage, drawX + xOffset, drawY, color);
+			}
+
+			for (int yOffset = 0; yOffset < yWidth; yOffset++) {
+				drawPixelSafe(nativeImage, drawX, Math.max(drawY - yOffset, yMin) - 1, color);
+				drawPixelSafe(nativeImage, drawX, Math.min(drawY + yOffset, yMax), color);
+			}
+		}
+	}
+
+	private static void drawStation(NativeImage nativeImage, int x, int y, int lines, boolean passed) {
+		for (int offsetX = -LINE_HEIGHT; offsetX < LINE_HEIGHT; offsetX++) {
+			for (int offsetY = -LINE_HEIGHT; offsetY < LINE_HEIGHT; offsetY++) {
+				final int extraOffsetY = offsetY > 0 ? lines * LINE_HEIGHT * 3 / 2 : 0;
+				final int repeatDraw = offsetY == 0 ? lines * LINE_HEIGHT * 3 / 2 : 0;
+				final double squareSum = (offsetX + 0.5) * (offsetX + 0.5) + (offsetY + 0.5) * (offsetY + 0.5);
+
+				if (squareSum <= 0.5 * LINE_HEIGHT * LINE_HEIGHT) {
+					for (int i = 0; i <= repeatDraw; i++) {
+						drawPixelSafe(nativeImage, x + offsetX, y + offsetY + extraOffsetY + i, ARGB_WHITE);
+					}
+				} else if (squareSum <= LINE_HEIGHT * LINE_HEIGHT) {
+					for (int i = 0; i <= repeatDraw; i++) {
+						drawPixelSafe(nativeImage, x + offsetX, y + offsetY + extraOffsetY + i, passed ? ARGB_LIGHT_GRAY : ARGB_BLACK);
+					}
+				}
+			}
 		}
 	}
 
