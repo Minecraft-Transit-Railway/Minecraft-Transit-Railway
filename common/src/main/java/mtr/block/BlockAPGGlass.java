@@ -25,7 +25,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		final double y = blockHitResult.getBlockPos().getY();
+		final double y = blockHitResult.getLocation().y;
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && y - (int) y > 0.21875) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
 				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));

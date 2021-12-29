@@ -127,7 +127,7 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean flip) {
+	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean flip, int aspectRatio) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (fontSmall == null || fontBig == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -141,7 +141,7 @@ public class ClientCache extends DataCache {
 			}
 		}
 
-		final String key = String.valueOf(platformId) + flip;
+		final String key = String.valueOf(platformId) + renderWhite + flip + aspectRatio;
 		if (routeMaps.containsKey(key)) {
 			return routeMaps.get(key);
 		} else {
@@ -152,7 +152,7 @@ public class ClientCache extends DataCache {
 					final DynamicTexture dynamicTexture = RouteMapGenerator.generate(routes.stream().map(route -> {
 						final int currentIndex = route.platformIds.indexOf(platformId);
 						return currentIndex >= 0 && currentIndex + 1 < route.platformIds.size() ? new Tuple<>(route, route.platformIds.indexOf(platformId)) : null;
-					}).filter(Objects::nonNull).collect(Collectors.toList()));
+					}).filter(Objects::nonNull).collect(Collectors.toList()), renderWhite, flip, aspectRatio);
 					minecraftClient.execute(() -> {
 						routeMaps.put(key, dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture));
 						canGenerateRouteMap = true;
@@ -164,7 +164,7 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	public byte[] getTextPixels(String text, int[] dimensions, IGui.HorizontalAlignment horizontalAlignment) {
+	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, IGui.HorizontalAlignment horizontalAlignment) {
 		final String[] textSplit = IGui.textOrUntitled(text).split("\\|");
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
 		final int[] textWidths = new int[textSplit.length];
@@ -189,7 +189,7 @@ public class ClientCache extends DataCache {
 				attributedStrings[row].addAttribute(TextAttribute.FONT, (useFallback ? fallbackFont : mainFont), characterIndex, characterIndex + 1);
 			}
 
-			width = Math.max(width, textWidths[row]);
+			width = Math.max(width, Math.min(maxWidth, textWidths[row]));
 			height += fontSizes[row] * LINE_HEIGHT_MULTIPLIER;
 		}
 
@@ -199,7 +199,11 @@ public class ClientCache extends DataCache {
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		for (int row = 0; row < textSplit.length; row++) {
-			graphics2D.drawString(attributedStrings[row].getIterator(), horizontalAlignment.getOffset(0, textWidths[row] - width) + padding, yTextOffset + fontSizes[row] + padding);
+			final int textWidth = Math.min(maxWidth, textWidths[row]);
+			final AffineTransform stretch = new AffineTransform();
+			stretch.concatenate(AffineTransform.getScaleInstance((float) textWidth / textWidths[row], 1));
+			graphics2D.setTransform(stretch);
+			graphics2D.drawString(attributedStrings[row].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding, yTextOffset + fontSizes[row] + padding);
 			yTextOffset += fontSizes[row] * LINE_HEIGHT_MULTIPLIER;
 		}
 

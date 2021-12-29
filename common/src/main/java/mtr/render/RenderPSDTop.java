@@ -16,7 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
+public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> {
 
 	private static final float END_FRONT_OFFSET = 1 / (Mth.SQRT_OF_TWO * 16);
 	private static final float BOTTOM_DIAGONAL_OFFSET = ((float) Math.sqrt(3) - 1) / 32;
@@ -26,42 +26,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	private static final float COLOR_STRIP_END = 0.9375F;
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
-
-	@Override
-	protected float getZ() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getSidePadding() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getBottomPadding() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getTopPadding() {
-		return 0.5F;
-	}
-
-	@Override
-	protected int getBaseScale() {
-		return 320;
-	}
-
-	@Override
-	protected boolean isLeft(BlockState state) {
-		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.LEFT;
-	}
-
-	@Override
-	protected boolean isRight(BlockState state) {
-		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.RIGHT;
+		super(dispatcher, 2 - SMALL_OFFSET_16, 0, 1.5F, 7.5F, false);
 	}
 
 	@Override
