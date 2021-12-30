@@ -16,6 +16,7 @@ public class DataCache {
 
 	public final Map<Long, Station> platformIdToStation = new HashMap<>();
 	public final Map<Long, Depot> sidingIdToDepot = new HashMap<>();
+	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
 
 	protected final Set<Station> stations;
 	protected final Set<Platform> platforms;
@@ -45,6 +46,7 @@ public class DataCache {
 			mapSavedRailIdToStation(platformIdToStation, platforms, stations);
 			mapSavedRailIdToStation(sidingIdToDepot, sidings, depots);
 
+			blockPosToPlatformId.clear();
 			syncAdditional();
 		} catch (Exception e) {
 			e.printStackTrace();

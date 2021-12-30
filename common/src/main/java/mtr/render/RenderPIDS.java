@@ -122,11 +122,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 				});
 			} else {
-				final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-				if (platform == null) {
+				final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+				if (platformId == 0) {
 					schedules = new HashSet<>();
 				} else {
-					final Set<Route.ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					final Set<Route.ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platformId);
 					schedules = schedulesForPlatform == null ? new HashSet<>() : schedulesForPlatform;
 				}
 			}

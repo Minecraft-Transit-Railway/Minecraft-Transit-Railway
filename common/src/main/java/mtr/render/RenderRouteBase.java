@@ -6,7 +6,6 @@ import com.mojang.math.Vector3f;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
 import mtr.data.IGui;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.gui.ClientData;
 import mtr.gui.IDrawing;
@@ -55,8 +54,8 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-		if (platform != null) {
+		final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+		if (platformId != 0) {
 			matrices.translate(0, 1, 0);
 			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 			matrices.translate(-0.5, 0, z);
@@ -69,17 +68,17 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 				final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 				switch (getRenderType(world, pos, state)) {
 					case ARROW:
-						final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, renderWhite, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, true, width / height)));
+						final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, renderWhite, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, true, width / height)));
 						IDrawing.drawTexture(matrices, vertexConsumer1, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 						break;
 					case ROUTE:
-						final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, renderWhite, arrowDirection == 2, width / height)));
+						final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, renderWhite, arrowDirection == 2, width / height)));
 						IDrawing.drawTexture(matrices, vertexConsumer2, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 						break;
 				}
 			}
 
-			renderAdditional(matrices, vertexConsumers, platform.id, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
+			renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 		}
 
 		matrices.popPose();

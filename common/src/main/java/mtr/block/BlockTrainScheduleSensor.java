@@ -1,7 +1,6 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.mappings.BlockEntityMapper;
@@ -117,12 +116,12 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					return;
 				}
 
-				final Platform platform = RailwayData.getClosePlatform(railwayData.platforms, pos, 4, 4, 0);
-				if (platform == null) {
+				final long platformId = RailwayData.getClosePlatformId(railwayData.platforms, railwayData.dataCache, pos, 4, 4, 0);
+				if (platformId == 0) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platform.id);
+				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
 				if (schedules == null) {
 					return;
 				}

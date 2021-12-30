@@ -509,16 +509,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
-	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos) {
-		return getClosePlatform(platforms, pos, 4, 0, 4);
+	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos) {
+		return getClosePlatformId(platforms, dataCache, pos, 4, 0, 4);
 	}
 
-	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos, int radius, int lower, int upper) {
+	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos, int radius, int lower, int upper) {
 		try {
-			return platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, radius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).orElse(null);
+			if (dataCache.blockPosToPlatformId.containsKey(pos)) {
+				return dataCache.blockPosToPlatformId.get(pos);
+			} else {
+				long platformId = platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, radius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).map(platform -> platform.id).orElse(0L);
+				dataCache.blockPosToPlatformId.put(pos, platformId);
+				return platformId;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return -1;
 		}
 	}
 
