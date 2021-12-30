@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.Tuple;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -18,12 +17,12 @@ import java.awt.image.DataBufferByte;
 import java.text.AttributedString;
 import java.util.List;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ClientCache extends DataCache {
 
-	private Font fontSmall;
-	private Font fontBig;
+	private Font font;
 	private Font fontCjk;
 
 	public final Map<BlockPos, List<Platform>> posToPlatforms = new HashMap<>();
@@ -37,10 +36,10 @@ public class ClientCache extends DataCache {
 	private final List<Long> clearStationIdToPlatforms = new ArrayList<>();
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
-	private final List<String> clearRouteMaps = new ArrayList<>();
+	private final List<String> clearDynamicResources = new ArrayList<>();
 
-	private final Map<String, ResourceLocation> routeMaps = new HashMap<>();
-	private boolean canGenerateRouteMap = true;
+	private final Map<String, ResourceLocation> dynamicResources = new HashMap<>();
+	private boolean canGenerateResource = true;
 
 	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 
@@ -79,9 +78,9 @@ public class ClientCache extends DataCache {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		routeMaps.keySet().forEach(id -> {
-			if (!clearRouteMaps.contains(id)) {
-				clearRouteMaps.add(id);
+		dynamicResources.keySet().forEach(id -> {
+			if (!clearDynamicResources.contains(id)) {
+				clearDynamicResources.add(id);
 			}
 		});
 	}
@@ -127,88 +126,84 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean flip, int aspectRatio) {
-		final Minecraft minecraftClient = Minecraft.getInstance();
-		if (fontSmall == null || fontBig == null || fontCjk == null) {
-			final ResourceManager resourceManager = minecraftClient.getResourceManager();
-			try {
-				final Font font = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-sans-semibold.ttf")).getInputStream());
-				fontSmall = font.deriveFont(Font.PLAIN, RouteMapGenerator.FONT_SIZE_SMALL);
-				fontBig = font.deriveFont(Font.PLAIN, RouteMapGenerator.FONT_SIZE_BIG);
-				fontCjk = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf")).getInputStream()).deriveFont(Font.PLAIN, RouteMapGenerator.FONT_SIZE_BIG);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		final String key = String.valueOf(platformId) + renderWhite + flip + aspectRatio;
-		if (routeMaps.containsKey(key)) {
-			return routeMaps.get(key);
-		} else {
-			final ResourceLocation defaultLocation = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
-			if (canGenerateRouteMap) {
-				canGenerateRouteMap = false;
-				new Thread(() -> {
-					final DynamicTexture dynamicTexture = RouteMapGenerator.generate(routes.stream().map(route -> {
-						final int currentIndex = route.platformIds.indexOf(platformId);
-						return currentIndex >= 0 && currentIndex + 1 < route.platformIds.size() ? new Tuple<>(route, route.platformIds.indexOf(platformId)) : null;
-					}).filter(Objects::nonNull).collect(Collectors.toList()), renderWhite, flip, aspectRatio);
-					minecraftClient.execute(() -> {
-						routeMaps.put(key, dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture));
-						canGenerateRouteMap = true;
-					});
-				}).start();
-			}
-
-			return defaultLocation;
-		}
+	public ResourceLocation getColorStrip(long platformId) {
+		return getResource(String.format("color_%s", platformId), "textures/block/transparent.png", () -> RouteMapGenerator.generateColorStrip(platformId));
 	}
 
-	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, IGui.HorizontalAlignment horizontalAlignment) {
+	public ResourceLocation getStationName(long platformId, float aspectRatio) {
+		return getResource(String.format("name_%s_%s", platformId, aspectRatio), "textures/block/white.png", () -> RouteMapGenerator.generateStationName(platformId, aspectRatio));
+	}
+
+	public ResourceLocation getDirectionArrow(long platformId, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s", platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
+	}
+
+	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean flip, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s", platformId, renderWhite, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateHorizontalRouteMap(platformId, renderWhite, flip, aspectRatio));
+	}
+
+	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
+		return getTextPixels(text, dimensions, Integer.MAX_VALUE, fontSizeCjk, fontSize, 0, null);
+	}
+
+	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
+		final boolean oneRow = horizontalAlignment == null;
 		final String[] textSplit = IGui.textOrUntitled(text).split("\\|");
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
 		final int[] textWidths = new int[textSplit.length];
 		final int[] fontSizes = new int[textSplit.length];
 		final FontRenderContext context = new FontRenderContext(new AffineTransform(), false, false);
-		final int padding = RouteMapGenerator.FONT_SIZE_SMALL / 4;
 		int width = 0;
 		int height = 0;
 
-		for (int row = 0; row < textSplit.length; row++) {
-			final boolean isCjk = textSplit[row].codePoints().anyMatch(Character::isIdeographic);
-			final Font mainFont = isCjk ? fontBig : fontSmall;
-			final Font fallbackFont = isCjk ? fontCjk : fontSmall;
+		for (int index = 0; index < textSplit.length; index++) {
+			final boolean isCjk = textSplit[index].codePoints().anyMatch(Character::isIdeographic);
+			final Font mainFont = font.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize);
+			final Font fallbackFont = isCjk ? fontCjk.deriveFont(Font.PLAIN, fontSizeCjk) : mainFont;
 
-			attributedStrings[row] = new AttributedString(textSplit[row]);
-			attributedStrings[row].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[row].length());
-			fontSizes[row] = isCjk ? RouteMapGenerator.FONT_SIZE_BIG : RouteMapGenerator.FONT_SIZE_SMALL;
+			attributedStrings[index] = new AttributedString(textSplit[index]);
+			attributedStrings[index].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[index].length());
+			fontSizes[index] = isCjk ? fontSizeCjk : fontSize;
 
-			for (int characterIndex = 0; characterIndex < textSplit[row].length(); characterIndex++) {
-				final boolean useFallback = !mainFont.canDisplay(textSplit[row].charAt(characterIndex));
-				textWidths[row] += (useFallback ? fallbackFont : mainFont).getStringBounds(textSplit[row].substring(characterIndex, characterIndex + 1), context).getBounds().width;
-				attributedStrings[row].addAttribute(TextAttribute.FONT, (useFallback ? fallbackFont : mainFont), characterIndex, characterIndex + 1);
+			for (int characterIndex = 0; characterIndex < textSplit[index].length(); characterIndex++) {
+				final boolean useFallback = !mainFont.canDisplay(textSplit[index].charAt(characterIndex));
+				textWidths[index] += (useFallback ? fallbackFont : mainFont).getStringBounds(textSplit[index].substring(characterIndex, characterIndex + 1), context).getBounds().width;
+				attributedStrings[index].addAttribute(TextAttribute.FONT, (useFallback ? fallbackFont : mainFont), characterIndex, characterIndex + 1);
 			}
 
-			width = Math.max(width, Math.min(maxWidth, textWidths[row]));
-			height += fontSizes[row] * LINE_HEIGHT_MULTIPLIER;
+			if (oneRow) {
+				if (index > 0) {
+					width += padding;
+				}
+				width += textWidths[index];
+				height = Math.max(height, (int) (fontSizes[index] * LINE_HEIGHT_MULTIPLIER));
+			} else {
+				width = Math.max(width, Math.min(maxWidth, textWidths[index]));
+				height += fontSizes[index] * LINE_HEIGHT_MULTIPLIER;
+			}
 		}
 
-		int yTextOffset = 0;
-		final BufferedImage image = new BufferedImage(width + padding * 2, height + padding * 2, BufferedImage.TYPE_BYTE_GRAY);
+		int textOffset = 0;
+		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), height + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
 		final Graphics2D graphics2D = image.createGraphics();
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		for (int row = 0; row < textSplit.length; row++) {
-			final int textWidth = Math.min(maxWidth, textWidths[row]);
-			final AffineTransform stretch = new AffineTransform();
-			stretch.concatenate(AffineTransform.getScaleInstance((float) textWidth / textWidths[row], 1));
-			graphics2D.setTransform(stretch);
-			graphics2D.drawString(attributedStrings[row].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding, yTextOffset + fontSizes[row] + padding);
-			yTextOffset += fontSizes[row] * LINE_HEIGHT_MULTIPLIER;
+		for (int index = 0; index < textSplit.length; index++) {
+			if (oneRow) {
+				graphics2D.drawString(attributedStrings[index].getIterator(), textOffset, height / LINE_HEIGHT_MULTIPLIER);
+				textOffset += textWidths[index] + padding;
+			} else {
+				final int textWidth = Math.min(maxWidth, textWidths[index]);
+				final AffineTransform stretch = new AffineTransform();
+				stretch.concatenate(AffineTransform.getScaleInstance((float) textWidth / textWidths[index], 1));
+				graphics2D.setTransform(stretch);
+				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding, textOffset + fontSizes[index] + padding);
+				textOffset += fontSizes[index] * LINE_HEIGHT_MULTIPLIER;
+			}
 		}
 
-		dimensions[0] = width + padding * 2;
-		dimensions[1] = height + padding * 2;
+		dimensions[0] = width + (oneRow ? 0 : padding * 2);
+		dimensions[1] = height + (oneRow ? 0 : padding * 2);
 		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 		graphics2D.dispose();
 		image.flush();
@@ -225,8 +220,39 @@ public class ClientCache extends DataCache {
 		if (!clearPlatformIdToRoutes.isEmpty()) {
 			platformIdToRoutes.remove(clearPlatformIdToRoutes.remove(0));
 		}
-		if (!clearRouteMaps.isEmpty()) {
-			routeMaps.remove(clearRouteMaps.remove(0));
+		if (!clearDynamicResources.isEmpty()) {
+			dynamicResources.remove(clearDynamicResources.remove(0));
+		}
+	}
+
+	private ResourceLocation getResource(String key, String defaultResource, Supplier<DynamicTexture> supplier) {
+		final Minecraft minecraftClient = Minecraft.getInstance();
+		if (font == null || fontCjk == null) {
+			final ResourceManager resourceManager = minecraftClient.getResourceManager();
+			try {
+				font = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-sans-semibold.ttf")).getInputStream());
+				fontCjk = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf")).getInputStream());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (dynamicResources.containsKey(key)) {
+			return dynamicResources.get(key);
+		} else {
+			final ResourceLocation defaultLocation = new ResourceLocation(MTR.MOD_ID, defaultResource);
+			if (canGenerateResource) {
+				canGenerateResource = false;
+				new Thread(() -> {
+					final DynamicTexture dynamicTexture = supplier.get();
+					minecraftClient.execute(() -> {
+						dynamicResources.put(key, dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture));
+						canGenerateResource = true;
+					});
+				}).start();
+			}
+
+			return defaultLocation;
 		}
 	}
 

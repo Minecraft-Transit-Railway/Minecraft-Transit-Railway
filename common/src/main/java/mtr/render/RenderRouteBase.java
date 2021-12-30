@@ -1,7 +1,6 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.IBlock;
@@ -30,8 +29,6 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 	private final float z;
 	private final boolean renderWhite;
 
-	private static final float EXTRA_PADDING = 0.0625F;
-
 	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean renderWhite) {
 		super(dispatcher);
 		this.z = z / 16;
@@ -58,38 +55,31 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
-			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
-
+		final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
+		if (platform != null) {
 			matrices.translate(0, 1, 0);
 			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 			matrices.translate(-0.5, 0, z);
 
-			if (isLeft(state)) {
-				final int glassLength = getGlassLength(world, pos, facing);
-				if (glassLength > 1) {
-					switch (getRenderType(world, pos, state)) {
-						case ARROW:
-							routeRenderer.renderArrow(sidePadding + EXTRA_PADDING, glassLength - sidePadding - EXTRA_PADDING, topPadding + EXTRA_PADDING, 1 - bottomPadding - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-							break;
-						case ROUTE:
-							final boolean flipLine = arrowDirection == 1;
-							if (platform != null) {
-								final float width = glassLength - sidePadding * 2;
-								final float height = 1 - topPadding - bottomPadding;
-								final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, renderWhite, flipLine, Math.round(width / height))));
-								IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), ARGB_WHITE, light);
-							}
-							break;
-					}
+			final int glassLength = getGlassLength(world, pos, facing);
+			final boolean isLeft = isLeft(state);
+			if (isLeft && glassLength > 1) {
+				final float width = glassLength - sidePadding * 2;
+				final float height = 1 - topPadding - bottomPadding;
+				final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+				switch (getRenderType(world, pos, state)) {
+					case ARROW:
+						final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, renderWhite, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, true, width / height)));
+						IDrawing.drawTexture(matrices, vertexConsumer1, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+						break;
+					case ROUTE:
+						final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, renderWhite, arrowDirection == 2, width / height)));
+						IDrawing.drawTexture(matrices, vertexConsumer2, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+						break;
 				}
 			}
 
-			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-			immediate.endBatch();
+			renderAdditional(matrices, vertexConsumers, platform.id, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 		}
 
 		matrices.popPose();
@@ -108,7 +98,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 	protected abstract RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
+	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, long platformId, BlockState state, int glassLength, Direction facing, int light);
 
 	private int getGlassLength(BlockGetter world, BlockPos pos, Direction facing) {
 		int glassLength = 1;
