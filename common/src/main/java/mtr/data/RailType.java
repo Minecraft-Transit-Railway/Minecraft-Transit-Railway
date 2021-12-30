@@ -5,9 +5,11 @@ import net.minecraft.world.level.material.MaterialColor;
 public enum RailType implements IGui {
 	WOODEN(20, MaterialColor.WOOD, false, true),
 	STONE(40, MaterialColor.STONE, false, true),
+        EMERALD(60, MaterialColor.EMERALD, false, true),
 	IRON(80, MaterialColor.SNOW, false, true),
-	OBSIDIAN(120, MaterialColor.COLOR_PURPLE, false, true),
-	BLAZE(160, MaterialColor.COLOR_ORANGE, false, true),
+        QUARTZ(100, MaterialColor.COLOR_WHITE, false, true),
+	OBSIDIAN(130, MaterialColor.COLOR_PURPLE, false, true),
+	BLAZE(200, MaterialColor.COLOR_ORANGE, false, true),
 	DIAMOND(300, MaterialColor.DIAMOND, false, true),
 	PLATFORM(80, MaterialColor.COLOR_RED, true, false),
 	SIDING(40, MaterialColor.COLOR_YELLOW, true, false),
