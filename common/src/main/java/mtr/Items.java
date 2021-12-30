@@ -23,8 +23,12 @@ public interface Items {
 	Item RAIL_CONNECTOR_1_WOODEN_ONE_WAY = new ItemRailModifier(true, RailType.WOODEN);
 	Item RAIL_CONNECTOR_2_STONE = new ItemRailModifier(false, RailType.STONE);
 	Item RAIL_CONNECTOR_2_STONE_ONE_WAY = new ItemRailModifier(true, RailType.STONE);
+        Item RAIL_CONNECTOR_20_EMERALD = new ItemRailModifier(false, RailType.EMERALD);
+        Item RAIL_CONNECTOR_20_EMERALD_ONE_WAY = new ItemRailModifier(true, RailType.EMERALD);
 	Item RAIL_CONNECTOR_3_IRON = new ItemRailModifier(false, RailType.IRON);
 	Item RAIL_CONNECTOR_3_IRON_ONE_WAY = new ItemRailModifier(true, RailType.IRON);
+        Item RAIL_CONNECTOR_30_QUARTZ = new ItemRailModifier(false, RailType.QUARTZ);
+        Item RAIL_CONNECTOR_30_QUARTZ_ONE_WAY = new ItemRailModifier(true, RailType.QUARTZ);
 	Item RAIL_CONNECTOR_4_OBSIDIAN = new ItemRailModifier(false, RailType.OBSIDIAN);
 	Item RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY = new ItemRailModifier(true, RailType.OBSIDIAN);
 	Item RAIL_CONNECTOR_5_BLAZE = new ItemRailModifier(false, RailType.BLAZE);
