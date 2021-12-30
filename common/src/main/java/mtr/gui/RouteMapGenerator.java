@@ -22,6 +22,8 @@ public class RouteMapGenerator implements IGui {
 	private static final int FONT_SIZE_BIG = LINE_SIZE * 2;
 	private static final int FONT_SIZE_SMALL = FONT_SIZE_BIG / 2;
 
+	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
+	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
 
 	public static DynamicTexture generateColorStrip(long platformId) {
@@ -49,7 +51,7 @@ public class RouteMapGenerator implements IGui {
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
 			nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
-			drawString(nativeImage, pixels, width / 2, padding / 2, dimensions, 0, ARGB_BLACK, true);
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_BLACK, true);
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -58,7 +60,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateDirectionArrow(long platformId, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
+	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
 		try {
 			final List<Integer> colors = new ArrayList<>();
 			final List<String> destinations = new ArrayList<>();
@@ -67,72 +69,83 @@ public class RouteMapGenerator implements IGui {
 					colors.add(route.color);
 				}
 
-				if (route.circularState == Route.CircularState.NONE) {
-					destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
-				} else {
-					final int currentStationIndex = route.platformIds.indexOf(platformId);
-					boolean isVia = false;
-					String text = "";
-					for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-						if (getInterchangeRoutes(route.platformIds.get(i)).size() > 1) {
-							text = getStationName(route.platformIds.get(i));
-							isVia = true;
-							break;
+				final int currentStationIndex = route.platformIds.indexOf(platformId);
+				if (currentStationIndex < route.platformIds.size() - 1) {
+					if (route.circularState == Route.CircularState.NONE) {
+						destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
+					} else {
+						boolean isVia = false;
+						String text = "";
+						for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
+							if (getInterchangeRoutes(getStationId(route.platformIds.get(i))).size() > 1) {
+								text = getStationName(route.platformIds.get(i));
+								isVia = true;
+								break;
+							}
 						}
+						if (!isVia) {
+							text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
+						}
+						final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
+						destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
 					}
-					if (!isVia) {
-						text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
-					}
-					final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
-					destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
 				}
 			});
-			String destinationString = IGui.mergeStations(destinations);
-			final boolean noToString = destinationString.startsWith(TEMP_CIRCULAR_MARKER);
-			destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER, "");
-			if (!destinationString.isEmpty() && showToString && !noToString) {
-				destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
-			}
+			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = hasLeft || !hasRight;
-			final int height = SCALE * 7 / 8;
+			final int height = SCALE;
 			final int width = Math.round(height * aspectRatio);
 			final int padding = height / 4;
 			final int tileSize = height - padding * 2;
-			final int tilePadding = tileSize / 4;
 
-			final int leftSize = ((hasLeft ? 1 : 0) + (leftToRight ? 1 : 0)) * (tileSize + tilePadding);
-			final int rightSize = ((hasRight ? 1 : 0) + (leftToRight ? 0 : 1)) * (tileSize + tilePadding);
 			final ClientCache clientCache = ClientData.DATA_CACHE;
-			final int[] dimensionsDestination = new int[2];
-			final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * 2, FONT_SIZE_BIG, FONT_SIZE_SMALL, 0, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
-
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-			if (renderWhite) {
-				nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
+			if (invert || renderWhite) {
+				nativeImage.fillRect(0, 0, width, height, invert ? ARGB_BLACK : ARGB_WHITE);
 			}
 
-			final int sidePadding = (width - leftSize - rightSize - dimensionsDestination[0]) / 2;
-			if (hasLeft) {
-				drawResource(nativeImage, "textures/sign/arrow.png", sidePadding, padding, tileSize, tileSize, false, 0, 1, ARGB_BLACK, renderWhite);
-			}
-			if (hasRight) {
-				drawResource(nativeImage, "textures/sign/arrow.png", width - sidePadding - tileSize, padding, tileSize, tileSize, true, 0, 1, ARGB_BLACK, renderWhite);
+			final int circleX;
+			if (isTerminating) {
+				circleX = (width - tileSize) / 2;
+			} else {
+				String destinationString = IGui.mergeStations(destinations);
+				final boolean noToString = destinationString.startsWith(TEMP_CIRCULAR_MARKER);
+				destinationString = destinationString.replace(TEMP_CIRCULAR_MARKER, "");
+				if (!destinationString.isEmpty() && showToString && !noToString) {
+					destinationString = IGui.insertTranslation("gui.mtr.to_cjk", "gui.mtr.to", 1, destinationString);
+				}
+
+				final int tilePadding = tileSize / 4;
+				final int leftSize = ((hasLeft ? 1 : 0) + (leftToRight ? 1 : 0)) * (tileSize + tilePadding);
+				final int rightSize = ((hasRight ? 1 : 0) + (leftToRight ? 0 : 1)) * (tileSize + tilePadding);
+
+				final int[] dimensionsDestination = new int[2];
+				final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * 2, FONT_SIZE_BIG * 5 / 4, FONT_SIZE_SMALL * 5 / 4, 0, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
+				final int sidePadding = (width - leftSize - rightSize - dimensionsDestination[0]) / 2;
+				drawString(nativeImage, pixelsDestination, sidePadding + leftSize, height / 2, dimensionsDestination, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+
+				if (hasLeft) {
+					drawResource(nativeImage, ARROW_RESOURCE, sidePadding, padding, tileSize, tileSize, false, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+				}
+				if (hasRight) {
+					drawResource(nativeImage, ARROW_RESOURCE, width - sidePadding - tileSize, padding, tileSize, tileSize, true, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+				}
+
+				circleX = leftToRight ? sidePadding + leftSize - tileSize - tilePadding : width - sidePadding - rightSize + tilePadding;
 			}
 
-			final int circleX = leftToRight ? sidePadding + leftSize - tileSize - tilePadding : width - sidePadding - rightSize + tilePadding;
 			for (int i = 0; i < colors.size(); i++) {
-				drawResource(nativeImage, "textures/sign/circle.png", circleX, padding, tileSize, tileSize, false, (float) i / colors.size(), (i + 1F) / colors.size(), colors.get(i), renderWhite);
+				drawResource(nativeImage, CIRCLE_RESOURCE, circleX, padding, tileSize, tileSize, false, (float) i / colors.size(), (i + 1F) / colors.size(), colors.get(i), renderWhite);
 			}
 
 			final Platform platform = clientCache.platformIdMap.get(platformId);
 			if (platform != null) {
 				final int[] dimensionsPlatformNumber = new int[2];
-				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.name, dimensionsPlatformNumber, tileSize, FONT_SIZE_BIG, FONT_SIZE_BIG, 0, HorizontalAlignment.CENTER);
-				drawString(nativeImage, pixelsPlatformNumber, circleX + tileSize / 2, padding + (tileSize - dimensionsPlatformNumber[1]) / 2, dimensionsPlatformNumber, 0, ARGB_WHITE, renderWhite);
+				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.name, dimensionsPlatformNumber, tileSize, FONT_SIZE_BIG * 3 / 2, FONT_SIZE_BIG * 3 / 2, 0, HorizontalAlignment.CENTER);
+				drawString(nativeImage, pixelsPlatformNumber, circleX + tileSize / 2, padding + tileSize / 2, dimensionsPlatformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, renderWhite);
 			}
 
-			drawString(nativeImage, pixelsDestination, sidePadding + leftSize + dimensionsDestination[0] / 2, (height - dimensionsDestination[1]) / 2, dimensionsDestination, 0, ARGB_BLACK, renderWhite);
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,7 +154,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateHorizontalRouteMap(long platformId, boolean renderWhite, boolean flip, float aspectRatio) {
+	public static DynamicTexture generateHorizontalRouteMap(long platformId, boolean renderWhite, boolean vertical, boolean flip, float aspectRatio) {
 		try {
 			final List<Tuple<Route, Integer>> routeDetails = getRouteStream(platformId).map(route -> {
 				final int currentIndex = route.platformIds.indexOf(platformId);
@@ -155,6 +168,8 @@ public class RouteMapGenerator implements IGui {
 				final List<List<Long>> stationsIdsAfter = new ArrayList<>();
 				final List<Map<Integer, StationPosition>> stationPositions = new ArrayList<>();
 				final int[] colorIndices = new int[routeCount];
+				final Set<Integer> currentRouteColors = new HashSet<>();
+				final Set<String> currentRouteNames = new HashSet<>();
 				int colorIndex = -1;
 				int previousColor = -1;
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
@@ -182,6 +197,8 @@ public class RouteMapGenerator implements IGui {
 						previousColor = color;
 					}
 					colorIndices[routeIndex] = colorIndex;
+					currentRouteColors.add(color);
+					currentRouteNames.add(routeDetail.getA().name.split("\\|\\|")[0]);
 				}
 
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
@@ -192,18 +209,30 @@ public class RouteMapGenerator implements IGui {
 				setup(stationPositions, flip ? stationsIdsBefore : stationsIdsAfter, colorIndices, bounds, flip, true);
 				final float xOffset = bounds[0] + 1;
 				setup(stationPositions, flip ? stationsIdsAfter : stationsIdsBefore, colorIndices, bounds, !flip, false);
-				final float yOffset = Math.abs(bounds[1]) + 1;
+				final float topHalfHeight = Math.abs(bounds[1]) + 1;
 
-				final int height = Math.round((yOffset + bounds[2] + 1) * SCALE);
-				final int width = Math.round(height * aspectRatio);
-				final float widthScale = width / (xOffset + bounds[0] + 1) / SCALE;
+				final int height;
+				final int width;
+				final float yOffset;
+				final float widthScale;
+				if ((xOffset + bounds[0] + 1) / (topHalfHeight + bounds[2] + 1) > aspectRatio) {
+					width = Math.round((xOffset + bounds[0] + 1) * SCALE);
+					height = Math.round(width / aspectRatio);
+					yOffset = height / 2F / SCALE - (bounds[2] + 1) / 2 + topHalfHeight / 2;
+					widthScale = 1;
+				} else {
+					height = Math.round((topHalfHeight + bounds[2] + 1) * SCALE);
+					width = Math.round(height * aspectRatio);
+					yOffset = topHalfHeight;
+					widthScale = width / (xOffset + bounds[0] + 1) / SCALE;
+				}
 
 				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
 				if (renderWhite) {
 					nativeImage.fillRect(0, 0, width, height, ARGB_WHITE);
 				}
 
-				final Map<Long, Map<StationPosition, Integer>> stationPositionsGrouped = new HashMap<>();
+				final Map<Long, Set<StationPositionGrouped>> stationPositionsGrouped = new HashMap<>();
 				for (int routeIndex = 0; routeIndex < routeCount; routeIndex++) {
 					final Route route = routeDetails.get(routeIndex).getA();
 					final int currentIndex = routeDetails.get(routeIndex).getB();
@@ -217,23 +246,62 @@ public class RouteMapGenerator implements IGui {
 
 						final long stationId = getStationId(route.platformIds.get(stationIndex));
 						if (!stationPositionsGrouped.containsKey(stationId)) {
-							stationPositionsGrouped.put(stationId, new HashMap<>());
+							stationPositionsGrouped.put(stationId, new HashSet<>());
 						}
-						if (!stationPosition.isCommon || stationPositionsGrouped.get(stationId).keySet().stream().noneMatch(stationPosition2 -> stationPosition2.isCommon)) {
-							stationPositionsGrouped.get(stationId).put(stationPosition, stationIndex - currentIndex);
+						if (!stationPosition.isCommon || stationPositionsGrouped.get(stationId).stream().noneMatch(stationPosition2 -> stationPosition2.stationPosition.x == stationPosition.x)) {
+							final Map<Integer, ClientCache.ColorNameTuple> interchangeRoutes = getInterchangeRoutes(stationId);
+							final List<Integer> allColors = new ArrayList<>(interchangeRoutes.keySet());
+							allColors.sort(Integer::compareTo);
+
+							final List<Integer> interchangeColors = new ArrayList<>();
+							final List<String> interchangeNames = new ArrayList<>();
+							allColors.forEach(color -> {
+								final String name = interchangeRoutes.get(color).name;
+								if (!currentRouteColors.contains(color) && !currentRouteNames.contains(name)) {
+									if (!interchangeColors.contains(color)) {
+										interchangeColors.add(color);
+									}
+									if (!interchangeNames.contains(name)) {
+										interchangeNames.add(name);
+									}
+								}
+							});
+							stationPositionsGrouped.get(stationId).add(new StationPositionGrouped(stationPosition, stationIndex - currentIndex, interchangeColors, interchangeNames));
 						}
 					}
 				}
 
-				stationPositionsGrouped.forEach((stationId, stationPositionGrouped) -> stationPositionGrouped.forEach((stationPosition, stationOffset) -> {
-					final int x = Math.round((stationPosition.x + xOffset) * SCALE * widthScale);
-					final int y = Math.round((stationPosition.y + yOffset) * SCALE);
-					final int lines = stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0;
-					drawStation(nativeImage, x, y, lines, stationOffset < 0, renderWhite);
+				stationPositionsGrouped.forEach((stationId, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
+					final int x = Math.round((stationPositionGrouped.stationPosition.x + xOffset) * SCALE * widthScale);
+					final int y = Math.round((stationPositionGrouped.stationPosition.y + yOffset) * SCALE);
+					final int lines = stationPositionGrouped.stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0;
+					final boolean drawBelow = stationPositionGrouped.stationPosition.isCommon ? Math.abs(stationPositionGrouped.stationOffset) % 2 == 0 : y >= yOffset * SCALE;
+					final boolean currentStation = stationPositionGrouped.stationOffset == 0;
+					final boolean passed = stationPositionGrouped.stationOffset < 0;
+
+					final List<Integer> interchangeColors = stationPositionGrouped.interchangeColors;
+					if (!interchangeColors.isEmpty() && !currentStation) {
+						final int lineHeight = LINE_SIZE * 2;
+						final int lineWidth = (int) Math.ceil((float) LINE_SIZE / interchangeColors.size());
+						for (int i = 0; i < interchangeColors.size(); i++) {
+							for (int drawX = 0; drawX < lineWidth; drawX++) {
+								for (int drawY = 0; drawY < lineHeight; drawY++) {
+									drawPixelSafe(nativeImage, x + drawX + lineWidth * i - lineWidth * interchangeColors.size() / 2, y + (drawBelow ? -1 : lines * LINE_SPACING) + (drawBelow ? -drawY : drawY), passed ? ARGB_LIGHT_GRAY : ARGB_BLACK + interchangeColors.get(i));
+								}
+							}
+						}
+
+						final int[] dimensions = new int[2];
+						final byte[] pixels = clientCache.getTextPixels(IGui.mergeStations(stationPositionGrouped.interchangeNames), dimensions, (int) (SCALE * widthScale * 0.9), FONT_SIZE_BIG / 2, FONT_SIZE_SMALL / 2, 0, vertical ? HorizontalAlignment.LEFT : HorizontalAlignment.CENTER);
+						drawString(nativeImage, pixels, x, y + (drawBelow ? -1 - lineHeight : lines * LINE_SPACING + lineHeight), dimensions, HorizontalAlignment.CENTER, drawBelow ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP, 0, passed ? ARGB_LIGHT_GRAY : ARGB_BLACK, renderWhite);
+					}
+
+					drawStation(nativeImage, x, y, lines, passed, renderWhite);
+
 					final Station station = clientCache.stationIdMap.get(stationId);
 					final int[] dimensions = new int[2];
-					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.name, dimensions, (int) (SCALE * widthScale), FONT_SIZE_BIG, FONT_SIZE_SMALL, FONT_SIZE_SMALL / 4, HorizontalAlignment.CENTER);
-					drawString(nativeImage, pixels, x, y + lines * LINE_SPACING + LINE_SIZE * 5 / 4, dimensions, stationOffset == 0 ? ARGB_BLACK : 0, stationOffset < 0 ? ARGB_LIGHT_GRAY : stationOffset == 0 ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.name, dimensions, (int) (SCALE * widthScale), FONT_SIZE_BIG, FONT_SIZE_SMALL, FONT_SIZE_SMALL / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
+					drawString(nativeImage, pixels, x, y + (drawBelow ? lines * LINE_SPACING : -1) + (drawBelow ? 1 : -1) * LINE_SIZE * 5 / 4, dimensions, HorizontalAlignment.CENTER, drawBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, renderWhite);
 				}));
 
 				return new DynamicTexture(nativeImage);
@@ -252,7 +320,7 @@ public class RouteMapGenerator implements IGui {
 
 		final List<Long> commonStationIds = new ArrayList<>();
 		stationsIdLists.get(0).forEach(stationId -> {
-			if (stationId > 0 && !commonStationIds.contains(stationId) && stationsIdLists.stream().allMatch(stationsIds -> stationsIds.contains(stationId))) {
+			if (stationId != 0 && !commonStationIds.contains(stationId) && stationsIdLists.stream().allMatch(stationsIds -> stationsIds.contains(stationId))) {
 				commonStationIds.add(stationId);
 			}
 		});
@@ -324,8 +392,8 @@ public class RouteMapGenerator implements IGui {
 		return station == null ? "" : station.name;
 	}
 
-	private static Map<Integer, ClientCache.ColorNameTuple> getInterchangeRoutes(long platformId) {
-		return ClientData.DATA_CACHE.stationIdToRoutes.get(getStationId(platformId));
+	private static Map<Integer, ClientCache.ColorNameTuple> getInterchangeRoutes(long stationId) {
+		return ClientData.DATA_CACHE.stationIdToRoutes.get(stationId);
 	}
 
 	private static void drawLine(NativeImage nativeImage, StationPosition stationPosition1, StationPosition stationPosition2, float widthScale, float xOffset, float yOffset, int color) {
@@ -395,7 +463,7 @@ public class RouteMapGenerator implements IGui {
 		}
 	}
 
-	private static void drawString(NativeImage nativeImage, byte[] pixels, int x, int y, int[] textDimensions, int backgroundColor, int textColor, boolean renderWhite) {
+	private static void drawString(NativeImage nativeImage, byte[] pixels, int x, int y, int[] textDimensions, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, int backgroundColor, int textColor, boolean renderWhite) {
 		if (((backgroundColor >> 24) & 0xFF) > 0) {
 			for (int drawX = 0; drawX < textDimensions[0]; drawX++) {
 				for (int drawY = 0; drawY < textDimensions[1]; drawY++) {
@@ -406,7 +474,7 @@ public class RouteMapGenerator implements IGui {
 		int drawX = 0;
 		int drawY = 0;
 		for (int i = 0; i < textDimensions[0] * textDimensions[1]; i++) {
-			blendPixel(nativeImage, x + drawX - textDimensions[0] / 2, y + drawY, ((pixels[i] & 0xFF) << 24) + (textColor & RGB_WHITE), renderWhite);
+			blendPixel(nativeImage, (int) horizontalAlignment.getOffset(x + drawX, textDimensions[0]), (int) verticalAlignment.getOffset(y + drawY, textDimensions[1]), ((pixels[i] & 0xFF) << 24) + (textColor & RGB_WHITE), renderWhite);
 			drawX++;
 			if (drawX == textDimensions[0]) {
 				drawX = 0;
@@ -475,6 +543,21 @@ public class RouteMapGenerator implements IGui {
 			this.x = x;
 			this.y = y;
 			this.isCommon = isCommon;
+		}
+	}
+
+	private static class StationPositionGrouped {
+
+		private final StationPosition stationPosition;
+		private final int stationOffset;
+		private final List<Integer> interchangeColors;
+		private final List<String> interchangeNames;
+
+		private StationPositionGrouped(StationPosition stationPosition, int stationOffset, List<Integer> interchangeColors, List<String> interchangeNames) {
+			this.stationPosition = stationPosition;
+			this.stationOffset = stationOffset;
+			this.interchangeColors = interchangeColors;
+			this.interchangeNames = interchangeNames;
 		}
 	}
 }

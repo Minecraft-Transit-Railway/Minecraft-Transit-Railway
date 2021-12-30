@@ -135,11 +135,11 @@ public class ClientCache extends DataCache {
 	}
 
 	public ResourceLocation getDirectionArrow(long platformId, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s", platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s", platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, false, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
 	}
 
 	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean flip, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s", platformId, renderWhite, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateHorizontalRouteMap(platformId, renderWhite, flip, aspectRatio));
+		return getResource(String.format("map_%s_%s_%s_%s", platformId, renderWhite, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateHorizontalRouteMap(platformId, renderWhite, false, flip, aspectRatio));
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
@@ -195,9 +195,10 @@ public class ClientCache extends DataCache {
 			} else {
 				final int textWidth = Math.min(maxWidth, textWidths[index]);
 				final AffineTransform stretch = new AffineTransform();
-				stretch.concatenate(AffineTransform.getScaleInstance((float) textWidth / textWidths[index], 1));
+				final float scale = (float) textWidth / textWidths[index];
+				stretch.concatenate(AffineTransform.getScaleInstance(scale, 1));
 				graphics2D.setTransform(stretch);
-				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding, textOffset + fontSizes[index] + padding);
+				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding / scale, textOffset + fontSizes[index] + padding);
 				textOffset += fontSizes[index] * LINE_HEIGHT_MULTIPLIER;
 			}
 		}
