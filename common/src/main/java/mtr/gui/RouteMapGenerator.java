@@ -21,7 +21,7 @@ public class RouteMapGenerator implements IGui {
 	private static final int LINE_SPACING = LINE_SIZE * 3 / 2;
 	private static final int FONT_SIZE_BIG = LINE_SIZE * 2;
 	private static final int FONT_SIZE_SMALL = FONT_SIZE_BIG / 2;
-	private static final int MIN_VERTICAL_SIZE = 4;
+	private static final int MIN_VERTICAL_SIZE = 5;
 
 	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
@@ -61,7 +61,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
+	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio) {
 		try {
 			final List<Integer> colors = new ArrayList<>();
 			final List<String> destinations = new ArrayList<>();
@@ -94,10 +94,10 @@ public class RouteMapGenerator implements IGui {
 			});
 			final boolean isTerminating = destinations.isEmpty();
 
-			final boolean leftToRight = hasLeft || !hasRight;
+			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
 			final int height = SCALE;
 			final int width = Math.round(height * aspectRatio);
-			final int padding = height / 4;
+			final int padding = Math.round(height * paddingScale);
 			final int tileSize = height - padding * 2;
 
 			final ClientCache clientCache = ClientData.DATA_CACHE;
@@ -108,7 +108,7 @@ public class RouteMapGenerator implements IGui {
 
 			final int circleX;
 			if (isTerminating) {
-				circleX = (width - tileSize) / 2;
+				circleX = (int) horizontalAlignment.getOffset(0, tileSize - width);
 			} else {
 				String destinationString = IGui.mergeStations(destinations);
 				final boolean noToString = destinationString.startsWith(TEMP_CIRCULAR_MARKER);
@@ -122,18 +122,18 @@ public class RouteMapGenerator implements IGui {
 				final int rightSize = ((hasRight ? 1 : 0) + (leftToRight ? 0 : 1)) * (tileSize + tilePadding);
 
 				final int[] dimensionsDestination = new int[2];
-				final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * 2, FONT_SIZE_BIG * 5 / 4, FONT_SIZE_SMALL * 5 / 4, 0, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
-				final int sidePadding = (width - leftSize - rightSize - dimensionsDestination[0]) / 2;
-				drawString(nativeImage, pixelsDestination, sidePadding + leftSize, height / 2, dimensionsDestination, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite, false);
+				final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * 2, tileSize * 2 / 3, tileSize / 3, 0, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
+				final int leftPadding = (int) horizontalAlignment.getOffset(0, leftSize + rightSize + dimensionsDestination[0] - width);
+				drawString(nativeImage, pixelsDestination, leftPadding + leftSize, height / 2, dimensionsDestination, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite, false);
 
 				if (hasLeft) {
-					drawResource(nativeImage, ARROW_RESOURCE, sidePadding, padding, tileSize, tileSize, false, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+					drawResource(nativeImage, ARROW_RESOURCE, leftPadding, padding, tileSize, tileSize, false, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
 				}
 				if (hasRight) {
-					drawResource(nativeImage, ARROW_RESOURCE, width - sidePadding - tileSize, padding, tileSize, tileSize, true, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
+					drawResource(nativeImage, ARROW_RESOURCE, leftPadding + leftSize + dimensionsDestination[0] + rightSize - tileSize, padding, tileSize, tileSize, true, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK, renderWhite);
 				}
 
-				circleX = leftToRight ? sidePadding + leftSize - tileSize - tilePadding : width - sidePadding - rightSize + tilePadding;
+				circleX = leftPadding + leftSize + (leftToRight ? -tileSize - tilePadding : dimensionsDestination[0] + tilePadding);
 			}
 
 			for (int i = 0; i < colors.size(); i++) {
@@ -143,7 +143,7 @@ public class RouteMapGenerator implements IGui {
 			final Platform platform = clientCache.platformIdMap.get(platformId);
 			if (platform != null) {
 				final int[] dimensionsPlatformNumber = new int[2];
-				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.name, dimensionsPlatformNumber, tileSize, FONT_SIZE_BIG * 3 / 2, FONT_SIZE_BIG * 3 / 2, 0, HorizontalAlignment.CENTER);
+				final byte[] pixelsPlatformNumber = clientCache.getTextPixels(platform.name, dimensionsPlatformNumber, tileSize, tileSize * 3 / 4, tileSize * 3 / 4, 0, HorizontalAlignment.CENTER);
 				drawString(nativeImage, pixelsPlatformNumber, circleX + tileSize / 2, padding + tileSize / 2, dimensionsPlatformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, renderWhite, false);
 			}
 

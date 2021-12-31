@@ -1,7 +1,9 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"back": "mtr:block/metal"
+		"back": "mtr:block/metal",
+		"top": "mtr:block/black",
+		"bottom": "mtr:block/white"
 	},
 	"elements": [
 		{
@@ -13,6 +15,20 @@
 				"west": { "texture": "#particle" },
 				"north": { "texture": "#back", "cullface": "north" },
 				"south": { "texture": "#particle" }
+			}
+		},
+		{
+			"from": [ 2.5, 13, 1.05 ],
+			"to": [ 13.5, 15.5, 1.05 ],
+			"faces": {
+				"south": { "texture": "#top" }
+			}
+		},
+		{
+			"from": [ 2.5, 0, 1.05 ],
+			"to": [ 13.5, 13, 1.05 ],
+			"faces": {
+				"south": { "texture": "#bottom" }
 			}
 		}
 	]

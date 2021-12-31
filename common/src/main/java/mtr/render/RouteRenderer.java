@@ -167,7 +167,7 @@ public class RouteRenderer implements IGui {
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, Direction facing, int light) {
-		renderArrow(left, right, top, bottom, hasRight, hasLeft, facing, light, true);
+//		renderArrow(left, right, top, bottom, hasRight, hasLeft, facing, light, true);
 	}
 
 	public void renderArrow(float left, float right, float top, float bottom, boolean hasRight, boolean hasLeft, Direction facing, int light, boolean visibleArrow) {

@@ -134,8 +134,8 @@ public class ClientCache extends DataCache {
 		return getResource(String.format("name_%s_%s", platformId, aspectRatio), "textures/block/white.png", () -> RouteMapGenerator.generateStationName(platformId, aspectRatio));
 	}
 
-	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s", platformId, invert, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
+	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, renderWhite, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, renderWhite, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio));
 	}
 
 	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean vertical, boolean flip, float aspectRatio) {
