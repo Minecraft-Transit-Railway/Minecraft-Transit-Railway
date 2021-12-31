@@ -279,6 +279,7 @@
 	"itemGroup.mtr.railway_facilities": "Railway Facilities",
 	"itemGroup.mtr.station_building_blocks": "Station Building Blocks",
 	"options.mtr.anonymous": "Anonymous",
+	"options.mtr.dynamic_texture_resolution": "Dynamic texture resolution (higher values might crash!)",
 	"options.mtr.hide_special_rail_colors": "Hide special rail colours",
 	"options.mtr.hide_translucent_parts": "Hide translucent parts on trains",
 	"options.mtr.off": "Off",

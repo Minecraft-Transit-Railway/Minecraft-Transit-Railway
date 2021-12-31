@@ -244,6 +244,7 @@ public class ClientCache extends DataCache {
 			final ResourceLocation defaultLocation = new ResourceLocation(MTR.MOD_ID, defaultResource);
 			if (canGenerateResource) {
 				canGenerateResource = false;
+				RouteMapGenerator.setConstants();
 				new Thread(() -> {
 					final DynamicTexture dynamicTexture = supplier.get();
 					minecraftClient.execute(() -> {

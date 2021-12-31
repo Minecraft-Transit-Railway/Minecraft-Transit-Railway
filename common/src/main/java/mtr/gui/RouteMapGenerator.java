@@ -2,6 +2,7 @@ package mtr.gui;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
+import mtr.config.Config;
 import mtr.data.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -16,16 +17,24 @@ import java.util.stream.Stream;
 
 public class RouteMapGenerator implements IGui {
 
-	private static final int SCALE = 128;
-	private static final int LINE_SIZE = SCALE / 8;
-	private static final int LINE_SPACING = LINE_SIZE * 3 / 2;
-	private static final int FONT_SIZE_BIG = LINE_SIZE * 2;
-	private static final int FONT_SIZE_SMALL = FONT_SIZE_BIG / 2;
-	private static final int MIN_VERTICAL_SIZE = 5;
+	private static int scale;
+	private static int lineSize;
+	private static int lineSpacing;
+	private static int fontSizeBig;
+	private static int fontSizeSmall;
 
+	private static final int MIN_VERTICAL_SIZE = 5;
 	private static final String ARROW_RESOURCE = "textures/sign/arrow.png";
 	private static final String CIRCLE_RESOURCE = "textures/sign/circle.png";
 	private static final String TEMP_CIRCULAR_MARKER = "temp_circular_marker";
+
+	public static void setConstants() {
+		scale = (int) Math.pow(2, Config.dynamicTextureResolution() + 5);
+		lineSize = scale / 8;
+		lineSpacing = lineSize * 3 / 2;
+		fontSizeBig = lineSize * 2;
+		fontSizeSmall = fontSizeBig / 2;
+	}
 
 	public static DynamicTexture generateColorStrip(long platformId) {
 		try {
@@ -45,7 +54,7 @@ public class RouteMapGenerator implements IGui {
 	public static DynamicTexture generateStationName(long platformId, float aspectRatio) {
 		try {
 			final int[] dimensions = new int[2];
-			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(getStationName(platformId), dimensions, FONT_SIZE_BIG, FONT_SIZE_SMALL);
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(getStationName(platformId), dimensions, fontSizeBig, fontSizeSmall);
 			final int padding = dimensions[1] / 2;
 			final int height = dimensions[1] + padding;
 			final int width = Math.max(Math.round(height * aspectRatio), dimensions[0] + padding);
@@ -95,7 +104,7 @@ public class RouteMapGenerator implements IGui {
 			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
-			final int height = SCALE;
+			final int height = scale;
 			final int width = Math.round(height * aspectRatio);
 			final int padding = Math.round(height * paddingScale);
 			final int tileSize = height - padding * 2;
@@ -231,15 +240,15 @@ public class RouteMapGenerator implements IGui {
 				final float widthScale;
 				final float heightScale;
 				if (rawWidth / rawHeight > aspectRatio) {
-					width = Math.round(rawWidth * SCALE);
+					width = Math.round(rawWidth * scale);
 					height = Math.round(width / aspectRatio);
 					widthScale = 1;
-					heightScale = height / rawHeight / SCALE;
+					heightScale = height / rawHeight / scale;
 				} else {
-					height = Math.round(rawHeight * SCALE);
+					height = Math.round(rawHeight * scale);
 					width = Math.round(height * aspectRatio);
 					heightScale = 1;
-					widthScale = width / rawWidth / SCALE;
+					widthScale = width / rawWidth / scale;
 				}
 
 				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
@@ -286,38 +295,38 @@ public class RouteMapGenerator implements IGui {
 					}
 				}
 
-				final int maxStringWidth = (int) (SCALE * 0.9 * ((vertical ? heightScale : widthScale) / 2 + extraPadding / routeCount));
+				final int maxStringWidth = (int) (scale * 0.9 * ((vertical ? heightScale : widthScale) / 2 + extraPadding / routeCount));
 				stationPositionsGrouped.forEach((stationId, stationPositionGroupedSet) -> stationPositionGroupedSet.forEach(stationPositionGrouped -> {
-					final int x = Math.round((stationPositionGrouped.stationPosition.x + xOffset) * SCALE * widthScale);
-					final int y = Math.round((stationPositionGrouped.stationPosition.y + yOffset) * SCALE * heightScale);
+					final int x = Math.round((stationPositionGrouped.stationPosition.x + xOffset) * scale * widthScale);
+					final int y = Math.round((stationPositionGrouped.stationPosition.y + yOffset) * scale * heightScale);
 					final int lines = stationPositionGrouped.stationPosition.isCommon ? colorIndices[colorIndices.length - 1] : 0;
-					final boolean textBelow = vertical || (stationPositionGrouped.stationPosition.isCommon ? Math.abs(stationPositionGrouped.stationOffset) % 2 == 0 : y >= yOffset * SCALE);
+					final boolean textBelow = vertical || (stationPositionGrouped.stationPosition.isCommon ? Math.abs(stationPositionGrouped.stationOffset) % 2 == 0 : y >= yOffset * scale);
 					final boolean currentStation = stationPositionGrouped.stationOffset == 0;
 					final boolean passed = stationPositionGrouped.stationOffset < 0;
 
 					final List<Integer> interchangeColors = stationPositionGrouped.interchangeColors;
 					if (!interchangeColors.isEmpty() && !currentStation) {
-						final int lineHeight = LINE_SIZE * 2;
-						final int lineWidth = (int) Math.ceil((float) LINE_SIZE / interchangeColors.size());
+						final int lineHeight = lineSize * 2;
+						final int lineWidth = (int) Math.ceil((float) lineSize / interchangeColors.size());
 						for (int i = 0; i < interchangeColors.size(); i++) {
 							for (int drawX = 0; drawX < lineWidth; drawX++) {
 								for (int drawY = 0; drawY < lineHeight; drawY++) {
-									drawPixelSafe(nativeImage, x + drawX + lineWidth * i - lineWidth * interchangeColors.size() / 2, y + (textBelow ? -1 : lines * LINE_SPACING) + (textBelow ? -drawY : drawY), passed ? ARGB_LIGHT_GRAY : ARGB_BLACK + interchangeColors.get(i));
+									drawPixelSafe(nativeImage, x + drawX + lineWidth * i - lineWidth * interchangeColors.size() / 2, y + (textBelow ? -1 : lines * lineSpacing) + (textBelow ? -drawY : drawY), passed ? ARGB_LIGHT_GRAY : ARGB_BLACK + interchangeColors.get(i));
 								}
 							}
 						}
 
 						final int[] dimensions = new int[2];
-						final byte[] pixels = clientCache.getTextPixels(IGui.mergeStations(stationPositionGrouped.interchangeNames), dimensions, maxStringWidth - (vertical ? lineHeight : 0), FONT_SIZE_BIG / 2, FONT_SIZE_SMALL / 2, 0, vertical ? HorizontalAlignment.LEFT : HorizontalAlignment.CENTER);
-						drawString(nativeImage, pixels, x, y + (textBelow ? -1 - lineHeight : lines * LINE_SPACING + lineHeight), dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP, 0, passed ? ARGB_LIGHT_GRAY : ARGB_BLACK, renderWhite, vertical);
+						final byte[] pixels = clientCache.getTextPixels(IGui.mergeStations(stationPositionGrouped.interchangeNames), dimensions, maxStringWidth - (vertical ? lineHeight : 0), fontSizeBig / 2, fontSizeSmall / 2, 0, vertical ? HorizontalAlignment.LEFT : HorizontalAlignment.CENTER);
+						drawString(nativeImage, pixels, x, y + (textBelow ? -1 - lineHeight : lines * lineSpacing + lineHeight), dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP, 0, passed ? ARGB_LIGHT_GRAY : ARGB_BLACK, renderWhite, vertical);
 					}
 
 					drawStation(nativeImage, x, y, heightScale, lines, passed, renderWhite);
 
 					final Station station = clientCache.stationIdMap.get(stationId);
 					final int[] dimensions = new int[2];
-					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.name, dimensions, maxStringWidth, FONT_SIZE_BIG, FONT_SIZE_SMALL, FONT_SIZE_SMALL / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
-					drawString(nativeImage, pixels, x, y + (textBelow ? lines * LINE_SPACING : -1) + (textBelow ? 1 : -1) * LINE_SIZE * 5 / 4, dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, renderWhite, vertical);
+					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.name, dimensions, maxStringWidth, fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
+					drawString(nativeImage, pixels, x, y + (textBelow ? lines * lineSpacing : -1) + (textBelow ? 1 : -1) * lineSize * 5 / 4, dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, renderWhite, vertical);
 				}));
 
 				return new DynamicTexture(nativeImage);
@@ -391,7 +400,7 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static float getLineOffset(int routeIndex, int[] colorIndices) {
-		return (float) LINE_SPACING / SCALE * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
+		return (float) lineSpacing / scale * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
 	}
 
 	private static Stream<Route> getRouteStream(long platformId) {
@@ -413,10 +422,10 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static void drawLine(NativeImage nativeImage, StationPosition stationPosition1, StationPosition stationPosition2, float widthScale, float heightScale, float xOffset, float yOffset, int color) {
-		final int x1 = Math.round((stationPosition1.x + xOffset) * SCALE * widthScale);
-		final int x2 = Math.round((stationPosition2.x + xOffset) * SCALE * widthScale);
-		final int y1 = Math.round((stationPosition1.y + yOffset) * SCALE * heightScale);
-		final int y2 = Math.round((stationPosition2.y + yOffset) * SCALE * heightScale);
+		final int x1 = Math.round((stationPosition1.x + xOffset) * scale * widthScale);
+		final int x2 = Math.round((stationPosition2.x + xOffset) * scale * widthScale);
+		final int y1 = Math.round((stationPosition1.y + yOffset) * scale * heightScale);
+		final int y2 = Math.round((stationPosition2.y + yOffset) * scale * heightScale);
 		final int xChange = x2 - x1;
 		final int yChange = y2 - y1;
 		final int xChangeAbs = Math.abs(xChange);
@@ -424,7 +433,7 @@ public class RouteMapGenerator implements IGui {
 		final int changeDifference = Math.abs(yChangeAbs - xChangeAbs);
 
 		if (xChangeAbs > yChangeAbs) {
-			final boolean y1OffsetGreater = Math.abs(y1 - yOffset * SCALE) > Math.abs(y2 - yOffset * SCALE);
+			final boolean y1OffsetGreater = Math.abs(y1 - yOffset * scale) > Math.abs(y2 - yOffset * scale);
 			drawLine(nativeImage, x1, y1, x2 - x1, y1OffsetGreater ? 0 : y2 - y1, y1OffsetGreater ? changeDifference : yChangeAbs, color);
 			drawLine(nativeImage, x2, y2, x1 - x2, y1OffsetGreater ? y1 - y2 : 0, y1OffsetGreater ? yChangeAbs : changeDifference, color);
 		} else {
@@ -436,9 +445,9 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static void drawLine(NativeImage nativeImage, int x, int y, int directionX, int directionY, int length, int color) {
-		final int halfLineHeight = LINE_SIZE / 2;
+		final int halfLineHeight = lineSize / 2;
 		final int xWidth = directionX == 0 ? halfLineHeight : 0;
-		final int yWidth = directionX == 0 ? 0 : directionY == 0 ? halfLineHeight : Math.round(LINE_SIZE * Mth.SQRT_OF_TWO / 2);
+		final int yWidth = directionX == 0 ? 0 : directionY == 0 ? halfLineHeight : Math.round(lineSize * Mth.SQRT_OF_TWO / 2);
 		final int yMin = y - halfLineHeight - (directionY < 0 ? length : 0) + 1;
 		final int yMax = y + halfLineHeight + (directionY > 0 ? length : 0) - 1;
 		final int drawOffset = directionX != 0 && directionY != 0 ? halfLineHeight : 0;
@@ -460,17 +469,17 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static void drawStation(NativeImage nativeImage, int x, int y, float heightScale, int lines, boolean passed, boolean renderWhite) {
-		for (int offsetX = -LINE_SIZE; offsetX < LINE_SIZE; offsetX++) {
-			for (int offsetY = -LINE_SIZE; offsetY < LINE_SIZE; offsetY++) {
-				final int extraOffsetY = offsetY > 0 ? (int) (lines * LINE_SPACING * heightScale) : 0;
-				final int repeatDraw = offsetY == 0 ? (int) (lines * LINE_SPACING * heightScale) : 0;
+		for (int offsetX = -lineSize; offsetX < lineSize; offsetX++) {
+			for (int offsetY = -lineSize; offsetY < lineSize; offsetY++) {
+				final int extraOffsetY = offsetY > 0 ? (int) (lines * lineSpacing * heightScale) : 0;
+				final int repeatDraw = offsetY == 0 ? (int) (lines * lineSpacing * heightScale) : 0;
 				final double squareSum = (offsetX + 0.5) * (offsetX + 0.5) + (offsetY + 0.5) * (offsetY + 0.5);
 
-				if (squareSum <= 0.5 * LINE_SIZE * LINE_SIZE) {
+				if (squareSum <= 0.5 * lineSize * lineSize) {
 					for (int i = 0; i <= repeatDraw; i++) {
 						drawPixelSafe(nativeImage, x + offsetX, y + offsetY + extraOffsetY + i, renderWhite ? ARGB_WHITE : 0);
 					}
-				} else if (squareSum <= LINE_SIZE * LINE_SIZE) {
+				} else if (squareSum <= lineSize * lineSize) {
 					for (int i = 0; i <= repeatDraw; i++) {
 						drawPixelSafe(nativeImage, x + offsetX, y + offsetY + extraOffsetY + i, passed ? ARGB_LIGHT_GRAY : ARGB_BLACK);
 					}
