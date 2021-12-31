@@ -54,32 +54,34 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
-		if (platformId != 0) {
-			matrices.translate(0, 1, 0);
-			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-			matrices.translate(-0.5, 0, z);
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
+			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+			if (platformId != 0) {
+				matrices.translate(0, 1, 0);
+				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+				matrices.translate(-0.5, 0, z);
 
-			final RenderType renderType = getRenderType(world, pos, state);
-			if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
-				final int glassLength = getGlassLength(world, pos, facing);
-				final boolean isLeft = isLeft(state);
-				if (isLeft && glassLength > 1) {
-					final float width = glassLength - sidePadding * 2;
-					final float height = 1 - topPadding - bottomPadding;
-					final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+				final RenderType renderType = getRenderType(world, pos, state);
+				if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
+					final int glassLength = getGlassLength(world, pos, facing);
+					final boolean isLeft = isLeft(state);
+					if (isLeft && glassLength > 1) {
+						final float width = glassLength - sidePadding * 2;
+						final float height = 1 - topPadding - bottomPadding;
+						final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-					final VertexConsumer vertexConsumer;
-					if (renderType == RenderType.ARROW) {
-						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, renderWhite, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, true, width / height)));
-					} else {
-						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, renderWhite, false, arrowDirection == 2, width / height)));
+						final VertexConsumer vertexConsumer;
+						if (renderType == RenderType.ARROW) {
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, renderWhite, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, true, width / height)));
+						} else {
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, renderWhite, false, arrowDirection == 2, width / height)));
+						}
+
+						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 					}
 
-					IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+					renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 				}
-
-				renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 			}
 		}
 

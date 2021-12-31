@@ -99,7 +99,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
 			if (showAllPlatforms) {
-				final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 				if (station == null) {
 					return;
 				}

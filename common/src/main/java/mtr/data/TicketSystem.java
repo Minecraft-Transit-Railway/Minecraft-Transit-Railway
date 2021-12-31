@@ -25,7 +25,7 @@ public class TicketSystem {
 			return EnumTicketBarrierOpen.CLOSED;
 		}
 
-		final Station station = RailwayData.getStation(railwayData.stations, pos);
+		final Station station = RailwayData.getStation(railwayData.stations, railwayData.dataCache, pos);
 		if (station == null) {
 			return EnumTicketBarrierOpen.CLOSED;
 		}

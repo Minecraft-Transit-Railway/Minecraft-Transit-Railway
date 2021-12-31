@@ -48,13 +48,16 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+			return;
+		}
 
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			return;
 		}
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 		if (station == null) {
 			return;
 		}

@@ -118,7 +118,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final MultiBufferSource.BufferSource immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
 		if (vertexConsumers != null && isExit) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}
@@ -156,7 +156,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 			matrices.popPose();
 		} else if (vertexConsumers != null && isLine) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}
@@ -192,7 +192,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				matrices.popPose();
 			}
 		} else if (vertexConsumers != null && isPlatform) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}

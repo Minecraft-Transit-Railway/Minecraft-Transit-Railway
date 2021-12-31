@@ -61,7 +61,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-		final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? new TranslatableComponent("gui.mtr.untitled").getString() : station.name, color, light);
 		immediate.endBatch();

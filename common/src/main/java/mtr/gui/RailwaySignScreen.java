@@ -67,7 +67,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 		allSignIds.addAll(sortedKeys);
 
 		try {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, signPos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, signPos);
 			if (station != null) {
 				final Map<String, List<String>> exits = station.getGeneratedExits();
 				final List<String> exitParents = new ArrayList<>(exits.keySet());
