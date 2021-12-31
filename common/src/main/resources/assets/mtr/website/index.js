@@ -1,7 +1,7 @@
 import CANVAS from "./utilities.js"
 import drawMap from "./drawing.js";
 
-const URL = document.location.origin + document.location.pathname;
+const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
 	dataUrl: URL + "data",
 	arrivalsUrl: URL + "arrivals",
