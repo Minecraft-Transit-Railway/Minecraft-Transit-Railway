@@ -56,6 +56,9 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
 			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+			final int glassLength = getGlassLength(world, pos, facing);
+			final boolean isLeft = isLeft(state);
+
 			if (platformId != 0) {
 				matrices.translate(0, 1, 0);
 				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
@@ -63,8 +66,6 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 				final RenderType renderType = getRenderType(world, pos, state);
 				if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
-					final int glassLength = getGlassLength(world, pos, facing);
-					final boolean isLeft = isLeft(state);
 					if (isLeft && glassLength > 1) {
 						final float width = glassLength - sidePadding * 2;
 						final float height = 1 - topPadding - bottomPadding;
@@ -79,13 +80,18 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 					}
-
-					renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 				}
 			}
+
+			renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
 		}
 
 		matrices.popPose();
+	}
+
+	@Override
+	public boolean shouldRenderOffScreen(T blockEntity) {
+		return true;
 	}
 
 	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
