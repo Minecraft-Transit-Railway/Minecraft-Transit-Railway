@@ -134,12 +134,12 @@ public class ClientCache extends DataCache {
 		return getResource(String.format("name_%s_%s", platformId, aspectRatio), "textures/block/white.png", () -> RouteMapGenerator.generateStationName(platformId, aspectRatio));
 	}
 
-	public ResourceLocation getDirectionArrow(long platformId, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s", platformId, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, false, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
+	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, boolean showToString, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s", platformId, invert, renderWhite, hasLeft, hasRight, showToString, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, renderWhite, hasLeft, hasRight, showToString, aspectRatio));
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean flip, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s", platformId, renderWhite, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateHorizontalRouteMap(platformId, renderWhite, false, flip, aspectRatio));
+	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean vertical, boolean flip, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s,%s_%s", platformId, renderWhite, vertical, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateRouteMap(platformId, renderWhite, vertical, flip, aspectRatio));
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
