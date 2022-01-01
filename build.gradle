@@ -61,13 +61,13 @@ subprojects {
 task setupFiles() {
 	download {
 		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : "1.18"}.zip"
-		dest "common/src/main/java/mtr/mappings/files.zip"
+		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 	}
 
 	copy {
 		outputs.upToDateWhen { false }
-		from(zipTree("common/src/main/java/mtr/mappings/files.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		from(zipTree("common/src/main/java/mtr/mappings/mappings.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
 		into "common/src/main/java/mtr/mappings"
 		filter(ReplaceTokens, tokens: ["package": "mtr.mappings"])
 	}
@@ -78,6 +78,18 @@ task setupFiles() {
 
 	ant.path { ant.fileset(dir: "common/src/main/java/mtr/mappings", includes: "Forge*.java") }.list().each {
 		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
+	}
+
+	download {
+		src "https://crowdin.com/backend/download/project/minecraft-transit-railway.zip"
+		dest "common/src/main/java/mtr/mappings/lang.zip"
+		overwrite true
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from(zipTree("common/src/main/java/mtr/mappings/lang.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		into "common/src/main/resources/assets/mtr/lang"
 	}
 
 	copy {
