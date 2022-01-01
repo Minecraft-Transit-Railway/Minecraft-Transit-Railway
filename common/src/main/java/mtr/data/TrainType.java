@@ -16,6 +16,8 @@ public enum TrainType {
 	MLR_MINI(12, 2, 0),
 	E44(24, 2, 0),
 	E44_MINI(12, 2, 0),
+	DRL(24, 2, 0),
+	DRL_MINNIE(24, 2, 0),
 	K_TRAIN(24, 2, 0),
 	K_TRAIN_SMALL(19, 2, 0),
 	K_TRAIN_MINI(9, 2, 0),
