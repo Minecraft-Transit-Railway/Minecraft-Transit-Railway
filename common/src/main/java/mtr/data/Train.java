@@ -37,7 +37,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final SimpleContainer inventory;
 	private final float railLength;
 
-	public static final float ACCELERATION = 0.004F;
+	public static final float ACCELERATION = 0.01F;
 	protected static final int MAX_CHECK_DISTANCE = 32;
 	protected static final int DOOR_MOVE_TIME = 64;
 	private static final int DOOR_DELAY = 20;
