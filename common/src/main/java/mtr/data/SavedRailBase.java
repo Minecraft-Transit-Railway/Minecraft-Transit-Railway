@@ -86,7 +86,15 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
-		return new AABB(getPosition(0), getPosition(1)).inflate(-radius, -lower, -radius).inflate(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		final int x1 = Math.min(pos1.getX(), pos2.getX());
+		final int y1 = Math.min(pos1.getY(), pos2.getY());
+		final int z1 = Math.min(pos1.getZ(), pos2.getZ());
+		final int x2 = Math.max(pos1.getX(), pos2.getX());
+		final int y2 = Math.max(pos1.getY(), pos2.getY());
+		final int z2 = Math.max(pos1.getZ(), pos2.getZ());
+		return new AABB(x1 - radius, y1 - lower, z1 - radius, x2 + radius + 1, y2 + upper + 1, z2 + radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {
