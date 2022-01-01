@@ -27,7 +27,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	private static final float COLOR_STRIP_END = 0.9375F;
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher, 2 - SMALL_OFFSET_16, 0, 1.5F, 7.5F, false);
+		super(dispatcher, 2 - SMALL_OFFSET_16, 0.125F, 1.5F, 7.5F);
 	}
 
 	@Override

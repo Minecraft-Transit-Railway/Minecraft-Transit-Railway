@@ -163,6 +163,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		super.onClose();
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
+		ClientData.DATA_CACHE.sync();
 	}
 
 	private static void setButtonText(Button button, boolean state) {
