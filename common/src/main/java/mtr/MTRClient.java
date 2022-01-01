@@ -1,6 +1,5 @@
 package mtr;
 
-import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
 import mtr.block.BlockPIDS1;
 import mtr.block.BlockPIDS2;
 import mtr.block.BlockPIDS3;
@@ -233,7 +232,6 @@ public class MTRClient implements IPacket {
 
 		Config.getPatreonList();
 		Config.refreshProperties();
-		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
 
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
