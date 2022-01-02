@@ -6,7 +6,7 @@ public enum RailType implements IGui {
 	WOODEN(20, MaterialColor.WOOD, false, true),
 	STONE(40, MaterialColor.STONE, false, true),
 	EMERALD(60, MaterialColor.EMERALD, false, true),
-	IRON(80, MaterialColor.SNOW, false, true),
+	IRON(80, MaterialColor.METAL, false, true),
 	OBSIDIAN(120, MaterialColor.COLOR_PURPLE, false, true),
 	BLAZE(160, MaterialColor.COLOR_ORANGE, false, true),
 	QUARTZ(200, MaterialColor.QUARTZ, false, true),

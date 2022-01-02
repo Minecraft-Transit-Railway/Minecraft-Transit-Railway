@@ -18,14 +18,14 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockRail extends HorizontalDirectionalBlock {
+public class BlockRailNode extends HorizontalDirectionalBlock {
 
 	public static final BooleanProperty FACING = BooleanProperty.create("facing");
 	public static final BooleanProperty IS_22_5 = BooleanProperty.create("is_22_5");
 	public static final BooleanProperty IS_45 = BooleanProperty.create("is_45");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.create("is_connected");
 
-	public BlockRail(Properties settings) {
+	public BlockRailNode(Properties settings) {
 		super(settings);
 		registerDefaultState(defaultBlockState().setValue(FACING, false).setValue(IS_22_5, false).setValue(IS_45, false));
 	}
@@ -49,7 +49,7 @@ public class BlockRail extends HorizontalDirectionalBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		return Block.box(0, 0, 0, 16, 1, 16);
+		return IBlock.getStatePropertySafe(state, IS_CONNECTED) ? Block.box(0, 0, 0, 16, 1, 16) : Shapes.block();
 	}
 
 	@Override
@@ -68,10 +68,10 @@ public class BlockRail extends HorizontalDirectionalBlock {
 	}
 
 	public static void resetRailNode(Level world, BlockPos pos) {
-		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(BlockRail.IS_CONNECTED, false));
+		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(BlockRailNode.IS_CONNECTED, false));
 	}
 
 	public static float getAngle(BlockState state) {
-		return (IBlock.getStatePropertySafe(state, BlockRail.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRail.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRail.IS_45) ? 45 : 0);
+		return (IBlock.getStatePropertySafe(state, BlockRailNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRailNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRailNode.IS_45) ? 45 : 0);
 	}
 }
