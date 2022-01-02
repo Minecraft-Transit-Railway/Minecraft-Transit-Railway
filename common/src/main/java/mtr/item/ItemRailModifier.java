@@ -1,6 +1,6 @@
 package mtr.item;
 
-import mtr.block.BlockRail;
+import mtr.block.BlockRailNode;
 import mtr.data.Rail;
 import mtr.data.RailAngle;
 import mtr.data.RailType;
@@ -60,8 +60,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			if (goodRadius && isValid) {
 				railwayData.addRail(posStart, posEnd, rail1, false);
 				final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
-				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockRail.IS_CONNECTED, true));
-				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockRail.IS_CONNECTED, true));
+				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockRailNode.IS_CONNECTED, true));
+				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockRailNode.IS_CONNECTED, true));
 				PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
 			} else if (player != null) {
 				player.displayClientMessage(new TranslatableComponent(goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small"), true);

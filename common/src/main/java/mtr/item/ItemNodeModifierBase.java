@@ -1,7 +1,7 @@
 package mtr.item;
 
 import mtr.ItemGroups;
-import mtr.block.BlockRail;
+import mtr.block.BlockRailNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import net.minecraft.ChatFormatting;
@@ -40,20 +40,20 @@ public abstract class ItemNodeModifierBase extends Item {
 			final BlockPos posStart = context.getClickedPos();
 			final BlockState stateStart = world.getBlockState(posStart);
 
-			if (railwayData != null && stateStart.getBlock() instanceof BlockRail) {
+			if (railwayData != null && stateStart.getBlock() instanceof BlockRailNode) {
 				final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
 
 				if (compoundTag.contains(TAG_POS)) {
 					final BlockPos posEnd = BlockPos.of(compoundTag.getLong(TAG_POS));
 					final BlockState stateEnd = world.getBlockState(posEnd);
 
-					if (stateEnd.getBlock() instanceof BlockRail) {
+					if (stateEnd.getBlock() instanceof BlockRailNode) {
 						final Player player = context.getPlayer();
 
 						if (isConnector) {
 							if (!posStart.equals(posEnd)) {
-								final float angle1 = BlockRail.getAngle(stateStart);
-								final float angle2 = BlockRail.getAngle(stateEnd);
+								final float angle1 = BlockRailNode.getAngle(stateStart);
+								final float angle2 = BlockRailNode.getAngle(stateEnd);
 
 								final float angleDifference = (float) Math.toDegrees(Math.atan2(posEnd.getZ() - posStart.getZ(), posEnd.getX() - posStart.getX()));
 								final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
