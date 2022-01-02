@@ -3,7 +3,7 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
-import mtr.block.BlockRail;
+import mtr.block.BlockRailNode;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -463,7 +463,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			rails.forEach((startPos, railMap) -> {
 				railMap.remove(pos);
 				if (railMap.isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, startPos);
+					BlockRailNode.resetRailNode(world, startPos);
 				}
 			});
 			if (world != null) {
@@ -479,13 +479,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (rails.containsKey(pos1)) {
 				rails.get(pos1).remove(pos2);
 				if (rails.get(pos1).isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, pos1);
+					BlockRailNode.resetRailNode(world, pos1);
 				}
 			}
 			if (rails.containsKey(pos2)) {
 				rails.get(pos2).remove(pos1);
 				if (rails.get(pos2).isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, pos2);
+					BlockRailNode.resetRailNode(world, pos2);
 				}
 			}
 			if (world != null) {
@@ -607,7 +607,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
 			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
+			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRailNode)) {
 				removeNode(null, rails, startPos);
 			}
 
