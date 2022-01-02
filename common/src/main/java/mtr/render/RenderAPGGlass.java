@@ -20,7 +20,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 	private static final float COLOR_STRIP_END = 0.78125F;
 
 	public RenderAPGGlass(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher, 4, 8, 4, 8, true);
+		super(dispatcher, 4, 8, 4, 8);
 	}
 
 	@Override

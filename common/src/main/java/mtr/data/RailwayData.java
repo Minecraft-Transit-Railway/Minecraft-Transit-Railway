@@ -522,7 +522,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (dataCache.blockPosToPlatformId.containsKey(pos)) {
 				return dataCache.blockPosToPlatformId.get(pos);
 			} else {
-				long platformId = platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, radius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).map(platform -> platform.id).orElse(0L);
+				long platformId = 0;
+				for (int i = 1; i <= radius; i++) {
+					final int searchRadius = i;
+					platformId = platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, searchRadius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).map(platform -> platform.id).orElse(0L);
+					if (platformId != 0) {
+						break;
+					}
+				}
 				dataCache.blockPosToPlatformId.put(pos, platformId);
 				return platformId;
 			}

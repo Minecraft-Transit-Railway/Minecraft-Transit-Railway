@@ -4,6 +4,7 @@ import mtr.MTR;
 import mtr.data.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -36,12 +37,14 @@ public class ClientCache extends DataCache {
 	private final List<Long> clearStationIdToPlatforms = new ArrayList<>();
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
-	private final List<String> clearDynamicResources = new ArrayList<>();
+	private final List<String> dynamicResourceIds = new ArrayList<>();
+	private final Set<String> dynamicResourceIdsToRefresh = new HashSet<>();
 
 	private final Map<String, ResourceLocation> dynamicResources = new HashMap<>();
 	private boolean canGenerateResource = true;
 
 	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
+	private static final float MAX_DYNAMIC_RESOURCES = 100;
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -78,11 +81,7 @@ public class ClientCache extends DataCache {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		dynamicResources.keySet().forEach(id -> {
-			if (!clearDynamicResources.contains(id)) {
-				clearDynamicResources.add(id);
-			}
-		});
+		dynamicResourceIdsToRefresh.addAll(dynamicResourceIds);
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -127,19 +126,19 @@ public class ClientCache extends DataCache {
 	}
 
 	public ResourceLocation getColorStrip(long platformId) {
-		return getResource(String.format("color_%s", platformId), "textures/block/transparent.png", () -> RouteMapGenerator.generateColorStrip(platformId));
+		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), false);
 	}
 
 	public ResourceLocation getStationName(long platformId, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", platformId, aspectRatio), "textures/block/white.png", () -> RouteMapGenerator.generateStationName(platformId, aspectRatio));
+		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), false);
 	}
 
-	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean renderWhite, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, renderWhite, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, renderWhite, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio));
+	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio), () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio), invert);
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean renderWhite, boolean vertical, boolean flip, float aspectRatio) {
-		return getResource(String.format("map_%s_%s_%s,%s_%s", platformId, renderWhite, vertical, flip, aspectRatio), renderWhite ? "textures/block/white.png" : "textures/block/transparent.png", () -> RouteMapGenerator.generateRouteMap(platformId, renderWhite, vertical, flip, aspectRatio));
+	public ResourceLocation getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio) {
+		return getResource(String.format("map_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio), false);
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
@@ -221,12 +220,9 @@ public class ClientCache extends DataCache {
 		if (!clearPlatformIdToRoutes.isEmpty()) {
 			platformIdToRoutes.remove(clearPlatformIdToRoutes.remove(0));
 		}
-		if (!clearDynamicResources.isEmpty()) {
-			dynamicResources.remove(clearDynamicResources.remove(0));
-		}
 	}
 
-	private ResourceLocation getResource(String key, String defaultResource, Supplier<DynamicTexture> supplier) {
+	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, boolean defaultBlack) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -238,17 +234,30 @@ public class ClientCache extends DataCache {
 			}
 		}
 
-		if (dynamicResources.containsKey(key)) {
+		final boolean hasKey = dynamicResources.containsKey(key);
+		if (hasKey && !dynamicResourceIdsToRefresh.contains(key)) {
 			return dynamicResources.get(key);
 		} else {
-			final ResourceLocation defaultLocation = new ResourceLocation(MTR.MOD_ID, defaultResource);
+			final ResourceLocation defaultLocation = hasKey ? dynamicResources.get(key) : new ResourceLocation(MTR.MOD_ID, defaultBlack ? "textures/block/black.png" : "textures/block/white.png");
+
 			if (canGenerateResource) {
 				canGenerateResource = false;
 				RouteMapGenerator.setConstants();
+
 				new Thread(() -> {
 					final DynamicTexture dynamicTexture = supplier.get();
 					minecraftClient.execute(() -> {
-						dynamicResources.put(key, dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture));
+						final TextureManager textureManager = minecraftClient.getTextureManager();
+						dynamicResourceIds.add(key);
+
+						while (dynamicResourceIds.size() >= MAX_DYNAMIC_RESOURCES) {
+							final String keyToRemove = dynamicResourceIds.remove(0);
+							minecraftClient.getTextureManager().release(dynamicResources.get(keyToRemove));
+							dynamicResources.remove(keyToRemove);
+						}
+
+						dynamicResources.put(key, dynamicTexture == null ? defaultLocation : textureManager.register(MTR.MOD_ID, dynamicTexture));
+						dynamicResourceIdsToRefresh.remove(key);
 						canGenerateResource = true;
 					});
 				}).start();

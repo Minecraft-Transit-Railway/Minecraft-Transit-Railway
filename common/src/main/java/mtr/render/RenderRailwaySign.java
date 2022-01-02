@@ -205,13 +205,14 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				final List<Long> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).sorted(Comparator.comparing(platformPositions::get)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
-				final float height = size / selectedCount;
+				final float extraMargin = margin - margin / selectedCount;
+				final float height = (size - extraMargin * 2) / selectedCount;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
-					final float topOffset = i * height;
-					final float bottomOffset = (i + 1) * height;
+					final float topOffset = i * height + extraMargin;
+					final float bottomOffset = (i + 1) * height + extraMargin;
 					final float left = (flipCustomText ? x - maxWidthLeft * size : x) + margin;
 					final float right = (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin;
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset)), false));
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset)), false));
 					IDrawing.drawTexture(matrices, vertexConsumer, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				}
 			}
