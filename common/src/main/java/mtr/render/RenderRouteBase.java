@@ -78,9 +78,9 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 					}
 				}
-			}
 
-			renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
+				renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
+			}
 		}
 
 		matrices.popPose();
