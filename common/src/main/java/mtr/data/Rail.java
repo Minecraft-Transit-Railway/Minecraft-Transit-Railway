@@ -1,11 +1,17 @@
 package mtr.data;
 
 import mtr.EnumHelper;
+import mtr.block.BlockRailNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.function.Consumer;
 
 public class Rail extends SerializedDataBase {
 
@@ -395,6 +401,80 @@ public class Rail extends SerializedDataBase {
 			return t - 2 * Math.PI * r;
 		} else {
 			return t;
+		}
+	}
+
+	public static class RailActions {
+
+		private double distance;
+		private final Level world;
+		private final Rail rail;
+		private final int radius;
+		private final int height;
+		private final double length;
+		private final BlockState state;
+
+		private static final double INCREMENT = 0.01;
+
+		public RailActions(Level world, Rail rail, int radius, int height, BlockState state) {
+			this.world = world;
+			this.rail = rail;
+			this.radius = radius;
+			this.height = height;
+			this.state = state;
+			length = rail.getLength();
+			distance = 0;
+		}
+
+		public boolean createTunnel() {
+			return create(true, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				if (!world.getBlockState(pos).isAir() && canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+				}
+			});
+		}
+
+		public boolean createTunnelWall() {
+			return create(false, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				if (canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, state);
+				}
+			});
+		}
+
+		private boolean create(boolean includeMiddle, Consumer<Vec3> consumer) {
+			for (int i = 0; i < 0.5 / INCREMENT; i++) {
+				final Vec3 pos1 = rail.getPosition(distance);
+				distance = Math.min(length, distance + INCREMENT);
+				final Vec3 pos2 = rail.getPosition(distance);
+				final Vec3 vec3 = new Vec3(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().yRot((float) Math.PI / 2);
+
+				for (double x = -radius; x <= radius; x += INCREMENT) {
+					final Vec3 editPos = pos1.add(vec3.multiply(x, 0, x));
+					final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
+					if (includeMiddle || Math.abs(x) > radius - INCREMENT) {
+						for (int y = 0; y <= height; y++) {
+							if (y < height || !wholeNumber) {
+								consumer.accept(editPos.add(0, y, 0));
+							}
+						}
+					} else {
+						consumer.accept(editPos.add(0, wholeNumber ? height - 1 : height, 0));
+					}
+				}
+
+				if (distance == length) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private boolean canPlace(Level world, BlockPos pos) {
+			return world.getBlockEntity(pos) == null && !(world.getBlockState(pos).getBlock() instanceof BlockRailNode);
 		}
 	}
 

@@ -59,7 +59,7 @@ public abstract class ItemNodeModifierBase extends Item {
 								final RailAngle railAngleStart = RailAngle.fromAngle(angle1 + (RailAngle.similarFacing(angleDifference, angle1) ? 0 : 180));
 								final RailAngle railAngleEnd = RailAngle.fromAngle(angle2 + (RailAngle.similarFacing(angleDifference, angle2) ? 180 : 0));
 
-								onConnect(world, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
+								onConnect(world, context.getItemInHand(), stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
 							}
 						} else {
 							onRemove(world, posStart, posEnd, railwayData);
@@ -81,15 +81,15 @@ public abstract class ItemNodeModifierBase extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final CompoundTag compoundTag = itemStack.getOrCreateTag();
+	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		final CompoundTag compoundTag = stack.getOrCreateTag();
 		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
 			tooltip.add(new TranslatableComponent("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 		}
 	}
 
-	protected abstract void onConnect(Level world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
+	protected abstract void onConnect(Level world, ItemStack stack, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
 
 	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
 }

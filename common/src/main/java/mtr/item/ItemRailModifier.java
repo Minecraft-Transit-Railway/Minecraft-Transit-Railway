@@ -45,7 +45,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(Level world, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
+	protected void onConnect(Level world, ItemStack stack, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 			if (player != null) {
 				player.displayClientMessage(new TranslatableComponent("gui.mtr.platform_or_siding_exists"), true);
