@@ -77,7 +77,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
 		matrices.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 
-		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, true, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, false, 0.2F, WIDTH / HEIGHT_TOP)));
+		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, true, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP)));
 		IDrawing.drawTexture(matrices, vertexConsumer1, 1 - SIDE, TOP, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
 		final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, true, false, HEIGHT_BOTTOM / WIDTH)));
 		IDrawing.drawTexture(matrices, vertexConsumer2, 1 - SIDE, MIDDLE, 0, 1 - SIDE, BOTTOM, 0, SIDE, BOTTOM, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
