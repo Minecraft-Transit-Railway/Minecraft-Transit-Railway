@@ -1,7 +1,0 @@
-{
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "mtr:item/rail_action_selected",
-		"layer1": "mtr:item/bridge_creator_7"
-	}
-}
