@@ -2,10 +2,12 @@ package mtr.forge;
 
 import mtr.mappings.NetworkUtilities;
 import mtr.mappings.RegistryUtilities;
+import mtr.mixin.PlayerTeleportationStateAccessor;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -45,5 +47,9 @@ public class RegistryImpl {
 
 	public static void sendToPlayer(ServerPlayer player, ResourceLocation id, FriendlyByteBuf packet) {
 		NetworkUtilities.sendToPlayer(player, id, packet);
+	}
+
+	public static void setInTeleportationState(Player player, boolean isRiding) {
+		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 }
