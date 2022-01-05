@@ -5,6 +5,7 @@ import mtr.MTR;
 import mtr.Registry;
 import mtr.block.BlockRailNode;
 import mtr.mappings.PersistentStateMapper;
+import mtr.mixin.PlayerTeleportationStateAccessor;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -674,6 +675,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		player.fallDistance = 0;
 		player.setNoGravity(isRiding);
 		player.noPhysics = isRiding;
+		((PlayerTeleportationStateAccessor) player).setInTeleportationState(isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

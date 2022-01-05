@@ -1,8 +1,10 @@
 {
 	"required": true,
+	"minVersion": "0.8",
 	"package": "mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
+		"PlayerTeleportationStateAccessor"
 	],
 	"client": [
 		"UnknownPacketMixin"
