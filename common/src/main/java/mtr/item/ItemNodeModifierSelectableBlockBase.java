@@ -1,14 +1,15 @@
 package mtr.item;
 
+import mtr.block.BlockRailNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -47,9 +48,15 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 				final Player player = context.getPlayer();
 				if (player != null && player.isShiftKeyDown()) {
 					final BlockState state = world.getBlockState(context.getClickedPos());
-					player.displayClientMessage(new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(state.getBlock().getDescriptionId())), true);
+					final BlockState newState;
+					if (state.getBlock() instanceof BlockRailNode) {
+						newState = Blocks.AIR.defaultBlockState();
+					} else {
+						newState = state;
+					}
+					player.displayClientMessage(new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(newState.getBlock().getDescriptionId())), true);
 					final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
-					compoundTag.putInt(TAG_BLOCK_ID, Block.getId(state));
+					compoundTag.putInt(TAG_BLOCK_ID, Block.getId(newState));
 					return InteractionResult.SUCCESS;
 				}
 			}
@@ -60,18 +67,18 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_height", height).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		if (height > 0) {
+			tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_height", height).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		}
 		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_width", width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final TranslatableComponent text;
-			if (state.isAir()) {
-				text = getShiftClickReminder();
-			} else {
-				text = new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(state.getBlock().getDescriptionId()));
+			final String[] textSplit = new TranslatableComponent(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), new TranslatableComponent(mtr.Blocks.RAIL_NODE.getDescriptionId())).getString().split("\\|");
+			for (String text : textSplit) {
+				tooltip.add(new TextComponent(text).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).applyFormat(ChatFormatting.ITALIC)));
 			}
-			tooltip.add(text.setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
+			tooltip.add(new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(state.getBlock().getDescriptionId())).setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
 		}
 
 		super.appendHoverText(stack, level, tooltip, tooltipFlag);
@@ -95,11 +102,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		} else {
 			return Blocks.AIR.defaultBlockState();
 		}
-	}
-
-	protected TranslatableComponent getShiftClickReminder() {
-		final Options options = Minecraft.getInstance().options;
-		return new TranslatableComponent("tooltip.mtr.shift_right_click_to_select_material", options.keyShift.getTranslatedKeyMessage(), options.keyUse.getTranslatedKeyMessage());
 	}
 
 	protected abstract boolean onConnect(Player player, ItemStack itemStack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height);

@@ -52,7 +52,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_DOOR_2);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_2);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RAIL);
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RAIL_NODE);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1);
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS);
@@ -123,6 +123,10 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_GREEN, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_RED, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_BLACK, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_9, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_3, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_5, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_7, ItemNodeModifierBase.TAG_POS);

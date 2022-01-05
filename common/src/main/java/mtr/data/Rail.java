@@ -8,9 +8,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class Rail extends SerializedDataBase {
@@ -413,6 +417,7 @@ public class Rail extends SerializedDataBase {
 		private final int height;
 		private final double length;
 		private final BlockState state;
+		private final Set<BlockPos> blacklistedPos = new HashSet<>();
 
 		private static final double INCREMENT = 0.01;
 
@@ -440,6 +445,36 @@ public class Rail extends SerializedDataBase {
 				final BlockPos pos = new BlockPos(editPos);
 				if (canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, state);
+				}
+			});
+		}
+
+		public boolean createBridge() {
+			final boolean isSlab = state.getBlock() instanceof SlabBlock;
+			return create(false, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				final boolean isTopHalf = editPos.y - Math.floor(editPos.y) >= 0.5;
+				blacklistedPos.add(getHalfPos(pos, isTopHalf));
+
+				final BlockPos placePos;
+				final BlockState placeState;
+				final boolean placeHalf;
+
+				if (isSlab && isTopHalf) {
+					placePos = pos;
+					placeState = state.setValue(SlabBlock.TYPE, SlabType.BOTTOM);
+					placeHalf = false;
+				} else {
+					placePos = pos.below();
+					placeState = isSlab ? state.setValue(SlabBlock.TYPE, SlabType.TOP) : state;
+					placeHalf = true;
+				}
+
+				if (canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+				}
+				if (!blacklistedPos.contains(getHalfPos(placePos, placeHalf)) && canPlace(world, placePos)) {
+					world.setBlockAndUpdate(placePos, placeState);
 				}
 			});
 		}
@@ -473,8 +508,12 @@ public class Rail extends SerializedDataBase {
 			return false;
 		}
 
-		private boolean canPlace(Level world, BlockPos pos) {
+		private static boolean canPlace(Level world, BlockPos pos) {
 			return world.getBlockEntity(pos) == null && !(world.getBlockState(pos).getBlock() instanceof BlockRailNode);
+		}
+
+		private static BlockPos getHalfPos(BlockPos pos, boolean isTopHalf) {
+			return new BlockPos(pos.getX(), pos.getY() * 2 + (isTopHalf ? 1 : 0), pos.getZ());
 		}
 	}
 

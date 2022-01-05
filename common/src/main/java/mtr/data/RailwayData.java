@@ -48,6 +48,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
 	private final List<Rail.RailActions> railsToCreateTunnel = new ArrayList<>();
 	private final List<Rail.RailActions> railsToCreateTunnelWall = new ArrayList<>();
+	private final List<Rail.RailActions> railsToCreateBridge = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
@@ -211,6 +212,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 		if (!railsToCreateTunnelWall.isEmpty() && railsToCreateTunnelWall.get(0).createTunnelWall()) {
 			railsToCreateTunnelWall.remove(0);
+		}
+		if (!railsToCreateBridge.isEmpty() && railsToCreateBridge.get(0).createBridge()) {
+			railsToCreateBridge.remove(0);
 		}
 
 		trainsInPlayerRange.forEach((player, trains) -> {
@@ -399,6 +403,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public boolean markRailForTunnelWall(BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
 		if (containsRail(pos1, pos2)) {
 			railsToCreateTunnelWall.add(new Rail.RailActions(world, rails.get(pos1).get(pos2), radius + 1, height + 1, state));
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean markRailForBridge(BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+		if (containsRail(pos1, pos2)) {
+			railsToCreateBridge.add(new Rail.RailActions(world, rails.get(pos1).get(pos2), radius, 0, state));
 			return true;
 		} else {
 			return false;

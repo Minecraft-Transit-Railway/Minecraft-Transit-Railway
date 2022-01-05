@@ -6,15 +6,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
+public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 
-	public ItemTunnelWallCreator(int height, int width) {
-		super(true, height, width);
+	public ItemBridgeCreator(int width) {
+		super(true, 0, width);
 	}
 
 	@Override
 	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
 		final BlockState state = getSavedState(stack);
-		return state == null || railwayData.markRailForTunnelWall(posStart, posEnd, radius, height, state);
+		return state == null || railwayData.markRailForBridge(posStart, posEnd, radius, height, state);
 	}
 }

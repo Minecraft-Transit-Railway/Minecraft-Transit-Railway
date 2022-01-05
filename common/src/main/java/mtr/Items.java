@@ -72,6 +72,10 @@ public interface Items {
 	Item SIGNAL_REMOVER_GREEN = new ItemSignalModifier(false, DyeColor.GREEN);
 	Item SIGNAL_REMOVER_RED = new ItemSignalModifier(false, DyeColor.RED);
 	Item SIGNAL_REMOVER_BLACK = new ItemSignalModifier(false, DyeColor.BLACK);
+	Item BRIDGE_CREATOR_3 = new ItemBridgeCreator(3);
+	Item BRIDGE_CREATOR_5 = new ItemBridgeCreator(5);
+	Item BRIDGE_CREATOR_7 = new ItemBridgeCreator(7);
+	Item BRIDGE_CREATOR_9 = new ItemBridgeCreator(9);
 	Item TUNNEL_CREATOR_4_3 = new ItemTunnelCreator(4, 3);
 	Item TUNNEL_CREATOR_4_5 = new ItemTunnelCreator(4, 5);
 	Item TUNNEL_CREATOR_4_7 = new ItemTunnelCreator(4, 7);
