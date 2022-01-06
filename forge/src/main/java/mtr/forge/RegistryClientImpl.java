@@ -1,6 +1,6 @@
 package mtr.forge;
 
-import mtr.gui.ClientData;
+import mtr.client.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.mappings.NetworkUtilities;

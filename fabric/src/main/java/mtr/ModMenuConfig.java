@@ -2,7 +2,7 @@ package mtr;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import mtr.gui.ConfigScreen;
+import mtr.screen.ConfigScreen;
 
 public class ModMenuConfig implements ModMenuApi {
 

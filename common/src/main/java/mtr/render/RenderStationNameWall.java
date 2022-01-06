@@ -3,7 +3,7 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockStationNameBase;
 import mtr.block.BlockStationNameWall;
-import mtr.gui.IDrawing;
+import mtr.client.IDrawing;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;

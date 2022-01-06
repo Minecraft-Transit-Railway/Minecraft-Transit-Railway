@@ -2,12 +2,12 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.Route;
-import mtr.gui.ClientCache;
-import mtr.gui.ClientData;
-import mtr.gui.IDrawing;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;

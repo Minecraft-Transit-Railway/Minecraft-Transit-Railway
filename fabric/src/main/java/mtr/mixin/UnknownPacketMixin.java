@@ -1,6 +1,6 @@
 package mtr.mixin;
 
-import mtr.gui.ClientData;
+import mtr.client.ClientData;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;

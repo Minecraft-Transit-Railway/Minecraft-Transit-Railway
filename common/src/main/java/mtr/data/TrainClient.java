@@ -1,8 +1,8 @@
 package mtr.data;
 
-import mtr.gui.ClientData;
+import mtr.client.ClientData;
+import mtr.client.TrainClientRegistry;
 import mtr.mappings.Utilities;
-import mtr.model.TrainClientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

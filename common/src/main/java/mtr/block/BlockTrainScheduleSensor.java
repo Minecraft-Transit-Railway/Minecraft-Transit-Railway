@@ -2,7 +2,7 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.data.RailwayData;
-import mtr.data.Route;
+import mtr.data.ScheduleEntry;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.TickableMapper;
 import mtr.mappings.Utilities;
@@ -121,12 +121,12 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
+				final List<ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
 				if (schedules == null) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
+				final List<ScheduleEntry> scheduleList = new ArrayList<>();
 				schedules.forEach(scheduleEntry -> {
 					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId, -1)) {
 						scheduleList.add(scheduleEntry);

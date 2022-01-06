@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
+import mtr.client.ClientData;
 import mtr.data.*;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.Minecraft;
@@ -95,7 +95,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		}
 
 		try {
-			final Set<Route.ScheduleEntry> schedules;
+			final Set<ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
 			if (showAllPlatforms) {
@@ -111,7 +111,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 				schedules = new HashSet<>();
 				platforms.values().forEach(platform -> {
-					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 					if (scheduleForPlatform != null) {
 						scheduleForPlatform.forEach(scheduleEntry -> {
 							if (!scheduleEntry.isTerminating) {
@@ -126,12 +126,12 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				if (platformId == 0) {
 					schedules = new HashSet<>();
 				} else {
-					final Set<Route.ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platformId);
+					final Set<ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platformId);
 					schedules = schedulesForPlatform == null ? new HashSet<>() : schedulesForPlatform;
 				}
 			}
 
-			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+			final List<ScheduleEntry> scheduleList = new ArrayList<>(schedules);
 			Collections.sort(scheduleList);
 
 			final boolean showCarLength;
@@ -139,7 +139,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			if (!showAllPlatforms) {
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
-				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
+				for (final ScheduleEntry scheduleEntry : scheduleList) {
 					final int trainCars = scheduleEntry.trainCars;
 					if (trainCars > maxCars) {
 						maxCars = trainCars;
@@ -197,7 +197,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 					textRenderer.draw(matrices, destinationString, 0, 0, textColor);
 				} else {
-					final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
+					final ScheduleEntry currentSchedule = scheduleList.get(i);
 
 					final Component arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);

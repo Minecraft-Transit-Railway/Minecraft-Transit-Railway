@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Route;
+import mtr.data.ScheduleEntry;
 import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
@@ -45,14 +46,14 @@ public class ArrivalsServletHandler extends HttpServlet {
 					final RailwayData railwayData = RailwayData.getInstance(world);
 
 					if (railwayData != null) {
-						final Map<Long, List<Route.ScheduleEntry>> schedulesForStation = new HashMap<>();
+						final Map<Long, List<ScheduleEntry>> schedulesForStation = new HashMap<>();
 						railwayData.getSchedulesForStation(schedulesForStation, stationIdFinal);
 
-						final List<Route.ScheduleEntry> scheduleEntries = new ArrayList<>();
+						final List<ScheduleEntry> scheduleEntries = new ArrayList<>();
 						schedulesForStation.values().forEach(scheduleEntries::addAll);
 						Collections.sort(scheduleEntries);
 
-						for (final Route.ScheduleEntry scheduleEntry : scheduleEntries) {
+						for (final ScheduleEntry scheduleEntry : scheduleEntries) {
 							if (!scheduleEntry.isTerminating) {
 								final JsonObject scheduleObject = new JsonObject();
 								scheduleObject.addProperty("arrival", scheduleEntry.arrivalMillis);

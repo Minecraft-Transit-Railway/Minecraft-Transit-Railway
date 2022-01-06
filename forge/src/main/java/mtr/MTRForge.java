@@ -1,6 +1,6 @@
 package mtr;
 
-import mtr.config.CustomResources;
+import mtr.client.CustomResources;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;

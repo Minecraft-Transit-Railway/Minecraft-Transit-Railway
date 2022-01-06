@@ -44,7 +44,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
-	private final Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
@@ -296,7 +296,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				packet.writeInt(platformIds.size());
 				platformIds.forEach(platformId -> {
 					packet.writeLong(platformId);
-					final List<Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
+					final List<ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
 					if (scheduleEntries == null) {
 						packet.writeInt(0);
 					} else {
@@ -428,7 +428,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
-	public void getSchedulesForStation(Map<Long, List<Route.ScheduleEntry>> schedulesForStation, long stationId) {
+	public void getSchedulesForStation(Map<Long, List<ScheduleEntry>> schedulesForStation, long stationId) {
 		schedulesForPlatform.forEach((platformId, schedules) -> {
 			final Station station = dataCache.platformIdToStation.get(platformId);
 			if (station != null && station.id == stationId) {
@@ -437,7 +437,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		});
 	}
 
-	public List<Route.ScheduleEntry> getSchedulesAtPlatform(long platformId) {
+	public List<ScheduleEntry> getSchedulesAtPlatform(long platformId) {
 		return schedulesForPlatform.get(platformId);
 	}
 

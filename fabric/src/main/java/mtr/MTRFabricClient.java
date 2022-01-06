@@ -1,7 +1,7 @@
 package mtr;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.config.CustomResources;
+import mtr.client.CustomResources;
 import mtr.render.RenderTrains;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
