@@ -126,7 +126,6 @@ allprojects {
 
 	repositories {
 		maven { url = "https://jitpack.io/" }
-		maven { url = "https://minecraft.guntram.de/maven/" }
 		maven { url = "https://maven.terraformersmc.com/" }
 	}
 
