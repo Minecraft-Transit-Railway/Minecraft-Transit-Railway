@@ -46,9 +46,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
-	private final List<Rail.RailActions> railsToCreateTunnel = new ArrayList<>();
-	private final List<Rail.RailActions> railsToCreateTunnelWall = new ArrayList<>();
-	private final List<Rail.RailActions> railsToCreateBridge = new ArrayList<>();
+	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
@@ -207,14 +205,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		});
 		playersToRemove.forEach(playerRidingCoolDown::remove);
 
-		if (!railsToCreateTunnel.isEmpty() && railsToCreateTunnel.get(0).createTunnel()) {
-			railsToCreateTunnel.remove(0);
-		}
-		if (!railsToCreateTunnelWall.isEmpty() && railsToCreateTunnelWall.get(0).createTunnelWall()) {
-			railsToCreateTunnelWall.remove(0);
-		}
-		if (!railsToCreateBridge.isEmpty() && railsToCreateBridge.get(0).createBridge()) {
-			railsToCreateBridge.remove(0);
+		if (!railActions.isEmpty() && railActions.get(0).build()) {
+			railActions.remove(0);
 		}
 
 		trainsInPlayerRange.forEach((player, trains) -> {
@@ -391,27 +383,27 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return signalBlocks.remove(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
 
-	public boolean markRailForTunnel(BlockPos pos1, BlockPos pos2, int radius, int height) {
+	public boolean markRailForBridge(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
 		if (containsRail(pos1, pos2)) {
-			railsToCreateTunnel.add(new Rail.RailActions(world, rails.get(pos1).get(pos2), radius, height, null));
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.BRIDGE, rails.get(pos1).get(pos2), radius, 0, state));
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean markRailForTunnelWall(BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+	public boolean markRailForTunnel(Player player, BlockPos pos1, BlockPos pos2, int radius, int height) {
 		if (containsRail(pos1, pos2)) {
-			railsToCreateTunnelWall.add(new Rail.RailActions(world, rails.get(pos1).get(pos2), radius + 1, height + 1, state));
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL, rails.get(pos1).get(pos2), radius, height, null));
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean markRailForBridge(BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+	public boolean markRailForTunnelWall(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
 		if (containsRail(pos1, pos2)) {
-			railsToCreateBridge.add(new Rail.RailActions(world, rails.get(pos1).get(pos2), radius, 0, state));
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL_WALL, rails.get(pos1).get(pos2), radius + 1, height + 1, state));
 			return true;
 		} else {
 			return false;

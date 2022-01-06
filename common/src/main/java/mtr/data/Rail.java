@@ -5,7 +5,9 @@ import mtr.block.BlockRailNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
@@ -15,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Rail extends SerializedDataBase {
@@ -412,6 +415,8 @@ public class Rail extends SerializedDataBase {
 
 		private double distance;
 		private final Level world;
+		private final UUID uuid;
+		private final RailActionType railActionType;
 		private final Rail rail;
 		private final int radius;
 		private final int height;
@@ -421,8 +426,10 @@ public class Rail extends SerializedDataBase {
 
 		private static final double INCREMENT = 0.01;
 
-		public RailActions(Level world, Rail rail, int radius, int height, BlockState state) {
+		public RailActions(Level world, Player player, RailActionType railActionType, Rail rail, int radius, int height, BlockState state) {
 			this.world = world;
+			uuid = player.getUUID();
+			this.railActionType = railActionType;
 			this.rail = rail;
 			this.radius = radius;
 			this.height = height;
@@ -431,7 +438,20 @@ public class Rail extends SerializedDataBase {
 			distance = 0;
 		}
 
-		public boolean createTunnel() {
+		public boolean build() {
+			switch (railActionType) {
+				case BRIDGE:
+					return createBridge();
+				case TUNNEL:
+					return createTunnel();
+				case TUNNEL_WALL:
+					return createTunnelWall();
+				default:
+					return true;
+			}
+		}
+
+		private boolean createTunnel() {
 			return create(true, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
 				if (!world.getBlockState(pos).isAir() && canPlace(world, pos)) {
@@ -440,7 +460,7 @@ public class Rail extends SerializedDataBase {
 			});
 		}
 
-		public boolean createTunnelWall() {
+		private boolean createTunnelWall() {
 			return create(false, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
 				if (canPlace(world, pos)) {
@@ -449,7 +469,7 @@ public class Rail extends SerializedDataBase {
 			});
 		}
 
-		public boolean createBridge() {
+		private boolean createBridge() {
 			final boolean isSlab = state.getBlock() instanceof SlabBlock;
 			return create(false, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
@@ -470,7 +490,7 @@ public class Rail extends SerializedDataBase {
 					placeHalf = true;
 				}
 
-				if (canPlace(world, pos)) {
+				if (placePos != pos && canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 				}
 				if (!blacklistedPos.contains(getHalfPos(placePos, placeHalf)) && canPlace(world, placePos)) {
@@ -480,9 +500,10 @@ public class Rail extends SerializedDataBase {
 		}
 
 		private boolean create(boolean includeMiddle, Consumer<Vec3> consumer) {
-			for (int i = 0; i < 0.5 / INCREMENT; i++) {
+			final long startTime = System.currentTimeMillis();
+			while (System.currentTimeMillis() - startTime < 2) {
 				final Vec3 pos1 = rail.getPosition(distance);
-				distance = Math.min(length, distance + INCREMENT);
+				distance += INCREMENT;
 				final Vec3 pos2 = rail.getPosition(distance);
 				final Vec3 vec3 = new Vec3(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().yRot((float) Math.PI / 2);
 
@@ -496,16 +517,25 @@ public class Rail extends SerializedDataBase {
 							}
 						}
 					} else {
-						consumer.accept(editPos.add(0, wholeNumber ? height - 1 : height, 0));
+						consumer.accept(editPos.add(0, Math.max(0, wholeNumber ? height - 1 : height), 0));
 					}
 				}
 
-				if (distance == length) {
+				if (length - distance < INCREMENT) {
+					showProgressMessage(100);
 					return true;
 				}
 			}
 
+			showProgressMessage((float) Math.round(1000 * distance / length) / 10);
 			return false;
+		}
+
+		private void showProgressMessage(float percentage) {
+			final Player player = world.getPlayerByUUID(uuid);
+			if (player != null) {
+				player.displayClientMessage(new TranslatableComponent("gui.mtr." + railActionType.progressTranslation, percentage), true);
+			}
 		}
 
 		private static boolean canPlace(Level world, BlockPos pos) {
@@ -520,5 +550,15 @@ public class Rail extends SerializedDataBase {
 	@FunctionalInterface
 	public interface RenderRail {
 		void renderRail(double x1, double z1, double x2, double z2, double x3, double z3, double x4, double z4, double y1, double y2);
+	}
+
+	public enum RailActionType {
+		BRIDGE("percentage_complete_bridge"), TUNNEL("percentage_complete_tunnel"), TUNNEL_WALL("percentage_complete_tunnel_wall");
+
+		private final String progressTranslation;
+
+		RailActionType(String progressTranslation) {
+			this.progressTranslation = progressTranslation;
+		}
 	}
 }

@@ -15,6 +15,6 @@ public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 	@Override
 	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
 		final BlockState state = getSavedState(stack);
-		return state == null || railwayData.markRailForTunnelWall(posStart, posEnd, radius, height, state);
+		return state == null || railwayData.markRailForTunnelWall(player, posStart, posEnd, radius, height, state);
 	}
 }
