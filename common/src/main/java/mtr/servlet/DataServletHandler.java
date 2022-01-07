@@ -2,10 +2,7 @@ package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mtr.data.DataCache;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Station;
+import mtr.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -14,6 +11,8 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DataServletHandler extends HttpServlet {
 
@@ -31,6 +30,8 @@ public class DataServletHandler extends HttpServlet {
 				final JsonArray routesArray = new JsonArray();
 				final JsonObject stationPositionsObject = new JsonObject();
 				final JsonObject stationsObject = new JsonObject();
+				final JsonArray typesObject = new JsonArray();
+				final Set<String> types = new HashSet<>();
 
 				if (railwayData != null) {
 					final DataCache dataCache = railwayData.dataCache;
@@ -39,7 +40,9 @@ public class DataServletHandler extends HttpServlet {
 						final JsonObject routeObject = new JsonObject();
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name.split("\\|\\|")[0]);
-						routeObject.addProperty("type", route.routeType.toString().toLowerCase());
+						final String type = createKey(route.transportMode, route.routeType);
+						routeObject.addProperty("type", type);
+						types.add(type);
 						final JsonArray routeStationsArray = new JsonArray();
 						routeObject.add("stations", routeStationsArray);
 
@@ -81,14 +84,28 @@ public class DataServletHandler extends HttpServlet {
 					});
 				}
 
+				for (final TransportMode transportMode : TransportMode.values()) {
+					for (final RouteType routeType : RouteType.values()) {
+						final String type = createKey(transportMode, routeType);
+						if (types.contains(type)) {
+							typesObject.add(type);
+						}
+					}
+				}
+
 				final JsonObject dataObject = new JsonObject();
 				dataObject.add("routes", routesArray);
 				dataObject.add("positions", stationPositionsObject);
 				dataObject.add("stations", stationsObject);
+				dataObject.add("types", typesObject);
 				dataArray.add(dataObject);
 			});
 
 			IServletHandler.sendResponse(response, asyncContext, dataArray.toString());
 		});
+	}
+
+	private static String createKey(TransportMode transportMode, RouteType routeType) {
+		return (transportMode.toString() + "_" + routeType.toString()).toLowerCase();
 	}
 }

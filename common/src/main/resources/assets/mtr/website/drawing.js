@@ -127,7 +127,7 @@ function drawMap(container, data) {
 		element.onclick = () => onClickLine(color);
 		element.innerHTML =
 			`<span class="line" style="background: ${convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
-			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${type === SETTINGS.routeTypes[2] ? "train" : type === SETTINGS.routeTypes[1] ? "tram" : ""}</span>` +
+			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${SETTINGS.routeTypes[type]}</span>` +
 			`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
@@ -214,7 +214,7 @@ function drawMap(container, data) {
 	container.children = [];
 
 	data["blobs"] = {};
-	const {blobs, positions, stations, routes} = data;
+	const {blobs, positions, stations, routes, types} = data;
 
 	const visitedPositions = {};
 	for (const positionKey in positions) {
@@ -247,8 +247,8 @@ function drawMap(container, data) {
 		position["y2"] = newY;
 
 		const route = routes.find(route => route["color"] === color);
-		if (typeof route !== "undefined" && route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]) {
-			let blob = blobs[stationId];
+		if (typeof route !== "undefined" && route["type"] === types[SETTINGS.routeType]) {
+			const blob = blobs[stationId];
 			if (typeof blob === "undefined") {
 				blobs[stationId] = {
 					xMin: newX,
@@ -258,7 +258,6 @@ function drawMap(container, data) {
 					name: stations[stationId]["name"],
 					colors: [color],
 				};
-				SETTINGS.routeTypes.forEach(routeType => blobs[stationId][routeType] = false);
 			} else {
 				blob["xMin"] = Math.min(blob["xMin"], newX);
 				blob["yMin"] = Math.min(blob["yMin"], newY);
@@ -286,7 +285,7 @@ function drawMap(container, data) {
 			}
 		}
 
-		if (routeType === SETTINGS.routeTypes[SETTINGS.routeType]) {
+		if (routeType === types[SETTINGS.routeType]) {
 			createClickable(container, graphicsRoute => {
 				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
 				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
@@ -322,7 +321,7 @@ function drawMap(container, data) {
 	for (const stationId in blobs) {
 		const blob = blobs[stationId];
 		const {xMin, yMin, xMax, yMax, colors, name} = blob;
-		if (blob[SETTINGS.routeTypes[SETTINGS.routeType]]) {
+		if (blob[types[SETTINGS.routeType]]) {
 			const shouldDraw = selectedColor < 0 || colors.includes(selectedColor);
 
 			createClickable(container, graphicsStation => {
@@ -339,10 +338,13 @@ function drawMap(container, data) {
 			}, () => onClickStation(stationId));
 
 			if (SETTINGS.showText && shouldDraw) {
-				const hasNormal = SETTINGS.routeType !== 0 && blob[SETTINGS.routeTypes[0]];
-				const hasLightRail = SETTINGS.routeType !== 1 && blob[SETTINGS.routeTypes[1]];
-				const hasHighSpeed = SETTINGS.routeType !== 2 && blob[SETTINGS.routeTypes[2]];
-				CANVAS.drawText(textStations, name, hasNormal, hasLightRail, hasHighSpeed, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
+				let icons = "";
+				types.forEach(key => {
+					if (typeof blob[key] !== "undefined" && key !== types[SETTINGS.routeType]) {
+						icons += SETTINGS.routeTypes[key];
+					}
+				});
+				CANVAS.drawText(textStations, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 			}
 		}
 	}

@@ -87,7 +87,7 @@ const CANVAS = {
 			}
 		}
 	},
-	drawText: (textArray, text, hasNormal, hasLightRail, hasHighSpeed, x, y) => {
+	drawText: (textArray, text, icons, x, y) => {
 		const textSplit = text.split("|");
 		let yStart = y;
 		for (const textPart of textSplit) {
@@ -111,8 +111,8 @@ const CANVAS = {
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
 		}
 
-		if (hasNormal || hasLightRail || hasHighSpeed) {
-			const richText = new PIXI.Text((hasNormal ? "directions_train" : "") + (hasLightRail ? "tram" : "") + (hasHighSpeed ? "train" : ""), {
+		if (icons !== "") {
+			const richText = new PIXI.Text(icons, {
 				fontFamily: "Material Icons",
 				fontSize: 3 * SETTINGS.lineSize,
 				fill: SETTINGS.getColorStyle("--textColor"),

@@ -7,7 +7,14 @@ const SETTINGS = {
 	arrivalsUrl: URL + "arrivals",
 	refreshDataInterval: 60000,
 	refreshArrivalsInterval: 5000,
-	routeTypes: ["normal", "light_rail", "high_speed"],
+	routeTypes: {
+		"train_normal": "directions_train",
+		"train_light_rail": "tram",
+		"train_high_speed": "train",
+		"boat_normal": "sailing",
+		"boat_light_rail": "directions_boat",
+		"boat_high_speed": "snowmobile",
+	},
 	lineSize: 6,
 	dimension: 0,
 	routeType: 0,
@@ -97,10 +104,10 @@ document.getElementById("toggle_dimension_icon").onclick = event => {
 document.getElementById("toggle_route_type_icon").onclick = event => {
 	do {
 		SETTINGS.routeType++;
-		if (SETTINGS.routeType >= SETTINGS.routeTypes.length) {
+		if (SETTINGS.routeType >= json[SETTINGS.dimension]["types"].length) {
 			SETTINGS.routeType = 0;
 		}
-	} while (SETTINGS.routeType > 0 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]).length === 0);
+	} while (SETTINGS.routeType > 0 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === json[SETTINGS.dimension]["types"][SETTINGS.routeType]).length === 0);
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("toggle_theme_icon").onclick = event => {
