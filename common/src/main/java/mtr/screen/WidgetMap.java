@@ -238,7 +238,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 5 && mouseY >= y + height - SQUARE_SIZE);
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 10 && mouseY >= y + height - SQUARE_SIZE);
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {

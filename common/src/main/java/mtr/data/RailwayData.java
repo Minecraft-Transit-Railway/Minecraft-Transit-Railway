@@ -207,6 +207,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 		}
 
 		trainsInPlayerRange.forEach((player, trains) -> {
@@ -386,6 +387,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public boolean markRailForBridge(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
 		if (containsRail(pos1, pos2)) {
 			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.BRIDGE, rails.get(pos1).get(pos2), radius, 0, state));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 			return true;
 		} else {
 			return false;
@@ -395,6 +397,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public boolean markRailForTunnel(Player player, BlockPos pos1, BlockPos pos2, int radius, int height) {
 		if (containsRail(pos1, pos2)) {
 			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL, rails.get(pos1).get(pos2), radius, height, null));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 			return true;
 		} else {
 			return false;
@@ -404,6 +407,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public boolean markRailForTunnelWall(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
 		if (containsRail(pos1, pos2)) {
 			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL_WALL, rails.get(pos1).get(pos2), radius + 1, height + 1, state));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 			return true;
 		} else {
 			return false;
@@ -412,6 +416,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public void disconnectPlayer(Player player) {
 		playerLastUpdatedPositions.remove(player);
+	}
+
+	public void removeRailAction(long id) {
+		railActions.removeIf(railAction -> railAction.id == id);
+		PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 	}
 
 	public void generatePath(MinecraftServer minecraftServer, long depotId) {

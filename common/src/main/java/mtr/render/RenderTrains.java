@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
+import mtr.block.BlockPlatform;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.client.*;
@@ -319,7 +320,13 @@ public class RenderTrains implements IGui {
 	}
 
 	public static boolean isHoldingRailRelated(Player player) {
-		return Utilities.isHolding(player, item -> item instanceof ItemNodeModifierBase || Block.byItem(item) instanceof BlockSignalLightBase || Block.byItem(item) instanceof BlockNode || Block.byItem(item) instanceof BlockSignalSemaphoreBase);
+		return Utilities.isHolding(player,
+				item -> item instanceof ItemNodeModifierBase ||
+						Block.byItem(item) instanceof BlockSignalLightBase ||
+						Block.byItem(item) instanceof BlockNode ||
+						Block.byItem(item) instanceof BlockSignalSemaphoreBase ||
+						Block.byItem(item) instanceof BlockPlatform
+		);
 	}
 
 	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {

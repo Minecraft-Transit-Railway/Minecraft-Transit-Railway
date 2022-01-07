@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -90,6 +91,13 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		packet.writeInt(dyeColor.ordinal());
 		packet.writeUUID(rail);
 		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_CREATE_SIGNAL, packet));
+	}
+
+	public static void updateRailActionsS2C(Level world, List<Rail.RailActions> railActions) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeInt(railActions.size());
+		railActions.forEach(railAction -> railAction.writePacket(packet));
+		world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_UPDATE_RAIL_ACTIONS, packet));
 	}
 
 	public static void removeNodeS2C(Level world, BlockPos pos) {
@@ -275,6 +283,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
 			}
 		});
+	}
+
+	public static void receiveRemoveRailAction(MinecraftServer minecraftServer, Player player, FriendlyByteBuf packet) {
+		final Level world = player.level;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final long id = packet.readLong();
+			minecraftServer.execute(() -> railwayData.removeRailAction(id));
+		}
 	}
 
 	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Set<T> objects) {

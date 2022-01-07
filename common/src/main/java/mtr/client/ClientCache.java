@@ -165,7 +165,9 @@ public class ClientCache extends DataCache {
 			final Font fallbackFont = isCjk ? fontCjk.deriveFont(Font.PLAIN, fontSizeCjk) : mainFont;
 
 			attributedStrings[index] = new AttributedString(textSplit[index]);
-			attributedStrings[index].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[index].length());
+			if (textSplit[index].length() > 0) {
+				attributedStrings[index].addAttribute(TextAttribute.FONT, mainFont, 0, textSplit[index].length());
+			}
 			fontSizes[index] = isCjk ? fontSizeCjk : fontSize;
 
 			for (int characterIndex = 0; characterIndex < textSplit[index].length(); characterIndex++) {

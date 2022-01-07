@@ -12,9 +12,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -420,26 +422,33 @@ public class Rail extends SerializedDataBase {
 	public static class RailActions {
 
 		private double distance;
+
+		public final long id;
 		private final Level world;
 		private final UUID uuid;
+		private final String playerName;
 		private final RailActionType railActionType;
 		private final Rail rail;
 		private final int radius;
 		private final int height;
 		private final double length;
 		private final BlockState state;
+		private final boolean isSlab;
 		private final Set<BlockPos> blacklistedPos = new HashSet<>();
 
 		private static final double INCREMENT = 0.01;
 
 		public RailActions(Level world, Player player, RailActionType railActionType, Rail rail, int radius, int height, BlockState state) {
+			id = new Random().nextLong();
 			this.world = world;
 			uuid = player.getUUID();
+			playerName = player.getName().getString();
 			this.railActionType = railActionType;
 			this.rail = rail;
 			this.radius = radius;
 			this.height = height;
 			this.state = state;
+			isSlab = state != null && state.getBlock() instanceof SlabBlock;
 			length = rail.getLength();
 			distance = 0;
 		}
@@ -457,11 +466,21 @@ public class Rail extends SerializedDataBase {
 			}
 		}
 
+		public void writePacket(FriendlyByteBuf packet) {
+			packet.writeLong(id);
+			packet.writeUtf(playerName);
+			packet.writeFloat(Math.round(10 * length) / 10F);
+			packet.writeUtf(state == null ? "" : state.getBlock().getDescriptionId());
+			packet.writeUtf(railActionType.nameTranslation);
+			packet.writeInt(railActionType.color);
+		}
+
 		private boolean createTunnel() {
 			return create(true, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
-				if (!world.getBlockState(pos).isAir() && canPlace(world, pos)) {
+				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+					blacklistedPos.add(pos);
 				}
 			});
 		}
@@ -469,14 +488,14 @@ public class Rail extends SerializedDataBase {
 		private boolean createTunnelWall() {
 			return create(false, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
-				if (canPlace(world, pos)) {
+				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
 					world.setBlockAndUpdate(pos, state);
+					blacklistedPos.add(pos);
 				}
 			});
 		}
 
 		private boolean createBridge() {
-			final boolean isSlab = state.getBlock() instanceof SlabBlock;
 			return create(false, editPos -> {
 				final BlockPos pos = new BlockPos(editPos);
 				final boolean isTopHalf = editPos.y - Math.floor(editPos.y) >= 0.5;
@@ -559,12 +578,18 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public enum RailActionType {
-		BRIDGE("percentage_complete_bridge"), TUNNEL("percentage_complete_tunnel"), TUNNEL_WALL("percentage_complete_tunnel_wall");
+		BRIDGE("percentage_complete_bridge", "rail_action_bridge", MaterialColor.COLOR_LIGHT_GRAY),
+		TUNNEL("percentage_complete_tunnel", "rail_action_tunnel", MaterialColor.COLOR_BROWN),
+		TUNNEL_WALL("percentage_complete_tunnel_wall", "rail_action_tunnel_wall", MaterialColor.COLOR_GRAY);
 
 		private final String progressTranslation;
+		private final String nameTranslation;
+		private final int color;
 
-		RailActionType(String progressTranslation) {
+		RailActionType(String progressTranslation, String nameTranslation, MaterialColor materialColor) {
 			this.progressTranslation = progressTranslation;
+			this.nameTranslation = nameTranslation;
+			color = materialColor.col;
 		}
 	}
 }

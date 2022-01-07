@@ -4,11 +4,9 @@ import mtr.data.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ClientData {
@@ -28,6 +26,7 @@ public final class ClientData {
 	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
+	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
 	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
@@ -84,6 +83,24 @@ public final class ClientData {
 		if (train != null) {
 			client.execute(() -> train.updateClientPercentages(client.player, clientPercentageX, clientPercentageZ));
 		}
+	}
+
+	public static void updateRailActions(Minecraft client, FriendlyByteBuf packet) {
+		final List<DataConverter> railActions = new ArrayList<>();
+		final int actionCount = packet.readInt();
+		for (int i = 0; i < actionCount; i++) {
+			final long id = packet.readLong();
+			final String player = packet.readUtf();
+			final float length = packet.readFloat();
+			final String block = new TranslatableComponent(packet.readUtf()).getString();
+			final String name = new TranslatableComponent("gui.mtr." + packet.readUtf(), player, length, block).getString();
+			final int color = packet.readInt();
+			railActions.add(new DataConverter(id, name, color));
+		}
+		client.execute(() -> {
+			RAIL_ACTIONS.clear();
+			RAIL_ACTIONS.addAll(railActions);
+		});
 	}
 
 	public static void updateSchedule(Minecraft client, FriendlyByteBuf packet) {

@@ -40,6 +40,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private final Button buttonDoneEditingDepot;
 	private final Button buttonZoomIn;
 	private final Button buttonZoomOut;
+	private final Button buttonRailActions;
 	private final Button buttonOptions;
 
 	private final WidgetBetterTextField textFieldName;
@@ -70,6 +71,11 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(false));
 		buttonZoomIn = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("+"), button -> widgetMap.scale(1));
 		buttonZoomOut = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("-"), button -> widgetMap.scale(-1));
+		buttonRailActions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.rail_actions_button"), button -> {
+			if (minecraft != null) {
+				UtilitiesClient.setScreen(minecraft, new RailActionsScreen());
+			}
+		});
 		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("menu.options"), button -> {
 			if (minecraft != null) {
 				UtilitiesClient.setScreen(minecraft, new ConfigScreen());
@@ -101,6 +107,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		IDrawing.setPositionAndWidth(buttonDoneEditingDepot, 0, bottomRowY, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonZoomIn, width - SQUARE_SIZE * 2, bottomRowY, SQUARE_SIZE);
 		IDrawing.setPositionAndWidth(buttonZoomOut, width - SQUARE_SIZE, bottomRowY, SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonRailActions, width - SQUARE_SIZE * 10, bottomRowY, SQUARE_SIZE * 5);
 		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
 
 		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
@@ -133,6 +140,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		addDrawableChild(buttonDoneEditingDepot);
 		addDrawableChild(buttonZoomIn);
 		addDrawableChild(buttonZoomOut);
+		addDrawableChild(buttonRailActions);
 		addDrawableChild(buttonOptions);
 
 		addDrawableChild(textFieldName);
