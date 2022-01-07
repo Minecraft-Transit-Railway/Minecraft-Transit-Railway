@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.block.*;
+import mtr.data.TransportMode;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
@@ -54,7 +55,8 @@ public interface Blocks {
 	Block PSD_GLASS_2 = new BlockPSDGlass(1);
 	Block PSD_GLASS_END_2 = new BlockPSDGlassEnd(1);
 	Block PSD_TOP = new BlockPSDTop();
-	Block RAIL_NODE = new BlockRailNode(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(2).noOcclusion());
+	Block RAIL_NODE = new BlockNode(TransportMode.TRAIN);
+	Block BOAT_NODE = new BlockNode.BlockBoatNode();
 	Block RAILWAY_SIGN_2_EVEN = new BlockRailwaySign(2, false);
 	Block RAILWAY_SIGN_2_ODD = new BlockRailwaySign(2, true);
 	Block RAILWAY_SIGN_3_EVEN = new BlockRailwaySign(3, false);

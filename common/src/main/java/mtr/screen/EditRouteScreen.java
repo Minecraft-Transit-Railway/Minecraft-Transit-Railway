@@ -3,10 +3,7 @@ package mtr.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
-import mtr.data.IGui;
-import mtr.data.Route;
-import mtr.data.RouteType;
-import mtr.data.Station;
+import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
@@ -34,7 +31,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
 		textFieldLightRailRouteNumber = new WidgetBetterTextField(null, "");
-		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> setRouteTypeText(routeType.next()));
+		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
 		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_clockwise_route"), this::setIsClockwise);
 		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
@@ -53,7 +50,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		setPositionsAndInit(SQUARE_SIZE, width / 4 * 3 - SQUARE_SIZE, width - SQUARE_SIZE);
 
 		IDrawing.setPositionAndWidth(buttonRouteType, SQUARE_SIZE, SQUARE_SIZE * 3, CHECKBOX_WIDTH);
-		setRouteTypeText(data.routeType);
+		setRouteTypeText(data.transportMode, data.routeType);
 
 		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
 		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
@@ -108,9 +105,9 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		data.setExtraData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 	}
 
-	private void setRouteTypeText(RouteType newRouteType) {
+	private void setRouteTypeText(TransportMode transportMode, RouteType newRouteType) {
 		routeType = newRouteType;
-		buttonRouteType.setMessage(new TranslatableComponent(routeType.key));
+		buttonRouteType.setMessage(new TranslatableComponent(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase()));
 	}
 
 	private void setIsLightRailRoute(boolean isLightRailRoute) {

@@ -47,7 +47,8 @@ public class MTR implements IPacket {
 		registerItem.accept("apg_glass", Items.APG_GLASS);
 		registerItem.accept("apg_glass_end", Items.APG_GLASS_END);
 		registerItem.accept("brush", Items.BRUSH);
-		registerItem.accept("dashboard", Items.DASHBOARD);
+		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
+		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
@@ -136,7 +137,10 @@ public class MTR implements IPacket {
 		registerItem.accept("tunnel_wall_creator_6_5", Items.TUNNEL_WALL_CREATOR_6_5);
 		registerItem.accept("tunnel_wall_creator_6_7", Items.TUNNEL_WALL_CREATOR_6_7);
 		registerItem.accept("tunnel_wall_creator_6_9", Items.TUNNEL_WALL_CREATOR_6_9);
+		registerItem.accept("boat_node", Items.BOAT_NODE);
 
+		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
+		registerBlock.accept("boat_node", Blocks.BOAT_NODE);
 		registerBlock.accept("apg_door", Blocks.APG_DOOR);
 		registerBlock.accept("apg_glass", Blocks.APG_GLASS);
 		registerBlock.accept("apg_glass_end", Blocks.APG_GLASS_END);
@@ -182,7 +186,6 @@ public class MTR implements IPacket {
 		registerBlock.accept("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock.accept("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock.accept("psd_top", Blocks.PSD_TOP);
-		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
 		registerBlockItem.accept("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroups.RAILWAY_FACILITIES);
@@ -263,6 +266,7 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("arrival_projector_1_small", BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_medium", BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_large", BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY);
+		registerBlockEntityType.accept("boat_node", BlockEntityTypes.BOAT_NODE_TILE_ENTITY);
 		registerBlockEntityType.accept("clock", BlockEntityTypes.CLOCK_TILE_ENTITY);
 		registerBlockEntityType.accept("psd_top", BlockEntityTypes.PSD_TOP_TILE_ENTITY);
 		registerBlockEntityType.accept("apg_glass", BlockEntityTypes.APG_GLASS_TILE_ENTITY);
@@ -315,7 +319,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
-		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false));
+		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, (id, transportMode) -> new Station(id), false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false));

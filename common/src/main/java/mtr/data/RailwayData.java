@@ -3,7 +3,7 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
-import mtr.block.BlockRailNode;
+import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -188,7 +188,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
-				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
+				return depot.isTransportMode(siding.transportMode) && depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
 			siding.simulateTrain(1, dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
@@ -338,9 +338,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// writing data
 
-	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
+	public long addRail(TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		final long newId = validate ? new Random().nextLong() : 0;
-		addRail(rails, platforms, sidings, posStart, posEnd, rail, newId);
+		addRail(rails, platforms, sidings, transportMode, posStart, posEnd, rail, newId);
 
 		if (validate) {
 			validateData();
@@ -470,7 +470,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// other
 
-	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
+	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
 		try {
 			if (!rails.containsKey(posStart)) {
 				rails.put(posStart, new HashMap<>());
@@ -479,9 +479,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 			if (savedRailId != 0) {
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					platforms.add(new Platform(savedRailId, posStart, posEnd));
+					platforms.add(new Platform(savedRailId, transportMode, posStart, posEnd));
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(siding -> siding.containsPos(posStart) || siding.containsPos(posEnd))) {
-					sidings.add(new Siding(savedRailId, posStart, posEnd, (int) Math.floor(rail.getLength())));
+					sidings.add(new Siding(savedRailId, transportMode, posStart, posEnd, (int) Math.floor(rail.getLength())));
 				}
 			}
 		} catch (Exception e) {
@@ -495,7 +495,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			rails.forEach((startPos, railMap) -> {
 				railMap.remove(pos);
 				if (railMap.isEmpty() && world != null) {
-					BlockRailNode.resetRailNode(world, startPos);
+					BlockNode.resetRailNode(world, startPos);
 				}
 			});
 			if (world != null) {
@@ -511,13 +511,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (rails.containsKey(pos1)) {
 				rails.get(pos1).remove(pos2);
 				if (rails.get(pos1).isEmpty() && world != null) {
-					BlockRailNode.resetRailNode(world, pos1);
+					BlockNode.resetRailNode(world, pos1);
 				}
 			}
 			if (rails.containsKey(pos2)) {
 				rails.get(pos2).remove(pos1);
 				if (rails.get(pos2).isEmpty() && world != null) {
-					BlockRailNode.resetRailNode(world, pos2);
+					BlockNode.resetRailNode(world, pos2);
 				}
 			}
 			if (world != null) {
@@ -639,7 +639,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
 			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRailNode)) {
+			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
 				removeNode(null, rails, startPos);
 			}
 

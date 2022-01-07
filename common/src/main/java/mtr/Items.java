@@ -1,9 +1,11 @@
 package mtr;
 
 import mtr.data.RailType;
+import mtr.data.TransportMode;
 import mtr.item.*;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.WaterLilyBlockItem;
 
 public interface Items {
 
@@ -11,7 +13,9 @@ public interface Items {
 	Item APG_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item APG_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item BRUSH = new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
-	Item DASHBOARD = new ItemDashboard(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
+	Item RAILWAY_DASHBOARD = new ItemDashboard(TransportMode.TRAIN);
+	Item BOAT_DASHBOARD = new ItemDashboard(TransportMode.BOAT);
+	Item BOAT_NODE = new WaterLilyBlockItem(Blocks.BOAT_NODE, new Item.Properties().tab(ItemGroups.CORE));
 	Item ESCALATOR = new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES));
 	Item PSD_DOOR_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);
 	Item PSD_GLASS_1 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_1);

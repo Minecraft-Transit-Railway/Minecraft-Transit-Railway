@@ -63,7 +63,7 @@ public class DataCache {
 		savedRails.forEach(savedRail -> {
 			final BlockPos pos = savedRail.getMidPos();
 			for (final V area : areas) {
-				if (area.inArea(pos.getX(), pos.getZ())) {
+				if (area.isTransportMode(savedRail.transportMode) && area.inArea(pos.getX(), pos.getZ())) {
 					map.put(savedRail.id, area);
 					break;
 				}

@@ -26,6 +26,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private Route editingRoute;
 	private boolean isNew;
 
+	private final TransportMode transportMode;
 	private final WidgetMap widgetMap;
 
 	private final Button buttonTabStations;
@@ -49,10 +50,10 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	public static final int MAX_COLOR_ZONE_LENGTH = 6;
 	private static final int COLOR_WIDTH = 48;
 
-	public DashboardScreen() {
+	public DashboardScreen(TransportMode transportMode) {
 		super(new TextComponent(""));
-
-		widgetMap = new WidgetMap(this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
+		this.transportMode = transportMode;
+		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
 		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
 		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableComponent("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
@@ -62,8 +63,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonTabDepots = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
 		buttonAddStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
-		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_route"), button -> startEditingRoute(new Route(), true));
-		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_depot"), button -> startEditingArea(new Depot(), true));
+		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode), true));
+		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode), true));
 		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(true));
 		buttonDoneEditingRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingRoute());
 		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(false));
@@ -183,7 +184,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					break;
 				case ROUTES:
 					if (editingRoute == null) {
-						dashboardList.setData(ClientData.ROUTES, false, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES), false, true, true, false, false, true);
 					} else {
 						final List<DataConverter> routeData = editingRoute.platformIds.stream().map(ClientData.DATA_CACHE.platformIdMap::get).filter(Objects::nonNull).map(platform -> {
 							final Station station = ClientData.DATA_CACHE.platformIdToStation.get(platform.id);
@@ -198,7 +199,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 					break;
 				case DEPOTS:
 					if (editingArea == null) {
-						dashboardList.setData(ClientData.DEPOTS, true, true, true, false, false, true);
+						dashboardList.setData(ClientData.getFilteredDataSet(transportMode, ClientData.DEPOTS), true, true, true, false, false, true);
 					} else {
 						final Map<Long, Siding> sidingData = ClientData.DATA_CACHE.requestDepotIdToSidings(editingArea.id);
 						dashboardList.setData(sidingData == null ? new ArrayList<>() : new ArrayList<>(sidingData.values()), true, false, true, false, false, false);
@@ -273,11 +274,11 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 				case DEPOTS:
 					if (editingArea == null) {
 						if (data instanceof Depot) {
-							UtilitiesClient.setScreen(minecraft, new EditDepotScreen((Depot) data, this));
+							UtilitiesClient.setScreen(minecraft, new EditDepotScreen((Depot) data, transportMode, this));
 						}
 					} else {
 						if (data instanceof Siding) {
-							UtilitiesClient.setScreen(minecraft, new SidingScreen((Siding) data, this));
+							UtilitiesClient.setScreen(minecraft, new SidingScreen((Siding) data, transportMode, this));
 						}
 					}
 					break;
@@ -379,7 +380,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		if (savedRail instanceof Platform) {
 			UtilitiesClient.setScreen(Minecraft.getInstance(), new PlatformScreen((Platform) savedRail, this));
 		} else if (savedRail instanceof Siding) {
-			UtilitiesClient.setScreen(Minecraft.getInstance(), new SidingScreen((Siding) savedRail, this));
+			UtilitiesClient.setScreen(Minecraft.getInstance(), new SidingScreen((Siding) savedRail, transportMode, this));
 		}
 	}
 

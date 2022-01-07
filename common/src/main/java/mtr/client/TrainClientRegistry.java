@@ -3,6 +3,7 @@ package mtr.client;
 import mtr.MTR;
 import mtr.data.Train;
 import mtr.data.TrainType;
+import mtr.data.TransportMode;
 import mtr.model.*;
 import mtr.render.RenderTrains;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,7 +20,7 @@ import java.util.function.BiConsumer;
 public class TrainClientRegistry {
 
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
-	private static final List<String> KEY_ORDER = new ArrayList<>();
+	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
 	private static final String SOUND_ACCELERATION = "_acceleration_";
 	private static final String SOUND_DECELERATION = "_deceleration_";
@@ -28,15 +29,18 @@ public class TrainClientRegistry {
 
 	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, boolean hasGangwayConnection, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 		final String keyLower = key.toLowerCase();
-		if (!KEY_ORDER.contains(keyLower)) {
-			KEY_ORDER.add(keyLower);
+		if (!KEY_ORDERS.containsKey(baseTrainType.transportMode)) {
+			KEY_ORDERS.put(baseTrainType.transportMode, new ArrayList<>());
+		}
+		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)) {
+			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
 		}
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, hasGangwayConnection, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
 
 	public static void reset() {
 		REGISTRY.clear();
-		KEY_ORDER.clear();
+		KEY_ORDERS.clear();
 
 		register("sp1900", TrainType.SP1900, new ModelSP1900(false), "mtr:textures/entity/sp1900", "sp1900", "sp1900", null, 0x003399, true, 120, 0.5F, false);
 		register("sp1900_small", TrainType.SP1900_SMALL, new ModelSP1900Small(false), "mtr:textures/entity/sp1900", "sp1900", "sp1900", null, 0x003399, true, 120, 0.5F, false);
@@ -88,7 +92,13 @@ public class TrainClientRegistry {
 		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", null, 0x333333, false, 27, 0.5F, false);
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
-		register("minecart", TrainType.MINECART, null, null, null, null, null, 0x666666, false, 0, 0.5F, false);
+		register("minecart", TrainType.MINECART, null, "textures/entity/minecart", null, null, null, 0x666666, false, 0, 0.5F, false);
+		register("oak_boat", TrainType.OAK_BOAT, null, "textures/entity/boat/oak", null, null, null, 0x8F7748, false, 0, 0.5F, false);
+		register("spruce_boat", TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", null, null, null, 0x8F7748, false, 0, 0.5F, false);
+		register("birch_boat", TrainType.BIRCH_BOAT, null, "textures/entity/boat/birch", null, null, null, 0x8F7748, false, 0, 0.5F, false);
+		register("jungle_boat", TrainType.JUNGLE_BOAT, null, "textures/entity/boat/jungle", null, null, null, 0x8F7748, false, 0, 0.5F, false);
+		register("acacia_boat", TrainType.ACACIA_BOAT, null, "textures/entity/boat/acacia", null, null, null, 0x8F7748, false, 0, 0.5F, false);
+		register("dark_oak_boat", TrainType.DARK_OAK_BOAT, null, "textures/entity/boat/dark_oak", null, null, null, 0x8F7748, false, 0, 0.5F, false);
 	}
 
 	public static TrainProperties getTrainProperties(String key, TrainType baseTrainType) {
@@ -101,16 +111,16 @@ public class TrainClientRegistry {
 		}
 	}
 
-	public static TrainProperties getTrainProperties(int index) {
-		return index >= 0 && index < KEY_ORDER.size() ? REGISTRY.get(KEY_ORDER.get(index)) : getBlankProperties(TrainType.values()[0]);
+	public static TrainProperties getTrainProperties(TransportMode transportMode, int index) {
+		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : getBlankProperties(TrainType.values()[0]);
 	}
 
-	public static String getTrainId(int index) {
-		return KEY_ORDER.get(index >= 0 && index < KEY_ORDER.size() ? index : 0);
+	public static String getTrainId(TransportMode transportMode, int index) {
+		return KEY_ORDERS.get(transportMode).get(index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? index : 0);
 	}
 
-	public static void forEach(BiConsumer<String, TrainProperties> biConsumer) {
-		KEY_ORDER.forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
+	public static void forEach(TransportMode transportMode, BiConsumer<String, TrainProperties> biConsumer) {
+		KEY_ORDERS.get(transportMode).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {

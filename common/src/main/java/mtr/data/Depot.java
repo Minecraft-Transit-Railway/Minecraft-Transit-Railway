@@ -38,12 +38,12 @@ public class Depot extends AreaBase {
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
 	private static final String KEY_DEPLOY_INDEX = "deploy_index";
 
-	public Depot() {
-		super();
+	public Depot(TransportMode transportMode) {
+		super(transportMode);
 	}
 
-	public Depot(long id) {
-		super(id);
+	public Depot(long id, TransportMode transportMode) {
+		super(id, transportMode);
 	}
 
 	public Depot(CompoundTag compoundTag) {
@@ -110,6 +110,11 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
+	protected boolean hasTransportMode() {
+		return true;
+	}
+
+	@Override
 	public void update(String key, FriendlyByteBuf packet) {
 		if (KEY_FREQUENCIES.equals(key)) {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -144,6 +149,7 @@ public class Depot extends AreaBase {
 	public void setData(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_FREQUENCIES);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -178,7 +184,7 @@ public class Depot extends AreaBase {
 
 				sidings.forEach(siding -> {
 					final BlockPos sidingMidPos = siding.getMidPos();
-					if (inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
+					if (siding.isTransportMode(transportMode) && inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
 						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
 						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
 						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
@@ -206,7 +212,7 @@ public class Depot extends AreaBase {
 		if (!deployableSidings.isEmpty() && getMillisUntilDeploy(hour, 1) == 0) {
 			final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
 				final BlockPos sidingPos = siding.getMidPos();
-				return inArea(sidingPos.getX(), sidingPos.getZ());
+				return siding.isTransportMode(transportMode) && inArea(sidingPos.getX(), sidingPos.getZ());
 			}).sorted().collect(Collectors.toList());
 
 			final int sidingsInDepotSize = sidingsInDepot.size();

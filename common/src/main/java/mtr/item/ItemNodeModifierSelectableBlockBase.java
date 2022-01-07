@@ -1,8 +1,9 @@
 package mtr.item;
 
-import mtr.block.BlockRailNode;
+import mtr.block.BlockNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
+import mtr.data.TransportMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -49,7 +50,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 				if (player != null && player.isShiftKeyDown()) {
 					final BlockState state = world.getBlockState(context.getClickedPos());
 					final BlockState newState;
-					if (state.getBlock() instanceof BlockRailNode) {
+					if (state.getBlock() instanceof BlockNode) {
 						newState = Blocks.AIR.defaultBlockState();
 					} else {
 						newState = state;
@@ -85,7 +86,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
-	protected final void onConnect(Level world, ItemStack stack, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
+	protected final void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (player != null && !onConnect(player, stack, railwayData, posStart, posEnd, radius, height)) {
 			player.displayClientMessage(new TranslatableComponent("gui.mtr.rail_not_found_action"), true);
 		}

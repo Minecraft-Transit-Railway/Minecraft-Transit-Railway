@@ -16,16 +16,16 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
-	public SavedRailBase(long id, BlockPos pos1, BlockPos pos2) {
-		super(id);
+	public SavedRailBase(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(id, transportMode);
 		name = "1";
 		positions = new HashSet<>();
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(BlockPos pos1, BlockPos pos2) {
-		super();
+	public SavedRailBase(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(transportMode);
 		name = "1";
 		positions = new HashSet<>();
 		positions.add(pos1);
@@ -59,6 +59,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		super.writePacket(packet);
 		packet.writeBlockPos(getPosition(0));
 		packet.writeBlockPos(getPosition(1));
+	}
+
+	@Override
+	protected final boolean hasTransportMode() {
+		return true;
 	}
 
 	public boolean containsPos(BlockPos pos) {

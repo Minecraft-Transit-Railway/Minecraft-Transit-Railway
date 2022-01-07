@@ -1,32 +1,47 @@
 package mtr.block;
 
+import mtr.BlockEntityTypes;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
+import mtr.data.TransportMode;
+import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockRailNode extends HorizontalDirectionalBlock {
+public class BlockNode extends HorizontalDirectionalBlock {
+
+	public final TransportMode transportMode;
 
 	public static final BooleanProperty FACING = BooleanProperty.create("facing");
 	public static final BooleanProperty IS_22_5 = BooleanProperty.create("is_22_5");
 	public static final BooleanProperty IS_45 = BooleanProperty.create("is_45");
 	public static final BooleanProperty IS_CONNECTED = BooleanProperty.create("is_connected");
 
-	public BlockRailNode(Properties settings) {
-		super(settings);
+	public BlockNode(TransportMode transportMode) {
+		super(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(2).noOcclusion());
+		this.transportMode = transportMode;
 		registerDefaultState(defaultBlockState().setValue(FACING, false).setValue(IS_22_5, false).setValue(IS_45, false));
 	}
 
@@ -68,10 +83,47 @@ public class BlockRailNode extends HorizontalDirectionalBlock {
 	}
 
 	public static void resetRailNode(Level world, BlockPos pos) {
-		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(BlockRailNode.IS_CONNECTED, false));
+		final BlockState state = world.getBlockState(pos);
+		if (state.getBlock() instanceof BlockNode) {
+			world.setBlockAndUpdate(pos, state.setValue(BlockNode.IS_CONNECTED, false));
+		}
 	}
 
 	public static float getAngle(BlockState state) {
-		return (IBlock.getStatePropertySafe(state, BlockRailNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockRailNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockRailNode.IS_45) ? 45 : 0);
+		return (IBlock.getStatePropertySafe(state, BlockNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockNode.IS_45) ? 45 : 0);
+	}
+
+	public static class BlockBoatNode extends BlockNode implements EntityBlockMapper {
+
+		public BlockBoatNode() {
+			super(TransportMode.BOAT);
+		}
+
+		@Override
+		public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
+			if (state.canSurvive(world, pos)) {
+				return state;
+			} else {
+				return Blocks.AIR.defaultBlockState();
+			}
+		}
+
+		@Override
+		public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+			final BlockPos posBelow = pos.below();
+			return (world.getFluidState(posBelow).getType() != Fluids.EMPTY || world.getBlockState(posBelow).getMaterial() == Material.ICE) && world.getFluidState(pos).getType() == Fluids.EMPTY;
+		}
+
+		@Override
+		public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
+			return new TileEntityBoatNode(pos, state);
+		}
+	}
+
+	public static class TileEntityBoatNode extends BlockEntityMapper {
+
+		public TileEntityBoatNode(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.BOAT_NODE_TILE_ENTITY, pos, state);
+		}
 	}
 }

@@ -23,14 +23,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.scores.Score;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
 
-	public static void openDashboardScreenS2C(ServerPlayer player) {
+	public static void openDashboardScreenS2C(ServerPlayer player, TransportMode transportMode) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUtf(transportMode.toString());
 		Registry.sendToPlayer(player, PACKET_OPEN_DASHBOARD_SCREEN, packet);
 	}
 
@@ -71,8 +73,9 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_ANNOUNCE, packet);
 	}
 
-	public static void createRailS2C(Level world, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
+	public static void createRailS2C(Level world, TransportMode transportMode, BlockPos pos1, BlockPos pos2, Rail rail1, Rail rail2, long savedRailId) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUtf(transportMode.toString());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		rail1.writePacket(packet);
@@ -128,7 +131,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet, ResourceLocation packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet, ResourceLocation packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
 		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {

@@ -1,10 +1,7 @@
 package mtr.item;
 
-import mtr.block.BlockRailNode;
-import mtr.data.Rail;
-import mtr.data.RailAngle;
-import mtr.data.RailType;
-import mtr.data.RailwayData;
+import mtr.block.BlockNode;
+import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -45,24 +42,24 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(Level world, ItemStack stack, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
+	protected void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 			if (player != null) {
 				player.displayClientMessage(new TranslatableComponent("gui.mtr.platform_or_siding_exists"), true);
 			}
 		} else {
-			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType);
-			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType);
+			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType, transportMode);
+			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType, transportMode);
 
 			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
 			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid) {
-				railwayData.addRail(posStart, posEnd, rail1, false);
-				final long newId = railwayData.addRail(posEnd, posStart, rail2, true);
-				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockRailNode.IS_CONNECTED, true));
-				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockRailNode.IS_CONNECTED, true));
-				PacketTrainDataGuiServer.createRailS2C(world, posStart, posEnd, rail1, rail2, newId);
+				railwayData.addRail(transportMode, posStart, posEnd, rail1, false);
+				final long newId = railwayData.addRail(transportMode, posEnd, posStart, rail2, true);
+				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockNode.IS_CONNECTED, true));
+				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
+				PacketTrainDataGuiServer.createRailS2C(world, transportMode, posStart, posEnd, rail1, rail2, newId);
 			} else if (player != null) {
 				player.displayClientMessage(new TranslatableComponent(goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small"), true);
 			}

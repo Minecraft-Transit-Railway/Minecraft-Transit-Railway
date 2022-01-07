@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
+import mtr.block.BlockNode;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.client.*;
@@ -15,6 +16,7 @@ import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.BoatModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
@@ -27,6 +29,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -64,6 +68,7 @@ public class RenderTrains implements IGui {
 	private static final int TICKS_PER_SECOND = 20;
 
 	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
+	private static final EntityModel<Boat> MODEL_BOAT = new BoatModel();
 
 	public static void render(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Camera camera) {
 		final Minecraft client = Minecraft.getInstance();
@@ -110,11 +115,15 @@ public class RenderTrains implements IGui {
 			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + pitch));
 
 			if (trainProperties.model == null || trainProperties.textureId == null) {
-				matrices.translate(0, 0.5, 0);
+				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
+				matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MODEL_MINECART.renderType(new ResourceLocation("textures/entity/minecart.png")));
-				MODEL_MINECART.setupAnim(null, 0, 0, -0.1F, 0, 0);
-				MODEL_MINECART.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+				final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties, textureId -> textureId + ".png")));
+				if (!isBoat) {
+					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
+				}
+				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			} else {
 				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod || posAverage.distSqr(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
 			}
@@ -225,10 +234,11 @@ public class RenderTrains implements IGui {
 		}
 
 		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
-		final boolean renderColors = Utilities.isHolding(player, item -> item instanceof ItemNodeModifierBase || Block.byItem(item) instanceof BlockSignalLightBase || Block.byItem(item) instanceof BlockSignalSemaphoreBase);
+		final boolean renderColors = isHoldingRailRelated(player);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
+			final boolean isBoat = rail.transportMode == TransportMode.BOAT;
+			if (isBoat && !renderColors || !RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
 
@@ -253,7 +263,7 @@ public class RenderTrains implements IGui {
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				}
-			}, -1, 1);
+			}, isBoat ? -0.5F : -1, isBoat ? 0.5F : 1);
 			if (renderColors) {
 				final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
 				final float width = 1F / DyeColor.values().length;
@@ -307,6 +317,10 @@ public class RenderTrains implements IGui {
 	public static void clearTextureAvailability() {
 		AVAILABLE_TEXTURES.clear();
 		UNAVAILABLE_TEXTURES.clear();
+	}
+
+	public static boolean isHoldingRailRelated(Player player) {
+		return Utilities.isHolding(player, item -> item instanceof ItemNodeModifierBase || Block.byItem(item) instanceof BlockSignalLightBase || Block.byItem(item) instanceof BlockNode || Block.byItem(item) instanceof BlockSignalSemaphoreBase);
 	}
 
 	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {

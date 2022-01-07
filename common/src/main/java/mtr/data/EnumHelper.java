@@ -1,4 +1,4 @@
-package mtr;
+package mtr.data;
 
 public interface EnumHelper {
 

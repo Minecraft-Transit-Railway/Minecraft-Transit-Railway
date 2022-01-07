@@ -34,7 +34,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
 
-	public EditDepotScreen(Depot depot, DashboardScreen dashboardScreen) {
+	public EditDepotScreen(Depot depot, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
 
 		sidingsInDepot = ClientData.DATA_CACHE.requestDepotIdToSidings(depot.id);
@@ -50,7 +50,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
-				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
+				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES));
 				Collections.sort(routes);
 				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
 			}
@@ -59,7 +59,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
-		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.clear_trains"), button -> {
+		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.clear_vehicles"), button -> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(sidingsInDepot.values());
 		});

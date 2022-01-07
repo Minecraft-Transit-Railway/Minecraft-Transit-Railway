@@ -2,6 +2,6 @@
 	"parent": "item/generated",
 	"textures": {
 		"layer0": "mtr:item/dashboard",
-		"layer1": "mtr:item/railway_dashboard"
+		"layer1": "mtr:item/boat_dashboard"
 	}
 }

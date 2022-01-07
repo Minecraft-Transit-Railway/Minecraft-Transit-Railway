@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
+import mtr.data.TransportMode;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -22,7 +23,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onConnect(Level world, ItemStack stack, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
+	protected void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (railwayData.containsRail(posStart, posEnd)) {
 			PacketTrainDataGuiServer.createSignalS2C(world, railwayData.addSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 		} else if (player != null) {

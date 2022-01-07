@@ -26,10 +26,12 @@ public class ClientCache extends DataCache {
 	private Font font;
 	private Font fontCjk;
 
-	public final Map<BlockPos, List<Platform>> posToPlatforms = new HashMap<>();
-	public final Map<BlockPos, List<Siding>> posToSidings = new HashMap<>();
 	public final Map<Long, Map<Integer, ColorNameTuple>> stationIdToRoutes = new HashMap<>();
 
+	private final Map<BlockPos, List<Platform>> posToTrainPlatforms = new HashMap<>();
+	private final Map<BlockPos, List<Platform>> posToBoatPlatforms = new HashMap<>();
+	private final Map<BlockPos, List<Siding>> posToTrainSidings = new HashMap<>();
+	private final Map<BlockPos, List<Siding>> posToBoatSidings = new HashMap<>();
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
 	private final Map<Long, Map<Long, Siding>> depotIdToSidings = new HashMap<>();
 	private final Map<Long, List<PlatformRouteDetails>> platformIdToRoutes = new HashMap<>();
@@ -52,8 +54,10 @@ public class ClientCache extends DataCache {
 
 	@Override
 	protected void syncAdditional() {
-		mapPosToSavedRails(posToPlatforms, platforms);
-		mapPosToSavedRails(posToSidings, sidings);
+		mapPosToSavedRails(posToTrainPlatforms, platforms, TransportMode.TRAIN);
+		mapPosToSavedRails(posToBoatPlatforms, platforms, TransportMode.BOAT);
+		mapPosToSavedRails(posToTrainSidings, sidings, TransportMode.TRAIN);
+		mapPosToSavedRails(posToBoatSidings, sidings, TransportMode.BOAT);
 
 		stationIdToRoutes.clear();
 		routes.forEach(route -> route.platformIds.forEach(platformId -> {
@@ -222,6 +226,28 @@ public class ClientCache extends DataCache {
 		}
 	}
 
+	public Map<BlockPos, List<Platform>> getPosToPlatforms(TransportMode transportMode) {
+		switch (transportMode) {
+			case TRAIN:
+				return posToTrainPlatforms;
+			case BOAT:
+				return posToBoatPlatforms;
+			default:
+				return new HashMap<>();
+		}
+	}
+
+	public Map<BlockPos, List<Siding>> getPosToSidings(TransportMode transportMode) {
+		switch (transportMode) {
+			case TRAIN:
+				return posToTrainSidings;
+			case BOAT:
+				return posToBoatSidings;
+			default:
+				return new HashMap<>();
+		}
+	}
+
 	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, boolean defaultBlack) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
@@ -271,21 +297,23 @@ public class ClientCache extends DataCache {
 		final Map<Long, V> savedRailMap = new HashMap<>();
 		savedRails.forEach(savedRail -> {
 			final BlockPos pos = savedRail.getMidPos();
-			if (area.inArea(pos.getX(), pos.getZ())) {
+			if (area.isTransportMode(savedRail.transportMode) && area.inArea(pos.getX(), pos.getZ())) {
 				savedRailMap.put(savedRail.id, savedRail);
 			}
 		});
 		return savedRailMap;
 	}
 
-	private static <U extends SavedRailBase> void mapPosToSavedRails(Map<BlockPos, List<U>> posToSavedRails, Set<U> savedRails) {
+	private static <U extends SavedRailBase> void mapPosToSavedRails(Map<BlockPos, List<U>> posToSavedRails, Set<U> savedRails, TransportMode transportMode) {
 		posToSavedRails.clear();
 		savedRails.forEach(savedRail -> {
-			final BlockPos pos = savedRail.getMidPos(true);
-			if (!posToSavedRails.containsKey(pos)) {
-				posToSavedRails.put(pos, new ArrayList<>());
+			if (savedRail.isTransportMode(transportMode)) {
+				final BlockPos pos = savedRail.getMidPos(true);
+				if (!posToSavedRails.containsKey(pos)) {
+					posToSavedRails.put(pos, new ArrayList<>());
+				}
+				posToSavedRails.get(pos).add(savedRail);
 			}
-			posToSavedRails.get(pos).add(savedRail);
 		});
 	}
 

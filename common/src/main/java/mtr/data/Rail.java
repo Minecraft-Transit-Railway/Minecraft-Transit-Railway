@@ -1,7 +1,6 @@
 package mtr.data;
 
-import mtr.EnumHelper;
-import mtr.block.BlockRailNode;
+import mtr.block.BlockNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -23,6 +22,7 @@ import java.util.function.Consumer;
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
+	public final TransportMode transportMode;
 	public final RailAngle facingStart;
 	public final RailAngle facingEnd;
 	private final double h1, k1, r1, tStart1, tEnd1;
@@ -50,6 +50,7 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
+	private static final String KEY_TRANSPORT_MODE = "transport_mode";
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -61,10 +62,11 @@ public class Rail extends SerializedDataBase {
 	// x = h*T + k*r
 	// z = k*T + h*r
 
-	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType) {
+	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType, TransportMode transportMode) {
 		this.facingStart = facingStart;
 		this.facingEnd = facingEnd;
 		this.railType = railType;
+		this.transportMode = transportMode;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
 
@@ -235,6 +237,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = compoundTag.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = compoundTag.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = EnumHelper.valueOf(RailType.IRON, compoundTag.getString(KEY_RAIL_TYPE));
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
@@ -258,6 +261,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
@@ -283,6 +287,7 @@ public class Rail extends SerializedDataBase {
 		compoundTag.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		compoundTag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
 		compoundTag.putString(KEY_RAIL_TYPE, railType.toString());
+		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
 		return compoundTag;
 	}
 
@@ -305,6 +310,7 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
 		packet.writeUtf(railType.toString());
+		packet.writeUtf(transportMode.toString());
 	}
 
 	public Vec3 getPosition(double rawValue) {
@@ -539,7 +545,7 @@ public class Rail extends SerializedDataBase {
 		}
 
 		private static boolean canPlace(Level world, BlockPos pos) {
-			return world.getBlockEntity(pos) == null && !(world.getBlockState(pos).getBlock() instanceof BlockRailNode);
+			return world.getBlockEntity(pos) == null && !(world.getBlockState(pos).getBlock() instanceof BlockNode);
 		}
 
 		private static BlockPos getHalfPos(BlockPos pos, boolean isTopHalf) {

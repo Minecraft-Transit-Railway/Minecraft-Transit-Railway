@@ -81,7 +81,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
 		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
-		trainCars = (int) Math.floor(railLength / baseTrainType.getSpacing());
+		trainCars = baseTrainType.transportMode == TransportMode.BOAT ? 1 : (int) Math.floor(railLength / baseTrainType.getSpacing());
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
 		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
@@ -112,7 +112,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		reversed = packet.readBoolean();
 		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		baseTrainType = TrainType.values()[packet.readInt()];
-		trainCars = (int) Math.floor(railLength / baseTrainType.getSpacing());
+		trainCars = baseTrainType.transportMode == TransportMode.BOAT ? 1 : (int) Math.floor(railLength / baseTrainType.getSpacing());
 		isOnRoute = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -172,6 +172,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
+	}
+
+	@Override
+	protected boolean hasTransportMode() {
+		return false;
 	}
 
 	public final boolean getIsOnRoute() {
@@ -418,7 +423,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		final Vec3 traverseVec = new Vec3(0, 0, 1).yRot(checkYaw).xRot(pitch);
 
 		for (int checkX = 1; checkX <= 3; checkX++) {
-			for (int checkY = -1; checkY <= 0; checkY++) {
+			for (int checkY = -2; checkY <= 0; checkY++) {
 				for (double checkZ = -halfSpacing; checkZ <= halfSpacing; checkZ++) {
 					final BlockPos checkPos = new BlockPos(trainX + offsetVec.x * checkX + traverseVec.x * checkZ, trainY + checkY, trainZ + offsetVec.z * checkX + traverseVec.z * checkZ);
 					final Block block = world.getBlockState(checkPos).getBlock();

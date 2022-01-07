@@ -220,6 +220,11 @@ public class SignalBlocks {
 			rails.forEach(packet::writeUUID);
 		}
 
+		@Override
+		protected boolean hasTransportMode() {
+			return false;
+		}
+
 		public boolean isOccupied() {
 			return occupied > 0;
 		}

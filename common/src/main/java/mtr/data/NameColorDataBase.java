@@ -10,10 +10,12 @@ import java.util.function.Consumer;
 public abstract class NameColorDataBase extends SerializedDataBase implements Comparable<NameColorDataBase> {
 
 	public final long id;
+	public final TransportMode transportMode;
 	public String name;
 	public int color;
 
 	private static final String KEY_ID = "id";
+	private static final String KEY_TRANSPORT_MODE = "transport_mode";
 	private static final String KEY_NAME = "name";
 	private static final String KEY_COLOR = "color";
 
@@ -22,18 +24,29 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	}
 
 	public NameColorDataBase(long id) {
+		this(id, TransportMode.TRAIN);
+	}
+
+	public NameColorDataBase(TransportMode transportMode) {
+		this(0, transportMode);
+	}
+
+	public NameColorDataBase(long id, TransportMode transportMode) {
 		this.id = id == 0 ? new Random().nextLong() : id;
+		this.transportMode = transportMode;
 		name = "";
 	}
 
 	public NameColorDataBase(CompoundTag compoundTag) {
 		id = compoundTag.getLong(KEY_ID);
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
 		name = compoundTag.getString(KEY_NAME);
 		color = compoundTag.getInt(KEY_COLOR);
 	}
 
 	public NameColorDataBase(FriendlyByteBuf packet) {
 		id = packet.readLong();
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		name = packet.readUtf(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
 		color = packet.readInt();
 	}
@@ -42,6 +55,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	public CompoundTag toCompoundTag() {
 		final CompoundTag compoundTag = new CompoundTag();
 		compoundTag.putLong(KEY_ID, id);
+		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
 		compoundTag.putString(KEY_NAME, name);
 		compoundTag.putInt(KEY_COLOR, color);
 		return compoundTag;
@@ -50,6 +64,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	@Override
 	public void writePacket(FriendlyByteBuf packet) {
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(name);
 		packet.writeInt(color);
 	}
@@ -64,6 +79,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	public void setNameColor(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_NAME);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -71,6 +87,12 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 			sendPacket.accept(packet);
 		}
 	}
+
+	public final boolean isTransportMode(TransportMode transportMode) {
+		return !hasTransportMode() || this.transportMode == transportMode;
+	}
+
+	protected abstract boolean hasTransportMode();
 
 	@Override
 	public int compareTo(NameColorDataBase compare) {

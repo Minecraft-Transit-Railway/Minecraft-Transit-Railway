@@ -125,6 +125,16 @@ public final class ClientData {
 		ClientData.DATA_CACHE.sync();
 	}
 
+	public static <T extends NameColorDataBase> Set<T> getFilteredDataSet(TransportMode transportMode, Set<T> dataSet) {
+		final Set<T> returnData = new HashSet<>();
+		dataSet.forEach(data -> {
+			if (data.isTransportMode(transportMode)) {
+				returnData.add(data);
+			}
+		});
+		return returnData;
+	}
+
 	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {
 		final Set<T> objects = new HashSet<>();
 		final int dataCount = packet.readInt();

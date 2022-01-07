@@ -7,6 +7,7 @@ import mtr.client.TrainClientRegistry;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Siding;
+import mtr.data.TransportMode;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
@@ -22,6 +23,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private boolean isSelectingTrain;
 
+	private final TransportMode transportMode;
 	private final Button buttonSelectTrain;
 	private final DashboardList availableTrainsList;
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
@@ -31,8 +33,9 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_TRAINS_WIDTH = 40;
 
-	public SidingScreen(Siding siding, DashboardScreen dashboardScreen) {
+	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
+		this.transportMode = transportMode;
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
@@ -135,7 +138,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private void onSelectingTrain() {
 		final List<DataConverter> trainList = new ArrayList<>();
-		TrainClientRegistry.forEach((id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+		TrainClientRegistry.forEach(transportMode, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
 	}
@@ -150,7 +153,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(index), TrainClientRegistry.getTrainProperties(index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(transportMode, index), TrainClientRegistry.getTrainProperties(transportMode, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
 		setIsSelectingTrain(false);
 	}
 }
