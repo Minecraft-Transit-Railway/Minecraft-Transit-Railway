@@ -16,7 +16,6 @@ import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.BoatModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
@@ -68,7 +67,7 @@ public class RenderTrains implements IGui {
 	private static final int TICKS_PER_SECOND = 20;
 
 	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
-	private static final EntityModel<Boat> MODEL_BOAT = new BoatModel();
+	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
 
 	public static void render(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Camera camera) {
 		final Minecraft client = Minecraft.getInstance();
