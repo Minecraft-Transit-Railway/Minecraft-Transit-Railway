@@ -29,6 +29,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
@@ -69,6 +70,7 @@ public class RenderTrains implements IGui {
 
 	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
 	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
+	private static final Map<Long, FakeBoat> BOATS = new HashMap<>();
 
 	public static void render(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Camera camera) {
 		final Minecraft client = Minecraft.getInstance();
@@ -116,13 +118,22 @@ public class RenderTrains implements IGui {
 
 			if (trainProperties.model == null || trainProperties.textureId == null) {
 				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
+
 				matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+
 				final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties, textureId -> textureId + ".png")));
-				if (!isBoat) {
+
+				if (isBoat) {
+					if (!BOATS.containsKey(train.id)) {
+						BOATS.put(train.id, new FakeBoat());
+					}
+					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
+				} else {
 					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
 				}
+
 				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			} else {
 				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod || posAverage.distSqr(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
@@ -384,6 +395,21 @@ public class RenderTrains implements IGui {
 
 	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {
 		return resolveTexture(trainProperties, textureId -> textureId + "_connector_" + connectorPart + ".png");
+	}
+
+	private static class FakeBoat extends Boat {
+
+		private float progress;
+
+		public FakeBoat() {
+			super(EntityType.BOAT, null);
+		}
+
+		@Override
+		public float getRowingTime(int paddle, float newProgress) {
+			progress += newProgress;
+			return progress;
+		}
 	}
 
 	@FunctionalInterface

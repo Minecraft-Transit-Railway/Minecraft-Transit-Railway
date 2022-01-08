@@ -238,6 +238,10 @@ public class TrainClient extends Train {
 		isOnRoute = train.isOnRoute;
 	}
 
+	public float getSpeed() {
+		return speed;
+	}
+
 	private int getPreviousStoppingIndex(int headIndex) {
 		for (int i = headIndex; i >= 0; i--) {
 			if (path.get(i).dwellTime > 0 && path.get(i).rail.railType == RailType.PLATFORM) {

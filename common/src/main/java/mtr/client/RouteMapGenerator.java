@@ -72,7 +72,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio) {
+	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
 		try {
 			final List<Integer> colors = new ArrayList<>();
 			final List<String> destinations = new ArrayList<>();
@@ -156,6 +156,10 @@ public class RouteMapGenerator implements IGui {
 				drawString(nativeImage, pixelsPlatformNumber, circleX + tileSize / 2, padding + tileSize / 2, dimensionsPlatformNumber, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			}
 
+			if (transparentWhite) {
+				clearWhite(nativeImage);
+			}
+
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -164,7 +168,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio) {
+	public static DynamicTexture generateRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
 		try {
 			final List<Tuple<Route, Integer>> routeDetails = getRouteStream(platformId).map(route -> {
 				final int currentIndex = route.platformIds.indexOf(platformId);
@@ -326,6 +330,10 @@ public class RouteMapGenerator implements IGui {
 					final byte[] pixels = clientCache.getTextPixels(station == null ? "" : station.name, dimensions, maxStringWidth, fontSizeBig, fontSizeSmall, fontSizeSmall / 4, vertical ? HorizontalAlignment.RIGHT : HorizontalAlignment.CENTER);
 					drawString(nativeImage, pixels, x, y + (textBelow ? lines * lineSpacing : -1) + (textBelow ? 1 : -1) * lineSize * 5 / 4, dimensions, HorizontalAlignment.CENTER, textBelow ? VerticalAlignment.TOP : VerticalAlignment.BOTTOM, currentStation ? ARGB_BLACK : 0, passed ? ARGB_LIGHT_GRAY : currentStation ? ARGB_WHITE : ARGB_BLACK, vertical);
 				}));
+
+				if (transparentWhite) {
+					clearWhite(nativeImage);
+				}
 
 				return new DynamicTexture(nativeImage);
 			}
@@ -561,6 +569,16 @@ public class RouteMapGenerator implements IGui {
 	private static void drawPixelSafe(NativeImage nativeImage, int x, int y, int color) {
 		if (RailwayData.isBetween(x, 0, nativeImage.getWidth() - 1) && RailwayData.isBetween(y, 0, nativeImage.getHeight() - 1)) {
 			nativeImage.setPixelRGBA(x, y, ((color & ARGB_BLACK) != 0 ? ARGB_BLACK : 0) + ((color & 0xFF) << 16) + (color & 0xFF00) + ((color & 0xFF0000) >> 16));
+		}
+	}
+
+	private static void clearWhite(NativeImage nativeImage) {
+		for (int x = 0; x < nativeImage.getWidth(); x++) {
+			for (int y = 0; y < nativeImage.getHeight(); y++) {
+				if (nativeImage.getPixelRGBA(x, y) == ARGB_WHITE) {
+					nativeImage.setPixelRGBA(x, y, 0);
+				}
+			}
 		}
 	}
 

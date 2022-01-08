@@ -26,13 +26,15 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 	protected final float bottomPadding;
 	protected final float topPadding;
 	private final float z;
+	private final boolean transparentWhite;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean transparentWhite) {
 		super(dispatcher);
 		this.z = z / 16;
 		this.sidePadding = sidePadding / 16;
 		this.bottomPadding = bottomPadding / 16;
 		this.topPadding = topPadding / 16;
+		this.transparentWhite = transparentWhite;
 	}
 
 	@Override
@@ -70,12 +72,13 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 						final VertexConsumer vertexConsumer;
 						if (renderType == RenderType.ARROW) {
-							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height)));
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, transparentWhite)));
 						} else {
-							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height)));
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite)));
 						}
 
-						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+						final int colorByte = transparentWhite && facing.getAxis() == Direction.Axis.X ? 0xFF * 3 / 4 : 0xFF;
+						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), ARGB_BLACK + (colorByte << 16) + (colorByte << 8) + colorByte, light);
 					}
 				}
 
