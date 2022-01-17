@@ -128,7 +128,6 @@ public class ModelLightRail extends ModelTrainBase {
 		door_right = new ModelMapper(modelDataWrapper);
 		door_right.setPos(0, 0, 0);
 		door.addChild(door_right);
-
 		door_right.texOffs(206, 116).addBox(-20, -32, -15, 0, 32, 15, 0, false);
 
 		door_5 = new ModelMapper(modelDataWrapper);
@@ -163,7 +162,6 @@ public class ModelLightRail extends ModelTrainBase {
 
 		handrail_6_r1 = new ModelMapper(modelDataWrapper);
 		handrail_6_r1.setPos(0, 0, 0);
-
 		door_handrails.addChild(handrail_6_r1);
 		setRotationAngle(handrail_6_r1, -1.5708F, 0, 0);
 		handrail_6_r1.texOffs(8, 0).addBox(-13, 16, -32, 0, 32, 0, 0.2F, false);
@@ -211,7 +209,6 @@ public class ModelLightRail extends ModelTrainBase {
 		door_handrails_4.addChild(handrail_2_r1);
 		setRotationAngle(handrail_2_r1, 0, 0, 0.3491F);
 		handrail_2_r1.texOffs(4, 6).addBox(-0.2F, 0.2F, 0.2F, 0, 5, 0, 0.2F, false);
-
 
 		door_handrails_5 = new ModelMapper(modelDataWrapper);
 		door_handrails_5.setPos(0, 24, 0);
@@ -261,7 +258,6 @@ public class ModelLightRail extends ModelTrainBase {
 		door_right_exterior = new ModelMapper(modelDataWrapper);
 		door_right_exterior.setPos(0, 0, 0);
 		door_exterior.addChild(door_right_exterior);
-
 		door_right_exterior.texOffs(202, 300).addBox(-21, -32, -15, 1, 33, 15, 0, false);
 
 		door_exterior_5 = new ModelMapper(modelDataWrapper);
@@ -306,7 +302,6 @@ public class ModelLightRail extends ModelTrainBase {
 
 		handrail_6_r3 = new ModelMapper(modelDataWrapper);
 		handrail_6_r3.setPos(0, 0, 0);
-
 		door_window_handrails.addChild(handrail_6_r3);
 		setRotationAngle(handrail_6_r3, -1.5708F, 0, 0);
 		handrail_6_r3.texOffs(8, 0).addBox(7, 16, -32, 0, 32, 0, 0.2F, false);
@@ -342,7 +337,6 @@ public class ModelLightRail extends ModelTrainBase {
 		handrail_7_r1 = new ModelMapper(modelDataWrapper);
 		handrail_7_r1.setPos(6, -3.5F, -16);
 		door_window_handrails_4.addChild(handrail_7_r1);
-
 		setRotationAngle(handrail_7_r1, 0, 0, -0.2182F);
 		handrail_7_r1.texOffs(0, 30).addBox(1.5F, -8.25F, 32, 0, 12, 0, 0.2F, false);
 		handrail_7_r1.texOffs(0, 30).addBox(1.5F, -8.25F, 0, 0, 12, 0, 0.2F, false);
@@ -419,7 +413,6 @@ public class ModelLightRail extends ModelTrainBase {
 
 		inner_roof_2_r1 = new ModelMapper(modelDataWrapper);
 		inner_roof_2_r1.setPos(-17, -32, 0);
-
 		roof.addChild(inner_roof_2_r1);
 		setRotationAngle(inner_roof_2_r1, 0, 0, -0.8727F);
 		inner_roof_2_r1.texOffs(109, 98).addBox(0, 0, -16, 6, 0, 32, 0, false);
@@ -497,13 +490,12 @@ public class ModelLightRail extends ModelTrainBase {
 		light_1_r1 = new ModelMapper(modelDataWrapper);
 		light_1_r1.setPos(-12, -35.5F, 0);
 		roof_light.addChild(light_1_r1);
-
 		setRotationAngle(light_1_r1, 0, 0, 1.0472F);
 		light_1_r1.texOffs(127, 98).addBox(-1, 0, -16, 1, 0, 32, 0, false);
 
 		roof_light_5 = new ModelMapper(modelDataWrapper);
 		roof_light_5.setPos(0, 24, 0);
-		roof_light_5.texOffs(122, 32).addBox(-12, -36, -16, 2, 0, 32, 0, false);
+		roof_light_5.texOffs(122, 32).addBox(-12, -36.001F, -16, 2, 0, 32, 0, false);
 
 		end = new ModelMapper(modelDataWrapper);
 		end.setPos(0, 24, 0);
@@ -517,7 +509,6 @@ public class ModelLightRail extends ModelTrainBase {
 
 		inner_roof_4_r1 = new ModelMapper(modelDataWrapper);
 		inner_roof_4_r1.setPos(17, -32, 0);
-
 		end.addChild(inner_roof_4_r1);
 		setRotationAngle(inner_roof_4_r1, 0, 0, 0.8727F);
 		inner_roof_4_r1.texOffs(0, 0).addBox(-6, 0, 16, 6, 0, 12, 0, true);
