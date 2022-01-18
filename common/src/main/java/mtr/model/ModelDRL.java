@@ -776,7 +776,6 @@ public class ModelDRL extends ModelTrainBase {
 
 		head = new ModelMapper(modelDataWrapper);
 		head.setPos(0, 24, 0);
-		head.texOffs(134, 71).addBox(-20, 0, 4, 40, 1, 4, 0, false);
 		head.texOffs(91, 146).addBox(18, -14, 4, 2, 14, 6, 0, false);
 		head.texOffs(91, 146).addBox(-20, -14, 4, 2, 14, 6, 0, true);
 		head.texOffs(246, 206).addBox(-18, -34, 4, 36, 34, 0, 0, false);
