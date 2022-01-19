@@ -2239,7 +2239,21 @@
 			}
 		]
 	},
-	"c1141a_acceleration_0a": {
+	"c1141a_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:c1141a/door_open",
+				"pitch": 0.5
+			}
+		]
+	},"c1141a_door_close": {
+	"sounds": [
+		{
+			"name": "mtr:c1141a/door_close",
+			"pitch": 0.5
+		}
+	]
+    },"c1141a_acceleration_0a": {
 		"sounds": [
 			{
 				"name": "mtr:c1141a/acceleration/speed_0a",
