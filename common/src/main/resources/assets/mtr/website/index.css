@@ -70,6 +70,12 @@ h2 {
     width: 24em;
 }
 
+#trip_planner {
+    top: 0;
+    left: 0;
+    width: 24em;
+}
+
 #search_top {
     align-items: center;
     display: flex;
@@ -201,4 +207,40 @@ h2 {
 
 .material-icons.tight {
     padding: 0;
+}
+
+#tab_top {
+    display: table;
+    margin-bottom: 0.3em;
+}
+
+.btn_explicit {
+    border: 2px solid #aaa;
+    border-radius: 0.3em;
+}
+
+.tab_btn {
+    display: table-cell;
+    text-align: center;
+    width: 50%;
+}
+
+.tab_btn:hover {
+    background-color: #ddd;
+}
+
+.tab_btn.active {
+    border-bottom: 0.2em solid #aaa;
+}
+
+.tab_content {
+    overflow-y: auto;
+}
+
+#trip_planner_control {
+    margin-bottom: 0.5em;
+}
+
+#trip_planner_control div {
+    margin-bottom: 0.3em;
 }

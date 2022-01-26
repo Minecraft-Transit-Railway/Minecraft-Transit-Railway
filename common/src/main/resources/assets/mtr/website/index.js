@@ -1,13 +1,21 @@
 import CANVAS from "./utilities.js"
-import drawMap from "./drawing.js";
+import drawMap, { selectedStation } from "./drawing.js";
+import { buildGraph, findShowPlan } from "./tripplan.js";
 
-const URL = document.location.origin + document.location.pathname;
+const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
 	dataUrl: URL + "data",
 	arrivalsUrl: URL + "arrivals",
 	refreshDataInterval: 60000,
 	refreshArrivalsInterval: 5000,
-	routeTypes: ["normal", "light_rail", "high_speed"],
+	routeTypes: {
+		"train_normal": "directions_train",
+		"train_light_rail": "tram",
+		"train_high_speed": "train",
+		"boat_normal": "sailing",
+		"boat_light_rail": "directions_boat",
+		"boat_high_speed": "snowmobile",
+	},
 	lineSize: 6,
 	dimension: 0,
 	routeType: 0,
@@ -37,6 +45,7 @@ const fetchMainData = () => {
 	fetch(SETTINGS.dataUrl, {cache: "no-cache"}).then(response => response.json()).then(result => {
 		json = result;
 		drawMap(container, json[SETTINGS.dimension]);
+		buildGraph(json[SETTINGS.dimension]);
 		refreshDataId = setTimeout(fetchMainData, SETTINGS.refreshDataInterval);
 	});
 }
@@ -51,7 +60,7 @@ const resize = () => {
 
 const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true});
 
-let json;
+window.json = {};
 let refreshDataId = 0;
 
 if (window.safari !== undefined) {
@@ -97,10 +106,10 @@ document.getElementById("toggle_dimension_icon").onclick = event => {
 document.getElementById("toggle_route_type_icon").onclick = event => {
 	do {
 		SETTINGS.routeType++;
-		if (SETTINGS.routeType >= SETTINGS.routeTypes.length) {
-			SETTINGS.routeType = 0;
+		if (SETTINGS.routeType >= json[SETTINGS.dimension]["types"].length) {
+			SETTINGS.routeType = -1;
 		}
-	} while (SETTINGS.routeType > 0 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]).length === 0);
+	} while (SETTINGS.routeType > -1 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === json[SETTINGS.dimension]["types"][SETTINGS.routeType]).length === 0);
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("toggle_theme_icon").onclick = event => {
@@ -131,6 +140,34 @@ document.getElementById("settings_icon").onclick = () => {
 	}
 };
 
+let planner_begin = 0, planner_end = 0;
+document.getElementById("planner_set_begin_icon").onclick = () => {
+	planner_begin = selectedStation;
+	findShowPlan(json[SETTINGS.dimension], planner_begin, planner_end);
+}
+document.getElementById("planner_set_end_icon").onclick = () => {
+	planner_end = selectedStation;
+	findShowPlan(json[SETTINGS.dimension], planner_begin, planner_end);
+}
+findShowPlan(null, 0, 0);
+
+function switchTab(evt, tabName) {
+  let i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tab_content");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tab_btn");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+Array.prototype.forEach.call(document.getElementsByClassName("tab_btn"), btn => {
+	btn.onclick = evt => { switchTab(evt, btn.getAttribute("data-tab-name")); }
+});
+
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);
 resize();
@@ -147,8 +184,8 @@ APP.stage.addChild(container);
 
 document.body.appendChild(APP.view);
 APP.view.addEventListener("wheel", event => {
-	CANVAS.onCanvasScroll(event, container);
-	drawMap(container, json[SETTINGS.dimension]);
+    CANVAS.onCanvasScroll(event, container);
+    drawMap(container, json[SETTINGS.dimension]);
 });
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));

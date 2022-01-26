@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+<!-- Mirrored from 202.81.231.112:51022/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 11 Jan 2022 02:12:20 GMT -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <html lang="en">
 <head>
@@ -11,11 +13,12 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="icon" type="image/png" href="../../../../../../../forge/src/main/resources/icon.png"/>
-	<script src="https://pixijs.download/release/pixi.js"></script>
+	<link rel="icon" type="image/png" href="forge/src/main/resources/icon.html"/>
+	<script src="https://cdn.jsdelivr.net/npm/pixi.js@6.2.1/dist/browser/pixi.min.js"></script>
 	<script type="module" src="index.js"></script>
 	<script type="module" src="drawing.js"></script>
 	<script type="module" src="utilities.js"></script>
+	<script type="module" src="tripplan.js"></script>
 </head>
 <body>
 <div id="loading" class="material-icons">refresh</div>
@@ -38,13 +41,32 @@
 	<div id="search_results_routes" class="search_results"></div>
 	<div id="station_info" class="search_results" style="display: none">
 		<div id="station_info_top">
-			<span class="material-icons right_align" style="opacity: 0">clear</span>
+			<span class="material-icons clickable_icon" style="opacity: 0;">clear</span>
 			<div id="station_name" class="text"></div>
-			<span id="clear_station_info_button" class="material-icons clickable_icon right_align">clear</span>
+			<span id="clear_station_info_button" class="material-icons clickable_icon">clear</span>
 		</div>
 		<div id="station_line"></div>
-		<div id="station_routes"></div>
+		<div id="tab_top">
+			<div class="tab_btn active" data-tab-name="tab_content_station_info"><span class="material-icons">route</span></div>
+			<div class="tab_btn" data-tab-name="tab_content_trip_planner"><span class="material-icons">transfer_within_a_station</span></div>
+			<div></div>
+		</div>
+		<div id="tab_content_station_info" class="tab_content">
+			<div id="station_routes"></div>
+		</div>
+		<div id="tab_content_trip_planner" class="tab_content" style="display: none">
+			<div id="trip_planner_control">
+				<div><span id="planner_set_begin_icon" class="material-icons clickable_icon btn_explicit">home</span> <span id="planner_begin_text"></span></div>
+				<div><span id="planner_set_end_icon" class="material-icons clickable_icon btn_explicit">flag</span> <span id="planner_end_text"></span></div>
+				<hr/>
+			</div>
+			<div>
+				<div id="trip_planner_path"></div>
+			</div>
+		</div>
 	</div>
 </div>
 </body>
+
+<!-- Mirrored from 202.81.231.112:51022/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 11 Jan 2022 02:12:23 GMT -->
 </html>
