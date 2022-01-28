@@ -49,6 +49,7 @@ public enum TrainType {
 	LIGHT_RAIL_3_ORANGE(TransportMode.TRAIN, 22, 2, 0),
 	LIGHT_RAIL_4_ORANGE(TransportMode.TRAIN, 22, 2, 0),
 	LIGHT_RAIL_5_ORANGE(TransportMode.TRAIN, 22, 2, 0),
+	LONDON_UNDERGROUND_D78(TransportMode.TRAIN, 18, 2, 0),
 	LONDON_UNDERGROUND_1995(TransportMode.TRAIN, 19, 2, 0.5F),
 	LONDON_UNDERGROUND_1996(TransportMode.TRAIN, 19, 2, 0.5F),
 	R179(TransportMode.TRAIN, 19, 2, 0),
