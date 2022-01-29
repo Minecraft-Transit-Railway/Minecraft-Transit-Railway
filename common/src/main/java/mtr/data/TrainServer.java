@@ -54,7 +54,7 @@ public class TrainServer extends Train {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
-		speed = ACCELERATION;
+		speed = getAcceleration(speed);
 		if (isOppositeRail) {
 			railProgress += trainCars * trainSpacing;
 			reversed = !reversed;
