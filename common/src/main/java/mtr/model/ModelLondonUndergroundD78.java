@@ -35,6 +35,8 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 	private final ModelMapper window_bottom_r7;
 	private final ModelMapper window_8;
 	private final ModelMapper window_bottom_r8;
+	private final ModelMapper logo;
+	private final ModelMapper logo_r1;
 	private final ModelMapper door;
 	private final ModelMapper roof_side_r3;
 	private final ModelMapper door_top_r1;
@@ -316,6 +318,16 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		window_8.addChild(window_bottom_r8);
 		setRotationAngle(window_bottom_r8, 0, 0, -0.0349F);
 		window_bottom_r8.texOffs(88, 1).addBox(0, -34, 0, 0, 34, 23, 0, true);
+
+		logo = new ModelMapper(modelDataWrapper);
+		logo.setPos(0, 24, 0);
+
+
+		logo_r1 = new ModelMapper(modelDataWrapper);
+		logo_r1.setPos(-19, 0, 0);
+		logo.addChild(logo_r1);
+		setRotationAngle(logo_r1, 0, 0, 0.0349F);
+		logo_r1.texOffs(238, 15).addBox(-2.1F, -15, -4, 0, 8, 8, 0, false);
 
 		door = new ModelMapper(modelDataWrapper);
 		door.setPos(0, 24, 0);
@@ -1017,6 +1029,7 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		window_2_partial.setModelPart();
 		window_exterior.setModelPart();
 		window_exterior_2_partial.setModelPart();
+		logo.setModelPart();
 		door.setModelPart();
 		door_sliding_1.setModelPart();
 		door_sliding_1_part.setModelPart(door_sliding_1.name);
@@ -1070,6 +1083,7 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 				renderMirror(window_exterior, matrices, vertices, light, position);
 				if (renderDetails && !isEnd1 && !isEnd2) {
 					renderMirror(window_exterior_2_partial, matrices, vertices, light, position);
+					renderMirror(logo, matrices, vertices, light, position);
 				}
 				break;
 		}
