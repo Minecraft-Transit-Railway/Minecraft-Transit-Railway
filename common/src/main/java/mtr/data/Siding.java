@@ -337,6 +337,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		float speed = 0;
 		float time = 0;
 		float distanceSum2 = 0;
+		float acceleration;
 		for (int i = 0; i < path.size(); i++) {
 			if (railProgress >= nextStoppingDistance) {
 				if (stoppingDistances.isEmpty()) {
@@ -352,18 +353,19 @@ public class Siding extends SavedRailBase implements IPacket {
 
 			while (railProgress < distanceSum2) {
 				final int speedChange;
-				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5F * speed * speed / Train.ACCELERATION) {
-					speed = Math.max(speed - Train.ACCELERATION, Train.ACCELERATION);
+				acceleration = Train.getAcceleration(speed);
+				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5F * speed * speed / acceleration) {
+					speed = Math.max(speed - acceleration, acceleration);
 					speedChange = -1;
 				} else if (speed < railSpeed) {
-					speed = Math.min(speed + Train.ACCELERATION, railSpeed);
+					speed = Math.min(speed + acceleration, railSpeed);
 					speedChange = 1;
 				} else {
 					speedChange = 0;
 				}
 
-				if (timeSegments.isEmpty() || timeSegments.get(timeSegments.size() - 1).speedChange != speedChange) {
-					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange));
+				if (timeSegments.isEmpty() || timeSegments.get(timeSegments.size() - 1).speedChange != speedChange || timeSegments.get(timeSegments.size() - 1).acceleration != acceleration) {
+					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange, acceleration));
 				}
 
 				railProgress = Math.min(railProgress + speed, distanceSum2);
@@ -407,12 +409,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		private final float startSpeed;
 		private final float startTime;
 		private final int speedChange;
+		private final float acceleration;
 
-		private TimeSegment(float startRailProgress, float startSpeed, float startTime, int speedChange) {
+		private TimeSegment(float startRailProgress, float startSpeed, float startTime, int speedChange, float acceleration) {
 			this.startRailProgress = startRailProgress;
 			this.startSpeed = startSpeed;
 			this.startTime = startTime;
 			this.speedChange = Integer.compare(speedChange, 0);
+			this.acceleration = acceleration;
 		}
 
 		public float getTime(float railProgress) {
@@ -420,7 +424,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			if (speedChange == 0) {
 				return startTime + distance / startSpeed;
 			} else {
-				final float acceleration = speedChange * Train.ACCELERATION;
+				final float acceleration = speedChange * this.acceleration;
 				return startTime + (float) (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration;
 			}
 		}
