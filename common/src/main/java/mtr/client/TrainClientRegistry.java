@@ -163,7 +163,7 @@ public class TrainClientRegistry {
 
 		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
 			if (world instanceof ClientLevel && RenderTrains.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
-				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / RenderTrains.TICKS_PER_SPEED_SOUND);
+				final int floorSpeed = (int) Math.floor(speed / Train.getAcceleration(speed) / RenderTrains.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
