@@ -150,6 +150,8 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 	private final ModelMapper roof_4_r4;
 	private final ModelMapper roof_3_r7;
 	private final ModelMapper back_wall_r4;
+	private final ModelMapper headlights;
+	private final ModelMapper tail_lights;
 
 	public ModelLondonUndergroundD78() {
 		final int textureWidth = 272;
@@ -333,34 +335,34 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		door_top_r1.texOffs(168, 242).addBox(1, -33.5F, -9, 2, 2, 18, 0, false);
 
 		door_sliding_1 = new ModelMapper(modelDataWrapper);
-		door_sliding_1.setPos(0.0F, 24.0F, 0.0F);
+		door_sliding_1.setPos(0, 24, 0);
 
 
 		door_sliding_1_part = new ModelMapper(modelDataWrapper);
-		door_sliding_1_part.setPos(0.0F, 0.0F, 0.0F);
+		door_sliding_1_part.setPos(0, 0, 0);
 		door_sliding_1.addChild(door_sliding_1_part);
 
 
 		door_top_r2 = new ModelMapper(modelDataWrapper);
-		door_top_r2.setPos(-21.0F, 0.0F, 0.0F);
+		door_top_r2.setPos(-21, 0, 0);
 		door_sliding_1_part.addChild(door_top_r2);
-		setRotationAngle(door_top_r2, 0.0F, 0.0F, 0.0349F);
-		door_top_r2.texOffs(158, 165).addBox(0.5F, -32.0F, -9.0F, 1.0F, 32.0F, 18.0F, 0.0F, false);
+		setRotationAngle(door_top_r2, 0, 0, 0.0349F);
+		door_top_r2.texOffs(158, 165).addBox(0.5F, -32, -9, 1, 32, 18, 0, false);
 
 		door_sliding_2 = new ModelMapper(modelDataWrapper);
-		door_sliding_2.setPos(0.0F, 24.0F, 0.0F);
+		door_sliding_2.setPos(0, 24, 0);
 
 
 		door_sliding_2_part = new ModelMapper(modelDataWrapper);
-		door_sliding_2_part.setPos(0.0F, 0.0F, 0.0F);
+		door_sliding_2_part.setPos(0, 0, 0);
 		door_sliding_2.addChild(door_sliding_2_part);
 
 
 		door_top_r3 = new ModelMapper(modelDataWrapper);
-		door_top_r3.setPos(-21.0F, 0.0F, 0.0F);
+		door_top_r3.setPos(-21, 0, 0);
 		door_sliding_2_part.addChild(door_top_r3);
-		setRotationAngle(door_top_r3, 0.0F, 0.0F, 0.0349F);
-		door_top_r3.texOffs(28, 165).addBox(0.5F, -32.0F, -9.0F, 1.0F, 32.0F, 18.0F, 0.0F, false);
+		setRotationAngle(door_top_r3, 0, 0, 0.0349F);
+		door_top_r3.texOffs(28, 165).addBox(0.5F, -32, -9, 1, 32, 18, 0, false);
 
 		door_handrails = new ModelMapper(modelDataWrapper);
 		door_handrails.setPos(0, 24, 0);
@@ -409,26 +411,26 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		door_top_r4.texOffs(218, 29).addBox(0, -34, -9, 1, 2, 18, 0, false);
 
 		door_sliding_exterior_1 = new ModelMapper(modelDataWrapper);
-		door_sliding_exterior_1.setPos(0.0F, 24.0F, 0.0F);
+		door_sliding_exterior_1.setPos(0, 24, 0);
 
 
 		door_sliding_exterior_1_part = new ModelMapper(modelDataWrapper);
-		door_sliding_exterior_1_part.setPos(0.0F, 0.0F, 0.0F);
+		door_sliding_exterior_1_part.setPos(0, 0, 0);
 		door_sliding_exterior_1.addChild(door_sliding_exterior_1_part);
 
 
 		door_top_r5 = new ModelMapper(modelDataWrapper);
-		door_top_r5.setPos(-21.0F, 0.0F, 0.0F);
+		door_top_r5.setPos(-21, 0, 0);
 		door_sliding_exterior_1_part.addChild(door_top_r5);
-		setRotationAngle(door_top_r5, 0.0F, 0.0F, 0.0349F);
-		door_top_r5.texOffs(176, 0).addBox(0.5F, -32.0F, -9.0F, 0.0F, 32.0F, 18.0F, 0.0F, false);
+		setRotationAngle(door_top_r5, 0, 0, 0.0349F);
+		door_top_r5.texOffs(176, 0).addBox(0.5F, -32, -9, 0, 32, 18, 0, false);
 
 		door_sliding_exterior_2 = new ModelMapper(modelDataWrapper);
-		door_sliding_exterior_2.setPos(0.0F, 24.0F, 0.0F);
+		door_sliding_exterior_2.setPos(0, 24, 0);
 
 
 		door_sliding_exterior_2_part = new ModelMapper(modelDataWrapper);
-		door_sliding_exterior_2_part.setPos(0.0F, 0.0F, 0.0F);
+		door_sliding_exterior_2_part.setPos(0, 0, 0);
 		door_sliding_exterior_2.addChild(door_sliding_exterior_2_part);
 
 
@@ -909,6 +911,8 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		head_exterior = new ModelMapper(modelDataWrapper);
 		head_exterior.setPos(0, 24, 0);
 		head_exterior.texOffs(98, 216).addBox(-6, -43, 43, 12, 43, 0, 0, false);
+		head_exterior.texOffs(0, 26).addBox(-16, 1, 40, 6, 2, 1, 0, false);
+		head_exterior.texOffs(0, 23).addBox(10, 1, 40, 6, 2, 1, 0, false);
 		head_exterior.texOffs(0, 66).addBox(-20, -43, 20, 40, 43, 0, 0, false);
 
 		window_9 = new ModelMapper(modelDataWrapper);
@@ -997,6 +1001,17 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		setRotationAngle(back_wall_r4, 0, 0.1745F, 0);
 		back_wall_r4.texOffs(124, 183).addBox(0, -43, -1, 16, 44, 1, 0, true);
 
+		headlights = new ModelMapper(modelDataWrapper);
+		headlights.setPos(0, 24, 0);
+		headlights.texOffs(14, 23).addBox(-14, 1, 41.1F, 2, 2, 0, 0, false);
+		headlights.texOffs(14, 23).addBox(12, 1, 41.1F, 2, 2, 0, 0, true);
+
+		tail_lights = new ModelMapper(modelDataWrapper);
+		tail_lights.setPos(0, 24, 0);
+		tail_lights.texOffs(14, 25).addBox(-16, 1, 41.1F, 2, 2, 0, 0, false);
+		tail_lights.texOffs(14, 25).addBox(-12, 1, 41.1F, 2, 2, 0, 0, false);
+		tail_lights.texOffs(14, 25).addBox(14, 1, 41.1F, 2, 2, 0, 0, true);
+
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		window.setModelPart();
 		window_2_partial.setModelPart();
@@ -1026,9 +1041,11 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 		end_exterior.setModelPart();
 		head.setModelPart();
 		head_exterior.setModelPart();
+		headlights.setModelPart();
+		tail_lights.setModelPart();
 	}
 
-	private static final int DOOR_MAX = 18;
+	private static final int DOOR_MAX = 17;
 
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1107,6 +1124,9 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 	@Override
 	protected void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
+			case ALWAYS_ON_LIGHTS:
+				renderOnceFlipped(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position + 23);
+				break;
 			case LIGHTS:
 				renderOnceFlipped(light_head, matrices, vertices, light, position + 23);
 				break;
@@ -1125,6 +1145,9 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 	@Override
 	protected void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
+			case ALWAYS_ON_LIGHTS:
+				renderOnce(useHeadlights ? headlights : tail_lights, matrices, vertices, light, position - 23);
+				break;
 			case LIGHTS:
 				renderOnce(light_head, matrices, vertices, light, position - 23);
 				break;
