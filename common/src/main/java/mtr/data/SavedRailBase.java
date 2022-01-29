@@ -16,16 +16,16 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
-	public SavedRailBase(long id, BlockPos pos1, BlockPos pos2) {
-		super(id);
+	public SavedRailBase(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(id, transportMode);
 		name = "1";
 		positions = new HashSet<>();
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(BlockPos pos1, BlockPos pos2) {
-		super();
+	public SavedRailBase(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(transportMode);
 		name = "1";
 		positions = new HashSet<>();
 		positions.add(pos1);
@@ -61,6 +61,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		packet.writeBlockPos(getPosition(1));
 	}
 
+	@Override
+	protected final boolean hasTransportMode() {
+		return true;
+	}
+
 	public boolean containsPos(BlockPos pos) {
 		return positions.contains(pos);
 	}
@@ -86,7 +91,15 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
-		return new AABB(getPosition(0), getPosition(1)).inflate(-radius, -lower, -radius).inflate(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		final int x1 = Math.min(pos1.getX(), pos2.getX());
+		final int y1 = Math.min(pos1.getY(), pos2.getY());
+		final int z1 = Math.min(pos1.getZ(), pos2.getZ());
+		final int x2 = Math.max(pos1.getX(), pos2.getX());
+		final int y2 = Math.max(pos1.getY(), pos2.getY());
+		final int z2 = Math.max(pos1.getZ(), pos2.getZ());
+		return new AABB(x1 - radius, y1 - lower, z1 - radius, x2 + radius + 1, y2 + upper + 1, z2 + radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {

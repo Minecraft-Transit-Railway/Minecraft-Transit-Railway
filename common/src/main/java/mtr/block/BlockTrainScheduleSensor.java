@@ -1,9 +1,8 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
-import mtr.data.Route;
+import mtr.data.ScheduleEntry;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.TickableMapper;
 import mtr.mappings.Utilities;
@@ -94,9 +93,9 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
 			seconds = number;
-			setData(filterRouteIds);
+			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
 		public int getSeconds() {
@@ -117,19 +116,19 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					return;
 				}
 
-				final Platform platform = RailwayData.getClosePlatform(railwayData.platforms, pos, 4, 4, 0);
-				if (platform == null) {
+				final long platformId = RailwayData.getClosePlatformId(railwayData.platforms, railwayData.dataCache, pos, 4, 4, 0);
+				if (platformId == 0) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platform.id);
+				final List<ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
 				if (schedules == null) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
+				final List<ScheduleEntry> scheduleList = new ArrayList<>();
 				schedules.forEach(scheduleEntry -> {
-					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId)) {
+					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId, -1)) {
 						scheduleList.add(scheduleEntry);
 					}
 				});

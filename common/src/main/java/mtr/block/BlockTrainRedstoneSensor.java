@@ -55,8 +55,8 @@ public class BlockTrainRedstoneSensor extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
-			setData(filterRouteIds);
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
+			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 	}
 }

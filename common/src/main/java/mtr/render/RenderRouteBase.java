@@ -1,14 +1,14 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import mtr.data.IGui;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,12 +20,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui {
+public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
-	private static final float EXTRA_PADDING = 0.0625F;
+	protected final float sidePadding;
+	protected final float bottomPadding;
+	protected final float topPadding;
+	private final float z;
+	private final boolean transparentWhite;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean transparentWhite) {
 		super(dispatcher);
+		this.z = z / 16;
+		this.sidePadding = sidePadding / 16;
+		this.bottomPadding = bottomPadding / 16;
+		this.topPadding = topPadding / 16;
+		this.transparentWhite = transparentWhite;
 	}
 
 	@Override
@@ -42,61 +51,63 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
 		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
-			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
+			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+			final int glassLength = getGlassLength(world, pos, facing);
+			final boolean isLeft = isLeft(state);
 
-			matrices.translate(0, 1, 0);
-			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-			matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
+			if (platformId != 0) {
+				matrices.translate(0, 1, 0);
+				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+				matrices.translate(-0.5, 0, z);
 
-			if (isLeft(state)) {
-				final int glassLength = getGlassLength(world, pos, facing);
-				if (glassLength > 1) {
-					switch (getRenderType(world, pos, state)) {
-						case ARROW:
-							routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-							break;
-						case ROUTE:
-							final boolean flipLine = arrowDirection == 1;
-							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
-							break;
+				final RenderType renderType = getRenderType(world, pos, state);
+				if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
+					if (isLeft && glassLength > 1) {
+						final float width = glassLength - sidePadding * 2;
+						final float height = 1 - topPadding - bottomPadding;
+						final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+
+						final VertexConsumer vertexConsumer;
+						if (renderType == RenderType.ARROW) {
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, transparentWhite)));
+						} else {
+							vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite)));
+						}
+
+						final int colorByte = transparentWhite && facing.getAxis() == Direction.Axis.X ? 0xFF * 3 / 4 : 0xFF;
+						IDrawing.drawTexture(matrices, vertexConsumer, sidePadding, topPadding, width, height, 0, 0, 1, 1, facing.getOpposite(), ARGB_BLACK + (colorByte << 16) + (colorByte << 8) + colorByte, light);
 					}
 				}
-			}
 
-			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-			immediate.endBatch();
+				renderAdditional(matrices, vertexConsumers, platformId, state, isLeft ? glassLength : 0, facing.getOpposite(), light);
+			}
 		}
 
 		matrices.popPose();
 	}
 
+	@Override
+	public boolean shouldRenderOffScreen(T blockEntity) {
+		return true;
+	}
+
 	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
-	protected abstract float getZ();
+	protected boolean isLeft(BlockState state) {
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == IBlock.EnumSide.LEFT;
+	}
 
-	protected abstract float getSidePadding();
-
-	protected abstract float getBottomPadding();
-
-	protected abstract float getTopPadding();
-
-	protected abstract int getBaseScale();
-
-	protected abstract boolean isLeft(BlockState state);
-
-	protected abstract boolean isRight(BlockState state);
+	protected boolean isRight(BlockState state) {
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == IBlock.EnumSide.RIGHT;
+	}
 
 	protected abstract RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
+	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, long platformId, BlockState state, int glassLength, Direction facing, int light);
 
 	private int getGlassLength(BlockGetter world, BlockPos pos, Direction facing) {
 		int glassLength = 1;

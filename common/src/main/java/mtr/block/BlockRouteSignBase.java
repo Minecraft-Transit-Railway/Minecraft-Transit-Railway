@@ -29,10 +29,10 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult hit) {
-		final double y = hit.getBlockPos().getY();
+		final double y = hit.getLocation().y;
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			if (isUpper && y - (int) y > 0.8125) {
+			if (isUpper && y - Math.floor(y) > 0.8125) {
 				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
 				propagate(world, pos, Direction.DOWN, 1);
 			} else {

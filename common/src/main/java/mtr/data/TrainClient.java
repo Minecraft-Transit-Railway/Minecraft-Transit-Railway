@@ -1,8 +1,8 @@
 package mtr.data;
 
-import mtr.gui.ClientData;
+import mtr.client.ClientData;
+import mtr.client.TrainClientRegistry;
 import mtr.mappings.Utilities;
-import mtr.model.TrainClientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -78,7 +78,7 @@ public class TrainClient extends Train {
 			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, false, playerOffset);
 		}
 
-		if (renderConnectionCallback != null && ridingCar > 0 && TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection) {
+		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.hasGangwayConnection) {
 			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
 			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
@@ -129,10 +129,11 @@ public class TrainClient extends Train {
 				lightRailAnnouncementCallback.announcementCallback(stopIndex, routeIds);
 			}
 
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 				clientPlayer.fallDistance = 0;
 				clientPlayer.setDeltaMovement(0, 0, 0);
-				final Vec3 playerOffset = new Vec3(getValueFromPercentage(clientPercentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(clientPercentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
+				final Vec3 playerOffset = new Vec3(getValueFromPercentage(clientPercentageX, baseTrainType.width), trainProperties.model == null ? -1 : 0, getValueFromPercentage(Mth.frac(clientPercentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
 				clientPlayer.move(MoverType.SELF, playerOffset.add(x - clientPlayer.getX(), y - clientPlayer.getY(), z - clientPlayer.getZ()));
 
 				if (speed > 0) {
@@ -150,7 +151,7 @@ public class TrainClient extends Train {
 
 			final int currentRidingCar = (int) Math.floor(clientPercentageZ);
 			calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-				final boolean hasGangwayConnection = TrainClientRegistry.getTrainProperties(trainId, baseTrainType).hasGangwayConnection;
+				final boolean hasGangwayConnection = trainProperties.hasGangwayConnection;
 				final Vec3 movement = new Vec3(clientPlayer.xxa * ticksElapsed / 4, 0, clientPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
 				clientPercentageX += movement.x / baseTrainType.width;
 				clientPercentageZ += movement.z / realSpacingRender;
@@ -235,6 +236,10 @@ public class TrainClient extends Train {
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
 		isOnRoute = train.isOnRoute;
+	}
+
+	public float getSpeed() {
+		return speed;
 	}
 
 	private int getPreviousStoppingIndex(int headIndex) {

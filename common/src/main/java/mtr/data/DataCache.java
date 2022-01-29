@@ -16,6 +16,8 @@ public class DataCache {
 
 	public final Map<Long, Station> platformIdToStation = new HashMap<>();
 	public final Map<Long, Depot> sidingIdToDepot = new HashMap<>();
+	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
+	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
 
 	protected final Set<Station> stations;
 	protected final Set<Platform> platforms;
@@ -45,6 +47,8 @@ public class DataCache {
 			mapSavedRailIdToStation(platformIdToStation, platforms, stations);
 			mapSavedRailIdToStation(sidingIdToDepot, sidings, depots);
 
+			blockPosToPlatformId.clear();
+			blockPosToStation.clear();
 			syncAdditional();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,7 +63,7 @@ public class DataCache {
 		savedRails.forEach(savedRail -> {
 			final BlockPos pos = savedRail.getMidPos();
 			for (final V area : areas) {
-				if (area.inArea(pos.getX(), pos.getZ())) {
+				if (area.isTransportMode(savedRail.transportMode) && area.inArea(pos.getX(), pos.getZ())) {
 					map.put(savedRail.id, area);
 					break;
 				}

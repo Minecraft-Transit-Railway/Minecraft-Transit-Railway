@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/rail_connector_40",
+		"layer1": "mtr:item/rail_connector_selected"
+	}
+}

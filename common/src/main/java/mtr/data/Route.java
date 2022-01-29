@@ -1,7 +1,6 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import mtr.EnumHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -15,7 +14,6 @@ public final class Route extends NameColorDataBase implements IGui {
 	public boolean isLightRailRoute;
 	public CircularState circularState;
 	public String lightRailRouteNumber;
-
 	public final List<Long> platformIds;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
@@ -24,12 +22,12 @@ public final class Route extends NameColorDataBase implements IGui {
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
 	private static final String KEY_CIRCULAR_STATE = "circular_state";
 
-	public Route() {
-		this(0);
+	public Route(TransportMode transportMode) {
+		this(0, transportMode);
 	}
 
-	public Route(long id) {
-		super(id);
+	public Route(long id, TransportMode transportMode) {
+		super(id, transportMode);
 		platformIds = new ArrayList<>();
 		routeType = RouteType.NORMAL;
 		isLightRailRoute = false;
@@ -116,9 +114,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 	}
 
+	@Override
+	protected boolean hasTransportMode() {
+		return true;
+	}
+
 	public void setPlatformIds(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_PLATFORM_IDS);
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
@@ -128,6 +132,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	public void setExtraData(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_IS_LIGHT_RAIL_ROUTE);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -136,52 +141,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeUtf(lightRailRouteNumber);
 		packet.writeUtf(circularState.toString());
 		sendPacket.accept(packet);
-	}
-
-	public static class ScheduleEntry implements Comparable<ScheduleEntry> {
-
-		public final long arrivalMillis;
-		public final int trainCars;
-		public final long platformId;
-		public final long routeId;
-		public final String destination;
-		public final boolean isTerminating;
-
-		public ScheduleEntry(long arrivalMillis, int trainCars, long platformId, long routeId, String destination, boolean isTerminating) {
-			this.arrivalMillis = arrivalMillis;
-			this.trainCars = trainCars;
-			this.platformId = platformId;
-			this.routeId = routeId;
-			this.destination = destination;
-			this.isTerminating = isTerminating;
-		}
-
-		public ScheduleEntry(FriendlyByteBuf packet) {
-			arrivalMillis = packet.readLong();
-			trainCars = packet.readInt();
-			platformId = packet.readLong();
-			routeId = packet.readLong();
-			destination = packet.readUtf(PACKET_STRING_READ_LENGTH);
-			isTerminating = packet.readBoolean();
-		}
-
-		public void writePacket(FriendlyByteBuf packet) {
-			packet.writeLong(arrivalMillis);
-			packet.writeInt(trainCars);
-			packet.writeLong(platformId);
-			packet.writeLong(routeId);
-			packet.writeUtf(destination);
-			packet.writeBoolean(isTerminating);
-		}
-
-		@Override
-		public int compareTo(ScheduleEntry o) {
-			if (arrivalMillis == o.arrivalMillis) {
-				return destination.compareTo(o.destination);
-			} else {
-				return arrivalMillis > o.arrivalMillis ? 1 : -1;
-			}
-		}
 	}
 
 	public enum CircularState {NONE, CLOCKWISE, ANTICLOCKWISE}

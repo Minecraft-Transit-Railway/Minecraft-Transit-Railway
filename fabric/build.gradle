@@ -35,7 +35,6 @@ processResources {
 shadowJar {
 	configurations = [project.configurations.shadowCommon]
 	classifier "dev-shadow"
-	relocate "de.guntram", "mtr.libraries.de.guntram"
 	relocate "javax.servlet", "mtr.libraries.javax.servlet"
 	relocate "org.eclipse", "mtr.libraries.org.eclipse"
 }

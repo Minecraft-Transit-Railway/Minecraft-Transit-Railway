@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BRB",
+		"BIB",
+		" R "
+	],
+	"key": {
+		"R": {
+			"tag": "minecraft:rails"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"B": {
+			"tag": "c:iron_blocks"
+		}
+	},
+	"result": {
+		"item": "mtr:rail_connector_80_one_way"
+	}
+}

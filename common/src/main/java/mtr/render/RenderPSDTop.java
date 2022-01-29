@@ -6,7 +6,8 @@ import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDAPGGlassEndBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
-import mtr.gui.IDrawing;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> implements IBlock {
+public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> {
 
 	private static final float END_FRONT_OFFSET = 1 / (Mth.SQRT_OF_TWO * 16);
 	private static final float BOTTOM_DIAGONAL_OFFSET = ((float) Math.sqrt(3) - 1) / 32;
@@ -26,42 +27,7 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	private static final float COLOR_STRIP_END = 0.9375F;
 
 	public RenderPSDTop(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
-
-	@Override
-	protected float getZ() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getSidePadding() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getBottomPadding() {
-		return 0.125F;
-	}
-
-	@Override
-	protected float getTopPadding() {
-		return 0.5F;
-	}
-
-	@Override
-	protected int getBaseScale() {
-		return 320;
-	}
-
-	@Override
-	protected boolean isLeft(BlockState state) {
-		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.LEFT;
-	}
-
-	@Override
-	protected boolean isRight(BlockState state) {
-		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == EnumSide.RIGHT;
+		super(dispatcher, 2 - SMALL_OFFSET_16, 0.125F, 1.5F, 7.5F, true);
 	}
 
 	@Override
@@ -128,15 +94,16 @@ public class RenderPSDTop extends RenderRouteBase<BlockPSDTop.TileEntityPSDTop> 
 	}
 
 	@Override
-	protected void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light) {
+	protected void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, long platformId, BlockState state, int glassLength, Direction facing, int light) {
 		final boolean airLeft = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, BlockPSDTop.AIR_RIGHT);
-		routeRenderer.renderColorStrip(airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, light);
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getColorStrip(platformId)));
+		IDrawing.drawTexture(matrices, vertexConsumer, airLeft ? 0.625F : 0, COLOR_STRIP_START, 0, airRight ? 0.375F : 1, COLOR_STRIP_END, 0, facing, -1, light);
 		if (airLeft) {
-			routeRenderer.renderColorStrip(END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - END_FRONT_OFFSET, facing, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, END_FRONT_OFFSET, COLOR_STRIP_START, -0.625F - END_FRONT_OFFSET, 0.75F + END_FRONT_OFFSET, COLOR_STRIP_END, 0.125F - END_FRONT_OFFSET, facing, -1, light);
 		}
 		if (airRight) {
-			routeRenderer.renderColorStrip(0.25F - END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - END_FRONT_OFFSET, 1 - END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - END_FRONT_OFFSET, facing, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, 0.25F - END_FRONT_OFFSET, COLOR_STRIP_START, 0.125F - END_FRONT_OFFSET, 1 - END_FRONT_OFFSET, COLOR_STRIP_END, -0.625F - END_FRONT_OFFSET, facing, -1, light);
 		}
 	}
 }

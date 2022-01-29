@@ -26,6 +26,14 @@ public abstract class AreaBase extends NameColorDataBase {
 		super(id);
 	}
 
+	public AreaBase(TransportMode transportMode) {
+		super(transportMode);
+	}
+
+	public AreaBase(long id, TransportMode transportMode) {
+		super(id, transportMode);
+	}
+
 	public AreaBase(CompoundTag compoundTag) {
 		super(compoundTag);
 		setCorners(compoundTag.getInt(KEY_X_MIN), compoundTag.getInt(KEY_Z_MIN), compoundTag.getInt(KEY_X_MAX), compoundTag.getInt(KEY_Z_MAX));
@@ -67,6 +75,7 @@ public abstract class AreaBase extends NameColorDataBase {
 	public void setCorners(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_CORNERS);
 		packet.writeInt(corner1 == null ? 0 : corner1.getA());
 		packet.writeInt(corner1 == null ? 0 : corner1.getB());

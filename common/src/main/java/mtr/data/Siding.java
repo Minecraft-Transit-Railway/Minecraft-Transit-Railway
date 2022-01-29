@@ -38,16 +38,16 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
 
-	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
-		super(id, pos1, pos2);
+	public Siding(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
+		super(id, transportMode, pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainType.values()[0]);
+		setTrainDetails("", getTrainType(transportMode));
 	}
 
-	public Siding(BlockPos pos1, BlockPos pos2, float railLength) {
-		super(pos1, pos2);
+	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
+		super(transportMode, pos1, pos2);
 		this.railLength = railLength;
-		setTrainDetails("", TrainType.values()[0]);
+		setTrainDetails("", getTrainType(transportMode));
 	}
 
 	public Siding(CompoundTag compoundTag) {
@@ -127,6 +127,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	public void setTrainIdAndBaseType(String customId, TrainType trainType, Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_BASE_TRAIN_TYPE);
 		packet.writeUtf(customId);
 		packet.writeInt(trainType.ordinal());
@@ -137,6 +138,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_UNLIMITED_TRAINS);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -226,7 +228,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return successfulSegments;
 	}
 
-	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<Player, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform) {
+	public void simulateTrain(float ticksElapsed, DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<Player, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, List<ScheduleEntry>> schedulesForPlatform) {
 		if (depot == null) {
 			return;
 		}
@@ -378,6 +380,17 @@ public class Siding extends SavedRailBase implements IPacket {
 			if (i + 1 < path.size() && pathData.isOppositeRail(path.get(i + 1))) {
 				railProgress += baseTrainType.getSpacing() * trainCars;
 			}
+		}
+	}
+
+	private static TrainType getTrainType(TransportMode transportMode) {
+		switch (transportMode) {
+			case TRAIN:
+				return TrainType.SP1900;
+			case BOAT:
+				return TrainType.OAK_BOAT;
+			default:
+				return TrainType.values()[0];
 		}
 	}
 

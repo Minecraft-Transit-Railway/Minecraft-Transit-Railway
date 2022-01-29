@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MTR implements IPacket {
 
@@ -42,13 +41,14 @@ public class MTR implements IPacket {
 			BiConsumer<String, Block> registerBlock,
 			RegisterBlockItem registerBlockItem,
 			BiConsumer<String, BlockEntityType<? extends BlockEntityMapper>> registerBlockEntityType,
-			Consumer<SoundEvent> registerSoundEvent
+			BiConsumer<String, SoundEvent> registerSoundEvent
 	) {
 		registerItem.accept("apg_door", Items.APG_DOOR);
 		registerItem.accept("apg_glass", Items.APG_GLASS);
 		registerItem.accept("apg_glass_end", Items.APG_GLASS_END);
 		registerItem.accept("brush", Items.BRUSH);
-		registerItem.accept("dashboard", Items.DASHBOARD);
+		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
+		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
@@ -56,23 +56,27 @@ public class MTR implements IPacket {
 		registerItem.accept("psd_door_2", Items.PSD_DOOR_2);
 		registerItem.accept("psd_glass_2", Items.PSD_GLASS_2);
 		registerItem.accept("psd_glass_end_2", Items.PSD_GLASS_END_2);
-		registerItem.accept("rail_connector_1_wooden", Items.RAIL_CONNECTOR_1_WOODEN);
-		registerItem.accept("rail_connector_1_wooden_one_way", Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
-		registerItem.accept("rail_connector_2_stone", Items.RAIL_CONNECTOR_2_STONE);
-		registerItem.accept("rail_connector_2_stone_one_way", Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
-		registerItem.accept("rail_connector_3_iron", Items.RAIL_CONNECTOR_3_IRON);
-		registerItem.accept("rail_connector_3_iron_one_way", Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
-		registerItem.accept("rail_connector_4_obsidian", Items.RAIL_CONNECTOR_4_OBSIDIAN);
-		registerItem.accept("rail_connector_4_obsidian_one_way", Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
-		registerItem.accept("rail_connector_5_blaze", Items.RAIL_CONNECTOR_5_BLAZE);
-		registerItem.accept("rail_connector_5_blaze_one_way", Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
-		registerItem.accept("rail_connector_6_diamond", Items.RAIL_CONNECTOR_6_DIAMOND);
-		registerItem.accept("rail_connector_6_diamond_one_way", Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
+		registerItem.accept("rail_connector_20", Items.RAIL_CONNECTOR_20);
+		registerItem.accept("rail_connector_20_one_way", Items.RAIL_CONNECTOR_20_ONE_WAY);
+		registerItem.accept("rail_connector_40", Items.RAIL_CONNECTOR_40);
+		registerItem.accept("rail_connector_40_one_way", Items.RAIL_CONNECTOR_40_ONE_WAY);
+		registerItem.accept("rail_connector_60", Items.RAIL_CONNECTOR_60);
+		registerItem.accept("rail_connector_60_one_way", Items.RAIL_CONNECTOR_60_ONE_WAY);
+		registerItem.accept("rail_connector_80", Items.RAIL_CONNECTOR_80);
+		registerItem.accept("rail_connector_80_one_way", Items.RAIL_CONNECTOR_80_ONE_WAY);
+		registerItem.accept("rail_connector_120", Items.RAIL_CONNECTOR_120);
+		registerItem.accept("rail_connector_120_one_way", Items.RAIL_CONNECTOR_120_ONE_WAY);
+		registerItem.accept("rail_connector_160", Items.RAIL_CONNECTOR_160);
+		registerItem.accept("rail_connector_160_one_way", Items.RAIL_CONNECTOR_160_ONE_WAY);
+		registerItem.accept("rail_connector_200", Items.RAIL_CONNECTOR_200);
+		registerItem.accept("rail_connector_200_one_way", Items.RAIL_CONNECTOR_200_ONE_WAY);
+		registerItem.accept("rail_connector_300", Items.RAIL_CONNECTOR_300);
+		registerItem.accept("rail_connector_300_one_way", Items.RAIL_CONNECTOR_300_ONE_WAY);
 		registerItem.accept("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem.accept("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
 		registerItem.accept("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
 		registerItem.accept("rail_remover", Items.RAIL_REMOVER);
-		registerItem.accept("resource_pack_creator", Items.RESOURCE_PACK_CREATOR);
+		// TODO registerItem.accept("resource_pack_creator", Items.RESOURCE_PACK_CREATOR);
 		registerItem.accept("signal_connector_white", Items.SIGNAL_CONNECTOR_WHITE);
 		registerItem.accept("signal_connector_orange", Items.SIGNAL_CONNECTOR_ORANGE);
 		registerItem.accept("signal_connector_magenta", Items.SIGNAL_CONNECTOR_MAGENTA);
@@ -105,7 +109,38 @@ public class MTR implements IPacket {
 		registerItem.accept("signal_remover_green", Items.SIGNAL_REMOVER_GREEN);
 		registerItem.accept("signal_remover_red", Items.SIGNAL_REMOVER_RED);
 		registerItem.accept("signal_remover_black", Items.SIGNAL_REMOVER_BLACK);
+		registerItem.accept("bridge_creator_3", Items.BRIDGE_CREATOR_3);
+		registerItem.accept("bridge_creator_5", Items.BRIDGE_CREATOR_5);
+		registerItem.accept("bridge_creator_7", Items.BRIDGE_CREATOR_7);
+		registerItem.accept("bridge_creator_9", Items.BRIDGE_CREATOR_9);
+		registerItem.accept("tunnel_creator_4_3", Items.TUNNEL_CREATOR_4_3);
+		registerItem.accept("tunnel_creator_4_5", Items.TUNNEL_CREATOR_4_5);
+		registerItem.accept("tunnel_creator_4_7", Items.TUNNEL_CREATOR_4_7);
+		registerItem.accept("tunnel_creator_4_9", Items.TUNNEL_CREATOR_4_9);
+		registerItem.accept("tunnel_creator_5_3", Items.TUNNEL_CREATOR_5_3);
+		registerItem.accept("tunnel_creator_5_5", Items.TUNNEL_CREATOR_5_5);
+		registerItem.accept("tunnel_creator_5_7", Items.TUNNEL_CREATOR_5_7);
+		registerItem.accept("tunnel_creator_5_9", Items.TUNNEL_CREATOR_5_9);
+		registerItem.accept("tunnel_creator_6_3", Items.TUNNEL_CREATOR_6_3);
+		registerItem.accept("tunnel_creator_6_5", Items.TUNNEL_CREATOR_6_5);
+		registerItem.accept("tunnel_creator_6_7", Items.TUNNEL_CREATOR_6_7);
+		registerItem.accept("tunnel_creator_6_9", Items.TUNNEL_CREATOR_6_9);
+		registerItem.accept("tunnel_wall_creator_4_3", Items.TUNNEL_WALL_CREATOR_4_3);
+		registerItem.accept("tunnel_wall_creator_4_5", Items.TUNNEL_WALL_CREATOR_4_5);
+		registerItem.accept("tunnel_wall_creator_4_7", Items.TUNNEL_WALL_CREATOR_4_7);
+		registerItem.accept("tunnel_wall_creator_4_9", Items.TUNNEL_WALL_CREATOR_4_9);
+		registerItem.accept("tunnel_wall_creator_5_3", Items.TUNNEL_WALL_CREATOR_5_3);
+		registerItem.accept("tunnel_wall_creator_5_5", Items.TUNNEL_WALL_CREATOR_5_5);
+		registerItem.accept("tunnel_wall_creator_5_7", Items.TUNNEL_WALL_CREATOR_5_7);
+		registerItem.accept("tunnel_wall_creator_5_9", Items.TUNNEL_WALL_CREATOR_5_9);
+		registerItem.accept("tunnel_wall_creator_6_3", Items.TUNNEL_WALL_CREATOR_6_3);
+		registerItem.accept("tunnel_wall_creator_6_5", Items.TUNNEL_WALL_CREATOR_6_5);
+		registerItem.accept("tunnel_wall_creator_6_7", Items.TUNNEL_WALL_CREATOR_6_7);
+		registerItem.accept("tunnel_wall_creator_6_9", Items.TUNNEL_WALL_CREATOR_6_9);
+		registerItem.accept("boat_node", Items.BOAT_NODE);
 
+		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
+		registerBlock.accept("boat_node", Blocks.BOAT_NODE);
 		registerBlock.accept("apg_door", Blocks.APG_DOOR);
 		registerBlock.accept("apg_glass", Blocks.APG_GLASS);
 		registerBlock.accept("apg_glass_end", Blocks.APG_GLASS_END);
@@ -151,7 +186,6 @@ public class MTR implements IPacket {
 		registerBlock.accept("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock.accept("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock.accept("psd_top", Blocks.PSD_TOP);
-		registerBlockItem.accept("rail", Blocks.RAIL, ItemGroups.CORE);
 		registerBlockItem.accept("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroups.RAILWAY_FACILITIES);
@@ -232,6 +266,7 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("arrival_projector_1_small", BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_medium", BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_large", BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY);
+		registerBlockEntityType.accept("boat_node", BlockEntityTypes.BOAT_NODE_TILE_ENTITY);
 		registerBlockEntityType.accept("clock", BlockEntityTypes.CLOCK_TILE_ENTITY);
 		registerBlockEntityType.accept("psd_top", BlockEntityTypes.PSD_TOP_TILE_ENTITY);
 		registerBlockEntityType.accept("apg_glass", BlockEntityTypes.APG_GLASS_TILE_ENTITY);
@@ -271,20 +306,20 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_redstone_sensor", BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
-		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER);
-		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_FAIL);
+		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
+		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_entry", SoundEvents.TICKET_PROCESSOR_ENTRY);
+		registerSoundEvent.accept("ticket_processor_entry_concessionary", SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_exit", SoundEvents.TICKET_PROCESSOR_EXIT);
+		registerSoundEvent.accept("ticket_processor_exit_concessionary", SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_fail", SoundEvents.TICKET_PROCESSOR_FAIL);
 
 		Registry.registerNetworkReceiver(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
 		Registry.registerNetworkReceiver(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
 		Registry.registerNetworkReceiver(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
-		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false));
+		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, (id, transportMode) -> new Station(id), false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false));
@@ -295,6 +330,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_SENSOR, PacketTrainDataGuiServer::receiveTrainSensorC2S);
+		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);

@@ -1,17 +1,18 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
 import mtr.block.IPropagateBlock;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.Platform;
 import mtr.data.RailwayData;
 import mtr.data.Station;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -25,7 +26,13 @@ import java.util.Map;
 
 public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBase> extends BlockEntityRendererMapper<T> implements IBlock, IGui {
 
-	private static final int SCALE = 480;
+	private static final float SIDE = 2.5F / 16;
+	private static final float BOTTOM = 10.5F / 16;
+	private static final float MIDDLE = 29F / 16;
+	private static final float TOP = 31.5F / 16;
+	private static final float WIDTH = 1 - SIDE * 2;
+	private static final float HEIGHT_BOTTOM = MIDDLE - BOTTOM;
+	private static final float HEIGHT_TOP = TOP - MIDDLE;
 
 	public RenderRouteSign(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -50,7 +57,7 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		}
 		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
 
-		final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 		if (station == null) {
 			return;
 		}
@@ -65,19 +72,17 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, true, false);
-
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
-		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-		matrices.translate(0, 0, 0.4375 - SMALL_OFFSET * 4);
+		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
+		matrices.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 
-		routeRenderer.renderArrow(-0.3125F, 0.3125F, -1.9375F, -1.84375F, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-		routeRenderer.renderLine(-1.71875F, -0.75F, -0.3125F, 0.3125F, SCALE, facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
+		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, true, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, false)));
+		IDrawing.drawTexture(matrices, vertexConsumer1, 1 - SIDE, TOP, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, true, false, HEIGHT_BOTTOM / WIDTH, false)));
+		IDrawing.drawTexture(matrices, vertexConsumer2, 1 - SIDE, MIDDLE, 0, 1 - SIDE, BOTTOM, 0, SIDE, BOTTOM, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+
 		matrices.popPose();
-		immediate.endBatch();
 	}
 
 	@Override

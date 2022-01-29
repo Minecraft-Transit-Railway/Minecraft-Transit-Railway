@@ -77,7 +77,7 @@ public class TrainServer extends Train {
 			final float margin = halfSpacing + BOX_PADDING;
 			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID())).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 1.5 && Math.abs(positionRotated.z) <= halfSpacing) {
+				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					ridingEntities.add(player.getUUID());
 					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
@@ -125,12 +125,12 @@ public class TrainServer extends Train {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();
 
-				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
 					world.setBlockAndUpdate(checkPos, state.setValue(BlockTrainRedstoneSensor.POWERED, true));
 					Utilities.scheduleBlockTick(world, checkPos, block, 20);
 				}
 
-				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId)) {
+				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
 					for (final Direction direction : Direction.values()) {
 						final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
 						if (nearbyInventory != null) {
@@ -148,7 +148,7 @@ public class TrainServer extends Train {
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
-					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId)) {
+					if (entity instanceof BlockTrainAnnouncer.TileEntityTrainAnnouncer && ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).matchesFilter(routeId, speed)) {
 						ridingEntities.forEach(uuid -> ((BlockTrainAnnouncer.TileEntityTrainAnnouncer) entity).announce(world.getPlayerByUUID(uuid)));
 					}
 				}
@@ -209,7 +209,7 @@ public class TrainServer extends Train {
 		return TrigCache.asin(value);
 	}
 
-	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
+	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<ScheduleEntry>> schedulesForPlatform, boolean isUnlimited) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		final int oldStoppingIndex = nextStoppingIndex;
@@ -269,7 +269,7 @@ public class TrainServer extends Train {
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new Route.ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
+					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
 				}
 
 				if (routeId == 0) {

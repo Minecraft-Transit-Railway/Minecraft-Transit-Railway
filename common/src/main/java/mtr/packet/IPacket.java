@@ -19,6 +19,7 @@ public interface IPacket {
 	ResourceLocation PACKET_REMOVE_NODE = new ResourceLocation(MTR.MOD_ID, "packet_remove_node");
 	ResourceLocation PACKET_REMOVE_RAIL = new ResourceLocation(MTR.MOD_ID, "packet_remove_rail");
 	ResourceLocation PACKET_REMOVE_SIGNALS = new ResourceLocation(MTR.MOD_ID, "packet_remove_signals");
+	ResourceLocation PACKET_REMOVE_RAIL_ACTION = new ResourceLocation(MTR.MOD_ID, "packet_remove_rail_action");
 
 	ResourceLocation PACKET_GENERATE_PATH = new ResourceLocation(MTR.MOD_ID, "packet_generate_path");
 	ResourceLocation PACKET_CLEAR_TRAINS = new ResourceLocation(MTR.MOD_ID, "packet_clear_trains");
@@ -43,6 +44,7 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_TRAINS = new ResourceLocation(MTR.MOD_ID, "update_trains");
 	ResourceLocation PACKET_DELETE_TRAINS = new ResourceLocation(MTR.MOD_ID, "delete_trains");
 	ResourceLocation PACKET_UPDATE_TRAIN_RIDING_POSITION = new ResourceLocation(MTR.MOD_ID, "update_train_riding_position");
+	ResourceLocation PACKET_UPDATE_RAIL_ACTIONS = new ResourceLocation(MTR.MOD_ID, "update_rail_actions");
 	ResourceLocation PACKET_UPDATE_SCHEDULE = new ResourceLocation(MTR.MOD_ID, "update_schedule");
 	ResourceLocation PACKET_UPDATE_TRAIN_SENSOR = new ResourceLocation(MTR.MOD_ID, "packet_update_train_announcer");
 

@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public final class Station extends AreaBase {
 
 	public int zone;
-	public final Map<String, List<String>> exits;
+	public final Map<String, List<String>> exits = new HashMap<>();
 
 	private static final String KEY_ZONE = "zone";
 	private static final String KEY_EXITS = "exits";
@@ -24,19 +24,16 @@ public final class Station extends AreaBase {
 
 	public Station() {
 		super();
-		exits = new HashMap<>();
 	}
 
 	public Station(long id) {
 		super(id);
-		exits = new HashMap<>();
 	}
 
 	public Station(CompoundTag compoundTag) {
 		super(compoundTag);
 		zone = compoundTag.getInt(KEY_ZONE);
 
-		exits = new HashMap<>();
 		final CompoundTag tagExits = compoundTag.getCompound(KEY_EXITS);
 		for (final String keyParent : tagExits.getAllKeys()) {
 			final List<String> destinations = new ArrayList<>();
@@ -51,7 +48,6 @@ public final class Station extends AreaBase {
 	public Station(FriendlyByteBuf packet) {
 		super(packet);
 		zone = packet.readInt();
-		exits = new HashMap<>();
 		final int exitCount = packet.readInt();
 		for (int i = 0; i < exitCount; i++) {
 			final String parent = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -125,9 +121,15 @@ public final class Station extends AreaBase {
 		}
 	}
 
+	@Override
+	protected boolean hasTransportMode() {
+		return false;
+	}
+
 	public void setZone(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_ZONE);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -139,6 +141,7 @@ public final class Station extends AreaBase {
 		setExitParent(oldParent, newParent);
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_EXIT_EDIT_PARENT);
 		packet.writeUtf(oldParent);
 		packet.writeUtf(newParent);
@@ -149,6 +152,7 @@ public final class Station extends AreaBase {
 		exits.remove(parent);
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_EXIT_DELETE_PARENT);
 		packet.writeUtf(parent);
 		sendPacket.accept(packet);
@@ -158,6 +162,7 @@ public final class Station extends AreaBase {
 		if (parentExists(parent)) {
 			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeLong(id);
+			packet.writeUtf(transportMode.toString());
 			packet.writeUtf(KEY_EXIT_DESTINATIONS);
 			packet.writeUtf(parent);
 			packet.writeInt(exits.get(parent).size());

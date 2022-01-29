@@ -1,6 +1,6 @@
 package mtr;
 
-import mtr.config.CustomResources;
+import mtr.client.CustomResources;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
@@ -55,8 +55,8 @@ public class MTRForge {
 		BLOCK_ENTITY_TYPES.register(path, () -> blockEntityType);
 	}
 
-	private static void registerSoundEvent(SoundEvent soundEvent) {
-		SOUND_EVENTS.register(soundEvent.getLocation().getPath(), () -> soundEvent);
+	private static void registerSoundEvent(String path, SoundEvent soundEvent) {
+		SOUND_EVENTS.register(path, () -> soundEvent);
 	}
 
 	private static class MTRForgeRegistry {

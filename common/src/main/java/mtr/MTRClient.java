@@ -1,14 +1,13 @@
 package mtr;
 
-import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
 import mtr.block.BlockPIDS1;
 import mtr.block.BlockPIDS2;
 import mtr.block.BlockPIDS3;
 import mtr.block.BlockTactileMap;
-import mtr.config.Config;
+import mtr.client.ClientData;
+import mtr.client.Config;
+import mtr.client.IDrawing;
 import mtr.data.*;
-import mtr.gui.ClientData;
-import mtr.gui.IDrawing;
 import mtr.item.ItemNodeModifierBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -53,7 +52,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_DOOR_2);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_2);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RAIL);
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RAIL_NODE);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1);
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS);
@@ -72,18 +71,22 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_REDSTONE_SENSOR);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_SCHEDULE_SENSOR);
 
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_1_WOODEN, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_2_STONE, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_2_STONE_ONE_WAY, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_3_IRON, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_3_IRON_ONE_WAY, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_4_OBSIDIAN, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_5_BLAZE, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_6_DIAMOND, ItemNodeModifierBase.TAG_POS);
-		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_40, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_40_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_60, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_60_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_80, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_80_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_120, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_120_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_160, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_160_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_200, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_200_ONE_WAY, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_300, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_300_ONE_WAY, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_PLATFORM, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_SIDING, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_TURN_BACK, ItemNodeModifierBase.TAG_POS);
@@ -120,10 +123,39 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_GREEN, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_RED, ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_REMOVER_BLACK, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.BRIDGE_CREATOR_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_4_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_5_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_5_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_5_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_5_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_6_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_6_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_6_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_CREATOR_6_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_4_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_4_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_4_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_4_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_5_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_5_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_5_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_5_9, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_6_3, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_6_5, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_6_7, ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.TUNNEL_WALL_CREATOR_6_9, ItemNodeModifierBase.TAG_POS);
 
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, 1, 15, 16, 14, 14, false, false, true, 0xFF9900, 0xFF9900));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 12, -15, 15, 16, 30, 46, false, false, true, 0xFF9900, 0xFF9900));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY, dispatcher -> new RenderPIDS<>(dispatcher, 16, -15, 15, 16, 46, 46, false, false, true, 0xFF9900, 0xFF9900));
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.BOAT_NODE_TILE_ENTITY, RenderBoatNode::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.CLOCK_TILE_ENTITY, RenderClock::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.PSD_TOP_TILE_ENTITY, RenderPSDTop::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.APG_GLASS_TILE_ENTITY, RenderAPGGlass::new);
@@ -194,7 +226,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE);
 
 		RegistryClient.registerNetworkReceiver(PACKET_CHUNK_S2C, packet -> PacketTrainDataGuiClient.receiveChunk(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_OPEN_DASHBOARD_SCREEN, packet -> PacketTrainDataGuiClient.openDashboardScreenS2C(Minecraft.getInstance()));
+		RegistryClient.registerNetworkReceiver(PACKET_OPEN_DASHBOARD_SCREEN, packet -> PacketTrainDataGuiClient.openDashboardScreenS2C(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_OPEN_PIDS_CONFIG_SCREEN, packet -> PacketTrainDataGuiClient.openPIDSConfigScreenS2C(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_OPEN_RAILWAY_SIGN_SCREEN, packet -> PacketTrainDataGuiClient.openRailwaySignScreenS2C(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_OPEN_TICKET_MACHINE_SCREEN, packet -> PacketTrainDataGuiClient.openTicketMachineScreenS2C(Minecraft.getInstance(), packet));
@@ -207,12 +239,12 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_NODE, packet -> PacketTrainDataGuiClient.removeNodeS2C(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_RAIL, packet -> PacketTrainDataGuiClient.removeRailConnectionS2C(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_REMOVE_SIGNALS, packet -> PacketTrainDataGuiClient.removeSignalsS2C(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, false));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), false));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, false));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, false));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, false));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_DEPOT, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.DEPOTS, ClientData.DATA_CACHE.depotIdMap, Depot::new, false));
-		RegistryClient.registerNetworkReceiver(PACKET_DELETE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, Station::new, true));
+		RegistryClient.registerNetworkReceiver(PACKET_DELETE_STATION, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.STATIONS, ClientData.DATA_CACHE.stationIdMap, (id, transportMode) -> new Station(id), true));
 		RegistryClient.registerNetworkReceiver(PACKET_DELETE_PLATFORM, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.PLATFORMS, ClientData.DATA_CACHE.platformIdMap, null, true));
 		RegistryClient.registerNetworkReceiver(PACKET_DELETE_SIDING, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.SIDINGS, ClientData.DATA_CACHE.sidingIdMap, null, true));
 		RegistryClient.registerNetworkReceiver(PACKET_DELETE_ROUTE, packet -> PacketTrainDataGuiClient.receiveUpdateOrDeleteS2C(Minecraft.getInstance(), packet, ClientData.ROUTES, ClientData.DATA_CACHE.routeIdMap, Route::new, true));
@@ -221,11 +253,12 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAINS, packet -> ClientData.updateTrains(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_DELETE_TRAINS, packet -> ClientData.deleteTrains(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, packet -> ClientData.updateTrainRidingPosition(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_RAIL_ACTIONS, packet -> ClientData.updateRailActions(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station != null) {
 				IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.welcome_station_cjk", "gui.mtr.welcome_station", 1, IGui.textOrUntitled(station.name)));
 			}
@@ -233,7 +266,6 @@ public class MTRClient implements IPacket {
 
 		Config.getPatreonList();
 		Config.refreshProperties();
-		CrowdinTranslate.downloadTranslations("minecraft-transit-railway", MTR.MOD_ID);
 
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();

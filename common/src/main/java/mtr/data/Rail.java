@@ -1,15 +1,30 @@
 package mtr.data;
 
-import mtr.EnumHelper;
+import mtr.block.BlockNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class Rail extends SerializedDataBase {
 
 	public final RailType railType;
+	public final TransportMode transportMode;
 	public final RailAngle facingStart;
 	public final RailAngle facingEnd;
 	private final double h1, k1, r1, tStart1, tEnd1;
@@ -37,6 +52,7 @@ public class Rail extends SerializedDataBase {
 	private static final String KEY_REVERSE_T_2 = "reverse_t_2";
 	private static final String KEY_IS_STRAIGHT_2 = "is_straight_2";
 	private static final String KEY_RAIL_TYPE = "rail_type";
+	private static final String KEY_TRANSPORT_MODE = "transport_mode";
 
 	// for curves:
 	// x = h + r*cos(T)
@@ -48,10 +64,11 @@ public class Rail extends SerializedDataBase {
 	// x = h*T + k*r
 	// z = k*T + h*r
 
-	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType) {
+	public Rail(BlockPos posStart, RailAngle facingStart, BlockPos posEnd, RailAngle facingEnd, RailType railType, TransportMode transportMode) {
 		this.facingStart = facingStart;
 		this.facingEnd = facingEnd;
 		this.railType = railType;
+		this.transportMode = transportMode;
 		yStart = posStart.getY();
 		yEnd = posEnd.getY();
 
@@ -222,6 +239,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = compoundTag.getBoolean(KEY_REVERSE_T_2);
 		isStraight2 = compoundTag.getBoolean(KEY_IS_STRAIGHT_2);
 		railType = EnumHelper.valueOf(RailType.IRON, compoundTag.getString(KEY_RAIL_TYPE));
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
@@ -245,6 +263,7 @@ public class Rail extends SerializedDataBase {
 		reverseT2 = packet.readBoolean();
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);
@@ -270,6 +289,7 @@ public class Rail extends SerializedDataBase {
 		compoundTag.putBoolean(KEY_REVERSE_T_2, reverseT2);
 		compoundTag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
 		compoundTag.putString(KEY_RAIL_TYPE, railType.toString());
+		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
 		return compoundTag;
 	}
 
@@ -292,6 +312,7 @@ public class Rail extends SerializedDataBase {
 		packet.writeBoolean(reverseT2);
 		packet.writeBoolean(isStraight2);
 		packet.writeUtf(railType.toString());
+		packet.writeUtf(transportMode.toString());
 	}
 
 	public Vec3 getPosition(double rawValue) {
@@ -398,8 +419,177 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
+	public static class RailActions {
+
+		private double distance;
+
+		public final long id;
+		private final Level world;
+		private final UUID uuid;
+		private final String playerName;
+		private final RailActionType railActionType;
+		private final Rail rail;
+		private final int radius;
+		private final int height;
+		private final double length;
+		private final BlockState state;
+		private final boolean isSlab;
+		private final Set<BlockPos> blacklistedPos = new HashSet<>();
+
+		private static final double INCREMENT = 0.01;
+
+		public RailActions(Level world, Player player, RailActionType railActionType, Rail rail, int radius, int height, BlockState state) {
+			id = new Random().nextLong();
+			this.world = world;
+			uuid = player.getUUID();
+			playerName = player.getName().getString();
+			this.railActionType = railActionType;
+			this.rail = rail;
+			this.radius = radius;
+			this.height = height;
+			this.state = state;
+			isSlab = state != null && state.getBlock() instanceof SlabBlock;
+			length = rail.getLength();
+			distance = 0;
+		}
+
+		public boolean build() {
+			switch (railActionType) {
+				case BRIDGE:
+					return createBridge();
+				case TUNNEL:
+					return createTunnel();
+				case TUNNEL_WALL:
+					return createTunnelWall();
+				default:
+					return true;
+			}
+		}
+
+		public void writePacket(FriendlyByteBuf packet) {
+			packet.writeLong(id);
+			packet.writeUtf(playerName);
+			packet.writeFloat(Math.round(10 * length) / 10F);
+			packet.writeUtf(state == null ? "" : state.getBlock().getDescriptionId());
+			packet.writeUtf(railActionType.nameTranslation);
+			packet.writeInt(railActionType.color);
+		}
+
+		private boolean createTunnel() {
+			return create(true, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+					blacklistedPos.add(pos);
+				}
+			});
+		}
+
+		private boolean createTunnelWall() {
+			return create(false, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				if (!blacklistedPos.contains(pos) && canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, state);
+					blacklistedPos.add(pos);
+				}
+			});
+		}
+
+		private boolean createBridge() {
+			return create(false, editPos -> {
+				final BlockPos pos = new BlockPos(editPos);
+				final boolean isTopHalf = editPos.y - Math.floor(editPos.y) >= 0.5;
+				blacklistedPos.add(getHalfPos(pos, isTopHalf));
+
+				final BlockPos placePos;
+				final BlockState placeState;
+				final boolean placeHalf;
+
+				if (isSlab && isTopHalf) {
+					placePos = pos;
+					placeState = state.setValue(SlabBlock.TYPE, SlabType.BOTTOM);
+					placeHalf = false;
+				} else {
+					placePos = pos.below();
+					placeState = isSlab ? state.setValue(SlabBlock.TYPE, SlabType.TOP) : state;
+					placeHalf = true;
+				}
+
+				if (placePos != pos && canPlace(world, pos)) {
+					world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+				}
+				if (!blacklistedPos.contains(getHalfPos(placePos, placeHalf)) && canPlace(world, placePos)) {
+					world.setBlockAndUpdate(placePos, placeState);
+				}
+			});
+		}
+
+		private boolean create(boolean includeMiddle, Consumer<Vec3> consumer) {
+			final long startTime = System.currentTimeMillis();
+			while (System.currentTimeMillis() - startTime < 2) {
+				final Vec3 pos1 = rail.getPosition(distance);
+				distance += INCREMENT;
+				final Vec3 pos2 = rail.getPosition(distance);
+				final Vec3 vec3 = new Vec3(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().yRot((float) Math.PI / 2);
+
+				for (double x = -radius; x <= radius; x += INCREMENT) {
+					final Vec3 editPos = pos1.add(vec3.multiply(x, 0, x));
+					final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
+					if (includeMiddle || Math.abs(x) > radius - INCREMENT) {
+						for (int y = 0; y <= height; y++) {
+							if (y < height || !wholeNumber) {
+								consumer.accept(editPos.add(0, y, 0));
+							}
+						}
+					} else {
+						consumer.accept(editPos.add(0, Math.max(0, wholeNumber ? height - 1 : height), 0));
+					}
+				}
+
+				if (length - distance < INCREMENT) {
+					showProgressMessage(100);
+					return true;
+				}
+			}
+
+			showProgressMessage((float) Math.round(1000 * distance / length) / 10);
+			return false;
+		}
+
+		private void showProgressMessage(float percentage) {
+			final Player player = world.getPlayerByUUID(uuid);
+			if (player != null) {
+				player.displayClientMessage(new TranslatableComponent("gui.mtr." + railActionType.progressTranslation, percentage), true);
+			}
+		}
+
+		private static boolean canPlace(Level world, BlockPos pos) {
+			return world.getBlockEntity(pos) == null && !(world.getBlockState(pos).getBlock() instanceof BlockNode);
+		}
+
+		private static BlockPos getHalfPos(BlockPos pos, boolean isTopHalf) {
+			return new BlockPos(pos.getX(), pos.getY() * 2 + (isTopHalf ? 1 : 0), pos.getZ());
+		}
+	}
+
 	@FunctionalInterface
 	public interface RenderRail {
 		void renderRail(double x1, double z1, double x2, double z2, double x3, double z3, double x4, double z4, double y1, double y2);
+	}
+
+	public enum RailActionType {
+		BRIDGE("percentage_complete_bridge", "rail_action_bridge", MaterialColor.COLOR_LIGHT_GRAY),
+		TUNNEL("percentage_complete_tunnel", "rail_action_tunnel", MaterialColor.COLOR_BROWN),
+		TUNNEL_WALL("percentage_complete_tunnel_wall", "rail_action_tunnel_wall", MaterialColor.COLOR_GRAY);
+
+		private final String progressTranslation;
+		private final String nameTranslation;
+		private final int color;
+
+		RailActionType(String progressTranslation, String nameTranslation, MaterialColor materialColor) {
+			this.progressTranslation = progressTranslation;
+			this.nameTranslation = nameTranslation;
+			color = materialColor.col;
+		}
 	}
 }

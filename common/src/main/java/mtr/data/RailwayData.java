@@ -3,7 +3,7 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
-import mtr.block.BlockRail;
+import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -43,9 +44,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
-	private final Map<Long, List<Route.ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
-
+	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
@@ -187,7 +188,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, depots.stream().filter(depot -> {
 				final BlockPos sidingMidPos = siding.getMidPos();
-				return depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
+				return depot.isTransportMode(siding.transportMode) && depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
 			}).findFirst().orElse(null), rails);
 			siding.simulateTrain(1, dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
@@ -203,6 +204,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			playerRidingCoolDown.put(player, coolDown - 1);
 		});
 		playersToRemove.forEach(playerRidingCoolDown::remove);
+
+		if (!railActions.isEmpty() && railActions.get(0).build()) {
+			railActions.remove(0);
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
+		}
 
 		trainsInPlayerRange.forEach((player, trains) -> {
 			for (final TrainServer train : trains) {
@@ -291,7 +297,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				packet.writeInt(platformIds.size());
 				platformIds.forEach(platformId -> {
 					packet.writeLong(platformId);
-					final List<Route.ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
+					final List<ScheduleEntry> scheduleEntries = schedulesForPlatform.get(platformId);
 					if (scheduleEntries == null) {
 						packet.writeInt(0);
 					} else {
@@ -333,9 +339,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// writing data
 
-	public long addRail(BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
+	public long addRail(TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		final long newId = validate ? new Random().nextLong() : 0;
-		addRail(rails, platforms, sidings, posStart, posEnd, rail, newId);
+		addRail(rails, platforms, sidings, transportMode, posStart, posEnd, rail, newId);
 
 		if (validate) {
 			validateData();
@@ -378,8 +384,43 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return signalBlocks.remove(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
 
+	public boolean markRailForBridge(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+		if (containsRail(pos1, pos2)) {
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.BRIDGE, rails.get(pos1).get(pos2), radius, 0, state));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean markRailForTunnel(Player player, BlockPos pos1, BlockPos pos2, int radius, int height) {
+		if (containsRail(pos1, pos2)) {
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL, rails.get(pos1).get(pos2), radius, height, null));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean markRailForTunnelWall(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+		if (containsRail(pos1, pos2)) {
+			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.TUNNEL_WALL, rails.get(pos1).get(pos2), radius + 1, height + 1, state));
+			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public void disconnectPlayer(Player player) {
 		playerLastUpdatedPositions.remove(player);
+	}
+
+	public void removeRailAction(long id) {
+		railActions.removeIf(railAction -> railAction.id == id);
+		PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
 	}
 
 	public void generatePath(MinecraftServer minecraftServer, long depotId) {
@@ -396,7 +437,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
-	public void getSchedulesForStation(Map<Long, List<Route.ScheduleEntry>> schedulesForStation, long stationId) {
+	public void getSchedulesForStation(Map<Long, List<ScheduleEntry>> schedulesForStation, long stationId) {
 		schedulesForPlatform.forEach((platformId, schedules) -> {
 			final Station station = dataCache.platformIdToStation.get(platformId);
 			if (station != null && station.id == stationId) {
@@ -405,7 +446,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		});
 	}
 
-	public List<Route.ScheduleEntry> getSchedulesAtPlatform(long platformId) {
+	public List<ScheduleEntry> getSchedulesAtPlatform(long platformId) {
 		return schedulesForPlatform.get(platformId);
 	}
 
@@ -438,7 +479,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// other
 
-	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
+	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
 		try {
 			if (!rails.containsKey(posStart)) {
 				rails.put(posStart, new HashMap<>());
@@ -447,9 +488,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 			if (savedRailId != 0) {
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					platforms.add(new Platform(savedRailId, posStart, posEnd));
+					platforms.add(new Platform(savedRailId, transportMode, posStart, posEnd));
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(siding -> siding.containsPos(posStart) || siding.containsPos(posEnd))) {
-					sidings.add(new Siding(savedRailId, posStart, posEnd, (int) Math.floor(rail.getLength())));
+					sidings.add(new Siding(savedRailId, transportMode, posStart, posEnd, (int) Math.floor(rail.getLength())));
 				}
 			}
 		} catch (Exception e) {
@@ -463,7 +504,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			rails.forEach((startPos, railMap) -> {
 				railMap.remove(pos);
 				if (railMap.isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, startPos);
+					BlockNode.resetRailNode(world, startPos);
 				}
 			});
 			if (world != null) {
@@ -479,13 +520,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (rails.containsKey(pos1)) {
 				rails.get(pos1).remove(pos2);
 				if (rails.get(pos1).isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, pos1);
+					BlockNode.resetRailNode(world, pos1);
 				}
 			}
 			if (rails.containsKey(pos2)) {
 				rails.get(pos2).remove(pos1);
 				if (rails.get(pos2).isEmpty() && world != null) {
-					BlockRail.resetRailNode(world, pos2);
+					BlockNode.resetRailNode(world, pos2);
 				}
 			}
 			if (world != null) {
@@ -500,25 +541,42 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
 	}
 
-	public static Station getStation(Set<Station> stations, BlockPos pos) {
+	public static Station getStation(Set<Station> stations, DataCache dataCache, BlockPos pos) {
 		try {
-			return stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
+			if (dataCache.blockPosToStation.containsKey(pos)) {
+				return dataCache.blockPosToStation.get(pos);
+			} else {
+				return stations.stream().filter(station -> station.inArea(pos.getX(), pos.getZ())).findFirst().orElse(null);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos) {
-		return getClosePlatform(platforms, pos, 4, 0, 4);
+	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos) {
+		return getClosePlatformId(platforms, dataCache, pos, 4, 0, 4);
 	}
 
-	public static Platform getClosePlatform(Set<Platform> platforms, BlockPos pos, int radius, int lower, int upper) {
+	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos, int radius, int lower, int upper) {
 		try {
-			return platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, radius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).orElse(null);
+			if (dataCache.blockPosToPlatformId.containsKey(pos)) {
+				return dataCache.blockPosToPlatformId.get(pos);
+			} else {
+				long platformId = 0;
+				for (int i = 1; i <= radius; i++) {
+					final int searchRadius = i;
+					platformId = platforms.stream().filter(platform -> platform.isCloseToSavedRail(pos, searchRadius, lower, upper)).min(Comparator.comparingInt(platform -> platform.getMidPos().distManhattan(pos))).map(platform -> platform.id).orElse(0L);
+					if (platformId != 0) {
+						break;
+					}
+				}
+				dataCache.blockPosToPlatformId.put(pos, platformId);
+				return platformId;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return -1;
 		}
 	}
 
@@ -590,7 +648,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
 			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
-			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockRail)) {
+			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
 				removeNode(null, rails, startPos);
 			}
 
@@ -617,6 +675,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		player.fallDistance = 0;
 		player.setNoGravity(isRiding);
 		player.noPhysics = isRiding;
+		Registry.setInTeleportationState(player, isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

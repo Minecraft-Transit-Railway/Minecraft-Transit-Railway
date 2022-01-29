@@ -7,11 +7,14 @@ import com.mojang.math.Vector3f;
 import mtr.block.BlockRailwaySign;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
-import mtr.config.CustomResources;
-import mtr.data.*;
-import mtr.gui.ClientCache;
-import mtr.gui.ClientData;
-import mtr.gui.IDrawing;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
+import mtr.client.CustomResources;
+import mtr.client.IDrawing;
+import mtr.data.IGui;
+import mtr.data.Platform;
+import mtr.data.RailwayData;
+import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -118,7 +121,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		final MultiBufferSource.BufferSource immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
 		if (vertexConsumers != null && isExit) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}
@@ -156,7 +159,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 			matrices.popPose();
 		} else if (vertexConsumers != null && isLine) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}
@@ -192,23 +195,25 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				matrices.popPose();
 			}
 		} else if (vertexConsumers != null && isPlatform) {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 			if (station == null) {
 				return;
 			}
 
 			final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
 			if (platformPositions != null) {
-				final List<Platform> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).map(platformPositions::get).sorted(NameColorDataBase::compareTo).collect(Collectors.toList());
+				final List<Long> selectedIdsSorted = selectedIds.stream().filter(platformPositions::containsKey).sorted(Comparator.comparing(platformPositions::get)).collect(Collectors.toList());
 				final int selectedCount = selectedIdsSorted.size();
 
-				final float smallPadding = margin / selectedCount;
-				final float height = (size - margin * 2 + smallPadding) / selectedCount;
+				final float extraMargin = margin - margin / selectedCount;
+				final float height = (size - extraMargin * 2) / selectedCount;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
-					final float topOffset = i * height + margin;
-					final float bottomOffset = (i + 1) * height + margin - smallPadding;
-					final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, selectedIdsSorted.get(i), true, true);
-					routeRenderer.renderArrow((flipCustomText ? x - maxWidthLeft * size : x) + margin, (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin, topOffset, bottomOffset, flipCustomText, !flipCustomText, facing, MAX_LIGHT_GLOWING, false);
+					final float topOffset = i * height + extraMargin;
+					final float bottomOffset = (i + 1) * height + extraMargin;
+					final float left = (flipCustomText ? x - maxWidthLeft * size : x) + margin;
+					final float right = (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin;
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), false), false));
+					IDrawing.drawTexture(matrices, vertexConsumer, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				}
 			}
 		} else {

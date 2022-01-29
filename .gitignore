@@ -34,3 +34,6 @@ run/
 latest.log
 Keys.java
 mappings
+BlockEntityExtension.java
+**/lang/*.json
+!en_us.json

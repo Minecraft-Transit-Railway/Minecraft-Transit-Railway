@@ -39,7 +39,6 @@ subprojects {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
 		mappings loom.officialMojangMappings()
 		implementation "com.github.BlueMap-Minecraft:BlueMapAPI:${rootProject.blue_map_version}"
-		implementation "de.guntram.mcmod:crowdin-translate:${is_1_16 ? rootProject.crowdin_translate_version_1_16 : is_1_17 ? rootProject.crowdin_translate_version_1_17 : rootProject.crowdin_translate_version_1_18}"
 		implementation "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
 		implementation "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
 		implementation "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
@@ -48,7 +47,6 @@ subprojects {
 		implementation "org.eclipse.jetty:jetty-util:${rootProject.jetty_version}"
 		implementation "org.eclipse.jetty:jetty-util-ajax:${rootProject.jetty_version}"
 		implementation "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
-		shadowCommon "de.guntram.mcmod:crowdin-translate:${is_1_16 ? rootProject.crowdin_translate_version_1_16 : is_1_17 ? rootProject.crowdin_translate_version_1_17 : rootProject.crowdin_translate_version_1_18}"
 		shadowCommon "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
@@ -63,13 +61,13 @@ subprojects {
 task setupFiles() {
 	download {
 		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : "1.18"}.zip"
-		dest "common/src/main/java/mtr/mappings/files.zip"
+		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 	}
 
 	copy {
 		outputs.upToDateWhen { false }
-		from(zipTree("common/src/main/java/mtr/mappings/files.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		from(zipTree("common/src/main/java/mtr/mappings/mappings.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
 		into "common/src/main/java/mtr/mappings"
 		filter(ReplaceTokens, tokens: ["package": "mtr.mappings"])
 	}
@@ -82,12 +80,41 @@ task setupFiles() {
 		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
 	}
 
+	download {
+		src "https://crowdin.com/backend/download/project/minecraft-transit-railway.zip"
+		dest "common/src/main/java/mtr/mappings/lang.zip"
+		overwrite true
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from(zipTree("common/src/main/java/mtr/mappings/lang.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		into "common/src/main/resources/assets/mtr/lang"
+	}
+
 	copy {
 		outputs.upToDateWhen { false }
 		from "common/src/main/KeysTemplate.java"
 		into "common/src/main/java/mtr"
 		filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 		rename "(.+)Template.java", "\$1.java"
+	}
+
+	if (is_1_16 || is_1_17) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "fabric/src/main/BlockEntityExtensionTemplate.java"
+			into "fabric/src/main/java/" + (is_1_16 ? "me/shedaniel" : "dev") + "/architectury/extensions"
+			filter(ReplaceTokens, tokens: ["package": is_1_16 ? "me.shedaniel" : "dev"])
+			rename "(.+)Template.java", "\$1.java"
+		}
+	}
+
+	if (!is_1_16) {
+		ant.delete(dir: "fabric/src/main/java/me")
+	}
+	if (!is_1_17) {
+		ant.delete(dir: "fabric/src/main/java/dev")
 	}
 }
 
@@ -99,7 +126,6 @@ allprojects {
 
 	repositories {
 		maven { url = "https://jitpack.io/" }
-		maven { url = "https://minecraft.guntram.de/maven/" }
 		maven { url = "https://maven.terraformersmc.com/" }
 	}
 
