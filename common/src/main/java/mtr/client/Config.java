@@ -73,7 +73,7 @@ public class Config {
 
 	public static int trainRenderDistanceRatio() { return trainRenderDistanceRatio; }
 
-	public static int trdrCM() { return trainRenderDistanceRatio + 2; }
+	public static int trdrCM() { return trainRenderDistanceRatio + 1; }
 
 	public static boolean setUseMTRFont(boolean value) {
 		useMTRFont = value;
