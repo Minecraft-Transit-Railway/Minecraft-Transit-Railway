@@ -129,7 +129,7 @@ public class RenderTrains implements IGui {
 					if (!BOATS.containsKey(train.id)) {
 						BOATS.put(train.id, new FakeBoat());
 					}
-					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
+					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.getAcceleration(train.getSpeed())) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
 				} else {
 					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
 				}
