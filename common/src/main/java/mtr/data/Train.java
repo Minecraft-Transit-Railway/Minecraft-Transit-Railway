@@ -37,7 +37,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final SimpleContainer inventory;
 	private final float railLength;
 
-	public static final float ACCELERATION = 0.01F;
 	protected static final int MAX_CHECK_DISTANCE = 32;
 	protected static final int DOOR_MOVE_TIME = 64;
 	private static final int DOOR_DELAY = 20;
@@ -52,6 +51,19 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_CARGO = "cargo";
+
+	public static float getAcceleration(float speed){
+		//0.01: 15km/h/s
+		if(speed < 0.02){
+			//1.1km/h/s
+			return 0.00073F;
+		}
+		if (speed < 0.7) {
+			//3.6km/h/s
+			return 0.0025F;
+		}
+		return 0.002F;
+	}
 
 	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances) {
 		super(id);
@@ -202,6 +214,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
+			final float acceleration = getAcceleration(oldSpeed);
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
@@ -218,7 +231,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 				}
 			} else {
 				oldDoorValue = Math.abs(getDoorValue());
-				final float newAcceleration = ACCELERATION * ticksElapsed;
+				final float newAcceleration = acceleration * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * trainSpacing) / 2) {
 					isOnRoute = false;
@@ -250,8 +263,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						}
 
 						final float stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
-						if (stoppingDistance < 0.5F * speed * speed / ACCELERATION) {
-							speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, ACCELERATION);
+						if (stoppingDistance < 0.5F * speed * speed / acceleration) {
+							speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, acceleration);
 						} else {
 							final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
 							if (speed < railSpeed) {
