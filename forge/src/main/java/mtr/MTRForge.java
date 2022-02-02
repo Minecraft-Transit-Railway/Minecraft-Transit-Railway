@@ -5,6 +5,7 @@ import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
 import mtr.mappings.RegistryUtilitiesClient;
+import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
@@ -33,7 +34,9 @@ public class MTRForge {
 	public MTRForge() {
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		ForgeUtilities.registerModEventBus(MTR.MOD_ID, eventBus);
+		ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
 		eventBus.register(MTRForgeRegistry.class);
+		eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
 		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 		ITEMS.register();
 		BLOCKS.register();
