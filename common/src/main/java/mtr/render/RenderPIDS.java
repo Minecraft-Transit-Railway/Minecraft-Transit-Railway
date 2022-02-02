@@ -2,6 +2,7 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import mtr.MTRClient;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
@@ -156,7 +157,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			}
 
 			for (int i = 0; i < maxArrivals; i++) {
-				final int languageTicks = (int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS;
+				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final String destinationString;
 				final boolean useCustomMessage;
 				if (i < scheduleList.size() && !hideArrival[i]) {

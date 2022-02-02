@@ -2,6 +2,7 @@ package mtr;
 
 import mtr.client.CustomResources;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +14,7 @@ public class MTRFabricClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		MTRClient.init();
+		WorldRenderEvents.END.register(event -> MTRClient.incrementGameTick());
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new CustomResourcesWrapper());
 	}
 

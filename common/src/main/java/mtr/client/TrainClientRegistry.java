@@ -1,11 +1,11 @@
 package mtr.client;
 
 import mtr.MTR;
+import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
 import mtr.model.*;
-import mtr.render.RenderTrains;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -162,8 +162,8 @@ public class TrainClientRegistry {
 		}
 
 		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
-			if (world instanceof ClientLevel && RenderTrains.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
-				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / RenderTrains.TICKS_PER_SPEED_SOUND);
+			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
+				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / MTRClient.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;

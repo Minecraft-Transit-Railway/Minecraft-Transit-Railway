@@ -56,12 +56,9 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public static String creatorTextureFileName = "";
 	public static ResourceLocation creatorTexture;
 
-	private static float gameTick = 0;
-	private static float lastPlayedTrainSoundsTick = 0;
+	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
-
-	public static final int TICKS_PER_SPEED_SOUND = 4;
 
 	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
 	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
@@ -88,8 +85,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 
 		final int renderDistanceChunks = client.options.renderDistance;
-		final float lastFrameDuration = MTRClient.isReplayMod ? 20F / 60 : client.getDeltaFrameTime();
-		gameTick += lastFrameDuration;
+		final float lastFrameDuration = MTRClient.getLastFrameDuration();
 
 		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
 		if (Config.useDynamicFPS()) {
@@ -115,7 +111,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
@@ -152,7 +148,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			} else {
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod || posAverage.distSqr(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod() || posAverage.distSqr(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
 			}
 
 			matrices.popPose();
@@ -295,7 +291,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 				for (int i = 0; i < signalBlocks.size(); i++) {
 					final SignalBlocks.SignalBlock signalBlock = signalBlocks.get(i);
-					final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(getGameTicks())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
+					final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(MTRClient.getGameTick())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
 					final VertexConsumer vertexConsumer = shouldGlow ? vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false)) : vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("textures/block/white_wool.png")));
 					final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
 					final float u2 = u1 + width;
@@ -316,6 +312,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}));
 
 		matrices.popPose();
+		lastRenderedTick = MTRClient.getGameTick();
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
 			ClientData.DATA_CACHE.sync();
@@ -328,17 +325,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	@Override
 	public ResourceLocation getTextureLocation(EntitySeat entity) {
 		return null;
-	}
-
-	public static float getGameTicks() {
-		return gameTick;
-	}
-
-	public static boolean canPlaySound() {
-		if (gameTick - lastPlayedTrainSoundsTick >= TICKS_PER_SPEED_SOUND) {
-			lastPlayedTrainSoundsTick = gameTick;
-		}
-		return gameTick == lastPlayedTrainSoundsTick && !Minecraft.getInstance().isPaused();
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
@@ -374,7 +360,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				playerFacingAway = Math.signum(playerZOffset) == facing.getStepZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return camera == null || playerFacingAway || camera.blockPosition().distManhattan(pos) > (MTRClient.isReplayMod ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return camera == null || playerFacingAway || camera.blockPosition().distManhattan(pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	private static void renderWithLight(Level world, double x, double y, double z, Vec3 cameraPos, boolean offsetRender, RenderCallback renderCallback) {
