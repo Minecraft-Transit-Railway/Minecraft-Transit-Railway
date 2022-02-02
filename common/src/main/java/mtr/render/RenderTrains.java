@@ -11,7 +11,9 @@ import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.client.*;
 import mtr.data.*;
+import mtr.entity.EntitySeat;
 import mtr.item.ItemNodeModifierBase;
+import mtr.mappings.EntityRendererMapper;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
@@ -28,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +46,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RenderTrains implements IGui {
+public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
 	public static int maxTrainRenderDistance;
 	public static String creatorModelFileName = "";
@@ -72,10 +75,15 @@ public class RenderTrains implements IGui {
 	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
 	private static final Map<Long, FakeBoat> BOATS = new HashMap<>();
 
-	public static void render(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Camera camera) {
+	public RenderTrains(Object parameter) {
+		super(parameter);
+	}
+
+	@Override
+	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
 		final Minecraft client = Minecraft.getInstance();
 		final LocalPlayer player = client.player;
-		if (player == null) {
+		if (player == null || !entity.isPlayer(player)) {
 			return;
 		}
 
@@ -94,10 +102,18 @@ public class RenderTrains implements IGui {
 			maxTrainRenderDistance = renderDistanceChunks * 8;
 		}
 
+		final Level world = entity.level;
+		final Camera camera = client.gameRenderer.getMainCamera();
 		final Vec3 cameraPos = camera.getPosition();
 		final float cameraYaw = camera.getYRot();
 		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getEyePosition(client.getFrameTime()).subtract(cameraPos) : Vec3.ZERO;
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - client.gameRenderer.getMainCamera().getYRot()) > 90;
+
+		matrices.pushPose();
+		final double entityX = Mth.lerp(tickDelta, entity.xOld, entity.getX());
+		final double entityY = Mth.lerp(tickDelta, entity.yOld, entity.getY());
+		final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
+		matrices.translate(-entityX, -entityY, -entityZ);
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
@@ -107,9 +123,9 @@ public class RenderTrains implements IGui {
 
 			matrices.pushPose();
 			if (playerOffset == null) {
-				matrices.translate(x - cameraPos.x, y - cameraPos.y, z - cameraPos.z);
+				matrices.translate(x, y, z);
 			} else {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+				matrices.translate(cameraOffset.x + cameraPos.x, cameraOffset.y + cameraPos.y, cameraOffset.z + cameraPos.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(x - playerOffset.x, y - playerOffset.y, z - playerOffset.z);
 			}
@@ -147,10 +163,8 @@ public class RenderTrains implements IGui {
 			}
 
 			matrices.pushPose();
-			if (playerOffset == null) {
-				matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-			} else {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+			if (playerOffset != null) {
+				matrices.translate(cameraOffset.x + cameraPos.x, cameraOffset.y + cameraPos.y, cameraOffset.z + cameraPos.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
@@ -244,7 +258,7 @@ public class RenderTrains implements IGui {
 			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 		}
 
-		matrices.translate(-cameraPos.x, 0.0625 + SMALL_OFFSET - cameraPos.y, -cameraPos.z);
+		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = isHoldingRailRelated(player);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
@@ -301,12 +315,19 @@ public class RenderTrains implements IGui {
 			}
 		}));
 
+		matrices.popPose();
+
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
 			ClientData.DATA_CACHE.sync();
 		}
 		prevPlatformCount = ClientData.PLATFORMS.size();
 		prevSidingCount = ClientData.SIDINGS.size();
 		ClientData.DATA_CACHE.clearDataIfNeeded();
+	}
+
+	@Override
+	public ResourceLocation getTextureLocation(EntitySeat entity) {
+		return null;
 	}
 
 	public static float getGameTicks() {

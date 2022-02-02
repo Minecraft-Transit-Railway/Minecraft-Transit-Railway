@@ -189,6 +189,8 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY, RenderStationNameWall::new);
 
+		RegistryClient.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
+
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BIRCH_WOOD);

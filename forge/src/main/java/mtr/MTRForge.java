@@ -8,6 +8,8 @@ import mtr.mappings.RegistryUtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -25,16 +27,18 @@ public class MTRForge {
 	private static final DeferredRegisterHolder<Item> ITEMS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.ITEM_REGISTRY);
 	private static final DeferredRegisterHolder<Block> BLOCKS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.BLOCK_REGISTRY);
 	private static final DeferredRegisterHolder<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
+	private static final DeferredRegisterHolder<EntityType<?>> ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.ENTITY_TYPE_REGISTRY);
 	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.SOUND_EVENT_REGISTRY);
 
 	public MTRForge() {
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		ForgeUtilities.registerModEventBus(MTR.MOD_ID, eventBus);
 		eventBus.register(MTRForgeRegistry.class);
-		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerSoundEvent);
+		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 		ITEMS.register();
 		BLOCKS.register();
 		BLOCK_ENTITY_TYPES.register();
+		ENTITY_TYPES.register();
 		SOUND_EVENTS.register();
 	}
 
@@ -53,6 +57,10 @@ public class MTRForge {
 
 	private static <T extends BlockEntityMapper> void registerBlockEntityType(String path, BlockEntityType<T> blockEntityType) {
 		BLOCK_ENTITY_TYPES.register(path, () -> blockEntityType);
+	}
+
+	private static <T extends Entity> void registerEntityType(String path, EntityType<T> entityType) {
+		ENTITY_TYPES.register(path, () -> entityType);
 	}
 
 	private static void registerSoundEvent(String path, SoundEvent soundEvent) {

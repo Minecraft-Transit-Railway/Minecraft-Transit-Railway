@@ -1,12 +1,15 @@
 package mtr.forge;
 
+import mtr.mappings.ForgeUtilities;
 import mtr.mappings.NetworkUtilities;
 import mtr.mappings.RegistryUtilities;
 import mtr.mixin.PlayerTeleportationStateAccessor;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +21,10 @@ public class RegistryImpl {
 
 	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
 		return RegistryUtilities.createCreativeTab(id, supplier);
+	}
+
+	public static Packet<?> createAddEntityPacket(Entity entity) {
+		return ForgeUtilities.createAddEntityPacket(entity);
 	}
 
 	public static void registerNetworkReceiver(ResourceLocation resourceLocation, NetworkUtilities.PacketCallback packetCallback) {
