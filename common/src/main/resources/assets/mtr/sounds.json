@@ -11159,6 +11159,22 @@
 			}
 		]
 	},
+	"london_underground_d78_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_d78/door_open",
+				"pitch": 1
+			}
+		]
+	},
+	"london_underground_d78_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_d78/door_close",
+				"pitch": 1
+			}
+		]
+	},
 	"london_underground_1995_door_open": {
 		"sounds": [
 			{
