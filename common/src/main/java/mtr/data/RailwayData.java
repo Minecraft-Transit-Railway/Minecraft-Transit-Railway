@@ -661,10 +661,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	private static void validateRails(Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
+		final Set<BlockPos> railsNodesToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
 			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
 			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
-				removeNode(null, rails, startPos);
+				railsNodesToRemove.add(startPos);
 			}
 
 			if (railMap.isEmpty()) {
@@ -672,6 +673,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		});
 		railsToRemove.forEach(rails::remove);
+		railsNodesToRemove.forEach(pos -> removeNode(null, rails, pos));
 	}
 
 	private static void removeSavedRailS2C(Level world, Set<? extends SavedRailBase> savedRailBases, Map<BlockPos, Map<BlockPos, Rail>> rails, ResourceLocation packetId) {

@@ -81,7 +81,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
 		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
-		trainCars = baseTrainType.transportMode == TransportMode.BOAT ? 1 : (int) Math.floor(railLength / baseTrainType.getSpacing());
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
 		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
@@ -112,7 +112,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		reversed = packet.readBoolean();
 		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		baseTrainType = TrainType.values()[packet.readInt()];
-		trainCars = baseTrainType.transportMode == TransportMode.BOAT ? 1 : (int) Math.floor(railLength / baseTrainType.getSpacing());
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
 		isOnRoute = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();

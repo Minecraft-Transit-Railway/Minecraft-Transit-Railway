@@ -16,10 +16,11 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -34,12 +35,17 @@ public class MTRForge {
 	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.SOUND_EVENT_REGISTRY);
 
 	public MTRForge() {
-		MinecraftForge.EVENT_BUS.register(MTRForgeEventBus.class);
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
+			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
+			MinecraftForge.EVENT_BUS.register(ForgeUtilities.RenderTick.class);
+		});
+
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		ForgeUtilities.registerModEventBus(MTR.MOD_ID, eventBus);
-		ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
 		eventBus.register(MTRModEventBus.class);
-		eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
+
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> eventBus.register(ForgeUtilities.RegisterEntityRenderer.class));
 
 		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 		ITEMS.register();
@@ -84,14 +90,6 @@ public class MTRForge {
 					CustomResources.reload(Minecraft.getInstance().getResourceManager());
 				}
 			});
-		}
-	}
-
-	private static class MTRForgeEventBus {
-
-		@SubscribeEvent
-		public static void onRenderTickEvent(RenderWorldLastEvent event) {
-			MTRClient.incrementGameTick();
 		}
 	}
 }

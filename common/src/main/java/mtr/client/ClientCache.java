@@ -3,6 +3,7 @@ package mtr.client;
 import mtr.MTR;
 import mtr.data.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
@@ -39,14 +40,13 @@ public class ClientCache extends DataCache {
 	private final List<Long> clearStationIdToPlatforms = new ArrayList<>();
 	private final List<Long> clearDepotIdToSidings = new ArrayList<>();
 	private final List<Long> clearPlatformIdToRoutes = new ArrayList<>();
-	private final List<String> dynamicResourceIds = new ArrayList<>();
-	private final Set<String> dynamicResourceIdsToRefresh = new HashSet<>();
 
-	private final Map<String, ResourceLocation> dynamicResources = new HashMap<>();
+	private final Map<String, DynamicResource> dynamicResources = new HashMap<>();
 	private boolean canGenerateResource = true;
 
 	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
-	private static final float MAX_DYNAMIC_RESOURCES = 100;
+	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
+	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -85,7 +85,8 @@ public class ClientCache extends DataCache {
 				clearPlatformIdToRoutes.add(id);
 			}
 		});
-		dynamicResourceIdsToRefresh.addAll(dynamicResourceIds);
+		dynamicResources.forEach((key, dynamicResource) -> dynamicResource.remove());
+		dynamicResources.clear();
 	}
 
 	public Map<Long, Platform> requestStationIdToPlatforms(long stationId) {
@@ -262,11 +263,21 @@ public class ClientCache extends DataCache {
 			}
 		}
 
+		final Set<String> keysToRemove = new HashSet<>();
+		dynamicResources.forEach((checkKey, dynamicResource) -> {
+			if (dynamicResource.removeIfOld()) {
+				keysToRemove.add(checkKey);
+			}
+		});
+		if (!keysToRemove.isEmpty()) {
+			keysToRemove.forEach(dynamicResources::remove);
+		}
+
 		final boolean hasKey = dynamicResources.containsKey(key);
-		if (hasKey && !dynamicResourceIdsToRefresh.contains(key)) {
-			return dynamicResources.get(key);
+		if (hasKey) {
+			return dynamicResources.get(key).getResourceLocation();
 		} else {
-			final ResourceLocation defaultLocation = hasKey ? dynamicResources.get(key) : new ResourceLocation(MTR.MOD_ID, defaultBlack ? "textures/block/black.png" : "textures/block/white.png");
+			final ResourceLocation defaultLocation = defaultBlack ? DEFAULT_BLACK_RESOURCE : DEFAULT_WHITE_RESOURCE;
 
 			if (canGenerateResource) {
 				canGenerateResource = false;
@@ -275,17 +286,7 @@ public class ClientCache extends DataCache {
 				new Thread(() -> {
 					final DynamicTexture dynamicTexture = supplier.get();
 					minecraftClient.execute(() -> {
-						final TextureManager textureManager = minecraftClient.getTextureManager();
-						dynamicResourceIds.add(key);
-
-						while (dynamicResourceIds.size() >= MAX_DYNAMIC_RESOURCES) {
-							final String keyToRemove = dynamicResourceIds.remove(0);
-							minecraftClient.getTextureManager().release(dynamicResources.get(keyToRemove));
-							dynamicResources.remove(keyToRemove);
-						}
-
-						dynamicResources.put(key, dynamicTexture == null ? defaultLocation : textureManager.register(MTR.MOD_ID, dynamicTexture));
-						dynamicResourceIdsToRefresh.remove(key);
+						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture)));
 						canGenerateResource = true;
 					});
 				}).start();
@@ -355,6 +356,44 @@ public class ClientCache extends DataCache {
 		public ColorNameTuple(int color, String name) {
 			this.color = color;
 			this.name = name;
+		}
+	}
+
+	private static class DynamicResource {
+
+		private int age;
+		private final ResourceLocation resourceLocation;
+		private static final int MAX_AGE = 10000;
+
+		private DynamicResource(ResourceLocation resourceLocation) {
+			age = 0;
+			this.resourceLocation = resourceLocation;
+		}
+
+		private ResourceLocation getResourceLocation() {
+			age = 0;
+			return resourceLocation;
+		}
+
+		private void remove() {
+			if (!resourceLocation.equals(DEFAULT_BLACK_RESOURCE) && !resourceLocation.equals(DEFAULT_WHITE_RESOURCE)) {
+				final TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+				textureManager.release(resourceLocation);
+				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
+				if (abstractTexture != null) {
+					abstractTexture.releaseId();
+				}
+			}
+		}
+
+		private boolean removeIfOld() {
+			age++;
+			if (age >= MAX_AGE) {
+				remove();
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 }
