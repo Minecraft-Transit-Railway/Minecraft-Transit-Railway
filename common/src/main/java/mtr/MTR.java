@@ -11,6 +11,8 @@ import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -41,6 +43,7 @@ public class MTR implements IPacket {
 			BiConsumer<String, Block> registerBlock,
 			RegisterBlockItem registerBlockItem,
 			BiConsumer<String, BlockEntityType<? extends BlockEntityMapper>> registerBlockEntityType,
+			BiConsumer<String, EntityType<? extends Entity>> registerEntityType,
 			BiConsumer<String, SoundEvent> registerSoundEvent
 	) {
 		registerItem.accept("apg_door", Items.APG_DOOR);
@@ -306,6 +309,8 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_redstone_sensor", BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
+		registerEntityType.accept("seat", EntityTypes.SEAT);
+
 		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
 		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
 		registerSoundEvent.accept("ticket_processor_entry", SoundEvents.TICKET_PROCESSOR_ENTRY);
@@ -364,7 +369,7 @@ public class MTR implements IPacket {
 		Registry.registerPlayerJoinEvent(player -> {
 			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
 			if (railwayData != null) {
-				railwayData.broadcastToPlayer(player);
+				railwayData.onPlayerJoin(player);
 			}
 		});
 		Registry.registerPlayerQuitEvent(player -> {

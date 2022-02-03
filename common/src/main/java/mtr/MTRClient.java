@@ -19,7 +19,11 @@ import net.minecraft.world.item.Item;
 
 public class MTRClient implements IPacket {
 
-	public static boolean isReplayMod;
+	private static boolean isReplayMod;
+	private static float gameTick = 0;
+	private static float lastPlayedTrainSoundsTick = 0;
+
+	public static final int TICKS_PER_SPEED_SOUND = 4;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
 
 	public static void init() {
@@ -189,6 +193,8 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY, RenderStationNameTall::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY, RenderStationNameWall::new);
 
+		RegistryClient.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
+
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BIRCH_WOOD);
@@ -271,6 +277,29 @@ public class MTRClient implements IPacket {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
 		});
+	}
+
+	public static boolean isReplayMod() {
+		return isReplayMod;
+	}
+
+	public static float getGameTick() {
+		return gameTick;
+	}
+
+	public static void incrementGameTick() {
+		gameTick += getLastFrameDuration();
+	}
+
+	public static float getLastFrameDuration() {
+		return MTRClient.isReplayMod ? 20F / 60 : Minecraft.getInstance().getDeltaFrameTime();
+	}
+
+	public static boolean canPlaySound() {
+		if (gameTick - lastPlayedTrainSoundsTick >= TICKS_PER_SPEED_SOUND) {
+			lastPlayedTrainSoundsTick = gameTick;
+		}
+		return gameTick == lastPlayedTrainSoundsTick && !Minecraft.getInstance().isPaused();
 	}
 
 	@FunctionalInterface

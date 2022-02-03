@@ -3,9 +3,11 @@ package mtr.fabric;
 import mtr.client.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.EntityRendererMapper;
 import mtr.mappings.FabricRegistryUtilities;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.Minecraft;
@@ -14,6 +16,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -33,6 +37,10 @@ public class RegistryClientImpl {
 
 	public static <T extends BlockEntityMapper> void registerTileEntityRenderer(BlockEntityType<T> type, Function<BlockEntityRenderDispatcher, BlockEntityRendererMapper<T>> function) {
 		FabricRegistryUtilities.registerTileEntityRenderer(type, function);
+	}
+
+	public static <T extends Entity> void registerEntityRenderer(EntityType<T> type, Function<Object, EntityRendererMapper<T>> function) {
+		FabricRegistryUtilities.registerEntityRenderer(type, function::apply);
 	}
 
 	public static void registerBlockColors(Block block) {
@@ -56,6 +64,10 @@ public class RegistryClientImpl {
 				consumer.accept((LocalPlayer) entity);
 			}
 		});
+	}
+
+	public static void registerTickEvent(Consumer<Minecraft> consumer) {
+		ClientTickEvents.START_CLIENT_TICK.register(consumer::accept);
 	}
 
 	public static void sendToServer(ResourceLocation id, FriendlyByteBuf packet) {

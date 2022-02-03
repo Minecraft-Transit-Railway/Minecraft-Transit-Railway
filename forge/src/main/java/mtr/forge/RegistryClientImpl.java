@@ -1,10 +1,8 @@
 package mtr.forge;
 
 import mtr.client.ClientData;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.BlockEntityRendererMapper;
-import mtr.mappings.NetworkUtilities;
-import mtr.mappings.RegistryUtilitiesClient;
+import mtr.mappings.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -12,6 +10,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
@@ -35,6 +35,10 @@ public class RegistryClientImpl {
 		RegistryUtilitiesClient.registerTileEntityRenderer(type, function);
 	}
 
+	public static <T extends Entity> void registerEntityRenderer(EntityType<T> type, Function<Object, EntityRendererMapper<T>> function) {
+		RegistryUtilitiesClient.registerEntityRenderer(type, function::apply);
+	}
+
 	public static void registerBlockColors(Block block) {
 		RegistryUtilitiesClient.registerBlockColors(new StationColor(), block);
 	}
@@ -45,6 +49,10 @@ public class RegistryClientImpl {
 
 	public static void registerPlayerJoinEvent(Consumer<LocalPlayer> consumer) {
 		RegistryUtilitiesClient.registerPlayerJoinEvent(consumer);
+	}
+
+	public static void registerTickEvent(Consumer<Minecraft> consumer) {
+		RegistryUtilitiesClient.registerClientTickEvent(consumer);
 	}
 
 	public static void sendToServer(ResourceLocation id, FriendlyByteBuf packet) {

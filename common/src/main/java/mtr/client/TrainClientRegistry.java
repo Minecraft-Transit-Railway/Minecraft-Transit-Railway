@@ -1,11 +1,11 @@
 package mtr.client;
 
 import mtr.MTR;
+import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
 import mtr.model.*;
-import mtr.render.RenderTrains;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -89,10 +89,10 @@ public class TrainClientRegistry {
 		register("light_rail_3_orange", TrainType.LIGHT_RAIL_3_ORANGE, new ModelLightRail(3), "mtr:textures/entity/light_rail_3_orange", "light_rail_mitsubishi", "light_rail_3", null, 0xD2A825, false, 45, 1, false);
 		register("light_rail_4_orange", TrainType.LIGHT_RAIL_4_ORANGE, new ModelLightRail(4), "mtr:textures/entity/light_rail_4_orange", "light_rail_mitsubishi", "light_rail_4", null, 0xD2A825, false, 45, 1, false);
 		register("light_rail_5_orange", TrainType.LIGHT_RAIL_5_ORANGE, new ModelLightRail(5), "mtr:textures/entity/light_rail_5_orange", "light_rail_mitsubishi", "light_rail_4", null, 0xD2A825, false, 45, 1, false);
-		register("london_underground_d78", TrainType.LONDON_UNDERGROUND_D78, new ModelLondonUndergroundD78(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_1995", null, 0x007229, false, 93, 0.5F, true);
-		register("london_underground_d78_mini", TrainType.LONDON_UNDERGROUND_D78_MINI, new ModelLondonUndergroundD78Mini(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_1995", null, 0x007229, false, 93, 0.5F, true);
+		register("london_underground_d78", TrainType.LONDON_UNDERGROUND_D78, new ModelLondonUndergroundD78(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", null, 0x007229, false, 93, 1, true);
+		register("london_underground_d78_mini", TrainType.LONDON_UNDERGROUND_D78_MINI, new ModelLondonUndergroundD78Mini(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", null, 0x007229, false, 93, 1, true);
 		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", null, 0x333333, false, 27, 0.5F, false);
-		register("london_underground_1996", TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1995", "london_underground_1995", null, 0x868F98, false, 27, 0.5F, false);
+		register("london_underground_1996", TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1995", "london_underground_1995", null, 0xA1A5A7, false, 27, 0.5F, false);
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, 66, 1, false);
 		register("minecart", TrainType.MINECART, null, "textures/entity/minecart", null, null, null, 0x666666, false, 0, 0.5F, false);
@@ -162,8 +162,8 @@ public class TrainClientRegistry {
 		}
 
 		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
-			if (world instanceof ClientLevel && RenderTrains.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
-				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / RenderTrains.TICKS_PER_SPEED_SOUND);
+			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
+				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION / MTRClient.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
