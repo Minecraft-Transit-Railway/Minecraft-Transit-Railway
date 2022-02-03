@@ -423,6 +423,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 	}
 
+	@Deprecated // TODO remove
+	public static float getGameTicks() {
+		return MTRClient.getGameTick();
+	}
+
 	@FunctionalInterface
 	private interface RenderCallback {
 		void renderCallback(int light, BlockPos posAverage);
