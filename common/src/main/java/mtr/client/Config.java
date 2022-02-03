@@ -71,9 +71,9 @@ public class Config {
 		return dynamicTextureResolution;
 	}
 
-	public static int trainRenderDistanceRatio() { return trainRenderDistanceRatio; }
-
-	public static int trdrCM() { return trainRenderDistanceRatio + 1; }
+	public static int trainRenderDistanceRatio() {
+		return trainRenderDistanceRatio;
+	}
 
 	public static boolean setUseMTRFont(boolean value) {
 		useMTRFont = value;
@@ -183,7 +183,7 @@ public class Config {
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
-		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);;
+		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));

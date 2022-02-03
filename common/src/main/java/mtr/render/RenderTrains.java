@@ -92,10 +92,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			if (lastFrameDuration > 0.5) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.4) {
-				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * Config.trdrCM());
+				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * (Config.trainRenderDistanceRatio() + 1));
 			}
 		} else {
-			maxTrainRenderDistance = renderDistanceChunks * Config.trdrCM();
+			maxTrainRenderDistance = renderDistanceChunks * (Config.trainRenderDistanceRatio() + 1);
 		}
 
 		final Level world = entity.level;
@@ -347,8 +347,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		);
 	}
 
-	private static int maxDistanceXZ(BlockPos a, BlockPos b) {
-		return Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getZ() - b.getZ()));
+	private static int maxDistanceXZ(BlockPos pos1, BlockPos pos2) {
+		return Math.max(Math.abs(pos1.getX() - pos2.getX()), Math.abs(pos1.getZ() - pos2.getZ()));
 	}
 
 	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {
@@ -369,7 +369,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	private static void renderWithLight(Level world, double x, double y, double z, Vec3 cameraPos, boolean offsetRender, RenderCallback renderCallback) {
 		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).offset(x, y, z) : new BlockPos(x, y, z);
-		if (!shouldNotRender(posAverage, Minecraft.getInstance().options.renderDistance * Config.trdrCM(), null)) {
+		if (!shouldNotRender(posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}
