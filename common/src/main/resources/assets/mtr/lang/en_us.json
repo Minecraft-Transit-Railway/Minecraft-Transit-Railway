@@ -340,6 +340,8 @@
 	"sign.mtr.airport_express_city": "Trains to City",
 	"sign.mtr.airport_express_city_cjk": "往市區列車",
 	"sign.mtr.airport_express_cjk": "往機場列車",
+	"sign.mtr.boat": "Ferries",
+	"sign.mtr.boat_cjk": "渡輪",
 	"sign.mtr.check_in_passengers": "Check-in Passengers",
 	"sign.mtr.check_in_passengers_cjk": "登機乘客",
 	"sign.mtr.cross": "No Entry",
