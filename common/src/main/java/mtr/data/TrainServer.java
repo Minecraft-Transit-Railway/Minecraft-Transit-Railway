@@ -108,14 +108,16 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
 		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
+		final boolean[] playerNearby = {false};
 		world.players().forEach(player -> {
 			if (trainAABB.contains(player.position())) {
 				if (!trainsInPlayerRange.containsKey(player)) {
 					trainsInPlayerRange.put(player, new HashSet<>());
 				}
 				trainsInPlayerRange.get(player).add(this);
+				playerNearby[0] = true;
 			}
 		});
 
@@ -154,6 +156,8 @@ public class TrainServer extends Train {
 				}
 			});
 		}
+
+		return playerNearby[0];
 	}
 
 	@Override
@@ -245,21 +249,14 @@ public class TrainServer extends Train {
 					}
 
 					final String destinationString;
+					final String routeNumber;
 					final Station lastStation = dataCache.stationIdMap.get(timeSegment.lastStationId);
 					if (lastStation != null) {
 						final Route thisRoute = dataCache.routeIdMap.get(timeSegment.routeId);
-						if (thisRoute != null && thisRoute.isLightRailRoute) {
-							final String lightRailRouteNumber = thisRoute.lightRailRouteNumber;
-							final String[] lastStationSplit = lastStation.name.split("\\|");
-							final StringBuilder destination = new StringBuilder();
-							for (final String lastStationSplitPart : lastStationSplit) {
-								destination.append("|").append(lightRailRouteNumber.isEmpty() ? "" : lightRailRouteNumber + " ").append(lastStationSplitPart);
-							}
-							destinationString = destination.length() > 0 ? destination.substring(1) : "";
-						} else {
-							destinationString = lastStation.name;
-						}
+						routeNumber = thisRoute != null && thisRoute.isLightRailRoute ? thisRoute.lightRailRouteNumber : "";
+						destinationString = lastStation.name;
 					} else {
+						routeNumber = "";
 						destinationString = "";
 					}
 
@@ -269,7 +266,7 @@ public class TrainServer extends Train {
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, destinationString, timeSegment.isTerminating));
+					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, routeNumber, destinationString, timeSegment.isTerminating));
 				}
 
 				if (routeId == 0) {

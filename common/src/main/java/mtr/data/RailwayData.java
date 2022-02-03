@@ -189,11 +189,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		schedulesForPlatform.clear();
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
-			siding.setSidingData(world, depots.stream().filter(depot -> {
-				final BlockPos sidingMidPos = siding.getMidPos();
-				return depot.isTransportMode(siding.transportMode) && depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
-			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
+			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
+			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));

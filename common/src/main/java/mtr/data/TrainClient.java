@@ -101,11 +101,11 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected void handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
 		offset.clear();
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
-			return;
+			return false;
 		}
 
 		final int trainSpacing = baseTrainType.getSpacing();
@@ -167,6 +167,7 @@ public class TrainClient extends Train {
 		}
 
 		justMounted = false;
+		return true;
 	}
 
 	@Override
