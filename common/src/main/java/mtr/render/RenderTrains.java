@@ -92,10 +92,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			if (lastFrameDuration > 0.5) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
 			} else if (lastFrameDuration < 0.4) {
-				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * 8);
+				maxTrainRenderDistance = Math.min(maxTrainRenderDistance + 1, renderDistanceChunks * Config.trdrCM());
 			}
 		} else {
-			maxTrainRenderDistance = renderDistanceChunks * 8;
+			maxTrainRenderDistance = renderDistanceChunks * Config.trdrCM();
 		}
 
 		final Level world = entity.level;
@@ -347,6 +347,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		);
 	}
 
+	private static int maxDistanceXZ(BlockPos a, BlockPos b) {
+		return Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getZ() - b.getZ()));
+	}
+
 	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {
 		final boolean playerFacingAway;
 		if (facing == null) {
@@ -360,12 +364,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				playerFacingAway = Math.signum(playerZOffset) == facing.getStepZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return camera == null || playerFacingAway || camera.blockPosition().distManhattan(pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return camera == null || playerFacingAway || maxDistanceXZ(camera.blockPosition(), pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
 	private static void renderWithLight(Level world, double x, double y, double z, Vec3 cameraPos, boolean offsetRender, RenderCallback renderCallback) {
 		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).offset(x, y, z) : new BlockPos(x, y, z);
-		if (!shouldNotRender(posAverage, Minecraft.getInstance().options.renderDistance * 8, null)) {
+		if (!shouldNotRender(posAverage, Minecraft.getInstance().options.renderDistance * Config.trdrCM(), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}
