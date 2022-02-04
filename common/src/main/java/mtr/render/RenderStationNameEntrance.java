@@ -36,7 +36,10 @@ public class RenderStationNameEntrance extends RenderStationNameBase<BlockStatio
 		final int propagateProperty = IBlock.getStatePropertySafe(world, pos, PROPAGATE_PROPERTY);
 		final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
 		final int length = getLength(world, pos);
-		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
+		final boolean showStation = IBlock.getStatePropertySafe(world, pos, SHOW_STATION);
+		String name = IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName);
+		if(!showStation)name = name.replace("站", "").replace(" Station", "");
+		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new ResourceLocation("mtr:textures/sign/logo.png")));
 			IDrawing.drawTexture(matrices, vertexConsumer, x1 - logoSize, -logoSize / 2, logoSize, logoSize, facing, MAX_LIGHT_GLOWING);
 		}));
