@@ -1,5 +1,5 @@
 import SETTINGS from "./index.js";
-import CANVAS from "./utilities.js"
+import CANVAS from "./utilities.js";
 import tappable from "./gestures/src/gestures/tap.js";
 import panable from "./gestures/src/gestures/pan.js";
 
@@ -319,7 +319,7 @@ function drawMap(container, data) {
 				graphicsStation.endFill();
 			}, () => onClickStation(stationId));
 
-			if (SETTINGS.showText && SETTINGS.showTextOverride && shouldDraw) {
+			if (SETTINGS.showText && shouldDraw) {
 				let icons = "";
 				types.forEach(key => {
 					if (typeof blob[key] !== "undefined" && key !== types[SETTINGS.routeType]) {

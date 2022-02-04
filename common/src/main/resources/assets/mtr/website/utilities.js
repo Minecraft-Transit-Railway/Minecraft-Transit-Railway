@@ -1,15 +1,18 @@
-import SETTINGS from "./index.js"
+import SETTINGS from "./index.js";
+import drawMap from "./drawing.js";
 
 const SCALE_UPPER_LIMIT = 64;
 const SCALE_LOWER_LIMIT = 1 / 128;
-const SMOOTH_SCROLL_SCALE_MOUSE = 100;
-const SMOOTH_SCROLL_SCALE_PINCH = 50;
+const SCROLL_CALLBACK_DELAY = 100;
 const STEPS = 50;
 const MIN_SPEED = 0.0001;
 const SPEED_MULTIPLIER = 3;
 
 let scale = 1;
+let scaleStart = 1;
 let previousPinch = 0;
+let zoomNotStarted = true;
+let scrollTimeoutId = 0;
 let step = 0;
 let startX = 0;
 let startY = 0;
@@ -23,25 +26,30 @@ const CANVAS = {
 		container.x += event.deltaX;
 		container.y += event.deltaY;
 	},
-	onCanvasScroll: function (event, container) {
-		if (Math.abs(event.deltaY) > 1) {
-			this.onZoom(event.deltaY / SMOOTH_SCROLL_SCALE_MOUSE, event.offsetX, event.offsetY, container);
-		}
+	onPinch: function (fingers, offsetX, offsetY, container, data, delay) {
+		const fingerDistance = (Math.abs(fingers.x - offsetX) + Math.abs(fingers.y - offsetY)) * 2;
+		this.onZoom(zoomNotStarted ? 0 : (previousPinch - fingerDistance) / SETTINGS.smoothScrollScale, offsetX, offsetY, container, data, delay);
+		previousPinch = fingerDistance;
 	},
-	onPinch: function (data, offsetX, offsetY, container) {
-		const distanceToCenter = Math.abs(data.x - offsetX) + Math.abs(data.y - offsetY);
-		if (previousPinch !== 0) {
-			this.onZoom((previousPinch - distanceToCenter) / SMOOTH_SCROLL_SCALE_PINCH, offsetX, offsetY, container);
+	onZoom: (amount, offsetX, offsetY, container, data, delay) => {
+		if (zoomNotStarted) {
+			scaleStart = scale;
+			zoomNotStarted = false;
 		}
-		previousPinch = distanceToCenter;
-	},
-	onPinchStart: () => previousPinch = 0,
-	onZoom: (amount, offsetX, offsetY, container) => {
+
 		let prevScale = scale;
 		scale = Math.pow(2, Math.log2(scale) - amount);
 		scale = Math.min(SCALE_UPPER_LIMIT, Math.max(SCALE_LOWER_LIMIT, scale));
+		container.scale.set(scale / scaleStart, scale / scaleStart);
 		container.x -= Math.round((offsetX - container.x) * (scale / prevScale - 1));
 		container.y -= Math.round((offsetY - container.y) * (scale / prevScale - 1));
+
+		clearTimeout(scrollTimeoutId);
+		scrollTimeoutId = setTimeout(() => {
+			container.scale.set(1, 1);
+			zoomNotStarted = true;
+			drawMap(container, data)
+		}, delay ? SCROLL_CALLBACK_DELAY : 0);
 	},
 	slideTo: (container, x, y) => {
 		startX = container.x;
@@ -98,7 +106,6 @@ const CANVAS = {
 			textArray.push(richText);
 		}
 	},
-	clearTextCache: () => textCache = {},
 	drawLine: (graphics, x1, y1, vertical1, x2, y2, vertical2) => {
 		const differenceX = Math.abs(x2 - x1);
 		const differenceY = Math.abs(y2 - y1);

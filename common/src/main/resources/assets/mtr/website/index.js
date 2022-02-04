@@ -1,4 +1,4 @@
-import CANVAS from "./utilities.js"
+import CANVAS from "./utilities.js";
 import drawMap from "./drawing.js";
 import panable from "./gestures/src/gestures/pan.js";
 import pinchable from "./gestures/src/gestures/pinch.js";
@@ -24,8 +24,8 @@ const SETTINGS = {
 	selectedColor: -1,
 	selectedStation: 0,
 	showText: true,
-	showTextOverride: true,
 	showSettings: false,
+	smoothScrollScale: 100,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
 	onClearSearch: (data, focus) => {
@@ -70,7 +70,6 @@ const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDra
 
 let json;
 let refreshDataId = 0;
-let scrollTimeoutId = 0;
 
 if (window.safari !== undefined) {
 	PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL;
@@ -84,14 +83,8 @@ if (getCookie("theme").includes("dark")) {
 }
 
 document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
-document.getElementById("zoom_in_icon").onclick = () => {
-	CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
-};
-document.getElementById("zoom_out_icon").onclick = () => {
-	CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
-};
+document.getElementById("zoom_in_icon").onclick = () => CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
+document.getElementById("zoom_out_icon").onclick = () => CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("off")) {
@@ -133,7 +126,6 @@ document.getElementById("toggle_theme_icon").onclick = event => {
 		setCookie("theme", "light");
 	}
 	background.tint = SETTINGS.getColorStyle("--backgroundColor");
-	CANVAS.clearTextCache();
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("download_icon").onclick = () => {
@@ -159,16 +151,7 @@ panable(background);
 pinchable(background, true);
 tappable(background);
 background.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
-background.on("pinchmove", event => {
-	SETTINGS.showTextOverride = false;
-	CANVAS.onPinch(event.data.global, event.center.x, event.center.y, container);
-	drawMap(container, json[SETTINGS.dimension]);
-});
-background.on("pinchstart", CANVAS.onPinchStart);
-background.on("pinchend", () => {
-	SETTINGS.showTextOverride = true;
-	drawMap(container, json[SETTINGS.dimension]);
-});
+background.on("pinchmove", event => CANVAS.onPinch(event.data.global, event.center.x, event.center.y, container, json[SETTINGS.dimension], true));
 background.on("simpletap", () => {
 	SETTINGS.selectedColor = -1;
 	SETTINGS.onClearStationInfo();
@@ -181,16 +164,7 @@ const container = new PIXI.Container();
 APP.stage.addChild(container);
 
 document.body.appendChild(APP.view);
-APP.view.addEventListener("wheel", event => {
-	CANVAS.onCanvasScroll(event, container);
-	SETTINGS.showTextOverride = false;
-	drawMap(container, json[SETTINGS.dimension]);
-	clearTimeout(scrollTimeoutId);
-	scrollTimeoutId = setTimeout(() => {
-		SETTINGS.showTextOverride = true;
-		drawMap(container, json[SETTINGS.dimension]);
-	}, 500);
-});
+APP.view.addEventListener("wheel", event => CANVAS.onZoom(Math.abs(event.deltaY) > 1 ? event.deltaY / SETTINGS.smoothScrollScale : 0, event.offsetX, event.offsetY, container, json[SETTINGS.dimension], false));
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
 
