@@ -1,5 +1,8 @@
 import CANVAS from "./utilities.js"
 import drawMap from "./drawing.js";
+import panable from "./gestures/src/gestures/pan.js";
+import pinchable from "./gestures/src/gestures/pinch.js";
+import tappable from "./gestures/src/gestures/tap.js";
 
 const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
@@ -18,7 +21,10 @@ const SETTINGS = {
 	lineSize: 6,
 	dimension: 0,
 	routeType: 0,
+	selectedColor: -1,
+	selectedStation: 0,
 	showText: true,
+	showTextOverride: true,
 	showSettings: false,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
@@ -37,6 +43,10 @@ const SETTINGS = {
 			document.getElementById(routes[index]["color"]).style.display = "none";
 		}
 	},
+	onClearStationInfo: function () {
+		this.selectedStation = 0;
+		document.getElementById("station_info").style.display = "none";
+	}
 };
 
 const fetchMainData = () => {
@@ -60,6 +70,7 @@ const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDra
 
 let json;
 let refreshDataId = 0;
+let scrollTimeoutId = 0;
 
 if (window.safari !== undefined) {
 	PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL;
@@ -137,16 +148,33 @@ document.getElementById("settings_icon").onclick = () => {
 		settingsElement.style.display = SETTINGS.showSettings ? "block" : "none";
 	}
 };
+document.getElementById("clear_station_info_button").onclick = SETTINGS.onClearStationInfo;
 
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);
 resize();
 
 background.tint = SETTINGS.getColorStyle("--backgroundColor");
-background.interactive = true;
-background.on("pointerdown", CANVAS.onCanvasMouseDown);
-background.on("pointermove", event => CANVAS.onCanvasMouseMove(event, container));
-background.on("pointerup", CANVAS.onCanvasMouseUp);
+panable(background);
+pinchable(background, true);
+tappable(background);
+background.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
+background.on("pinchmove", event => {
+	SETTINGS.showTextOverride = false;
+	CANVAS.onPinch(event.data.global, event.center.x, event.center.y, container);
+	drawMap(container, json[SETTINGS.dimension]);
+});
+background.on("pinchstart", CANVAS.onPinchStart);
+background.on("pinchend", () => {
+	SETTINGS.showTextOverride = true;
+	drawMap(container, json[SETTINGS.dimension]);
+});
+background.on("simpletap", () => {
+	SETTINGS.selectedColor = -1;
+	SETTINGS.onClearStationInfo();
+	drawMap(container, json[SETTINGS.dimension]);
+});
+
 APP.stage.addChild(background);
 
 const container = new PIXI.Container();
@@ -155,7 +183,13 @@ APP.stage.addChild(container);
 document.body.appendChild(APP.view);
 APP.view.addEventListener("wheel", event => {
 	CANVAS.onCanvasScroll(event, container);
+	SETTINGS.showTextOverride = false;
 	drawMap(container, json[SETTINGS.dimension]);
+	clearTimeout(scrollTimeoutId);
+	scrollTimeoutId = setTimeout(() => {
+		SETTINGS.showTextOverride = true;
+		drawMap(container, json[SETTINGS.dimension]);
+	}, 500);
 });
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
