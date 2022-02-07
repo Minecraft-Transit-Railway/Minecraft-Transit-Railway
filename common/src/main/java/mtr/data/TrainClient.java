@@ -27,9 +27,7 @@ public class TrainClient extends Train {
 	private AnnouncementCallback lightRailAnnouncementCallback;
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-
 	private final List<Long> routeIds;
-	private final List<Double> offset = new ArrayList<>();
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
@@ -64,40 +62,30 @@ public class TrainClient extends Train {
 			trainProperties.playDoorSoundEffect(world, soundPos, oldDoorValue, doorValue);
 		}
 
-		final double newX = carX - (offset.isEmpty() ? 0 : offset.get(0));
-		final double newY = carY - (offset.isEmpty() ? 0 : offset.get(1));
-		final double newZ = carZ - (offset.isEmpty() ? 0 : offset.get(2));
-		final Vec3 playerOffset = offset.isEmpty() ? null : new Vec3(offset.get(3), offset.get(4), offset.get(5));
-
 		if (renderTrainCallback != null) {
-			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, false, playerOffset);
+			renderTrainCallback.renderTrainCallback(carX, carY, carZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, false);
 		}
 
 		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.hasGangwayConnection) {
-			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
-			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
-			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
-
 			final float xStart = baseTrainType.width / 2F - CONNECTION_X_OFFSET;
 			final float zStart = baseTrainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
 
-			final Vec3 prevPos1 = new Vec3(xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-			final Vec3 prevPos2 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-			final Vec3 prevPos3 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-			final Vec3 prevPos4 = new Vec3(-xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 prevPos1 = new Vec3(xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+			final Vec3 prevPos2 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+			final Vec3 prevPos3 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
+			final Vec3 prevPos4 = new Vec3(-xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(prevCarX, prevCarY, prevCarZ);
 
-			final Vec3 thisPos1 = new Vec3(-xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
-			final Vec3 thisPos2 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
-			final Vec3 thisPos3 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
-			final Vec3 thisPos4 = new Vec3(xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 thisPos1 = new Vec3(-xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+			final Vec3 thisPos2 = new Vec3(-xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+			final Vec3 thisPos3 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
+			final Vec3 thisPos4 = new Vec3(xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(carX, carY, carZ);
 
-			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, playerOffset);
+			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, carX, carY, carZ, carYaw, trainId, baseTrainType, isOnRoute);
 		}
 	}
 
 	@Override
 	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
-		offset.clear();
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
@@ -159,9 +147,9 @@ public class TrainClient extends Train {
 
 	public void simulateTrain(Level world, float ticksElapsed, RenderTrainCallback renderTrainCallback, RenderConnectionCallback renderConnectionCallback, SpeedCallback speedCallback, AnnouncementCallback announcementCallback, AnnouncementCallback lightRailAnnouncementCallback) {
 		trainTranslucentRenders.clear();
-		this.renderTrainCallback = (x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> {
-			renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, false, playerOffset);
-			trainTranslucentRenders.add(() -> renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, true, playerOffset));
+		this.renderTrainCallback = (x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent) -> {
+			renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, false);
+			trainTranslucentRenders.add(() -> renderTrainCallback.renderTrainCallback(x, y, z, yaw, pitch, customId, baseTrainType1, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, true));
 		};
 		this.renderConnectionCallback = renderConnectionCallback;
 		this.speedCallback = speedCallback;
@@ -214,12 +202,12 @@ public class TrainClient extends Train {
 
 	@FunctionalInterface
 	public interface RenderTrainCallback {
-		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainType baseTrainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean isTranslucent, Vec3 playerOffset);
+		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainType baseTrainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean isTranslucent);
 	}
 
 	@FunctionalInterface
 	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, String trainId, TrainType baseTrainType, boolean lightsOn, Vec3 playerOffset);
+		void renderConnectionCallback(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, String trainId, TrainType baseTrainType, boolean lightsOn);
 	}
 
 	@FunctionalInterface
