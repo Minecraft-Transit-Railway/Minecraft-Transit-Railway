@@ -18,8 +18,13 @@ import java.util.UUID;
 
 public class EntitySeat extends Entity {
 
-	private int refresh;
+	public float percentageX;
+	public float percentageZ;
+
+	private int seatRefresh;
+	private int ridingRefresh;
 	private Player player;
+	private long trainId;
 
 	private int clientInterpolationSteps;
 	private double clientX;
@@ -50,7 +55,7 @@ public class EntitySeat extends Entity {
 		}
 
 		if (level.isClientSide) {
-			if (isNotRiding()) {
+			if (playerNotRiding()) {
 				final float speed = player.getSpeed();
 				final Vec3 newPos = player.position().add(player.getLookAngle().multiply(speed, speed, speed));
 				absMoveTo(newPos.x, newPos.y, newPos.z);
@@ -66,10 +71,15 @@ public class EntitySeat extends Entity {
 				}
 			}
 		} else {
-			if (player == null || refresh <= 0) {
+			if (player == null || seatRefresh <= 0) {
 				kill();
 			}
-			refresh--;
+			if (ridingRefresh <= 0) {
+				ejectPassengers();
+				trainId = 0;
+			}
+			seatRefresh--;
+			ridingRefresh--;
 		}
 	}
 
@@ -78,7 +88,7 @@ public class EntitySeat extends Entity {
 		clientX = x;
 		clientY = y;
 		clientZ = z;
-		clientInterpolationSteps = interpolationSteps + 2;
+		clientInterpolationSteps = interpolationSteps;
 	}
 
 	@Override
@@ -109,13 +119,23 @@ public class EntitySeat extends Entity {
 	protected void addAdditionalSaveData(CompoundTag compoundTag) {
 	}
 
-	public void update(Player player) {
+	public void updateSeat(Player player) {
 		if (player != null) {
 			entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
-			if (isNotRiding()) {
+			if (playerNotRiding()) {
 				absMoveTo(player.getX(), player.getY(), player.getZ());
 			}
-			refresh = 2;
+			seatRefresh = 2;
+		}
+	}
+
+	public boolean updateRiding(long trainId) {
+		if (this.trainId == 0 || this.trainId == trainId) {
+			this.trainId = trainId;
+			ridingRefresh = 2;
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -132,7 +152,7 @@ public class EntitySeat extends Entity {
 		}
 	}
 
-	private boolean isNotRiding() {
+	private boolean playerNotRiding() {
 		return player != null && player.getVehicle() != this;
 	}
 }
