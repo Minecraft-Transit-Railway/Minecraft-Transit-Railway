@@ -58,6 +58,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
+	private static float prevLastFrameDuration;
+	private static boolean vrSecondTick;
 
 	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
 	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
@@ -105,7 +107,13 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent) -> renderWithLight(world, x, y, z, (light, posAverage) -> {
+		if (!MTRClient.isVivecraft() || lastFrameDuration != prevLastFrameDuration) {
+			vrSecondTick = false;
+		} else {
+			vrSecondTick = !vrSecondTick;
+		}
+
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() || vrSecondTick ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent) -> renderWithLight(world, x, y, z, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
@@ -296,6 +304,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		matrices.popPose();
 		lastRenderedTick = MTRClient.getGameTick();
+		prevLastFrameDuration = lastFrameDuration;
 
 		if (prevPlatformCount != ClientData.PLATFORMS.size() || prevSidingCount != ClientData.SIDINGS.size()) {
 			ClientData.DATA_CACHE.sync();
