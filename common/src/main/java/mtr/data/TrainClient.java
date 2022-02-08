@@ -100,8 +100,6 @@ public class TrainClient extends Train {
 
 	@Override
 	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
-		offset.clear();
-
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
@@ -112,6 +110,7 @@ public class TrainClient extends Train {
 			final int headIndex = getIndex(0, trainSpacing, false);
 			final int stopIndex = path.get(headIndex).stopIndex - 1;
 			final Entity vehicle = clientPlayer.getVehicle();
+			offset.clear();
 
 			if (vehicle instanceof EntitySeat) {
 				if (speedCallback != null) {

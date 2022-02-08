@@ -20,12 +20,19 @@ import net.minecraft.world.item.Item;
 public class MTRClient implements IPacket {
 
 	private static boolean isReplayMod;
-	private static boolean isVivecraft;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 
+	private static int tick;
+	private static long startSampleMillis;
+	private static float startSampleGameTick;
+	private static float gameTickTest;
+	private static int skipTicks;
+	private static int lastSkipTicks;
+
 	public static final int TICKS_PER_SPEED_SOUND = 4;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
+	private static final int SAMPLE_MILLIS = 1000;
 
 	public static void init() {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_DOOR);
@@ -277,14 +284,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
-			try {
-				Class.forName("org.vivecraft.main.VivecraftMain");
-				isVivecraft = true;
-			} catch (Exception ignored) {
-				isVivecraft = false;
-			}
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
-			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
 		});
 	}
 
@@ -292,16 +292,31 @@ public class MTRClient implements IPacket {
 		return isReplayMod;
 	}
 
-	public static boolean isVivecraft() {
-		return isVivecraft;
-	}
-
 	public static float getGameTick() {
 		return gameTick;
 	}
 
 	public static void incrementGameTick() {
-		gameTick += getLastFrameDuration();
+		final float lastFrameDuration = getLastFrameDuration();
+		gameTickTest += lastFrameDuration;
+		if (isReplayMod || tick == 0) {
+			gameTick += lastFrameDuration;
+		}
+		tick++;
+		if (tick >= skipTicks) {
+			tick = 0;
+		}
+
+		final long millis = System.currentTimeMillis();
+		if (millis - startSampleMillis >= SAMPLE_MILLIS) {
+			skipTicks = Math.round((gameTickTest - startSampleGameTick) * 50 / (millis - startSampleMillis));
+			startSampleMillis = millis;
+			startSampleGameTick = gameTickTest;
+			if (skipTicks != lastSkipTicks) {
+				System.out.println("Tick skip updated to " + skipTicks);
+			}
+			lastSkipTicks = skipTicks;
+		}
 	}
 
 	public static float getLastFrameDuration() {

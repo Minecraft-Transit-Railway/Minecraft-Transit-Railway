@@ -103,7 +103,7 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		if (!stopped || Math.abs(clientX - getX()) + Math.abs(clientY - getY()) + Math.abs(clientZ - getZ()) >= 8) {
+		if (shouldResetPosition(x, y, z)) {
 			clientX = x;
 			clientY = y;
 			clientZ = z;
@@ -187,12 +187,16 @@ public class EntitySeat extends Entity {
 	}
 
 	public void setTrainPos(double x, double y, double z, boolean stopped) {
-		if (stopped) {
+		this.stopped = stopped;
+		if (!shouldResetPosition(x, y, z)) {
 			clientX = x;
 			clientY = y;
 			clientZ = z;
 		}
-		this.stopped = stopped;
+	}
+
+	private boolean shouldResetPosition(double x, double y, double z) {
+		return !stopped || Math.abs(clientX - x) + Math.abs(clientY - y) + Math.abs(clientZ - z) >= 8;
 	}
 
 	private UUID getPlayerId() {
