@@ -53,16 +53,12 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_CARGO = "cargo";
 
 	public static float getAcceleration(float speed){
-		//0.01: 15km/h/s
-		if(speed < 0.02){
-			//1.1km/h/s
-			return 0.00073F;
+		for (int i = 0; i < mtr.client.Config.accelerationDescriptions.length; i++) {
+			if(speed < mtr.client.Config.accelerationDescriptions[i].endSpeed){
+				return mtr.client.Config.accelerationDescriptions[i].acceleration;
+			}
 		}
-		if (speed < 0.7) {
-			//3.6km/h/s
-			return 0.0025F;
-		}
-		return 0.002F;
+		return mtr.client.Config.accelerationDescriptions[mtr.client.Config.accelerationDescriptions.length - 1].acceleration;
 	}
 
 	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances) {
