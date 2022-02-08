@@ -27,7 +27,7 @@ public class TrainClientRegistry {
 
 	public static boolean register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, boolean hasGangwayConnection, boolean trainBarrierOption, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 		final String keyLower = key.toLowerCase();
-		if (!KEY_ORDER.contains(keyLower)) {
+		if (!KEY_ORDER.contains(keyLower) && !trainBarrierOption) {
 			KEY_ORDER.add(keyLower);
 		}
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableText(name == null ? "train.mtr." + keyLower : name), color, hasGangwayConnection, trainBarrierOption, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
@@ -85,7 +85,8 @@ public class TrainClientRegistry {
 		register("light_rail_4_orange", TrainType.LIGHT_RAIL_4_ORANGE, new ModelLightRail(4), "mtr:textures/entity/light_rail_4_orange", "light_rail", "light_rail_4", null, 0xD2A825, false, false, 48, 1, false);
 		register("light_rail_5_orange", TrainType.LIGHT_RAIL_5_ORANGE, new ModelLightRail(5), "mtr:textures/entity/light_rail_5_orange", "light_rail", "light_rail_4", null, 0xD2A825, false, false, 48, 1, false);
 		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", null, 0x333333, false, false, 27, 0.5F, false);
-		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, true, 66, 1, false);
+		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, false, 66, 1, false);
+		register("r179_tb", TrainType.R179_TB, new ModelR179(), "mtr:textures/entity/r179_tb", "r179", "r179", null, 0xD5D5D5, false, true, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, false, false, 66, 1, false);
 		register("minecart", TrainType.MINECART, null, null, null, null, null, 0x666666, false, false, 0, 0.5F, false);
 	}

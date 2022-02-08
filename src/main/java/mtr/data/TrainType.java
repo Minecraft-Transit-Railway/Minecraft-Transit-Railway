@@ -49,7 +49,8 @@ public enum TrainType {
 	LIGHT_RAIL_4_ORANGE(22, 2, 0, 0),
 	LIGHT_RAIL_5_ORANGE(22, 2, 0, 0),
 	LONDON_UNDERGROUND_1995(19, 2, 0.5F, 0),
-	R179(19, 2, 0, 0.2f),
+	R179(19, 2, 0, 0),
+	R179_TB(19, 2, 0, 0.2f),
 	R179_MINI(9, 2, 0, 0),
 	MINECART(1, 1, 0, 0),
 	BASE_2_2(2, 2, 0, 0),
@@ -104,14 +105,6 @@ public enum TrainType {
 			return TrainType.valueOf(name.toUpperCase());
 		} catch (Exception ignored) {
 			return SP1900;
-		}
-	}
-	public static void TrainBarrierRemove(boolean Switch) {
-		TrainType R179 = TrainType.R179;
-		if(Switch) {
-			R179.trainBarrierLength = 0f;
-		} else if (!Switch) {
-			R179.trainBarrierLength = 0.2f;
 		}
 	}
 }

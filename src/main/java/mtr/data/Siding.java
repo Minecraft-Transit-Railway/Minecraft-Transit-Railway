@@ -22,6 +22,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private TrainType baseTrainType;
 	private int trainCars;
 	private boolean unlimitedTrains;
+	private boolean trainBarrier;
 	private int maxTrains;
 
 	private final float railLength;
@@ -31,12 +32,13 @@ public class Siding extends SavedRailBase implements IPacket {
 	private final Set<TrainServer> trains = new HashSet<>();
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
-	private static final String KEY_BASE_TRAIN_TYPE = "train_type";
-	private static final String KEY_TRAIN_ID = "train_custom_id";
+	public static final String KEY_BASE_TRAIN_TYPE = "train_type";
+	public static final String KEY_TRAIN_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
+	private static final String KEY_TRAIN_BARRIER = "train_barrier";
 	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_PATH = "path";
-	private static final String KEY_TRAINS = "trains";
+	public static final String KEY_TRAINS = "trains";
 
 	public Siding(long id, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, pos1, pos2);
@@ -56,6 +58,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		railLength = nbtCompound.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(nbtCompound.getString(KEY_TRAIN_ID), TrainType.getOrDefault(nbtCompound.getString(KEY_BASE_TRAIN_TYPE)));
 		unlimitedTrains = nbtCompound.getBoolean(KEY_UNLIMITED_TRAINS);
+		trainBarrier = nbtCompound.getBoolean(KEY_TRAIN_BARRIER);
 		maxTrains = nbtCompound.getInt(KEY_MAX_TRAINS);
 
 		final NbtCompound tagPath = nbtCompound.getCompound(KEY_PATH);
@@ -76,6 +79,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readString(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
+		trainBarrier = packet.readBoolean();
 		maxTrains = packet.readInt();
 	}
 
@@ -87,6 +91,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		nbtCompound.putString(KEY_TRAIN_ID, trainId);
 		nbtCompound.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
 		nbtCompound.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
+		nbtCompound.putBoolean(KEY_TRAIN_BARRIER, trainBarrier);
 		nbtCompound.putInt(KEY_MAX_TRAINS, maxTrains);
 
 		RailwayData.writeTag(nbtCompound, path, KEY_PATH);
@@ -102,6 +107,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		packet.writeString(trainId);
 		packet.writeInt(baseTrainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
+		packet.writeBoolean(trainBarrier);
 		packet.writeInt(maxTrains);
 	}
 
@@ -118,6 +124,11 @@ public class Siding extends SavedRailBase implements IPacket {
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();
 				break;
+			case KEY_TRAIN_BARRIER:
+			    name = packet.readString(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				trainBarrier = packet.readBoolean();
+			    break;
 			default:
 				super.update(key, packet);
 				break;
@@ -146,14 +157,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		this.unlimitedTrains = unlimitedTrains;
 		this.maxTrains = maxTrains;
 	}
-	public void setTrainBarrier(Consumer<PacketByteBuf> sendPacket) {
+	public void setTrainBarrier(boolean trainBarrier) {
 		final PacketByteBuf packet = PacketByteBufs.create();
 		packet.writeLong(id);
+		packet.writeString(KEY_TRAIN_BARRIER);
 		packet.writeString(name);
 		packet.writeInt(color);
-		packet.writeBoolean(unlimitedTrains);
-		packet.writeInt(maxTrains);
-		sendPacket.accept(packet);
+		packet.writeBoolean(trainBarrier);
+		this.trainBarrier = trainBarrier;
 	}
 
 	public String getTrainId() {
@@ -290,13 +301,15 @@ public class Siding extends SavedRailBase implements IPacket {
 		return unlimitedTrains;
 	}
 
-
+	public boolean getTrainBarrier() {
+		return trainBarrier;
+	}
 
 	public void clearTrains() {
 		trains.clear();
 	}
 
-	private void setTrainDetails(String trainId, TrainType baseTrainType) {
+	public void setTrainDetails(String trainId, TrainType baseTrainType) {
 		this.trainId = trainId;
 		this.baseTrainType = baseTrainType;
 		trainCars = (int) Math.floor(railLength / baseTrainType.getSpacing());
