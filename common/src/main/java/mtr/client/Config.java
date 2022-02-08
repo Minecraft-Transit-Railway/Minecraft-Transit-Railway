@@ -1,8 +1,6 @@
 package mtr.client;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import mtr.Patreon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -10,6 +8,7 @@ import net.minecraft.util.Mth;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,6 +22,7 @@ public class Config {
 	private static boolean useDynamicFPS = true;
 	private static int trackTextureOffset;
 	private static int dynamicTextureResolution = 2;
+	public static accelerationDescription[] accelerationDescriptions;
 
 	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
 	public static final int TRACK_OFFSET_COUNT = 32;
@@ -35,6 +35,7 @@ public class Config {
 	private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
+	private static final String ACCELERATE_DESCRIPTION = "accelerate_description";
 
 	public static boolean useMTRFont() {
 		return useMTRFont;
@@ -146,9 +147,23 @@ public class Config {
 				dynamicTextureResolution = Mth.clamp(jsonConfig.get(DYNAMIC_TEXTURE_RESOLUTION).getAsInt(), 0, DYNAMIC_RESOLUTION_COUNT - 1);
 			} catch (Exception ignored) {
 			}
+			try {
+				setAccelerationDescriptions(jsonConfig.get(ACCELERATE_DESCRIPTION).getAsString());
+			} catch (Exception ignored) {
+				Config.setAccelerationDescriptions("[[0.02, 0.00073], [0.7, 0.0025], [300, 0.002]]");
+				writeToFile();
+			}
 		} catch (Exception e) {
 			writeToFile();
 			e.printStackTrace();
+		}
+	}
+
+	public static void setAccelerationDescriptions(String description){
+		JsonArray descriptionObj =  new GsonBuilder().create().fromJson(description, JsonArray.class);
+		accelerationDescriptions = new accelerationDescription[descriptionObj.size()];
+		for (int i = 0; i < descriptionObj.size(); i++) {
+			accelerationDescriptions[i] = new accelerationDescription(descriptionObj.get(i).getAsJsonArray().get(0).getAsFloat(), descriptionObj.get(i).getAsJsonArray().get(1).getAsFloat());
 		}
 	}
 
@@ -167,11 +182,28 @@ public class Config {
 		jsonConfig.addProperty(HIDE_TRANSLUCENT_PARTS, hideTranslucentParts);
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
+		jsonConfig.addProperty(ACCELERATE_DESCRIPTION, Arrays.toString(accelerationDescriptions));
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+
+	public static class accelerationDescription{
+		public float endSpeed;
+		public float acceleration;
+
+		private accelerationDescription(float endSpeed, float acceleration){
+			this.endSpeed = endSpeed;
+			this.acceleration = acceleration;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + this.endSpeed + "," + this.acceleration + "]";
 		}
 	}
 }
