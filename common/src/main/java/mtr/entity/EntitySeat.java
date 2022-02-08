@@ -30,9 +30,14 @@ public class EntitySeat extends Entity {
 	private double clientX;
 	private double clientY;
 	private double clientZ;
+	private float interpolatedPercentageX;
+	private float interpolatedPercentageZ;
+	private boolean stopped;
 
 	public static final float SIZE = 0.5F;
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
+	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 
 	public EntitySeat(EntityType<?> type, Level world) {
 		super(type, world);
@@ -60,14 +65,27 @@ public class EntitySeat extends Entity {
 				final Vec3 newPos = player.position().add(player.getLookAngle().multiply(speed, speed, speed));
 				absMoveTo(newPos.x, newPos.y, newPos.z);
 			} else {
-				if (clientInterpolationSteps > 0) {
-					double x = getX() + (clientX - getX()) / clientInterpolationSteps;
-					double y = getY() + (clientY - getY()) / clientInterpolationSteps;
-					double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
-					--clientInterpolationSteps;
-					absMoveTo(x, y, z);
+				percentageX = getClientPercentageX();
+				percentageZ = getClientPercentageZ();
+
+				if (stopped) {
+					interpolatedPercentageX = percentageX;
+					interpolatedPercentageZ = percentageZ;
+					absMoveTo(clientX, clientY, clientZ);
 				} else {
-					reapplyPosition();
+					if (clientInterpolationSteps > 0) {
+						final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
+						final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
+						final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
+						interpolatedPercentageX += (percentageX - interpolatedPercentageX) / clientInterpolationSteps;
+						interpolatedPercentageZ += (percentageZ - interpolatedPercentageZ) / clientInterpolationSteps;
+						--clientInterpolationSteps;
+						absMoveTo(x, y, z);
+					} else {
+						interpolatedPercentageX = percentageX;
+						interpolatedPercentageZ = percentageZ;
+						reapplyPosition();
+					}
 				}
 			}
 		} else {
@@ -85,9 +103,11 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = x;
-		clientY = y;
-		clientZ = z;
+		if (!stopped || Math.abs(clientX - getX()) + Math.abs(clientY - getY()) + Math.abs(clientZ - getZ()) >= 8) {
+			clientX = x;
+			clientY = y;
+			clientZ = z;
+		}
 		clientInterpolationSteps = interpolationSteps;
 	}
 
@@ -109,6 +129,8 @@ public class EntitySeat extends Entity {
 	@Override
 	protected void defineSynchedData() {
 		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
+		entityData.define(PERCENTAGE_X, 0F);
+		entityData.define(PERCENTAGE_Z, 0F);
 	}
 
 	@Override
@@ -141,6 +163,36 @@ public class EntitySeat extends Entity {
 
 	public boolean isPlayer(Player player) {
 		return this.player == player;
+	}
+
+	public void updatePercentagesToClient() {
+		entityData.set(PERCENTAGE_X, percentageX);
+		entityData.set(PERCENTAGE_Z, percentageZ);
+	}
+
+	public float getClientPercentageX() {
+		return entityData.get(PERCENTAGE_X);
+	}
+
+	public float getClientPercentageZ() {
+		return entityData.get(PERCENTAGE_Z);
+	}
+
+	public float getInterpolatedPercentageX() {
+		return interpolatedPercentageX;
+	}
+
+	public float getInterpolatedPercentageZ() {
+		return interpolatedPercentageZ;
+	}
+
+	public void setTrainPos(double x, double y, double z, boolean stopped) {
+		if (stopped) {
+			clientX = x;
+			clientY = y;
+			clientZ = z;
+		}
+		this.stopped = stopped;
 	}
 
 	private UUID getPlayerId() {

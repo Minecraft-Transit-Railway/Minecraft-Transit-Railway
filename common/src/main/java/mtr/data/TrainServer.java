@@ -91,10 +91,11 @@ public class TrainServer extends Train {
 						seat.updateRiding(id);
 						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
 						seat.percentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
+						seat.updatePercentagesToClient();
 					}
 					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
-					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
 				}
 			});
 		}
@@ -179,6 +180,7 @@ public class TrainServer extends Train {
 								seat.percentageZ += movement.z / realSpacingRender;
 								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
 								seat.percentageZ = Mth.clamp(seat.percentageZ, 0.01F, trainCars - 0.01F);
+								seat.updatePercentagesToClient();
 								final int newRidingCar = (int) Math.floor(seat.percentageZ);
 								if (currentRidingCar == newRidingCar) {
 									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
