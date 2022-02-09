@@ -1,6 +1,6 @@
 package mtr.model;
 
-public class ModelSTrainMini extends ModelMTrain {
+public class ModelSTrainMini extends ModelSTrain {
 
 	@Override
 	protected int[] getWindowPositions() {
