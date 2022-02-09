@@ -484,6 +484,8 @@
 	"train.mtr.r179": "R179 (New York City Subway)",
 	"train.mtr.r179_mini": "R179 (New York City Subway, Mini)",
 	"train.mtr.s_train": "S-Train",
+	"train.mtr.s_train_mini": "S-Train (Mini)",
+	"train.mtr.s_train_small": "S-Train (Small)",
 	"train.mtr.sp1900": "SP1900",
 	"train.mtr.sp1900_mini": "SP1900 (Mini)",
 	"train.mtr.sp1900_small": "SP1900 (Small)",
