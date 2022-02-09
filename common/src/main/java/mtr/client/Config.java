@@ -164,8 +164,8 @@ public class Config {
 			} catch (Exception ignored) {
 				Config.setAccelerationDescriptions("[[0.02, 0.00073], [0.7, 0.0025], [300, 0.002]]");
 				writeToFile();
-      }
-      try{
+      			}
+      			try{
 				trainRenderDistanceRatio = Mth.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
 			} catch (Exception ignored) {
 			}
@@ -176,13 +176,17 @@ public class Config {
 	}
 
 	public static void setAccelerationDescriptions(String description){
-		JsonArray descriptionObj =  new GsonBuilder().create().fromJson(description, JsonArray.class);
-		accelerationDescriptions = new accelerationDescription[descriptionObj.size()];
-		for (int i = 0; i < descriptionObj.size(); i++) {
-			accelerationDescriptions[i] = new accelerationDescription(descriptionObj.get(i).getAsJsonArray().get(0).getAsFloat(), descriptionObj.get(i).getAsJsonArray().get(1).getAsFloat());
+		try {
+			JsonArray descriptionObj = new GsonBuilder().create().fromJson(description, JsonArray.class);
+			accelerationDescriptions = new accelerationDescription[descriptionObj.size()];
+			for (int i = 0; i < descriptionObj.size(); i++) {
+				accelerationDescriptions[i] = new accelerationDescription(descriptionObj.get(i).getAsJsonArray().get(0).getAsFloat(), descriptionObj.get(i).getAsJsonArray().get(1).getAsFloat());
+			}
+			writeToFile();
+		} catch (Exception ignored){
 		}
 	}
-
+	
 	public static void getPatreonList() {
 		PATREON_LIST.clear();
 		PATREON_LIST.addAll(Patreon.getPatreonList());
