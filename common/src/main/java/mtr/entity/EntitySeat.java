@@ -18,16 +18,26 @@ import java.util.UUID;
 
 public class EntitySeat extends Entity {
 
-	private int refresh;
+	public float percentageX;
+	public float percentageZ;
+
+	private int seatRefresh;
+	private int ridingRefresh;
 	private Player player;
+	private long trainId;
 
 	private int clientInterpolationSteps;
 	private double clientX;
 	private double clientY;
 	private double clientZ;
+	private float interpolatedPercentageX;
+	private float interpolatedPercentageZ;
+	private boolean stopped;
 
 	public static final float SIZE = 0.5F;
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
+	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 
 	public EntitySeat(EntityType<?> type, Level world) {
 		super(type, world);
@@ -50,35 +60,55 @@ public class EntitySeat extends Entity {
 		}
 
 		if (level.isClientSide) {
-			if (isNotRiding()) {
+			if (playerNotRiding()) {
 				final float speed = player.getSpeed();
 				final Vec3 newPos = player.position().add(player.getLookAngle().multiply(speed, speed, speed));
 				absMoveTo(newPos.x, newPos.y, newPos.z);
 			} else {
-				if (clientInterpolationSteps > 0) {
-					double x = getX() + (clientX - getX()) / clientInterpolationSteps;
-					double y = getY() + (clientY - getY()) / clientInterpolationSteps;
-					double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
-					--clientInterpolationSteps;
-					absMoveTo(x, y, z);
+				percentageX = getClientPercentageX();
+				percentageZ = getClientPercentageZ();
+
+				if (stopped) {
+					interpolatedPercentageX = percentageX;
+					interpolatedPercentageZ = percentageZ;
+					absMoveTo(clientX, clientY, clientZ);
 				} else {
-					reapplyPosition();
+					if (clientInterpolationSteps > 0) {
+						final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
+						final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
+						final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
+						interpolatedPercentageX += (percentageX - interpolatedPercentageX) / clientInterpolationSteps;
+						interpolatedPercentageZ += (percentageZ - interpolatedPercentageZ) / clientInterpolationSteps;
+						--clientInterpolationSteps;
+						absMoveTo(x, y, z);
+					} else {
+						interpolatedPercentageX = percentageX;
+						interpolatedPercentageZ = percentageZ;
+						reapplyPosition();
+					}
 				}
 			}
 		} else {
-			if (player == null || refresh <= 0) {
+			if (player == null || seatRefresh <= 0) {
 				kill();
 			}
-			refresh--;
+			if (ridingRefresh <= 0) {
+				ejectPassengers();
+				trainId = 0;
+			}
+			seatRefresh--;
+			ridingRefresh--;
 		}
 	}
 
 	@Override
 	public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = x;
-		clientY = y;
-		clientZ = z;
-		clientInterpolationSteps = interpolationSteps + 2;
+		if (shouldResetPosition(x, y, z)) {
+			clientX = x;
+			clientY = y;
+			clientZ = z;
+		}
+		clientInterpolationSteps = interpolationSteps;
 	}
 
 	@Override
@@ -99,6 +129,8 @@ public class EntitySeat extends Entity {
 	@Override
 	protected void defineSynchedData() {
 		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
+		entityData.define(PERCENTAGE_X, 0F);
+		entityData.define(PERCENTAGE_Z, 0F);
 	}
 
 	@Override
@@ -109,18 +141,62 @@ public class EntitySeat extends Entity {
 	protected void addAdditionalSaveData(CompoundTag compoundTag) {
 	}
 
-	public void update(Player player) {
+	public void updateSeat(Player player) {
 		if (player != null) {
 			entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
-			if (isNotRiding()) {
+			if (playerNotRiding()) {
 				absMoveTo(player.getX(), player.getY(), player.getZ());
 			}
-			refresh = 2;
+			seatRefresh = 2;
+		}
+	}
+
+	public boolean updateRiding(long trainId) {
+		if (this.trainId == 0 || this.trainId == trainId) {
+			this.trainId = trainId;
+			ridingRefresh = 2;
+			return true;
+		} else {
+			return false;
 		}
 	}
 
 	public boolean isPlayer(Player player) {
 		return this.player == player;
+	}
+
+	public void updatePercentagesToClient() {
+		entityData.set(PERCENTAGE_X, percentageX);
+		entityData.set(PERCENTAGE_Z, percentageZ);
+	}
+
+	public float getClientPercentageX() {
+		return entityData.get(PERCENTAGE_X);
+	}
+
+	public float getClientPercentageZ() {
+		return entityData.get(PERCENTAGE_Z);
+	}
+
+	public float getInterpolatedPercentageX() {
+		return interpolatedPercentageX;
+	}
+
+	public float getInterpolatedPercentageZ() {
+		return interpolatedPercentageZ;
+	}
+
+	public void setTrainPos(double x, double y, double z, boolean stopped) {
+		this.stopped = stopped;
+		if (!shouldResetPosition(x, y, z)) {
+			clientX = x;
+			clientY = y;
+			clientZ = z;
+		}
+	}
+
+	private boolean shouldResetPosition(double x, double y, double z) {
+		return !stopped || Math.abs(clientX - x) + Math.abs(clientY - y) + Math.abs(clientZ - z) >= 8;
 	}
 
 	private UUID getPlayerId() {
@@ -132,7 +208,7 @@ public class EntitySeat extends Entity {
 		}
 	}
 
-	private boolean isNotRiding() {
+	private boolean playerNotRiding() {
 		return player != null && player.getVehicle() != this;
 	}
 }

@@ -76,12 +76,10 @@ public final class ClientData {
 		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
 	}
 
-	public static void updateTrainRidingPosition(Minecraft client, FriendlyByteBuf packet) {
+	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {
 		final TrainClient train = getTrainById(packet.readLong());
-		final float clientPercentageX = packet.readFloat();
-		final float clientPercentageZ = packet.readFloat();
 		if (train != null) {
-			client.execute(() -> train.updateClientPercentages(client.player, clientPercentageX, clientPercentageZ));
+			client.execute(() -> train.updateClientPercentages(client.player));
 		}
 	}
 

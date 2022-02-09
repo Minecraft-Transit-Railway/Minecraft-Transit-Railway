@@ -23,8 +23,16 @@ public class MTRClient implements IPacket {
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 
+	private static int tick;
+	private static long startSampleMillis;
+	private static float startSampleGameTick;
+	private static float gameTickTest;
+	private static int skipTicks;
+	private static int lastSkipTicks;
+
 	public static final int TICKS_PER_SPEED_SOUND = 4;
 	public static final LoopingSoundInstance TACTILE_MAP_SOUND_INSTANCE = new LoopingSoundInstance("tactile_map_music");
+	private static final int SAMPLE_MILLIS = 1000;
 
 	public static void init() {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_DOOR);
@@ -258,7 +266,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_WRITE_RAILS, packet -> ClientData.writeRails(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAINS, packet -> ClientData.updateTrains(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_DELETE_TRAINS, packet -> ClientData.deleteTrains(Minecraft.getInstance(), packet));
-		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_RIDING_POSITION, packet -> ClientData.updateTrainRidingPosition(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGERS, packet -> ClientData.updateTrainPassengers(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_RAIL_ACTIONS, packet -> ClientData.updateRailActions(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
 
@@ -276,6 +284,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
+			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
 		});
 	}
 
@@ -288,7 +297,26 @@ public class MTRClient implements IPacket {
 	}
 
 	public static void incrementGameTick() {
-		gameTick += getLastFrameDuration();
+		final float lastFrameDuration = getLastFrameDuration();
+		gameTickTest += lastFrameDuration;
+		if (isReplayMod || tick == 0) {
+			gameTick += lastFrameDuration;
+		}
+		tick++;
+		if (tick >= skipTicks) {
+			tick = 0;
+		}
+
+		final long millis = System.currentTimeMillis();
+		if (millis - startSampleMillis >= SAMPLE_MILLIS) {
+			skipTicks = Math.round((gameTickTest - startSampleGameTick) * 50 / (millis - startSampleMillis));
+			startSampleMillis = millis;
+			startSampleGameTick = gameTickTest;
+			if (skipTicks != lastSkipTicks) {
+				System.out.println("Tick skip updated to " + skipTicks);
+			}
+			lastSkipTicks = skipTicks;
+		}
 	}
 
 	public static float getLastFrameDuration() {

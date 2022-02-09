@@ -47,7 +47,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
-	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
@@ -198,21 +197,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<Player> playersToRemove = new HashSet<>();
 		playerSeats.forEach((player, seat) -> {
 			if (players.contains(player)) {
-				seat.update(player);
+				seat.updateSeat(player);
 			} else {
 				playersToRemove.add(player);
 			}
 		});
 		playersToRemove.forEach(playerSeats::remove);
-		final Set<Player> playersToRemove2 = new HashSet<>();
-		playerRidingCoolDown.forEach((player, coolDown) -> {
-			if (coolDown <= 0) {
-				updatePlayerRiding(player, false);
-				playersToRemove2.add(player);
-			}
-			playerRidingCoolDown.put(player, coolDown - 1);
-		});
-		playersToRemove2.forEach(playerRidingCoolDown::remove);
 
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
@@ -338,15 +328,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
 		final EntitySeat seat = new EntitySeat(world, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ());
-		seat.update(serverPlayer);
+		seat.updateSeat(serverPlayer);
 		world.addFreshEntity(seat);
 		playerSeats.put(serverPlayer, seat);
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 	}
 
-	public void updatePlayerRiding(Player player) {
-		updatePlayerRiding(player, true);
-		playerRidingCoolDown.put(player, 2);
+	public EntitySeat getSeatFromPlayer(Player player) {
+		return playerSeats.get(player);
 	}
 
 	// writing data
@@ -683,13 +672,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			return delete;
 		});
-	}
-
-	private static void updatePlayerRiding(Player player, boolean isRiding) {
-		player.fallDistance = 0;
-		player.setNoGravity(isRiding);
-		player.noPhysics = isRiding;
-		Registry.setInTeleportationState(player, isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

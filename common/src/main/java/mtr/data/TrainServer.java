@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import mtr.Registry;
 import mtr.TrigCache;
 import mtr.block.*;
+import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -70,6 +71,11 @@ public class TrainServer extends Train {
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
 			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
 	) {
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData == null) {
+			return;
+		}
+
 		final float halfSpacing = baseTrainType.getSpacing() / 2F;
 		final float halfWidth = baseTrainType.width / 2F;
 
@@ -78,32 +84,35 @@ public class TrainServer extends Train {
 			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID())).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
-					ridingEntities.add(player.getUUID());
+					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
+					if (seat != null) {
+						ridingEntities.add(player.getUUID());
+						player.startRiding(seat);
+						seat.updateRiding(id);
+						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
+						seat.percentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
+						seat.updatePercentagesToClient();
+					}
 					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
-					packet.writeFloat((float) (positionRotated.x / baseTrainType.width + 0.5));
-					packet.writeFloat((float) (positionRotated.z / realSpacing + 0.5) + ridingCar);
-					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_RIDING_POSITION, packet);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
 				}
 			});
 		}
 
-		final RailwayData railwayData = RailwayData.getInstance(world);
-		final Set<UUID> entitiesToRemove = new HashSet<>();
+		final Set<UUID> ridersToRemove = new HashSet<>();
 		ridingEntities.forEach(uuid -> {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (player.isSpectator() || player.isShiftKeyDown() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
-					entitiesToRemove.add(uuid);
-				}
-				if (railwayData != null) {
-					railwayData.updatePlayerRiding(player);
+				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
+					ridersToRemove.add(uuid);
+					player.stopRiding();
 				}
 			}
 		});
-		if (!entitiesToRemove.isEmpty()) {
-			entitiesToRemove.forEach(ridingEntities::remove);
+		if (!ridersToRemove.isEmpty()) {
+			ridersToRemove.forEach(ridingEntities::remove);
 		}
 	}
 
@@ -146,7 +155,46 @@ public class TrainServer extends Train {
 				}
 			});
 		}
+
+		final Set<UUID> ridersToRemove = new HashSet<>();
 		if (!ridingEntities.isEmpty()) {
+			ridingEntities.forEach(uuid -> {
+				final Player ridingPlayer = world.getPlayerByUUID(uuid);
+				final RailwayData railwayData = RailwayData.getInstance(world);
+
+				if (ridingPlayer != null && railwayData != null) {
+					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
+
+					if (seat != null) {
+						if (seat.hasPassenger(ridingPlayer) && seat.updateRiding(id)) {
+							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
+								seat.absMoveTo(playerOffset.x + x, playerOffset.y + y, playerOffset.z + z);
+							};
+
+							final int currentRidingCar = (int) Math.floor(seat.percentageZ);
+							final float doorValue = Math.abs(doorValueRaw);
+							calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+								final Vec3 movement = new Vec3(ridingPlayer.xxa * ticksElapsed / 4, 0, ridingPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(ridingPlayer)) - yaw);
+								seat.percentageX += movement.x / baseTrainType.width;
+								seat.percentageZ += movement.z / realSpacingRender;
+								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
+								seat.percentageZ = Mth.clamp(seat.percentageZ, 0.01F, trainCars - 0.01F);
+								seat.updatePercentagesToClient();
+								final int newRidingCar = (int) Math.floor(seat.percentageZ);
+								if (currentRidingCar == newRidingCar) {
+									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+								} else {
+									calculateCar(world, positions, newRidingCar, doorValue, 0, moveClient);
+								}
+							});
+						} else {
+							ridersToRemove.add(uuid);
+						}
+					}
+				}
+			});
+
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
@@ -155,6 +203,9 @@ public class TrainServer extends Train {
 					}
 				}
 			});
+		}
+		if (!ridersToRemove.isEmpty()) {
+			ridersToRemove.forEach(ridingEntities::remove);
 		}
 
 		return playerNearby[0];

@@ -175,7 +175,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@Override
-	protected boolean hasTransportMode() {
+	protected final boolean hasTransportMode() {
 		return false;
 	}
 

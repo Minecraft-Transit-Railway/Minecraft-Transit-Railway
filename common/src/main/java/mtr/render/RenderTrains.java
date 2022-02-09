@@ -17,7 +17,6 @@ import mtr.mappings.EntityRendererMapper;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
 import mtr.path.PathData;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
@@ -87,7 +86,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final int renderDistanceChunks = client.options.renderDistance;
 		final float lastFrameDuration = MTRClient.getLastFrameDuration();
 
-		final boolean useTTSAnnouncements = Config.useTTSAnnouncements();
+		final boolean useAnnouncements = Config.useTTSAnnouncements() || Config.showAnnouncementMessages();
 		if (Config.useDynamicFPS()) {
 			if (lastFrameDuration > 0.5) {
 				maxTrainRenderDistance = Math.max(maxTrainRenderDistance - (maxTrainRenderDistance - DETAIL_RADIUS) / 2, DETAIL_RADIUS);
@@ -99,11 +98,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 
 		final Level world = entity.level;
-		final Camera camera = client.gameRenderer.getMainCamera();
-		final Vec3 cameraPos = camera.getPosition();
-		final float cameraYaw = camera.getYRot();
-		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getEyePosition(client.getFrameTime()).subtract(cameraPos) : Vec3.ZERO;
-		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - client.gameRenderer.getMainCamera().getYRot()) > 90;
 
 		matrices.pushPose();
 		final double entityX = Mth.lerp(tickDelta, entity.xOld, entity.getX());
@@ -111,20 +105,17 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
 		matrices.translate(-entityX, -entityY, -entityZ);
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, noOffset) -> renderWithLight(world, x, y, z, noOffset, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
 			}
 
 			matrices.pushPose();
-			if (playerOffset == null) {
-				matrices.translate(x, y, z);
-			} else {
-				matrices.translate(cameraOffset.x + cameraPos.x, cameraOffset.y + cameraPos.y, cameraOffset.z + cameraPos.z);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
-				matrices.translate(x - playerOffset.x, y - playerOffset.y, z - playerOffset.z);
+			if (!noOffset) {
+				matrices.translate(entityX, entityY, entityZ);
 			}
+			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
 			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + pitch));
 
@@ -148,21 +139,20 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			} else {
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, MTRClient.isReplayMod() || posAverage.distSqr(new BlockPos(cameraPos)) <= DETAIL_RADIUS_SQUARED);
+				final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(noOffset ? client.gameRenderer.getMainCamera().getBlockPosition() : new BlockPos(0, 0, 0)) <= DETAIL_RADIUS_SQUARED;
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, renderDetails);
 			}
 
 			matrices.popPose();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, cameraPos.add(cameraOffset), playerOffset != null, (light, posAverage) -> {
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, noOffset) -> renderWithLight(world, x, y, z, noOffset, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.textureId == null) {
 				return;
 			}
 
 			matrices.pushPose();
-			if (playerOffset != null) {
-				matrices.translate(cameraOffset.x + cameraPos.x, cameraOffset.y + cameraPos.y, cameraOffset.z + cameraPos.z);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
-				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
+			if (!noOffset) {
+				matrices.translate(entityX, entityY, entityZ);
 			}
 
 			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
@@ -202,9 +192,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F), true);
 			}
 		}, (stopIndex, routeIds) -> {
-			final boolean showAnnouncementMessages = Config.showAnnouncementMessages();
-
-			if (showAnnouncementMessages || useTTSAnnouncements) {
+			if (useAnnouncements) {
 				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
@@ -242,7 +230,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				});
 			}
 		}, (stopIndex, routeIds) -> {
-			if (useTTSAnnouncements) {
+			if (useAnnouncements) {
 				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
@@ -329,7 +317,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
 		final Entity camera = Minecraft.getInstance().cameraEntity;
-		return shouldNotRender(camera, pos, maxDistance, facing);
+		return shouldNotRender(camera == null ? null : camera.blockPosition(), pos, maxDistance, facing);
 	}
 
 	public static void clearTextureAvailability() {
@@ -351,25 +339,32 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		return Math.max(Math.abs(pos1.getX() - pos2.getX()), Math.abs(pos1.getZ() - pos2.getZ()));
 	}
 
-	private static boolean shouldNotRender(Entity camera, BlockPos pos, int maxDistance, Direction facing) {
+	private static boolean shouldNotRender(BlockPos cameraPos, BlockPos pos, int maxDistance, Direction facing) {
 		final boolean playerFacingAway;
 		if (facing == null) {
 			playerFacingAway = false;
 		} else {
 			if (facing.getAxis() == Direction.Axis.X) {
-				final double playerXOffset = camera.getX() - pos.getX() - 0.5;
+				final double playerXOffset = cameraPos.getX() - pos.getX() - 0.5;
 				playerFacingAway = Math.signum(playerXOffset) == facing.getStepX() && Math.abs(playerXOffset) >= 0.5;
 			} else {
-				final double playerZOffset = camera.getZ() - pos.getZ() - 0.5;
+				final double playerZOffset = cameraPos.getZ() - pos.getZ() - 0.5;
 				playerFacingAway = Math.signum(playerZOffset) == facing.getStepZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
-		return camera == null || playerFacingAway || maxDistanceXZ(camera.blockPosition(), pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
-	private static void renderWithLight(Level world, double x, double y, double z, Vec3 cameraPos, boolean offsetRender, RenderCallback renderCallback) {
-		final BlockPos posAverage = offsetRender ? new BlockPos(cameraPos).offset(x, y, z) : new BlockPos(x, y, z);
-		if (!shouldNotRender(posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
+	private static void renderWithLight(Level world, double x, double y, double z, boolean noOffset, RenderCallback renderCallback) {
+		final BlockPos posAverage = new BlockPos(x, y, z);
+		final BlockPos cameraPos;
+		if (noOffset) {
+			final Entity camera = Minecraft.getInstance().cameraEntity;
+			cameraPos = camera == null ? null : camera.blockPosition();
+		} else {
+			cameraPos = new BlockPos(0, 0, 0);
+		}
+		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}

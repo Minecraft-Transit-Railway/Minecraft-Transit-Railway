@@ -332,7 +332,7 @@
 	"options.mtr.on": "On",
 	"options.mtr.show_announcement_messages": "Show \"next station\" messages in chat",
 	"options.mtr.support_patreon": "Support the mod on Patreon!",
-	"options.mtr.train_render_distance_ratio": "Train Rendering to Minecraft Render Distance Ratio",
+	"options.mtr.train_render_distance_ratio": "Train rendering to Minecraft render distance ratio",
 	"options.mtr.track_texture_offset": "Track Texture Offset",
 	"options.mtr.use_dynamic_fps": "Dynamically boost FPS",
 	"options.mtr.use_mtr_font": "Use custom MTR fonts (might not work on some computers)",
