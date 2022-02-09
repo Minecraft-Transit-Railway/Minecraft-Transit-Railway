@@ -22,6 +22,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private TrainType baseTrainType;
 	private int trainCars;
 	private boolean unlimitedTrains;
+	private boolean trainBarrier;
 	private int maxTrains;
 
 	private final float railLength;
@@ -34,6 +35,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_BASE_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
+	private static final String KEY_TRAIN_BARRIER = "train_barrier";
 	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
@@ -56,6 +58,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		railLength = compoundTag.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), TrainType.getOrDefault(compoundTag.getString(KEY_BASE_TRAIN_TYPE)));
 		unlimitedTrains = compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
+		trainBarrier = compoundTag.getBoolean(KEY_TRAIN_BARRIER);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 
 		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
@@ -76,6 +79,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
+		trainBarrier = packet.readBoolean();
 		maxTrains = packet.readInt();
 	}
 
@@ -87,6 +91,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		compoundTag.putString(KEY_TRAIN_ID, trainId);
 		compoundTag.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
 		compoundTag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
+		compoundTag.putBoolean(KEY_TRAIN_BARRIER, trainBarrier);
 		compoundTag.putInt(KEY_MAX_TRAINS, maxTrains);
 
 		RailwayData.writeTag(compoundTag, path, KEY_PATH);
@@ -102,6 +107,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		packet.writeUtf(trainId);
 		packet.writeInt(baseTrainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
+		packet.writeBoolean(trainBarrier);
 		packet.writeInt(maxTrains);
 	}
 
@@ -117,6 +123,10 @@ public class Siding extends SavedRailBase implements IPacket {
 				color = packet.readInt();
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();
+			case KEY_TRAIN_BARRIER:
+				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				trainBarrier = packet.readBoolean();
 				break;
 			default:
 				super.update(key, packet);
@@ -147,6 +157,16 @@ public class Siding extends SavedRailBase implements IPacket {
 		sendPacket.accept(packet);
 		this.unlimitedTrains = unlimitedTrains;
 		this.maxTrains = maxTrains;
+	}
+
+	public void setTrainBarrier(boolean trainBarrier) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		packet.writeUtf(KEY_TRAIN_BARRIER);
+		packet.writeUtf(name);
+		packet.writeInt(color);
+		packet.writeBoolean(trainBarrier);
+		this.trainBarrier = trainBarrier;
 	}
 
 	public String getTrainId() {
@@ -243,7 +263,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				trainsToSync.add(train);
 			}
 
-			if (train.closeToDepot(baseTrainType.getSpacing() * trainCars)) {
+			if (train.closeToDepot((int) baseTrainType.getSpacing() * trainCars)) {
 				spawnTrain = false;
 			}
 
@@ -281,6 +301,10 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	public boolean getUnlimitedTrains() {
 		return unlimitedTrains;
+	}
+
+	public boolean getTrainBarrier() {
+		return trainBarrier;
 	}
 
 	public void clearTrains() {

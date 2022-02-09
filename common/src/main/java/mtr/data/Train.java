@@ -197,7 +197,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		try {
-			final int trainSpacing = baseTrainType.getSpacing();
+			final float trainSpacing = baseTrainType.getSpacing();
 			final float oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
@@ -330,7 +330,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
+	protected final int getIndex(int car, float trainSpacing, boolean roundDown) {
 		return getIndex(getRailProgress(car, trainSpacing), roundDown);
 	}
 
@@ -356,7 +356,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return railSpeed;
 	}
 
-	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(Level world, int trainCars, float trainSpacing, boolean isOppositeRail) {
 	}
 
 	protected abstract void simulateCar(
@@ -383,11 +383,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
 	}
 
-	private float getRailProgress(int car, int trainSpacing) {
+	private float getRailProgress(int car, float trainSpacing) {
 		return railProgress - car * trainSpacing;
 	}
 
-	private Vec3 getRoutePosition(int car, int trainSpacing) {
+	private Vec3 getRoutePosition(int car, float trainSpacing) {
 		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.offset, 0);
 		final int index = getIndex(tempRailProgress, false);
 		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1)));

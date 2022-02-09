@@ -51,7 +51,7 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(Level world, int trainCars, float trainSpacing, boolean isOppositeRail) {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
@@ -335,9 +335,9 @@ public class TrainServer extends Train {
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
-			final int trainSpacing = baseTrainType.getSpacing();
-			final int headIndex = getIndex(0, trainSpacing, true);
-			final int tailIndex = getIndex(trainCars, trainSpacing, false);
+			final float trainSpacing = baseTrainType.getSpacing();
+			final int headIndex = getIndex(0, (int) trainSpacing, true);
+			final int tailIndex = getIndex(trainCars, (int) trainSpacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions, id);

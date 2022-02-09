@@ -96,6 +96,27 @@ public class TrainClient extends Train {
 
 			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, noOffset);
 		}
+
+		if (renderConnectionCallback != null && ridingCar > 0 && TrainClientRegistry.getTrainProperties(trainId, baseTrainType).trainBarrierOption) {
+			final double newPrevCarX = prevCarX - (offset.isEmpty() ? 0 : offset.get(0));
+			final double newPrevCarY = prevCarY - (offset.isEmpty() ? 0 : offset.get(1));
+			final double newPrevCarZ = prevCarZ - (offset.isEmpty() ? 0 : offset.get(2));
+
+			final float xStart = baseTrainType.width / 1.5F - CONNECTION_X_OFFSET;
+			final float zStart = baseTrainType.getSpacing() / 2F - CONNECTION_Z_OFFSET;
+
+			final Vec3 prevPos1 = new Vec3(xStart + 0.20f, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 prevPos2 = new Vec3(xStart + 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 prevPos3 = new Vec3(-xStart - 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 prevPos4 = new Vec3(-xStart - 0.20f, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+
+			final Vec3 thisPos1 = new Vec3(-xStart - 0.20f, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 thisPos2 = new Vec3(-xStart - 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 thisPos3 = new Vec3(xStart + 0.20f, CONNECTION_HEIGHT - 0.5f + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 thisPos4 = new Vec3(xStart + 0.20f, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+
+			renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, baseTrainType, isOnRoute, noOffset);
+		}
 	}
 
 	@Override
@@ -106,8 +127,8 @@ public class TrainClient extends Train {
 		}
 
 		if (ticksElapsed > 0 && ridingEntities.contains(clientPlayer.getUUID())) {
-			final int trainSpacing = baseTrainType.getSpacing();
-			final int headIndex = getIndex(0, trainSpacing, false);
+			final float trainSpacing = baseTrainType.getSpacing();
+			final int headIndex = getIndex(0, (int) trainSpacing, false);
 			final int stopIndex = path.get(headIndex).stopIndex - 1;
 			final Entity vehicle = clientPlayer.getVehicle();
 			offset.clear();

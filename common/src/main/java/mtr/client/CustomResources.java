@@ -44,6 +44,7 @@ public class CustomResources {
 	private static final String CUSTOM_TRAINS_SPEED_SOUND_BASE_ID = "speed_sound_base_id";
 	private static final String CUSTOM_TRAINS_DOOR_SOUND_BASE_ID = "door_sound_base_id";
 	private static final String CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION = "has_gangway_connection";
+	private static final String CUSTOM_TRAINS_HAS_TRAIN_BARRIER = "has_train_barrier";
 
 	private static final String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
 	private static final String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
@@ -74,14 +75,15 @@ public class CustomResources {
 						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.speedSoundBaseId, JsonElement::getAsString);
 						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
 						final boolean hasGangwayConnection = getOrDefault(jsonObject, CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION, baseTrainProperties.hasGangwayConnection, JsonElement::getAsBoolean);
+						final boolean trainBarrierOption = getOrDefault(jsonObject, CUSTOM_TRAINS_HAS_TRAIN_BARRIER, baseTrainProperties.trainBarrierOption, JsonElement::getAsBoolean);
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, trainBarrierOption, speedSoundCount, 0.5F, false);
 								customTrains.add(trainId);
 							}));
 						} else {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, speedSoundCount, 0.5F, false);
+							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, trainBarrierOption, speedSoundCount, 0.5F, false);
 							customTrains.add(trainId);
 						}
 					} catch (Exception e) {
