@@ -1,7 +1,8 @@
 import SETTINGS from "./index.js";
-import CANVAS from "./utilities.js"
+import CANVAS from "./utilities.js";
+import tappable from "./gestures/src/gestures/tap.js";
+import panable from "./gestures/src/gestures/pan.js";
 
-const TEXT_PADDING = 6;
 const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
@@ -16,15 +17,9 @@ let graphicsStationsTextLayer1 = [];
 let graphicsStationsTextLayer2 = [];
 let textStations = [];
 
-let selecting = false;
 let fetchArrivalId = 0;
 let refreshArrivalId = 0;
 let arrivalData = [];
-
-let selectedColor = -1;
-let selectedStation = 0;
-
-document.getElementById("clear_station_info_button").onclick = onClearStationInfo;
 
 const clearAndDestroy = array => {
 	for (const index in array) {
@@ -35,24 +30,11 @@ const clearAndDestroy = array => {
 
 const createClickable = (container, initialize, onClick) => {
 	const graphics = new PIXI.Graphics();
-	graphics.interactive = true;
 	graphics.buttonMode = true;
-	graphics.on("pointerdown", event => {
-		CANVAS.onCanvasMouseDown(event);
-		selecting = true;
-	});
-	graphics.on("pointermove", event => {
-		if (CANVAS.onCanvasMouseMove(event, container)) {
-			selecting = false;
-		}
-	});
-	graphics.on("pointerup", event => {
-		CANVAS.onCanvasMouseUp(event);
-		if (selecting) {
-			onClick();
-		}
-		selecting = false;
-	});
+	panable(graphics);
+	tappable(graphics);
+	graphics.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
+	graphics.on("simpletap", onClick);
 	graphics.on("pointerover", () => graphics.filters = [FILTER]);
 	graphics.on("pointerout", () => graphics.filters = []);
 	initialize(graphics);
@@ -60,9 +42,9 @@ const createClickable = (container, initialize, onClick) => {
 };
 
 const fetchArrivals = () => {
-	if (selectedStation !== 0) {
+	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(fetchArrivalId);
-		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
+		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
 			arrivalData = result;
 			fetchArrivalId = setTimeout(fetchArrivals, SETTINGS.refreshArrivalsInterval);
 			refreshArrivals();
@@ -71,7 +53,7 @@ const fetchArrivals = () => {
 };
 
 const refreshArrivals = () => {
-	if (selectedStation !== 0) {
+	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(refreshArrivalId);
 		const arrivalsHtml = {};
 		for (const arrivalIndex in arrivalData) {
@@ -185,12 +167,12 @@ function drawMap(container, data) {
 		}
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
-		selectedStation = id;
+		SETTINGS.selectedStation = id;
 		fetchArrivals();
 	};
 
 	const onClickLine = color => {
-		selectedColor = selectedColor === color ? -1 : color;
+		SETTINGS.selectedColor = SETTINGS.selectedColor === color ? -1 : color;
 		drawMap(container, data);
 	};
 
@@ -276,7 +258,7 @@ function drawMap(container, data) {
 	for (const routeKey in routes) {
 		const route = routes[routeKey];
 		const color = route["color"];
-		const shouldDraw = selectedColor < 0 || selectedColor === color;
+		const shouldDraw = SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color;
 		const routeType = route["type"];
 		for (const stationIndex in route["stations"]) {
 			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
@@ -322,7 +304,7 @@ function drawMap(container, data) {
 		const blob = blobs[stationId];
 		const {xMin, yMin, xMax, yMax, colors, name} = blob;
 		if (blob[types[SETTINGS.routeType]]) {
-			const shouldDraw = selectedColor < 0 || colors.includes(selectedColor);
+			const shouldDraw = SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
 
 			createClickable(container, graphicsStation => {
 				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
@@ -369,7 +351,7 @@ function drawMap(container, data) {
 	elementRoutes.innerHTML = "";
 	for (const colorIndex in sortedColors) {
 		const color = sortedColors[colorIndex];
-		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, selectedColor < 0 || selectedColor === color));
+		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color));
 	}
 	const elementStations = document.getElementById("search_results_stations");
 	elementStations.innerHTML = "";
@@ -403,13 +385,8 @@ function onSearch(data) {
 	document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
 
 	if (search !== "") {
-		onClearStationInfo();
+		SETTINGS.onClearStationInfo();
 	}
-}
-
-function onClearStationInfo() {
-	selectedStation = 0;
-	document.getElementById("station_info").style.display = "none";
 }
 
 export default drawMap;

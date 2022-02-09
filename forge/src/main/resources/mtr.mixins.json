@@ -3,12 +3,8 @@
 	"minVersion": "0.8",
 	"package": "mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
-	"mixins": [
-		"PlayerTeleportationStateAccessor"
-	],
-	"client": [
-		"LevelRendererMixin"
-	],
+	"mixins": [],
+	"client": [],
 	"server": [],
 	"injectors": {
 		"defaultRequire": 1

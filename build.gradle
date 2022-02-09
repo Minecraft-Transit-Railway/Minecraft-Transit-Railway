@@ -81,6 +81,18 @@ task setupFiles() {
 	}
 
 	download {
+		src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
+		dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
+		overwrite true
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		into "common/src/main/resources/assets/mtr/website/gestures"
+	}
+
+	download {
 		src "https://crowdin.com/backend/download/project/minecraft-transit-railway.zip"
 		dest "common/src/main/java/mtr/mappings/lang.zip"
 		overwrite true

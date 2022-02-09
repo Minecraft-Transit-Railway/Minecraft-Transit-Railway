@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
 import mtr.block.BlockNode;
+import mtr.entity.EntitySeat;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -45,7 +46,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
-	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
+	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
@@ -146,7 +147,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void simulateTrains() {
-		world.players().forEach(player -> {
+		final List<? extends Player> players = world.players();
+		players.forEach(player -> {
 			final BlockPos playerBlockPos = player.blockPosition();
 			final Vec3 playerPos = player.position();
 
@@ -186,24 +188,21 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		schedulesForPlatform.clear();
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
-			siding.setSidingData(world, depots.stream().filter(depot -> {
-				final BlockPos sidingMidPos = siding.getMidPos();
-				return depot.isTransportMode(siding.transportMode) && depot.inArea(sidingMidPos.getX(), sidingMidPos.getZ());
-			}).findFirst().orElse(null), rails);
-			siding.simulateTrain(1, dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
+			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
+			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
 
 		final Set<Player> playersToRemove = new HashSet<>();
-		playerRidingCoolDown.forEach((player, coolDown) -> {
-			if (coolDown <= 0) {
-				updatePlayerRiding(player, false);
+		playerSeats.forEach((player, seat) -> {
+			if (players.contains(player)) {
+				seat.updateSeat(player);
+			} else {
 				playersToRemove.add(player);
 			}
-			playerRidingCoolDown.put(player, coolDown - 1);
 		});
-		playersToRemove.forEach(playerRidingCoolDown::remove);
+		playersToRemove.forEach(playerSeats::remove);
 
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
@@ -264,7 +263,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		trainsInPlayerRange.putAll(newTrainsInPlayerRange);
 
 		if (MTR.isGameTickInterval(SCHEDULE_UPDATE_TICKS)) {
-			world.players().forEach(player -> {
+			players.forEach(player -> {
 				if (!playersToSyncSchedules.contains(player)) {
 					playersToSyncSchedules.add(player);
 				}
@@ -327,14 +326,16 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		setDirty();
 	}
 
-	public void broadcastToPlayer(ServerPlayer serverPlayerEntity) {
-		PacketTrainDataGuiServer.sendAllInChunks(serverPlayerEntity, stations, platforms, sidings, routes, depots, signalBlocks);
-		playerRidingCoolDown.put(serverPlayerEntity, 2);
+	public void onPlayerJoin(ServerPlayer serverPlayer) {
+		final EntitySeat seat = new EntitySeat(world, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ());
+		seat.updateSeat(serverPlayer);
+		world.addFreshEntity(seat);
+		playerSeats.put(serverPlayer, seat);
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 	}
 
-	public void updatePlayerRiding(Player player) {
-		updatePlayerRiding(player, true);
-		playerRidingCoolDown.put(player, 2);
+	public EntitySeat getSeatFromPlayer(Player player) {
+		return playerSeats.get(player);
 	}
 
 	// writing data
@@ -646,10 +647,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	private static void validateRails(Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
+		final Set<BlockPos> railsNodesToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
 			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
 			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
-				removeNode(null, rails, startPos);
+				railsNodesToRemove.add(startPos);
 			}
 
 			if (railMap.isEmpty()) {
@@ -657,6 +659,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		});
 		railsToRemove.forEach(rails::remove);
+		railsNodesToRemove.forEach(pos -> removeNode(null, rails, pos));
 	}
 
 	private static void removeSavedRailS2C(Level world, Set<? extends SavedRailBase> savedRailBases, Map<BlockPos, Map<BlockPos, Rail>> rails, ResourceLocation packetId) {
@@ -669,13 +672,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			return delete;
 		});
-	}
-
-	private static void updatePlayerRiding(Player player, boolean isRiding) {
-		player.fallDistance = 0;
-		player.setNoGravity(isRiding);
-		player.noPhysics = isRiding;
-		Registry.setInTeleportationState(player, isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {

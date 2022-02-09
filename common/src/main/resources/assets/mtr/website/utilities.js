@@ -1,69 +1,55 @@
-import SETTINGS from "./index.js"
+import SETTINGS from "./index.js";
+import drawMap from "./drawing.js";
 
 const SCALE_UPPER_LIMIT = 64;
 const SCALE_LOWER_LIMIT = 1 / 128;
-const DRAG_THRESHOLD = 10;
+const SCROLL_CALLBACK_DELAY = 100;
 const STEPS = 50;
 const MIN_SPEED = 0.0001;
 const SPEED_MULTIPLIER = 3;
 
-const isBetween = (x, a, b) => x >= Math.min(a, b) && x <= Math.max(a, b);
-
 let scale = 1;
-let dragging = false;
-let dragCounter = 0;
-let mouseClickX = 0;
-let mouseClickY = 0;
-
+let scaleStart = 1;
+let previousPinch = 0;
+let zoomNotStarted = true;
+let scrollTimeoutId = 0;
 let step = 0;
 let startX = 0;
 let startY = 0;
 let targetX = undefined;
 let targetY = undefined;
 
-let textCache = {};
-
 const CANVAS = {
 	convertX: x => Math.floor((x + window.innerWidth / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
 	convertY: y => Math.floor((y + window.innerHeight / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
-	onCanvasMouseDown: event => {
-		dragging = true;
-		mouseClickX = event.data.global.x;
-		mouseClickY = event.data.global.y;
-		targetX = undefined;
-		targetY = undefined;
-	},
 	onCanvasMouseMove: function (event, container) {
-		if (dragging) {
-			const mouseX = event.data.global.x;
-			const mouseY = event.data.global.y;
-
-			if (isBetween(mouseX, 0, window.innerWidth) && isBetween(mouseY, 0, window.innerHeight)) {
-				const changeX = mouseX - mouseClickX;
-				const changeY = mouseY - mouseClickY;
-				container.x += changeX;
-				container.y += changeY;
-				dragCounter += Math.abs(changeX) + Math.abs(changeY);
-				mouseClickX = event.data.global.x;
-				mouseClickY = event.data.global.y;
-			} else {
-				this.onCanvasMouseUp();
-			}
+		container.x += event.deltaX;
+		container.y += event.deltaY;
+	},
+	onPinch: function (fingers, offsetX, offsetY, container, data, delay) {
+		const fingerDistance = (Math.abs(fingers.x - offsetX) + Math.abs(fingers.y - offsetY)) * 2;
+		this.onZoom(zoomNotStarted ? 0 : (previousPinch - fingerDistance) / SETTINGS.smoothScrollScale, offsetX, offsetY, container, data, delay);
+		previousPinch = fingerDistance;
+	},
+	onZoom: (amount, offsetX, offsetY, container, data, delay) => {
+		if (zoomNotStarted) {
+			scaleStart = scale;
+			zoomNotStarted = false;
 		}
 
-		return dragCounter > DRAG_THRESHOLD;
-	},
-	onCanvasMouseUp: () => {
-		dragging = false;
-		dragCounter = 0;
-	},
-	onCanvasScroll: function (event, container) {
-		this.onZoom(Math.sign(event.deltaY), event.offsetX, event.offsetY, container);
-	}, onZoom: (amount, offsetX, offsetY, container) => {
-		scale *= amount < 0 ? 2 : 0.5;
+		let prevScale = scale;
+		scale = Math.pow(2, Math.log2(scale) - amount);
 		scale = Math.min(SCALE_UPPER_LIMIT, Math.max(SCALE_LOWER_LIMIT, scale));
-		container.x -= Math.round((offsetX - container.x) / (amount < 0 ? 1 : -2));
-		container.y -= Math.round((offsetY - container.y) / (amount < 0 ? 1 : -2));
+		container.scale.set(scale / scaleStart, scale / scaleStart);
+		container.x -= Math.round((offsetX - container.x) * (scale / prevScale - 1));
+		container.y -= Math.round((offsetY - container.y) * (scale / prevScale - 1));
+
+		clearTimeout(scrollTimeoutId);
+		scrollTimeoutId = setTimeout(() => {
+			container.scale.set(1, 1);
+			zoomNotStarted = true;
+			drawMap(container, data)
+		}, delay ? SCROLL_CALLBACK_DELAY : 0);
 	},
 	slideTo: (container, x, y) => {
 		startX = container.x;
@@ -92,20 +78,16 @@ const CANVAS = {
 		let yStart = y;
 		for (const textPart of textSplit) {
 			const isTextCJK = SETTINGS.isCJK(textPart);
+			const key = textPart + x + "_" + y;
 
-			if (typeof textCache[textPart + x + "_" + y] === "undefined") {
-				const richText = new PIXI.Text(textPart, {
-					fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
-					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
-					fill: SETTINGS.getColorStyle("--textColor"),
-					stroke: SETTINGS.getColorStyle("--backgroundColor"),
-					strokeThickness: 2,
-				});
-				richText.anchor.set(0.5, 0);
-				textCache[textPart + x + "_" + y] = richText;
-			}
-
-			const richText = textCache[textPart + x + "_" + y];
+			const richText = new PIXI.Text(textPart, {
+				fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
+				fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
+				fill: SETTINGS.getColorStyle("--textColor"),
+				stroke: SETTINGS.getColorStyle("--backgroundColor"),
+				strokeThickness: 2,
+			});
+			richText.anchor.set(0.5, 0);
 			richText.position.set(Math.round(x / 2) * 2, yStart);
 			textArray.push(richText);
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
@@ -124,7 +106,6 @@ const CANVAS = {
 			textArray.push(richText);
 		}
 	},
-	clearTextCache: () => textCache = {},
 	drawLine: (graphics, x1, y1, vertical1, x2, y2, vertical2) => {
 		const differenceX = Math.abs(x2 - x1);
 		const differenceY = Math.abs(y2 - y1);

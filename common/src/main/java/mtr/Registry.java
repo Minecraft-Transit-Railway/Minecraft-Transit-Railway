@@ -3,10 +3,11 @@ package mtr;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import mtr.mappings.NetworkUtilities;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,6 +18,11 @@ public class Registry {
 
 	@ExpectPlatform
 	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
+	public static Packet<?> createAddEntityPacket(Entity entity) {
 		throw new AssertionError();
 	}
 
@@ -52,11 +58,6 @@ public class Registry {
 
 	@ExpectPlatform
 	public static void sendToPlayer(ServerPlayer player, ResourceLocation id, FriendlyByteBuf packet) {
-		throw new AssertionError();
-	}
-
-	@ExpectPlatform
-	public static void setInTeleportationState(Player player, boolean isRiding) {
 		throw new AssertionError();
 	}
 }
