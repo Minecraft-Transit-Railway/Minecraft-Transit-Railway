@@ -159,7 +159,7 @@ public final class ClientData {
 		return objects;
 	}
 
-	private static <U> void clearAndAddAll(Set<U> target, Set<U> source) {
+	private static <U> void clearAndAddAll(Collection<U> target, Collection<U> source) {
 		target.clear();
 		target.addAll(source);
 	}

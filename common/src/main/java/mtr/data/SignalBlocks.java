@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class SignalBlocks {
 
-	public final Set<SignalBlock> signalBlocks = new HashSet<>();
+	public final List<SignalBlock> signalBlocks = new ArrayList<>();
 
 	public long add(long id, DyeColor color, UUID rail) {
 		final List<SignalBlock> connectedSignalBlocks = new ArrayList<>();

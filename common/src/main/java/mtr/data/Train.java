@@ -260,7 +260,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 						final float stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
 						if (stoppingDistance < 0.5F * speed * speed / acceleration) {
-							speed = Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, acceleration);
+							speed = stoppingDistance == 0 ? acceleration : Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, acceleration);
 						} else {
 							final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
 							if (speed < railSpeed) {

@@ -17,7 +17,10 @@ let step = 0;
 let startX = 0;
 let startY = 0;
 let targetX = undefined;
-let targetY = undefined;
+let targetY = undefined
+
+let textCache = {};
+let textCacheKeep = [];
 
 const CANVAS = {
 	convertX: x => Math.floor((x + window.innerWidth / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
@@ -40,16 +43,22 @@ const CANVAS = {
 		let prevScale = scale;
 		scale = Math.pow(2, Math.log2(scale) - amount);
 		scale = Math.min(SCALE_UPPER_LIMIT, Math.max(SCALE_LOWER_LIMIT, scale));
-		container.scale.set(scale / scaleStart, scale / scaleStart);
+		if (delay) {
+			container.scale.set(scale / scaleStart, scale / scaleStart);
+		}
 		container.x -= Math.round((offsetX - container.x) * (scale / prevScale - 1));
 		container.y -= Math.round((offsetY - container.y) * (scale / prevScale - 1));
 
 		clearTimeout(scrollTimeoutId);
-		scrollTimeoutId = setTimeout(() => {
-			container.scale.set(1, 1);
-			zoomNotStarted = true;
-			drawMap(container, data)
-		}, delay ? SCROLL_CALLBACK_DELAY : 0);
+		if (delay) {
+			scrollTimeoutId = setTimeout(() => {
+				container.scale.set(1, 1);
+				zoomNotStarted = true;
+				drawMap(container, data)
+			}, SCROLL_CALLBACK_DELAY);
+		} else {
+			drawMap(container, data);
+		}
 	},
 	slideTo: (container, x, y) => {
 		startX = container.x;
@@ -73,24 +82,33 @@ const CANVAS = {
 			}
 		}
 	},
-	drawText: (textArray, text, icons, x, y) => {
+	drawText: (textArray, stationId, text, icons, x, y) => {
 		const textSplit = text.split("|");
 		let yStart = y;
 		for (const textPart of textSplit) {
 			const isTextCJK = SETTINGS.isCJK(textPart);
-			const key = textPart + x + "_" + y;
+			const key = textPart + " " + stationId;
 
-			const richText = new PIXI.Text(textPart, {
-				fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
-				fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
-				fill: SETTINGS.getColorStyle("--textColor"),
-				stroke: SETTINGS.getColorStyle("--backgroundColor"),
-				strokeThickness: 2,
-			});
+			if (typeof textCache[key] === "undefined") {
+				textCache[key] = new PIXI.Text(textPart, {
+					fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
+					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
+					fill: SETTINGS.getColorStyle("--textColor"),
+					stroke: SETTINGS.getColorStyle("--backgroundColor"),
+					strokeThickness: 2,
+				});
+			}
+
+			const richText = textCache[key];
 			richText.anchor.set(0.5, 0);
 			richText.position.set(Math.round(x / 2) * 2, yStart);
 			textArray.push(richText);
 			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
+
+			if (!textCacheKeep.includes(key)) {
+				textCache[key] = undefined;
+				textCacheKeep.push(key);
+			}
 		}
 
 		if (icons !== "") {
@@ -106,6 +124,7 @@ const CANVAS = {
 			textArray.push(richText);
 		}
 	},
+	clearTextCache: () => textCache = {},
 	drawLine: (graphics, x1, y1, vertical1, x2, y2, vertical2) => {
 		const differenceX = Math.abs(x2 - x1);
 		const differenceY = Math.abs(y2 - y1);

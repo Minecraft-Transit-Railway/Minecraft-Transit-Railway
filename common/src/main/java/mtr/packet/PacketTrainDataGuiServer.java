@@ -294,7 +294,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
-	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Set<T> objects) {
+	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Collection<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));
 	}

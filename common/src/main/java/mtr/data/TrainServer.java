@@ -90,8 +90,8 @@ public class TrainServer extends Train {
 						player.startRiding(seat);
 						seat.updateRiding(id);
 						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
-						seat.percentageZ = (float) (positionRotated.z / realSpacing + 0.5) + ridingCar;
-						seat.updatePercentagesToClient();
+						seat.percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
+						seat.updateDataToClient(railProgress);
 					}
 					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
@@ -177,10 +177,10 @@ public class TrainServer extends Train {
 							calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 								final Vec3 movement = new Vec3(ridingPlayer.xxa * ticksElapsed / 4, 0, ridingPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(ridingPlayer)) - yaw);
 								seat.percentageX += movement.x / baseTrainType.width;
-								seat.percentageZ += movement.z / realSpacingRender;
+								seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
 								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
 								seat.percentageZ = Mth.clamp(seat.percentageZ, 0.01F, trainCars - 0.01F);
-								seat.updatePercentagesToClient();
+								seat.updateDataToClient(railProgress);
 								final int newRidingCar = (int) Math.floor(seat.percentageZ);
 								if (currentRidingCar == newRidingCar) {
 									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
