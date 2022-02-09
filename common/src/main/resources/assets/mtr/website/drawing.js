@@ -326,7 +326,7 @@ function drawMap(container, data) {
 						icons += SETTINGS.routeTypes[key];
 					}
 				});
-				CANVAS.drawText(textStations, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
+				CANVAS.drawText(textStations, stationId, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 			}
 		}
 	}

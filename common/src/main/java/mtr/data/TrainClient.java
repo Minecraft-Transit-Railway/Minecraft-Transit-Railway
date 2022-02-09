@@ -129,6 +129,10 @@ public class TrainClient extends Train {
 				}
 
 				final EntitySeat seat = (EntitySeat) vehicle;
+				final float testRailProgress = seat.getClientRailProgress();
+				if (Math.abs(testRailProgress - railProgress) > 10) {
+					railProgress = testRailProgress;
+				}
 				final float percentageX = seat.getClientPercentageX();
 				final float percentageZ = seat.getClientPercentageZ();
 
@@ -146,7 +150,7 @@ public class TrainClient extends Train {
 
 					clientPrevYaw = yaw;
 				});
-			} else {
+			} else if (speed > 0) {
 				ridingEntities.remove(clientPlayer.getUUID());
 			}
 		}

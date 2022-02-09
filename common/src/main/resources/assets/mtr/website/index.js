@@ -126,6 +126,7 @@ document.getElementById("toggle_theme_icon").onclick = event => {
 		setCookie("theme", "light");
 	}
 	background.tint = SETTINGS.getColorStyle("--backgroundColor");
+	CANVAS.clearTextCache();
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("download_icon").onclick = () => {

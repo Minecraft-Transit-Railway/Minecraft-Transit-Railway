@@ -38,6 +38,7 @@ public class EntitySeat extends Entity {
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> RAIL_PROGRESS = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 
 	public EntitySeat(EntityType<?> type, Level world) {
 		super(type, world);
@@ -131,6 +132,7 @@ public class EntitySeat extends Entity {
 		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
 		entityData.define(PERCENTAGE_X, 0F);
 		entityData.define(PERCENTAGE_Z, 0F);
+		entityData.define(RAIL_PROGRESS, 0F);
 	}
 
 	@Override
@@ -165,9 +167,14 @@ public class EntitySeat extends Entity {
 		return this.player == player;
 	}
 
-	public void updatePercentagesToClient() {
+	public void updateDataToClient(float railProgress) {
 		entityData.set(PERCENTAGE_X, percentageX);
 		entityData.set(PERCENTAGE_Z, percentageZ);
+		entityData.set(RAIL_PROGRESS, railProgress);
+	}
+
+	public float getClientRailProgress() {
+		return entityData.get(RAIL_PROGRESS);
 	}
 
 	public float getClientPercentageX() {

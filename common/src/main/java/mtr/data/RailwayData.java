@@ -9,8 +9,10 @@ import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -22,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
+	private boolean canWriteToFile = true;
 
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
@@ -126,24 +130,47 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
-		try {
-			validateData();
-			setDirty();
-			writeTag(compoundTag, stations, KEY_STATIONS, false);
-			writeTag(compoundTag, platforms, KEY_PLATFORMS);
-			writeTag(compoundTag, sidings, KEY_SIDINGS);
-			writeTag(compoundTag, routes, KEY_ROUTES, false);
-			writeTag(compoundTag, depots, KEY_DEPOTS, false);
-			writeTag(compoundTag, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
+		return compoundTag;
+	}
 
-			final Set<RailEntry> railSet = new HashSet<>();
-			rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
-			writeTag(compoundTag, railSet, KEY_RAILS);
-		} catch (Exception e) {
-			e.printStackTrace();
+	@Override
+	public void save(File file) {
+		if (!canWriteToFile) {
+			return;
 		}
 
-		return compoundTag;
+		validateData();
+		canWriteToFile = false;
+
+		final Set<Station> newStations = new HashSet<>(stations);
+		final Set<Platform> newPlatforms = new HashSet<>(platforms);
+		final Set<Siding> newSidings = new HashSet<>(sidings);
+		final Set<Route> newRoutes = new HashSet<>(routes);
+		final Set<Depot> newDepots = new HashSet<>(depots);
+		final Set<RailEntry> railSet = new HashSet<>();
+		rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
+
+		new Thread(() -> {
+			try {
+				final CompoundTag dataTag = new CompoundTag();
+				writeTag(dataTag, newStations, KEY_STATIONS, false);
+				writeTag(dataTag, newPlatforms, KEY_PLATFORMS);
+				writeTag(dataTag, newSidings, KEY_SIDINGS);
+				writeTag(dataTag, newRoutes, KEY_ROUTES, false);
+				writeTag(dataTag, newDepots, KEY_DEPOTS, false);
+				writeTag(dataTag, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
+				writeTag(dataTag, railSet, KEY_RAILS);
+
+				final CompoundTag compoundTag = new CompoundTag();
+				compoundTag.put("data", dataTag);
+				compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+				NbtIo.writeCompressed(compoundTag, file);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			canWriteToFile = true;
+		}).start();
 	}
 
 	public void simulateTrains() {
@@ -322,8 +349,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 		prevPlatformCount = platforms.size();
 		prevSidingCount = sidings.size();
-
-		setDirty();
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
