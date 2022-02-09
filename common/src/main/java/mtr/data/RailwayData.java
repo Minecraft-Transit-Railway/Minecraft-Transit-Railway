@@ -21,14 +21,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.io.IOUtils;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 public class RailwayData extends PersistentStateMapper implements IPacket {
 
@@ -138,14 +138,16 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	@Override
 	public void save(File file) {
 		if (isDirty()) {
+			if (!canWriteToFile) {
+				return;
+			}
+			final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
+			final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
+
 			final long time1 = System.nanoTime();
-
 			try {
-				final File newFile = file.toPath().getParent().resolve(NAME + ".packed").toFile();
-				newFile.createNewFile();
-				final MessagePacker messagePacker = MessagePack.newDefaultPacker(new FileOutputStream(newFile));
-
 				validateData();
+				canWriteToFile = false;
 				messagePacker.packMapHeader(7);
 
 				writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
@@ -165,6 +167,23 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				}
 
 				messagePacker.close();
+
+				new Thread(() -> {
+					try {
+						final File newFile = file.toPath().getParent().resolve(NAME + ".msgpack").toFile();
+						newFile.createNewFile();
+						final FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+						final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new BufferedOutputStream(fileOutputStream));
+						bufferStream.writeTo(gzipOutputStream);
+						bufferStream.close();
+						gzipOutputStream.close();
+						fileOutputStream.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						canWriteToFile = true;
+					}
+				}).start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

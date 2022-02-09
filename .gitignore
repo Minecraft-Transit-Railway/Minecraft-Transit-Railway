@@ -38,3 +38,5 @@ gestures
 BlockEntityExtension.java
 **/lang/*.json
 !en_us.json
+
+.architectury-transformer/
