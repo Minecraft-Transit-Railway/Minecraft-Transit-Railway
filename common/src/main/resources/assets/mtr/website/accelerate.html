@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate acceleration string</title>
+    <link href="bootstrap.css" rel="stylesheet">
+    <script src="bootstrap.js"></script>
+    <script src="vue.js"></script>
+    <script src="jquery.js"></script>
+</head>
+<body>
+<div id="app">
+    <div v-if="!available" class="toast align-items-center text-white bg-danger border-0"
+         style="position: absolute; top: 10px; left: 50%; transform: translate(-50%, 0); !important;display: block"
+         role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="reason">
+                Error: {{reason}}
+            </div>
+        </div>
+    </div>
+    <table class="shadow-lg p-3 mb-5 table" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); padding: 10px; width: 700px;
+        max-height: 600px; background-color: rgba(255,255,255,.6); -webkit-backdrop-filter: blur(10px); border-radius: 0.8rem; overflow-y: scroll; display:inline-block;">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">startSpeed(km/h)</th>
+            <th scope="col">endSpeed(km/h)</th>
+            <th scope="col">accelerate(km/h/s)</th>
+            <th scope="col">delete row</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(description, i) in descriptions">
+            <th scope="row">{{i + 1}}</th>
+            <th v-if="i == 0"> 0</th>
+            <th v-if="i != 0" scope="row">{{descriptions[i - 1].end}}</th>
+            <td v-if="i < descriptions.length - 1"><input class="form-control form-control-sm" style="width: 60px;"
+                                                          type="text"
+                                                          v-model.number="description.end" v-on:change="check()"></td>
+            <th v-if="i == descriptions.length - 1"> 300</th>
+            <td><input class="form-control form-control-sm" style="width: 130px;" type="text"
+                       v-model.number="description.accelerate" v-on:change="check()"></td>
+            <td>
+                <button type="button" class="btn btn-danger" @click="del(i)" v-if="descriptions.length > 1"> -</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div v-if="available" class="input-group mb-3" style="position: absolute; bottom: 4px; left: 80px; width: 800px;">
+        <span class="input-group-text" id="basic-addon1">Acceleration String</span>
+        <input type="text" class="form-control" placeholder="string" aria-label="string" aria-describedby="basic-addon1"
+               v-model.number="accelerateString" readonly>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary" style="position: absolute; bottom: 20px; left: 20px;" onclick="add()">+
+</button>
+<script>
+    Vue.config.productionTip = false;
+    const app = new Vue({
+        el: "#app",
+        data: {
+            descriptions: [],
+            available: true,
+            reason: "Unknown error!"
+        },
+        computed: {
+            accelerateString: function () {
+                var string = "[";
+                for (var i in this.descriptions) {
+                    var endSpeed = this.descriptions[i].end / 72, acceleration = this.descriptions[i].accelerate / 1440;
+                    string += "[";
+                    string += endSpeed.toPrecision(5);
+                    string += ",";
+                    string += acceleration.toPrecision(5);
+                    string += "]";
+                }
+                string += "]";
+                return string;
+            }
+        },
+        methods: {
+            check: function () {
+                check(false);
+            },
+            del: function (id) {
+                if (this.descriptions.length > 1) {
+                    this.descriptions.splice(id, 1);
+                    check();
+                }
+            }
+        }
+    })
+
+    app.$data.descriptions.push({start: 0, end: 300, accelerate: 1});
+
+    function add() {
+        app.$data.descriptions.push({
+            start: app.$data.descriptions[app.$data.descriptions.length - 1].end,
+            end: 300,
+            accelerate: 1
+        });
+        check(true);
+    }
+
+    function check(noDelete) {
+        var last = 0, place = -1;
+        for (var i in app.$data.descriptions) {
+            if (app.$data.descriptions[i].end <= last) {
+                place = Number(i) + 1;
+                break;
+            }
+            last = app.$data.descriptions[i].end
+        }
+        if (place === -1) {
+            app.$data.available = true;
+            app.$data.reason = "Unknown error!";
+        } else if (place < app.$data.descriptions.length) {
+            app.$data.reason = "endSpeed at raw " + place + " is smaller than(or equals to) startSpeed.";
+            app.$data.available = false;
+        } else if (!noDelete) {
+            app.$data.descriptions.pop();
+            check(noDelete);
+        }
+    }
+</script>
+</body>
+</html>
