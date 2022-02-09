@@ -5,7 +5,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public abstract class AreaBase extends NameColorDataBase {
@@ -45,13 +47,18 @@ public abstract class AreaBase extends NameColorDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putInt(KEY_X_MIN, corner1 == null ? 0 : corner1.getA());
-		compoundTag.putInt(KEY_Z_MIN, corner1 == null ? 0 : corner1.getB());
-		compoundTag.putInt(KEY_X_MAX, corner2 == null ? 0 : corner2.getA());
-		compoundTag.putInt(KEY_Z_MAX, corner2 == null ? 0 : corner2.getB());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_X_MIN).packInt(corner1 == null ? 0 : corner1.getA());
+		messagePacker.packString(KEY_Z_MIN).packInt(corner1 == null ? 0 : corner1.getB());
+		messagePacker.packString(KEY_X_MAX).packInt(corner2 == null ? 0 : corner2.getA());
+		messagePacker.packString(KEY_Z_MAX).packInt(corner2 == null ? 0 : corner2.getB());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 4;
 	}
 
 	@Override

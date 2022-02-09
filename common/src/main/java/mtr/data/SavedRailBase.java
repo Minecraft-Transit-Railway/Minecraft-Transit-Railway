@@ -6,7 +6,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class SavedRailBase extends NameColorDataBase {
@@ -47,11 +49,16 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putLong(KEY_POS_1, getPosition(0).asLong());
-		compoundTag.putLong(KEY_POS_2, getPosition(1).asLong());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_POS_1).packLong(getPosition(0).asLong());
+		messagePacker.packString(KEY_POS_2).packLong(getPosition(1).asLong());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 2;
 	}
 
 	@Override

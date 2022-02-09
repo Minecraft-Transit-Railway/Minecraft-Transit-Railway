@@ -15,7 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class Train extends NameColorDataBase implements IPacket, IGui {
@@ -124,29 +126,31 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putFloat(KEY_SPEED, speed);
-		compoundTag.putFloat(KEY_RAIL_PROGRESS, railProgress);
-		compoundTag.putFloat(KEY_STOP_COUNTER, stopCounter);
-		compoundTag.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
-		compoundTag.putBoolean(KEY_REVERSED, reversed);
-		compoundTag.putString(KEY_TRAIN_CUSTOM_ID, trainId);
-		compoundTag.putString(KEY_TRAIN_TYPE, baseTrainType.toString());
-		compoundTag.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
+		messagePacker.packString(KEY_SPEED).packFloat(speed);
+		messagePacker.packString(KEY_RAIL_PROGRESS).packFloat(railProgress);
+		messagePacker.packString(KEY_STOP_COUNTER).packFloat(stopCounter);
+		messagePacker.packString(KEY_NEXT_STOPPING_INDEX).packInt(nextStoppingIndex);
+		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
+		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
+		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType.toString());
+		messagePacker.packString(KEY_IS_ON_ROUTE).packBoolean(isOnRoute);
 
-		final CompoundTag tagRidingEntities = new CompoundTag();
-		ridingEntities.forEach(uuid -> tagRidingEntities.putUUID(KEY_RIDING_ENTITIES + uuid, uuid));
-		compoundTag.put(KEY_RIDING_ENTITIES, tagRidingEntities);
+		messagePacker.packString(KEY_RIDING_ENTITIES).packArrayHeader(ridingEntities.size());
+		for (final UUID uuid : ridingEntities) {
+			messagePacker.packString(uuid.toString());
+		}
 
+		// TODO Cargo
 		final NonNullList<ItemStack> stacks = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			stacks.set(i, inventory.getItem(0));
 		}
-		compoundTag.put(KEY_CARGO, ContainerHelper.saveAllItems(new CompoundTag(), stacks));
+		CompoundTag tag = ContainerHelper.saveAllItems(new CompoundTag(), stacks);
 
-		return compoundTag;
+		messagePacker.packString(KEY_CARGO).packNil();
 	}
 
 	@Override

@@ -14,7 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -270,27 +272,30 @@ public class Rail extends SerializedDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = new CompoundTag();
-		compoundTag.putDouble(KEY_H_1, h1);
-		compoundTag.putDouble(KEY_K_1, k1);
-		compoundTag.putDouble(KEY_H_2, h2);
-		compoundTag.putDouble(KEY_K_2, k2);
-		compoundTag.putDouble(KEY_R_1, r1);
-		compoundTag.putDouble(KEY_R_2, r2);
-		compoundTag.putDouble(KEY_T_START_1, tStart1);
-		compoundTag.putDouble(KEY_T_END_1, tEnd1);
-		compoundTag.putDouble(KEY_T_START_2, tStart2);
-		compoundTag.putDouble(KEY_T_END_2, tEnd2);
-		compoundTag.putInt(KEY_Y_START, yStart);
-		compoundTag.putInt(KEY_Y_END, yEnd);
-		compoundTag.putBoolean(KEY_REVERSE_T_1, reverseT1);
-		compoundTag.putBoolean(KEY_IS_STRAIGHT_1, isStraight1);
-		compoundTag.putBoolean(KEY_REVERSE_T_2, reverseT2);
-		compoundTag.putBoolean(KEY_IS_STRAIGHT_2, isStraight2);
-		compoundTag.putString(KEY_RAIL_TYPE, railType.toString());
-		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		messagePacker.packString(KEY_H_1).packDouble(h1);
+		messagePacker.packString(KEY_K_1).packDouble(k1);
+		messagePacker.packString(KEY_H_2).packDouble(h2);
+		messagePacker.packString(KEY_K_2).packDouble(k2);
+		messagePacker.packString(KEY_R_1).packDouble(r1);
+		messagePacker.packString(KEY_R_2).packDouble(r2);
+		messagePacker.packString(KEY_T_START_1).packDouble(tStart1);
+		messagePacker.packString(KEY_T_END_1).packDouble(tEnd1);
+		messagePacker.packString(KEY_T_START_2).packDouble(tStart2);
+		messagePacker.packString(KEY_T_END_2).packDouble(tEnd2);
+		messagePacker.packString(KEY_Y_START).packInt(yStart);
+		messagePacker.packString(KEY_Y_END).packInt(yEnd);
+		messagePacker.packString(KEY_REVERSE_T_1).packBoolean(reverseT1);
+		messagePacker.packString(KEY_IS_STRAIGHT_1).packBoolean(isStraight1);
+		messagePacker.packString(KEY_REVERSE_T_2).packBoolean(reverseT2);
+		messagePacker.packString(KEY_IS_STRAIGHT_2).packBoolean(isStraight2);
+		messagePacker.packString(KEY_RAIL_TYPE).packString(railType.toString());
+		messagePacker.packString(KEY_TRANSPORT_MODE).packString(transportMode.toString());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return 18;
 	}
 
 	@Override

@@ -5,7 +5,9 @@ import mtr.data.SerializedDataBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class PathData extends SerializedDataBase {
@@ -53,15 +55,20 @@ public class PathData extends SerializedDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = new CompoundTag();
-		compoundTag.put(KEY_RAIL, rail.toCompoundTag());
-		compoundTag.putLong(KEY_SAVED_RAIL_BASE_ID, savedRailBaseId);
-		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
-		compoundTag.putInt(KEY_STOP_INDEX, stopIndex);
-		compoundTag.putLong(KEY_STARTING_POS, startingPos.asLong());
-		compoundTag.putLong(KEY_ENDING_POS, endingPos.asLong());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		messagePacker.packString(KEY_RAIL);
+		rail.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_SAVED_RAIL_BASE_ID).packLong(savedRailBaseId);
+		messagePacker.packString(KEY_DWELL_TIME).packInt(dwellTime);
+		messagePacker.packString(KEY_STOP_INDEX).packInt(stopIndex);
+		messagePacker.packString(KEY_STARTING_POS).packLong(startingPos.asLong());
+		messagePacker.packString(KEY_ENDING_POS).packLong(endingPos.asLong());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return 6;
 	}
 
 	@Override

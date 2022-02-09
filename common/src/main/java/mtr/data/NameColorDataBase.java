@@ -3,7 +3,9 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -52,13 +54,16 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = new CompoundTag();
-		compoundTag.putLong(KEY_ID, id);
-		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
-		compoundTag.putString(KEY_NAME, name);
-		compoundTag.putInt(KEY_COLOR, color);
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		messagePacker.packString(KEY_ID).packLong(id);
+		messagePacker.packString(KEY_TRANSPORT_MODE).packString(transportMode.toString());
+		messagePacker.packString(KEY_NAME).packString(name);
+		messagePacker.packString(KEY_COLOR).packInt(color);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return 4;
 	}
 
 	@Override

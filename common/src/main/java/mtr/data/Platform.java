@@ -4,7 +4,9 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public final class Platform extends SavedRailBase {
@@ -36,10 +38,15 @@ public final class Platform extends SavedRailBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_DWELL_TIME).packInt(dwellTime);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 1;
 	}
 
 	@Override
