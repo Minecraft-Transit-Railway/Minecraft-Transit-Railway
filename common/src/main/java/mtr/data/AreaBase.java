@@ -6,8 +6,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AreaBase extends NameColorDataBase {
@@ -44,6 +47,12 @@ public abstract class AreaBase extends NameColorDataBase {
 	public AreaBase(FriendlyByteBuf packet) {
 		super(packet);
 		setCorners(packet.readInt(), packet.readInt(), packet.readInt(), packet.readInt());
+	}
+
+	public AreaBase(Map<String, Value> map) {
+		super(map);
+		setCorners(map.get(KEY_X_MIN).asIntegerValue().asInt(), map.get(KEY_Z_MIN).asIntegerValue().asInt(),
+				map.get(KEY_X_MAX).asIntegerValue().asInt(), map.get(KEY_Z_MAX).asIntegerValue().asInt());
 	}
 
 	@Override

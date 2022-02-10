@@ -11,6 +11,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
@@ -79,6 +81,26 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
+	}
+
+	public Siding(Map<String, Value> map) {
+		super(map);
+		railLength = map.get(KEY_RAIL_LENGTH).asFloatValue().toFloat();
+		setTrainDetails(map.get(KEY_TRAIN_ID).asStringValue().asString(), TrainType.getOrDefault(map.get(KEY_BASE_TRAIN_TYPE).asStringValue().asString()));
+		unlimitedTrains = map.get(KEY_UNLIMITED_TRAINS).asBooleanValue().getBoolean();
+		maxTrains = map.get(KEY_MAX_TRAINS).asIntegerValue().asInt();
+
+		ArrayValue pathArray = map.get(KEY_PATH).asArrayValue();
+		final int pathCount = pathArray.size();
+		for (int i = 0; i < pathCount; i++) {
+			path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathArray.get(i))));
+		}
+
+		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength);
+
+		ArrayValue trainArray = map.get(KEY_TRAINS).asArrayValue();
+		trainArray.forEach(value -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
+		generateDistances();
 	}
 
 	@Override

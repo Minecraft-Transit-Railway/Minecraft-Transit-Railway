@@ -6,6 +6,7 @@ import mtr.TrigCache;
 import mtr.block.*;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
+import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.value.Value;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -47,6 +49,11 @@ public class TrainServer extends Train {
 
 	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
 		super(sidingId, railLength, path, distances, compoundTag);
+		this.timeSegments = timeSegments;
+	}
+
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
+		super(sidingId, railLength, path, distances, map);
 		this.timeSegments = timeSegments;
 	}
 

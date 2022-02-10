@@ -16,6 +16,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
@@ -123,6 +125,31 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		inventory = null;
+	}
+
+	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, Map<String, Value> map) {
+		super(map);
+
+		this.sidingId = sidingId;
+		this.railLength = railLength;
+		this.path = path;
+		this.distances = distances;
+
+		speed = map.get(KEY_SPEED).asFloatValue().toFloat();
+		railProgress = map.get(KEY_RAIL_PROGRESS).asFloatValue().toFloat();
+		stopCounter = map.get(KEY_STOP_COUNTER).asFloatValue().toFloat();
+		nextStoppingIndex = map.get(KEY_NEXT_STOPPING_INDEX).asIntegerValue().toInt();
+		reversed = map.get(KEY_REVERSED).asBooleanValue().getBoolean();
+
+		trainId = map.get(KEY_TRAIN_CUSTOM_ID).asStringValue().asString();
+		baseTrainType = TrainType.getOrDefault(map.get(KEY_TRAIN_TYPE).asStringValue().asString());
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+
+		isOnRoute = map.get(KEY_IS_ON_ROUTE).asBooleanValue().getBoolean();
+		final ArrayValue ridingEntitiesArray = map.get(KEY_RIDING_ENTITIES).asArrayValue();
+		ridingEntitiesArray.forEach(value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
+
+		// TODO Cargo
 	}
 
 	@Override

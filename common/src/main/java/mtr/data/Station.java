@@ -4,6 +4,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +46,18 @@ public final class Station extends AreaBase {
 				destinations.add(tagDestinations.getString(keyDestination));
 			}
 			exits.put(keyParent, destinations);
+		}
+	}
+
+	public Station(Map<String, Value> map) throws IOException {
+		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
+
+		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {
+			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
+			for (final Value destination : entry.getValue().asArrayValue()) {
+				destinations.add(destination.asStringValue().asString());
+			}
+			exits.put(entry.getKey().asStringValue().asString(), destinations);
 		}
 	}
 

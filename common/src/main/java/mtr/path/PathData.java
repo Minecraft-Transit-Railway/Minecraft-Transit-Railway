@@ -1,13 +1,16 @@
 package mtr.path;
 
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import mtr.data.SerializedDataBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 public class PathData extends SerializedDataBase {
@@ -52,6 +55,15 @@ public class PathData extends SerializedDataBase {
 		stopIndex = packet.readInt();
 		startingPos = BlockPos.of(packet.readLong());
 		endingPos = BlockPos.of(packet.readLong());
+	}
+
+	public PathData(Map<String, Value> map) {
+		rail = new Rail(RailwayData.castMessagePackValueToSKMap(map.get(KEY_RAIL)));
+		savedRailBaseId = map.get(KEY_SAVED_RAIL_BASE_ID).asIntegerValue().asLong();
+		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
+		stopIndex = map.get(KEY_STOP_INDEX).asIntegerValue().asInt();
+		startingPos = BlockPos.of(map.get(KEY_STARTING_POS).asIntegerValue().asLong());
+		endingPos = BlockPos.of(map.get(KEY_ENDING_POS).asIntegerValue().asLong());
 	}
 
 	@Override

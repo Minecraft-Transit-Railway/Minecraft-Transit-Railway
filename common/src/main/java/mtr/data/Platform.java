@@ -5,8 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Platform extends SavedRailBase {
@@ -35,6 +37,11 @@ public final class Platform extends SavedRailBase {
 	public Platform(FriendlyByteBuf packet) {
 		super(packet);
 		dwellTime = packet.readInt();
+	}
+
+	public Platform(Map<String, Value> map) {
+		super(map);
+		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
 	}
 
 	@Override

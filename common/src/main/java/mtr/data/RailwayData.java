@@ -1,5 +1,6 @@
 package mtr.data;
 
+import com.sun.tools.javac.main.Option;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
@@ -18,12 +19,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
 import java.io.*;
 import java.util.*;
@@ -60,7 +65,10 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int SCHEDULE_UPDATE_TICKS = 60;
 
+	private static final int DATA_VERSION = 1;
+
 	private static final String NAME = "mtr_train_data";
+	private static final String KEY_DATA_VERSION = "mtr_data_version";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_SIDINGS = "sidings";
@@ -130,6 +138,46 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
+	public void load(MessageUnpacker unpacker) throws IOException {
+		int mapSize = unpacker.unpackMapHeader();
+		for (int i = 0; i < mapSize; ++i) {
+			String key = unpacker.unpackString();
+			if (key.equals(KEY_DATA_VERSION)) {
+				if (unpacker.unpackInt() > DATA_VERSION) throw new IllegalArgumentException("Unsupported data version");
+				continue;
+			}
+			int arraySize = unpacker.unpackArrayHeader();
+			switch (key) {
+				case KEY_STATIONS:
+					for (int j = 0; j < arraySize; ++j) stations.add(new Station(readMessagePackSKMap(unpacker)));
+					break;
+				case KEY_PLATFORMS:
+					for (int j = 0; j < arraySize; ++j) platforms.add(new Platform(readMessagePackSKMap(unpacker)));
+					break;
+				case KEY_SIDINGS:
+					for (int j = 0; j < arraySize; ++j) sidings.add(new Siding(readMessagePackSKMap(unpacker)));
+					break;
+				case KEY_ROUTES:
+					for (int j = 0; j < arraySize; ++j) routes.add(new Route(readMessagePackSKMap(unpacker)));
+					break;
+				case KEY_DEPOTS:
+					for (int j = 0; j < arraySize; ++j) depots.add(new Depot(readMessagePackSKMap(unpacker)));
+					break;
+				case KEY_RAILS:
+					for (int j = 0; j < arraySize; ++j) {
+						final RailEntry railEntry = new RailEntry(readMessagePackSKMap(unpacker));
+						rails.put(railEntry.pos, railEntry.connections);
+					}
+					break;
+				case KEY_SIGNAL_BLOCKS:
+					for (int j = 0; j < arraySize; ++j) signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(readMessagePackSKMap(unpacker)));
+					break;
+			}
+		}
+		validateData();
+		dataCache.sync();
+	}
+
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
 		return compoundTag;
@@ -148,7 +196,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			try {
 				validateData();
 				canWriteToFile = false;
-				messagePacker.packMapHeader(7);
+				messagePacker.packMapHeader(8);
+				messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
 
 				writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
 				writeMessagePackDataset(messagePacker, platforms, KEY_PLATFORMS);
@@ -676,6 +725,24 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
+	public static Map<String, Value> readMessagePackSKMap(MessageUnpacker unpacker) throws IOException {
+		int size = unpacker.unpackMapHeader();
+		HashMap<String, Value> result = new HashMap<>(size);
+		for (int i = 0; i < size; ++i) {
+			result.put(unpacker.unpackString(), unpacker.unpackValue());
+		}
+		return result;
+	}
+
+	public static Map<String, Value> castMessagePackValueToSKMap(Value value) {
+		Map<Value, Value> oldMap = value.asMapValue().map();
+		HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
+		oldMap.forEach((key, val) -> {
+			resultMap.put(key.asStringValue().asString(), val);
+		});
+		return resultMap;
+	}
+
 	public static RailwayData getInstance(Level world) {
 		return getInstance(world, () -> new RailwayData(world), NAME);
 	}
@@ -741,14 +808,24 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		}
 
+		public RailEntry(Map<String, Value> map) {
+			pos = BlockPos.of(map.get(KEY_NODE_POS).asIntegerValue().asLong());
+
+			final ArrayValue mapConnections = map.get(KEY_RAIL_CONNECTIONS).asArrayValue();
+			connections = new HashMap<>(mapConnections.size());
+			mapConnections.forEach(value -> {
+				Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
+				connections.put(BlockPos.of(mapSK.get(KEY_NODE_POS).asIntegerValue().asLong()), new Rail(mapSK));
+			});
+		}
+
 		@Override
 		public void toMessagePack(MessagePacker messagePacker) throws IOException {
 			messagePacker.packString(KEY_NODE_POS).packLong(pos.asLong());
 
-			messagePacker.packString(KEY_RAIL_CONNECTIONS).packMapHeader(connections.size());
+			messagePacker.packString(KEY_RAIL_CONNECTIONS).packArrayHeader(connections.size());
 			for (final Map.Entry<BlockPos, Rail> entry : connections.entrySet()) {
 				final BlockPos endNodePos = entry.getKey();
-				messagePacker.packString(KEY_RAIL_CONNECTIONS + endNodePos.asLong());
 				messagePacker.packMapHeader(1);
 				messagePacker.packString(KEY_NODE_POS).packLong(endNodePos.asLong());
 			}
