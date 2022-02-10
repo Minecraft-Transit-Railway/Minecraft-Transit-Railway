@@ -74,9 +74,9 @@
                     string += endSpeed.toPrecision(5);
                     string += ",";
                     string += acceleration.toPrecision(5);
-                    string += "]";
+                    string += "],";
                 }
-                string += "]";
+                string = string.substring(0, string.length - 1) + "]";
                 return string;
             }
         },

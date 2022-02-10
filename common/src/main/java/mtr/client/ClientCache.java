@@ -48,8 +48,8 @@ public class ClientCache extends DataCache {
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 
-	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
-		super(stations, platforms, sidings, routes, depots);
+	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, String accelerationDescriptions) {
+		super(stations, platforms, sidings, routes, depots, accelerationDescriptions);
 	}
 
 	@Override

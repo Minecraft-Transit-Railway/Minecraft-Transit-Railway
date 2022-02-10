@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.client.Config;
 import net.minecraft.core.BlockPos;
 
 import java.util.HashMap;
@@ -24,13 +25,15 @@ public class DataCache {
 	protected final Set<Siding> sidings;
 	protected final Set<Route> routes;
 	protected final Set<Depot> depots;
+	protected final String accelerationDescriptions;
 
-	public DataCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
+	public DataCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots, String accelerationDescriptions) {
 		this.stations = stations;
 		this.platforms = platforms;
 		this.sidings = sidings;
 		this.routes = routes;
 		this.depots = depots;
+		this.accelerationDescriptions = accelerationDescriptions;
 	}
 
 	public final void sync() {

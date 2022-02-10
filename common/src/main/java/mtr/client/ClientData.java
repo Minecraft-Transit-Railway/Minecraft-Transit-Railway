@@ -23,13 +23,14 @@ public final class ClientData {
 	public static final Set<Siding> SIDINGS = new HashSet<>();
 	public static final Set<Route> ROUTES = new HashSet<>();
 	public static final Set<Depot> DEPOTS = new HashSet<>();
+	public static final String ACCELERATION_DESCRIPTIONS = "[[0.02, 0.00073], [0.7, 0.0025], [300, 0.002]]";
 	public static final SignalBlocks SIGNAL_BLOCKS = new SignalBlocks();
 	public static final Map<BlockPos, Map<BlockPos, Rail>> RAILS = new HashMap<>();
 	public static final Set<TrainClient> TRAINS = new HashSet<>();
 	public static final List<DataConverter> RAIL_ACTIONS = new ArrayList<>();
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
-	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
+	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS, ACCELERATION_DESCRIPTIONS);
 
 	public static void writeRails(Minecraft client, FriendlyByteBuf packet) {
 		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
