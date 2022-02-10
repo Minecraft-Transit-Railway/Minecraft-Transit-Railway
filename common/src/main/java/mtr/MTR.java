@@ -9,6 +9,8 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +28,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -406,6 +410,27 @@ public class MTR implements IPacket {
 				e.printStackTrace();
 			}
 		});
+
+		// TODO Debugging Code
+		try {
+			RailwayData data = new RailwayData(null);
+			CompoundTag wrapped = NbtIo.readCompressed(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data-easy.dat"));
+			data.load(wrapped.getCompound("data"));
+			data.setDirty();
+			data.save(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test\\mtr_train_data.msgpack.gz"));
+			try {
+				Thread.sleep(3000); // Wait for threaded write...
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			data = new RailwayData(null);
+			data.load(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test\\mtr_train_data.msgpack.gz"));
+			data.setDirty();
+			data.save(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test2\\mtr_train_data.msgpack.gz"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean isGameTickInterval(int interval) {

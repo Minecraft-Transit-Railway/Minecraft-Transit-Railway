@@ -50,6 +50,7 @@ public final class Station extends AreaBase {
 	}
 
 	public Station(Map<String, Value> map) throws IOException {
+		super(map);
 		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
 
 		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {

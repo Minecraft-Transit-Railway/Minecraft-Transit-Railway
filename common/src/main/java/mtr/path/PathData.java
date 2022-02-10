@@ -69,6 +69,7 @@ public class PathData extends SerializedDataBase {
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
 		messagePacker.packString(KEY_RAIL);
+		messagePacker.packMapHeader(rail.messagePackLength());
 		rail.toMessagePack(messagePacker);
 
 		messagePacker.packString(KEY_SAVED_RAIL_BASE_ID).packLong(savedRailBaseId);

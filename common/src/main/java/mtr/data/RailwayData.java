@@ -1,6 +1,5 @@
 package mtr.data;
 
-import com.sun.tools.javac.main.Option;
 import io.netty.buffer.Unpooled;
 import mtr.MTR;
 import mtr.Registry;
@@ -33,6 +32,7 @@ import org.msgpack.value.Value;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class RailwayData extends PersistentStateMapper implements IPacket {
@@ -138,6 +138,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 	}
 
+	public void load(File file) throws IOException {
+		MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))));
+		load(unpacker);
+	}
+
 	public void load(MessageUnpacker unpacker) throws IOException {
 		int mapSize = unpacker.unpackMapHeader();
 		for (int i = 0; i < mapSize; ++i) {
@@ -212,6 +217,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 					final BlockPos startPos = entry.getKey();
 					final Map<BlockPos, Rail> railMap = entry.getValue();
 					final RailEntry data = new RailEntry(startPos, railMap);
+					messagePacker.packMapHeader(data.messagePackLength());
 					data.toMessagePack(messagePacker);
 				}
 
@@ -219,7 +225,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 				new Thread(() -> {
 					try {
-						final File newFile = file.toPath().getParent().resolve(NAME + ".msgpack").toFile();
+						final File newFile = file.toPath().getParent().resolve(NAME + ".msgpack.gz").toFile();
 						newFile.createNewFile();
 						final FileOutputStream fileOutputStream = new FileOutputStream(newFile);
 						final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new BufferedOutputStream(fileOutputStream));
@@ -716,7 +722,19 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public static void writeMessagePackDataset(MessagePacker messagePacker, Collection<? extends SerializedDataBase> dataSet, String key, boolean skipVerify) throws IOException {
 		messagePacker.packString(key);
-		messagePacker.packArrayHeader(dataSet.size());
+
+		int dataSetSize = 0;
+		if (skipVerify) {
+			dataSetSize = dataSet.size();
+		} else {
+			for (final SerializedDataBase data : dataSet) {
+				if (!(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+					++dataSetSize;
+				}
+			}
+		}
+
+		messagePacker.packArrayHeader(dataSetSize);
 		for (final SerializedDataBase data : dataSet) {
 			if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
 				messagePacker.packMapHeader(data.messagePackLength());
@@ -826,8 +844,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			messagePacker.packString(KEY_RAIL_CONNECTIONS).packArrayHeader(connections.size());
 			for (final Map.Entry<BlockPos, Rail> entry : connections.entrySet()) {
 				final BlockPos endNodePos = entry.getKey();
-				messagePacker.packMapHeader(1);
+				messagePacker.packMapHeader(entry.getValue().messagePackLength() + 1);
 				messagePacker.packString(KEY_NODE_POS).packLong(endNodePos.asLong());
+				entry.getValue().toMessagePack(messagePacker);
 			}
 		}
 
