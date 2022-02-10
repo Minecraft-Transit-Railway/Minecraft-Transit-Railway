@@ -414,7 +414,7 @@ public class MTR implements IPacket {
 		// TODO Debugging Code
 		try {
 			RailwayData data = new RailwayData(null);
-			CompoundTag wrapped = NbtIo.readCompressed(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data-easy.dat"));
+			CompoundTag wrapped = NbtIo.readCompressed(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data-server.dat"));
 			data.load(wrapped.getCompound("data"));
 			data.setDirty();
 			data.save(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test\\mtr_train_data.msgpack.gz"));

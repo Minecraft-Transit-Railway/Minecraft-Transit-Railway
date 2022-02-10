@@ -8,7 +8,6 @@ import net.minecraft.util.Tuple;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
-import java.awt.geom.Area;
 import java.io.IOException;
 import java.util.Map;
 import java.util.function.Consumer;

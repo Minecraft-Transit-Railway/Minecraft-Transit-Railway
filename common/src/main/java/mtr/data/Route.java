@@ -71,6 +71,8 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	public Route(Map<String, Value> map) {
+		super(map);
+
 		final ArrayValue platformIdsArray = map.get(KEY_PLATFORM_IDS).asArrayValue();
 		platformIds = new ArrayList<>(platformIdsArray.size());
 		for (final Value platformId : platformIdsArray) {
