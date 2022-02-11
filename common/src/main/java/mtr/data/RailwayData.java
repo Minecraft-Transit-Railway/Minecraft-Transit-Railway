@@ -198,59 +198,58 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void save(File file) {
-		if (isDirty()) {
-			if (!canWriteToFile) {
-				return;
-			}
-			final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
-			final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
-
-			final long time1 = System.nanoTime();
-			try {
-				validateData();
-				canWriteToFile = false;
-				messagePacker.packMapHeader(8);
-				messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
-
-				writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
-				writeMessagePackDataset(messagePacker, platforms, KEY_PLATFORMS);
-				writeMessagePackDataset(messagePacker, sidings, KEY_SIDINGS);
-				writeMessagePackDataset(messagePacker, routes, KEY_ROUTES, false);
-				writeMessagePackDataset(messagePacker, depots, KEY_DEPOTS, false);
-				writeMessagePackDataset(messagePacker, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
-
-				messagePacker.packString(KEY_RAILS);
-				messagePacker.packArrayHeader(rails.size());
-				for (final Map.Entry<BlockPos, Map<BlockPos, Rail>> entry : rails.entrySet()) {
-					final BlockPos startPos = entry.getKey();
-					final Map<BlockPos, Rail> railMap = entry.getValue();
-					final RailEntry data = new RailEntry(startPos, railMap);
-					messagePacker.packMapHeader(data.messagePackLength());
-					data.toMessagePack(messagePacker);
-				}
-				messagePacker.close();
-
-				new Thread(() -> {
-					CompoundTag compoundTag = new CompoundTag();
-					CompoundTag dataTag = new CompoundTag();
-					dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
-					dataTag.putByteArray(KEY_RAW_MSGPACK, bufferStream.toByteArray());
-					compoundTag.put("data", dataTag);
-					compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-					try {
-						NbtIo.writeCompressed(compoundTag, file);
-					} catch (IOException iOException) {
-						iOException.printStackTrace();
-					}
-				}).start();
-				this.setDirty(false);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			final long time2 = System.nanoTime();
-
-			System.out.printf("MessagePack: %f ms\n", (time2 - time1) / 1000000F);
+		if (!canWriteToFile) {
+			return;
 		}
+		final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
+		final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
+
+		final long time1 = System.nanoTime();
+		try {
+			validateData();
+			canWriteToFile = false;
+			messagePacker.packMapHeader(8);
+			messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
+
+			writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
+			writeMessagePackDataset(messagePacker, platforms, KEY_PLATFORMS);
+			writeMessagePackDataset(messagePacker, sidings, KEY_SIDINGS);
+			writeMessagePackDataset(messagePacker, routes, KEY_ROUTES, false);
+			writeMessagePackDataset(messagePacker, depots, KEY_DEPOTS, false);
+			writeMessagePackDataset(messagePacker, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
+
+			messagePacker.packString(KEY_RAILS);
+			messagePacker.packArrayHeader(rails.size());
+			for (final Map.Entry<BlockPos, Map<BlockPos, Rail>> entry : rails.entrySet()) {
+				final BlockPos startPos = entry.getKey();
+				final Map<BlockPos, Rail> railMap = entry.getValue();
+				final RailEntry data = new RailEntry(startPos, railMap);
+				messagePacker.packMapHeader(data.messagePackLength());
+				data.toMessagePack(messagePacker);
+			}
+			messagePacker.close();
+
+			new Thread(() -> {
+				CompoundTag compoundTag = new CompoundTag();
+				CompoundTag dataTag = new CompoundTag();
+				dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
+				dataTag.putByteArray(KEY_RAW_MSGPACK, bufferStream.toByteArray());
+				compoundTag.put("data", dataTag);
+				compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+				try {
+					NbtIo.writeCompressed(compoundTag, file);
+				} catch (IOException iOException) {
+					iOException.printStackTrace();
+				} finally {
+					canWriteToFile = true;
+				}
+			}).start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		final long time2 = System.nanoTime();
+
+		System.out.printf("MessagePack: %f ms\n", (time2 - time1) / 1000000F);
 	}
 
 	public void simulateTrains() {
