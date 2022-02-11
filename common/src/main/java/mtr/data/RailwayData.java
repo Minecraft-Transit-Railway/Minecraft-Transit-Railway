@@ -34,6 +34,7 @@ import org.msgpack.value.Value;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -196,18 +197,16 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return compoundTag;
 	}
 
+	ReentrantLock fileWritingLock = new ReentrantLock();
+
 	@Override
 	public void save(File file) {
-		if (!canWriteToFile) {
-			return;
-		}
 		final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
 		final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
 
 		final long time1 = System.nanoTime();
 		try {
 			validateData();
-			canWriteToFile = false;
 			messagePacker.packMapHeader(8);
 			messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
 
@@ -229,6 +228,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			messagePacker.close();
 
+			fileWritingLock.lock();
 			new Thread(() -> {
 				CompoundTag compoundTag = new CompoundTag();
 				CompoundTag dataTag = new CompoundTag();
@@ -241,7 +241,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				} catch (IOException iOException) {
 					iOException.printStackTrace();
 				} finally {
-					canWriteToFile = true;
+					fileWritingLock.unlock();
 				}
 			}).start();
 		} catch (Exception e) {
