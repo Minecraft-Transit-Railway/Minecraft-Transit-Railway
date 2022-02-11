@@ -9,11 +9,14 @@ import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -68,6 +71,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final int DATA_VERSION = 1;
 
 	private static final String NAME = "mtr_train_data";
+	private static final String KEY_RAW_MSGPACK = "raw_msgpack";
 	private static final String KEY_DATA_VERSION = "mtr_data_version";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
@@ -94,53 +98,57 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void load(CompoundTag compoundTag) {
-		try {
-			final CompoundTag tagStations = compoundTag.getCompound(KEY_STATIONS);
-			for (final String key : tagStations.getAllKeys()) {
-				stations.add(new Station(tagStations.getCompound(key)));
+		if (compoundTag.contains(KEY_RAW_MSGPACK)) {
+			MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(compoundTag.getByteArray(KEY_RAW_MSGPACK));
+			try {
+				load(unpacker);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		} else {
+			try {
+				final CompoundTag tagStations = compoundTag.getCompound(KEY_STATIONS);
+				for (final String key : tagStations.getAllKeys()) {
+					stations.add(new Station(tagStations.getCompound(key)));
+				}
 
-			final CompoundTag tagNewPlatforms = compoundTag.getCompound(KEY_PLATFORMS);
-			for (final String key : tagNewPlatforms.getAllKeys()) {
-				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
+				final CompoundTag tagNewPlatforms = compoundTag.getCompound(KEY_PLATFORMS);
+				for (final String key : tagNewPlatforms.getAllKeys()) {
+					platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
+				}
+
+				final CompoundTag tagNewSidings = compoundTag.getCompound(KEY_SIDINGS);
+				for (final String key : tagNewSidings.getAllKeys()) {
+					sidings.add(new Siding(tagNewSidings.getCompound(key)));
+				}
+
+				final CompoundTag tagNewRoutes = compoundTag.getCompound(KEY_ROUTES);
+				for (final String key : tagNewRoutes.getAllKeys()) {
+					routes.add(new Route(tagNewRoutes.getCompound(key)));
+				}
+
+				final CompoundTag tagNewDepots = compoundTag.getCompound(KEY_DEPOTS);
+				for (final String key : tagNewDepots.getAllKeys()) {
+					depots.add(new Depot(tagNewDepots.getCompound(key)));
+				}
+
+				final CompoundTag tagNewRails = compoundTag.getCompound(KEY_RAILS);
+				for (final String key : tagNewRails.getAllKeys()) {
+					final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
+					rails.put(railEntry.pos, railEntry.connections);
+				}
+
+				final CompoundTag tagNewSignalBlocks = compoundTag.getCompound(KEY_SIGNAL_BLOCKS);
+				for (final String key : tagNewSignalBlocks.getAllKeys()) {
+					signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
+				}
+
+				validateData();
+				dataCache.sync();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			final CompoundTag tagNewSidings = compoundTag.getCompound(KEY_SIDINGS);
-			for (final String key : tagNewSidings.getAllKeys()) {
-				sidings.add(new Siding(tagNewSidings.getCompound(key)));
-			}
-
-			final CompoundTag tagNewRoutes = compoundTag.getCompound(KEY_ROUTES);
-			for (final String key : tagNewRoutes.getAllKeys()) {
-				routes.add(new Route(tagNewRoutes.getCompound(key)));
-			}
-
-			final CompoundTag tagNewDepots = compoundTag.getCompound(KEY_DEPOTS);
-			for (final String key : tagNewDepots.getAllKeys()) {
-				depots.add(new Depot(tagNewDepots.getCompound(key)));
-			}
-
-			final CompoundTag tagNewRails = compoundTag.getCompound(KEY_RAILS);
-			for (final String key : tagNewRails.getAllKeys()) {
-				final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
-				rails.put(railEntry.pos, railEntry.connections);
-			}
-
-			final CompoundTag tagNewSignalBlocks = compoundTag.getCompound(KEY_SIGNAL_BLOCKS);
-			for (final String key : tagNewSignalBlocks.getAllKeys()) {
-				signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
-			}
-
-			validateData();
-			dataCache.sync();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-	}
-
-	public void load(File file) throws IOException {
-		MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))));
-		load(unpacker);
 	}
 
 	public void load(MessageUnpacker unpacker) throws IOException {
@@ -220,25 +228,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 					messagePacker.packMapHeader(data.messagePackLength());
 					data.toMessagePack(messagePacker);
 				}
-
 				messagePacker.close();
 
 				new Thread(() -> {
+					CompoundTag compoundTag = new CompoundTag();
+					CompoundTag dataTag = new CompoundTag();
+					dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
+					dataTag.putByteArray(KEY_RAW_MSGPACK, bufferStream.toByteArray());
+					compoundTag.put("data", dataTag);
+					compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
 					try {
-						final File newFile = file.toPath().getParent().resolve(NAME + ".msgpack.gz").toFile();
-						newFile.createNewFile();
-						final FileOutputStream fileOutputStream = new FileOutputStream(newFile);
-						final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new BufferedOutputStream(fileOutputStream));
-						bufferStream.writeTo(gzipOutputStream);
-						bufferStream.close();
-						gzipOutputStream.close();
-						fileOutputStream.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					} finally {
-						canWriteToFile = true;
+						NbtIo.writeCompressed(compoundTag, file);
+					} catch (IOException iOException) {
+						iOException.printStackTrace();
 					}
 				}).start();
+				this.setDirty(false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

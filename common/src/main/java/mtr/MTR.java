@@ -414,20 +414,11 @@ public class MTR implements IPacket {
 		// TODO Debugging Code
 		try {
 			RailwayData data = new RailwayData(null);
-			CompoundTag wrapped = NbtIo.readCompressed(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data-server.dat"));
+			File nbtFile = new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data.dat");
+			CompoundTag wrapped = NbtIo.readCompressed(nbtFile);
 			data.load(wrapped.getCompound("data"));
 			data.setDirty();
-			data.save(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test\\mtr_train_data.msgpack.gz"));
-			try {
-				Thread.sleep(3000); // Wait for threaded write...
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			data = new RailwayData(null);
-			data.load(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test\\mtr_train_data.msgpack.gz"));
-			data.setDirty();
-			data.save(new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\test2\\mtr_train_data.msgpack.gz"));
+			data.save(nbtFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
