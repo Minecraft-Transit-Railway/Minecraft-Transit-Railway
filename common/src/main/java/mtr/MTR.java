@@ -410,18 +410,6 @@ public class MTR implements IPacket {
 				e.printStackTrace();
 			}
 		});
-
-		// TODO Debugging Code
-		try {
-			RailwayData data = new RailwayData(null);
-			File nbtFile = new File("F:\\SharedUserWorkData\\MinecraftModDevelop\\Minecraft-Transit-Railway\\fabric\\run\\saves\\New World\\data\\mtr_train_data.dat");
-			CompoundTag wrapped = NbtIo.readCompressed(nbtFile);
-			data.load(wrapped.getCompound("data"));
-			data.setDirty();
-			data.save(nbtFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static boolean isGameTickInterval(int interval) {
