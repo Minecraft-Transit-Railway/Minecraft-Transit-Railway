@@ -50,6 +50,21 @@ public class Depot extends AreaBase {
 		super(id, transportMode);
 	}
 
+	public Depot(Map<String, Value> map) {
+		super(map);
+
+		map.get(KEY_ROUTE_IDS).asArrayValue().forEach(routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
+
+		final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
+		for (int i = 0; i < HOURS_IN_DAY; i++) {
+			frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+		}
+
+		lastDeployedMillis = System.currentTimeMillis() - map.get(KEY_LAST_DEPLOYED).asIntegerValue().asLong();
+		deployIndex = map.get(KEY_DEPLOY_INDEX).asIntegerValue().asInt();
+	}
+
+	@Deprecated
 	public Depot(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -80,23 +95,6 @@ public class Depot extends AreaBase {
 
 		lastDeployedMillis = packet.readLong();
 		deployIndex = packet.readInt();
-	}
-
-	public Depot(Map<String, Value> map) {
-		super(map);
-
-		final ArrayValue routeIdsArray = map.get(KEY_ROUTE_IDS).asArrayValue();
-		for (final Value routeId : routeIdsArray) {
-			routeIds.add(routeId.asIntegerValue().asLong());
-		}
-
-		final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
-		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
-		}
-
-		lastDeployedMillis = System.currentTimeMillis() - map.get(KEY_LAST_DEPLOYED).asIntegerValue().asLong();
-		deployIndex = map.get(KEY_DEPLOY_INDEX).asIntegerValue().asInt();
 	}
 
 	@Override

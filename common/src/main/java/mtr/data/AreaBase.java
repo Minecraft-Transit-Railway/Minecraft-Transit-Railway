@@ -38,6 +38,12 @@ public abstract class AreaBase extends NameColorDataBase {
 		super(id, transportMode);
 	}
 
+	public AreaBase(Map<String, Value> map) {
+		super(map);
+		setCorners(map.get(KEY_X_MIN).asIntegerValue().asInt(), map.get(KEY_Z_MIN).asIntegerValue().asInt(), map.get(KEY_X_MAX).asIntegerValue().asInt(), map.get(KEY_Z_MAX).asIntegerValue().asInt());
+	}
+
+	@Deprecated
 	public AreaBase(CompoundTag compoundTag) {
 		super(compoundTag);
 		setCorners(compoundTag.getInt(KEY_X_MIN), compoundTag.getInt(KEY_Z_MIN), compoundTag.getInt(KEY_X_MAX), compoundTag.getInt(KEY_Z_MAX));
@@ -46,12 +52,6 @@ public abstract class AreaBase extends NameColorDataBase {
 	public AreaBase(FriendlyByteBuf packet) {
 		super(packet);
 		setCorners(packet.readInt(), packet.readInt(), packet.readInt(), packet.readInt());
-	}
-
-	public AreaBase(Map<String, Value> map) {
-		super(map);
-		setCorners(map.get(KEY_X_MIN).asIntegerValue().asInt(), map.get(KEY_Z_MIN).asIntegerValue().asInt(),
-				map.get(KEY_X_MAX).asIntegerValue().asInt(), map.get(KEY_Z_MAX).asIntegerValue().asInt());
 	}
 
 	@Override

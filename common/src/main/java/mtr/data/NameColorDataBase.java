@@ -41,6 +41,14 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		name = "";
 	}
 
+	public NameColorDataBase(Map<String, Value> map) {
+		id = map.get(KEY_ID).asIntegerValue().asLong();
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
+		name = map.get(KEY_NAME).asStringValue().asString();
+		color = map.get(KEY_COLOR).asIntegerValue().asInt();
+	}
+
+	@Deprecated
 	public NameColorDataBase(CompoundTag compoundTag) {
 		id = compoundTag.getLong(KEY_ID);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
@@ -53,13 +61,6 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		name = packet.readUtf(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
 		color = packet.readInt();
-	}
-
-	public NameColorDataBase(Map<String, Value> map) {
-		id = map.get(KEY_ID).asIntegerValue().asLong();
-		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
-		name = map.get(KEY_NAME).asStringValue().asString();
-		color = map.get(KEY_COLOR).asIntegerValue().asInt();
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
@@ -34,6 +33,20 @@ public final class Station extends AreaBase {
 		super(id);
 	}
 
+	public Station(Map<String, Value> map) throws IOException {
+		super(map);
+		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
+
+		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {
+			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
+			for (final Value destination : entry.getValue().asArrayValue()) {
+				destinations.add(destination.asStringValue().asString());
+			}
+			exits.put(entry.getKey().asStringValue().asString(), destinations);
+		}
+	}
+
+	@Deprecated
 	public Station(CompoundTag compoundTag) {
 		super(compoundTag);
 		zone = compoundTag.getInt(KEY_ZONE);
@@ -46,19 +59,6 @@ public final class Station extends AreaBase {
 				destinations.add(tagDestinations.getString(keyDestination));
 			}
 			exits.put(keyParent, destinations);
-		}
-	}
-
-	public Station(Map<String, Value> map) throws IOException {
-		super(map);
-		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
-
-		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {
-			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
-			for (final Value destination : entry.getValue().asArrayValue()) {
-				destinations.add(destination.asStringValue().asString());
-			}
-			exits.put(entry.getKey().asStringValue().asString(), destinations);
 		}
 	}
 

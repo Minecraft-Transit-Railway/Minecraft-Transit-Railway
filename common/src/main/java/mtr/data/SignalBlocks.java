@@ -6,7 +6,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.DyeColor;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.ArrayValue;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
@@ -172,6 +171,21 @@ public class SignalBlocks {
 			rails.add(rail);
 		}
 
+		public SignalBlock(Map<String, Value> map) {
+			super(map);
+			DyeColor savedColor;
+			try {
+				savedColor = DyeColor.values()[map.get(KEY_COLOR).asIntegerValue().asInt()];
+			} catch (Exception e) {
+				e.printStackTrace();
+				savedColor = DyeColor.RED;
+			}
+			color = savedColor;
+
+			map.get(KEY_RAILS).asArrayValue().forEach(value -> rails.add(UUID.fromString(value.asStringValue().asString())));
+		}
+
+		@Deprecated
 		public SignalBlock(CompoundTag compoundTag) {
 			super(compoundTag);
 			DyeColor savedColor;
@@ -200,21 +214,6 @@ public class SignalBlocks {
 			for (int i = 0; i < railCount; i++) {
 				rails.add(packet.readUUID());
 			}
-		}
-
-		public SignalBlock(Map<String, Value> map) {
-			super(map);
-			DyeColor savedColor;
-			try {
-				savedColor = DyeColor.values()[map.get(KEY_COLOR).asIntegerValue().asInt()];
-			} catch (Exception e) {
-				e.printStackTrace();
-				savedColor = DyeColor.RED;
-			}
-			color = savedColor;
-
-			ArrayValue railsArray = map.get(KEY_RAILS).asArrayValue();
-			railsArray.forEach(value -> rails.add(UUID.fromString(value.asStringValue().asString())));
 		}
 
 		@Override

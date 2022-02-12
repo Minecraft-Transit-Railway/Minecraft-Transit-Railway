@@ -70,64 +70,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		inventory = new SimpleContainer(trainCars);
 	}
 
-	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, CompoundTag compoundTag) {
-		super(compoundTag);
-
-		this.sidingId = sidingId;
-		this.railLength = railLength;
-		this.path = path;
-		this.distances = distances;
-
-		speed = compoundTag.getFloat(KEY_SPEED);
-		railProgress = compoundTag.getFloat(KEY_RAIL_PROGRESS);
-		stopCounter = compoundTag.getFloat(KEY_STOP_COUNTER);
-		nextStoppingIndex = compoundTag.getInt(KEY_NEXT_STOPPING_INDEX);
-		reversed = compoundTag.getBoolean(KEY_REVERSED);
-
-		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
-		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
-
-		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
-		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
-		tagRidingEntities.getAllKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUUID(key)));
-
-		final NonNullList<ItemStack> stacks = NonNullList.withSize(trainCars, ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(compoundTag.getCompound(KEY_CARGO), stacks); // TODO: Verify with Jonathan: loadAllItems or saveAllItems?
-		inventory = new SimpleContainer(stacks.toArray(new ItemStack[0]));
-	}
-
-	public Train(FriendlyByteBuf packet) {
-		super(packet);
-
-		path = new ArrayList<>();
-		distances = new ArrayList<>();
-		final int pathSize = packet.readInt();
-		for (int i = 0; i < pathSize; i++) {
-			path.add(new PathData(packet));
-			distances.add(packet.readFloat());
-		}
-
-		sidingId = packet.readLong();
-		railLength = packet.readFloat();
-		speed = packet.readFloat();
-		railProgress = packet.readFloat();
-		stopCounter = packet.readFloat();
-		nextStoppingIndex = packet.readInt();
-		reversed = packet.readBoolean();
-		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
-		baseTrainType = TrainType.values()[packet.readInt()];
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
-		isOnRoute = packet.readBoolean();
-
-		final int ridingEntitiesCount = packet.readInt();
-		for (int i = 0; i < ridingEntitiesCount; i++) {
-			ridingEntities.add(packet.readUUID());
-		}
-
-		inventory = null; // TODO: Verify with Jonathan
-	}
-
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, Map<String, Value> map) {
 		super(map);
 
@@ -166,6 +108,65 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		inventory = inventory1;
 	}
 
+	@Deprecated
+	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, CompoundTag compoundTag) {
+		super(compoundTag);
+
+		this.sidingId = sidingId;
+		this.railLength = railLength;
+		this.path = path;
+		this.distances = distances;
+
+		speed = compoundTag.getFloat(KEY_SPEED);
+		railProgress = compoundTag.getFloat(KEY_RAIL_PROGRESS);
+		stopCounter = compoundTag.getFloat(KEY_STOP_COUNTER);
+		nextStoppingIndex = compoundTag.getInt(KEY_NEXT_STOPPING_INDEX);
+		reversed = compoundTag.getBoolean(KEY_REVERSED);
+
+		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
+		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+
+		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
+		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
+		tagRidingEntities.getAllKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUUID(key)));
+
+		final NonNullList<ItemStack> stacks = NonNullList.withSize(trainCars, ItemStack.EMPTY);
+		ContainerHelper.loadAllItems(compoundTag.getCompound(KEY_CARGO), stacks);
+		inventory = new SimpleContainer(stacks.toArray(new ItemStack[0]));
+	}
+
+	public Train(FriendlyByteBuf packet) {
+		super(packet);
+
+		path = new ArrayList<>();
+		distances = new ArrayList<>();
+		final int pathSize = packet.readInt();
+		for (int i = 0; i < pathSize; i++) {
+			path.add(new PathData(packet));
+			distances.add(packet.readFloat());
+		}
+
+		sidingId = packet.readLong();
+		railLength = packet.readFloat();
+		speed = packet.readFloat();
+		railProgress = packet.readFloat();
+		stopCounter = packet.readFloat();
+		nextStoppingIndex = packet.readInt();
+		reversed = packet.readBoolean();
+		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
+		baseTrainType = TrainType.values()[packet.readInt()];
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+		isOnRoute = packet.readBoolean();
+
+		final int ridingEntitiesCount = packet.readInt();
+		for (int i = 0; i < ridingEntitiesCount; i++) {
+			ridingEntities.add(packet.readUUID());
+		}
+
+		inventory = null;
+	}
+
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
 		super.toMessagePack(messagePacker);
@@ -189,7 +190,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final NonNullList<ItemStack> stacks = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
 			int totalCount = 0;
 			for (int i = 0; i < inventory.getContainerSize(); i++) {
-				stacks.set(i, inventory.getItem(i)); // TODO: Verify with Jonathan: Get(i) or Get(0)?
+				stacks.set(i, inventory.getItem(i));
 				totalCount += inventory.getItem(i).getCount();
 			}
 			if (totalCount > 0) {

@@ -221,6 +221,31 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
+	public Rail(Map<String, Value> map) {
+		h1 = map.get(KEY_H_1).asFloatValue().toDouble();
+		k1 = map.get(KEY_K_1).asFloatValue().toDouble();
+		h2 = map.get(KEY_H_2).asFloatValue().toDouble();
+		k2 = map.get(KEY_K_2).asFloatValue().toDouble();
+		r1 = map.get(KEY_R_1).asFloatValue().toDouble();
+		r2 = map.get(KEY_R_2).asFloatValue().toDouble();
+		tStart1 = map.get(KEY_T_START_1).asFloatValue().toDouble();
+		tEnd1 = map.get(KEY_T_END_1).asFloatValue().toDouble();
+		tStart2 = map.get(KEY_T_START_2).asFloatValue().toDouble();
+		tEnd2 = map.get(KEY_T_END_2).asFloatValue().toDouble();
+		yStart = map.get(KEY_Y_START).asIntegerValue().toInt();
+		yEnd = map.get(KEY_Y_END).asIntegerValue().toInt();
+		reverseT1 = map.get(KEY_REVERSE_T_1).asBooleanValue().getBoolean();
+		isStraight1 = map.get(KEY_IS_STRAIGHT_1).asBooleanValue().getBoolean();
+		reverseT2 = map.get(KEY_REVERSE_T_2).asBooleanValue().getBoolean();
+		isStraight2 = map.get(KEY_IS_STRAIGHT_2).asBooleanValue().getBoolean();
+		railType = EnumHelper.valueOf(RailType.IRON, map.get(KEY_RAIL_TYPE).asStringValue().asString());
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
+
+		facingStart = getRailAngle(false);
+		facingEnd = getRailAngle(true);
+	}
+
+	@Deprecated
 	public Rail(CompoundTag compoundTag) {
 		h1 = compoundTag.getDouble(KEY_H_1);
 		k1 = compoundTag.getDouble(KEY_K_1);
@@ -264,30 +289,6 @@ public class Rail extends SerializedDataBase {
 		isStraight2 = packet.readBoolean();
 		railType = EnumHelper.valueOf(RailType.IRON, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
-
-		facingStart = getRailAngle(false);
-		facingEnd = getRailAngle(true);
-	}
-
-	public Rail(Map<String, Value> map) {
-		h1 = map.get(KEY_H_1).asFloatValue().toDouble();
-		k1 = map.get(KEY_K_1).asFloatValue().toDouble();
-		h2 = map.get(KEY_H_2).asFloatValue().toDouble();
-		k2 = map.get(KEY_K_2).asFloatValue().toDouble();
-		r1 = map.get(KEY_R_1).asFloatValue().toDouble();
-		r2 = map.get(KEY_R_2).asFloatValue().toDouble();
-		tStart1 = map.get(KEY_T_START_1).asFloatValue().toDouble();
-		tEnd1 = map.get(KEY_T_END_1).asFloatValue().toDouble();
-		tStart2 = map.get(KEY_T_START_2).asFloatValue().toDouble();
-		tEnd2 = map.get(KEY_T_END_2).asFloatValue().toDouble();
-		yStart = map.get(KEY_Y_START).asIntegerValue().toInt();
-		yEnd = map.get(KEY_Y_END).asIntegerValue().toInt();
-		reverseT1 = map.get(KEY_REVERSE_T_1).asBooleanValue().getBoolean();
-		isStraight1 = map.get(KEY_IS_STRAIGHT_1).asBooleanValue().getBoolean();
-		reverseT2 = map.get(KEY_REVERSE_T_2).asBooleanValue().getBoolean();
-		isStraight2 = map.get(KEY_IS_STRAIGHT_2).asBooleanValue().getBoolean();
-		railType = EnumHelper.valueOf(RailType.IRON, map.get(KEY_RAIL_TYPE).asStringValue().asString());
-		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);

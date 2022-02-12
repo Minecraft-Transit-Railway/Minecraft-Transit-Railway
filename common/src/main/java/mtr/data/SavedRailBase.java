@@ -35,6 +35,14 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		positions.add(pos2);
 	}
 
+	public SavedRailBase(Map<String, Value> map) {
+		super(map);
+		positions = new HashSet<>(2);
+		positions.add(BlockPos.of(map.get(KEY_POS_1).asIntegerValue().asLong()));
+		positions.add(BlockPos.of(map.get(KEY_POS_2).asIntegerValue().asLong()));
+	}
+
+	@Deprecated
 	public SavedRailBase(CompoundTag compoundTag) {
 		super(compoundTag);
 		positions = new HashSet<>(2);
@@ -47,13 +55,6 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		positions = new HashSet<>(2);
 		positions.add(packet.readBlockPos());
 		positions.add(packet.readBlockPos());
-	}
-
-	public SavedRailBase(Map<String, Value> map) {
-		super(map);
-		positions = new HashSet<>(2);
-		positions.add(BlockPos.of(map.get(KEY_POS_1).asIntegerValue().asLong()));
-		positions.add(BlockPos.of(map.get(KEY_POS_2).asIntegerValue().asLong()));
 	}
 
 	@Override

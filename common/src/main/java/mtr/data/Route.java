@@ -40,6 +40,22 @@ public final class Route extends NameColorDataBase implements IGui {
 		lightRailRouteNumber = "";
 	}
 
+	public Route(Map<String, Value> map) {
+		super(map);
+
+		final ArrayValue platformIdsArray = map.get(KEY_PLATFORM_IDS).asArrayValue();
+		platformIds = new ArrayList<>(platformIdsArray.size());
+		for (final Value platformId : platformIdsArray) {
+			platformIds.add(platformId.asIntegerValue().asLong());
+		}
+
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, map.get(KEY_ROUTE_TYPE).asStringValue().asString());
+		isLightRailRoute = map.get(KEY_IS_LIGHT_RAIL_ROUTE).asBooleanValue().getBoolean();
+		lightRailRouteNumber = map.get(KEY_LIGHT_RAIL_ROUTE_NUMBER).asStringValue().asString();
+		circularState = EnumHelper.valueOf(CircularState.NONE, map.get(KEY_CIRCULAR_STATE).asStringValue().asString());
+	}
+
+	@Deprecated
 	public Route(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -68,21 +84,6 @@ public final class Route extends NameColorDataBase implements IGui {
 		isLightRailRoute = packet.readBoolean();
 		lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
-	}
-
-	public Route(Map<String, Value> map) {
-		super(map);
-
-		final ArrayValue platformIdsArray = map.get(KEY_PLATFORM_IDS).asArrayValue();
-		platformIds = new ArrayList<>(platformIdsArray.size());
-		for (final Value platformId : platformIdsArray) {
-			platformIds.add(platformId.asIntegerValue().asLong());
-		}
-
-		routeType = EnumHelper.valueOf(RouteType.NORMAL, map.get(KEY_ROUTE_TYPE).asStringValue().asString());
-		isLightRailRoute = map.get(KEY_IS_LIGHT_RAIL_ROUTE).asBooleanValue().getBoolean();
-		lightRailRouteNumber = map.get(KEY_LIGHT_RAIL_ROUTE_NUMBER).asStringValue().asString();
-		circularState = EnumHelper.valueOf(CircularState.NONE, map.get(KEY_CIRCULAR_STATE).asStringValue().asString());
 	}
 
 	@Override

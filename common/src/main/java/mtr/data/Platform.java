@@ -29,6 +29,12 @@ public final class Platform extends SavedRailBase {
 		dwellTime = DEFAULT_DWELL_TIME;
 	}
 
+	public Platform(Map<String, Value> map) {
+		super(map);
+		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
+	}
+
+	@Deprecated
 	public Platform(CompoundTag compoundTag) {
 		super(compoundTag);
 		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
@@ -37,11 +43,6 @@ public final class Platform extends SavedRailBase {
 	public Platform(FriendlyByteBuf packet) {
 		super(packet);
 		dwellTime = packet.readInt();
-	}
-
-	public Platform(Map<String, Value> map) {
-		super(map);
-		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
 	}
 
 	@Override
