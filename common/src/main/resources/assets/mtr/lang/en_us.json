@@ -145,6 +145,7 @@
 	"gui.mtr.is_anticlockwise_route": "Is Anticlockwise Circular Route",
 	"gui.mtr.is_clockwise_route": "Is Clockwise Circular Route",
 	"gui.mtr.is_light_rail_route": "Has Route Number",
+	"gui.mtr.is_route_hidden": "Route Hidden",
 	"gui.mtr.last_station": "This train is going to %s",
 	"gui.mtr.last_station_cjk": "本列車往%s",
 	"gui.mtr.light_rail_route_announcement": "This is route %s to %s.",
