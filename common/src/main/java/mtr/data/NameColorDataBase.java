@@ -4,8 +4,10 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -51,6 +53,13 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		name = packet.readUtf(PACKET_STRING_READ_LENGTH).replace(" |", "|").replace("| ", "|");
 		color = packet.readInt();
+	}
+
+	public NameColorDataBase(Map<String, Value> map) {
+		id = map.get(KEY_ID).asIntegerValue().asLong();
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
+		name = map.get(KEY_NAME).asStringValue().asString();
+		color = map.get(KEY_COLOR).asIntegerValue().asInt();
 	}
 
 	@Override

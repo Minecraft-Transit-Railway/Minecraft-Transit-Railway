@@ -7,6 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,7 +22,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	public SavedRailBase(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(id, transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
@@ -29,23 +30,30 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	public SavedRailBase(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
 	public SavedRailBase(CompoundTag compoundTag) {
 		super(compoundTag);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_1)));
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_2)));
 	}
 
 	public SavedRailBase(FriendlyByteBuf packet) {
 		super(packet);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(packet.readBlockPos());
 		positions.add(packet.readBlockPos());
+	}
+
+	public SavedRailBase(Map<String, Value> map) {
+		super(map);
+		positions = new HashSet<>(2);
+		positions.add(BlockPos.of(map.get(KEY_POS_1).asIntegerValue().asLong()));
+		positions.add(BlockPos.of(map.get(KEY_POS_2).asIntegerValue().asLong()));
 	}
 
 	@Override

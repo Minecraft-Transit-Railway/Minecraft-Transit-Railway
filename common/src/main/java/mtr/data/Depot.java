@@ -10,6 +10,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
@@ -80,11 +82,28 @@ public class Depot extends AreaBase {
 		deployIndex = packet.readInt();
 	}
 
+	public Depot(Map<String, Value> map) {
+		super(map);
+
+		final ArrayValue routeIdsArray = map.get(KEY_ROUTE_IDS).asArrayValue();
+		for (final Value routeId : routeIdsArray) {
+			routeIds.add(routeId.asIntegerValue().asLong());
+		}
+
+		final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
+		for (int i = 0; i < HOURS_IN_DAY; i++) {
+			frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+		}
+
+		lastDeployedMillis = System.currentTimeMillis() - map.get(KEY_LAST_DEPLOYED).asIntegerValue().asLong();
+		deployIndex = map.get(KEY_DEPLOY_INDEX).asIntegerValue().asInt();
+	}
+
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
 		super.toMessagePack(messagePacker);
 
-		messagePacker.packString(KEY_ROUTE_IDS).packInt(routeIds.size());
+		messagePacker.packString(KEY_ROUTE_IDS).packArrayHeader(routeIds.size());
 		for (Long routeId : routeIds) {
 			messagePacker.packLong(routeId);
 		}
