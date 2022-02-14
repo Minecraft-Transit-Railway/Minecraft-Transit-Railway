@@ -5,6 +5,7 @@ import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
+import mtr.data.WorldRegion;
 import mtr.model.*;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,8 @@ import java.util.function.BiConsumer;
 public class TrainClientRegistry {
 
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
-	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
+	public static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
+	public static final Map<WorldRegion, List<String>> KEY_REGION = new HashMap<>();
 
 	private static final String SOUND_ACCELERATION = "_acceleration_";
 	private static final String SOUND_DECELERATION = "_deceleration_";
@@ -31,9 +33,11 @@ public class TrainClientRegistry {
 		final String keyLower = key.toLowerCase();
 		if (!KEY_ORDERS.containsKey(baseTrainType.transportMode)) {
 			KEY_ORDERS.put(baseTrainType.transportMode, new ArrayList<>());
+			//KEY_REGION.put(baseTrainType.worldRegion, new ArrayList<>());
 		}
-		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)) {
+		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)){
 			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
+			//KEY_REGION.get(baseTrainType.worldRegion).add(keyLower);
 		}
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
