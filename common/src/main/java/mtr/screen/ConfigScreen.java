@@ -110,7 +110,6 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		sliderDynamicTextureResolution.setValue(Config.dynamicTextureResolution());
 		sliderTrainRenderDistanceRatio.setHeight(BUTTON_HEIGHT);
 		sliderTrainRenderDistanceRatio.setValue(Config.trainRenderDistanceRatio());
-		setAccelerationString.setValue(Arrays.toString(Config.accelerationDescriptions));
 		buttonSupportPatreon.setMessage(new TranslatableComponent("gui.mtr.support"));
 
 		addDrawableChild(buttonUseMTRFont);
@@ -184,7 +183,6 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
-		Config.setAccelerationDescriptions(setAccelerationString.getValue());
 		ClientData.DATA_CACHE.sync();
 	}
 

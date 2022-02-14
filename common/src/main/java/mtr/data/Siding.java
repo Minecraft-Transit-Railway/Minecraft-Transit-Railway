@@ -1,5 +1,7 @@
 package mtr.data;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import io.netty.buffer.Unpooled;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
@@ -29,6 +31,7 @@ public class Siding extends SavedRailBase implements IPacket {
 	private final List<Float> distances = new ArrayList<>();
 	private final List<TimeSegment> timeSegments = new ArrayList<>();
 	private final Set<TrainServer> trains = new HashSet<>();
+	public accelerationDescription[] accelerationDescriptions;
 
 	private static final String KEY_RAIL_LENGTH = "rail_length";
 	private static final String KEY_BASE_TRAIN_TYPE = "train_type";
@@ -37,16 +40,19 @@ public class Siding extends SavedRailBase implements IPacket {
 	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
+	private static final String KEY_ACCELERATION = "acceleration";
 
 	public Siding(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(id, transportMode, pos1, pos2);
 		this.railLength = railLength;
+		setAccelerationDescriptions("[[0.069444,0.00069444],[0.69444,0.0020833],[0.97222,0.0017361],[2.0833,0.0013889],[3.4722,0.0010417],[4.1667,0.00069444]]");
 		setTrainDetails("", getTrainType(transportMode));
 	}
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(transportMode, pos1, pos2);
 		this.railLength = railLength;
+		setAccelerationDescriptions("[[0.069444,0.00069444],[0.69444,0.0020833],[0.97222,0.0017361],[2.0833,0.0013889],[3.4722,0.0010417],[4.1667,0.00069444]]");
 		setTrainDetails("", getTrainType(transportMode));
 	}
 
@@ -58,13 +64,15 @@ public class Siding extends SavedRailBase implements IPacket {
 		unlimitedTrains = compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 
+		setAccelerationDescriptions(compoundTag.getString(KEY_ACCELERATION));
+
 		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
 		final int pathCount = tagPath.getAllKeys().size();
 		for (int i = 0; i < pathCount; i++) {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
-		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength);
+		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength, this);
 
 		final CompoundTag tagTrains = compoundTag.getCompound(KEY_TRAINS);
 		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
@@ -77,6 +85,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
+		setAccelerationDescriptions(packet.readUtf());
 	}
 
 	@Override
@@ -88,6 +97,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		compoundTag.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
 		compoundTag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
 		compoundTag.putInt(KEY_MAX_TRAINS, maxTrains);
+		compoundTag.putString(KEY_ACCELERATION, Arrays.toString(accelerationDescriptions));
 
 		RailwayData.writeTag(compoundTag, path, KEY_PATH);
 		RailwayData.writeTag(compoundTag, trains, KEY_TRAINS);
@@ -103,6 +113,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		packet.writeInt(baseTrainType.ordinal());
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
+		packet.writeUtf(Arrays.toString(accelerationDescriptions));
 	}
 
 	@Override
@@ -118,6 +129,8 @@ public class Siding extends SavedRailBase implements IPacket {
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();
 				break;
+			case KEY_ACCELERATION:
+				setAccelerationDescriptions(packet.readUtf(PACKET_STRING_READ_LENGTH));
 			default:
 				super.update(key, packet);
 				break;
@@ -149,6 +162,16 @@ public class Siding extends SavedRailBase implements IPacket {
 		this.maxTrains = maxTrains;
 	}
 
+	public void setAccelerationDescriptions(String accelerationDescriptions, Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
+		packet.writeUtf(KEY_ACCELERATION);
+		packet.writeUtf(accelerationDescriptions);
+		sendPacket.accept(packet);
+		setAccelerationDescriptions(accelerationDescriptions);
+	}
+
 	public String getTrainId() {
 		return trainId;
 	}
@@ -157,7 +180,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		return baseTrainType;
 	}
 
-	public void setSidingData(Level world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails) {
+	public void setSidingData(Level world, Depot depot, Map<BlockPos, Map<BlockPos, Rail>> rails, Siding siding) {
 		this.world = world;
 		this.depot = depot;
 
@@ -168,6 +191,12 @@ public class Siding extends SavedRailBase implements IPacket {
 		} else if (path.isEmpty()) {
 			generateDefaultPath(rails);
 			generateDistances();
+		}
+
+		try{
+			accelerationDescriptions = siding.accelerationDescriptions;
+		} catch (NullPointerException e) {
+			setAccelerationDescriptions("[[0.069444,0.00069444],[0.69444,0.0020833],[0.97222,0.0017361],[2.0833,0.0013889],[3.4722,0.0010417],[4.1667,0.00069444]]");
 		}
 	}
 
@@ -207,7 +236,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 
 		final List<TimeSegment> tempTimeSegments = new ArrayList<>();
-		generateTimeSegments(tempPath, tempTimeSegments, baseTrainType, trainCars, railLength);
+		generateTimeSegments(tempPath, tempTimeSegments, baseTrainType, trainCars, railLength, this);
 
 		minecraftServer.execute(() -> {
 			try {
@@ -320,7 +349,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, TrainType baseTrainType, int trainCars, float railLength) {
+	private static void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, TrainType baseTrainType, int trainCars, float railLength, Siding siding) {
 		timeSegments.clear();
 
 		float distanceSum1 = 0;
@@ -353,7 +382,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 			while (railProgress < distanceSum2) {
 				final int speedChange;
-				acceleration = Train.getAcceleration(speed);
+				acceleration = Train.getAcceleration(speed, siding);
 				if (speed > railSpeed || nextStoppingDistance - railProgress + 1 < 0.5F * speed * speed / acceleration) {
 					speed = Math.max(speed - acceleration, acceleration);
 					speedChange = -1;
@@ -427,6 +456,50 @@ public class Siding extends SavedRailBase implements IPacket {
 				final float acceleration = speedChange * this.acceleration;
 				return startTime + (float) (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration;
 			}
+		}
+	}
+
+	public void setAccelerationDescriptions(String description) {
+		try {
+			JsonArray descriptionObj = new GsonBuilder().create().fromJson(description, JsonArray.class);
+			accelerationDescription[] tempDescription = new accelerationDescription[descriptionObj.size()];
+			for (int i = 0; i < descriptionObj.size(); i++) {
+				tempDescription[i] = new accelerationDescription(descriptionObj.get(i).getAsJsonArray().get(0).getAsFloat(), descriptionObj.get(i).getAsJsonArray().get(1).getAsFloat());
+			}
+			this.accelerationDescriptions = tempDescription;
+		} catch (Exception e) {
+			System.out.println("Failed to parse acceleration descriptions: " + description);
+		}
+	}
+
+	public static class accelerationDescription extends SerializedDataBase {
+		public float endSpeed;
+		public float acceleration;
+
+		private static final String KEY_END_SPEED = "endSpeed";
+		private static final String KEY_ACCELERATION = "acceleration";
+
+		public accelerationDescription(float endSpeed, float acceleration) {
+			this.endSpeed = endSpeed;
+			this.acceleration = acceleration;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + this.endSpeed + "," + this.acceleration + "]";
+		}
+
+		@Override
+		public CompoundTag toCompoundTag() {
+			final CompoundTag tagAccelerateDescription = new CompoundTag();
+			tagAccelerateDescription.putFloat(KEY_END_SPEED, this.endSpeed);
+			tagAccelerateDescription.putFloat(KEY_ACCELERATION, this.acceleration);
+			return tagAccelerateDescription;
+		}
+
+		@Override
+		public void writePacket(FriendlyByteBuf packet) {
+
 		}
 	}
 }

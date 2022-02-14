@@ -33,6 +33,7 @@ public class TrainClient extends Train {
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
 	private final List<Long> routeIds;
 	private final List<Double> offset = new ArrayList<>();
+	private final Siding siding;
 
 	private static final float CONNECTION_HEIGHT = 2.25F;
 	private static final float CONNECTION_Z_OFFSET = 0.5F;
@@ -40,7 +41,7 @@ public class TrainClient extends Train {
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
-		final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
+		siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
 		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
 		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 	}
@@ -62,7 +63,7 @@ public class TrainClient extends Train {
 
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-		trainProperties.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
+		trainProperties.playSpeedSoundEffect(world, soundPos, oldSpeed, speed, siding);
 		if (doorLeftOpen || doorRightOpen) {
 			trainProperties.playDoorSoundEffect(world, soundPos, oldDoorValue, doorValue);
 		}
@@ -194,7 +195,7 @@ public class TrainClient extends Train {
 		this.speedCallback = speedCallback;
 		this.announcementCallback = announcementCallback;
 		this.lightRailAnnouncementCallback = lightRailAnnouncementCallback;
-		simulateTrain(world, ticksElapsed, null);
+		simulateTrain(world, ticksElapsed, null, siding);
 	}
 
 	public void renderTranslucent() {

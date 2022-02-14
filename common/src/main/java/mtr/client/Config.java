@@ -29,7 +29,6 @@ public class Config {
     private static boolean useDynamicFPS = true;
     private static int trackTextureOffset;
     private static int dynamicTextureResolution = 2;
-    public static accelerationDescription[] accelerationDescriptions;
     private static int trainRenderDistanceRatio = 7;
 
     public static final List<Patreon> PATREON_LIST = new ArrayList<>();
@@ -44,7 +43,6 @@ public class Config {
     private static final String USE_TTS_ANNOUNCEMENTS = "use_tts_announcements";
     private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
     private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
-    private static final String ACCELERATE_DESCRIPTION = "accelerate_description";
     private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
 
     public static boolean useMTRFont() {
@@ -138,13 +136,6 @@ public class Config {
         System.out.println("Refreshed MTR mod config");
         try {
             final JsonObject jsonConfig = new JsonParser().parse(String.join("", Files.readAllLines(CONFIG_FILE_PATH))).getAsJsonObject();
-            if (accelerationDescriptions == null) {
-                System.out.println("Acceleration descriptions not initialized");
-                try {
-                    Config.setAccelerationDescriptions("[[0.02, 0.00073], [0.7, 0.0025], [300, 0.002]]");
-                } catch (Exception ignored) {
-                }
-            }
             try {
                 useMTRFont = jsonConfig.get(USE_MTR_FONT_KEY).getAsBoolean();
             } catch (Exception ignored) {
@@ -179,18 +170,6 @@ public class Config {
         }
     }
 
-    public static void setAccelerationDescriptions(String description) {
-        try {
-            JsonArray descriptionObj = new GsonBuilder().create().fromJson(description, JsonArray.class);
-            accelerationDescriptions = new accelerationDescription[descriptionObj.size()];
-            for (int i = 0; i < descriptionObj.size(); i++) {
-                accelerationDescriptions[i] = new accelerationDescription(descriptionObj.get(i).getAsJsonArray().get(0).getAsFloat(), descriptionObj.get(i).getAsJsonArray().get(1).getAsFloat());
-            }
-        } catch (Exception e) {
-            System.out.println("Failed to parse acceleration descriptions: " + description);
-        }
-    }
-
     public static void getPatreonList() {
         PATREON_LIST.clear();
         PATREON_LIST.addAll(Patreon.getPatreonList());
@@ -207,7 +186,6 @@ public class Config {
         jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
         jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
         jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
-
         try {
             Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
         } catch (Exception e) {

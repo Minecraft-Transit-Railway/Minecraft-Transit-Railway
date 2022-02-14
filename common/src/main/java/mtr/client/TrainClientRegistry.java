@@ -2,6 +2,7 @@ package mtr.client;
 
 import mtr.MTR;
 import mtr.MTRClient;
+import mtr.data.Siding;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
@@ -161,9 +162,9 @@ public class TrainClientRegistry {
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
 		}
 
-		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
+		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed, Siding siding) {
 			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
-				final int floorSpeed = (int) Math.floor(speed / Train.getAcceleration(speed) / MTRClient.TICKS_PER_SPEED_SOUND);
+				final int floorSpeed = (int) Math.floor(speed / Train.getAcceleration(speed, siding) / MTRClient.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;

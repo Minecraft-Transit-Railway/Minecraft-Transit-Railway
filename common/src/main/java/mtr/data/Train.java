@@ -1,7 +1,10 @@
 package mtr.data;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
+import mtr.client.Config;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -52,13 +55,20 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_CARGO = "cargo";
 
-	public static float getAcceleration(float speed){
-		for (int i = 0; i < mtr.client.Config.accelerationDescriptions.length; i++) {
-			if(speed < mtr.client.Config.accelerationDescriptions[i].endSpeed){
-				return mtr.client.Config.accelerationDescriptions[i].acceleration;
+	public static float getAcceleration(float speed, Siding siding){
+		if (siding.accelerationDescriptions == null) {
+			System.out.println("Acceleration descriptions not initialized");
+			try {
+				siding.setAccelerationDescriptions("[[0.069444,0.00069444],[0.69444,0.0020833],[0.97222,0.0017361],[2.0833,0.0013889],[3.4722,0.0010417],[4.1667,0.00069444]]");
+			} catch (Exception ignored) {
 			}
 		}
-		return mtr.client.Config.accelerationDescriptions[mtr.client.Config.accelerationDescriptions.length - 1].acceleration;
+		for (int i = 0; i < siding.accelerationDescriptions.length; i++) {
+			if(speed < siding.accelerationDescriptions[i].endSpeed){
+				return siding.accelerationDescriptions[i].acceleration;
+			}
+		}
+		return siding.accelerationDescriptions[siding.accelerationDescriptions.length - 1].acceleration;
 	}
 
 	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances) {
@@ -199,7 +209,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return !isOnRoute || railProgress < trainDistance + railLength;
 	}
 
-	protected final void simulateTrain(Level world, float ticksElapsed, Depot depot) {
+	protected final void simulateTrain(Level world, float ticksElapsed, Depot depot, Siding siding) {
 		if (world == null) {
 			return;
 		}
@@ -210,7 +220,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float oldSpeed = speed;
 			final float oldDoorValue;
 			final float doorValueRaw;
-			final float acceleration = getAcceleration(oldSpeed);
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
@@ -223,10 +232,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 				speed = 0;
 
 				if (canDeploy(depot)) {
-					startUp(world, trainCars, trainSpacing, isOppositeRail());
+					startUp(world, trainCars, trainSpacing, isOppositeRail(), siding);
 				}
 			} else {
 				oldDoorValue = Math.abs(getDoorValue());
+				final float acceleration = getAcceleration(oldSpeed, siding);
 				final float newAcceleration = acceleration * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * trainSpacing) / 2) {
@@ -247,7 +257,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						if (stopCounter >= dwellTicks) {
 							final boolean isOppositeRail = isOppositeRail();
 							if (!isRailBlocked(getIndex(0, trainSpacing, true) + (isOppositeRail ? 2 : 1))) {
-								startUp(world, trainCars, trainSpacing, isOppositeRail);
+								startUp(world, trainCars, trainSpacing, isOppositeRail, siding);
 							}
 						}
 					} else {
@@ -365,7 +375,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return railSpeed;
 	}
 
-	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail, Siding siding){
 	}
 
 	protected abstract void simulateCar(

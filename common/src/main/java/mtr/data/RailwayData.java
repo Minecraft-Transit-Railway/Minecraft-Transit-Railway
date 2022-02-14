@@ -78,7 +78,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		routes = new HashSet<>();
 		depots = new HashSet<>();
 		rails = new HashMap<>();
-		dataCache = new DataCache(stations, platforms, sidings, routes, depots, Arrays.toString(Config.accelerationDescriptions));
+		dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
 		trainPositions.add(new HashMap<>());
 		trainPositions.add(new HashMap<>());
@@ -86,12 +86,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void load(CompoundTag compoundTag) {
-		System.out.println("Loading RailwayData");
 		try {
-			if(!Objects.equals(compoundTag.getString(KEY_ACCELERATION_DESCRIPTIONS), "[[0.02,7.3E-4], [0.7,0.0025], [300.0,0.002]]") && compoundTag.getString(KEY_ACCELERATION_DESCRIPTIONS) != null) {
-				Config.setAccelerationDescriptions(compoundTag.getString(KEY_ACCELERATION_DESCRIPTIONS));
-			}
-
 			final CompoundTag tagStations = compoundTag.getCompound(KEY_STATIONS);
 			for (final String key : tagStations.getAllKeys()) {
 				stations.add(new Station(tagStations.getCompound(key)));
@@ -104,7 +99,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 			final CompoundTag tagNewSidings = compoundTag.getCompound(KEY_SIDINGS);
 			for (final String key : tagNewSidings.getAllKeys()) {
-				sidings.add(new Siding(tagNewSidings.getCompound(key)));
+				Siding siding = new Siding(tagNewSidings.getCompound(key));
+				sidings.add(siding);
 			}
 
 			final CompoundTag tagNewRoutes = compoundTag.getCompound(KEY_ROUTES);
@@ -143,7 +139,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void save(File file) {
-		System.out.println("Saving data to file");
 		if (!canWriteToFile) {
 			return;
 		}
@@ -169,8 +164,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				writeTag(dataTag, newDepots, KEY_DEPOTS, false);
 				writeTag(dataTag, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
 				writeTag(dataTag, railSet, KEY_RAILS);
-				dataTag.putString(KEY_ACCELERATION_DESCRIPTIONS, Arrays.toString(Config.accelerationDescriptions));
-				System.out.println(Arrays.toString(Config.accelerationDescriptions));
 
 				final CompoundTag compoundTag = new CompoundTag();
 				compoundTag.put("data", dataTag);
@@ -226,7 +219,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		schedulesForPlatform.clear();
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
-			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
+			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails, dataCache.sidingIdMap.get(siding.id));
 			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
 		});
 		final int hour = Depot.getHour(world);

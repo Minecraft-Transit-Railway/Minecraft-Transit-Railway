@@ -51,11 +51,11 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail, Siding siding) {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
-		speed = getAcceleration(speed);
+		speed = getAcceleration(speed, siding);
 		if (isOppositeRail) {
 			railProgress += trainCars * trainSpacing;
 			reversed = !reversed;
@@ -270,7 +270,7 @@ public class TrainServer extends Train {
 		final int oldStoppingIndex = nextStoppingIndex;
 		final int oldPassengerCount = ridingEntities.size();
 
-		simulateTrain(world, ticksElapsed, depot);
+		simulateTrain(world, ticksElapsed, depot, dataCache.sidingIdMap.get(sidingId));
 
 		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (isOnRoute ? 0 : (long) Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world))) * Depot.MILLIS_PER_TICK);
 
