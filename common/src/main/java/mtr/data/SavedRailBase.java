@@ -6,7 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class SavedRailBase extends NameColorDataBase {
@@ -19,7 +22,7 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	public SavedRailBase(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(id, transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
@@ -27,31 +30,44 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	public SavedRailBase(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
+	public SavedRailBase(Map<String, Value> map) {
+		super(map);
+		positions = new HashSet<>(2);
+		positions.add(BlockPos.of(map.get(KEY_POS_1).asIntegerValue().asLong()));
+		positions.add(BlockPos.of(map.get(KEY_POS_2).asIntegerValue().asLong()));
+	}
+
+	@Deprecated
 	public SavedRailBase(CompoundTag compoundTag) {
 		super(compoundTag);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_1)));
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_2)));
 	}
 
 	public SavedRailBase(FriendlyByteBuf packet) {
 		super(packet);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(packet.readBlockPos());
 		positions.add(packet.readBlockPos());
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putLong(KEY_POS_1, getPosition(0).asLong());
-		compoundTag.putLong(KEY_POS_2, getPosition(1).asLong());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_POS_1).packLong(getPosition(0).asLong());
+		messagePacker.packString(KEY_POS_2).packLong(getPosition(1).asLong());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 2;
 	}
 
 	@Override

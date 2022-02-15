@@ -1,11 +1,16 @@
 package mtr.path;
 
 import mtr.data.Rail;
+import mtr.data.RailwayData;
 import mtr.data.SerializedDataBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 public class PathData extends SerializedDataBase {
@@ -34,6 +39,16 @@ public class PathData extends SerializedDataBase {
 		this.stopIndex = stopIndex;
 	}
 
+	public PathData(Map<String, Value> map) {
+		rail = new Rail(RailwayData.castMessagePackValueToSKMap(map.get(KEY_RAIL)));
+		savedRailBaseId = map.get(KEY_SAVED_RAIL_BASE_ID).asIntegerValue().asLong();
+		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
+		stopIndex = map.get(KEY_STOP_INDEX).asIntegerValue().asInt();
+		startingPos = BlockPos.of(map.get(KEY_STARTING_POS).asIntegerValue().asLong());
+		endingPos = BlockPos.of(map.get(KEY_ENDING_POS).asIntegerValue().asLong());
+	}
+
+	@Deprecated
 	public PathData(CompoundTag compoundTag) {
 		rail = new Rail(compoundTag.getCompound(KEY_RAIL));
 		savedRailBaseId = compoundTag.getLong(KEY_SAVED_RAIL_BASE_ID);
@@ -53,15 +68,21 @@ public class PathData extends SerializedDataBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = new CompoundTag();
-		compoundTag.put(KEY_RAIL, rail.toCompoundTag());
-		compoundTag.putLong(KEY_SAVED_RAIL_BASE_ID, savedRailBaseId);
-		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
-		compoundTag.putInt(KEY_STOP_INDEX, stopIndex);
-		compoundTag.putLong(KEY_STARTING_POS, startingPos.asLong());
-		compoundTag.putLong(KEY_ENDING_POS, endingPos.asLong());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		messagePacker.packString(KEY_RAIL);
+		messagePacker.packMapHeader(rail.messagePackLength());
+		rail.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_SAVED_RAIL_BASE_ID).packLong(savedRailBaseId);
+		messagePacker.packString(KEY_DWELL_TIME).packInt(dwellTime);
+		messagePacker.packString(KEY_STOP_INDEX).packInt(stopIndex);
+		messagePacker.packString(KEY_STARTING_POS).packLong(startingPos.asLong());
+		messagePacker.packString(KEY_ENDING_POS).packLong(endingPos.asLong());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return 6;
 	}
 
 	@Override

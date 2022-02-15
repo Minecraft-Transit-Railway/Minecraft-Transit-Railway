@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.value.Value;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -45,6 +46,12 @@ public class TrainServer extends Train {
 		this.timeSegments = timeSegments;
 	}
 
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
+		super(sidingId, railLength, path, distances, map);
+		this.timeSegments = timeSegments;
+	}
+
+	@Deprecated
 	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
 		super(sidingId, railLength, path, distances, compoundTag);
 		this.timeSegments = timeSegments;

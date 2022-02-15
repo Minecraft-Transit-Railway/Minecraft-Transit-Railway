@@ -3,7 +3,10 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,20 @@ public final class Station extends AreaBase {
 		super(id);
 	}
 
+	public Station(Map<String, Value> map) throws IOException {
+		super(map);
+		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
+
+		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {
+			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
+			for (final Value destination : entry.getValue().asArrayValue()) {
+				destinations.add(destination.asStringValue().asString());
+			}
+			exits.put(entry.getKey().asStringValue().asString(), destinations);
+		}
+	}
+
+	@Deprecated
 	public Station(CompoundTag compoundTag) {
 		super(compoundTag);
 		zone = compoundTag.getInt(KEY_ZONE);
@@ -61,20 +78,26 @@ public final class Station extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putInt(KEY_ZONE, zone);
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		final CompoundTag tagExits = new CompoundTag();
-		exits.forEach((parent, destinations) -> {
-			final CompoundTag tagDestinations = new CompoundTag();
-			for (int i = 0; i < destinations.size(); i++) {
-				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
+		messagePacker.packString(KEY_ZONE).packInt(zone);
+		messagePacker.packString(KEY_EXITS);
+		messagePacker.packMapHeader(exits.size());
+		for (final Map.Entry<String, List<String>> entry : exits.entrySet()) {
+			final String key = entry.getKey();
+			final List<String> destinations = entry.getValue();
+			messagePacker.packString(key);
+			messagePacker.packArrayHeader(destinations.size());
+			for (String destination : destinations) {
+				messagePacker.packString(destination);
 			}
-			tagExits.put(parent, tagDestinations);
-		});
-		compoundTag.put(KEY_EXITS, tagExits);
-		return compoundTag;
+		}
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 2;
 	}
 
 	@Override

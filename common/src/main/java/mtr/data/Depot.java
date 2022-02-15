@@ -9,7 +9,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -46,6 +50,21 @@ public class Depot extends AreaBase {
 		super(id, transportMode);
 	}
 
+	public Depot(Map<String, Value> map) {
+		super(map);
+
+		map.get(KEY_ROUTE_IDS).asArrayValue().forEach(routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
+
+		final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
+		for (int i = 0; i < HOURS_IN_DAY; i++) {
+			frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+		}
+
+		lastDeployedMillis = System.currentTimeMillis() - map.get(KEY_LAST_DEPLOYED).asIntegerValue().asLong();
+		deployIndex = map.get(KEY_DEPLOY_INDEX).asIntegerValue().asInt();
+	}
+
+	@Deprecated
 	public Depot(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -79,19 +98,26 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putLongArray(KEY_ROUTE_IDS, routeIds);
-
-		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			compoundTag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
+		messagePacker.packString(KEY_ROUTE_IDS).packArrayHeader(routeIds.size());
+		for (Long routeId : routeIds) {
+			messagePacker.packLong(routeId);
 		}
 
-		compoundTag.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
-		compoundTag.putInt(KEY_DEPLOY_INDEX, deployIndex);
+		messagePacker.packString(KEY_FREQUENCIES).packArrayHeader(HOURS_IN_DAY);
+		for (int i = 0; i < HOURS_IN_DAY; i++) {
+			messagePacker.packInt(frequencies[i]);
+		}
 
-		return compoundTag;
+		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
+		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 4;
 	}
 
 	@Override

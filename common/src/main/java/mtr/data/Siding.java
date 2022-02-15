@@ -10,7 +10,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -50,6 +53,22 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails("", getTrainType(transportMode));
 	}
 
+	public Siding(Map<String, Value> map) {
+		super(map);
+		railLength = map.get(KEY_RAIL_LENGTH).asFloatValue().toFloat();
+		setTrainDetails(map.get(KEY_TRAIN_ID).asStringValue().asString(), TrainType.getOrDefault(map.get(KEY_BASE_TRAIN_TYPE).asStringValue().asString()));
+		unlimitedTrains = map.get(KEY_UNLIMITED_TRAINS).asBooleanValue().getBoolean();
+		maxTrains = map.get(KEY_MAX_TRAINS).asIntegerValue().asInt();
+
+		map.get(KEY_PATH).asArrayValue().forEach(pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
+
+		generateTimeSegments(path, timeSegments, baseTrainType, trainCars, railLength);
+
+		map.get(KEY_TRAINS).asArrayValue().forEach(value -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
+		generateDistances();
+	}
+
+	@Deprecated
 	public Siding(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -80,19 +99,21 @@ public class Siding extends SavedRailBase implements IPacket {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putFloat(KEY_RAIL_LENGTH, railLength);
-		compoundTag.putString(KEY_TRAIN_ID, trainId);
-		compoundTag.putString(KEY_BASE_TRAIN_TYPE, baseTrainType.toString());
-		compoundTag.putBoolean(KEY_UNLIMITED_TRAINS, unlimitedTrains);
-		compoundTag.putInt(KEY_MAX_TRAINS, maxTrains);
+		messagePacker.packString(KEY_RAIL_LENGTH).packFloat(railLength);
+		messagePacker.packString(KEY_TRAIN_ID).packString(trainId);
+		messagePacker.packString(KEY_BASE_TRAIN_TYPE).packString(baseTrainType.toString());
+		messagePacker.packString(KEY_UNLIMITED_TRAINS).packBoolean(unlimitedTrains);
+		messagePacker.packString(KEY_MAX_TRAINS).packInt(maxTrains);
+		RailwayData.writeMessagePackDataset(messagePacker, path, KEY_PATH);
+		RailwayData.writeMessagePackDataset(messagePacker, trains, KEY_TRAINS);
+	}
 
-		RailwayData.writeTag(compoundTag, path, KEY_PATH);
-		RailwayData.writeTag(compoundTag, trains, KEY_TRAINS);
-
-		return compoundTag;
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 7;
 	}
 
 	@Override
