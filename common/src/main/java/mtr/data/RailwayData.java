@@ -58,6 +58,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
+	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
@@ -305,15 +306,21 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
 
-		final Set<Player> playersToRemove = new HashSet<>();
-		playerSeats.forEach((player, seat) -> {
-			if (players.contains(player)) {
-				seat.updateSeat(player);
+		players.forEach(player -> {
+			final Integer seatCoolDownOld = playerSeatCoolDowns.get(player);
+			final EntitySeat seatOld = playerSeats.get(player);
+			final EntitySeat seat;
+			if (seatCoolDownOld == null || seatCoolDownOld <= 0 || seatOld == null || seatOld.removed) {
+				seat = new EntitySeat(world, player.getX(), player.getY(), player.getZ());
+				world.addFreshEntity(seat);
+				playerSeats.put(player, seat);
+				playerSeatCoolDowns.put(player, 3);
 			} else {
-				playersToRemove.add(player);
+				seat = playerSeats.get(player);
+				playerSeatCoolDowns.put(player, playerSeatCoolDowns.get(player) - 1);
 			}
+			seat.updateSeatByRailwayData(player);
 		});
-		playersToRemove.forEach(playerSeats::remove);
 
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
@@ -436,15 +443,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
-		final EntitySeat seat = new EntitySeat(world, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ());
-		seat.updateSeat(serverPlayer);
-		world.addFreshEntity(seat);
-		playerSeats.put(serverPlayer, seat);
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 	}
 
 	public EntitySeat getSeatFromPlayer(Player player) {
 		return playerSeats.get(player);
+	}
+
+	public void updatePlayerSeatCoolDown(Player player) {
+		playerSeatCoolDowns.put(player, 3);
 	}
 
 	// writing data
@@ -525,6 +532,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void disconnectPlayer(Player player) {
+		playerSeats.remove(player);
+		playerSeatCoolDowns.remove(player);
 		playerLastUpdatedPositions.remove(player);
 	}
 

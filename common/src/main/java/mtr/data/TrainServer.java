@@ -95,7 +95,7 @@ public class TrainServer extends Train {
 					if (seat != null) {
 						ridingEntities.add(player.getUUID());
 						player.startRiding(seat);
-						seat.updateRiding(id);
+						seat.updateRidingByTrainServer(id);
 						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
 						seat.percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
 						seat.updateDataToClient(railProgress);
@@ -173,7 +173,7 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
 
 					if (seat != null) {
-						if (seat.hasPassenger(ridingPlayer) && seat.updateRiding(id)) {
+						if (seat.hasPassenger(ridingPlayer) && seat.updateRidingByTrainServer(id)) {
 							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
 								seat.absMoveTo(playerOffset.x + x, playerOffset.y + y, playerOffset.z + z);
