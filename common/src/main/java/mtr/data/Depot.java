@@ -224,6 +224,8 @@ public class Depot extends AreaBase {
 				System.out.println("Finished path generation" + (name.isEmpty() ? "" : " for " + name));
 			} catch (Exception e) {
 				e.printStackTrace();
+				PacketTrainDataGuiServer.generatePathS2C(world, id, 0);
+				System.out.println("Failed to generate path" + (name.isEmpty() ? "" : " for " + name));
 			}
 		});
 		callback.accept(thread);

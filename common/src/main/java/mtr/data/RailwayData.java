@@ -553,6 +553,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				System.out.println("Starting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
 			}
 			depot.generateMainRoute(minecraftServer, world, dataCache, rails, sidings, thread -> generatingPathThreads.put(depotId, thread));
+		} else {
+			PacketTrainDataGuiServer.generatePathS2C(world, depotId, 0);
+			System.out.println("Failed to generate path, depot is null");
 		}
 	}
 

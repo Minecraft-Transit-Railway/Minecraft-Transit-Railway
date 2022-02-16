@@ -45,7 +45,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		rightPanelsX = sliderX + SLIDER_WIDTH + TEXT_PADDING * 2 + font.width(getSliderString(1));
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
-			sliders[i] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString);
+			final int currentIndex = i;
+			sliders[currentIndex] = new WidgetShorterSlider(sliderX, SLIDER_WIDTH, MAX_TRAINS_PER_HOUR * 2, EditDepotScreen::getSliderString, value -> {
+				for (int j = 0; j < Depot.HOURS_IN_DAY; j++) {
+					if (j != currentIndex) {
+						sliders[j].setValue(value);
+					}
+				}
+			});
 		}
 
 		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.edit_instructions"), button -> {
