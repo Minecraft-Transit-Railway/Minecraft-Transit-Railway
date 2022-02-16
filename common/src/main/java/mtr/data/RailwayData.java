@@ -6,6 +6,7 @@ import mtr.Registry;
 import mtr.block.BlockNode;
 import mtr.entity.EntitySeat;
 import mtr.mappings.PersistentStateMapper;
+import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -51,6 +52,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks = new SignalBlocks();
+	private final ReentrantLock fileWritingLock = new ReentrantLock();
 
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -61,8 +63,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
-
-	private final ReentrantLock fileWritingLock = new ReentrantLock();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
@@ -237,8 +237,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			messagePacker.close();
 
-			fileWritingLock.lock();
 			new Thread(() -> {
+				fileWritingLock.lock();
 				CompoundTag compoundTag = new CompoundTag();
 				CompoundTag dataTag = new CompoundTag();
 				dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
@@ -310,7 +310,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			final Integer seatCoolDownOld = playerSeatCoolDowns.get(player);
 			final EntitySeat seatOld = playerSeats.get(player);
 			final EntitySeat seat;
-			if (seatCoolDownOld == null || seatCoolDownOld <= 0 || seatOld == null || seatOld.removed) {
+			if (seatCoolDownOld == null || seatCoolDownOld <= 0 || Utilities.entityRemoved(seatOld)) {
 				seat = new EntitySeat(world, player.getX(), player.getY(), player.getZ());
 				world.addFreshEntity(seat);
 				playerSeats.put(player, seat);
