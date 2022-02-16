@@ -144,8 +144,7 @@ public class TrainServer extends Train {
 				final Block block = state.getBlock();
 
 				if (block instanceof BlockTrainRedstoneSensor && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
-					world.setBlockAndUpdate(checkPos, state.setValue(BlockTrainRedstoneSensor.POWERED, true));
-					Utilities.scheduleBlockTick(world, checkPos, block, 20);
+					((BlockTrainRedstoneSensor) block).power(world, state, checkPos);
 				}
 
 				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {

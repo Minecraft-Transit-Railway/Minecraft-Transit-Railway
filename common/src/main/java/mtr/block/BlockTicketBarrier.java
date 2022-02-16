@@ -2,8 +2,10 @@ package mtr.block;
 
 import mtr.SoundEvents;
 import mtr.data.TicketSystem;
+import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +22,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Random;
 
 public class BlockTicketBarrier extends HorizontalDirectionalBlock {
 
@@ -42,9 +46,18 @@ public class BlockTicketBarrier extends HorizontalDirectionalBlock {
 			if (open.isOpen() && playerPosRotated.z > 0) {
 				world.setBlockAndUpdate(pos, state.setValue(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
 			} else if (!open.isOpen() && playerPosRotated.z < 0) {
-				world.setBlockAndUpdate(pos, state.setValue(OPEN, TicketSystem.passThrough(world, pos, (Player) entity, isEntrance, !isEntrance, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, null, false)));
+				final TicketSystem.EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, (Player) entity, isEntrance, !isEntrance, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, SoundEvents.TICKET_BARRIER, SoundEvents.TICKET_BARRIER_CONCESSIONARY, null, false);
+				world.setBlockAndUpdate(pos, state.setValue(OPEN, newOpen));
+				if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !world.getBlockTicks().hasScheduledTick(pos, this)) {
+					Utilities.scheduleBlockTick(world, pos, this, 40);
+				}
 			}
 		}
+	}
+
+	@Override
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+		world.setBlockAndUpdate(pos, state.setValue(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED));
 	}
 
 	@Override
