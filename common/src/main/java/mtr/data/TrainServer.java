@@ -174,8 +174,10 @@ public class TrainServer extends Train {
 					if (seat != null) {
 						if (seat.hasPassenger(ridingPlayer) && seat.updateRidingByTrainServer(id)) {
 							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
-								seat.absMoveTo(playerOffset.x + x, playerOffset.y + y, playerOffset.z + z);
+								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
+								if (world.hasChunk((int) Math.floor(playerOffset.x / 16), (int) Math.floor(playerOffset.z / 16))) {
+									seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
+								}
 							};
 
 							final int currentRidingCar = (int) Math.floor(seat.percentageZ);

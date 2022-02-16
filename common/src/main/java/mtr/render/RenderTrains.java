@@ -79,7 +79,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
 		final Minecraft client = Minecraft.getInstance();
 		final LocalPlayer player = client.player;
-		if (player == null) {
+		if (player == null || !entity.isClientPlayer(player)) {
 			return;
 		}
 

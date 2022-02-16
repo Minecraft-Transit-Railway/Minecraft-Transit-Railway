@@ -313,6 +313,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			if (seatCoolDownOld == null || seatCoolDownOld <= 0 || Utilities.entityRemoved(seatOld)) {
 				seat = new EntitySeat(world, player.getX(), player.getY(), player.getZ());
 				world.addFreshEntity(seat);
+				seat.initialize(player);
 				playerSeats.put(player, seat);
 				playerSeatCoolDowns.put(player, 3);
 			} else {

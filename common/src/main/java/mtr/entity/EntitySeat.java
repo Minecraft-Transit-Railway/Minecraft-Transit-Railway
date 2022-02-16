@@ -14,6 +14,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class EntitySeat extends Entity {
 
 	public float percentageX;
@@ -32,6 +35,8 @@ public class EntitySeat extends Entity {
 	private float interpolatedPercentageZ;
 
 	public static final float SIZE = 0.5F;
+	private static final int SEAT_REFRESH = 10;
+	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> RAIL_PROGRESS = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
@@ -118,6 +123,7 @@ public class EntitySeat extends Entity {
 
 	@Override
 	protected void defineSynchedData() {
+		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
 		entityData.define(PERCENTAGE_X, 0F);
 		entityData.define(PERCENTAGE_Z, 0F);
 		entityData.define(RAIL_PROGRESS, 0F);
@@ -131,9 +137,22 @@ public class EntitySeat extends Entity {
 	protected void addAdditionalSaveData(CompoundTag compoundTag) {
 	}
 
+	public void initialize(Player player) {
+		entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
+	}
+
+	public boolean isClientPlayer(Player player) {
+		try {
+			return entityData != null && entityData.get(PLAYER_ID).orElse(new UUID(0, 0)).equals(player.getUUID());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	public void updateSeatByRailwayData(Player player) {
 		if (player != null) {
-			seatRefresh = 2;
+			seatRefresh = SEAT_REFRESH;
 		}
 		this.player = player;
 	}
@@ -141,7 +160,7 @@ public class EntitySeat extends Entity {
 	public boolean updateRidingByTrainServer(long trainId) {
 		if (this.trainId == 0 || this.trainId == trainId) {
 			this.trainId = trainId;
-			ridingRefresh = 2;
+			ridingRefresh = SEAT_REFRESH;
 			return true;
 		} else {
 			return false;
