@@ -76,7 +76,7 @@ public class TrainClient extends Train {
 			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, false, noOffset);
 		}
 
-		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.hasGangwayConnection) {
+		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.baseTrainType.hasGangwayConnection) {
 			final double newPrevCarX = prevCarX - (noOffset ? 0 : offset.get(0));
 			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));

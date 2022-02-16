@@ -181,11 +181,12 @@ public class TrainServer extends Train {
 							final int currentRidingCar = (int) Math.floor(seat.percentageZ);
 							final float doorValue = Math.abs(doorValueRaw);
 							calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+								final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
 								final Vec3 movement = new Vec3(ridingPlayer.xxa * ticksElapsed / 4, 0, ridingPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(ridingPlayer)) - yaw);
 								seat.percentageX += movement.x / baseTrainType.width;
 								seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
 								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
-								seat.percentageZ = Mth.clamp(seat.percentageZ, 0.01F, trainCars - 0.01F);
+								seat.percentageZ = Mth.clamp(seat.percentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
 								seat.updateDataToClient(railProgress);
 								final int newRidingCar = (int) Math.floor(seat.percentageZ);
 								if (currentRidingCar == newRidingCar) {
