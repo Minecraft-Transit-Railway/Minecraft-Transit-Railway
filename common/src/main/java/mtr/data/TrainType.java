@@ -98,7 +98,7 @@ public enum TrainType {
 	public final boolean hasGangwayConnection;
 	public final float offset;
 	private final int length;
-	
+
 	TrainType(TransportMode transportMode, WorldRegion worldRegion, int length, int width, boolean hasGangwayConnection, float offset) {
 		this.transportMode = transportMode;
 		this.worldRegion = worldRegion;
