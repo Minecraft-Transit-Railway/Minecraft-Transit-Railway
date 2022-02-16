@@ -62,13 +62,10 @@ public class EntitySeat extends Entity {
 			percentageZ = getClientPercentageZ();
 
 			if (clientInterpolationSteps > 0) {
-				final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
-				final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
-				final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
 				interpolatedPercentageX += (percentageX - interpolatedPercentageX) / clientInterpolationSteps;
 				interpolatedPercentageZ += (percentageZ - interpolatedPercentageZ) / clientInterpolationSteps;
 				--clientInterpolationSteps;
-				absMoveTo(x, y, z);
+				absMoveTo(clientX, clientY, clientZ);
 			} else {
 				interpolatedPercentageX = percentageX;
 				interpolatedPercentageZ = percentageZ;
