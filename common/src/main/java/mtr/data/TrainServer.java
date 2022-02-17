@@ -41,8 +41,8 @@ public class TrainServer extends Train {
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant);
 		this.timeSegments = timeSegments;
 	}
 
@@ -62,7 +62,7 @@ public class TrainServer extends Train {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
-		speed = ACCELERATION;
+		speed = accelerationConstant;
 		if (isOppositeRail) {
 			railProgress += trainCars * trainSpacing;
 			reversed = !reversed;
@@ -287,7 +287,7 @@ public class TrainServer extends Train {
 		int startingIndex = 0;
 		for (final Siding.TimeSegment timeSegment : timeSegments) {
 			if (RailwayData.isBetween(railProgress, timeSegment.startRailProgress, timeSegment.endRailProgress)) {
-				currentTime = timeSegment.getTime(railProgress);
+				currentTime = timeSegment.getTime(this, railProgress);
 				break;
 			}
 			startingIndex++;
