@@ -149,6 +149,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				break;
 			case KEY_ACCELERATION_CONSTANT:
 				accelerationConstant = packet.readFloat();
+				trains.clear();
 				break;
 			default:
 				super.update(key, packet);
