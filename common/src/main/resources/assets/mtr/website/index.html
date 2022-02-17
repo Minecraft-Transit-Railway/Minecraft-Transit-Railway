@@ -25,25 +25,54 @@
 		<label for="search_box">Search</label>
 		<input id="search_box" class="text" type="text"/>
 		<span id="clear_search_icon" class="material-icons clickable_icon right_align"></span>
-		<span id="zoom_in_icon" class="material-icons clickable_icon right_align">zoom_in</span>
-		<span id="zoom_out_icon" class="material-icons clickable_icon right_align">zoom_out</span>
-		<span id="toggle_dimension_icon" class="material-icons clickable_icon right_align settings" style="display: none">public</span>
-		<span id="toggle_route_type_icon" class="material-icons clickable_icon right_align settings" style="display: none">tram</span>
-		<span id="toggle_text_icon" class="material-icons clickable_icon right_align settings" style="display: none">font_download_off</span>
-		<span id="toggle_theme_icon" class="material-icons clickable_icon right_align settings" style="display: none"></span>
-		<span id="download_icon" class="material-icons clickable_icon right_align settings" style="display: none">download</span>
 		<span id="settings_icon" class="material-icons clickable_icon right_align">settings</span>
 	</div>
 	<div id="search_results_stations" class="search_results"></div>
 	<div id="search_results_routes" class="search_results"></div>
 	<div id="station_info" class="search_results" style="display: none">
-		<div id="station_info_top">
+		<div class="info_top">
 			<span class="material-icons right_align" style="opacity: 0">clear</span>
-			<div id="station_name" class="text"></div>
+			<div id="station_name" class="info_name text"></div>
 			<span id="clear_station_info_button" class="material-icons clickable_icon right_align">clear</span>
 		</div>
-		<div id="station_line"></div>
+		<div id="station_line" class="info_line"></div>
 		<div id="station_routes"></div>
+	</div>
+	<div id="route_info" class="search_results" style="display: none">
+		<div class="info_top">
+			<span class="material-icons right_align" style="opacity: 0">clear</span>
+			<div id="route_name" class="info_name text"></div>
+			<span id="clear_route_info_button" class="material-icons clickable_icon right_align">clear</span>
+		</div>
+		<div id="route_line" class="info_line"></div>
+		<div id="route_stations"></div>
+	</div>
+	<div id="settings" class="search_results" style="display: none">
+		<div id="settings_route_types" style="display: none">
+			<div class="spacer"></div>
+			<div>
+				<span id="settings_route_type_train_normal" class="material-icons clickable_icon">directions_train</span>
+				<span id="settings_route_type_train_light_rail" class="material-icons clickable_icon">tram</span>
+				<span id="settings_route_type_train_high_speed" class="material-icons clickable_icon">train</span>
+				<span id="settings_route_type_boat_normal" class="material-icons clickable_icon">sailing</span>
+				<span id="settings_route_type_boat_light_rail" class="material-icons clickable_icon">directions_boat</span>
+				<span id="settings_route_type_boat_high_speed" class="material-icons clickable_icon">snowmobile</span>
+			</div>
+		</div>
+		<div id="settings_dimensions">
+			<div class="spacer"></div>
+			<div id="settings_dimensions_buttons"></div>
+		</div>
+		<div>
+			<div class="spacer"></div>
+			<div>
+				<span id="zoom_in_icon" class="material-icons clickable_icon ">zoom_in</span>
+				<span id="zoom_out_icon" class="material-icons clickable_icon ">zoom_out</span>
+				<span id="toggle_text_icon" class="material-icons clickable_icon ">font_download_off</span>
+				<span id="toggle_theme_icon" class="material-icons clickable_icon "></span>
+				<span id="download_icon" class="material-icons clickable_icon ">download</span>
+			</div>
+		</div>
 	</div>
 </div>
 </body>

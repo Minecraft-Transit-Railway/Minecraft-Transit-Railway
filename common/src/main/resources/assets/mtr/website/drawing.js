@@ -91,10 +91,9 @@ function drawMap(container, data) {
 		const element = document.createElement("div");
 		element.setAttribute("id", id);
 		element.setAttribute("class", "clickable");
-		element.setAttribute("style", "display: none");
 		element.onclick = () => onClickStation(id);
 		element.innerHTML =
-			`<span class="station" style="background: ${convertColor(color)}"></span>` +
+			(color == null ? "" : `<span class="station" style="background: ${convertColor(color)}"></span>`) +
 			`<span class="text">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
@@ -106,7 +105,7 @@ function drawMap(container, data) {
 		if (!visible) {
 			element.setAttribute("style", "display: none");
 		}
-		element.onclick = () => onClickLine(color);
+		element.onclick = () => onClickLine(color, true);
 		element.innerHTML =
 			`<span class="line" style="background: ${convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
 			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${SETTINGS.routeTypes[type]}</span>` +
@@ -116,6 +115,7 @@ function drawMap(container, data) {
 
 	const onClickStation = id => {
 		SETTINGS.onClearSearch(data, false);
+		SETTINGS.clearPanes();
 		const {name, color} = stations[id];
 		const stationInfoElement = document.getElementById("station_info");
 		stationInfoElement.removeAttribute("style");
@@ -145,15 +145,15 @@ function drawMap(container, data) {
 			if (!addedRouteColors.includes(route["color"])) {
 				for (const stationIndex in route["stations"]) {
 					if (route["stations"][stationIndex].split("_")[0] === id) {
-						stationRoutesElement.append(getRouteElement(route["color"], route["name"].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color)));
+						stationRoutesElement.append(getRouteElement(route["color"], route["name"].split("||")[0].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color, true)));
 						addedRouteColors.push(route["color"]);
 
 						const arrivalElement = document.createElement("div");
-						arrivalElement.setAttribute("id", "station_arrivals_" + route["color"]);
+						arrivalElement.id = "station_arrivals_" + route["color"];
 						stationRoutesElement.append(arrivalElement);
 
 						const spacerElement = document.createElement("div");
-						spacerElement.setAttribute("class", "spacer");
+						spacerElement.className = "spacer";
 						stationRoutesElement.append(spacerElement);
 
 						break;
@@ -171,9 +171,91 @@ function drawMap(container, data) {
 		fetchArrivals();
 	};
 
-	const onClickLine = color => {
-		SETTINGS.selectedColor = SETTINGS.selectedColor === color ? -1 : color;
+	const onClickLine = (color, forceClick) => {
+		SETTINGS.onClearSearch(data, false);
+		SETTINGS.clearPanes();
+
+		if (forceClick || SETTINGS.selectedColor !== color) {
+			const selectedRoutes = routes.filter(route => route["color"] === color);
+
+			const routeInfoElement = document.getElementById("route_info");
+			routeInfoElement.removeAttribute("style");
+
+			let routeNameHtml = "";
+			const nameSplit = selectedRoutes[0]["name"].split("||")[0].split("|");
+			for (const nameSplitIndex in nameSplit) {
+				const namePart = nameSplit[nameSplitIndex];
+				if (SETTINGS.isCJK(namePart)) {
+					routeNameHtml += "<h1>" + namePart + "</h1>";
+				} else {
+					routeNameHtml += "<h2>" + namePart + "</h2>";
+				}
+			}
+			document.getElementById("route_name").innerHTML = routeNameHtml;
+
+			document.getElementById("route_line").style.backgroundColor = convertColor(color);
+
+			const routeDetailsElement = document.getElementById("route_stations");
+			routeDetailsElement.innerHTML = "";
+
+			selectedRoutes.forEach(route => {
+				const {stations, durations, name} = route;
+				const routeNameSplit = name.split("||");
+				if (routeNameSplit.length > 1) {
+					const element = document.createElement("h3");
+					element.innerText = routeNameSplit[1].replace(/\|/g, " ");
+					routeDetailsElement.appendChild(element);
+				}
+
+				const routeStationsElement = document.createElement("div");
+				routeStationsElement.className = "station_list"
+
+				for (let i = 0; i < stations.length; i++) {
+					const stationId = stations[i].split("_")[0];
+					const stationElement = document.createElement("div");
+					stationElement.className = "route_station_name";
+					stationElement.innerHTML =
+						`<span class="route_segment ${i === 0 ? "top" : i === stations.length - 1 ? "bottom" : ""}" style="background-color: ${convertColor(color)}">&nbsp</span>` +
+						`<span class="station_circle"></span>`;
+					stationElement.appendChild(getStationElement(null, data["stations"][stationId]["name"], stationId));
+					routeStationsElement.appendChild(stationElement);
+
+					if (i < durations.length && durations[i] > 0) {
+						const element = document.createElement("div");
+						element.className = "route_duration";
+						element.innerHTML =
+							`<span class="route_segment" style="background-color: ${convertColor(color)}">&nbsp</span>` +
+							`<span class="material-icons">schedule</span>` +
+							`<span class="">${formatTime(durations[i] / 20)}</span>`;
+						routeStationsElement.appendChild(element);
+					}
+				}
+
+				routeDetailsElement.appendChild(routeStationsElement);
+
+				const spacerElement = document.createElement("div");
+				spacerElement.className = "spacer padded";
+				routeDetailsElement.append(spacerElement);
+			})
+
+			if (routeDetailsElement.lastChild != null) {
+				routeDetailsElement.removeChild(routeDetailsElement.lastChild);
+			}
+
+			routeInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
+			SETTINGS.selectedColor = color;
+		} else {
+			SETTINGS.selectedColor = -1;
+		}
+
 		drawMap(container, data);
+	};
+
+	const formatTime = time => {
+		const hour = Math.floor(time / 3600);
+		const minute = Math.floor(time / 60) % 60;
+		const second = Math.floor(time) % 60;
+		return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
 	};
 
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
@@ -229,7 +311,7 @@ function drawMap(container, data) {
 		position["y2"] = newY;
 
 		const route = routes.find(route => route["color"] === color);
-		if (typeof route !== "undefined" && route["type"] === types[SETTINGS.routeType]) {
+		if (typeof route !== "undefined" && SETTINGS.selectedRouteTypes.includes(route["type"])) {
 			const blob = blobs[stationId];
 			if (typeof blob === "undefined") {
 				blobs[stationId] = {
@@ -267,7 +349,7 @@ function drawMap(container, data) {
 			}
 		}
 
-		if (routeType === types[SETTINGS.routeType]) {
+		if (SETTINGS.selectedRouteTypes.includes(routeType)) {
 			createClickable(container, graphicsRoute => {
 				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
 				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
@@ -289,10 +371,10 @@ function drawMap(container, data) {
 				}
 
 				graphicsRoute.endFill();
-			}, () => onClickLine(color));
+			}, () => onClickLine(color, false));
 		}
 
-		routeNames[color] = route["name"];
+		routeNames[color] = route["name"].split("||")[0];
 		routeTypes[color] = routeType;
 		if (!sortedColors.includes(color)) {
 			sortedColors.push(color);
@@ -303,7 +385,7 @@ function drawMap(container, data) {
 	for (const stationId in blobs) {
 		const blob = blobs[stationId];
 		const {xMin, yMin, xMax, yMax, colors, name} = blob;
-		if (blob[types[SETTINGS.routeType]]) {
+		if (SETTINGS.selectedRouteTypes.some(routeType => blob[routeType])) {
 			const shouldDraw = SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
 
 			createClickable(container, graphicsStation => {
@@ -322,7 +404,7 @@ function drawMap(container, data) {
 			if (SETTINGS.showText && shouldDraw) {
 				let icons = "";
 				types.forEach(key => {
-					if (typeof blob[key] !== "undefined" && key !== types[SETTINGS.routeType]) {
+					if (typeof blob[key] !== "undefined" && !SETTINGS.selectedRouteTypes.includes(key)) {
 						icons += SETTINGS.routeTypes[key];
 					}
 				});
@@ -356,7 +438,9 @@ function drawMap(container, data) {
 	const elementStations = document.getElementById("search_results_stations");
 	elementStations.innerHTML = "";
 	for (const stationId in stations) {
-		elementStations.append(getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId));
+		const element = getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId);
+		element.setAttribute("style", "display: none");
+		elementStations.append(element);
 	}
 
 	document.getElementById("loading").style.display = "none";
@@ -385,7 +469,7 @@ function onSearch(data) {
 	document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
 
 	if (search !== "") {
-		SETTINGS.onClearStationInfo();
+		SETTINGS.clearPanes();
 	}
 }
 
