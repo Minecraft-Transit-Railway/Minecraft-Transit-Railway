@@ -838,8 +838,8 @@ public class ModelCMStock extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_translucent, matrices, vertices, light, position - 21.5F);
-				renderMirror(side_panel_translucent, matrices, vertices, light, position + 21.5F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22F);
 				break;
 			case EXTERIOR:
 				renderMirror(window_exterior, matrices, vertices, light, position);
