@@ -155,6 +155,7 @@ h3 {
 .route_station_name {
     align-items: center;
     display: flex;
+    padding: 0 0 0 2.4em;
     position: relative;
 }
 
@@ -162,6 +163,8 @@ h3 {
     align-items: center;
     color: var(--textColorDisabled);
     display: flex;
+    padding: 0 0 0 2.4em;
+    position: relative;
 }
 
 .route_duration > .material-icons {
@@ -176,9 +179,13 @@ h3 {
 
 .route_segment {
     background-clip: content-box;
-    height: 1.5em;
     padding: 0 1em;
+    left: 1.2em;
+    top: 0.75em;
+    position: absolute;
     width: 0.4em;
+    height: 1.5em;
+    transform: translate(-50%, -50%);
 }
 
 .route_segment.top {

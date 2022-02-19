@@ -57,11 +57,9 @@ const refreshArrivals = () => {
 		clearTimeout(refreshArrivalId);
 		const arrivalsHtml = {};
 		for (const arrivalIndex in arrivalData) {
-			const {arrival, destination, platform, color} = arrivalData[arrivalIndex];
+			const {arrival, destination, platform, route, color} = arrivalData[arrivalIndex];
 			const currentMillis = Date.now();
 			const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-			const minute = Math.floor(arrivalDifference / 60);
-			const second = (arrivalDifference % 60).toString().padStart(2, "0");
 			const destinationSplit = destination.split("|");
 			if (typeof arrivalsHtml[color] === "undefined") {
 				arrivalsHtml[color] = {html: "", count: 0};
@@ -69,9 +67,9 @@ const refreshArrivals = () => {
 			if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
 				arrivalsHtml[color]["html"] +=
 					`<div class="arrival">` +
-					`<span class="arrival_text left_align" style="width: 70%">${destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+					`<span class="arrival_text left_align" style="width: 70%">${(route.length === 0 ? "" : route + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
 					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : minute + ":" + second}</span>` +
+					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : formatTime(arrivalDifference)}</span>` +
 					`</div>`;
 				arrivalsHtml[color]["count"]++;
 			}
@@ -84,6 +82,13 @@ const refreshArrivals = () => {
 		}
 		refreshArrivalId = setTimeout(refreshArrivals, 1000);
 	}
+};
+
+const formatTime = time => {
+	const hour = Math.floor(time / 3600);
+	const minute = Math.floor(time / 60) % 60;
+	const second = Math.floor(time) % 60;
+	return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
 };
 
 function drawMap(container, data) {
@@ -251,13 +256,6 @@ function drawMap(container, data) {
 		drawMap(container, data);
 	};
 
-	const formatTime = time => {
-		const hour = Math.floor(time / 3600);
-		const minute = Math.floor(time / 60) % 60;
-		const second = Math.floor(time) % 60;
-		return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
-	};
-
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.onpaste = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.oninput = () => onSearch(data);
@@ -280,58 +278,72 @@ function drawMap(container, data) {
 	data["blobs"] = {};
 	const {blobs, positions, stations, routes, types} = data;
 
-	const visitedPositions = {};
-	for (const positionKey in positions) {
-		const position = positions[positionKey];
-		const x = CANVAS.convertX(position["x"]);
-		const y = CANVAS.convertY(position["y"]);
+	for (const stationId in stations) {
+		const station = stations[stationId];
+		const horizontal = station["horizontal"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
+		const vertical = station["vertical"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
 
-		const stationId = positionKey.split("_")[0];
-		const color = parseInt(positionKey.split("_")[1]);
+		if (horizontal.length === 0 && vertical.length === 0) {
+			continue;
+		}
 
-		let newX = x;
-		let newY = y;
-		if (position["vertical"]) {
-			let i = 1;
-			while (typeof visitedPositions[stationId + "_x_" + newX] !== "undefined" && visitedPositions[stationId + "_x_" + newX] !== color) {
-				newX = x + i * SETTINGS.lineSize;
-				i = i > 0 ? -i : -i + 1;
-			}
-			visitedPositions[stationId + "_x_" + newX] = color;
+		const sort = (a, b, key) => a[key] === b[key] ? a["color"] - b["color"] : a[key] - b[key];
+		horizontal.sort((a, b) => sort(a, b, "y"));
+		vertical.sort((a, b) => sort(a, b, "x"));
+
+		let xCount;
+		let x = 0;
+		if (vertical.length === 0) {
+			horizontal.forEach(element => x += element["x"]);
+			xCount = 1;
+			x /= horizontal.length;
 		} else {
-			let i = 1;
-			while (typeof visitedPositions[stationId + "_y_" + newY] !== "undefined" && visitedPositions[stationId + "_y_" + newY] !== color) {
-				newY = y + i * SETTINGS.lineSize;
-				i = i > 0 ? -i : -i + 1;
-			}
-			visitedPositions[stationId + "_y_" + newY] = color;
+			vertical.forEach(element => x += element["x"]);
+			xCount = vertical.length;
+			x /= xCount;
 		}
 
-		position["x2"] = newX;
-		position["y2"] = newY;
-
-		const route = routes.find(route => route["color"] === color);
-		if (typeof route !== "undefined" && SETTINGS.selectedRouteTypes.includes(route["type"])) {
-			const blob = blobs[stationId];
-			if (typeof blob === "undefined") {
-				blobs[stationId] = {
-					xMin: newX,
-					yMin: newY,
-					xMax: newX,
-					yMax: newY,
-					name: stations[stationId]["name"],
-					colors: [color],
-				};
-			} else {
-				blob["xMin"] = Math.min(blob["xMin"], newX);
-				blob["yMin"] = Math.min(blob["yMin"], newY);
-				blob["xMax"] = Math.max(blob["xMax"], newX);
-				blob["yMax"] = Math.max(blob["yMax"], newY);
-				if (!blob["colors"].includes(color)) {
-					blob["colors"].push(color);
-				}
-			}
+		let yCount;
+		let y = 0;
+		if (horizontal.length === 0) {
+			vertical.forEach(element => y += element["y"]);
+			yCount = 1;
+			y /= vertical.length;
+		} else {
+			horizontal.forEach(element => y += element["y"]);
+			yCount = horizontal.length;
+			y /= yCount;
 		}
+
+		x = CANVAS.convertX(x);
+		y = CANVAS.convertY(y);
+
+		const colors = [];
+		for (let i = 0; i < horizontal.length; i++) {
+			const color = horizontal[i]["color"];
+			colors.push(color);
+			const position = positions[stationId + "_" + color];
+			position["x2"] = x;
+			position["y2"] = y + (i - (horizontal.length - 1) / 2) * SETTINGS.lineSize;
+		}
+		for (let i = 0; i < vertical.length; i++) {
+			const color = vertical[i]["color"];
+			colors.push(color);
+			const position = positions[stationId + "_" + color];
+			position["x2"] = x + (i - (vertical.length - 1) / 2) * SETTINGS.lineSize;
+			position["y2"] = y;
+		}
+
+		const xOffset = SETTINGS.lineSize * (xCount - 1) / 2;
+		const yOffset = SETTINGS.lineSize * (yCount - 1) / 2;
+		blobs[stationId] = {
+			xMin: x - xOffset,
+			yMin: y - yOffset,
+			xMax: x + xOffset,
+			yMax: y + yOffset,
+			name: stations[stationId]["name"],
+			colors: colors,
+		};
 	}
 
 	const routeNames = {};

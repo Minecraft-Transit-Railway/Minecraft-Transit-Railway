@@ -406,6 +406,8 @@ public class Siding extends SavedRailBase implements IPacket {
 				timeSegment.savedRailBaseId = nextStoppingDistance != distanceSum1 && railProgress == distanceSum2 ? pathData.savedRailBaseId : 0;
 			}
 
+			time += pathData.dwellTime * 5;
+
 			if (pathData.savedRailBaseId != 0) {
 				if (savedRailBaseIdOld != 0) {
 					if (!platformTimes.containsKey(savedRailBaseIdOld)) {
@@ -417,7 +419,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				timeOld = time;
 			}
 
-			time += pathData.dwellTime * 10;
+			time += pathData.dwellTime * 5;
 
 			if (i + 1 < path.size() && pathData.isOppositeRail(path.get(i + 1))) {
 				railProgress += baseTrainType.getSpacing() * trainCars;

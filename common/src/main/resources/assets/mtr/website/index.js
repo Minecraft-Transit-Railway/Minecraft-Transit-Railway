@@ -55,6 +55,28 @@ const fetchMainData = () => {
 	clearTimeout(refreshDataId);
 	fetch(SETTINGS.dataUrl, {cache: "no-cache"}).then(response => response.json()).then(result => {
 		json = result;
+
+		for (const dimension of json) {
+			const {routes, positions, stations} = dimension;
+
+			for (const station in stations) {
+				stations[station]["horizontal"] = [];
+				stations[station]["vertical"] = [];
+			}
+
+			for (const positionKey in positions) {
+				const {x, y, vertical} = positions[positionKey];
+				const types = [];
+				routes.filter(route => route["stations"].includes(positionKey)).forEach(route => types.push(route["type"]));
+				stations[positionKey.split("_")[0]][vertical ? "vertical" : "horizontal"].push({
+					x: x,
+					y: y,
+					color: parseInt(positionKey.split("_")[1]),
+					types: types,
+				});
+			}
+		}
+
 		setupRouteTypeAndDimensionButtons();
 		drawMap(container, json[SETTINGS.dimension]);
 		refreshDataId = setTimeout(fetchMainData, SETTINGS.refreshDataInterval);
