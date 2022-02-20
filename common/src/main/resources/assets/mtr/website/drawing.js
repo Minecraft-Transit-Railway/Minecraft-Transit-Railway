@@ -1,13 +1,14 @@
 import SETTINGS from "./index.js";
 import CANVAS from "./utilities.js";
+import DIRECTIONS from "./directions.js";
 import tappable from "./gestures/src/gestures/tap.js";
 import panable from "./gestures/src/gestures/pan.js";
 
 const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
-
-const convertColor = color => "#" + Number(color).toString(16).padStart(6, "0");
+const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
+const DIRECTIONS_BOX_2_ELEMENT = document.getElementById("directions_box_2");
 
 let graphicsRoutesLayer1 = [];
 let graphicsRoutesLayer2 = [];
@@ -69,7 +70,7 @@ const refreshArrivals = () => {
 					`<div class="arrival">` +
 					`<span class="arrival_text left_align" style="width: 70%">${(route.length === 0 ? "" : route + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
 					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : formatTime(arrivalDifference)}</span>` +
+					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
 					`</div>`;
 				arrivalsHtml[color]["count"]++;
 			}
@@ -84,13 +85,6 @@ const refreshArrivals = () => {
 	}
 };
 
-const formatTime = time => {
-	const hour = Math.floor(time / 3600);
-	const minute = Math.floor(time / 60) % 60;
-	const second = Math.floor(time) % 60;
-	return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
-};
-
 function drawMap(container, data) {
 	const getStationElement = (color, name, id) => {
 		const element = document.createElement("div");
@@ -98,7 +92,7 @@ function drawMap(container, data) {
 		element.setAttribute("class", "clickable");
 		element.onclick = () => onClickStation(id);
 		element.innerHTML =
-			(color == null ? "" : `<span class="station" style="background: ${convertColor(color)}"></span>`) +
+			(color == null ? "" : `<span class="station" style="background: ${CANVAS.convertColor(color)}"></span>`) +
 			`<span class="text">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
@@ -112,7 +106,7 @@ function drawMap(container, data) {
 		}
 		element.onclick = () => onClickLine(color, true);
 		element.innerHTML =
-			`<span class="line" style="background: ${convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
+			`<span class="line" style="background: ${CANVAS.convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
 			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${SETTINGS.routeTypes[type]}</span>` +
 			`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
 		return element;
@@ -121,7 +115,7 @@ function drawMap(container, data) {
 	const onClickStation = id => {
 		SETTINGS.onClearSearch(data, false);
 		SETTINGS.clearPanes();
-		const {name, color} = stations[id];
+		const {name, color, zone, x, z} = stations[id];
 		const stationInfoElement = document.getElementById("station_info");
 		stationInfoElement.removeAttribute("style");
 
@@ -138,9 +132,22 @@ function drawMap(container, data) {
 				stationNameHtml += "<h2>" + namePart + "</h2>";
 			}
 		}
-		document.getElementById("station_name").innerHTML = stationNameHtml;
 
-		document.getElementById("station_line").style.backgroundColor = convertColor(color);
+		document.getElementById("station_name").innerHTML = stationNameHtml;
+		document.getElementById("station_coordinates").innerText = `(${x}, ${z})`;
+		document.getElementById("station_zone").innerText = zone;
+		document.getElementById("station_line").style.backgroundColor = CANVAS.convertColor(color);
+		document.getElementById("station_copy").onclick = event => {
+			navigator.clipboard.writeText(`/tp @p ${x} ~ ${z}`);
+			event.target.innerText = "check";
+			setTimeout(() => event.target.innerText = "content_copy", 1000);
+		};
+		document.getElementById("station_directions").onclick = () => {
+			SETTINGS.clearPanes();
+			document.getElementById("directions").style.display = "block";
+			DIRECTIONS.onSelectStation(2, id, data);
+			document.getElementById("directions_box_1").focus();
+		};
 
 		const stationRoutesElement = document.getElementById("station_routes");
 		stationRoutesElement.innerHTML = "";
@@ -182,7 +189,6 @@ function drawMap(container, data) {
 
 		if (forceClick || SETTINGS.selectedColor !== color) {
 			const selectedRoutes = routes.filter(route => route["color"] === color);
-
 			const routeInfoElement = document.getElementById("route_info");
 			routeInfoElement.removeAttribute("style");
 
@@ -196,9 +202,9 @@ function drawMap(container, data) {
 					routeNameHtml += "<h2>" + namePart + "</h2>";
 				}
 			}
-			document.getElementById("route_name").innerHTML = routeNameHtml;
 
-			document.getElementById("route_line").style.backgroundColor = convertColor(color);
+			document.getElementById("route_name").innerHTML = routeNameHtml;
+			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
 
 			const routeDetailsElement = document.getElementById("route_stations");
 			routeDetailsElement.innerHTML = "";
@@ -217,22 +223,12 @@ function drawMap(container, data) {
 
 				for (let i = 0; i < stations.length; i++) {
 					const stationId = stations[i].split("_")[0];
-					const stationElement = document.createElement("div");
-					stationElement.className = "route_station_name";
-					stationElement.innerHTML =
-						`<span class="route_segment ${i === 0 ? "top" : i === stations.length - 1 ? "bottom" : ""}" style="background-color: ${convertColor(color)}">&nbsp</span>` +
-						`<span class="station_circle"></span>`;
-					stationElement.appendChild(getStationElement(null, data["stations"][stationId]["name"], stationId));
-					routeStationsElement.appendChild(stationElement);
+					routeStationsElement.appendChild(CANVAS.getDrawStationElement(getStationElement(null, data["stations"][stationId]["name"], stationId), i === 0 ? null : color, i === stations.length - 1 ? null : color));
 
 					if (i < durations.length && durations[i] > 0) {
-						const element = document.createElement("div");
-						element.className = "route_duration";
-						element.innerHTML =
-							`<span class="route_segment" style="background-color: ${convertColor(color)}">&nbsp</span>` +
-							`<span class="material-icons">schedule</span>` +
-							`<span class="">${formatTime(durations[i] / 20)}</span>`;
-						routeStationsElement.appendChild(element);
+						const element = document.createElement("span");
+						element.innerHTML = CANVAS.formatTime(durations[i] / 20);
+						routeStationsElement.appendChild(CANVAS.getDrawLineElement("schedule", element, color));
 					}
 				}
 
@@ -259,6 +255,12 @@ function drawMap(container, data) {
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.onpaste = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.oninput = () => onSearch(data);
+	DIRECTIONS_BOX_1_ELEMENT.onchange = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_1_ELEMENT.onpaste = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_1_ELEMENT.oninput = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_2_ELEMENT.onchange = () => DIRECTIONS.onSearch(2, data);
+	DIRECTIONS_BOX_2_ELEMENT.onpaste = () => DIRECTIONS.onSearch(2, data);
+	DIRECTIONS_BOX_2_ELEMENT.oninput = () => DIRECTIONS.onSearch(2, data);
 
 	clearAndDestroy(graphicsRoutesLayer1);
 	clearAndDestroy(graphicsRoutesLayer2);
@@ -454,6 +456,8 @@ function drawMap(container, data) {
 		element.setAttribute("style", "display: none");
 		elementStations.append(element);
 	}
+	DIRECTIONS.writeStationsInResult(1, data);
+	DIRECTIONS.writeStationsInResult(2, data);
 
 	document.getElementById("loading").style.display = "none";
 	onSearch(data);
@@ -461,12 +465,12 @@ function drawMap(container, data) {
 
 function onSearch(data) {
 	const searchBox = document.getElementById("search_box");
-	const search = searchBox.value.toLowerCase();
+	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
 	document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
 
 	const {stations, routes} = data;
 
-	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].toLowerCase().includes(search));
+	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].replace(/\|/g, " ").toLowerCase().includes(search));
 	for (const stationId in stations) {
 		document.getElementById(stationId).style.display = resultsStations.includes(stationId) ? "block" : "none";
 	}

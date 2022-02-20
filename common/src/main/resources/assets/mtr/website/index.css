@@ -74,24 +74,12 @@ h3 {
     width: 24em;
 }
 
-#search_top {
-    align-items: center;
-    display: flex;
-    height: 2em;
-    overflow: hidden;
-}
-
-#search_box {
-    width: 100%;
-}
-
 #station_arrivals {
     padding: 0.4em 0.2em 0 0.2em;
 }
 
 #loading.material-icons {
     color: var(--textColorDisabled);
-    font-size: 4em;
     left: 50%;
     top: 50%;
     position: absolute;
@@ -117,6 +105,17 @@ h3 {
     color: var(--textColorDisabled);
 }
 
+.text_box {
+    width: 100%;
+}
+
+.search_top {
+    align-items: center;
+    display: flex;
+    height: 2em;
+    overflow: hidden;
+}
+
 .search_results {
     display: flex;
     flex-direction: column;
@@ -124,8 +123,24 @@ h3 {
     overflow-y: auto;
 }
 
+.search_results_directions {
+    padding: 0 0 0 2em;
+}
+
 .info_top {
     display: flex;
+}
+
+.info_middle {
+    align-content: center;
+    align-self: center;
+    display: flex;
+    padding: 0.5em 0 0 0;
+}
+
+.info_center {
+    display: flex;
+    flex-direction: column;
 }
 
 .info_name {
@@ -169,10 +184,10 @@ h3 {
 
 .route_duration > .material-icons {
     color: var(--textColorDisabled);
-    font-size: 1em;
 }
 
 .station_list {
+    overflow: hidden;
     padding: 0.5em 0;
     position: relative;
 }
@@ -218,14 +233,11 @@ h3 {
 }
 
 .clickable:hover {
+    color: var(--textColor);
     background: var(--backgroundHover);
 }
 
-.clickable_icon:hover {
-    color: var(--textColor);
-}
-
-.clickable_icon.selected {
+.clickable.selected {
     background: var(--boxBorder);
 }
 
@@ -274,4 +286,13 @@ h3 {
 
 .material-icons.tight {
     padding: 0;
+}
+
+.material-icons.large {
+    font-size: 4em;
+    text-align: center;
+}
+
+.material-icons.small {
+    font-size: 1em;
 }

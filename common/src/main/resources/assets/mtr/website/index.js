@@ -47,6 +47,7 @@ const SETTINGS = {
 		showSettings = false;
 		document.getElementById("station_info").style.display = "none";
 		document.getElementById("route_info").style.display = "none";
+		document.getElementById("directions").style.display = "none";
 		document.getElementById("settings").style.display = "none";
 	}
 };
@@ -103,7 +104,7 @@ const setupRouteTypeAndDimensionButtons = () => {
 
 	for (const routeType of Object.keys(SETTINGS.routeTypes)) {
 		const element = document.getElementById("settings_route_type_" + routeType);
-		element.className = "material-icons clickable_icon " + (SETTINGS.selectedRouteTypes.includes(routeType) ? "selected" : "");
+		element.className = "material-icons clickable " + (SETTINGS.selectedRouteTypes.includes(routeType) ? "selected" : "");
 		element.style.display = json[SETTINGS.dimension]["types"].includes(routeType) ? "" : "none";
 		element.onclick = () => {
 			if (SETTINGS.selectedRouteTypes.includes(routeType)) {
@@ -123,7 +124,7 @@ const setupRouteTypeAndDimensionButtons = () => {
 		if (json[dimensionIndex]["routes"].length > 0) {
 			const element = document.createElement("span");
 			element.id = "toggle_dimension_icon_" + dimensionIndex;
-			element.className = "material-icons clickable_icon " + (SETTINGS.dimension === parseInt(dimensionIndex) ? "selected" : "");
+			element.className = "material-icons clickable " + (SETTINGS.dimension === parseInt(dimensionIndex) ? "selected" : "");
 			element.innerText = "public"
 			element.onclick = () => {
 				SETTINGS.dimension = parseInt(dimensionIndex);
@@ -159,6 +160,23 @@ if (getCookie("theme").includes("dark")) {
 document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
 document.getElementById("zoom_in_icon").onclick = () => CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
 document.getElementById("zoom_out_icon").onclick = () => CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
+document.getElementById("directions_icon").onclick = () => {
+	SETTINGS.clearPanes();
+	document.getElementById("directions").style.display = "block";
+};
+document.getElementById("clear_directions_1_icon").onclick = () => {
+	document.getElementById("directions_result").style.display = "none";
+	const searchBox = document.getElementById("directions_box_1");
+	searchBox.value = "";
+	searchBox.focus();
+};
+document.getElementById("clear_directions_2_icon").onclick = () => {
+	document.getElementById("directions_result").style.display = "none";
+	const searchBox = document.getElementById("directions_box_2");
+	searchBox.value = "";
+	searchBox.focus();
+};
+document.getElementById("clear_search_icon").innerText = "";
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("off")) {
