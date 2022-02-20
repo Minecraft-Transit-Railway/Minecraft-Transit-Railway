@@ -62,13 +62,14 @@ const refreshArrivals = () => {
 			const currentMillis = Date.now();
 			const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
 			const destinationSplit = destination.split("|");
+			const routeNumberSplit = route.split("|");
 			if (typeof arrivalsHtml[color] === "undefined") {
 				arrivalsHtml[color] = {html: "", count: 0};
 			}
 			if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
 				arrivalsHtml[color]["html"] +=
 					`<div class="arrival">` +
-					`<span class="arrival_text left_align" style="width: 70%">${(route.length === 0 ? "" : route + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+					`<span class="arrival_text left_align" style="width: 70%">${(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
 					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
 					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
 					`</div>`;

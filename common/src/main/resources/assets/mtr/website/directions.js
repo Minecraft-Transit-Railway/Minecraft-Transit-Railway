@@ -196,10 +196,10 @@ const findRoute = data => {
 		infoElement.innerHTML +=
 			`<div class="info_middle">` +
 			`<span class="material-icons small">schedule</span>` +
-			`<span>${CANVAS.formatTime(totalTime / 20)}</span>` +
+			`<span class="text">${CANVAS.formatTime(totalTime / 20)}</span>` +
 			"&nbsp;&nbsp;&nbsp;" +
 			`<span class="material-icons small">confirmation_number</span>` +
-			`<span>$${Math.abs(lastStation["zone"] - firstStation["zone"]) + 2}</span>` +
+			`<span class="text">$${Math.abs(lastStation["zone"] - firstStation["zone"]) + 2}</span>` +
 			`</div>`;
 		resultElement.append(infoElement);
 	} else {
