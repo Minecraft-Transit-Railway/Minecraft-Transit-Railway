@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
@@ -498,6 +499,10 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return containsRail(rails, pos1, pos2);
 	}
 
+	public Rail getRail(BlockPos pos1, BlockPos pos2) {
+		return getRail(rails, pos1, pos2);
+	}
+
 	public long removeSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
 		return signalBlocks.remove(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
@@ -662,6 +667,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public static boolean containsRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
 		return rails.containsKey(pos1) && rails.get(pos1).containsKey(pos2);
+	}
+
+	public @Nullable Rail getRail(Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos1, BlockPos pos2) {
+		if (containsRail(rails, pos1, pos2)) {
+			return rails.get(pos1).get(pos2);
+		} else {
+			return null;
+		}
 	}
 
 	public static Station getStation(Set<Station> stations, DataCache dataCache, BlockPos pos) {

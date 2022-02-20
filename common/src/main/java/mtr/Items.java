@@ -6,6 +6,7 @@ import mtr.item.*;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.WaterLilyBlockItem;
+import java.util.HashMap;
 
 public interface Items {
 
@@ -42,6 +43,34 @@ public interface Items {
 	Item RAIL_CONNECTOR_PLATFORM = new ItemRailModifier(false, RailType.PLATFORM);
 	Item RAIL_CONNECTOR_SIDING = new ItemRailModifier(false, RailType.SIDING);
 	Item RAIL_CONNECTOR_TURN_BACK = new ItemRailModifier(false, RailType.TURN_BACK);
+	HashMap<RailType, Item> RAIL_CONNECTOR_HashMapItem = new HashMap<RailType, Item>() {
+		{
+			put(RailType.NONE, null);
+			put(RailType.WOODEN, Items.RAIL_CONNECTOR_20);
+			put(RailType.STONE, Items.RAIL_CONNECTOR_40);
+			put(RailType.EMERALD, Items.RAIL_CONNECTOR_60);
+			put(RailType.IRON, Items.RAIL_CONNECTOR_80);
+			put(RailType.OBSIDIAN, Items.RAIL_CONNECTOR_120);
+			put(RailType.BLAZE, Items.RAIL_CONNECTOR_160);
+			put(RailType.QUARTZ, Items.RAIL_CONNECTOR_200);
+			put(RailType.DIAMOND, Items.RAIL_CONNECTOR_300);
+			put(RailType.PLATFORM, Items.RAIL_CONNECTOR_PLATFORM);
+			put(RailType.SIDING, Items.RAIL_CONNECTOR_SIDING);
+			put(RailType.TURN_BACK, Items.RAIL_CONNECTOR_TURN_BACK);
+		}
+	};
+	HashMap<RailType, Item> RAIL_CONNECTOR_ONE_WAY_HashMapItem = new HashMap<RailType, Item>() {
+		{
+			put(RailType.WOODEN, Items.RAIL_CONNECTOR_20_ONE_WAY);
+			put(RailType.STONE, Items.RAIL_CONNECTOR_40_ONE_WAY);
+			put(RailType.EMERALD, Items.RAIL_CONNECTOR_60_ONE_WAY);
+			put(RailType.IRON, Items.RAIL_CONNECTOR_80_ONE_WAY);
+			put(RailType.OBSIDIAN, Items.RAIL_CONNECTOR_120_ONE_WAY);
+			put(RailType.BLAZE, Items.RAIL_CONNECTOR_160_ONE_WAY);
+			put(RailType.QUARTZ, Items.RAIL_CONNECTOR_200_ONE_WAY);
+			put(RailType.DIAMOND, Items.RAIL_CONNECTOR_300_ONE_WAY);
+		}
+	};
 	Item RAIL_REMOVER = new ItemRailModifier();
 	Item RESOURCE_PACK_CREATOR = new ItemResourcePackCreator(new Item.Properties().tab(ItemGroups.CORE));
 	Item SIGNAL_CONNECTOR_WHITE = new ItemSignalModifier(true, DyeColor.WHITE);

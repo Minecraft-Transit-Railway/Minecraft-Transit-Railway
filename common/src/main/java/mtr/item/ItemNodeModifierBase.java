@@ -20,6 +20,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public abstract class ItemNodeModifierBase extends Item {
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
 	public ItemNodeModifierBase(boolean isConnector) {
-		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
+		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(64));
 		this.isConnector = isConnector;
 	}
 
@@ -66,7 +67,7 @@ public abstract class ItemNodeModifierBase extends Item {
 								onConnect(world, context.getItemInHand(), ((BlockNode) blockStart).transportMode, stateStart, stateEnd, posStart, posEnd, railAngleStart, railAngleEnd, player, railwayData);
 							}
 						} else {
-							onRemove(world, posStart, posEnd, railwayData);
+							onRemove(world, player, posStart, posEnd, railwayData);
 						}
 					}
 
@@ -97,5 +98,5 @@ public abstract class ItemNodeModifierBase extends Item {
 
 	protected abstract void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData);
 
-	protected abstract void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
+	protected abstract void onRemove(Level world, @Nullable Player player, BlockPos posStart, BlockPos posEnd, RailwayData railwayData);
 }

@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -93,7 +94,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
-	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected final void onRemove(Level world, @Nullable Player player, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
 	}
 
 	protected BlockState getSavedState(ItemStack stack) {
