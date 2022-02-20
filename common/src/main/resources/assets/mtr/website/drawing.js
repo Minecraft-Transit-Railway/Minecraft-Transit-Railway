@@ -143,7 +143,13 @@ function drawMap(container, data) {
 			event.target.innerText = "check";
 			setTimeout(() => event.target.innerText = "content_copy", 1000);
 		};
-		document.getElementById("station_directions").onclick = () => {
+		document.getElementById("station_directions_1").onclick = () => {
+			SETTINGS.clearPanes();
+			document.getElementById("directions").style.display = "block";
+			DIRECTIONS.onSelectStation(1, id, data);
+			document.getElementById("directions_box_2").focus();
+		};
+		document.getElementById("station_directions_2").onclick = () => {
 			SETTINGS.clearPanes();
 			document.getElementById("directions").style.display = "block";
 			DIRECTIONS.onSelectStation(2, id, data);
@@ -250,7 +256,7 @@ function drawMap(container, data) {
 			SETTINGS.selectedColor = -1;
 		}
 
-		drawMap(container, data);
+		SETTINGS.drawDirectionsRoute([], []);
 	};
 
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
@@ -362,7 +368,7 @@ function drawMap(container, data) {
 	for (const routeKey in routes) {
 		const route = routes[routeKey];
 		const color = route["color"];
-		const shouldDraw = SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color;
+		const shouldDraw = SETTINGS.selectedDirectionsStations.length === 0 && (SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color);
 		const routeType = route["type"];
 		for (const stationIndex in route["stations"]) {
 			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
@@ -394,6 +400,20 @@ function drawMap(container, data) {
 
 				graphicsRoute.endFill();
 			}, () => onClickLine(color, false));
+
+			if (color in SETTINGS.selectedDirectionsSegments) {
+				const graphics = new PIXI.Graphics();
+				graphicsStationsLayer2.push(graphics);
+				graphics.beginFill(color);
+
+				SETTINGS.selectedDirectionsSegments[color].forEach(segment => {
+					const position1 = positions[segment.split("_")[0] + "_" + color];
+					const position2 = positions[segment.split("_")[1] + "_" + color];
+					CANVAS.drawLine(graphics, position1["x2"], position1["y2"], position1["vertical"], position2["x2"], position2["y2"], position2["vertical"]);
+				});
+
+				graphics.endFill();
+			}
 		}
 
 		routeNames[color] = route["name"].split("||")[0];
@@ -408,7 +428,7 @@ function drawMap(container, data) {
 		const blob = blobs[stationId];
 		const {xMin, yMin, xMax, yMax, colors, name} = blob;
 		if (SETTINGS.selectedRouteTypes.some(routeType => blob[routeType])) {
-			const shouldDraw = SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
+			const shouldDraw = SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
 
 			createClickable(container, graphicsStation => {
 				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);

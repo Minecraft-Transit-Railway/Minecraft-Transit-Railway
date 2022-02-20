@@ -3,6 +3,9 @@ import SETTINGS from "./index.js";
 
 let stationStart = 0;
 let stationEnd = 0;
+let pathStations = [];
+let pathRoutes = [];
+let globalBlacklistedStations = [];
 
 const DIRECTIONS = {
 	onSearch: (index, data) => {
@@ -34,7 +37,9 @@ const DIRECTIONS = {
 			stationEnd = stationId;
 		}
 		if (stationStart !== 0 && stationEnd !== 0) {
-			findRoute(data);
+			document.getElementById("directions_result").style.display = "";
+			document.getElementById("directions_result_route").innerHTML = `<div class="info_center"><span class="material-icons large">refresh</span></div>`;
+			setTimeout(() => findRoute(data), 500);
 		}
 	},
 	writeStationsInResult: (index, data) => {
@@ -52,7 +57,7 @@ const DIRECTIONS = {
 	},
 };
 
-const findRoutePart = (data, reverse) => {
+const findRoutePart = (data, reverse, maxTime) => {
 	const newStationStart = reverse ? stationEnd : stationStart;
 	const newStationEnd = reverse ? stationStart : stationEnd;
 	const {routes, positions, stations} = data;
@@ -68,6 +73,7 @@ const findRoutePart = (data, reverse) => {
 		let biggestIncrease = Number.MIN_SAFE_INTEGER;
 		let routeUsed = {};
 		let duration = 0;
+		let availableRoutes = 0;
 
 		for (const route of routes) {
 			const routeStations = route["stations"].map(station => station.split("_")[0]);
@@ -77,31 +83,34 @@ const findRoutePart = (data, reverse) => {
 				const time = route["durations"][index];
 				if (time > 0) {
 					if (checkStation === newStationEnd) {
-						return [newStationEnd, route, time];
-					} else if (!blacklistedStations.includes(checkStation)) {
+						return [newStationEnd, route, time, false];
+					} else if (!globalBlacklistedStations.includes(checkStation + "_" + route["name"]) && !blacklistedStations.includes(checkStation)) {
 						const currentPosition = positions[route["stations"][index]];
 						const currentDistance = Math.abs(positionEnd["x"] - currentPosition["x"]) + Math.abs(positionEnd["y"] - currentPosition["y"]);
 						const newPosition = positions[route["stations"][index + (reverse ? -1 : 1)]];
 						const newDistance = Math.abs(positionEnd["x"] - newPosition["x"]) + Math.abs(positionEnd["y"] - newPosition["y"]);
-						const increase = (currentDistance - newDistance) / (time + (route !== currentRoute ? 100 : 0)); // TODO actually calculate interchange cost
+						const interchangePenalty = route !== currentRoute ? 100 : 0; // TODO actually calculate interchange cost
+						const increase = (currentDistance - newDistance) / (time + interchangePenalty);
 						if (increase > biggestIncrease) {
 							closestStation = checkStation;
 							biggestIncrease = increase;
 							routeUsed = route;
-							duration = time;
+							duration = time + interchangePenalty;
 						}
+						availableRoutes++;
 					}
 				}
 			}
 		}
 
-		return [closestStation, routeUsed, duration];
+		return [closestStation, routeUsed, duration, availableRoutes > 1];
 	}
 
 	const pathRoutes = [];
 	const pathStations = [newStationStart];
 	const times = [];
 	const blacklistedStations = [newStationStart];
+	let notBlacklistedOneStation = true;
 
 	while (!pathStations.includes(newStationEnd)) {
 		const newStationWithRoute = getCloserStationWithRoute();
@@ -118,6 +127,13 @@ const findRoutePart = (data, reverse) => {
 			pathRoutes.push(newStationWithRoute[1]);
 			times.push(newStationWithRoute[2]);
 			blacklistedStations.push(newStationWithRoute[0]);
+			if (notBlacklistedOneStation && newStationWithRoute[3]) {
+				notBlacklistedOneStation = false;
+				globalBlacklistedStations.push(newStationWithRoute[0] + "_" + newStationWithRoute[1]["name"]);
+			}
+			if (times.reduce((sum, time) => sum + time, 0) > maxTime) {
+				break;
+			}
 		}
 	}
 
@@ -131,29 +147,54 @@ const findRoutePart = (data, reverse) => {
 }
 
 const findRoute = data => {
-	const path1 = findRoutePart(data, false);
-	const path2 = findRoutePart(data, true);
-	const time1 = path1[2].reduce((sum, time) => sum + time, 0);
-	const time2 = path2[2].reduce((sum, time) => sum + time, 0);
+	pathStations = [];
+	pathRoutes = [];
+	globalBlacklistedStations = [];
 
-	let pathStations;
-	let pathRoutes;
-	let times;
-	let totalTime;
-	if (time1 <= time2 || time1 > 0 && time2 === 0) {
-		pathStations = path1[0];
-		pathRoutes = path1[1];
-		times = path1[2];
-		totalTime = time1;
-	} else {
-		pathStations = path2[0];
-		pathRoutes = path2[1];
-		times = path2[2];
-		totalTime = time2;
+	const millis = Date.now();
+	let reverse = false;
+	let failedTimes = 0;
+	let tries = 0;
+	let totalTime = Number.MAX_SAFE_INTEGER;
+	let previousTime1 = 0;
+	let previousTime2 = 0;
+	let repeatedTime = 0;
+	let times = [];
+
+	while (failedTimes < 10 && repeatedTime < 10 && tries < 500) {
+		const path = findRoutePart(data, reverse, totalTime);
+		const time = path[2].reduce((sum, time) => sum + time, 0);
+		tries++;
+
+		if (time === 0) {
+			failedTimes++;
+		} else {
+			if (time < totalTime) {
+				totalTime = time;
+				pathStations = path[0];
+				pathRoutes = path[1];
+				times = path[2];
+			}
+
+			failedTimes = 0;
+
+			if (time === previousTime1 || time === previousTime2) {
+				repeatedTime++;
+			} else {
+				repeatedTime = 0;
+			}
+		}
+
+		reverse = !reverse;
+		previousTime2 = previousTime1;
+		previousTime1 = time;
+	}
+
+	if (times.length > 0) {
+		console.log(`Found the best path on attempt ${tries} in ${Date.now() - millis} ms`);
 	}
 
 	const hasRoute = pathStations.length > 0 && pathStations.length > pathRoutes.length && times.length === pathRoutes.length;
-	document.getElementById("directions_result").style.display = "";
 	const resultElement = document.getElementById("directions_result_route");
 	resultElement.innerHTML = "";
 
@@ -209,6 +250,7 @@ const findRoute = data => {
 	}
 
 	document.getElementById("directions").style.maxHeight = window.innerHeight - 80 + "px";
+	SETTINGS.drawDirectionsRoute(pathStations, pathRoutes, true);
 };
 
 const createStationElement = stationName => {
@@ -217,5 +259,11 @@ const createStationElement = stationName => {
 	stationElement.className = "text";
 	return stationElement;
 }
+
+document.getElementById("directions_icon").onclick = () => {
+	SETTINGS.clearPanes();
+	SETTINGS.drawDirectionsRoute(pathStations, pathRoutes);
+	document.getElementById("directions").style.display = "block";
+};
 
 export default DIRECTIONS;

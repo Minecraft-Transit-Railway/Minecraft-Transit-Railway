@@ -23,6 +23,8 @@ const SETTINGS = {
 	selectedRouteTypes: [],
 	selectedColor: -1,
 	selectedStation: 0,
+	selectedDirectionsStations: [],
+	selectedDirectionsSegments: {},
 	showText: true,
 	smoothScrollScale: 100,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
@@ -44,12 +46,28 @@ const SETTINGS = {
 	},
 	clearPanes: function () {
 		this.selectedStation = 0;
+		this.selectedColor = -1;
+		this.selectedDirectionsStations = [];
+		this.selectedDirectionsSegments = {};
 		showSettings = false;
 		document.getElementById("station_info").style.display = "none";
 		document.getElementById("route_info").style.display = "none";
 		document.getElementById("directions").style.display = "none";
 		document.getElementById("settings").style.display = "none";
-	}
+	},
+	drawDirectionsRoute: function (pathStations, pathRoutes) {
+		this.selectedColor = -1;
+		this.selectedDirectionsStations = pathStations;
+		this.selectedDirectionsSegments = [];
+		for (let i = 0; i < pathRoutes.length; i++) {
+			const color = pathRoutes[i]["color"];
+			if (!(color in this.selectedDirectionsSegments)) {
+				this.selectedDirectionsSegments[color] = [];
+			}
+			this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
+		}
+		drawMap(container, json[this.dimension]);
+	},
 };
 
 const fetchMainData = () => {
@@ -160,10 +178,6 @@ if (getCookie("theme").includes("dark")) {
 document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
 document.getElementById("zoom_in_icon").onclick = () => CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
 document.getElementById("zoom_out_icon").onclick = () => CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
-document.getElementById("directions_icon").onclick = () => {
-	SETTINGS.clearPanes();
-	document.getElementById("directions").style.display = "block";
-};
 document.getElementById("clear_directions_1_icon").onclick = () => {
 	document.getElementById("directions_result").style.display = "none";
 	const searchBox = document.getElementById("directions_box_1");
@@ -230,7 +244,6 @@ tappable(background);
 background.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
 background.on("pinchmove", event => CANVAS.onPinch(event.data.global, event.center.x, event.center.y, container, json[SETTINGS.dimension], true));
 background.on("simpletap", () => {
-	SETTINGS.selectedColor = -1;
 	SETTINGS.clearPanes();
 	drawMap(container, json[SETTINGS.dimension]);
 });
