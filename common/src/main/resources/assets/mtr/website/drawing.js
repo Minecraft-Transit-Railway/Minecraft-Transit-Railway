@@ -287,66 +287,73 @@ function drawMap(container, data) {
 		const vertical = station["vertical"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
 
 		if (horizontal.length === 0 && vertical.length === 0) {
-			continue;
-		}
-
-		const sort = (a, b, key) => a[key] === b[key] ? a["color"] - b["color"] : a[key] - b[key];
-		horizontal.sort((a, b) => sort(a, b, "y"));
-		vertical.sort((a, b) => sort(a, b, "x"));
-
-		let xCount;
-		let x = 0;
-		if (vertical.length === 0) {
-			horizontal.forEach(element => x += element["x"]);
-			xCount = 1;
-			x /= horizontal.length;
+			blobs[stationId] = {
+				xMin: CANVAS.convertX(stations[stationId]["x"]),
+				yMin: CANVAS.convertY(stations[stationId]["z"]),
+				xMax: CANVAS.convertX(stations[stationId]["x"]),
+				yMax: CANVAS.convertY(stations[stationId]["z"]),
+				name: stations[stationId]["name"],
+				colors: [],
+			};
 		} else {
-			vertical.forEach(element => x += element["x"]);
-			xCount = vertical.length;
-			x /= xCount;
-		}
+			const sort = (a, b, key) => a[key] === b[key] ? a["color"] - b["color"] : a[key] - b[key];
+			horizontal.sort((a, b) => sort(a, b, "y"));
+			vertical.sort((a, b) => sort(a, b, "x"));
 
-		let yCount;
-		let y = 0;
-		if (horizontal.length === 0) {
-			vertical.forEach(element => y += element["y"]);
-			yCount = 1;
-			y /= vertical.length;
-		} else {
-			horizontal.forEach(element => y += element["y"]);
-			yCount = horizontal.length;
-			y /= yCount;
-		}
+			let xCount;
+			let x = 0;
+			if (vertical.length === 0) {
+				horizontal.forEach(element => x += element["x"]);
+				xCount = 1;
+				x /= horizontal.length;
+			} else {
+				vertical.forEach(element => x += element["x"]);
+				xCount = vertical.length;
+				x /= xCount;
+			}
 
-		x = CANVAS.convertX(x);
-		y = CANVAS.convertY(y);
+			let yCount;
+			let y = 0;
+			if (horizontal.length === 0) {
+				vertical.forEach(element => y += element["y"]);
+				yCount = 1;
+				y /= vertical.length;
+			} else {
+				horizontal.forEach(element => y += element["y"]);
+				yCount = horizontal.length;
+				y /= yCount;
+			}
 
-		const colors = [];
-		for (let i = 0; i < horizontal.length; i++) {
-			const color = horizontal[i]["color"];
-			colors.push(color);
-			const position = positions[stationId + "_" + color];
-			position["x2"] = x;
-			position["y2"] = y + (i - (horizontal.length - 1) / 2) * SETTINGS.lineSize;
-		}
-		for (let i = 0; i < vertical.length; i++) {
-			const color = vertical[i]["color"];
-			colors.push(color);
-			const position = positions[stationId + "_" + color];
-			position["x2"] = x + (i - (vertical.length - 1) / 2) * SETTINGS.lineSize;
-			position["y2"] = y;
-		}
+			x = CANVAS.convertX(x);
+			y = CANVAS.convertY(y);
 
-		const xOffset = SETTINGS.lineSize * (xCount - 1) / 2;
-		const yOffset = SETTINGS.lineSize * (yCount - 1) / 2;
-		blobs[stationId] = {
-			xMin: x - xOffset,
-			yMin: y - yOffset,
-			xMax: x + xOffset,
-			yMax: y + yOffset,
-			name: stations[stationId]["name"],
-			colors: colors,
-		};
+			const colors = [];
+			for (let i = 0; i < horizontal.length; i++) {
+				const color = horizontal[i]["color"];
+				colors.push(color);
+				const position = positions[stationId + "_" + color];
+				position["x2"] = x;
+				position["y2"] = y + (i - (horizontal.length - 1) / 2) * SETTINGS.lineSize;
+			}
+			for (let i = 0; i < vertical.length; i++) {
+				const color = vertical[i]["color"];
+				colors.push(color);
+				const position = positions[stationId + "_" + color];
+				position["x2"] = x + (i - (vertical.length - 1) / 2) * SETTINGS.lineSize;
+				position["y2"] = y;
+			}
+
+			const xOffset = SETTINGS.lineSize * (xCount - 1) / 2;
+			const yOffset = SETTINGS.lineSize * (yCount - 1) / 2;
+			blobs[stationId] = {
+				xMin: x - xOffset,
+				yMin: y - yOffset,
+				xMax: x + xOffset,
+				yMax: y + yOffset,
+				name: stations[stationId]["name"],
+				colors: colors,
+			};
+		}
 	}
 
 	const routeNames = {};

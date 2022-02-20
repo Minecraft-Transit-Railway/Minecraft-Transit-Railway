@@ -63,6 +63,7 @@ const findRoutePart = (data, reverse) => {
 
 	const getCloserStationWithRoute = () => {
 		const currentStation = pathStations[pathStations.length - 1];
+		const currentRoute = pathRoutes[pathRoutes.length - 1];
 		let closestStation = 0;
 		let biggestIncrease = Number.MIN_SAFE_INTEGER;
 		let routeUsed = {};
@@ -82,7 +83,7 @@ const findRoutePart = (data, reverse) => {
 						const currentDistance = Math.abs(positionEnd["x"] - currentPosition["x"]) + Math.abs(positionEnd["y"] - currentPosition["y"]);
 						const newPosition = positions[route["stations"][index + (reverse ? -1 : 1)]];
 						const newDistance = Math.abs(positionEnd["x"] - newPosition["x"]) + Math.abs(positionEnd["y"] - newPosition["y"]);
-						const increase = (currentDistance - newDistance) / time;
+						const increase = (currentDistance - newDistance) / (time + (route !== currentRoute ? 100 : 0)); // TODO actually calculate interchange cost
 						if (increase > biggestIncrease) {
 							closestStation = checkStation;
 							biggestIncrease = increase;
@@ -158,14 +159,17 @@ const findRoute = data => {
 
 	if (hasRoute) {
 		let route = null;
-		let stationCount = 0;
-		let time = 0;
-		let oldTime = 0;
 		for (let i = 0; i < pathRoutes.length; i++) {
-			stationCount++;
-			time += times[i];
-
 			if (route !== pathRoutes[i]) {
+				let tempRoute = pathRoutes[i];
+				let stationCount = 0;
+				let time = 0;
+				while (tempRoute === pathRoutes[i]) {
+					time += times[i + stationCount];
+					stationCount++;
+					tempRoute = pathRoutes[i + stationCount];
+				}
+
 				const newColor = pathRoutes[i]["color"];
 				resultElement.append(CANVAS.getDrawStationElement(createStationElement(data["stations"][pathStations[i]]["name"].replace(/\|/g, " ")), route == null ? null : route["color"], newColor));
 
@@ -178,12 +182,10 @@ const findRoute = data => {
 				resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, newColor));
 
 				const durationElement = document.createElement("span");
-				durationElement.innerHTML = CANVAS.formatTime((time - oldTime) / 20);
+				durationElement.innerHTML = CANVAS.formatTime(time / 20);
 				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, newColor));
 
 				route = pathRoutes[i];
-				stationCount = 0;
-				oldTime = time;
 			}
 		}
 
