@@ -54,10 +54,15 @@ const DIRECTIONS = {
 			elementDirectionsStations.append(element);
 		}
 	},
+	calculateDistance: (stations, stationId1, stationId2) => {
+		const station1 = stations[stationId1];
+		const station2 = stations[stationId2];
+		return Math.abs(station2["x"] - station1["x"]) + Math.abs(station2["z"] - station1["z"]);
+	},
 };
 
-const findRoutePart = (data, positionEnd, maxTime) => {
-	const {routes, positions, stations} = data;
+const findRoutePart = (data, globalBlacklist, maxTime) => {
+	const {stations, connections} = data;
 	if (!(stationStart in stations) || !(stationEnd in stations)) {
 		return [[], [], []];
 	}
@@ -65,51 +70,45 @@ const findRoutePart = (data, positionEnd, maxTime) => {
 	const getCloserStationWithRoute = elapsedTime => {
 		const currentStation = tempPathStations[tempPathStations.length - 1];
 		const currentRoute = tempPathRoutes[tempPathRoutes.length - 1];
-		let closestStation = 0;
-		let biggestIncrease = Number.MIN_SAFE_INTEGER;
-		let routeUsed = {};
-		let duration = 0;
+		let bestStation = 0;
+		let bestIncrease = Number.MIN_SAFE_INTEGER;
+		let bestRoute = {};
+		let bestDuration = 0;
 
-		for (const route of routes) {
-			const routeStations = route["stations"].map(station => station.split("_")[0]);
-			const index = routeStations.indexOf(currentStation);
+		for (const connection of connections[currentStation]) {
+			const checkStation = connection["station"];
+			const route = connection["route"];
+			const interchangePenalty = route !== currentRoute ? 10 : 0; // TODO actually calculate interchange cost
+			const duration = connection["duration"] + interchangePenalty;
 
-			if (index >= 0 && index < routeStations.length - 1) {
-				const checkStation = routeStations[index + 1];
-				const interchangePenalty = route !== currentRoute ? 10 : 0; // TODO actually calculate interchange cost
-				const time = route["durations"][index] + interchangePenalty;
+			if (duration > interchangePenalty && elapsedTime + duration < maxTime) {
+				if (checkStation === stationEnd) {
+					return [stationEnd, route, duration];
+				} else if (
+					(!(checkStation in localBlacklist) || elapsedTime + duration < localBlacklist[checkStation]) &&
+					(!(checkStation in globalBlacklist) || elapsedTime + duration <= globalBlacklist[checkStation])
+				) {
+					const increase = (DIRECTIONS.calculateDistance(stations, stationEnd, currentStation) - DIRECTIONS.calculateDistance(stations, stationEnd, checkStation)) / duration;
+					globalBlacklist[checkStation] = elapsedTime + duration;
 
-				if (time > interchangePenalty && elapsedTime + time < maxTime) {
-					if (checkStation === stationEnd) {
-						return [stationEnd, route, time];
-					} else if (!(checkStation in blacklistedStations) || elapsedTime + time < blacklistedStations[checkStation]) {
-						const currentPosition = positions[route["stations"][index]];
-						const currentDistance = Math.abs(positionEnd["x"] - currentPosition["x"]) + Math.abs(positionEnd["y"] - currentPosition["y"]);
-						const newPosition = positions[route["stations"][index + 1]];
-						const newDistance = Math.abs(positionEnd["x"] - newPosition["x"]) + Math.abs(positionEnd["y"] - newPosition["y"]);
-						const increase = (currentDistance - newDistance) / (time);
-						blacklistedStations[checkStation] = elapsedTime + time + 1;
-
-						if (increase > biggestIncrease) {
-							closestStation = checkStation;
-							biggestIncrease = increase;
-							routeUsed = route;
-							duration = time;
-						}
+					if (increase > bestIncrease) {
+						bestStation = checkStation;
+						bestIncrease = increase;
+						bestRoute = route;
+						bestDuration = duration;
 					}
 				}
 			}
 		}
 
-		blacklistedStations[closestStation] = elapsedTime + duration;
-		return [closestStation, routeUsed, duration];
+		localBlacklist[bestStation] = elapsedTime + bestDuration;
+		return [bestStation, bestRoute, bestDuration];
 	}
 
 	const tempPathRoutes = [];
 	const tempPathStations = [stationStart];
 	const times = [];
-	const blacklistedStations = {};
-	blacklistedStations[stationStart] = 0;
+	const localBlacklist = {};
 
 	while (!tempPathStations.includes(stationEnd)) {
 		const elapsedTime = times.reduce((sum, time) => sum + time, 0);
@@ -136,14 +135,15 @@ const findRoute = data => {
 	pathStations = [];
 	pathRoutes = [];
 
-	const positionEnd = data["positions"][Object.keys(data["positions"]).find(position => position.split("_")[0] === stationEnd)];
 	const millis = Date.now();
+	const globalBlacklist = {};
+	globalBlacklist[stationStart] = 0;
 	let tries = 0;
 	let totalTime = Number.MAX_SAFE_INTEGER;
 	let times = [];
 
 	while (tries < 500) {
-		const path = findRoutePart(data, positionEnd, totalTime);
+		const path = findRoutePart(data, globalBlacklist, totalTime);
 		tries++;
 
 		if (path[0].length === 0) {
@@ -165,42 +165,52 @@ const findRoute = data => {
 
 	const hasRoute = pathStations.length > 0 && pathStations.length > pathRoutes.length && times.length === pathRoutes.length;
 	const resultElement = document.getElementById("directions_result_route");
+	const stations = data["stations"];
 	resultElement.innerHTML = "";
 
 	if (hasRoute) {
-		let route = null;
+		let route = undefined;
+		let totalStationCount = 0;
+		let totalInterchangeCount = 0;
+
 		for (let i = 0; i < pathRoutes.length; i++) {
-			if (route !== pathRoutes[i]) {
-				let tempRoute = pathRoutes[i];
+			const currentRoute = pathRoutes[i];
+			if (route !== currentRoute) {
+				let tempRoute = currentRoute;
 				let stationCount = 0;
 				let time = 0;
-				while (tempRoute === pathRoutes[i]) {
+				while (tempRoute === currentRoute) {
 					time += times[i + stationCount];
 					stationCount++;
 					tempRoute = pathRoutes[i + stationCount];
 				}
 
-				const newColor = pathRoutes[i]["color"];
-				resultElement.append(CANVAS.getDrawStationElement(createStationElement(data["stations"][pathStations[i]]["name"].replace(/\|/g, " ")), route == null ? null : route["color"], newColor));
+				const isWalking = currentRoute == null;
+				const newColor = isWalking ? null : currentRoute["color"];
+				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[pathStations[i]]["name"].replace(/\|/g, " ")), route == null ? null : route["color"], newColor));
 
 				const routeNameElement = document.createElement("span");
-				routeNameElement.innerHTML = pathRoutes[i]["name"].split("||")[0].replace(/\|/g, " ");
-				resultElement.append(CANVAS.getDrawLineElement(SETTINGS.routeTypes[pathRoutes[i]["type"]], routeNameElement, newColor));
+				routeNameElement.innerHTML = isWalking ? Math.round(DIRECTIONS.calculateDistance(stations, pathStations[i], pathStations[i + 1]) / 100) / 10 + " km" : currentRoute["name"].split("||")[0].replace(/\|/g, " ");
+				resultElement.append(CANVAS.getDrawLineElement(isWalking ? "directions_walk" : SETTINGS.routeTypes[currentRoute["type"]], routeNameElement, newColor));
 
-				const stationCountElement = document.createElement("span");
-				stationCountElement.innerHTML = stationCount.toString();
-				resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, newColor));
+				if (!isWalking) {
+					const stationCountElement = document.createElement("span");
+					stationCountElement.innerHTML = stationCount.toString();
+					resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, newColor));
+				}
+				totalStationCount += stationCount;
 
 				const durationElement = document.createElement("span");
 				durationElement.innerHTML = CANVAS.formatTime(time / 20);
 				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, newColor));
 
-				route = pathRoutes[i];
+				route = currentRoute;
+				totalInterchangeCount++;
 			}
 		}
 
-		const firstStation = data["stations"][pathStations[0]];
-		const lastStation = data["stations"][pathStations[pathStations.length - 1]];
+		const firstStation = stations[pathStations[0]];
+		const lastStation = stations[pathStations[pathStations.length - 1]];
 		resultElement.append(CANVAS.getDrawStationElement(createStationElement(lastStation["name"].replace(/\|/g, " ")), route == null ? null : route["color"], null));
 
 		const infoElement = document.createElement("div");
@@ -212,6 +222,12 @@ const findRoute = data => {
 			"&nbsp;&nbsp;&nbsp;" +
 			`<span class="material-icons small">confirmation_number</span>` +
 			`<span class="text">$${Math.abs(lastStation["zone"] - firstStation["zone"]) + 2}</span>` +
+			"&nbsp;&nbsp;&nbsp;" +
+			`<span class="material-icons small">commit</span>` +
+			`<span class="text">${totalStationCount}</span>` +
+			"&nbsp;&nbsp;&nbsp;" +
+			`<span class="material-icons small">transfer_within_a_station</span>` +
+			`<span class="text">${Math.max(0, totalInterchangeCount - 1)}</span>` +
 			`</div>`;
 		resultElement.append(infoElement);
 	} else {

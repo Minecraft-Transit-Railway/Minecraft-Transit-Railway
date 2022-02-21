@@ -213,6 +213,11 @@ h3 {
     padding: 0 1em 0.75em 1em;
 }
 
+.route_segment.walk {
+    background-color: var(--boxBorder);
+    width: 0.2em;
+}
+
 .station_circle {
     background-color: var(--backgroundColor);
     border: 0.15em solid;

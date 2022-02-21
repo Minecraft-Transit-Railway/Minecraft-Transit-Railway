@@ -205,7 +205,7 @@ const CANVAS = {
 		const element = document.createElement("div");
 		element.className = "route_duration";
 		element.innerHTML =
-			`<span class="route_segment" style="background-color: ${CANVAS.convertColor(color)}">&nbsp</span>` +
+			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : CANVAS.convertColor(color)}">&nbsp</span>` +
 			`<span class="material-icons small">${icon}</span>`;
 		element.appendChild(innerElement);
 		return element;

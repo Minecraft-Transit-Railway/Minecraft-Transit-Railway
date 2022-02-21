@@ -62,11 +62,13 @@ const SETTINGS = {
 		this.selectedDirectionsStations = pathStations;
 		this.selectedDirectionsSegments = [];
 		for (let i = 0; i < pathRoutes.length; i++) {
-			const color = pathRoutes[i]["color"];
-			if (!(color in this.selectedDirectionsSegments)) {
-				this.selectedDirectionsSegments[color] = [];
+			if (pathRoutes[i] != null) {
+				const color = pathRoutes[i]["color"];
+				if (!(color in this.selectedDirectionsSegments)) {
+					this.selectedDirectionsSegments[color] = [];
+				}
+				this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
 			}
-			this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
 		}
 		drawMap(container, json[this.dimension]);
 	},
