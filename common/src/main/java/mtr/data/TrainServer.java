@@ -94,7 +94,6 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
 					if (seat != null) {
 						ridingEntities.add(player.getUUID());
-						player.startRiding(seat);
 						seat.updateRidingByTrainServer(id);
 						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
 						seat.percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
@@ -114,7 +113,6 @@ public class TrainServer extends Train {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
 					ridersToRemove.add(uuid);
-					player.stopRiding();
 				}
 			}
 		});
@@ -172,12 +170,10 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
 
 					if (seat != null) {
-						if (seat.hasPassenger(ridingPlayer) && seat.updateRidingByTrainServer(id)) {
+						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id)) {
 							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
-								if (world.hasChunk((int) Math.floor(playerOffset.x / 16), (int) Math.floor(playerOffset.z / 16))) {
-									seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
-								}
+								seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
 							};
 
 							final int currentRidingCar = (int) Math.floor(seat.percentageZ);

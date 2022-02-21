@@ -158,6 +158,9 @@ public class EntitySeat extends Entity {
 		if (this.trainId == 0 || this.trainId == trainId) {
 			this.trainId = trainId;
 			ridingRefresh = SEAT_REFRESH;
+			if (playerNotRiding()) {
+				player.startRiding(this);
+			}
 			return true;
 		} else {
 			return false;
