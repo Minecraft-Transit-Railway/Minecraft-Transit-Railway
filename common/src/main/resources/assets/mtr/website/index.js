@@ -1,4 +1,5 @@
 import CANVAS from "./utilities.js";
+import DIRECTIONS from "./directions.js";
 import drawMap from "./drawing.js";
 import panable from "./gestures/src/gestures/pan.js";
 import pinchable from "./gestures/src/gestures/pinch.js";
@@ -73,6 +74,7 @@ const SETTINGS = {
 		drawMap(container, json[this.dimension]);
 	},
 };
+const WALKING_SPEED_METER_PER_SECOND = 4;
 
 const fetchMainData = () => {
 	clearTimeout(refreshDataId);
@@ -80,11 +82,34 @@ const fetchMainData = () => {
 		json = result;
 
 		for (const dimension of json) {
-			const {routes, positions, stations} = dimension;
+			dimension["connections"] = {};
+			const {routes, positions, connections, stations} = dimension;
 
-			for (const station in stations) {
-				stations[station]["horizontal"] = [];
-				stations[station]["vertical"] = [];
+			for (const stationId in stations) {
+				stations[stationId]["horizontal"] = [];
+				stations[stationId]["vertical"] = [];
+
+				for (const stationId2 in stations) {
+					if (stationId !== stationId2) {
+						if (!(stationId in connections)) {
+							connections[stationId] = [];
+						}
+						connections[stationId].push({route: null, station: stationId2, duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND});
+					}
+				}
+			}
+
+			for (const routeIndex in routes) {
+				const route = routes[routeIndex];
+				for (let i = 1; i < route["stations"].length; i++) {
+					if (i > 0) {
+						const prevStationId = route["stations"][i - 1].split("_")[0];
+						if (!(prevStationId in connections)) {
+							connections[prevStationId] = [];
+						}
+						connections[prevStationId].push({route: route, station: route["stations"][i].split("_")[0], duration: route["durations"][i - 1]});
+					}
+				}
 			}
 
 			for (const positionKey in positions) {

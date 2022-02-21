@@ -169,49 +169,56 @@ const findRoute = data => {
 	resultElement.innerHTML = "";
 
 	if (hasRoute) {
-		let route = undefined;
+		let route = pathRoutes[0];
+		let station = pathStations[0];
 		let totalStationCount = 0;
 		let totalInterchangeCount = 0;
+		let startZone = stations[station]["zone"];
+		let fare = 0;
+		let time = 0;
+		let stationCount = 0;
 
-		for (let i = 0; i < pathRoutes.length; i++) {
-			const currentRoute = pathRoutes[i];
-			if (route !== currentRoute) {
-				let tempRoute = currentRoute;
-				let stationCount = 0;
-				let time = 0;
-				while (tempRoute === currentRoute) {
-					time += times[i + stationCount];
-					stationCount++;
-					tempRoute = pathRoutes[i + stationCount];
-				}
+		resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, route == null ? null : route["color"]));
 
-				const isWalking = currentRoute == null;
-				const newColor = isWalking ? null : currentRoute["color"];
-				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[pathStations[i]]["name"].replace(/\|/g, " ")), route == null ? null : route["color"], newColor));
+		for (let i = 1; i <= pathRoutes.length; i++) {
+			const nextRoute = pathRoutes[i];
+			time += times[i - 1];
+			stationCount++;
 
+			if (route !== nextRoute) {
+				const nextStation = pathStations[i];
+				const isWalking = route == null;
+				const isNextWalking = nextRoute == null;
+				const color = isWalking ? null : route["color"];
 				const routeNameElement = document.createElement("span");
-				routeNameElement.innerHTML = isWalking ? Math.round(DIRECTIONS.calculateDistance(stations, pathStations[i], pathStations[i + 1]) / 100) / 10 + " km" : currentRoute["name"].split("||")[0].replace(/\|/g, " ");
-				resultElement.append(CANVAS.getDrawLineElement(isWalking ? "directions_walk" : SETTINGS.routeTypes[currentRoute["type"]], routeNameElement, newColor));
+				routeNameElement.innerHTML = isWalking ? Math.round(DIRECTIONS.calculateDistance(stations, station, nextStation) / 100) / 10 + " km" : route["name"].split("||")[0].replace(/\|/g, " ");
+				resultElement.append(CANVAS.getDrawLineElement(isWalking ? "directions_walk" : SETTINGS.routeTypes[route["type"]], routeNameElement, color));
 
-				if (!isWalking) {
+				if (isWalking) {
+					startZone = stations[nextStation]["zone"];
+				} else {
 					const stationCountElement = document.createElement("span");
 					stationCountElement.innerHTML = stationCount.toString();
-					resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, newColor));
+					resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, color));
+
+					if (isNextWalking) {
+						fare += Math.abs(startZone - stations[nextStation]["zone"]) + 2;
+					}
 				}
-				totalStationCount += stationCount;
 
 				const durationElement = document.createElement("span");
 				durationElement.innerHTML = CANVAS.formatTime(time / 20);
-				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, newColor));
+				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, color));
+				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoute == null ? null : nextRoute["color"]));
 
-				route = currentRoute;
+				route = nextRoute;
+				station = nextStation;
+				totalStationCount += stationCount;
+				time = 0;
+				stationCount = 0;
 				totalInterchangeCount++;
 			}
 		}
-
-		const firstStation = stations[pathStations[0]];
-		const lastStation = stations[pathStations[pathStations.length - 1]];
-		resultElement.append(CANVAS.getDrawStationElement(createStationElement(lastStation["name"].replace(/\|/g, " ")), route == null ? null : route["color"], null));
 
 		const infoElement = document.createElement("div");
 		infoElement.className = "info_center";
@@ -221,7 +228,7 @@ const findRoute = data => {
 			`<span class="text">${CANVAS.formatTime(totalTime / 20)}</span>` +
 			"&nbsp;&nbsp;&nbsp;" +
 			`<span class="material-icons small">confirmation_number</span>` +
-			`<span class="text">$${Math.abs(lastStation["zone"] - firstStation["zone"]) + 2}</span>` +
+			`<span class="text">$${fare}</span>` +
 			"&nbsp;&nbsp;&nbsp;" +
 			`<span class="material-icons small">commit</span>` +
 			`<span class="text">${totalStationCount}</span>` +

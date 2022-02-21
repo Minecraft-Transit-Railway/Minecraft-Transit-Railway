@@ -5,7 +5,6 @@ import tappable from "./gestures/src/gestures/tap.js";
 import panable from "./gestures/src/gestures/pan.js";
 
 const MAX_ARRIVALS = 5;
-const WALKING_SPEED_METER_PER_SECOND = 4;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
 const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
@@ -140,7 +139,7 @@ function drawMap(container, data) {
 		document.getElementById("station_zone").innerText = zone;
 		document.getElementById("station_line").style.backgroundColor = CANVAS.convertColor(color);
 		document.getElementById("station_copy").onclick = event => {
-			navigator.clipboard.writeText(`/tp @p ${x} ~ ${z}`);
+			navigator.clipboard.writeText(`/tp ${x} ~ ${z}`);
 			event.target.innerText = "check";
 			setTimeout(() => event.target.innerText = "content_copy", 1000);
 		};
@@ -287,8 +286,7 @@ function drawMap(container, data) {
 	container.children = [];
 
 	data["blobs"] = {};
-	data["connections"] = {};
-	const {blobs, connections, positions, stations, routes, types} = data;
+	const {blobs, positions, stations, routes, types} = data;
 
 	for (const stationId in stations) {
 		const station = stations[stationId];
@@ -374,20 +372,10 @@ function drawMap(container, data) {
 		const shouldDraw = SETTINGS.selectedDirectionsStations.length === 0 && (SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color);
 		const routeType = route["type"];
 
-		for (let i = 0; i < route["stations"].length; i++) {
-			const stationId = route["stations"][i].split("_")[0];
-			const blob = blobs[stationId];
-
+		for (const stationIndex in route["stations"]) {
+			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
 			if (typeof blob !== "undefined") {
 				blob[routeType] = true;
-			}
-
-			if (i > 0) {
-				const prevStationId = route["stations"][i - 1].split("_")[0];
-				if (!(prevStationId in connections)) {
-					connections[prevStationId] = [];
-				}
-				connections[prevStationId].push({route: route, station: stationId, duration: route["durations"][i - 1]});
 			}
 		}
 
@@ -465,15 +453,6 @@ function drawMap(container, data) {
 					}
 				});
 				CANVAS.drawText(textStations, stationId, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
-			}
-		}
-
-		for (const stationId2 in blobs) {
-			if (stationId !== stationId2) {
-				if (!(stationId in connections)) {
-					connections[stationId] = [];
-				}
-				connections[stationId].push({route: null, station: stationId2, duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND});
 			}
 		}
 	}
