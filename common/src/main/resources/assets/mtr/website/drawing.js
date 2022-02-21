@@ -191,10 +191,11 @@ function drawMap(container, data) {
 	};
 
 	const onClickLine = (color, forceClick) => {
+		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
 		SETTINGS.onClearSearch(data, false);
 		SETTINGS.clearPanes();
 
-		if (forceClick || SETTINGS.selectedColor !== color) {
+		if (shouldSelect) {
 			const selectedRoutes = routes.filter(route => route["color"] === color);
 			const routeInfoElement = document.getElementById("route_info");
 			routeInfoElement.removeAttribute("style");

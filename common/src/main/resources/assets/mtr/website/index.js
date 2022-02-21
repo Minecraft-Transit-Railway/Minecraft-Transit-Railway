@@ -56,7 +56,9 @@ const SETTINGS = {
 		document.getElementById("settings").style.display = "none";
 	},
 	drawDirectionsRoute: function (pathStations, pathRoutes) {
-		this.selectedColor = -1;
+		if (pathStations.length > 0 || pathRoutes.length > 0) {
+			this.selectedColor = -1;
+		}
 		this.selectedDirectionsStations = pathStations;
 		this.selectedDirectionsSegments = [];
 		for (let i = 0; i < pathRoutes.length; i++) {

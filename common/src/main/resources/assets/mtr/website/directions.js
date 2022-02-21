@@ -5,7 +5,6 @@ let stationStart = 0;
 let stationEnd = 0;
 let pathStations = [];
 let pathRoutes = [];
-let globalBlacklistedStations = [];
 
 const DIRECTIONS = {
 	onSearch: (index, data) => {
@@ -57,137 +56,107 @@ const DIRECTIONS = {
 	},
 };
 
-const findRoutePart = (data, reverse, maxTime) => {
-	const newStationStart = reverse ? stationEnd : stationStart;
-	const newStationEnd = reverse ? stationStart : stationEnd;
+const findRoutePart = (data, positionEnd, maxTime) => {
 	const {routes, positions, stations} = data;
-	if (!(newStationStart in stations) || !(newStationEnd in stations)) {
-		return [[], []];
+	if (!(stationStart in stations) || !(stationEnd in stations)) {
+		return [[], [], []];
 	}
-	const positionEnd = positions[Object.keys(positions).find(position => position.split("_")[0] === newStationEnd)];
 
-	const getCloserStationWithRoute = () => {
-		const currentStation = pathStations[pathStations.length - 1];
-		const currentRoute = pathRoutes[pathRoutes.length - 1];
+	const getCloserStationWithRoute = elapsedTime => {
+		const currentStation = tempPathStations[tempPathStations.length - 1];
+		const currentRoute = tempPathRoutes[tempPathRoutes.length - 1];
 		let closestStation = 0;
 		let biggestIncrease = Number.MIN_SAFE_INTEGER;
 		let routeUsed = {};
 		let duration = 0;
-		let availableRoutes = 0;
 
 		for (const route of routes) {
 			const routeStations = route["stations"].map(station => station.split("_")[0]);
 			const index = routeStations.indexOf(currentStation);
-			if (index >= (reverse ? 1 : 0) && index < routeStations.length - (reverse ? 0 : 1)) {
-				const checkStation = routeStations[index + (reverse ? -1 : 1)];
-				const time = route["durations"][index];
-				if (time > 0) {
-					if (checkStation === newStationEnd) {
-						return [newStationEnd, route, time, false];
-					} else if (!globalBlacklistedStations.includes(checkStation + "_" + route["name"]) && !blacklistedStations.includes(checkStation)) {
+
+			if (index >= 0 && index < routeStations.length - 1) {
+				const checkStation = routeStations[index + 1];
+				const interchangePenalty = route !== currentRoute ? 10 : 0; // TODO actually calculate interchange cost
+				const time = route["durations"][index] + interchangePenalty;
+
+				if (time > interchangePenalty && elapsedTime + time < maxTime) {
+					if (checkStation === stationEnd) {
+						return [stationEnd, route, time];
+					} else if (!(checkStation in blacklistedStations) || elapsedTime + time < blacklistedStations[checkStation]) {
 						const currentPosition = positions[route["stations"][index]];
 						const currentDistance = Math.abs(positionEnd["x"] - currentPosition["x"]) + Math.abs(positionEnd["y"] - currentPosition["y"]);
-						const newPosition = positions[route["stations"][index + (reverse ? -1 : 1)]];
+						const newPosition = positions[route["stations"][index + 1]];
 						const newDistance = Math.abs(positionEnd["x"] - newPosition["x"]) + Math.abs(positionEnd["y"] - newPosition["y"]);
-						const interchangePenalty = route !== currentRoute ? 100 : 0; // TODO actually calculate interchange cost
-						const increase = (currentDistance - newDistance) / (time + interchangePenalty);
+						const increase = (currentDistance - newDistance) / (time);
+						blacklistedStations[checkStation] = elapsedTime + time + 1;
+
 						if (increase > biggestIncrease) {
 							closestStation = checkStation;
 							biggestIncrease = increase;
 							routeUsed = route;
-							duration = time + interchangePenalty;
+							duration = time;
 						}
-						availableRoutes++;
 					}
 				}
 			}
 		}
 
-		return [closestStation, routeUsed, duration, availableRoutes > 1];
+		blacklistedStations[closestStation] = elapsedTime + duration;
+		return [closestStation, routeUsed, duration];
 	}
 
-	const pathRoutes = [];
-	const pathStations = [newStationStart];
+	const tempPathRoutes = [];
+	const tempPathStations = [stationStart];
 	const times = [];
-	const blacklistedStations = [newStationStart];
-	let notBlacklistedOneStation = true;
+	const blacklistedStations = {};
+	blacklistedStations[stationStart] = 0;
 
-	while (!pathStations.includes(newStationEnd)) {
-		const newStationWithRoute = getCloserStationWithRoute();
+	while (!tempPathStations.includes(stationEnd)) {
+		const elapsedTime = times.reduce((sum, time) => sum + time, 0);
+		const newStationWithRoute = getCloserStationWithRoute(elapsedTime);
 
 		if (newStationWithRoute[0] === 0) {
-			pathStations.pop();
-			if (pathStations.length === 0) {
+			tempPathStations.pop();
+			if (tempPathStations.length === 0) {
 				break;
 			}
-			pathRoutes.pop();
+			tempPathRoutes.pop();
 			times.pop();
 		} else {
-			pathStations.push(newStationWithRoute[0]);
-			pathRoutes.push(newStationWithRoute[1]);
+			tempPathStations.push(newStationWithRoute[0]);
+			tempPathRoutes.push(newStationWithRoute[1]);
 			times.push(newStationWithRoute[2]);
-			blacklistedStations.push(newStationWithRoute[0]);
-			if (notBlacklistedOneStation && newStationWithRoute[3]) {
-				notBlacklistedOneStation = false;
-				globalBlacklistedStations.push(newStationWithRoute[0] + "_" + newStationWithRoute[1]["name"]);
-			}
-			if (times.reduce((sum, time) => sum + time, 0) > maxTime) {
-				break;
-			}
 		}
 	}
 
-	if (reverse) {
-		pathStations.reverse();
-		pathRoutes.reverse();
-		times.reverse();
-	}
-
-	return [pathStations, pathRoutes, times];
+	return [tempPathStations, tempPathRoutes, times];
 }
 
 const findRoute = data => {
 	pathStations = [];
 	pathRoutes = [];
-	globalBlacklistedStations = [];
 
+	const positionEnd = data["positions"][Object.keys(data["positions"]).find(position => position.split("_")[0] === stationEnd)];
 	const millis = Date.now();
-	let reverse = false;
-	let failedTimes = 0;
 	let tries = 0;
 	let totalTime = Number.MAX_SAFE_INTEGER;
-	let previousTime1 = 0;
-	let previousTime2 = 0;
-	let repeatedTime = 0;
 	let times = [];
 
-	while (failedTimes < 10 && repeatedTime < 10 && tries < 500) {
-		const path = findRoutePart(data, reverse, totalTime);
-		const time = path[2].reduce((sum, time) => sum + time, 0);
+	while (tries < 500) {
+		const path = findRoutePart(data, positionEnd, totalTime);
 		tries++;
 
-		if (time === 0) {
-			failedTimes++;
+		if (path[0].length === 0) {
+			break;
 		} else {
+			const time = path[2].reduce((sum, time) => sum + time, 0);
 			if (time < totalTime) {
 				totalTime = time;
 				pathStations = path[0];
 				pathRoutes = path[1];
 				times = path[2];
 			}
-
-			failedTimes = 0;
-
-			if (time === previousTime1 || time === previousTime2) {
-				repeatedTime++;
-			} else {
-				repeatedTime = 0;
-			}
 		}
-
-		reverse = !reverse;
-		previousTime2 = previousTime1;
-		previousTime1 = time;
 	}
 
 	if (times.length > 0) {
