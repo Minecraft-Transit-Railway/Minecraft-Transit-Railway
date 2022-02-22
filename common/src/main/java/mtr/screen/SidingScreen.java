@@ -4,13 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
-import mtr.data.DataConverter;
-import mtr.data.NameColorDataBase;
-import mtr.data.Siding;
-import mtr.data.TransportMode;
+import mtr.data.*;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -22,12 +20,21 @@ import java.util.List;
 public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private boolean isSelectingTrain;
+	private boolean changeToDefaultSelection;
+	private boolean changeToUKSelection;
+	private boolean changeToUSASelection;
+	private boolean changeToASIASelection;
+	public static boolean DetermineTransportMode;
 
 	private final TransportMode transportMode;
 	private final Button buttonSelectTrain;
 	private final DashboardList availableTrainsList;
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
 	private final WidgetBetterTextField textFieldMaxTrains;
+	private final ImageButton buttonRefreshTrain;
+	private final ImageButton buttonUKTrain;
+	private final ImageButton buttonUSATrain;
+	private final ImageButton buttonAsiaTrain;
 
 	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_trains");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
@@ -36,9 +43,40 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
 		this.transportMode = transportMode;
-		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
+		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain(true));
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
+		buttonRefreshTrain = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/refresh_icon.png"), 20, 40, button -> {
+			onSelectingDefault();
+			changeToUKSelection = false;
+			changeToUSASelection = false;
+			changeToASIASelection = false;
+			changeToDefaultSelection = true;
+		});
+		buttonAsiaTrain = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/asia_button.png"), 30, 40, button -> {
+			onSelectingTrain(false);
+			onSelectingASIA();
+			changeToUKSelection = false;
+			changeToUSASelection = false;
+			changeToASIASelection = true;
+			changeToDefaultSelection = false;
+		});
+		buttonUKTrain = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/uk_button.png"), 30, 40, button -> {
+			onSelectingTrain(false);
+			onSelectingUK();
+			changeToUSASelection = false;
+			changeToASIASelection = false;
+			changeToUKSelection = true;
+			changeToDefaultSelection = false;
+		});
+		buttonUSATrain = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/usa_button.png"), 30, 40, button -> {
+			onSelectingTrain(false);
+			onSelectingUSA();
+			changeToUKSelection = false;
+			changeToASIASelection = false;
+			changeToUSASelection = true;
+			changeToDefaultSelection = false;
+		});
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
@@ -46,6 +84,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				textFieldMaxTrains.setValue("1");
 			}
 		});
+
 	}
 
 	@Override
@@ -55,9 +94,20 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 		IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
+		IDrawing.setPositionAndWidth(buttonRefreshTrain, 290, 15, 20);
+		IDrawing.setPositionAndWidth(buttonUKTrain, 250, 15, 30);
+		IDrawing.setPositionAndWidth(buttonUSATrain, 210, 15, 30);
+		IDrawing.setPositionAndWidth(buttonAsiaTrain, 170, 15, 30);
+
 
 		addDrawableChild(buttonSelectTrain);
 		addDrawableChild(buttonUnlimitedTrains);
+		if (DetermineTransportMode) {
+			addDrawableChild(buttonRefreshTrain);
+			addDrawableChild(buttonUKTrain);
+			addDrawableChild(buttonUSATrain);
+			addDrawableChild(buttonAsiaTrain);
+		}
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
@@ -136,9 +186,39 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		return PACKET_UPDATE_SIDING;
 	}
 
-	private void onSelectingTrain() {
+	private void onSelectingTrain(boolean isTrainSelectionDefault) {
+		if (isTrainSelectionDefault && !changeToASIASelection && !changeToUSASelection && !changeToUKSelection) {
+			final List<DataConverter> trainList = new ArrayList<>();
+			TrainClientRegistry.forEachDefault(transportMode, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+			availableTrainsList.setData(trainList, false, false, false, false, true, false);
+		}
+		setIsSelectingTrain(true);
+	}
+
+	private void onSelectingDefault() {
 		final List<DataConverter> trainList = new ArrayList<>();
-		TrainClientRegistry.forEach(transportMode, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+		TrainClientRegistry.forEachDefault(transportMode, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+		availableTrainsList.setData(trainList, false, false, false, false, true, false);
+		setIsSelectingTrain(true);
+	}
+
+	private void onSelectingUK() {
+		final List<DataConverter> trainList = new ArrayList<>();
+		TrainClientRegistry.forEachSwitcher(WorldRegion.UK, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+		availableTrainsList.setData(trainList, false, false, false, false, true, false);
+		setIsSelectingTrain(true);
+	}
+
+	private void onSelectingUSA() {
+		final List<DataConverter> trainList = new ArrayList<>();
+		TrainClientRegistry.forEachSwitcher(WorldRegion.USA, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
+		availableTrainsList.setData(trainList, false, false, false, false, true, false);
+		setIsSelectingTrain(true);
+	}
+
+	private void onSelectingASIA() {
+		final List<DataConverter> trainList = new ArrayList<>();
+		TrainClientRegistry.forEachSwitcher(WorldRegion.ASIA, (id, trainProperties) -> trainList.add(new DataConverter(trainProperties.name.getString(), trainProperties.color)));
 		availableTrainsList.setData(trainList, false, false, false, false, true, false);
 		setIsSelectingTrain(true);
 	}
@@ -147,13 +227,31 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		this.isSelectingTrain = isSelectingTrain;
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
+		buttonRefreshTrain.visible = isSelectingTrain;
+		buttonUKTrain.visible = isSelectingTrain;
+		buttonUSATrain.visible = isSelectingTrain;
+		buttonAsiaTrain.visible = isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId(), savedRailBase.getBaseTrainType()).name);
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
-		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(transportMode, index), TrainClientRegistry.getTrainProperties(transportMode, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainIdDefault(transportMode, index), TrainClientRegistry.getTrainPropertiesDefault(transportMode, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		if (changeToUKSelection) {
+			savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainIdSwitcher(WorldRegion.UK, index), TrainClientRegistry.getTrainPropertiesSwitcher(WorldRegion.UK, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		}
+		if (changeToUSASelection) {
+			savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainIdSwitcher(WorldRegion.USA, index), TrainClientRegistry.getTrainPropertiesSwitcher(WorldRegion.USA, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		}
+		if (changeToASIASelection) {
+			savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainIdSwitcher(WorldRegion.ASIA, index), TrainClientRegistry.getTrainPropertiesSwitcher(WorldRegion.ASIA, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		}
+		if (changeToDefaultSelection) {
+			savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainIdDefault(transportMode, index), TrainClientRegistry.getTrainPropertiesDefault(transportMode, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
+		}
 		setIsSelectingTrain(false);
 	}
+
+
 }

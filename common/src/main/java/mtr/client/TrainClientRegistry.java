@@ -5,7 +5,9 @@ import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
+import mtr.data.WorldRegion;
 import mtr.model.*;
+import mtr.screen.SidingScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -21,6 +23,7 @@ public class TrainClientRegistry {
 
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
+	public static final Map<WorldRegion, List<String>> KEY_REGION = new HashMap<>();
 
 	private static final String SOUND_ACCELERATION = "_acceleration_";
 	private static final String SOUND_DECELERATION = "_deceleration_";
@@ -32,8 +35,14 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.containsKey(baseTrainType.transportMode)) {
 			KEY_ORDERS.put(baseTrainType.transportMode, new ArrayList<>());
 		}
-		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)) {
+		if (!KEY_REGION.containsKey(baseTrainType.worldRegion)) {
+			KEY_REGION.put(baseTrainType.worldRegion, new ArrayList<>());
+		}
+		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)){
 			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
+		}
+		if (!KEY_REGION.get(baseTrainType.worldRegion).contains(keyLower)) {
+			KEY_REGION.get(baseTrainType.worldRegion).add(keyLower);
 		}
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
@@ -114,16 +123,28 @@ public class TrainClientRegistry {
 		}
 	}
 
-	public static TrainProperties getTrainProperties(TransportMode transportMode, int index) {
+	public static TrainProperties getTrainPropertiesDefault(TransportMode transportMode, int index) {
 		return index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? REGISTRY.get(KEY_ORDERS.get(transportMode).get(index)) : getBlankProperties(TrainType.values()[0]);
 	}
 
-	public static String getTrainId(TransportMode transportMode, int index) {
+	public static TrainProperties getTrainPropertiesSwitcher(WorldRegion worldRegion, int index) {
+			return index >= 0 && index < KEY_REGION.get(worldRegion).size() ? REGISTRY.get(KEY_REGION.get(worldRegion).get(index)) : getBlankProperties(TrainType.values()[0]);
+	}
+
+	public static String getTrainIdDefault(TransportMode transportMode, int index) {
 		return KEY_ORDERS.get(transportMode).get(index >= 0 && index < KEY_ORDERS.get(transportMode).size() ? index : 0);
 	}
 
-	public static void forEach(TransportMode transportMode, BiConsumer<String, TrainProperties> biConsumer) {
+	public static String getTrainIdSwitcher(WorldRegion worldRegion, int index) {
+			return KEY_REGION.get(worldRegion).get(index >= 0 && index < KEY_REGION.get(worldRegion).size() ? index : 0);
+	}
+
+	public static void forEachDefault(TransportMode transportMode, BiConsumer<String, TrainProperties> biConsumer) {
 		KEY_ORDERS.get(transportMode).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
+	}
+
+	public static void forEachSwitcher(WorldRegion worldRegion, BiConsumer<String, TrainProperties> biConsumer) {
+		KEY_REGION.get(worldRegion).forEach(key -> biConsumer.accept(key, REGISTRY.get(key)));
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {

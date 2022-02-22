@@ -2,6 +2,7 @@ package mtr.client;
 
 import mtr.MTR;
 import mtr.data.*;
+import mtr.screen.SidingScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -317,6 +318,7 @@ public class ClientCache extends DataCache {
 				}
 				posToSavedRails.get(pos).add(savedRail);
 			}
+			SidingScreen.DetermineTransportMode = savedRail.isTransportMode(TransportMode.TRAIN);
 		});
 	}
 
