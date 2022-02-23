@@ -26,7 +26,6 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	private final boolean isCircular;
 
 	private static final int CHECKBOX_WIDTH = 160;
-	private static final int LIGHT_RAIL_ROUTE_NUMBER_MAX_LENGTH = 20;
 
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
@@ -54,13 +53,13 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 		IDrawing.setPositionAndWidth(buttonRouteType, SQUARE_SIZE, SQUARE_SIZE * 3, CHECKBOX_WIDTH);
 		setRouteTypeText(data.transportMode, data.routeType);
 
-		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(buttonIsRouteHidden, SQUARE_SIZE, SQUARE_SIZE * 5, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsRouteHidden, SQUARE_SIZE, SQUARE_SIZE * 4, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsLightRailRoute, SQUARE_SIZE, SQUARE_SIZE * 5, CHECKBOX_WIDTH);
 		IDrawing.setPositionAndWidth(textFieldLightRailRouteNumber, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING / 2, CHECKBOX_WIDTH - TEXT_FIELD_PADDING);
 		textFieldLightRailRouteNumber.setValue(data.lightRailRouteNumber);
 
-		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
-		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 8 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
+		IDrawing.setPositionAndWidth(buttonIsAntiClockwiseRoute, SQUARE_SIZE, SQUARE_SIZE * 9 + TEXT_FIELD_PADDING, CHECKBOX_WIDTH);
 
 		addDrawableChild(buttonRouteType);
 		addDrawableChild(textFieldLightRailRouteNumber);
