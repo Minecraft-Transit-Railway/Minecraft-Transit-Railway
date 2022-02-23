@@ -704,7 +704,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
 			final Route thisRoute = dataCache.routeIdMap.get(routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
+			final Route nextRoute = i < routeIds.size() - 1 && !dataCache.routeIdMap.get(routeIds.get(i + 1)).isHidden ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();

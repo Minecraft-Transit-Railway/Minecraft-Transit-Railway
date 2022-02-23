@@ -410,7 +410,7 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static Stream<Route> getRouteStream(long platformId) {
-		return ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId)).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color);
+		return ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId) && !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color);
 	}
 
 	private static long getStationId(long platformId) {
