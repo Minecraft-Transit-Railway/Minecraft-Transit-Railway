@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +33,10 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_ACCELERATION_CONSTANT_TEXT_LENGTH = 8;
 	private static final int MAX_TRAINS_WIDTH = 40;
+	private static final float ACCELERATION_UNIT_CONVERSION = 20 * 20 * 3.6F;
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(siding, dashboardScreen, MAX_TRAINS_TEXT);
+		super(siding, dashboardScreen, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
 		this.transportMode = transportMode;
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
@@ -72,7 +74,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		textFieldMaxTrains.setResponder(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
 		IDrawing.setPositionAndWidth(textFieldAccelerationConstant, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
-		textFieldAccelerationConstant.setValue(String.format("%.2f", savedRailBase.getAccelerationConstant() * 400 * 3.6F));
+		textFieldAccelerationConstant.setValue(String.format("%.2f", savedRailBase.getAccelerationConstant() * ACCELERATION_UNIT_CONVERSION));
 
 		addDrawableChild(textFieldMaxTrains);
 		addDrawableChild(textFieldAccelerationConstant);
@@ -105,7 +107,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		}
 		float accelerationConstant;
 		try {
-			accelerationConstant = Math.min(Math.max(0.5F, Float.parseFloat(textFieldAccelerationConstant.getValue())), 50F) / 3.6F / 400F;
+			accelerationConstant = Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION;
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}

@@ -285,7 +285,7 @@ public class TrainServer extends Train {
 		int startingIndex = 0;
 		for (final Siding.TimeSegment timeSegment : timeSegments) {
 			if (RailwayData.isBetween(railProgress, timeSegment.startRailProgress, timeSegment.endRailProgress)) {
-				currentTime = timeSegment.getTime(this, railProgress);
+				currentTime = timeSegment.getTime(railProgress);
 				break;
 			}
 			startingIndex++;

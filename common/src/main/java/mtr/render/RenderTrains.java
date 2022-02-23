@@ -132,7 +132,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 					if (!BOATS.containsKey(train.id)) {
 						BOATS.put(train.id, new FakeBoat());
 					}
-					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + train.getAccelerationConstant()) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
+					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION_DEFAULT) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
 				} else {
 					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
 				}

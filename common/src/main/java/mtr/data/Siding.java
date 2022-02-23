@@ -67,7 +67,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		map.get(KEY_PATH).asArrayValue().forEach(pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
 
-		generateTimeSegments(path, timeSegments, platformTimes, baseTrainType, trainCars, railLength);
+		generateTimeSegments(path, timeSegments, platformTimes);
 
 		map.get(KEY_TRAINS).asArrayValue().forEach(value -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
 		generateDistances();
@@ -89,7 +89,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			path.add(new PathData(tagPath.getCompound(KEY_PATH + i)));
 		}
 
-		generateTimeSegments(path, timeSegments, platformTimes, baseTrainType, trainCars, railLength);
+		generateTimeSegments(path, timeSegments, platformTimes);
 
 		final CompoundTag tagTrains = compoundTag.getCompound(KEY_TRAINS);
 		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, tagTrains.getCompound(key))));
@@ -260,7 +260,7 @@ public class Siding extends SavedRailBase implements IPacket {
 
 		final List<TimeSegment> tempTimeSegments = new ArrayList<>();
 		final Map<Long, Map<Long, Float>> tempPlatformTimes = new HashMap<>();
-		generateTimeSegments(tempPath, tempTimeSegments, tempPlatformTimes, baseTrainType, trainCars, railLength);
+		generateTimeSegments(tempPath, tempTimeSegments, tempPlatformTimes);
 
 		minecraftServer.execute(() -> {
 			try {
@@ -375,7 +375,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		}
 	}
 
-	private void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, Map<Long, Map<Long, Float>> platformTimes, TrainType baseTrainType, int trainCars, float railLength) {
+	private void generateTimeSegments(List<PathData> path, List<TimeSegment> timeSegments, Map<Long, Map<Long, Float>> platformTimes) {
 		timeSegments.clear();
 
 		float distanceSum1 = 0;
@@ -420,7 +420,7 @@ public class Siding extends SavedRailBase implements IPacket {
 				}
 
 				if (timeSegments.isEmpty() || timeSegments.get(timeSegments.size() - 1).speedChange != speedChange) {
-					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange));
+					timeSegments.add(new TimeSegment(railProgress, speed, time, speedChange, accelerationConstant));
 				}
 
 				railProgress = Math.min(railProgress + speed, distanceSum2);
@@ -477,20 +477,22 @@ public class Siding extends SavedRailBase implements IPacket {
 		private final float startSpeed;
 		private final float startTime;
 		private final int speedChange;
+		private final float accelerationConstant;
 
-		private TimeSegment(float startRailProgress, float startSpeed, float startTime, int speedChange) {
+		private TimeSegment(float startRailProgress, float startSpeed, float startTime, int speedChange, float accelerationConstant) {
 			this.startRailProgress = startRailProgress;
 			this.startSpeed = startSpeed;
 			this.startTime = startTime;
 			this.speedChange = Integer.compare(speedChange, 0);
+			this.accelerationConstant = accelerationConstant;
 		}
 
-		public float getTime(Train train, float railProgress) {
+		public float getTime(float railProgress) {
 			final float distance = railProgress - startRailProgress;
 			if (speedChange == 0) {
 				return startTime + distance / startSpeed;
 			} else {
-				final float acceleration = speedChange * train.accelerationConstant;
+				final float acceleration = speedChange * accelerationConstant;
 				return startTime + (float) (Math.sqrt(2 * acceleration * distance + startSpeed * startSpeed) - startSpeed) / acceleration;
 			}
 		}

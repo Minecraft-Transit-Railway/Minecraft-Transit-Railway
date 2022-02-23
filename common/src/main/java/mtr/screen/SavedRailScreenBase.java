@@ -27,7 +27,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected static final int SLIDER_WIDTH = 160;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component additionalText) {
+	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component... additionalTexts) {
 		super(new TextComponent(""));
 		this.savedRailBase = savedRailBase;
 		this.dashboardScreen = dashboardScreen;
@@ -37,7 +37,11 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		font = Minecraft.getInstance().font;
 		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
-		textWidth = Math.max(Math.max(font.width(savedRailNumberText), font.width(secondText)), additionalText == null ? 0 : font.width(additionalText)) + TEXT_PADDING;
+		int additionalTextWidths = 0;
+		for (final Component additionalText : additionalTexts) {
+			additionalTextWidths += font.width(additionalText);
+		}
+		textWidth = Math.max(Math.max(font.width(savedRailNumberText), font.width(secondText)), additionalTextWidths) + TEXT_PADDING;
 		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
 	}
 
