@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.ArrayValue;
 import org.msgpack.value.Value;
 
 import java.io.*;
@@ -75,33 +74,33 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, Map<String, Value> map) {
 		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
 
-		speed = map.get(KEY_SPEED).asFloatValue().toFloat();
-		accelerationConstant = map.get(KEY_ACCELERATION_CONSTANT).asFloatValue().toFloat();
-		railProgress = map.get(KEY_RAIL_PROGRESS).asFloatValue().toFloat();
-		stopCounter = map.get(KEY_STOP_COUNTER).asFloatValue().toFloat();
-		nextStoppingIndex = map.get(KEY_NEXT_STOPPING_INDEX).asIntegerValue().toInt();
-		reversed = map.get(KEY_REVERSED).asBooleanValue().getBoolean();
+		speed = messagePackHelper.getFloat(KEY_SPEED);
+		accelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT);
+		railProgress = messagePackHelper.getFloat(KEY_RAIL_PROGRESS);
+		stopCounter = messagePackHelper.getFloat(KEY_STOP_COUNTER);
+		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
+		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
-		trainId = map.get(KEY_TRAIN_CUSTOM_ID).asStringValue().asString();
-		baseTrainType = TrainType.getOrDefault(map.get(KEY_TRAIN_TYPE).asStringValue().asString());
+		trainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID);
+		baseTrainType = TrainType.getOrDefault(messagePackHelper.getString(KEY_TRAIN_TYPE));
 		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
 
-		isOnRoute = map.get(KEY_IS_ON_ROUTE).asBooleanValue().getBoolean();
-		final ArrayValue ridingEntitiesArray = map.get(KEY_RIDING_ENTITIES).asArrayValue();
-		ridingEntitiesArray.forEach(value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
+		isOnRoute = messagePackHelper.getBoolean(KEY_IS_ON_ROUTE);
+		messagePackHelper.iterateArrayValue(KEY_RIDING_ENTITIES, value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
 
 		SimpleContainer inventory1 = new SimpleContainer(trainCars);
-		if (!map.get(KEY_CARGO).isNilValue()) {
-			byte[] rawNbt = map.get(KEY_CARGO).asBinaryValue().asByteArray();
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(rawNbt);
+		if (map.containsKey(KEY_CARGO) && !map.get(KEY_CARGO).isNilValue()) {
+			final byte[] rawNbt = map.get(KEY_CARGO).asBinaryValue().asByteArray();
+			final ByteArrayInputStream inputStream = new ByteArrayInputStream(rawNbt);
 			try {
-				CompoundTag compoundTag = NbtIo.read(new DataInputStream(inputStream));
+				final CompoundTag compoundTag = NbtIo.read(new DataInputStream(inputStream));
 				final NonNullList<ItemStack> stacks = NonNullList.withSize(trainCars, ItemStack.EMPTY);
 				ContainerHelper.loadAllItems(compoundTag.getCompound(KEY_CARGO), stacks);
 				inventory1 = new SimpleContainer(stacks.toArray(new ItemStack[0]));

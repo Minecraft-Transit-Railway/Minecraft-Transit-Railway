@@ -40,7 +40,8 @@ public abstract class AreaBase extends NameColorDataBase {
 
 	public AreaBase(Map<String, Value> map) {
 		super(map);
-		setCorners(map.get(KEY_X_MIN).asIntegerValue().asInt(), map.get(KEY_Z_MIN).asIntegerValue().asInt(), map.get(KEY_X_MAX).asIntegerValue().asInt(), map.get(KEY_Z_MAX).asIntegerValue().asInt());
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		setCorners(messagePackHelper.getInt(KEY_X_MIN), messagePackHelper.getInt(KEY_Z_MIN), messagePackHelper.getInt(KEY_X_MAX), messagePackHelper.getInt(KEY_Z_MAX));
 	}
 
 	@Deprecated

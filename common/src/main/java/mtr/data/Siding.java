@@ -59,17 +59,18 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	public Siding(Map<String, Value> map) {
 		super(map);
-		railLength = map.get(KEY_RAIL_LENGTH).asFloatValue().toFloat();
-		setTrainDetails(map.get(KEY_TRAIN_ID).asStringValue().asString(), TrainType.getOrDefault(map.get(KEY_BASE_TRAIN_TYPE).asStringValue().asString()));
-		unlimitedTrains = map.get(KEY_UNLIMITED_TRAINS).asBooleanValue().getBoolean();
-		maxTrains = map.get(KEY_MAX_TRAINS).asIntegerValue().asInt();
-		accelerationConstant = map.get(KEY_ACCELERATION_CONSTANT).asFloatValue().toFloat();
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		railLength = messagePackHelper.getFloat(KEY_RAIL_LENGTH);
+		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), TrainType.getOrDefault(messagePackHelper.getString(KEY_BASE_TRAIN_TYPE)));
+		unlimitedTrains = messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
+		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
+		accelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT);
 
-		map.get(KEY_PATH).asArrayValue().forEach(pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
+		messagePackHelper.iterateArrayValue(KEY_PATH, pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
 
 		generateTimeSegments(path, timeSegments, platformTimes);
 
-		map.get(KEY_TRAINS).asArrayValue().forEach(value -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
+		messagePackHelper.iterateArrayValue(KEY_TRAINS, value -> trains.add(new TrainServer(id, railLength, path, distances, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
 		generateDistances();
 	}
 

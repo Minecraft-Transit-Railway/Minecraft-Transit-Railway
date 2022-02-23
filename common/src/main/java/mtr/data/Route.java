@@ -4,7 +4,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.ArrayValue;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
@@ -45,17 +44,15 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public Route(Map<String, Value> map) {
 		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 
-		final ArrayValue platformIdsArray = map.get(KEY_PLATFORM_IDS).asArrayValue();
-		platformIds = new ArrayList<>(platformIdsArray.size());
-		for (final Value platformId : platformIdsArray) {
-			platformIds.add(platformId.asIntegerValue().asLong());
-		}
+		platformIds = new ArrayList<>();
+		messagePackHelper.iterateArrayValue(KEY_PLATFORM_IDS, platformId -> platformIds.add(platformId.asIntegerValue().asLong()));
 
-		routeType = EnumHelper.valueOf(RouteType.NORMAL, map.get(KEY_ROUTE_TYPE).asStringValue().asString());
-		isLightRailRoute = map.get(KEY_IS_LIGHT_RAIL_ROUTE).asBooleanValue().getBoolean();
-		lightRailRouteNumber = map.get(KEY_LIGHT_RAIL_ROUTE_NUMBER).asStringValue().asString();
-		circularState = EnumHelper.valueOf(CircularState.NONE, map.get(KEY_CIRCULAR_STATE).asStringValue().asString());
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, messagePackHelper.getString(KEY_ROUTE_TYPE));
+		isLightRailRoute = messagePackHelper.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		lightRailRouteNumber = messagePackHelper.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
+		circularState = EnumHelper.valueOf(CircularState.NONE, messagePackHelper.getString(KEY_CIRCULAR_STATE));
 	}
 
 	@Deprecated

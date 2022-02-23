@@ -37,9 +37,10 @@ public abstract class SavedRailBase extends NameColorDataBase {
 
 	public SavedRailBase(Map<String, Value> map) {
 		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 		positions = new HashSet<>(2);
-		positions.add(BlockPos.of(map.get(KEY_POS_1).asIntegerValue().asLong()));
-		positions.add(BlockPos.of(map.get(KEY_POS_2).asIntegerValue().asLong()));
+		positions.add(BlockPos.of(messagePackHelper.getLong(KEY_POS_1)));
+		positions.add(BlockPos.of(messagePackHelper.getLong(KEY_POS_2)));
 	}
 
 	@Deprecated
