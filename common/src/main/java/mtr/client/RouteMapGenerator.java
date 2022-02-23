@@ -410,7 +410,7 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static Stream<Route> getRouteStream(long platformId) {
-		return ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId)).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color);
+		return ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId)).filter(route -> !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color);
 	}
 
 	private static long getStationId(long platformId) {
@@ -424,7 +424,8 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static Map<Integer, ClientCache.ColorNameTuple> getInterchangeRoutes(long stationId) {
-		return ClientData.DATA_CACHE.stationIdToRoutes.get(stationId);
+		return ClientData.DATA_CACHE.stationIdToRoutes.get(stationId).entrySet().stream().filter(rt -> !rt.getValue().hidden)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	private static void drawLine(NativeImage nativeImage, StationPosition stationPosition1, StationPosition stationPosition2, float widthScale, float heightScale, float xOffset, float yOffset, int color) {

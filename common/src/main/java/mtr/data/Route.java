@@ -17,6 +17,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 	public RouteType routeType;
 	public boolean isLightRailRoute;
+	public boolean isHidden;
 	public CircularState circularState;
 	public String lightRailRouteNumber;
 	public final List<Long> platformIds;
@@ -25,6 +26,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	private static final String KEY_ROUTE_TYPE = "route_type";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
+	private static final String KEY_IS_ROUTE_HIDDEN = "is_route_hidden";
 	private static final String KEY_CIRCULAR_STATE = "circular_state";
 
 	public Route(TransportMode transportMode) {
@@ -38,6 +40,7 @@ public final class Route extends NameColorDataBase implements IGui {
 		isLightRailRoute = false;
 		circularState = CircularState.NONE;
 		lightRailRouteNumber = "";
+		isHidden = false;
 	}
 
 	public Route(Map<String, Value> map) {
@@ -67,6 +70,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, compoundTag.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = compoundTag.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		isHidden = compoundTag.getBoolean(KEY_IS_ROUTE_HIDDEN);
 		lightRailRouteNumber = compoundTag.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, compoundTag.getString(KEY_CIRCULAR_STATE));
 	}
@@ -82,6 +86,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		isLightRailRoute = packet.readBoolean();
+		isHidden = packet.readBoolean();
 		lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 	}
@@ -97,13 +102,14 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		messagePacker.packString(KEY_ROUTE_TYPE).packString(routeType.toString());
 		messagePacker.packString(KEY_IS_LIGHT_RAIL_ROUTE).packBoolean(isLightRailRoute);
+		messagePacker.packBoolean(KEY_IS_ROUTE_HIDDEN, isHidden);
 		messagePacker.packString(KEY_LIGHT_RAIL_ROUTE_NUMBER).packString(lightRailRouteNumber);
 		messagePacker.packString(KEY_CIRCULAR_STATE).packString(circularState.toString());
 	}
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 5;
+		return super.messagePackLength() + 6;
 	}
 
 	@Override
@@ -114,6 +120,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		packet.writeUtf(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
+		packet.writeBoolean(isHidden);
 		packet.writeUtf(lightRailRouteNumber);
 		packet.writeUtf(circularState.toString());
 	}
@@ -133,6 +140,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				color = packet.readInt();
 				routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				isLightRailRoute = packet.readBoolean();
+				isHidden = packet.readBoolean();
 				lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				break;
@@ -166,7 +174,9 @@ public final class Route extends NameColorDataBase implements IGui {
 		packet.writeInt(color);
 		packet.writeUtf(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
+		packet.writeBoolean(isHidden);
 		packet.writeUtf(lightRailRouteNumber);
+		packet.writeBoolean(isHidden);
 		packet.writeUtf(circularState.toString());
 		sendPacket.accept(packet);
 	}

@@ -66,7 +66,7 @@ public class ClientCache extends DataCache {
 				if (!stationIdToRoutes.containsKey(station.id)) {
 					stationIdToRoutes.put(station.id, new HashMap<>());
 				}
-				stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
+				stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0], route.isHidden));
 			}
 		}));
 
@@ -124,7 +124,7 @@ public class ClientCache extends DataCache {
 						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));
 					}
 				}).collect(Collectors.toList());
-				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.platformIds.indexOf(platformId), stationDetails);
+				return new PlatformRouteDetails(route.name.split("\\|\\|")[0], route.color, route.circularState, route.isHidden, route.platformIds.indexOf(platformId), stationDetails);
 			}).collect(Collectors.toList()));
 		}
 		return platformIdToRoutes.get(platformId);
@@ -327,13 +327,15 @@ public class ClientCache extends DataCache {
 		public final Route.CircularState circularState;
 		public final int currentStationIndex;
 		public final List<StationDetails> stationDetails;
+		public final boolean hidden;
 
-		public PlatformRouteDetails(String routeName, int routeColor, Route.CircularState circularState, int currentStationIndex, List<StationDetails> stationDetails) {
+		public PlatformRouteDetails(String routeName, int routeColor, Route.CircularState circularState, boolean hidden, int currentStationIndex, List<StationDetails> stationDetails) {
 			this.routeName = routeName;
 			this.routeColor = routeColor;
 			this.circularState = circularState;
 			this.currentStationIndex = currentStationIndex;
 			this.stationDetails = stationDetails;
+			this.hidden = hidden;
 		}
 
 		public static class StationDetails {
@@ -352,10 +354,12 @@ public class ClientCache extends DataCache {
 
 		public final int color;
 		public final String name;
+		public final boolean hidden;
 
-		public ColorNameTuple(int color, String name) {
+		public ColorNameTuple(int color, String name, boolean hidden) {
 			this.color = color;
 			this.name = name;
+			this.hidden = hidden;
 		}
 	}
 
