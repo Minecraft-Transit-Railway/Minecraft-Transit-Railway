@@ -76,7 +76,7 @@ public class TrainClient extends Train {
 			renderTrainCallback.renderTrainCallback(newX, newY, newZ, carYaw, carPitch, trainId, baseTrainType, ridingCar == 0, ridingCar == trainCars - 1, !reversed, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, isOnRoute, false, noOffset);
 		}
 
-		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.hasGangwayConnection) {
+		if (renderConnectionCallback != null && ridingCar > 0 && trainProperties.baseTrainType.hasGangwayConnection) {
 			final double newPrevCarX = prevCarX - (noOffset ? 0 : offset.get(0));
 			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));
@@ -133,13 +133,8 @@ public class TrainClient extends Train {
 				if (Math.abs(testRailProgress - railProgress) > 10) {
 					railProgress = testRailProgress;
 				}
-				final float percentageX = seat.getClientPercentageX();
-				final float percentageZ = seat.getClientPercentageZ();
 
-				calculateCar(world, positions, (int) Math.floor(speed == 0 ? percentageZ : seat.getInterpolatedPercentageZ()), 0, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
-					seat.setTrainPos(playerOffset.x, playerOffset.y, playerOffset.z, speed == 0);
-
+				calculateCar(world, positions, (int) Math.floor(speed == 0 ? seat.getClientPercentageZ() : seat.getInterpolatedPercentageZ()), 0, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 					if (speed > 0) {
 						Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
 						final Vec3 playerOffset2 = new Vec3(getValueFromPercentage(seat.getInterpolatedPercentageX(), baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.getInterpolatedPercentageZ()), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);

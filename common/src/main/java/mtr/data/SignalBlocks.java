@@ -5,7 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.DyeColor;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -168,6 +171,21 @@ public class SignalBlocks {
 			rails.add(rail);
 		}
 
+		public SignalBlock(Map<String, Value> map) {
+			super(map);
+			DyeColor savedColor;
+			try {
+				savedColor = DyeColor.values()[map.get(KEY_COLOR).asIntegerValue().asInt()];
+			} catch (Exception e) {
+				e.printStackTrace();
+				savedColor = DyeColor.RED;
+			}
+			color = savedColor;
+
+			map.get(KEY_RAILS).asArrayValue().forEach(value -> rails.add(UUID.fromString(value.asStringValue().asString())));
+		}
+
+		@Deprecated
 		public SignalBlock(CompoundTag compoundTag) {
 			super(compoundTag);
 			DyeColor savedColor;
@@ -199,17 +217,19 @@ public class SignalBlocks {
 		}
 
 		@Override
-		public CompoundTag toCompoundTag() {
-			final CompoundTag compoundTag = super.toCompoundTag();
-			compoundTag.putInt(KEY_COLOR, color.ordinal());
-			final CompoundTag compoundTagRails = new CompoundTag();
-			int i = 0;
+		public void toMessagePack(MessagePacker messagePacker) throws IOException {
+			super.toMessagePack(messagePacker);
+
+			messagePacker.packString(KEY_COLOR).packInt(color.ordinal());
+			messagePacker.packString(KEY_RAILS).packArrayHeader(rails.size());
 			for (final UUID rail : rails) {
-				compoundTagRails.putUUID(KEY_RAILS + i, rail);
-				i++;
+				messagePacker.packString(rail.toString());
 			}
-			compoundTag.put(KEY_RAILS, compoundTagRails);
-			return compoundTag;
+		}
+
+		@Override
+		public int messagePackLength() {
+			return super.messagePackLength() + 2;
 		}
 
 		@Override

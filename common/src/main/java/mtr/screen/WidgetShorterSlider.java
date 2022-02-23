@@ -5,21 +5,25 @@ import mtr.data.IGui;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	private final int maxValue;
 	private final Function<Integer, String> setMessage;
+	private final Consumer<Integer> shiftClickAction;
 
 	private static final int SLIDER_WIDTH = 6;
 
-	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage) {
+	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
 		super(x, 0, width, 0, new TextComponent(""), 0);
 		this.maxValue = maxValue;
 		this.setMessage = setMessage;
+		this.shiftClickAction = shiftClickAction;
 	}
 
 	@Override
@@ -43,8 +47,20 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 	}
 
 	@Override
+	public void onClick(double d, double e) {
+		super.onClick(d, e);
+		checkShiftClick();
+	}
+
+	@Override
 	protected void updateMessage() {
 		setMessage(new TextComponent(setMessage.apply(getIntValue())));
+	}
+
+	@Override
+	protected void onDrag(double d, double e, double f, double g) {
+		super.onDrag(d, e, f, g);
+		checkShiftClick();
 	}
 
 	@Override
@@ -62,5 +78,11 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	public int getIntValue() {
 		return (int) Math.round(value * maxValue);
+	}
+
+	private void checkShiftClick() {
+		if (shiftClickAction != null && Screen.hasShiftDown()) {
+			shiftClickAction.accept(getIntValue());
+		}
 	}
 }

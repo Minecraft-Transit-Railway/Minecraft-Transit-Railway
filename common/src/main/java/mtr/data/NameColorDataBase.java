@@ -3,7 +3,11 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -37,6 +41,14 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		name = "";
 	}
 
+	public NameColorDataBase(Map<String, Value> map) {
+		id = map.get(KEY_ID).asIntegerValue().asLong();
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
+		name = map.get(KEY_NAME).asStringValue().asString();
+		color = map.get(KEY_COLOR).asIntegerValue().asInt();
+	}
+
+	@Deprecated
 	public NameColorDataBase(CompoundTag compoundTag) {
 		id = compoundTag.getLong(KEY_ID);
 		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, compoundTag.getString(KEY_TRANSPORT_MODE));
@@ -52,13 +64,16 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = new CompoundTag();
-		compoundTag.putLong(KEY_ID, id);
-		compoundTag.putString(KEY_TRANSPORT_MODE, transportMode.toString());
-		compoundTag.putString(KEY_NAME, name);
-		compoundTag.putInt(KEY_COLOR, color);
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		messagePacker.packString(KEY_ID).packLong(id);
+		messagePacker.packString(KEY_TRANSPORT_MODE).packString(transportMode.toString());
+		messagePacker.packString(KEY_NAME).packString(name);
+		messagePacker.packString(KEY_COLOR).packInt(color);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return 4;
 	}
 
 	@Override

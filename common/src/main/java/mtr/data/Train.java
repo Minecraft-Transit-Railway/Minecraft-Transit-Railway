@@ -7,6 +7,7 @@ import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
@@ -15,7 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
+import java.io.*;
 import java.util.*;
 
 public abstract class Train extends NameColorDataBase implements IPacket, IGui {
@@ -65,6 +70,45 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		inventory = new SimpleContainer(trainCars);
 	}
 
+	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, Map<String, Value> map) {
+		super(map);
+
+		this.sidingId = sidingId;
+		this.railLength = railLength;
+		this.path = path;
+		this.distances = distances;
+
+		speed = map.get(KEY_SPEED).asFloatValue().toFloat();
+		railProgress = map.get(KEY_RAIL_PROGRESS).asFloatValue().toFloat();
+		stopCounter = map.get(KEY_STOP_COUNTER).asFloatValue().toFloat();
+		nextStoppingIndex = map.get(KEY_NEXT_STOPPING_INDEX).asIntegerValue().toInt();
+		reversed = map.get(KEY_REVERSED).asBooleanValue().getBoolean();
+
+		trainId = map.get(KEY_TRAIN_CUSTOM_ID).asStringValue().asString();
+		baseTrainType = TrainType.getOrDefault(map.get(KEY_TRAIN_TYPE).asStringValue().asString());
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+
+		isOnRoute = map.get(KEY_IS_ON_ROUTE).asBooleanValue().getBoolean();
+		final ArrayValue ridingEntitiesArray = map.get(KEY_RIDING_ENTITIES).asArrayValue();
+		ridingEntitiesArray.forEach(value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
+
+		SimpleContainer inventory1 = new SimpleContainer(trainCars);
+		if (!map.get(KEY_CARGO).isNilValue()) {
+			byte[] rawNbt = map.get(KEY_CARGO).asBinaryValue().asByteArray();
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(rawNbt);
+			try {
+				CompoundTag compoundTag = NbtIo.read(new DataInputStream(inputStream));
+				final NonNullList<ItemStack> stacks = NonNullList.withSize(trainCars, ItemStack.EMPTY);
+				ContainerHelper.loadAllItems(compoundTag.getCompound(KEY_CARGO), stacks);
+				inventory1 = new SimpleContainer(stacks.toArray(new ItemStack[0]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		inventory = inventory1;
+	}
+
+	@Deprecated
 	public Train(long sidingId, float railLength, List<PathData> path, List<Float> distances, CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -88,7 +132,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		tagRidingEntities.getAllKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUUID(key)));
 
 		final NonNullList<ItemStack> stacks = NonNullList.withSize(trainCars, ItemStack.EMPTY);
-		ContainerHelper.saveAllItems(compoundTag.getCompound(KEY_CARGO), stacks);
+		ContainerHelper.loadAllItems(compoundTag.getCompound(KEY_CARGO), stacks);
 		inventory = new SimpleContainer(stacks.toArray(new ItemStack[0]));
 	}
 
@@ -124,29 +168,48 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putFloat(KEY_SPEED, speed);
-		compoundTag.putFloat(KEY_RAIL_PROGRESS, railProgress);
-		compoundTag.putFloat(KEY_STOP_COUNTER, stopCounter);
-		compoundTag.putInt(KEY_NEXT_STOPPING_INDEX, nextStoppingIndex);
-		compoundTag.putBoolean(KEY_REVERSED, reversed);
-		compoundTag.putString(KEY_TRAIN_CUSTOM_ID, trainId);
-		compoundTag.putString(KEY_TRAIN_TYPE, baseTrainType.toString());
-		compoundTag.putBoolean(KEY_IS_ON_ROUTE, isOnRoute);
+		messagePacker.packString(KEY_SPEED).packFloat(speed);
+		messagePacker.packString(KEY_RAIL_PROGRESS).packFloat(railProgress);
+		messagePacker.packString(KEY_STOP_COUNTER).packFloat(stopCounter);
+		messagePacker.packString(KEY_NEXT_STOPPING_INDEX).packInt(nextStoppingIndex);
+		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
+		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
+		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType.toString());
+		messagePacker.packString(KEY_IS_ON_ROUTE).packBoolean(isOnRoute);
 
-		final CompoundTag tagRidingEntities = new CompoundTag();
-		ridingEntities.forEach(uuid -> tagRidingEntities.putUUID(KEY_RIDING_ENTITIES + uuid, uuid));
-		compoundTag.put(KEY_RIDING_ENTITIES, tagRidingEntities);
-
-		final NonNullList<ItemStack> stacks = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
-		for (int i = 0; i < inventory.getContainerSize(); i++) {
-			stacks.set(i, inventory.getItem(0));
+		messagePacker.packString(KEY_RIDING_ENTITIES).packArrayHeader(ridingEntities.size());
+		for (final UUID uuid : ridingEntities) {
+			messagePacker.packString(uuid.toString());
 		}
-		compoundTag.put(KEY_CARGO, ContainerHelper.saveAllItems(new CompoundTag(), stacks));
 
-		return compoundTag;
+		messagePacker.packString(KEY_CARGO);
+		if (inventory != null) {
+			final NonNullList<ItemStack> stacks = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
+			int totalCount = 0;
+			for (int i = 0; i < inventory.getContainerSize(); i++) {
+				stacks.set(i, inventory.getItem(i));
+				totalCount += inventory.getItem(i).getCount();
+			}
+			if (totalCount > 0) {
+				CompoundTag tag = ContainerHelper.saveAllItems(new CompoundTag(), stacks);
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				NbtIo.write(tag, new DataOutputStream(outputStream));
+				messagePacker.packBinaryHeader(outputStream.size());
+				messagePacker.writePayload(outputStream.toByteArray());
+			} else {
+				messagePacker.packNil();
+			}
+		} else {
+			messagePacker.packNil();
+		}
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 10;
 	}
 
 	@Override

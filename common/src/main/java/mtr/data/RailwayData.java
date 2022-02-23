@@ -6,6 +6,7 @@ import mtr.Registry;
 import mtr.block.BlockNode;
 import mtr.entity.EntitySeat;
 import mtr.mappings.PersistentStateMapper;
+import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
@@ -23,8 +24,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +47,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
-	private boolean canWriteToFile = true;
 
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
@@ -51,6 +58,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
+	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
 
@@ -58,7 +66,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
 	private static final int SCHEDULE_UPDATE_TICKS = 60;
 
+	private static final int DATA_VERSION = 1;
+
 	private static final String NAME = "mtr_train_data";
+	private static final String KEY_RAW_MESSAGE_PACK = "raw_message_pack";
+	private static final String KEY_DATA_VERSION = "mtr_data_version";
 	private static final String KEY_STATIONS = "stations";
 	private static final String KEY_PLATFORMS = "platforms";
 	private static final String KEY_SIDINGS = "sidings";
@@ -84,47 +96,109 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void load(CompoundTag compoundTag) {
-		try {
-			final CompoundTag tagStations = compoundTag.getCompound(KEY_STATIONS);
-			for (final String key : tagStations.getAllKeys()) {
-				stations.add(new Station(tagStations.getCompound(key)));
-			}
+		if (compoundTag.contains(KEY_RAW_MESSAGE_PACK)) {
+			try {
+				final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(compoundTag.getByteArray(KEY_RAW_MESSAGE_PACK));
+				final int mapSize = messageUnpacker.unpackMapHeader();
 
-			final CompoundTag tagNewPlatforms = compoundTag.getCompound(KEY_PLATFORMS);
-			for (final String key : tagNewPlatforms.getAllKeys()) {
-				platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
-			}
+				for (int i = 0; i < mapSize; ++i) {
+					final String key = messageUnpacker.unpackString();
+					if (key.equals(KEY_DATA_VERSION)) {
+						if (messageUnpacker.unpackInt() > DATA_VERSION) {
+							throw new IllegalArgumentException("Unsupported data version");
+						}
+						continue;
+					}
 
-			final CompoundTag tagNewSidings = compoundTag.getCompound(KEY_SIDINGS);
-			for (final String key : tagNewSidings.getAllKeys()) {
-				sidings.add(new Siding(tagNewSidings.getCompound(key)));
-			}
+					final int arraySize = messageUnpacker.unpackArrayHeader();
+					switch (key) {
+						case KEY_STATIONS:
+							for (int j = 0; j < arraySize; ++j) {
+								stations.add(new Station(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_PLATFORMS:
+							for (int j = 0; j < arraySize; ++j) {
+								platforms.add(new Platform(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_SIDINGS:
+							for (int j = 0; j < arraySize; ++j) {
+								sidings.add(new Siding(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_ROUTES:
+							for (int j = 0; j < arraySize; ++j) {
+								routes.add(new Route(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_DEPOTS:
+							for (int j = 0; j < arraySize; ++j) {
+								depots.add(new Depot(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+						case KEY_RAILS:
+							for (int j = 0; j < arraySize; ++j) {
+								final RailEntry railEntry = new RailEntry(readMessagePackSKMap(messageUnpacker));
+								rails.put(railEntry.pos, railEntry.connections);
+							}
+							break;
+						case KEY_SIGNAL_BLOCKS:
+							for (int j = 0; j < arraySize; ++j) {
+								signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(readMessagePackSKMap(messageUnpacker)));
+							}
+							break;
+					}
+				}
 
-			final CompoundTag tagNewRoutes = compoundTag.getCompound(KEY_ROUTES);
-			for (final String key : tagNewRoutes.getAllKeys()) {
-				routes.add(new Route(tagNewRoutes.getCompound(key)));
+				validateData();
+				dataCache.sync();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		} else {
+			try {
+				final CompoundTag tagStations = compoundTag.getCompound(KEY_STATIONS);
+				for (final String key : tagStations.getAllKeys()) {
+					stations.add(new Station(tagStations.getCompound(key)));
+				}
 
-			final CompoundTag tagNewDepots = compoundTag.getCompound(KEY_DEPOTS);
-			for (final String key : tagNewDepots.getAllKeys()) {
-				depots.add(new Depot(tagNewDepots.getCompound(key)));
+				final CompoundTag tagNewPlatforms = compoundTag.getCompound(KEY_PLATFORMS);
+				for (final String key : tagNewPlatforms.getAllKeys()) {
+					platforms.add(new Platform(tagNewPlatforms.getCompound(key)));
+				}
+
+				final CompoundTag tagNewSidings = compoundTag.getCompound(KEY_SIDINGS);
+				for (final String key : tagNewSidings.getAllKeys()) {
+					sidings.add(new Siding(tagNewSidings.getCompound(key)));
+				}
+
+				final CompoundTag tagNewRoutes = compoundTag.getCompound(KEY_ROUTES);
+				for (final String key : tagNewRoutes.getAllKeys()) {
+					routes.add(new Route(tagNewRoutes.getCompound(key)));
+				}
+
+				final CompoundTag tagNewDepots = compoundTag.getCompound(KEY_DEPOTS);
+				for (final String key : tagNewDepots.getAllKeys()) {
+					depots.add(new Depot(tagNewDepots.getCompound(key)));
+				}
+
+				final CompoundTag tagNewRails = compoundTag.getCompound(KEY_RAILS);
+				for (final String key : tagNewRails.getAllKeys()) {
+					final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
+					rails.put(railEntry.pos, railEntry.connections);
+				}
+
+				final CompoundTag tagNewSignalBlocks = compoundTag.getCompound(KEY_SIGNAL_BLOCKS);
+				for (final String key : tagNewSignalBlocks.getAllKeys()) {
+					signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
+				}
+
+				validateData();
+				dataCache.sync();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			final CompoundTag tagNewRails = compoundTag.getCompound(KEY_RAILS);
-			for (final String key : tagNewRails.getAllKeys()) {
-				final RailEntry railEntry = new RailEntry(tagNewRails.getCompound(key));
-				rails.put(railEntry.pos, railEntry.connections);
-			}
-
-			final CompoundTag tagNewSignalBlocks = compoundTag.getCompound(KEY_SIGNAL_BLOCKS);
-			for (final String key : tagNewSignalBlocks.getAllKeys()) {
-				signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
-			}
-
-			validateData();
-			dataCache.sync();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -135,42 +209,46 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@Override
 	public void save(File file) {
-		if (!canWriteToFile) {
-			return;
-		}
+		final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
+		final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
 
-		validateData();
-		canWriteToFile = false;
+		try {
+			validateData();
+			messagePacker.packMapHeader(8);
+			messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
 
-		final Set<Station> newStations = new HashSet<>(stations);
-		final Set<Platform> newPlatforms = new HashSet<>(platforms);
-		final Set<Siding> newSidings = new HashSet<>(sidings);
-		final Set<Route> newRoutes = new HashSet<>(routes);
-		final Set<Depot> newDepots = new HashSet<>(depots);
-		final Set<RailEntry> railSet = new HashSet<>();
-		rails.forEach((startPos, railMap) -> railSet.add(new RailEntry(startPos, railMap)));
+			writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
+			writeMessagePackDataset(messagePacker, platforms, KEY_PLATFORMS);
+			writeMessagePackDataset(messagePacker, sidings, KEY_SIDINGS);
+			writeMessagePackDataset(messagePacker, routes, KEY_ROUTES, false);
+			writeMessagePackDataset(messagePacker, depots, KEY_DEPOTS, false);
+			writeMessagePackDataset(messagePacker, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
 
-		new Thread(() -> {
-			try {
-				final CompoundTag dataTag = new CompoundTag();
-				writeTag(dataTag, newStations, KEY_STATIONS, false);
-				writeTag(dataTag, newPlatforms, KEY_PLATFORMS);
-				writeTag(dataTag, newSidings, KEY_SIDINGS);
-				writeTag(dataTag, newRoutes, KEY_ROUTES, false);
-				writeTag(dataTag, newDepots, KEY_DEPOTS, false);
-				writeTag(dataTag, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
-				writeTag(dataTag, railSet, KEY_RAILS);
-
-				final CompoundTag compoundTag = new CompoundTag();
-				compoundTag.put("data", dataTag);
-				compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-				NbtIo.writeCompressed(compoundTag, file);
-			} catch (Exception e) {
-				e.printStackTrace();
+			messagePacker.packString(KEY_RAILS);
+			messagePacker.packArrayHeader(rails.size());
+			for (final Map.Entry<BlockPos, Map<BlockPos, Rail>> entry : rails.entrySet()) {
+				final BlockPos startPos = entry.getKey();
+				final Map<BlockPos, Rail> railMap = entry.getValue();
+				final RailEntry data = new RailEntry(startPos, railMap);
+				messagePacker.packMapHeader(data.messagePackLength());
+				data.toMessagePack(messagePacker);
 			}
+			messagePacker.close();
 
-			canWriteToFile = true;
-		}).start();
+			CompoundTag compoundTag = new CompoundTag();
+			CompoundTag dataTag = new CompoundTag();
+			dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
+			dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
+			compoundTag.put("data", dataTag);
+			compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+			try {
+				NbtIo.writeCompressed(compoundTag, file);
+			} catch (IOException iOException) {
+				iOException.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void simulateTrains() {
@@ -221,15 +299,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
 
-		final Set<Player> playersToRemove = new HashSet<>();
-		playerSeats.forEach((player, seat) -> {
-			if (players.contains(player)) {
-				seat.updateSeat(player);
+		players.forEach(player -> {
+			final Integer seatCoolDownOld = playerSeatCoolDowns.get(player);
+			final EntitySeat seatOld = playerSeats.get(player);
+			final EntitySeat seat;
+			if (seatCoolDownOld == null || seatCoolDownOld <= 0 || Utilities.entityRemoved(seatOld)) {
+				seat = new EntitySeat(world, player.getX(), player.getY(), player.getZ());
+				world.addFreshEntity(seat);
+				seat.initialize(player);
+				playerSeats.put(player, seat);
+				playerSeatCoolDowns.put(player, 3);
 			} else {
-				playersToRemove.add(player);
+				seat = playerSeats.get(player);
+				playerSeatCoolDowns.put(player, playerSeatCoolDowns.get(player) - 1);
 			}
+			seat.updateSeatByRailwayData(player);
 		});
-		playersToRemove.forEach(playerSeats::remove);
 
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
@@ -352,15 +437,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
-		final EntitySeat seat = new EntitySeat(world, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ());
-		seat.updateSeat(serverPlayer);
-		world.addFreshEntity(seat);
-		playerSeats.put(serverPlayer, seat);
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 	}
 
 	public EntitySeat getSeatFromPlayer(Player player) {
 		return playerSeats.get(player);
+	}
+
+	public void updatePlayerSeatCoolDown(Player player) {
+		playerSeatCoolDowns.put(player, 3);
 	}
 
 	// writing data
@@ -410,7 +495,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return signalBlocks.remove(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
 
-	public boolean markRailForBridge(Player player, BlockPos pos1, BlockPos pos2, int radius, int height, BlockState state) {
+	public boolean markRailForBridge(Player player, BlockPos pos1, BlockPos pos2, int radius, BlockState state) {
 		if (containsRail(pos1, pos2)) {
 			railActions.add(new Rail.RailActions(world, player, Rail.RailActionType.BRIDGE, rails.get(pos1).get(pos2), radius, 0, state));
 			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
@@ -441,6 +526,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void disconnectPlayer(Player player) {
+		playerSeats.remove(player);
+		playerSeatCoolDowns.remove(player);
 		playerLastUpdatedPositions.remove(player);
 	}
 
@@ -460,6 +547,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				System.out.println("Starting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
 			}
 			depot.generateMainRoute(minecraftServer, world, dataCache, rails, sidings, thread -> generatingPathThreads.put(depotId, thread));
+		} else {
+			PacketTrainDataGuiServer.generatePathS2C(world, depotId, 0);
+			System.out.println("Failed to generate path, depot is null");
 		}
 	}
 
@@ -641,20 +731,47 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return value >= Math.min(value1, value2) - padding && value <= Math.max(value1, value2) + padding;
 	}
 
-	public static void writeTag(CompoundTag compoundTag, Collection<? extends SerializedDataBase> dataSet, String key) {
-		writeTag(compoundTag, dataSet, key, true);
+	public static void writeMessagePackDataset(MessagePacker packer, Collection<? extends SerializedDataBase> dataSet, String key) throws IOException {
+		writeMessagePackDataset(packer, dataSet, key, true);
 	}
 
-	public static void writeTag(CompoundTag compoundTag, Collection<? extends SerializedDataBase> dataSet, String key, boolean skipVerify) {
-		final CompoundTag tagSet = new CompoundTag();
-		int i = 0;
-		for (final SerializedDataBase data : dataSet) {
-			if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
-				tagSet.put(key + i, data.toCompoundTag());
-				i++;
+	public static void writeMessagePackDataset(MessagePacker messagePacker, Collection<? extends SerializedDataBase> dataSet, String key, boolean skipVerify) throws IOException {
+		messagePacker.packString(key);
+
+		int dataSetSize = 0;
+		if (skipVerify) {
+			dataSetSize = dataSet.size();
+		} else {
+			for (final SerializedDataBase data : dataSet) {
+				if (!(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+					++dataSetSize;
+				}
 			}
 		}
-		compoundTag.put(key, tagSet);
+
+		messagePacker.packArrayHeader(dataSetSize);
+		for (final SerializedDataBase data : dataSet) {
+			if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
+				messagePacker.packMapHeader(data.messagePackLength());
+				data.toMessagePack(messagePacker);
+			}
+		}
+	}
+
+	public static Map<String, Value> readMessagePackSKMap(MessageUnpacker messageUnpacker) throws IOException {
+		int size = messageUnpacker.unpackMapHeader();
+		HashMap<String, Value> result = new HashMap<>(size);
+		for (int i = 0; i < size; ++i) {
+			result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+		}
+		return result;
+	}
+
+	public static Map<String, Value> castMessagePackValueToSKMap(Value value) {
+		Map<Value, Value> oldMap = value.asMapValue().map();
+		HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
+		oldMap.forEach((key, val) -> resultMap.put(key.asStringValue().asString(), val));
+		return resultMap;
 	}
 
 	public static RailwayData getInstance(Level world) {
@@ -722,20 +839,33 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 		}
 
-		@Override
-		public CompoundTag toCompoundTag() {
-			final CompoundTag tagRail = new CompoundTag();
-			tagRail.putLong(KEY_NODE_POS, pos.asLong());
+		public RailEntry(Map<String, Value> map) {
+			pos = BlockPos.of(map.get(KEY_NODE_POS).asIntegerValue().asLong());
 
-			final CompoundTag tagConnections = new CompoundTag();
-			connections.forEach((endNodePos, rail) -> {
-				final CompoundTag tagConnection = rail.toCompoundTag();
-				tagConnection.putLong(KEY_NODE_POS, endNodePos.asLong());
-				tagConnections.put(KEY_RAIL_CONNECTIONS + endNodePos.asLong(), tagConnection);
+			final ArrayValue mapConnections = map.get(KEY_RAIL_CONNECTIONS).asArrayValue();
+			connections = new HashMap<>(mapConnections.size());
+			mapConnections.forEach(value -> {
+				Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
+				connections.put(BlockPos.of(mapSK.get(KEY_NODE_POS).asIntegerValue().asLong()), new Rail(mapSK));
 			});
+		}
 
-			tagRail.put(KEY_RAIL_CONNECTIONS, tagConnections);
-			return tagRail;
+		@Override
+		public void toMessagePack(MessagePacker messagePacker) throws IOException {
+			messagePacker.packString(KEY_NODE_POS).packLong(pos.asLong());
+
+			messagePacker.packString(KEY_RAIL_CONNECTIONS).packArrayHeader(connections.size());
+			for (final Map.Entry<BlockPos, Rail> entry : connections.entrySet()) {
+				final BlockPos endNodePos = entry.getKey();
+				messagePacker.packMapHeader(entry.getValue().messagePackLength() + 1);
+				messagePacker.packString(KEY_NODE_POS).packLong(endNodePos.asLong());
+				entry.getValue().toMessagePack(messagePacker);
+			}
+		}
+
+		@Override
+		public int messagePackLength() {
+			return 2;
 		}
 
 		@Override

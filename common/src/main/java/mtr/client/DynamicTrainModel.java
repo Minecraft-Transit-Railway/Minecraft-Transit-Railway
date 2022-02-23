@@ -163,6 +163,10 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	private void renderParts(String category, PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, boolean renderDetails, float doorLeftZ, float doorRightZ) {
+		if (!properties.has(category)) {
+			return;
+		}
+
 		properties.getAsJsonArray(category).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
 			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();

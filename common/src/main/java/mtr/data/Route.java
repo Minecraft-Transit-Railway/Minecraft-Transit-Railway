@@ -3,9 +3,14 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
@@ -38,6 +43,22 @@ public final class Route extends NameColorDataBase implements IGui {
 		isHidden = false;
 	}
 
+	public Route(Map<String, Value> map) {
+		super(map);
+
+		final ArrayValue platformIdsArray = map.get(KEY_PLATFORM_IDS).asArrayValue();
+		platformIds = new ArrayList<>(platformIdsArray.size());
+		for (final Value platformId : platformIdsArray) {
+			platformIds.add(platformId.asIntegerValue().asLong());
+		}
+
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, map.get(KEY_ROUTE_TYPE).asStringValue().asString());
+		isLightRailRoute = map.get(KEY_IS_LIGHT_RAIL_ROUTE).asBooleanValue().getBoolean();
+		lightRailRouteNumber = map.get(KEY_LIGHT_RAIL_ROUTE_NUMBER).asStringValue().asString();
+		circularState = EnumHelper.valueOf(CircularState.NONE, map.get(KEY_CIRCULAR_STATE).asStringValue().asString());
+	}
+
+	@Deprecated
 	public Route(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -71,17 +92,24 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putLongArray(KEY_PLATFORM_IDS, platformIds);
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putString(KEY_ROUTE_TYPE, routeType.toString());
-		compoundTag.putBoolean(KEY_IS_LIGHT_RAIL_ROUTE, isLightRailRoute);
-		compoundTag.putBoolean(KEY_IS_ROUTE_HIDDEN, isHidden);
-		compoundTag.putString(KEY_LIGHT_RAIL_ROUTE_NUMBER, lightRailRouteNumber);
-		compoundTag.putString(KEY_CIRCULAR_STATE, circularState.toString());
+		messagePacker.packString(KEY_PLATFORM_IDS).packArrayHeader(platformIds.size());
+		for (Long platformId : platformIds) {
+			messagePacker.packLong(platformId);
+		}
 
-		return compoundTag;
+		messagePacker.packString(KEY_ROUTE_TYPE).packString(routeType.toString());
+		messagePacker.packString(KEY_IS_LIGHT_RAIL_ROUTE).packBoolean(isLightRailRoute);
+		messagePacker.packBoolean(KEY_IS_ROUTE_HIDDEN, isHidden);
+		messagePacker.packString(KEY_LIGHT_RAIL_ROUTE_NUMBER).packString(lightRailRouteNumber);
+		messagePacker.packString(KEY_CIRCULAR_STATE).packString(circularState.toString());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 6;
 	}
 
 	@Override
