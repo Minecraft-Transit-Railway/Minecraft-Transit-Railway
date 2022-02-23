@@ -2,6 +2,7 @@ package mtr.entity;
 
 import mtr.EntityTypes;
 import mtr.Registry;
+import mtr.data.RailwayData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -32,9 +33,9 @@ public class EntitySeat extends Entity {
 	private double clientZ;
 	private float interpolatedPercentageX;
 	private float interpolatedPercentageZ;
-	private boolean stopped;
 
 	public static final float SIZE = 0.5F;
+	private static final int SEAT_REFRESH = 10;
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
@@ -56,59 +57,49 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void tick() {
-		if (player == null) {
-			player = level.getPlayerByUUID(getPlayerId());
-		}
-
 		if (level.isClientSide) {
-			if (playerNotRiding()) {
-				final float speed = player.getSpeed();
-				final Vec3 newPos = player.position().add(player.getLookAngle().multiply(speed, speed, speed));
-				absMoveTo(newPos.x, newPos.y, newPos.z);
-			} else {
-				percentageX = getClientPercentageX();
-				percentageZ = getClientPercentageZ();
+			percentageX = getClientPercentageX();
+			percentageZ = getClientPercentageZ();
 
-				if (stopped) {
-					interpolatedPercentageX = percentageX;
-					interpolatedPercentageZ = percentageZ;
-					absMoveTo(clientX, clientY, clientZ);
-				} else {
-					if (clientInterpolationSteps > 0) {
-						final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
-						final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
-						final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
-						interpolatedPercentageX += (percentageX - interpolatedPercentageX) / clientInterpolationSteps;
-						interpolatedPercentageZ += (percentageZ - interpolatedPercentageZ) / clientInterpolationSteps;
-						--clientInterpolationSteps;
-						absMoveTo(x, y, z);
-					} else {
-						interpolatedPercentageX = percentageX;
-						interpolatedPercentageZ = percentageZ;
-						reapplyPosition();
-					}
-				}
+			if (clientInterpolationSteps > 0) {
+				interpolatedPercentageX += (percentageX - interpolatedPercentageX) / clientInterpolationSteps;
+				interpolatedPercentageZ += (percentageZ - interpolatedPercentageZ) / clientInterpolationSteps;
+				--clientInterpolationSteps;
+				absMoveTo(clientX, clientY, clientZ);
+			} else {
+				interpolatedPercentageX = percentageX;
+				interpolatedPercentageZ = percentageZ;
+				reapplyPosition();
 			}
 		} else {
 			if (player == null || seatRefresh <= 0) {
 				kill();
+			} else {
+				if (playerNotRiding()) {
+					absMoveTo(player.getX(), player.getY(), player.getZ());
+				}
+
+				final RailwayData railwayData = RailwayData.getInstance(level);
+				if (railwayData != null) {
+					railwayData.updatePlayerSeatCoolDown(player);
+				}
+
+				if (ridingRefresh <= 0) {
+					ejectPassengers();
+					trainId = 0;
+				}
+
+				seatRefresh--;
+				ridingRefresh--;
 			}
-			if (ridingRefresh <= 0) {
-				ejectPassengers();
-				trainId = 0;
-			}
-			seatRefresh--;
-			ridingRefresh--;
 		}
 	}
 
 	@Override
 	public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		if (shouldResetPosition(x, y, z)) {
-			clientX = x;
-			clientY = y;
-			clientZ = z;
-		}
+		clientX = x;
+		clientY = y;
+		clientZ = z;
 		clientInterpolationSteps = interpolationSteps;
 	}
 
@@ -143,28 +134,37 @@ public class EntitySeat extends Entity {
 	protected void addAdditionalSaveData(CompoundTag compoundTag) {
 	}
 
-	public void updateSeat(Player player) {
-		if (player != null) {
-			entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
-			if (playerNotRiding()) {
-				absMoveTo(player.getX(), player.getY(), player.getZ());
-			}
-			seatRefresh = 2;
-		}
+	public void initialize(Player player) {
+		entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
 	}
 
-	public boolean updateRiding(long trainId) {
-		if (this.trainId == 0 || this.trainId == trainId) {
-			this.trainId = trainId;
-			ridingRefresh = 2;
-			return true;
-		} else {
+	public boolean isClientPlayer(Player player) {
+		try {
+			return entityData != null && entityData.get(PLAYER_ID).orElse(new UUID(0, 0)).equals(player.getUUID());
+		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	}
 
-	public boolean isPlayer(Player player) {
-		return this.player == player;
+	public void updateSeatByRailwayData(Player player) {
+		if (player != null) {
+			seatRefresh = SEAT_REFRESH;
+		}
+		this.player = player;
+	}
+
+	public boolean updateRidingByTrainServer(long trainId) {
+		if (this.trainId == 0 || this.trainId == trainId) {
+			this.trainId = trainId;
+			ridingRefresh = SEAT_REFRESH;
+			if (playerNotRiding()) {
+				player.startRiding(this);
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void updateDataToClient(float railProgress) {
@@ -191,28 +191,6 @@ public class EntitySeat extends Entity {
 
 	public float getInterpolatedPercentageZ() {
 		return interpolatedPercentageZ;
-	}
-
-	public void setTrainPos(double x, double y, double z, boolean stopped) {
-		this.stopped = stopped;
-		if (!shouldResetPosition(x, y, z)) {
-			clientX = x;
-			clientY = y;
-			clientZ = z;
-		}
-	}
-
-	private boolean shouldResetPosition(double x, double y, double z) {
-		return !stopped || Math.abs(clientX - x) + Math.abs(clientY - y) + Math.abs(clientZ - z) >= 8;
-	}
-
-	private UUID getPlayerId() {
-		try {
-			return entityData == null ? new UUID(0, 0) : entityData.get(PLAYER_ID).orElse(new UUID(0, 0));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new UUID(0, 0);
-		}
 	}
 
 	private boolean playerNotRiding() {

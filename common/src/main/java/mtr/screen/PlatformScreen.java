@@ -10,7 +10,7 @@ public class PlatformScreen extends SavedRailScreenBase<Platform> {
 
 	public PlatformScreen(Platform savedRailBase, DashboardScreen dashboardScreen) {
 		super(savedRailBase, dashboardScreen, null);
-		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> String.format("%ss", (value + 1) / 2F));
+		sliderDwellTime = new WidgetShorterSlider(startX + textWidth, SLIDER_WIDTH, Platform.MAX_DWELL_TIME - 1, value -> String.format("%ss", (value + 1) / 2F), null);
 	}
 
 	@Override

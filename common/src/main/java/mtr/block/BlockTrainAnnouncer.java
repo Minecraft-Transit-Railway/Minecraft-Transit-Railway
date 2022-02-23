@@ -24,7 +24,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 		private String message = "";
 		private final Map<Player, Long> lastAnnouncedMillis = new HashMap<>();
-		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 5000;
+		private static final int ANNOUNCE_COOL_DOWN_MILLIS = 20000;
 		private static final String KEY_MESSAGE = "message";
 
 		public TileEntityTrainAnnouncer(BlockPos pos, BlockState state) {
