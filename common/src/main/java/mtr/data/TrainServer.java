@@ -34,12 +34,14 @@ public class TrainServer extends Train {
 	private List<Map<UUID, Long>> trainPositions;
 	private Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private long routeId;
+	private int updateRailProgressCounter;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
 	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
+	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
 	public TrainServer(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Float> distances, List<Siding.TimeSegment> timeSegments) {
 		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances);
@@ -185,7 +187,7 @@ public class TrainServer extends Train {
 								seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
 								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
 								seat.percentageZ = Mth.clamp(seat.percentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
-								seat.updateDataToClient(railProgress);
+								seat.updateDataToClient(updateRailProgressCounter == 0 ? railProgress : 0);
 								final int newRidingCar = (int) Math.floor(seat.percentageZ);
 								if (currentRidingCar == newRidingCar) {
 									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
@@ -333,6 +335,11 @@ public class TrainServer extends Train {
 					offsetTime = timeSegment.endTime;
 				}
 			}
+		}
+
+		updateRailProgressCounter++;
+		if (updateRailProgressCounter == TICKS_TO_SEND_RAIL_PROGRESS) {
+			updateRailProgressCounter = 0;
 		}
 
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
