@@ -26,6 +26,7 @@ public class Depot extends AreaBase {
 	private int departureOffset;
 
 	public final List<Long> routeIds = new ArrayList<>();
+	public final Map<Long, Map<Long, Float>> platformTimes = new HashMap<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();

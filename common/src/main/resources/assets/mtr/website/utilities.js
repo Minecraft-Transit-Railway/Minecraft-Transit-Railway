@@ -188,6 +188,35 @@ const CANVAS = {
 			reverse = !reverse;
 		} while (reverse);
 	},
+	getDrawStationElement: (stationElement, color1, color2) => {
+		const element = document.createElement("div");
+		element.className = "route_station_name";
+		if (color1 != null) {
+			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${CANVAS.convertColor(color1)}">&nbsp</span>`;
+		}
+		if (color2 != null) {
+			element.innerHTML += `<span class="route_segment top" style="background-color: ${CANVAS.convertColor(color2)}">&nbsp</span>`;
+		}
+		element.innerHTML += `<span class="station_circle"></span>`;
+		element.appendChild(stationElement);
+		return element;
+	},
+	getDrawLineElement: (icon, innerElement, color) => {
+		const element = document.createElement("div");
+		element.className = "route_duration";
+		element.innerHTML =
+			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : CANVAS.convertColor(color)}">&nbsp</span>` +
+			`<span class="material-icons small">${icon}</span>`;
+		element.appendChild(innerElement);
+		return element;
+	},
+	convertColor: color => "#" + Number(color).toString(16).padStart(6, "0"),
+	formatTime: time => {
+		const hour = Math.floor(time / 3600);
+		const minute = Math.floor(time / 60) % 60;
+		const second = Math.floor(time) % 60;
+		return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
+	},
 };
 
 export default CANVAS;

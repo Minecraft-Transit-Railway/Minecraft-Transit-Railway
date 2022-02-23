@@ -60,15 +60,19 @@ public class ClientCache extends DataCache {
 		mapPosToSavedRails(posToBoatSidings, sidings, TransportMode.BOAT);
 
 		stationIdToRoutes.clear();
-		routes.forEach(route -> route.platformIds.forEach(platformId -> {
-			final Station station = platformIdToStation.get(platformId);
-			if (station != null) {
-				if (!stationIdToRoutes.containsKey(station.id)) {
-					stationIdToRoutes.put(station.id, new HashMap<>());
-				}
-				stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
+		routes.forEach(route -> {
+			if (!route.isHidden) {
+				route.platformIds.forEach(platformId -> {
+					final Station station = platformIdToStation.get(platformId);
+					if (station != null) {
+						if (!stationIdToRoutes.containsKey(station.id)) {
+							stationIdToRoutes.put(station.id, new HashMap<>());
+						}
+						stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
+					}
+				});
 			}
-		}));
+		});
 
 		stationIdToPlatforms.keySet().forEach(id -> {
 			if (!clearStationIdToPlatforms.contains(id)) {

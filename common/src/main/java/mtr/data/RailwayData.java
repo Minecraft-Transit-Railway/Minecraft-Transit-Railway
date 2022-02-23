@@ -34,7 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class RailwayData extends PersistentStateMapper implements IPacket {
@@ -52,7 +51,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks = new SignalBlocks();
-	private final ReentrantLock fileWritingLock = new ReentrantLock();
 
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -237,22 +235,17 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			messagePacker.close();
 
-			new Thread(() -> {
-				fileWritingLock.lock();
-				CompoundTag compoundTag = new CompoundTag();
-				CompoundTag dataTag = new CompoundTag();
-				dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
-				dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
-				compoundTag.put("data", dataTag);
-				compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-				try {
-					NbtIo.writeCompressed(compoundTag, file);
-				} catch (IOException iOException) {
-					iOException.printStackTrace();
-				} finally {
-					fileWritingLock.unlock();
-				}
-			}).start();
+			CompoundTag compoundTag = new CompoundTag();
+			CompoundTag dataTag = new CompoundTag();
+			dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
+			dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
+			compoundTag.put("data", dataTag);
+			compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+			try {
+				NbtIo.writeCompressed(compoundTag, file);
+			} catch (IOException iOException) {
+				iOException.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -711,7 +704,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
 			final Route thisRoute = dataCache.routeIdMap.get(routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
+			final Route nextRoute = i < routeIds.size() - 1 && !dataCache.routeIdMap.get(routeIds.get(i + 1)).isHidden ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
