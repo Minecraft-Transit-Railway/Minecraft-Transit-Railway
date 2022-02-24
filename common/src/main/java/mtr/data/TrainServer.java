@@ -113,7 +113,7 @@ public class TrainServer extends Train {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 1.5)) {
+				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2)) {
 					ridersToRemove.add(uuid);
 				}
 			}
@@ -174,7 +174,7 @@ public class TrainServer extends Train {
 					if (seat != null) {
 						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id)) {
 							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
+								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
 								seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
 							};
 

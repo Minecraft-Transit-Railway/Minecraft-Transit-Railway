@@ -49,12 +49,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		super(id, transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
+		accelerationConstant = Train.ACCELERATION_DEFAULT;
 	}
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
+		accelerationConstant = Train.ACCELERATION_DEFAULT;
 	}
 
 	public Siding(Map<String, Value> map) {
@@ -64,7 +66,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), TrainType.getOrDefault(messagePackHelper.getString(KEY_BASE_TRAIN_TYPE)));
 		unlimitedTrains = messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
-		accelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT);
+		final float tempAccelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT);
+		accelerationConstant = tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 
 		messagePackHelper.iterateArrayValue(KEY_PATH, pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
 
@@ -103,7 +106,8 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 		unlimitedTrains = packet.readBoolean();
 		maxTrains = packet.readInt();
-		accelerationConstant = packet.readFloat();
+		final float tempAccelerationConstant = packet.readFloat();
+		accelerationConstant = tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 	}
 
 	@Override
@@ -481,7 +485,7 @@ public class Siding extends SavedRailBase implements IPacket {
 			this.startSpeed = startSpeed;
 			this.startTime = startTime;
 			this.speedChange = Integer.compare(speedChange, 0);
-			this.accelerationConstant = accelerationConstant;
+			this.accelerationConstant = accelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : accelerationConstant;
 		}
 
 		public float getTime(float railProgress) {

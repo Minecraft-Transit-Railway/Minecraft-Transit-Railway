@@ -162,6 +162,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
+		textFieldAccelerationConstant.visible = !isSelectingTrain;
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId(), savedRailBase.getBaseTrainType()).name);
 		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
 	}

@@ -397,7 +397,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			available = AVAILABLE_TEXTURES.contains(textureString);
 		}
 
-		return available ? id : new ResourceLocation(formatter.apply(TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId));
+		if (available) {
+			return id;
+		} else {
+			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
+			return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
+		}
 	}
 
 	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {

@@ -139,7 +139,7 @@ public class TrainClient extends Train {
 					calculateCar(world, positions, (int) Math.floor(speed == 0 ? seat.getClientPercentageZ() : seat.getInterpolatedPercentageZ()), 0, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 						if (speed > 0) {
 							Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
-							final Vec3 playerOffset2 = new Vec3(getValueFromPercentage(seat.getInterpolatedPercentageX(), baseTrainType.width), 0, getValueFromPercentage(Mth.frac(seat.getInterpolatedPercentageZ()), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
+							final Vec3 playerOffset2 = new Vec3(getValueFromPercentage(seat.getInterpolatedPercentageX(), baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.getInterpolatedPercentageZ()), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
 							offset.add(playerOffset2.x);
 							offset.add(playerOffset2.y);
 							offset.add(playerOffset2.z);

@@ -68,7 +68,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
-		this.accelerationConstant = accelerationConstant;
+		this.accelerationConstant = accelerationConstant <= 0 ? ACCELERATION_DEFAULT : accelerationConstant;
 		inventory = new SimpleContainer(trainCars);
 	}
 
@@ -82,7 +82,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.distances = distances;
 
 		speed = messagePackHelper.getFloat(KEY_SPEED);
-		accelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT);
+		final float tempAccelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT);
+		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = messagePackHelper.getFloat(KEY_RAIL_PROGRESS);
 		stopCounter = messagePackHelper.getFloat(KEY_STOP_COUNTER);
 		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
@@ -154,7 +155,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		sidingId = packet.readLong();
 		railLength = packet.readFloat();
 		speed = packet.readFloat();
-		accelerationConstant = packet.readFloat();
+		final float tempAccelerationConstant = packet.readFloat();
+		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = packet.readFloat();
 		stopCounter = packet.readFloat();
 		nextStoppingIndex = packet.readInt();
