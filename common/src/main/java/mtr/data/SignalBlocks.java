@@ -173,9 +173,10 @@ public class SignalBlocks {
 
 		public SignalBlock(Map<String, Value> map) {
 			super(map);
+			final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 			DyeColor savedColor;
 			try {
-				savedColor = DyeColor.values()[map.get(KEY_COLOR).asIntegerValue().asInt()];
+				savedColor = DyeColor.values()[messagePackHelper.getInt(KEY_COLOR)];
 			} catch (Exception e) {
 				e.printStackTrace();
 				savedColor = DyeColor.RED;

@@ -222,24 +222,25 @@ public class Rail extends SerializedDataBase {
 	}
 
 	public Rail(Map<String, Value> map) {
-		h1 = map.get(KEY_H_1).asFloatValue().toDouble();
-		k1 = map.get(KEY_K_1).asFloatValue().toDouble();
-		h2 = map.get(KEY_H_2).asFloatValue().toDouble();
-		k2 = map.get(KEY_K_2).asFloatValue().toDouble();
-		r1 = map.get(KEY_R_1).asFloatValue().toDouble();
-		r2 = map.get(KEY_R_2).asFloatValue().toDouble();
-		tStart1 = map.get(KEY_T_START_1).asFloatValue().toDouble();
-		tEnd1 = map.get(KEY_T_END_1).asFloatValue().toDouble();
-		tStart2 = map.get(KEY_T_START_2).asFloatValue().toDouble();
-		tEnd2 = map.get(KEY_T_END_2).asFloatValue().toDouble();
-		yStart = map.get(KEY_Y_START).asIntegerValue().toInt();
-		yEnd = map.get(KEY_Y_END).asIntegerValue().toInt();
-		reverseT1 = map.get(KEY_REVERSE_T_1).asBooleanValue().getBoolean();
-		isStraight1 = map.get(KEY_IS_STRAIGHT_1).asBooleanValue().getBoolean();
-		reverseT2 = map.get(KEY_REVERSE_T_2).asBooleanValue().getBoolean();
-		isStraight2 = map.get(KEY_IS_STRAIGHT_2).asBooleanValue().getBoolean();
-		railType = EnumHelper.valueOf(RailType.IRON, map.get(KEY_RAIL_TYPE).asStringValue().asString());
-		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		h1 = messagePackHelper.getDouble(KEY_H_1);
+		k1 = messagePackHelper.getDouble(KEY_K_1);
+		h2 = messagePackHelper.getDouble(KEY_H_2);
+		k2 = messagePackHelper.getDouble(KEY_K_2);
+		r1 = messagePackHelper.getDouble(KEY_R_1);
+		r2 = messagePackHelper.getDouble(KEY_R_2);
+		tStart1 = messagePackHelper.getDouble(KEY_T_START_1);
+		tEnd1 = messagePackHelper.getDouble(KEY_T_END_1);
+		tStart2 = messagePackHelper.getDouble(KEY_T_START_2);
+		tEnd2 = messagePackHelper.getDouble(KEY_T_END_2);
+		yStart = messagePackHelper.getInt(KEY_Y_START);
+		yEnd = messagePackHelper.getInt(KEY_Y_END);
+		reverseT1 = messagePackHelper.getBoolean(KEY_REVERSE_T_1);
+		isStraight1 = messagePackHelper.getBoolean(KEY_IS_STRAIGHT_1);
+		reverseT2 = messagePackHelper.getBoolean(KEY_REVERSE_T_2);
+		isStraight2 = messagePackHelper.getBoolean(KEY_IS_STRAIGHT_2);
+		railType = EnumHelper.valueOf(RailType.IRON, messagePackHelper.getString(KEY_RAIL_TYPE));
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, messagePackHelper.getString(KEY_TRANSPORT_MODE));
 
 		facingStart = getRailAngle(false);
 		facingEnd = getRailAngle(true);

@@ -27,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.value.ArrayValue;
 import org.msgpack.value.Value;
 
 import java.io.ByteArrayOutputStream;
@@ -768,9 +767,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static Map<String, Value> castMessagePackValueToSKMap(Value value) {
-		Map<Value, Value> oldMap = value.asMapValue().map();
-		HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
-		oldMap.forEach((key, val) -> resultMap.put(key.asStringValue().asString(), val));
+		final Map<Value, Value> oldMap = value == null ? new HashMap<>() : value.asMapValue().map();
+		final HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
+		oldMap.forEach((key, newValue) -> resultMap.put(key.asStringValue().asString(), newValue));
 		return resultMap;
 	}
 
@@ -840,13 +839,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 
 		public RailEntry(Map<String, Value> map) {
-			pos = BlockPos.of(map.get(KEY_NODE_POS).asIntegerValue().asLong());
-
-			final ArrayValue mapConnections = map.get(KEY_RAIL_CONNECTIONS).asArrayValue();
-			connections = new HashMap<>(mapConnections.size());
-			mapConnections.forEach(value -> {
-				Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
-				connections.put(BlockPos.of(mapSK.get(KEY_NODE_POS).asIntegerValue().asLong()), new Rail(mapSK));
+			final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+			pos = BlockPos.of(messagePackHelper.getLong(KEY_NODE_POS));
+			connections = new HashMap<>();
+			messagePackHelper.iterateArrayValue(KEY_RAIL_CONNECTIONS, value -> {
+				final Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
+				connections.put(BlockPos.of(new MessagePackHelper(mapSK).getLong(KEY_NODE_POS)), new Rail(mapSK));
 			});
 		}
 

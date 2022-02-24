@@ -42,10 +42,11 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	}
 
 	public NameColorDataBase(Map<String, Value> map) {
-		id = map.get(KEY_ID).asIntegerValue().asLong();
-		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, map.get(KEY_TRANSPORT_MODE).asStringValue().asString());
-		name = map.get(KEY_NAME).asStringValue().asString();
-		color = map.get(KEY_COLOR).asIntegerValue().asInt();
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		id = messagePackHelper.getLong(KEY_ID);
+		transportMode = EnumHelper.valueOf(TransportMode.TRAIN, messagePackHelper.getString(KEY_TRANSPORT_MODE));
+		name = messagePackHelper.getString(KEY_NAME);
+		color = messagePackHelper.getInt(KEY_COLOR);
 	}
 
 	@Deprecated
