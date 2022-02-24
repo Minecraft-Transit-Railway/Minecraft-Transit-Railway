@@ -148,10 +148,11 @@ public class Siding extends SavedRailBase implements IPacket {
 				color = packet.readInt();
 				unlimitedTrains = packet.readBoolean();
 				maxTrains = packet.readInt();
-				break;
-			case KEY_ACCELERATION_CONSTANT:
-				accelerationConstant = packet.readFloat();
-				trains.clear();
+				final float newAccelerationConstant = packet.readFloat();
+				if (newAccelerationConstant > 0) {
+					trains.clear();
+					accelerationConstant = newAccelerationConstant;
+				}
 				break;
 			default:
 				super.update(key, packet);
@@ -170,7 +171,7 @@ public class Siding extends SavedRailBase implements IPacket {
 		setTrainDetails(customId, trainType);
 	}
 
-	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, Consumer<FriendlyByteBuf> sendPacket) {
+	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, float accelerationConstant, Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
 		packet.writeUtf(transportMode.toString());
@@ -179,19 +180,14 @@ public class Siding extends SavedRailBase implements IPacket {
 		packet.writeInt(color);
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
+		packet.writeFloat(accelerationConstant);
 		sendPacket.accept(packet);
 		this.unlimitedTrains = unlimitedTrains;
 		this.maxTrains = maxTrains;
-	}
-
-	public void setAccelerationConstant(float accelerationConstant, Consumer<FriendlyByteBuf> sendPacket) {
-		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeLong(id);
-		packet.writeUtf(transportMode.toString());
-		packet.writeUtf(KEY_ACCELERATION_CONSTANT);
-		packet.writeFloat(accelerationConstant);
-		sendPacket.accept(packet);
-		this.accelerationConstant = accelerationConstant;
+		if (accelerationConstant > 0) {
+			trains.clear();
+			this.accelerationConstant = accelerationConstant;
+		}
 	}
 
 	public String getTrainId() {

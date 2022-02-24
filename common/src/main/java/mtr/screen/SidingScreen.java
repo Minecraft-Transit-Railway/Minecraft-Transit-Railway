@@ -20,6 +20,7 @@ import java.util.List;
 public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private boolean isSelectingTrain;
+	private final float oldAcceleration;
 
 	private final TransportMode transportMode;
 	private final Button buttonSelectTrain;
@@ -28,6 +29,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final WidgetBetterTextField textFieldMaxTrains;
 	private final WidgetBetterTextField textFieldAccelerationConstant;
 
+	private static final Component SELECTED_TRAIN_TEXT = new TranslatableComponent("gui.mtr.selected_train");
 	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_trains");
 	private static final Component ACCELERATION_CONSTANT_TEXT = new TranslatableComponent("gui.mtr.acceleration");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
@@ -36,7 +38,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private static final float ACCELERATION_UNIT_CONVERSION = 20 * 20 * 3.6F;
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(siding, dashboardScreen, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
+		super(siding, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
 		this.transportMode = transportMode;
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
@@ -49,6 +51,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				textFieldMaxTrains.setValue("1");
 			}
 		});
+		oldAcceleration = savedRailBase.getAccelerationConstant();
 	}
 
 	@Override
@@ -73,7 +76,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		textFieldMaxTrains.setValue(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
 		textFieldMaxTrains.setResponder(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
-		IDrawing.setPositionAndWidth(textFieldAccelerationConstant, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldAccelerationConstant, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldAccelerationConstant.setValue(String.format("%.2f", savedRailBase.getAccelerationConstant() * ACCELERATION_UNIT_CONVERSION));
 
 		addDrawableChild(textFieldMaxTrains);
@@ -92,8 +95,9 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		if (!isSelectingTrain) {
+			font.draw(matrices, SELECTED_TRAIN_TEXT, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
 			font.draw(matrices, MAX_TRAINS_TEXT, startX, height / 2F + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE, ARGB_WHITE);
-			font.draw(matrices, ACCELERATION_CONSTANT_TEXT, startX, height / 2F + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE * 2, ARGB_WHITE);
+			font.draw(matrices, ACCELERATION_CONSTANT_TEXT, startX, height / 2F + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE * 2, ARGB_WHITE);
 		}
 	}
 
@@ -111,8 +115,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
-		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
-		savedRailBase.setAccelerationConstant(accelerationConstant, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
+		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, oldAcceleration == accelerationConstant ? 0 : accelerationConstant, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		super.onClose();
 	}
 
@@ -140,11 +143,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	@Override
 	protected String getNumberStringKey() {
 		return "gui.mtr.siding_number";
-	}
-
-	@Override
-	protected String getSecondStringKey() {
-		return "gui.mtr.selected_train";
 	}
 
 	@Override

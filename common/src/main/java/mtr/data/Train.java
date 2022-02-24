@@ -25,7 +25,6 @@ import java.util.*;
 public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	protected float speed;
-	protected float accelerationConstant;
 	protected float railProgress;
 	protected float stopCounter;
 	protected int nextStoppingIndex;
@@ -40,6 +39,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final List<Float> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 	protected final SimpleContainer inventory;
+	protected final float accelerationConstant;
 	private final float railLength;
 
 	public static final float ACCELERATION_DEFAULT = 0.01F;

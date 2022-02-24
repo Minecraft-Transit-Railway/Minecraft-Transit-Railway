@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public interface IDrawing {
 	static void setPositionAndWidth(AbstractWidget widget, int x, int y, int widgetWidth) {
 		widget.x = x;
 		widget.y = y;
-		widget.setWidth(widgetWidth);
+		widget.setWidth(Mth.clamp(widgetWidth, 0, 380));
 	}
 
 	static void narrateOrAnnounce(String message) {

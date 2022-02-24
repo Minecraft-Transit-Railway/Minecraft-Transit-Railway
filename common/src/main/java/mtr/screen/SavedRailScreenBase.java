@@ -15,14 +15,15 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
 
+	protected int startX;
+
 	protected final T savedRailBase;
-	protected final int textWidth, startX;
+	protected final int textWidth;
 
 	private final DashboardScreen dashboardScreen;
 	private final WidgetBetterTextField textFieldSavedRailNumber;
 
 	private final Component savedRailNumberText;
-	private final Component secondText;
 
 	protected static final int SLIDER_WIDTH = 160;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
@@ -32,17 +33,15 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		this.savedRailBase = savedRailBase;
 		this.dashboardScreen = dashboardScreen;
 		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
-		secondText = new TranslatableComponent(getSecondStringKey());
 
 		font = Minecraft.getInstance().font;
 		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
 		int additionalTextWidths = 0;
 		for (final Component additionalText : additionalTexts) {
-			additionalTextWidths += font.width(additionalText);
+			additionalTextWidths = Math.max(additionalTextWidths, font.width(additionalText));
 		}
-		textWidth = Math.max(Math.max(font.width(savedRailNumberText), font.width(secondText)), additionalTextWidths) + TEXT_PADDING;
-		startX = (width - textWidth - SLIDER_WIDTH) / 2 + SLIDER_WIDTH;
+		textWidth = Math.max(font.width(savedRailNumberText), additionalTextWidths) + TEXT_PADDING;
 	}
 
 	@Override
@@ -54,6 +53,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
 
 		addDrawableChild(textFieldSavedRailNumber);
+		startX = (width - textWidth - SLIDER_WIDTH) / 2;
 	}
 
 	@Override
@@ -70,7 +70,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 				renderExtra(matrices, mouseX, mouseY, delta);
 			} else {
 				font.draw(matrices, savedRailNumberText, startX, height / 2F - SQUARE_SIZE - TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
-				font.draw(matrices, secondText, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
 			}
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
@@ -99,8 +98,6 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	}
 
 	protected abstract String getNumberStringKey();
-
-	protected abstract String getSecondStringKey();
 
 	protected abstract ResourceLocation getPacketIdentifier();
 }
