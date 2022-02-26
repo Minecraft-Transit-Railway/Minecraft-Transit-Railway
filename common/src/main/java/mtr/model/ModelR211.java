@@ -557,8 +557,8 @@ public class ModelR211 extends ModelTrainBase {
         end_gangway = new ModelMapper(modelDataWrapper);
         end_gangway.setPos(0, 24, 0);
         end_gangway.texOffs(50, 221).addBox(-20.5F, 0, -9, 41, 1, 17, 0, false);
-        end_gangway.texOffs(0, 263).addBox(8.5F, -33, -9, 11, 33, 18, 0, false);
-        end_gangway.texOffs(131, 243).addBox(-19.5F, -33, -9, 11, 33, 18, 0, false);
+        end_gangway.texOffs(0, 263).addBox(8.5F, -32.875F, -9, 11, 33, 18, 0, false);
+        end_gangway.texOffs(131, 243).addBox(-19.5F, -32.875F, -9, 11, 33, 18, 0, false);
 
         end_gangway_exterior = new ModelMapper(modelDataWrapper);
         end_gangway_exterior.setPos(0, 24, 0);
@@ -568,8 +568,8 @@ public class ModelR211 extends ModelTrainBase {
         end_gangway_exterior.texOffs(54, 149).addBox(-21.5F, -13, -9, 2, 13, 20, 0, true);
         end_gangway_exterior.texOffs(231, 301).addBox(8.5F, -33, -9, 12, 33, 0, 0, false);
         end_gangway_exterior.texOffs(231, 301).addBox(-20.5F, -33, -9, 12, 33, 0, 0, true);
-        end_gangway_exterior.texOffs(192, 104).addBox(-20, -42, -9, 20, 9, 0, 0, false);
-        end_gangway_exterior.texOffs(192, 104).addBox(0, -42, -9, 20, 9, 0, 0, true);
+        end_gangway_exterior.texOffs(192, 104).addBox(-20, -41.875F, -9, 20, 9, 0, 0, false);
+        end_gangway_exterior.texOffs(192, 104).addBox(0, -41.875F, -9, 20, 9, 0, 0, true);
 
         upper_wall_3_r1 = new ModelMapper(modelDataWrapper);
         upper_wall_3_r1.setPos(-21.5F, -13, 0);
@@ -1156,7 +1156,7 @@ public class ModelR211 extends ModelTrainBase {
         roof_end_gangway.addChild(mid_roof_gangway);
         mid_roof_gangway.texOffs(268, 33).addBox(-8.5F, -34.875F, -9, 17, 2, 16, 0, false);
         mid_roof_gangway.texOffs(32, 140).addBox(8.5F, -36.875F, 7, 6, 4, 2, 0, false);
-        mid_roof_gangway.texOffs(32, 140).addBox(-14.4149F, -36.7849F, 7, 6, 4, 2, 0, true);
+        mid_roof_gangway.texOffs(32, 140).addBox(-14.5F, -36.875F, 7, 6, 4, 2, 0, true);
 
         roof_light = new ModelMapper(modelDataWrapper);
         roof_light.setPos(0, 24, 0);
