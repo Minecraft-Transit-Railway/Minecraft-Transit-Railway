@@ -43,7 +43,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
-		textFieldAccelerationConstant = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_FLOATING_POINT, String.format("%.2f", Train.ACCELERATION_DEFAULT * 400 * 3.6F), MAX_ACCELERATION_CONSTANT_TEXT_LENGTH);
+		textFieldAccelerationConstant = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_FLOATING_POINT, String.format("%.2f", Train.ACCELERATION_DEFAULT * ACCELERATION_UNIT_CONVERSION), MAX_ACCELERATION_CONSTANT_TEXT_LENGTH);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
@@ -111,7 +111,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		}
 		float accelerationConstant;
 		try {
-			accelerationConstant = Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION;
+			accelerationConstant = Math.round(Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION * 1000) / 1000F;
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
