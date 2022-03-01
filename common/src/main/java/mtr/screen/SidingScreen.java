@@ -111,7 +111,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		}
 		float accelerationConstant;
 		try {
-			accelerationConstant = Math.round(Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION * 1000) / 1000F;
+			accelerationConstant = RailwayData.round(Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION, 3);
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}

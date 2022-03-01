@@ -498,7 +498,7 @@ public class Rail extends SerializedDataBase {
 		public void writePacket(FriendlyByteBuf packet) {
 			packet.writeLong(id);
 			packet.writeUtf(playerName);
-			packet.writeFloat(Math.round(10 * length) / 10F);
+			packet.writeFloat(RailwayData.round(length, 1));
 			packet.writeUtf(state == null ? "" : state.getBlock().getDescriptionId());
 			packet.writeUtf(railActionType.nameTranslation);
 			packet.writeInt(railActionType.color);
@@ -581,7 +581,7 @@ public class Rail extends SerializedDataBase {
 				}
 			}
 
-			showProgressMessage((float) Math.round(1000 * distance / length) / 10);
+			showProgressMessage(RailwayData.round(100 * distance / length, 1));
 			return false;
 		}
 

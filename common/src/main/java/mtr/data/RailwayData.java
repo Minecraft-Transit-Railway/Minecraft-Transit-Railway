@@ -730,6 +730,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return value >= Math.min(value1, value2) - padding && value <= Math.max(value1, value2) + padding;
 	}
 
+	public static float round(double value, int decimalPlaces) {
+		int factor = 1;
+		for (int i = 0; i < decimalPlaces; i++) {
+			factor *= 10;
+		}
+		return (float) Math.round(value * factor) / factor;
+	}
+
 	public static void writeMessagePackDataset(MessagePacker packer, Collection<? extends SerializedDataBase> dataSet, String key) throws IOException {
 		writeMessagePackDataset(packer, dataSet, key, true);
 	}

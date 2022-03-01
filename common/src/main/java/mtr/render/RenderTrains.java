@@ -189,7 +189,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F), true);
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {

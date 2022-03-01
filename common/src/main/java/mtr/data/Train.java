@@ -71,7 +71,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
-		this.accelerationConstant = accelerationConstant <= 0 ? ACCELERATION_DEFAULT : accelerationConstant;
+		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
+		this.accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		inventory = new SimpleContainer(trainCars);
 	}
 
@@ -85,7 +86,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.distances = distances;
 
 		speed = messagePackHelper.getFloat(KEY_SPEED);
-		final float tempAccelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT);
+		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = messagePackHelper.getFloat(KEY_RAIL_PROGRESS);
 		stopCounter = messagePackHelper.getFloat(KEY_STOP_COUNTER);
@@ -158,7 +159,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		sidingId = packet.readLong();
 		railLength = packet.readFloat();
 		speed = packet.readFloat();
-		final float tempAccelerationConstant = packet.readFloat();
+		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = packet.readFloat();
 		stopCounter = packet.readFloat();
