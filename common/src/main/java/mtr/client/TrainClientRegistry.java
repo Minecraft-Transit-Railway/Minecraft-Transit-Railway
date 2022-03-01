@@ -51,6 +51,9 @@ public class TrainClientRegistry {
 		register("m_train", TrainType.M_TRAIN, new ModelMTrain(), "mtr:textures/entity/m_train", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
 		register("m_train_small", TrainType.M_TRAIN_SMALL, new ModelMTrainSmall(), "mtr:textures/entity/m_train", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
 		register("m_train_mini", TrainType.M_TRAIN_MINI, new ModelMTrainMini(), "mtr:textures/entity/m_train", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
+		register("cm_stock", TrainType.CM_STOCK, new ModelCMStock(), "mtr:textures/entity/cm_stock", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
+		register("cm_stock_small", TrainType.CM_STOCK_SMALL, new ModelCMStockSmall(), "mtr:textures/entity/cm_stock", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
+		register("cm_stock_mini", TrainType.CM_STOCK_MINI, new ModelCMStockMini(), "mtr:textures/entity/cm_stock", "m_train", "m_train", null, 0x999999, 90, 0.5F, false);
 		register("mlr", TrainType.MLR, new ModelMLR(), "mtr:textures/entity/mlr", "mlr", "mlr", null, 0x6CB5E2, 93, 0.5F, true);
 		register("mlr_small", TrainType.MLR_SMALL, new ModelMLRSmall(), "mtr:textures/entity/mlr", "mlr", "mlr", null, 0x6CB5E2, 93, 0.5F, true);
 		register("mlr_mini", TrainType.MLR_MINI, new ModelMLRMini(), "mtr:textures/entity/mlr", "mlr", "mlr", null, 0x6CB5E2, 93, 0.5F, true);
