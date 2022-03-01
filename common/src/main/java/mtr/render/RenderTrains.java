@@ -79,7 +79,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
 		final Minecraft client = Minecraft.getInstance();
 		final LocalPlayer player = client.player;
-		if (player == null || !entity.isClientPlayer(player)) {
+		if (player == null || entity.isNotClientPlayer(player)) {
 			return;
 		}
 
@@ -132,7 +132,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 					if (!BOATS.containsKey(train.id)) {
 						BOATS.put(train.id, new FakeBoat());
 					}
-					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
+					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION_DEFAULT) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
 				} else {
 					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
 				}
@@ -189,7 +189,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F), true);
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
@@ -317,7 +317,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {
 		final Entity camera = Minecraft.getInstance().cameraEntity;
-		return shouldNotRender(camera == null ? null : camera.blockPosition(), pos, maxDistance, facing);
+		return shouldNotRender(camera == null ? null : camera.position(), pos, maxDistance, facing);
 	}
 
 	public static void clearTextureAvailability() {
@@ -335,20 +335,20 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		);
 	}
 
-	private static int maxDistanceXZ(BlockPos pos1, BlockPos pos2) {
-		return Math.max(Math.abs(pos1.getX() - pos2.getX()), Math.abs(pos1.getZ() - pos2.getZ()));
+	private static double maxDistanceXZ(Vec3 pos1, BlockPos pos2) {
+		return Math.max(Math.abs(pos1.x - pos2.getX()), Math.abs(pos1.z - pos2.getZ()));
 	}
 
-	private static boolean shouldNotRender(BlockPos cameraPos, BlockPos pos, int maxDistance, Direction facing) {
+	private static boolean shouldNotRender(Vec3 cameraPos, BlockPos pos, int maxDistance, Direction facing) {
 		final boolean playerFacingAway;
-		if (facing == null) {
+		if (cameraPos == null || facing == null) {
 			playerFacingAway = false;
 		} else {
 			if (facing.getAxis() == Direction.Axis.X) {
-				final double playerXOffset = cameraPos.getX() - pos.getX() - 0.5;
+				final double playerXOffset = cameraPos.x - pos.getX() - 0.5;
 				playerFacingAway = Math.signum(playerXOffset) == facing.getStepX() && Math.abs(playerXOffset) >= 0.5;
 			} else {
-				final double playerZOffset = cameraPos.getZ() - pos.getZ() - 0.5;
+				final double playerZOffset = cameraPos.z - pos.getZ() - 0.5;
 				playerFacingAway = Math.signum(playerZOffset) == facing.getStepZ() && Math.abs(playerZOffset) >= 0.5;
 			}
 		}
@@ -357,15 +357,16 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	private static void renderWithLight(Level world, double x, double y, double z, boolean noOffset, RenderCallback renderCallback) {
 		final BlockPos posAverage = new BlockPos(x, y, z);
-		final BlockPos cameraPos;
+		final Vec3 cameraPos;
+		final Entity camera = Minecraft.getInstance().cameraEntity;
 		if (noOffset) {
-			final Entity camera = Minecraft.getInstance().cameraEntity;
-			cameraPos = camera == null ? null : camera.blockPosition();
+			cameraPos = camera == null ? null : camera.position();
 		} else {
-			cameraPos = new BlockPos(0, 0, 0);
+			cameraPos = new Vec3(0, 0, 0);
 		}
 		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
-			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+			final BlockPos lightPos = noOffset || camera == null ? posAverage : posAverage.offset(camera.blockPosition());
+			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, lightPos), world.getBrightness(LightLayer.SKY, lightPos)), posAverage);
 		}
 	}
 
@@ -396,7 +397,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			available = AVAILABLE_TEXTURES.contains(textureString);
 		}
 
-		return available ? id : new ResourceLocation(formatter.apply(TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId));
+		if (available) {
+			return id;
+		} else {
+			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
+			return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
+		}
 	}
 
 	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {

@@ -26,6 +26,7 @@ public class Depot extends AreaBase {
 	private int departureOffset;
 
 	public final List<Long> routeIds = new ArrayList<>();
+	public final Map<Long, Map<Long, Float>> platformTimes = new HashMap<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();
@@ -52,16 +53,20 @@ public class Depot extends AreaBase {
 
 	public Depot(Map<String, Value> map) {
 		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		messagePackHelper.iterateArrayValue(KEY_ROUTE_IDS, routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
 
-		map.get(KEY_ROUTE_IDS).asArrayValue().forEach(routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
-
-		final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
-		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+		try {
+			final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
+			for (int i = 0; i < HOURS_IN_DAY; i++) {
+				frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
-		lastDeployedMillis = System.currentTimeMillis() - map.get(KEY_LAST_DEPLOYED).asIntegerValue().asLong();
-		deployIndex = map.get(KEY_DEPLOY_INDEX).asIntegerValue().asInt();
+		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
+		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
 	}
 
 	@Deprecated

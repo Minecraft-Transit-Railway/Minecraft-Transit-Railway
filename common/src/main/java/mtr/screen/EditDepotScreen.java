@@ -202,7 +202,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + (Math.round(Depot.TRAIN_FREQUENCY_MULTIPLIER * 10F * SECONDS_PER_MC_HOUR / value) / 10F) + new TranslatableComponent("gui.mtr.s").getString() + ")";
+			headwayText = " (" + RailwayData.round((float) Depot.TRAIN_FREQUENCY_MULTIPLIER * SECONDS_PER_MC_HOUR / value, 1) + new TranslatableComponent("gui.mtr.s").getString() + ")";
 		}
 		return value / (float) Depot.TRAIN_FREQUENCY_MULTIPLIER + new TranslatableComponent("gui.mtr.tph").getString() + headwayText;
 	}

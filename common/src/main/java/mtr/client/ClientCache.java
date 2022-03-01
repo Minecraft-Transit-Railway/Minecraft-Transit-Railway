@@ -60,15 +60,19 @@ public class ClientCache extends DataCache {
 		mapPosToSavedRails(posToBoatSidings, sidings, TransportMode.BOAT);
 
 		stationIdToRoutes.clear();
-		routes.forEach(route -> route.platformIds.forEach(platformId -> {
-			final Station station = platformIdToStation.get(platformId);
-			if (station != null) {
-				if (!stationIdToRoutes.containsKey(station.id)) {
-					stationIdToRoutes.put(station.id, new HashMap<>());
-				}
-				stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
+		routes.forEach(route -> {
+			if (!route.isHidden) {
+				route.platformIds.forEach(platformId -> {
+					final Station station = platformIdToStation.get(platformId);
+					if (station != null) {
+						if (!stationIdToRoutes.containsKey(station.id)) {
+							stationIdToRoutes.put(station.id, new HashMap<>());
+						}
+						stationIdToRoutes.get(station.id).put(route.color, new ColorNameTuple(route.color, route.name.split("\\|\\|")[0]));
+					}
+				});
 			}
-		}));
+		});
 
 		stationIdToPlatforms.keySet().forEach(id -> {
 			if (!clearStationIdToPlatforms.contains(id)) {
@@ -118,7 +122,7 @@ public class ClientCache extends DataCache {
 			platformIdToRoutes.put(platformId, routes.stream().filter(route -> route.platformIds.contains(platformId)).map(route -> {
 				final List<PlatformRouteDetails.StationDetails> stationDetails = route.platformIds.stream().map(platformId2 -> {
 					final Station station = platformIdToStation.get(platformId2);
-					if (station == null) {
+					if (station == null || !stationIdToRoutes.containsKey(station.id)) {
 						return new PlatformRouteDetails.StationDetails("", new ArrayList<>());
 					} else {
 						return new PlatformRouteDetails.StationDetails(station.name, stationIdToRoutes.get(station.id).values().stream().filter(colorNameTuple -> colorNameTuple.color != route.color).collect(Collectors.toList()));

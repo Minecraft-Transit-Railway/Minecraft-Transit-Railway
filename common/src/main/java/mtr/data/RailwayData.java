@@ -27,14 +27,12 @@ import net.minecraft.world.phys.Vec3;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.value.ArrayValue;
 import org.msgpack.value.Value;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class RailwayData extends PersistentStateMapper implements IPacket {
@@ -52,7 +50,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks = new SignalBlocks();
-	private final ReentrantLock fileWritingLock = new ReentrantLock();
 
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -237,22 +234,17 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			messagePacker.close();
 
-			new Thread(() -> {
-				fileWritingLock.lock();
-				CompoundTag compoundTag = new CompoundTag();
-				CompoundTag dataTag = new CompoundTag();
-				dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
-				dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
-				compoundTag.put("data", dataTag);
-				compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-				try {
-					NbtIo.writeCompressed(compoundTag, file);
-				} catch (IOException iOException) {
-					iOException.printStackTrace();
-				} finally {
-					fileWritingLock.unlock();
-				}
-			}).start();
+			CompoundTag compoundTag = new CompoundTag();
+			CompoundTag dataTag = new CompoundTag();
+			dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
+			dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
+			compoundTag.put("data", dataTag);
+			compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+			try {
+				NbtIo.writeCompressed(compoundTag, file);
+			} catch (IOException iOException) {
+				iOException.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -711,7 +703,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		int sum = 0;
 		for (int i = 0; i < routeIds.size(); i++) {
 			final Route thisRoute = dataCache.routeIdMap.get(routeIds.get(i));
-			final Route nextRoute = i < routeIds.size() - 1 ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
+			final Route nextRoute = i < routeIds.size() - 1 && !dataCache.routeIdMap.get(routeIds.get(i + 1)).isHidden ? dataCache.routeIdMap.get(routeIds.get(i + 1)) : null;
 			if (thisRoute != null) {
 				final int difference = stopIndex - sum;
 				sum += thisRoute.platformIds.size();
@@ -736,6 +728,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public static boolean isBetween(double value, double value1, double value2, double padding) {
 		return value >= Math.min(value1, value2) - padding && value <= Math.max(value1, value2) + padding;
+	}
+
+	public static float round(double value, int decimalPlaces) {
+		int factor = 1;
+		for (int i = 0; i < decimalPlaces; i++) {
+			factor *= 10;
+		}
+		return (float) Math.round(value * factor) / factor;
 	}
 
 	public static void writeMessagePackDataset(MessagePacker packer, Collection<? extends SerializedDataBase> dataSet, String key) throws IOException {
@@ -775,9 +775,9 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static Map<String, Value> castMessagePackValueToSKMap(Value value) {
-		Map<Value, Value> oldMap = value.asMapValue().map();
-		HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
-		oldMap.forEach((key, val) -> resultMap.put(key.asStringValue().asString(), val));
+		final Map<Value, Value> oldMap = value == null ? new HashMap<>() : value.asMapValue().map();
+		final HashMap<String, Value> resultMap = new HashMap<>(oldMap.size());
+		oldMap.forEach((key, newValue) -> resultMap.put(key.asStringValue().asString(), newValue));
 		return resultMap;
 	}
 
@@ -847,13 +847,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 
 		public RailEntry(Map<String, Value> map) {
-			pos = BlockPos.of(map.get(KEY_NODE_POS).asIntegerValue().asLong());
-
-			final ArrayValue mapConnections = map.get(KEY_RAIL_CONNECTIONS).asArrayValue();
-			connections = new HashMap<>(mapConnections.size());
-			mapConnections.forEach(value -> {
-				Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
-				connections.put(BlockPos.of(mapSK.get(KEY_NODE_POS).asIntegerValue().asLong()), new Rail(mapSK));
+			final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+			pos = BlockPos.of(messagePackHelper.getLong(KEY_NODE_POS));
+			connections = new HashMap<>();
+			messagePackHelper.iterateArrayValue(KEY_RAIL_CONNECTIONS, value -> {
+				final Map<String, Value> mapSK = RailwayData.castMessagePackValueToSKMap(value);
+				connections.put(BlockPos.of(new MessagePackHelper(mapSK).getLong(KEY_NODE_POS)), new Rail(mapSK));
 			});
 		}
 

@@ -37,17 +37,38 @@ public class DataServletHandler extends HttpServlet {
 					final DataCache dataCache = railwayData.dataCache;
 
 					railwayData.routes.forEach(route -> {
+						if (route.isHidden) {
+							return;
+						}
+
 						final JsonObject routeObject = new JsonObject();
 						routeObject.addProperty("color", route.color);
-						routeObject.addProperty("name", route.name.split("\\|\\|")[0]);
+						routeObject.addProperty("name", route.name);
 						final String type = createKey(route.transportMode, route.routeType);
 						routeObject.addProperty("type", type);
 						types.add(type);
 						final JsonArray routeStationsArray = new JsonArray();
 						routeObject.add("stations", routeStationsArray);
+						final JsonArray routeDurationsArray = new JsonArray();
+						routeObject.add("durations", routeDurationsArray);
 
-						route.platformIds.forEach(platformId -> {
+						final Depot depot = dataCache.routeIdToOneDepot.get(route.id);
+						float accumulatedTime = 0;
+						for (int i = 0; i < route.platformIds.size(); i++) {
+							final long platformId = route.platformIds.get(i);
+
+							float time = 0;
+							if (i > 0) {
+								if (depot != null) {
+									final long prevPlatformId = route.platformIds.get(i - 1);
+									if (depot.platformTimes.containsKey(prevPlatformId) && depot.platformTimes.get(prevPlatformId).containsKey(platformId)) {
+										time = depot.platformTimes.get(prevPlatformId).get(platformId);
+									}
+								}
+							}
+
 							final Station station = dataCache.platformIdToStation.get(platformId);
+							boolean addedStation = false;
 							if (station != null) {
 								final Platform platform = dataCache.platformIdMap.get(platformId);
 								if (platform != null) {
@@ -73,12 +94,24 @@ public class DataServletHandler extends HttpServlet {
 										final JsonObject stationObject = new JsonObject();
 										stationObject.addProperty("name", station.name);
 										stationObject.addProperty("color", station.color);
+										stationObject.addProperty("zone", station.zone);
+										final BlockPos stationCenter = station.getCenter();
+										stationObject.addProperty("x", stationCenter == null ? 0 : stationCenter.getX());
+										stationObject.addProperty("z", stationCenter == null ? 0 : stationCenter.getZ());
 										stationsObject.add(String.valueOf(station.id), stationObject);
+
+										addedStation = true;
 									} catch (Exception ignored) {
 									}
 								}
 							}
-						});
+
+							accumulatedTime += time;
+							if (i > 0 && addedStation) {
+								routeDurationsArray.add(accumulatedTime);
+								accumulatedTime = 0;
+							}
+						}
 
 						routesArray.add(routeObject);
 					});

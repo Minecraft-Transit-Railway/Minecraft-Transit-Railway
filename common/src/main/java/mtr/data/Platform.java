@@ -31,7 +31,8 @@ public final class Platform extends SavedRailBase {
 
 	public Platform(Map<String, Value> map) {
 		super(map);
-		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		dwellTime = messagePackHelper.getInt(KEY_DWELL_TIME);
 	}
 
 	@Deprecated

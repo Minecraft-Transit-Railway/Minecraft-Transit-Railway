@@ -35,15 +35,16 @@ public final class Station extends AreaBase {
 
 	public Station(Map<String, Value> map) throws IOException {
 		super(map);
-		zone = map.get(KEY_ZONE).asIntegerValue().asInt();
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		zone = messagePackHelper.getInt(KEY_ZONE);
 
-		for (final Map.Entry<Value, Value> entry : map.get(KEY_EXITS).asMapValue().entrySet()) {
+		messagePackHelper.iterateMapValue(KEY_EXITS, entry -> {
 			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
 			for (final Value destination : entry.getValue().asArrayValue()) {
 				destinations.add(destination.asStringValue().asString());
 			}
 			exits.put(entry.getKey().asStringValue().asString(), destinations);
-		}
+		});
 	}
 
 	@Deprecated

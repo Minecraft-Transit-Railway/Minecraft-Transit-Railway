@@ -1,5 +1,6 @@
 package mtr.path;
 
+import mtr.data.MessagePackHelper;
 import mtr.data.Rail;
 import mtr.data.RailwayData;
 import mtr.data.SerializedDataBase;
@@ -40,12 +41,13 @@ public class PathData extends SerializedDataBase {
 	}
 
 	public PathData(Map<String, Value> map) {
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 		rail = new Rail(RailwayData.castMessagePackValueToSKMap(map.get(KEY_RAIL)));
-		savedRailBaseId = map.get(KEY_SAVED_RAIL_BASE_ID).asIntegerValue().asLong();
-		dwellTime = map.get(KEY_DWELL_TIME).asIntegerValue().asInt();
-		stopIndex = map.get(KEY_STOP_INDEX).asIntegerValue().asInt();
-		startingPos = BlockPos.of(map.get(KEY_STARTING_POS).asIntegerValue().asLong());
-		endingPos = BlockPos.of(map.get(KEY_ENDING_POS).asIntegerValue().asLong());
+		savedRailBaseId = messagePackHelper.getLong(KEY_SAVED_RAIL_BASE_ID);
+		dwellTime = messagePackHelper.getInt(KEY_DWELL_TIME);
+		stopIndex = messagePackHelper.getInt(KEY_STOP_INDEX);
+		startingPos = BlockPos.of(messagePackHelper.getLong(KEY_STARTING_POS));
+		endingPos = BlockPos.of(messagePackHelper.getLong(KEY_ENDING_POS));
 	}
 
 	@Deprecated
