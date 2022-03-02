@@ -172,7 +172,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 			immediate.endBatch();
 		}
 
-		final String mousePosText = String.format("(%s, %s)", Math.round(mouseWorldPos.getA() * 10) / 10F, Math.round(mouseWorldPos.getB() * 10) / 10F);
+		final String mousePosText = String.format("(%s, %s)", RailwayData.round(mouseWorldPos.getA(), 1), RailwayData.round(mouseWorldPos.getB(), 1));
 		Gui.drawString(matrices, textRenderer, mousePosText, x + width - TEXT_PADDING - textRenderer.width(mousePosText), y + TEXT_PADDING, ARGB_WHITE);
 	}
 

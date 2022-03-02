@@ -79,7 +79,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
 		final Minecraft client = Minecraft.getInstance();
 		final LocalPlayer player = client.player;
-		if (player == null || !entity.isClientPlayer(player)) {
+		if (player == null || entity.isNotClientPlayer(player)) {
 			return;
 		}
 
@@ -189,7 +189,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", Math.round(speed * 10) / 10F, Math.round(speed * 36) / 10F), true);
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {

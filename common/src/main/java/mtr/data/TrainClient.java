@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -132,19 +131,20 @@ public class TrainClient extends Train {
 
 					final EntitySeat seat = (EntitySeat) vehicle;
 					final float testRailProgress = seat.getClientRailProgress();
-					if (testRailProgress > 0 && Math.abs(testRailProgress - railProgress) > 10) {
-						railProgress = testRailProgress;
+					if (testRailProgress > 0) {
+						if (Math.abs(testRailProgress - railProgress) > 10) {
+							railProgress = testRailProgress;
+						}
+						seat.resetClientPercentages();
 					}
 
-					calculateCar(world, positions, (int) Math.floor(speed == 0 ? seat.getClientPercentageZ() : seat.getInterpolatedPercentageZ()), 0, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+					handleRider(world, positions, ticksElapsed, doorValueRaw, seat, clientPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 						if (speed > 0) {
 							Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
-							final Vec3 playerOffset2 = new Vec3(getValueFromPercentage(seat.getInterpolatedPercentageX(), baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.getInterpolatedPercentageZ()), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
-							offset.add(playerOffset2.x);
-							offset.add(playerOffset2.y);
-							offset.add(playerOffset2.z);
+							offset.add(x);
+							offset.add(y);
+							offset.add(z);
 						}
-
 						clientPrevYaw = yaw;
 					});
 				} else if (speed > 0) {
