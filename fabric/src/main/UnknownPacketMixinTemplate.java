@@ -29,8 +29,8 @@ public abstract class UnknownPacketMixin implements IPacket {
 		return channel;
 	}
 
-	@Redirect(at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"), method = "handleCustomPayload")
-	private void redirectLogger(org.apache.logging.log4j.Logger instance, String s, Object o) {
+	@Redirect(at = @At(value = "INVOKE", target = "Lorg/@path1@/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"), method = "handleCustomPayload")
+	private void redirectLogger(org.@path2@.Logger instance, String s, Object o) {
 		process = true;
 	}
 
