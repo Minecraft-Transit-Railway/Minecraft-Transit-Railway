@@ -12,6 +12,8 @@ public class ModelCMStock extends ModelTrainBase {
 	private final ModelMapper window_handrails;
 	private final ModelMapper handrail_12_r1;
 	private final ModelMapper handrail_11_r1;
+	private final ModelMapper handrail_10_r1;
+	private final ModelMapper handrail_9_r1;
 	private final ModelMapper handrail_8_r1;
 	private final ModelMapper top_handrail_3_r1;
 	private final ModelMapper top_handrail_2_r1;
@@ -97,7 +99,6 @@ public class ModelCMStock extends ModelTrainBase {
 	private final ModelMapper front_side_lower_1_r1;
 	private final ModelMapper front_side_upper_1_r1;
 	private final ModelMapper side_2;
-	private final ModelMapper front_bottom_right_r3;
 	private final ModelMapper front_side_bottom_2_r1;
 	private final ModelMapper outer_roof_4_r5;
 	private final ModelMapper outer_roof_7_r1;
@@ -125,7 +126,9 @@ public class ModelCMStock extends ModelTrainBase {
 		final int textureWidth = 320;
 		final int textureHeight = 320;
 
-		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);		window = new ModelMapper(modelDataWrapper);
+		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
+
+		window = new ModelMapper(modelDataWrapper);
 		window.setPos(0, 24, 0);
 		window.texOffs(0, 0).addBox(-20, 0, -24, 20, 1, 48, 0, false);
 		window.texOffs(136, 109).addBox(-20, -14, -26, 2, 14, 52, 0, false);
@@ -140,8 +143,8 @@ public class ModelCMStock extends ModelTrainBase {
 		window_handrails.setPos(0, 24, 0);
 		window_handrails.texOffs(317, 0).addBox(-11, -27.2F, -22, 0, 22, 0, 0.2F, false);
 		window_handrails.texOffs(317, 0).addBox(-11, -27.2F, 22, 0, 22, 0, 0.2F, false);
-		window_handrails.texOffs(317, 0).addBox(-12.5607F, -32.498F, 12.2179F, 0, 3, 0, 0.2F, false);
-		window_handrails.texOffs(317, 0).addBox(-12.5607F, -32.498F, -12.2179F, 0, 3, 0, 0.2F, false);
+		window_handrails.texOffs(317, 0).addBox(-12.461F, -32.504F, 12.2F, 0, 3, 0, 0.2F, false);
+		window_handrails.texOffs(317, 0).addBox(-12.461F, -32.504F, -12.2F, 0, 3, 0, 0.2F, false);
 		window_handrails.texOffs(317, 0).addBox(0, -33, -9, 0, 33, 0, 0.2F, false);
 		window_handrails.texOffs(317, 0).addBox(0, -33, 9, 0, 33, 0, 0.2F, false);
 		window_handrails.texOffs(19, 14).addBox(-1, -32, 21, 2, 4, 0, 0, false);
@@ -155,18 +158,28 @@ public class ModelCMStock extends ModelTrainBase {
 		window_handrails.texOffs(19, 14).addBox(-1, -32, -21, 2, 4, 0, 0, false);
 
 		handrail_12_r1 = new ModelMapper(modelDataWrapper);
-		handrail_12_r1.setPos(-11, -5, 0);
+		handrail_12_r1.setPos(-14.9052F, -3.8479F, 22);
 		window_handrails.addChild(handrail_12_r1);
 		setRotationAngle(handrail_12_r1, 0, 0, 1.4835F);
-		handrail_12_r1.texOffs(317, 0).addBox(0.75F, 0.975F, 22, 0, 6, 0, 0.2F, false);
-		handrail_12_r1.texOffs(317, 0).addBox(0.75F, 0.975F, -22, 0, 6, 0, 0.2F, false);
+		handrail_12_r1.texOffs(317, 0).addBox(0, -3, 0, 0, 6, 0, 0.2F, false);
 
 		handrail_11_r1 = new ModelMapper(modelDataWrapper);
-		handrail_11_r1.setPos(-11, -5, 0);
+		handrail_11_r1.setPos(-10.8F, -5, 22.2F);
 		window_handrails.addChild(handrail_11_r1);
 		setRotationAngle(handrail_11_r1, 0, 0, 0.6981F);
-		handrail_11_r1.texOffs(317, 0).addBox(-0.075F, 0.025F, 22, 0, 1, 0, 0.2F, false);
-		handrail_11_r1.texOffs(317, 0).addBox(-0.075F, 0.025F, -22, 0, 1, 0, 0.2F, false);
+		handrail_11_r1.texOffs(317, 0).addBox(-0.2F, 0.2F, -0.2F, 0, 1, 0, 0.2F, false);
+
+		handrail_10_r1 = new ModelMapper(modelDataWrapper);
+		handrail_10_r1.setPos(-11.0106F, -4.9415F, 0);
+		window_handrails.addChild(handrail_10_r1);
+		setRotationAngle(handrail_10_r1, 0, 0, 1.4835F);
+		handrail_10_r1.texOffs(317, 0).addBox(0.75F, 0.975F, -22, 0, 6, 0, 0.2F, false);
+
+		handrail_9_r1 = new ModelMapper(modelDataWrapper);
+		handrail_9_r1.setPos(-10.8F, -5, -22.2F);
+		window_handrails.addChild(handrail_9_r1);
+		setRotationAngle(handrail_9_r1, 0, 0, 0.6981F);
+		handrail_9_r1.texOffs(317, 0).addBox(-0.2F, 0.2F, 0.2F, 0, 1, 0, 0.2F, false);
 
 		handrail_8_r1 = new ModelMapper(modelDataWrapper);
 		handrail_8_r1.setPos(0, 0, 0);
@@ -175,17 +188,17 @@ public class ModelCMStock extends ModelTrainBase {
 		handrail_8_r1.texOffs(317, 0).addBox(0, -24, -31.5F, 0, 48, 0, 0.2F, false);
 
 		top_handrail_3_r1 = new ModelMapper(modelDataWrapper);
-		top_handrail_3_r1.setPos(-11.0245F, -28.2676F, 22.025F);
+		top_handrail_3_r1.setPos(-10.8F, -27.4F, 22.2F);
 		window_handrails.addChild(top_handrail_3_r1);
 		setRotationAngle(top_handrail_3_r1, 0, 0, -0.6545F);
-		top_handrail_3_r1.texOffs(317, 0).addBox(-0.55F, -1.375F, -0.025F, 0, 2, 0, 0.2F, false);
-		top_handrail_3_r1.texOffs(317, 0).addBox(-0.55F, -1.375F, -44.025F, 0, 2, 0, 0.2F, false);
+		top_handrail_3_r1.texOffs(317, 0).addBox(-0.2F, -2.2F, -0.2F, 0, 2, 0, 0.2F, false);
+		top_handrail_3_r1.texOffs(317, 0).addBox(-0.2F, -2.2F, -44.2F, 0, 2, 0, 0.2F, false);
 
 		top_handrail_2_r1 = new ModelMapper(modelDataWrapper);
-		top_handrail_2_r1.setPos(-12.5518F, -29.0895F, -9.5876F);
+		top_handrail_2_r1.setPos(-12.461F, -29.104F, 0);
 		window_handrails.addChild(top_handrail_2_r1);
-		setRotationAngle(top_handrail_2_r1, -1.5708F, 0, -0.0436F);
-		top_handrail_2_r1.texOffs(317, 0).addBox(0, -31.6055F, 0, 0, 44, 0, 0.2F, false);
+		setRotationAngle(top_handrail_2_r1, -1.5708F, 0, 0);
+		top_handrail_2_r1.texOffs(317, 0).addBox(0, -22, 0, 0, 44, 0, 0.2F, false);
 
 		seat = new ModelMapper(modelDataWrapper);
 		seat.setPos(0, 0, 0);
@@ -382,7 +395,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		roof_end = new ModelMapper(modelDataWrapper);
 		roof_end.setPos(0, 24, 0);
-		
+
 
 		handrail_2_r2 = new ModelMapper(modelDataWrapper);
 		handrail_2_r2.setPos(0, 0, 0);
@@ -502,7 +515,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		roof_light = new ModelMapper(modelDataWrapper);
 		roof_light.setPos(0, 24, 0);
-		
+
 
 		light_2_r1 = new ModelMapper(modelDataWrapper);
 		light_2_r1.setPos(0, 0, 0);
@@ -513,7 +526,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		roof_end_light = new ModelMapper(modelDataWrapper);
 		roof_end_light.setPos(0, 24, 0);
-		
+
 
 		light_r1 = new ModelMapper(modelDataWrapper);
 		light_r1.setPos(0, 0, 0);
@@ -523,7 +536,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		roof_door_light = new ModelMapper(modelDataWrapper);
 		roof_door_light.setPos(0, 24, 0);
-		
+
 
 		light_1_r1 = new ModelMapper(modelDataWrapper);
 		light_1_r1.setPos(0, 0, 0);
@@ -578,7 +591,7 @@ public class ModelCMStock extends ModelTrainBase {
 		front = new ModelMapper(modelDataWrapper);
 		front.setPos(0, 0, 0);
 		head_exterior.addChild(front);
-		
+
 
 		bottom_r1 = new ModelMapper(modelDataWrapper);
 		bottom_r1.setPos(0, 5.4768F, 4.6132F);
@@ -619,7 +632,6 @@ public class ModelCMStock extends ModelTrainBase {
 		front_bottom_right_r2.setPos(0, 0, 0);
 		side_1.addChild(front_bottom_right_r2);
 		setRotationAngle(front_bottom_right_r2, 0.3491F, 0, 0);
-		front_bottom_right_r2.texOffs(88, 111).addBox(-7, -9.625F, -26.3F, 3, 7, 0, 0, true);
 		front_bottom_right_r2.texOffs(92, 93).addBox(-19, -9.625F, -26.3F, 12, 7, 0, 0, true);
 
 		outer_roof_4_r4 = new ModelMapper(modelDataWrapper);
@@ -663,12 +675,6 @@ public class ModelCMStock extends ModelTrainBase {
 		side_2.setPos(-21, 0, -9);
 		front.addChild(side_2);
 		side_2.texOffs(17, 0).addBox(1, -14, -9, 1, 14, 0, 0, false);
-
-		front_bottom_right_r3 = new ModelMapper(modelDataWrapper);
-		front_bottom_right_r3.setPos(21, 0, 9);
-		side_2.addChild(front_bottom_right_r3);
-		setRotationAngle(front_bottom_right_r3, 0.3491F, 0, 0);
-		front_bottom_right_r3.texOffs(88, 111).addBox(4, -9.625F, -26.3F, 3, 7, 0, 0, false);
 
 		front_side_bottom_2_r1 = new ModelMapper(modelDataWrapper);
 		front_side_bottom_2_r1.setPos(0, 0, -4);
@@ -721,7 +727,7 @@ public class ModelCMStock extends ModelTrainBase {
 		headlight_panel_left = new ModelMapper(modelDataWrapper);
 		headlight_panel_left.setPos(0, 0, 0);
 		head_exterior.addChild(headlight_panel_left);
-		
+
 
 		headlight_panel_bottom_r1 = new ModelMapper(modelDataWrapper);
 		headlight_panel_bottom_r1.setPos(0, 0, 0);
@@ -730,15 +736,15 @@ public class ModelCMStock extends ModelTrainBase {
 		headlight_panel_bottom_r1.texOffs(122, 41).addBox(-17, 21.475F, 1.1F, 10, 6, 1, 0, false);
 
 		headlight_panel_main_r1 = new ModelMapper(modelDataWrapper);
-		headlight_panel_main_r1.setPos(0, 1.1667F, 0.2946F);
+		headlight_panel_main_r1.setPos(-12, 3.849F, -27.2491F);
 		headlight_panel_left.addChild(headlight_panel_main_r1);
 		setRotationAngle(headlight_panel_main_r1, 0.3491F, 0, 0);
-		headlight_panel_main_r1.texOffs(144, 41).addBox(-17, -9.9F, -27.3F, 10, 6, 1, 0, false);
+		headlight_panel_main_r1.texOffs(144, 41).addBox(-5, -3, -0.5F, 10, 6, 1, 0, false);
 
 		headlight_panel_right = new ModelMapper(modelDataWrapper);
 		headlight_panel_right.setPos(0, 0, 0);
 		head_exterior.addChild(headlight_panel_right);
-		
+
 
 		headlight_panel_bottom_r2 = new ModelMapper(modelDataWrapper);
 		headlight_panel_bottom_r2.setPos(0, 0, 0);
@@ -747,26 +753,26 @@ public class ModelCMStock extends ModelTrainBase {
 		headlight_panel_bottom_r2.texOffs(122, 41).addBox(7, 21.475F, 1.1F, 10, 6, 1, 0, true);
 
 		headlight_panel_main_r2 = new ModelMapper(modelDataWrapper);
-		headlight_panel_main_r2.setPos(0, 1.1667F, 0);
+		headlight_panel_main_r2.setPos(12, 3.849F, -27.2491F);
 		headlight_panel_right.addChild(headlight_panel_main_r2);
 		setRotationAngle(headlight_panel_main_r2, 0.3491F, 0, 0);
-		headlight_panel_main_r2.texOffs(144, 41).addBox(7, -9.9F, -27.0054F, 10, 6, 1, 0, true);
+		headlight_panel_main_r2.texOffs(144, 41).addBox(-5, -3, -0.5F, 10, 6, 1, 0, true);
 
 		headlights = new ModelMapper(modelDataWrapper);
 		headlights.setPos(0, 24, 0);
 		setRotationAngle(headlights, 0.3491F, 0, 0);
-		headlights.texOffs(17, 19).addBox(8.5F, -7.1029F, -27.4973F, 2, 2, 0, 0, false);
-		headlights.texOffs(17, 19).addBox(-10.35F, -6.9529F, -27.4973F, 2, 2, 0, 0, false);
+		headlights.texOffs(17, 19).addBox(8.5F, -7.2029F, -27.5223F, 2, 2, 0, 0, true);
+		headlights.texOffs(17, 19).addBox(-10.5F, -7.2029F, -27.5223F, 2, 2, 0, 0, false);
 
 		tail_lights = new ModelMapper(modelDataWrapper);
 		tail_lights.setPos(0, 24, 0);
 		setRotationAngle(tail_lights, 0.3491F, 0, 0);
-		tail_lights.texOffs(32, 36).addBox(11.75F, -7.1029F, -27.4723F, 4, 2, 0, 0, false);
+		tail_lights.texOffs(32, 36).addBox(11.75F, -7.1029F, -27.4723F, 4, 2, 0, 0, true);
 		tail_lights.texOffs(32, 36).addBox(-15.775F, -7.0029F, -27.4723F, 4, 2, 0, 0, false);
 
 		door_light = new ModelMapper(modelDataWrapper);
 		door_light.setPos(0, 24, 0);
-		
+
 
 		outer_roof_1_r5 = new ModelMapper(modelDataWrapper);
 		outer_roof_1_r5.setPos(-20, -14, 0);
@@ -776,7 +782,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		door_light_on = new ModelMapper(modelDataWrapper);
 		door_light_on.setPos(0, 24, 0);
-		
+
 
 		light_r2 = new ModelMapper(modelDataWrapper);
 		light_r2.setPos(-20, -14, 0);
@@ -786,7 +792,7 @@ public class ModelCMStock extends ModelTrainBase {
 
 		door_light_off = new ModelMapper(modelDataWrapper);
 		door_light_off.setPos(0, 24, 0);
-		
+
 
 		light_r3 = new ModelMapper(modelDataWrapper);
 		light_r3.setPos(-20, -14, 0);
@@ -803,8 +809,12 @@ public class ModelCMStock extends ModelTrainBase {
 		roof_door.setModelPart();
 		roof_exterior.setModelPart();
 		door.setModelPart();
+		door_left.setModelPart(door.name);
+		door_right.setModelPart(door.name);
 		door_handrail.setModelPart();
 		door_exterior.setModelPart();
+		door_left_exterior.setModelPart(door_exterior.name);
+		door_right_exterior.setModelPart(door_exterior.name);
 		end.setModelPart();
 		end_exterior.setModelPart();
 		roof_end.setModelPart();
@@ -838,8 +848,8 @@ public class ModelCMStock extends ModelTrainBase {
 				}
 				break;
 			case INTERIOR_TRANSLUCENT:
-				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22.0F);
-				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22.0F);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position - 22);
+				renderMirror(side_panel_translucent, matrices, vertices, light, position + 22);
 				break;
 			case EXTERIOR:
 				renderMirror(window_exterior, matrices, vertices, light, position);
