@@ -23,10 +23,7 @@ import java.util.UUID;
 
 public class EntitySeat extends Entity {
 
-	public float percentageX;
-	public float percentageZ;
-	public Vec3 playerOffset = Vec3.ZERO;
-	public boolean stopped;
+	public Vec3 playerOffset;
 
 	private int seatRefresh;
 	private int ridingRefresh;
@@ -42,8 +39,6 @@ public class EntitySeat extends Entity {
 	public static final float SIZE = 0.5F;
 	private static final int SEAT_REFRESH = 10;
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
-	private static final EntityDataAccessor<Float> PERCENTAGE_X = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
-	private static final EntityDataAccessor<Float> PERCENTAGE_Z = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> RAIL_PROGRESS = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Boolean> PLAYER_MOUNTED = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.BOOLEAN);
 
@@ -120,15 +115,20 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void positionRider(Entity entity) {
-		if (hasPassenger(entity) && entity instanceof Player) {
-			if (stopped) {
+		if (!hasPassenger(entity)) {
+			return;
+		}
+
+		if (level.isClientSide && entity instanceof Player) {
+			if (playerOffset == null) {
 				final Vec3 movement = new Vec3(((Player) entity).xxa / 4, 0, ((Player) entity).zza / 4).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
-				entity.setPos(entity.getX() + movement.x, playerOffset.y + getY(), entity.getZ() + movement.z);
+				entity.setPos(entity.getX() + movement.x, getY(), entity.getZ() + movement.z);
 			} else {
-				entity.setPos(playerOffset.x + getX(), playerOffset.y + getY(), playerOffset.z + getZ());
+				entity.setPos(playerOffset.x, playerOffset.y, playerOffset.z);
+				playerOffset = null;
 			}
 		} else {
-			super.positionRider(entity);
+			entity.setPos(getX(), getY(), getZ());
 		}
 	}
 
@@ -163,8 +163,6 @@ public class EntitySeat extends Entity {
 	@Override
 	protected void defineSynchedData() {
 		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
-		entityData.define(PERCENTAGE_X, 0F);
-		entityData.define(PERCENTAGE_Z, 0F);
 		entityData.define(RAIL_PROGRESS, 0F);
 		entityData.define(PLAYER_MOUNTED, false);
 	}
@@ -212,8 +210,6 @@ public class EntitySeat extends Entity {
 	}
 
 	public void updateDataToClient(float railProgress) {
-		entityData.set(PERCENTAGE_X, percentageX);
-		entityData.set(PERCENTAGE_Z, percentageZ);
 		if (railProgress > 0) {
 			entityData.set(RAIL_PROGRESS, railProgress);
 		}
@@ -227,19 +223,6 @@ public class EntitySeat extends Entity {
 			clientRailProgress = tempRailProgress;
 			return clientRailProgress;
 		}
-	}
-
-	public void resetClientPercentages() {
-		final float testPercentageX = entityData.get(PERCENTAGE_X);
-		final float testPercentageZ = entityData.get(PERCENTAGE_Z);
-		if (Math.abs(testPercentageX - percentageX) > 0.1 || Math.abs(testPercentageZ - percentageZ) > 0.1) {
-			percentageX = testPercentageX;
-			percentageZ = testPercentageZ;
-		}
-	}
-
-	public boolean canMount() {
-		return ridingRefresh < -60;
 	}
 
 	private boolean playerNotRiding() {

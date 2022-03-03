@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,6 +23,8 @@ public class TrainClient extends Train {
 
 	private float clientPrevYaw;
 	private boolean justMounted;
+	private float percentageX;
+	private float percentageZ;
 
 	private RenderTrainCallback renderTrainCallback;
 	private RenderConnectionCallback renderConnectionCallback;
@@ -131,19 +134,20 @@ public class TrainClient extends Train {
 
 					final EntitySeat seat = (EntitySeat) vehicle;
 					final float testRailProgress = seat.getClientRailProgress();
-					if (testRailProgress > 0) {
-						if (Math.abs(testRailProgress - railProgress) > 10) {
-							railProgress = testRailProgress;
-						}
-						seat.resetClientPercentages();
+					if (testRailProgress > 0 && Math.abs(testRailProgress - railProgress) > 10) {
+						railProgress = testRailProgress;
 					}
 
-					handleRider(world, positions, ticksElapsed, doorValueRaw, seat, clientPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+					final float[] percentages = {percentageX, percentageZ};
+					handleRider(world, positions, ticksElapsed, doorValueRaw, percentages, clientPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+						percentageX = percentages[0];
+						percentageZ = percentages[1];
+						seat.playerOffset = new Vec3(getValueFromPercentage(percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
 						if (speed > 0) {
 							Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
-							offset.add(x);
-							offset.add(y);
-							offset.add(z);
+							offset.add(seat.playerOffset.x);
+							offset.add(seat.playerOffset.y);
+							offset.add(seat.playerOffset.z);
 						}
 						clientPrevYaw = yaw;
 					});
@@ -200,10 +204,12 @@ public class TrainClient extends Train {
 		trainTranslucentRenders.clear();
 	}
 
-	public void updateClientPercentages(LocalPlayer player) {
+	public void updateClientPercentages(LocalPlayer player, float percentageX, float percentageZ) {
 		if (player != null) {
 			justMounted = true;
 			ridingEntities.add(player.getUUID());
+			this.percentageX = percentageX;
+			this.percentageZ = percentageZ;
 		}
 	}
 
