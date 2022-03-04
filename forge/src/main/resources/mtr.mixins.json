@@ -4,7 +4,9 @@
 	"package": "mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [],
-	"client": [],
+	"client": [
+		"LevelRendererMixin"
+	],
 	"server": [],
 	"injectors": {
 		"defaultRequire": 1
