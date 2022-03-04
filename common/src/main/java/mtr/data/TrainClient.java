@@ -23,8 +23,8 @@ public class TrainClient extends Train {
 
 	private float clientPrevYaw;
 	private boolean justMounted;
-	private float percentageX;
-	private float percentageZ;
+	private float percentageX = 0.5F;
+	private float percentageZ = 0.5F;
 
 	private RenderTrainCallback renderTrainCallback;
 	private RenderConnectionCallback renderConnectionCallback;

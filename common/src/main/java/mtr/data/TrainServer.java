@@ -97,7 +97,7 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
 					if (seat != null) {
 						ridingEntities.add(player.getUUID());
-						seat.updateRidingByTrainServer(id);
+						seat.updateRidingByTrainServer(id, baseTrainType.riderOffset);
 						final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
 						final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
 						playerPercentages.put(player, new float[]{percentageX, percentageZ});
@@ -176,7 +176,10 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
 
 					if (seat != null) {
-						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id)) {
+						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id, baseTrainType.riderOffset)) {
+							if (!playerPercentages.containsKey(ridingPlayer)) {
+								playerPercentages.put(ridingPlayer, new float[]{0.5F, 0.5F});
+							}
 							final float[] percentages = playerPercentages.get(ridingPlayer);
 							handleRider(world, positions, ticksElapsed, doorValueRaw, percentages, ridingPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 								seat.updateDataToClient(updateRailProgressCounter == 0 ? railProgress : 0);

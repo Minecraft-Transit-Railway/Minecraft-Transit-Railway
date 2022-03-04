@@ -484,7 +484,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private Vec3 getRoutePosition(int car, int trainSpacing) {
-		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.offset, 0);
+		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.modelZOffset, 0);
 		final int index = getIndex(tempRailProgress, false);
 		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1)));
 	}

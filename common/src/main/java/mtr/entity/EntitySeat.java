@@ -29,6 +29,7 @@ public class EntitySeat extends Entity {
 	private int ridingRefresh;
 	private Player player;
 	private long trainId;
+	private float playerDismountYOffset;
 
 	private int clientInterpolationSteps;
 	private double clientX;
@@ -134,7 +135,7 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public Vec3 getDismountLocationForPassenger(LivingEntity livingEntity) {
-		return livingEntity.position();
+		return livingEntity.position().subtract(0, playerDismountYOffset, 0);
 	}
 
 	@Override
@@ -195,9 +196,10 @@ public class EntitySeat extends Entity {
 		this.player = player;
 	}
 
-	public boolean updateRidingByTrainServer(long trainId) {
+	public boolean updateRidingByTrainServer(long trainId, float playerDismountYOffset) {
 		if (this.trainId == 0 || this.trainId == trainId) {
 			this.trainId = trainId;
+			this.playerDismountYOffset = playerDismountYOffset;
 			ridingRefresh = SEAT_REFRESH;
 			if (playerNotRiding()) {
 				player.startRiding(this);

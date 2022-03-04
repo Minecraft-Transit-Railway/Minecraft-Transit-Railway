@@ -109,7 +109,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Camera camera = client.gameRenderer.getMainCamera();
 		final Vec3 cameraPos = camera.getPosition();
 		final float cameraYaw = camera.getYRot();
-		final Vec3 cameraOffset = camera.isDetached() ? player.getPosition(client.getFrameTime()) : cameraPos.subtract(0, player.getEyeHeight(), 0);
+		final Vec3 playerPos = player.getPosition(client.getFrameTime());
+		final Vec3 cameraOffset = camera.isDetached() ? new Vec3(playerPos.x, entityY, playerPos.z) : new Vec3(cameraPos.x, entityY, cameraPos.z);
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, noOffset) -> renderWithLight(world, x, y, z, noOffset, (light, posAverage) -> {
