@@ -47,6 +47,7 @@ public class ClientCache extends DataCache {
 	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
+	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
@@ -135,19 +136,19 @@ public class ClientCache extends DataCache {
 	}
 
 	public ResourceLocation getColorStrip(long platformId) {
-		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), false);
+		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public ResourceLocation getStationName(long platformId, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), false);
+		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
 	}
 
 	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), invert);
+		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), invert ? DefaultRenderingColor.BLACK : transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
 	public ResourceLocation getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
-		return getResource(String.format("map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), false);
+		return getResource(String.format("map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
@@ -255,7 +256,7 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, boolean defaultBlack) {
+	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -281,7 +282,7 @@ public class ClientCache extends DataCache {
 		if (hasKey) {
 			return dynamicResources.get(key).getResourceLocation();
 		} else {
-			final ResourceLocation defaultLocation = defaultBlack ? DEFAULT_BLACK_RESOURCE : DEFAULT_WHITE_RESOURCE;
+			final ResourceLocation defaultLocation = defaultRenderingColor.resourceLocation;
 
 			if (canGenerateResource) {
 				canGenerateResource = false;
@@ -398,6 +399,18 @@ public class ClientCache extends DataCache {
 			} else {
 				return false;
 			}
+		}
+	}
+
+	private enum DefaultRenderingColor {
+		BLACK(DEFAULT_BLACK_RESOURCE),
+		WHITE(DEFAULT_WHITE_RESOURCE),
+		TRANSPARENT(DEFAULT_TRANSPARENT_RESOURCE);
+
+		private final ResourceLocation resourceLocation;
+
+		DefaultRenderingColor(ResourceLocation resourceLocation) {
+			this.resourceLocation = resourceLocation;
 		}
 	}
 }
