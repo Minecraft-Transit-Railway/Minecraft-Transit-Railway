@@ -159,6 +159,8 @@ public class ModelLightRail extends ModelTrainBase {
 		door_handrails.texOffs(0, 75).addBox(-15, -32, -36, 4, 5, 0, 0, false);
 		door_handrails.texOffs(0, 75).addBox(-15, -32, -28, 4, 5, 0, 0, false);
 		door_handrails.texOffs(0, 75).addBox(-15, -32, -20, 4, 5, 0, 0, false);
+		door_handrails.texOffs(358, 0).addBox(-20.5F, -32, 14, 3, 32, 2, 0, false);
+		door_handrails.texOffs(346, 0).addBox(-20.5F, -32, -16, 3, 32, 2, 0, false);
 
 		handrail_6_r1 = new ModelMapper(modelDataWrapper);
 		handrail_6_r1.setPos(0, 0, 0);

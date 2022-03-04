@@ -94,7 +94,7 @@ public class TrainServer extends Train {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
-					if (seat != null) {
+					if (seat != null && seat.canMount()) {
 						ridingEntities.add(player.getUUID());
 						seat.updateRidingByTrainServer(id);
 						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
@@ -173,26 +173,14 @@ public class TrainServer extends Train {
 
 					if (seat != null) {
 						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id)) {
-							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								final Vec3 playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
-								seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
-							};
-
+							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> seat.absMoveTo(x, y, z);
 							final int currentRidingCar = (int) Math.floor(seat.percentageZ);
-							final float doorValue = Math.abs(doorValueRaw);
-							calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
-								final Vec3 movement = new Vec3(ridingPlayer.xxa * ticksElapsed / 4, 0, ridingPlayer.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(ridingPlayer)) - yaw);
-								seat.percentageX += movement.x / baseTrainType.width;
-								seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
-								seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -1 : 0, doorRightOpenRender ? 2 : 1);
-								seat.percentageZ = Mth.clamp(seat.percentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
-								seat.updateDataToClient(updateRailProgressCounter == 0 ? railProgress : 0);
+							handleRider(world, positions, ticksElapsed, doorValueRaw, seat, ridingPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 								final int newRidingCar = (int) Math.floor(seat.percentageZ);
 								if (currentRidingCar == newRidingCar) {
 									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 								} else {
-									calculateCar(world, positions, newRidingCar, doorValue, 0, moveClient);
+									calculateCar(world, positions, newRidingCar, Math.abs(doorValueRaw), 0, moveClient);
 								}
 							});
 						} else {

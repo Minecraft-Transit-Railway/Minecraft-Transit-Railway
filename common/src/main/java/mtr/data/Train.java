@@ -2,6 +2,8 @@ package mtr.data;
 
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
+import mtr.entity.EntitySeat;
+import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -12,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -68,7 +71,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
-		this.accelerationConstant = accelerationConstant <= 0 ? ACCELERATION_DEFAULT : accelerationConstant;
+		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
+		this.accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		inventory = new SimpleContainer(trainCars);
 	}
 
@@ -82,7 +86,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.distances = distances;
 
 		speed = messagePackHelper.getFloat(KEY_SPEED);
-		final float tempAccelerationConstant = messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT);
+		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = messagePackHelper.getFloat(KEY_RAIL_PROGRESS);
 		stopCounter = messagePackHelper.getFloat(KEY_STOP_COUNTER);
@@ -155,7 +159,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		sidingId = packet.readLong();
 		railLength = packet.readFloat();
 		speed = packet.readFloat();
-		final float tempAccelerationConstant = packet.readFloat();
+		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		railProgress = packet.readFloat();
 		stopCounter = packet.readFloat();
@@ -400,6 +404,24 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
+	}
+
+	protected final void handleRider(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, EntitySeat seat, Player player, CalculateCarCallback calculateCarCallback) {
+		final int currentRidingCar = (int) Math.floor(seat.percentageZ);
+		final float doorValue = Math.abs(doorValueRaw);
+		calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+			final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
+			final Vec3 movement = new Vec3(player.xxa * ticksElapsed / 4, 0, player.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(player)) - yaw);
+
+			seat.percentageX += movement.x / baseTrainType.width;
+			seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
+			seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
+			seat.percentageZ = Mth.clamp(seat.percentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
+			seat.playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
+			seat.stopped = speed == 0;
+
+			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+		});
 	}
 
 	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
