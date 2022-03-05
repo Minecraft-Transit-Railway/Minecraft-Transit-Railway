@@ -1378,6 +1378,11 @@ public class ModelE44 extends ModelTrainBase {
 	}
 
 	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{-136, 136};
+	}
+
+	@Override
 	protected int[] getDoorPositions() {
 		return new int[]{-128, 0, 128};
 	}

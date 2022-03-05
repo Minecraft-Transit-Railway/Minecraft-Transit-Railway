@@ -147,6 +147,11 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{}; // TODO
+	}
+
+	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

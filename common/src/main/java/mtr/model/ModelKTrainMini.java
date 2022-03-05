@@ -20,4 +20,9 @@ public class ModelKTrainMini extends ModelKTrain {
 	protected int[] getEndPositions() {
 		return new int[]{-64, 64};
 	}
+
+	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{0};
+	}
 }
