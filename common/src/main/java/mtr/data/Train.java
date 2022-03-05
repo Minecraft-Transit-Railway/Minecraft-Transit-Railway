@@ -2,7 +2,6 @@ package mtr.data;
 
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
-import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
@@ -406,21 +405,24 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final void handleRider(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, EntitySeat seat, Player player, CalculateCarCallback calculateCarCallback) {
-		final int currentRidingCar = (int) Math.floor(seat.percentageZ);
+	protected final void handleRider(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float[] percentages, Player player, CalculateCarCallback calculateCarCallback) {
+		final int currentRidingCar = (int) Math.floor(percentages[1]);
 		final float doorValue = Math.abs(doorValueRaw);
 		calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 			final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
 			final Vec3 movement = new Vec3(player.xxa * ticksElapsed / 4, 0, player.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(player)) - yaw);
 
-			seat.percentageX += movement.x / baseTrainType.width;
-			seat.percentageZ += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
-			seat.percentageX = Mth.clamp(seat.percentageX, doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
-			seat.percentageZ = Mth.clamp(seat.percentageZ, (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
-			seat.playerOffset = new Vec3(getValueFromPercentage(seat.percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(seat.percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
-			seat.stopped = speed == 0;
+			percentages[0] += movement.x / baseTrainType.width;
+			percentages[1] += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
+			percentages[0] = Mth.clamp(percentages[0], doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
+			percentages[1] = Mth.clamp(percentages[1], (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
 
-			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+			final int newRidingCar = (int) Math.floor(percentages[1]);
+			if (currentRidingCar == newRidingCar) {
+				calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
+			} else {
+				calculateCar(world, positions, newRidingCar, Math.abs(doorValueRaw), 0, calculateCarCallback);
+			}
 		});
 	}
 
@@ -482,7 +484,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private Vec3 getRoutePosition(int car, int trainSpacing) {
-		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.offset, 0);
+		final float tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.modelZOffset, 0);
 		final int index = getIndex(tempRailProgress, false);
 		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1)));
 	}

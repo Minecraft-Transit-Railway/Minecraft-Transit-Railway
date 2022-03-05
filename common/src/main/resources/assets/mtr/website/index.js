@@ -1,5 +1,6 @@
 import CANVAS from "./utilities.js";
 import DIRECTIONS from "./directions.js";
+import VERSION from "./version.js";
 import drawMap from "./drawing.js";
 import panable from "./gestures/src/gestures/pan.js";
 import pinchable from "./gestures/src/gestures/pinch.js";
@@ -261,6 +262,7 @@ document.getElementById("settings_icon").onclick = () => {
 };
 document.getElementById("clear_station_info_button").onclick = SETTINGS.clearPanes;
 document.getElementById("clear_route_info_button").onclick = SETTINGS.clearPanes;
+document.getElementById("version").innerText = VERSION;
 
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);

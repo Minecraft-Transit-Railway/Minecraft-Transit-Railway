@@ -102,16 +102,16 @@ public enum TrainType {
 	public final int width;
 	public final boolean hasGangwayConnection;
 	public final float riderOffset;
-	public final float offset;
+	public final float modelZOffset;
 	private final int length;
 
-	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection, float riderOffset, float offset) {
+	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection, float riderOffset, float modelZOffset) {
 		this.transportMode = transportMode;
 		this.length = length;
 		this.width = width;
 		this.hasGangwayConnection = hasGangwayConnection;
 		this.riderOffset = riderOffset;
-		this.offset = offset;
+		this.modelZOffset = modelZOffset;
 	}
 
 	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection) {

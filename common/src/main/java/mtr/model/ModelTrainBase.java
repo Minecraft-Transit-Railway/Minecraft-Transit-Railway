@@ -14,6 +14,8 @@ import net.minecraft.world.entity.Entity;
 
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
+	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
+
 	@Override
 	public void setupAnim(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
@@ -43,7 +45,7 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 			render(matrices, vertexConsumers.getBuffer(renderLayerInterior), RenderStage.INTERIOR, lightOnInteriorLevel, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 
 			if (renderDetails) {
-				for (int position : getDoorPositions()) {
+				for (final int position : getDoorPositions()) {
 					final ModelDoorOverlay modelDoorOverlay = getModelDoorOverlay();
 					if (modelDoorOverlay != null) {
 						modelDoorOverlay.render(matrices, vertexConsumers, RenderStage.INTERIOR, lightOnInteriorLevel, position, doorLeftX, doorRightX, doorLeftZ, doorRightZ, lightsOn);
@@ -56,16 +58,20 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 				}
 			}
 
+			for (final int position : getBogiePositions()) {
+				MODEL_BOGIE.render(matrices, vertexConsumers, light, position);
+			}
+
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture, true)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head, head1IsFront, renderDetails);
 		}
 	}
 
 	private void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, boolean renderDetails) {
-		for (int position : getWindowPositions()) {
+		for (final int position : getWindowPositions()) {
 			renderWindowPositions(matrices, vertices, renderStage, light, position, renderDetails, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head);
 		}
-		for (int position : getDoorPositions()) {
+		for (final int position : getDoorPositions()) {
 			renderDoorPositions(matrices, vertices, renderStage, light, position, renderDetails, doorLeftX, doorRightX, doorLeftZ, doorRightZ, isEnd1Head, isEnd2Head);
 		}
 
@@ -103,6 +109,8 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 	protected abstract int[] getDoorPositions();
 
 	protected abstract int[] getEndPositions();
+
+	protected abstract int[] getBogiePositions();
 
 	protected abstract float getDoorAnimationX(float value, boolean opening);
 

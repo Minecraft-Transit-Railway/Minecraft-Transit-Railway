@@ -931,6 +931,11 @@ public class ModelLightRail extends ModelTrainBase {
 	}
 
 	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{-100, 100};
+	}
+
+	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

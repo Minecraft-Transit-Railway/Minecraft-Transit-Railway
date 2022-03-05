@@ -109,6 +109,11 @@ h3 {
     width: 100%;
 }
 
+.version {
+    color: var(--textColorGray);
+    font-size: 0.6em;
+}
+
 .search_top {
     align-items: center;
     display: flex;

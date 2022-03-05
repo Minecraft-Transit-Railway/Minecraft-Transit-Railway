@@ -114,6 +114,22 @@ task setupFiles() {
 		rename "(.+)Template.java", "\$1.java"
 	}
 
+	copy {
+		outputs.upToDateWhen { false }
+		from "common/src/main/version-template.js"
+		into "common/src/main/resources/assets/mtr/website"
+		filter(ReplaceTokens, tokens: ["version": minecraft_version + "-" + rootProject.mod_version])
+		rename "(.+)-template.js", "\$1.js"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "fabric/src/main/UnknownPacketMixinTemplate.java"
+		into "fabric/src/main/java/mtr/mixin"
+		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 ? "apache.logging.log4j" : "slf4j"])
+		rename "(.+)Template.java", "\$1.java"
+	}
+
 	if (is_1_16 || is_1_17) {
 		copy {
 			outputs.upToDateWhen { false }
