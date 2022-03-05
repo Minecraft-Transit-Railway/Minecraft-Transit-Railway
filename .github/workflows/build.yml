@@ -21,28 +21,13 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }} Fabric
         run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Save build files
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          path: build
-          retention-days: 1
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Retrieve build files
-        uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: build
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Fabric and Forge
-          path: release/
+          path: build/release/
       - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Libs
-          path: libs/
+          path: build/libs/
