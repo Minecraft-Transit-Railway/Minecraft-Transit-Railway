@@ -1,4 +1,4 @@
-name: build
+name: Build Fabric and Forge
 on: [ pull_request, push ]
 
 jobs:
