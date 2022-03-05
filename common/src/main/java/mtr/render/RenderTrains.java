@@ -79,6 +79,15 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	@Override
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
+		render(entity, tickDelta, matrices, vertexConsumers);
+	}
+
+	@Override
+	public ResourceLocation getTextureLocation(EntitySeat entity) {
+		return null;
+	}
+
+	public static void render(EntitySeat entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers) {
 		final Minecraft client = Minecraft.getInstance();
 		final boolean backupRendering = entity == null;
 		final boolean alreadyRendered = renderedUuid != null && (backupRendering || entity.getUUID() != renderedUuid);
@@ -330,11 +339,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		prevPlatformCount = ClientData.PLATFORMS.size();
 		prevSidingCount = ClientData.SIDINGS.size();
 		ClientData.DATA_CACHE.clearDataIfNeeded();
-	}
-
-	@Override
-	public ResourceLocation getTextureLocation(EntitySeat entity) {
-		return null;
 	}
 
 	public static boolean shouldNotRender(BlockPos pos, int maxDistance, Direction facing) {

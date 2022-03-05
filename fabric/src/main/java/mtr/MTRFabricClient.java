@@ -14,8 +14,6 @@ import net.minecraft.world.phys.Vec3;
 
 public class MTRFabricClient implements ClientModInitializer {
 
-	private static final RenderTrains renderTrains = new RenderTrains(null);
-
 	@Override
 	public void onInitializeClient() {
 		MTRClient.init();
@@ -24,7 +22,7 @@ public class MTRFabricClient implements ClientModInitializer {
 			matrices.pushPose();
 			final Vec3 cameraPos = context.camera().getPosition();
 			matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-			renderTrains.render(null, 0, 0, matrices, context.consumers(), 0);
+			RenderTrains.render(null, 0, matrices, context.consumers());
 			matrices.popPose();
 		});
 		WorldRenderEvents.END.register(event -> MTRClient.incrementGameTick());

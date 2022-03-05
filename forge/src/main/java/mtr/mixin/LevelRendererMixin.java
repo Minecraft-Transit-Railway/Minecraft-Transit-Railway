@@ -23,14 +23,12 @@ public abstract class LevelRendererMixin {
 	@Final
 	private RenderBuffers renderBuffers;
 
-	private static final RenderTrains renderTrains = new RenderTrains(null);
-
 	@Inject(method = "renderLevel", at = @At(value = "CONSTANT", args = "stringValue=blockentities", ordinal = 0))
 	private void afterEntities(PoseStack matrices, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
 		matrices.pushPose();
 		final Vec3 cameraPos = camera.getPosition();
 		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-		renderTrains.render(null, 0, 0, matrices, renderBuffers.bufferSource(), 0);
+		RenderTrains.render(null, 0, matrices, renderBuffers.bufferSource());
 		matrices.popPose();
 	}
 }
