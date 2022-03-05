@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         minecraft: [ 1.16.5, 1.17.1, 1.18.2 ]
-        loader: [ fabric, forge ]
+        loader: [ fabric, forge, common ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,17 +21,33 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }} Fabric
         run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Save build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.loader }}-${{ matrix.minecraft }}
+          path: build
+          retention-days: 1
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Retrieve Fabric 1.16
+        uses: actions/download-artifact@v2
+        with:
+          name: fabric-1.16
+          path: build
+      - name: Retrieve Forge 1.16
+        uses: actions/download-artifact@v2
+        with:
+          name: forge-1.16
+          path: build
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Fabric and Forge
-          path: build/release/
+          path: release/
       - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Libs
-          path: build/libs/
+          path: libs/
