@@ -22,6 +22,7 @@ jobs:
       - name: Build ${{ matrix.minecraft }} Fabric
         run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Capture release artifacts
+        if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
         with:
           name: Fabric and Forge
@@ -29,5 +30,5 @@ jobs:
       - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Libs
+          name: Libraries
           path: build/libs/
