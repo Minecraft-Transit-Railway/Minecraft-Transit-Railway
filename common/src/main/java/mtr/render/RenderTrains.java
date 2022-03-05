@@ -133,7 +133,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.pushPose();
 			if (!noOffset) {
-				matrices.translate(playerPos.x, 0, playerPos.z);
+				matrices.translate(playerPos.x, MTRClient.isVivecraft() ? 0 : playerPos.y, playerPos.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 			}
 			matrices.translate(x, y, z);
@@ -173,7 +173,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.pushPose();
 			if (!noOffset) {
-				matrices.translate(playerPos.x, 0, playerPos.z);
+				matrices.translate(playerPos.x, MTRClient.isVivecraft() ? 0 : playerPos.y, playerPos.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 			}
 
@@ -380,7 +380,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static void renderWithLight(Level world, double x, double y, double z, boolean noOffset, RenderCallback renderCallback) {
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
-		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y, z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
+		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (MTRClient.isVivecraft() || noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
 
 		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
