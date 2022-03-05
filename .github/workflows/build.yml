@@ -22,6 +22,7 @@ jobs:
       - name: Build ${{ matrix.minecraft }} Fabric
         run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
   publish:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Capture release artifacts
