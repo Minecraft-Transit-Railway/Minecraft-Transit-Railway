@@ -1,4 +1,4 @@
-name: Build Fabric and Forge
+name: Build
 on: [ pull_request, push ]
 
 jobs:
@@ -31,13 +31,13 @@ jobs:
         run: ./gradlew fabric:build -PbuildVersion="1.18.2" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
       - name: Build 1.18 Forge
         run: ./gradlew forge:build -PbuildVersion="1.18.2" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Capture Fabric build artifacts
+      - name: Capture release artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Fabric
-          path: fabric/build/libs/
-      - name: Capture Forge build artifacts
+          name: Fabric and Forge
+          path: build/release/
+      - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Forge
-          path: forge/build/libs/
+          name: Libs
+          path: build/libs/
