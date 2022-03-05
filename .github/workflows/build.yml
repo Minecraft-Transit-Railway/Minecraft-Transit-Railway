@@ -24,22 +24,17 @@ jobs:
       - name: Save build files
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.loader }}-${{ matrix.minecraft }}
+          name: build
           path: build
           retention-days: 1
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Retrieve Fabric 1.16
+      - name: Retrieve build files
         uses: actions/download-artifact@v2
         with:
-          name: fabric-1.16
-          path: build
-      - name: Retrieve Forge 1.16
-        uses: actions/download-artifact@v2
-        with:
-          name: forge-1.16
+          name: build
           path: build
       - name: Capture release artifacts
         uses: actions/upload-artifact@v2
