@@ -28,6 +28,7 @@ public class EntitySeat extends Entity {
 	private int seatRefresh;
 	private int ridingRefresh;
 	private Player player;
+	private LocalPlayer localPlayer;
 	private long trainId;
 	private float playerDismountYOffset;
 
@@ -41,7 +42,6 @@ public class EntitySeat extends Entity {
 	private static final int SEAT_REFRESH = 10;
 	private static final EntityDataAccessor<Optional<UUID>> PLAYER_ID = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Float> RAIL_PROGRESS = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.FLOAT);
-	private static final EntityDataAccessor<Boolean> PLAYER_MOUNTED = SynchedEntityData.defineId(EntitySeat.class, EntityDataSerializers.BOOLEAN);
 
 	public EntitySeat(EntityType<?> type, Level world) {
 		super(type, world);
@@ -60,34 +60,25 @@ public class EntitySeat extends Entity {
 	@Override
 	public void tick() {
 		if (level.isClientSide) {
-			final LocalPlayer localPlayer = getClientPlayer();
+			localPlayer = getClientPlayer();
+			final boolean followPlayer = localPlayer != null && localPlayer.getVehicle() != this;
 
 			if (clientInterpolationSteps > 0) {
 				final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
 				final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
 				final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
 				--clientInterpolationSteps;
-				if (localPlayer == null || localPlayer.getVehicle() == this) {
+				if (!followPlayer) {
 					absMoveTo(x, y, z);
 				}
 			} else {
-				if (localPlayer == null || localPlayer.getVehicle() == this) {
+				if (!followPlayer) {
 					reapplyPosition();
 				}
 			}
 
-			final boolean tempMounted = entityData.get(PLAYER_MOUNTED);
-			if (localPlayer != null) {
-				if (localPlayer.getVehicle() == this) {
-					if (!tempMounted) {
-						ejectPassengers();
-					}
-				} else {
-					setPos(localPlayer.getX(), localPlayer.getY(), localPlayer.getZ());
-					if (tempMounted) {
-						localPlayer.startRiding(this);
-					}
-				}
+			if (followPlayer) {
+				setPos(localPlayer.getX(), localPlayer.getY(), localPlayer.getZ());
 			}
 		} else {
 			if (player == null || seatRefresh <= 0) {
@@ -104,7 +95,6 @@ public class EntitySeat extends Entity {
 
 				if (ridingRefresh <= 0) {
 					ejectPassengers();
-					entityData.set(PLAYER_MOUNTED, false);
 					trainId = 0;
 				}
 
@@ -120,13 +110,27 @@ public class EntitySeat extends Entity {
 			return;
 		}
 
-		if (level.isClientSide && entity instanceof Player) {
+		if (level.isClientSide && entity == localPlayer) {
+			final double moveX;
+			final double moveY;
+			final double moveZ;
+
 			if (playerOffset == null) {
 				final Vec3 movement = new Vec3(((Player) entity).xxa / 4, 0, ((Player) entity).zza / 4).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
-				entity.setPos(entity.getX() + movement.x, getY(), entity.getZ() + movement.z);
+				moveX = entity.getX() + movement.x;
+				moveY = getY();
+				moveZ = entity.getZ() + movement.z;
 			} else {
-				entity.setPos(playerOffset.x, playerOffset.y, playerOffset.z);
+				moveX = playerOffset.x;
+				moveY = playerOffset.y;
+				moveZ = playerOffset.z;
 				playerOffset = null;
+			}
+
+			if (Math.abs(moveX - getX()) < 16 && Math.abs(moveY - getY()) < 16 && Math.abs(moveZ - getZ()) < 16) {
+				entity.setPos(moveX, moveY, moveZ);
+			} else {
+				entity.setPos(getX(), getY(), getZ());
 			}
 		} else {
 			entity.setPos(getX(), getY(), getZ());
@@ -165,7 +169,6 @@ public class EntitySeat extends Entity {
 	protected void defineSynchedData() {
 		entityData.define(PLAYER_ID, Optional.of(new UUID(0, 0)));
 		entityData.define(RAIL_PROGRESS, 0F);
-		entityData.define(PLAYER_MOUNTED, false);
 	}
 
 	@Override
@@ -178,15 +181,6 @@ public class EntitySeat extends Entity {
 
 	public void initialize(Player player) {
 		entityData.set(PLAYER_ID, Optional.of(player.getUUID()));
-	}
-
-	public boolean isNotClientPlayer(LocalPlayer checkPlayer) {
-		try {
-			return entityData == null || !entityData.get(PLAYER_ID).orElse(new UUID(0, 0)).equals(checkPlayer.getUUID());
-		} catch (Exception e) {
-			e.printStackTrace();
-			return true;
-		}
 	}
 
 	public void updateSeatByRailwayData(Player player) {
@@ -203,7 +197,6 @@ public class EntitySeat extends Entity {
 			ridingRefresh = SEAT_REFRESH;
 			if (playerNotRiding()) {
 				player.startRiding(this);
-				entityData.set(PLAYER_MOUNTED, true);
 			}
 			return true;
 		} else {
@@ -233,6 +226,17 @@ public class EntitySeat extends Entity {
 
 	private LocalPlayer getClientPlayer() {
 		final LocalPlayer player = Minecraft.getInstance().player;
-		return player == null || isNotClientPlayer(player) ? null : player;
+		if (player == null || entityData == null) {
+			return null;
+		}
+		try {
+			final Optional<UUID> optionalUUID = entityData.get(PLAYER_ID);
+			if (optionalUUID.isPresent() && optionalUUID.get().equals(player.getUUID())) {
+				return player;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
