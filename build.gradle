@@ -66,18 +66,15 @@ task setupFiles() {
 		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 	}
-
 	copy {
 		outputs.upToDateWhen { false }
 		from(zipTree("common/src/main/java/mtr/mappings/mappings.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
 		into "common/src/main/java/mtr/mappings"
 		filter(ReplaceTokens, tokens: ["package": "mtr.mappings"])
 	}
-
 	ant.path { ant.fileset(dir: "common/src/main/java/mtr/mappings", includes: "Fabric*.java") }.list().each {
 		ant.move(file: it, todir: "fabric/src/main/java/mtr/mappings")
 	}
-
 	ant.path { ant.fileset(dir: "common/src/main/java/mtr/mappings", includes: "Forge*.java") }.list().each {
 		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
 	}
@@ -87,7 +84,6 @@ task setupFiles() {
 		dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
 		overwrite true
 	}
-
 	copy {
 		outputs.upToDateWhen { false }
 		from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
@@ -99,7 +95,6 @@ task setupFiles() {
 		dest "common/src/main/java/mtr/mappings/lang.zip"
 		overwrite true
 	}
-
 	copy {
 		outputs.upToDateWhen { false }
 		from(zipTree("common/src/main/java/mtr/mappings/lang.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
@@ -113,7 +108,6 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["key": patreon_api_key])
 		rename "(.+)Template.java", "\$1.java"
 	}
-
 	copy {
 		outputs.upToDateWhen { false }
 		from "common/src/main/version-template.js"
@@ -121,7 +115,6 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["version": minecraft_version + "-" + rootProject.mod_version])
 		rename "(.+)-template.js", "\$1.js"
 	}
-
 	copy {
 		outputs.upToDateWhen { false }
 		from "fabric/src/main/UnknownPacketMixinTemplate.java"
@@ -129,7 +122,6 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
-
 	if (is_1_16 || is_1_17) {
 		copy {
 			outputs.upToDateWhen { false }

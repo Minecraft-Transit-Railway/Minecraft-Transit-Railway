@@ -135,7 +135,7 @@ public class TrainClient extends Train {
 
 					final EntitySeat seat = (EntitySeat) vehicle;
 					final float testRailProgress = seat.getClientRailProgress();
-					if (testRailProgress > 0 && Math.abs(testRailProgress - railProgress) > 10) {
+					if (testRailProgress > 0 && Math.abs(testRailProgress - railProgress) > 4) {
 						railProgress = testRailProgress;
 					}
 

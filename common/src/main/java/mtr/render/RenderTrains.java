@@ -99,7 +99,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final LocalPlayer player = client.player;
 		final Level world = client.level;
 
-		if (alreadyRendered || player == null || world == null || !backupRendering && entity.isNotClientPlayer(player)) {
+		if (alreadyRendered || player == null || world == null) {
 			return;
 		}
 

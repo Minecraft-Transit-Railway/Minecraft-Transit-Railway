@@ -27,15 +27,18 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final DashboardList availableTrainsList;
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
 	private final WidgetBetterTextField textFieldMaxTrains;
-	private final WidgetBetterTextField textFieldAccelerationConstant;
+	private final WidgetShorterSlider sliderAccelerationConstant;
 
 	private static final Component SELECTED_TRAIN_TEXT = new TranslatableComponent("gui.mtr.selected_train");
 	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_trains");
 	private static final Component ACCELERATION_CONSTANT_TEXT = new TranslatableComponent("gui.mtr.acceleration");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
-	private static final int MAX_ACCELERATION_CONSTANT_TEXT_LENGTH = 8;
-	private static final int MAX_TRAINS_WIDTH = 40;
-	private static final float ACCELERATION_UNIT_CONVERSION = 20 * 20 * 3.6F;
+	private static final int MAX_TRAINS_WIDTH = 80;
+	private static final float MAX_ACCELERATION = 0.05F; // m/tick^2
+	private static final float MIN_ACCELERATION = 0.001F; // m/tick^2
+	private static final int SLIDER_SCALE = 1000;
+	private static final float ACCELERATION_UNIT_CONVERSION_1 = 20 * 20; // m/tick^2 to m/s^2
+	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/tick^2 to km/h/s
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
@@ -43,7 +46,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
-		textFieldAccelerationConstant = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_FLOATING_POINT, String.format("%.2f", Train.ACCELERATION_DEFAULT * ACCELERATION_UNIT_CONVERSION), MAX_ACCELERATION_CONSTANT_TEXT_LENGTH);
+		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((MAX_ACCELERATION - MIN_ACCELERATION) * SLIDER_SCALE), this::sliderFormatter, null);
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_trains"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
@@ -67,7 +70,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
-		availableTrainsList.width = PANEL_WIDTH;
+		availableTrainsList.width = SLIDER_WIDTH;
 		availableTrainsList.init(this::addDrawableChild);
 
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
@@ -76,11 +79,13 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		textFieldMaxTrains.setValue(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
 		textFieldMaxTrains.setResponder(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
 
-		IDrawing.setPositionAndWidth(textFieldAccelerationConstant, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
-		textFieldAccelerationConstant.setValue(String.format("%.2f", savedRailBase.getAccelerationConstant() * ACCELERATION_UNIT_CONVERSION));
+		sliderAccelerationConstant.x = startX + textWidth;
+		sliderAccelerationConstant.y = height / 2 + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2;
+		sliderAccelerationConstant.setHeight(SQUARE_SIZE);
+		sliderAccelerationConstant.setValue(Math.round((savedRailBase.getAccelerationConstant() - MIN_ACCELERATION) * SLIDER_SCALE));
 
 		addDrawableChild(textFieldMaxTrains);
-		addDrawableChild(textFieldAccelerationConstant);
+		addDrawableChild(sliderAccelerationConstant);
 	}
 
 	@Override
@@ -88,7 +93,6 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		super.tick();
 		availableTrainsList.tick();
 		textFieldMaxTrains.tick();
-		textFieldAccelerationConstant.tick();
 	}
 
 	@Override
@@ -111,7 +115,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		}
 		float accelerationConstant;
 		try {
-			accelerationConstant = RailwayData.round(Mth.clamp(Float.parseFloat(textFieldAccelerationConstant.getValue()), 0.5F, 50) / ACCELERATION_UNIT_CONVERSION, 3);
+			accelerationConstant = RailwayData.round(Mth.clamp((float) sliderAccelerationConstant.getIntValue() / SLIDER_SCALE + MIN_ACCELERATION, MIN_ACCELERATION, MAX_ACCELERATION), 3);
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
@@ -162,13 +166,18 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
-		textFieldAccelerationConstant.visible = !isSelectingTrain;
+		sliderAccelerationConstant.visible = !isSelectingTrain;
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId(), savedRailBase.getBaseTrainType()).name);
-		availableTrainsList.x = isSelectingTrain ? width / 2 - PANEL_WIDTH / 2 : width;
+		availableTrainsList.x = isSelectingTrain ? width / 2 - SLIDER_WIDTH / 2 : width;
 	}
 
 	private void onAdd(NameColorDataBase data, int index) {
 		savedRailBase.setTrainIdAndBaseType(TrainClientRegistry.getTrainId(transportMode, index), TrainClientRegistry.getTrainProperties(transportMode, index).baseTrainType, packet -> PacketTrainDataGuiClient.sendUpdate(IPacket.PACKET_UPDATE_SIDING, packet));
 		setIsSelectingTrain(false);
+	}
+
+	private String sliderFormatter(int value) {
+		final float valueMeterPerTickSquared = ((float) value / SLIDER_SCALE + MIN_ACCELERATION);
+		return String.format("%s m/s² (%s km/h/s)", RailwayData.round(valueMeterPerTickSquared * ACCELERATION_UNIT_CONVERSION_1, 1), RailwayData.round(valueMeterPerTickSquared * ACCELERATION_UNIT_CONVERSION_2, 1));
 	}
 }

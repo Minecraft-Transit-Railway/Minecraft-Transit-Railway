@@ -84,7 +84,7 @@
 	"block.mtr.train_cargo_unloader": "Train Cargo Unloader",
 	"block.mtr.train_schedule_sensor": "Train Schedule Sensor",
 	"block.mtr.train_sensor": "Train Redstone Sensor",
-	"gui.mtr.acceleration": "Train Acceleration (km/h per second)",
+	"gui.mtr.acceleration": "Train Acceleration",
 	"gui.mtr.add_balance_for_emeralds": "Add $%s for %s emerald(s)",
 	"gui.mtr.add_depot": "Add Depot",
 	"gui.mtr.add_exit": "Add Station Exit",
