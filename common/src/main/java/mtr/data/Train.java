@@ -2,7 +2,6 @@ package mtr.data;
 
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
-import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -13,7 +12,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -403,27 +401,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen);
 		}
-	}
-
-	protected final void handleRider(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float[] percentages, Player player, CalculateCarCallback calculateCarCallback) {
-		final int currentRidingCar = (int) Math.floor(percentages[1]);
-		final float doorValue = Math.abs(doorValueRaw);
-		calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-			final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
-			final Vec3 movement = new Vec3(player.xxa * ticksElapsed / 4, 0, player.zza * ticksElapsed / 4).yRot((float) -Math.toRadians(Utilities.getYaw(player)) - yaw);
-
-			percentages[0] += movement.x / baseTrainType.width;
-			percentages[1] += realSpacingRender == 0 ? 0 : movement.z / realSpacingRender;
-			percentages[0] = Mth.clamp(percentages[0], doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
-			percentages[1] = Mth.clamp(percentages[1], (hasGangwayConnection ? 0 : currentRidingCar + 0.05F) + 0.01F, (hasGangwayConnection ? trainCars : currentRidingCar + 0.95F) - 0.01F);
-
-			final int newRidingCar = (int) Math.floor(percentages[1]);
-			if (currentRidingCar == newRidingCar) {
-				calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
-			} else {
-				calculateCar(world, positions, newRidingCar, Math.abs(doorValueRaw), 0, calculateCarCallback);
-			}
-		});
 	}
 
 	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {

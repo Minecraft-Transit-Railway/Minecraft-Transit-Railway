@@ -37,7 +37,6 @@ public class TrainServer extends Train {
 	private int updateRailProgressCounter;
 
 	private final List<Siding.TimeSegment> timeSegments;
-	private final Map<Player, float[]> playerPercentages = new HashMap<>();
 
 	private static final int TRAIN_UPDATE_DISTANCE = 128;
 	private static final float INNER_PADDING = 0.5F;
@@ -97,11 +96,8 @@ public class TrainServer extends Train {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
 					if (seat != null) {
 						ridingEntities.add(player.getUUID());
-						seat.updateRidingByTrainServer(id, baseTrainType.riderOffset);
 						final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
 						final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
-						playerPercentages.put(player, new float[]{percentageX, percentageZ});
-						seat.updateDataToClient(railProgress);
 						final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 						packet.writeLong(id);
 						packet.writeFloat(percentageX);
@@ -116,9 +112,20 @@ public class TrainServer extends Train {
 		ridingEntities.forEach(uuid -> {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
-				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2)) {
+				final boolean remove;
+				if (player.isSpectator() || player.isShiftKeyDown()) {
+					remove = true;
+				} else if (doorLeftOpen || doorRightOpen) {
+					final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
+					remove = Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2);
+				} else {
+					remove = false;
+				}
+				if (remove) {
 					ridersToRemove.add(uuid);
+					((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(player.abilities);
+				} else {
+					player.abilities.mayfly = true;
 				}
 			}
 		});
@@ -166,33 +173,7 @@ public class TrainServer extends Train {
 			});
 		}
 
-		final Set<UUID> ridersToRemove = new HashSet<>();
 		if (!ridingEntities.isEmpty()) {
-			ridingEntities.forEach(uuid -> {
-				final Player ridingPlayer = world.getPlayerByUUID(uuid);
-				final RailwayData railwayData = RailwayData.getInstance(world);
-
-				if (ridingPlayer != null && railwayData != null) {
-					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
-
-					if (seat != null) {
-						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id, baseTrainType.riderOffset)) {
-							if (!playerPercentages.containsKey(ridingPlayer)) {
-								playerPercentages.put(ridingPlayer, new float[]{0.5F, 0.5F});
-							}
-							final float[] percentages = playerPercentages.get(ridingPlayer);
-							handleRider(world, positions, ticksElapsed, doorValueRaw, percentages, ridingPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								seat.updateDataToClient(updateRailProgressCounter == 0 ? railProgress : 0);
-								final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentages[0], baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentages[1]), realSpacingRender)).xRot(pitch).yRot(yaw).add(x, y, z);
-								seat.absMoveTo(playerOffset.x, playerOffset.y, playerOffset.z);
-							});
-						} else {
-							ridersToRemove.add(uuid);
-						}
-					}
-				}
-			});
-
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
@@ -201,9 +182,6 @@ public class TrainServer extends Train {
 					}
 				}
 			});
-		}
-		if (!ridersToRemove.isEmpty()) {
-			ridersToRemove.forEach(ridingEntities::remove);
 		}
 
 		return playerNearby[0];
