@@ -15,11 +15,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
@@ -28,7 +30,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.Value;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,17 +49,18 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
-	private Path stationsPath;
-	private Path platformsPath;
-	private Path sidingsPath;
-	private Path routesPath;
-	private Path depotsPath;
-	private Path railsPath;
-	private Path signalBlocksPath;
 
 	private final Level world;
 	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks = new SignalBlocks();
+
+	private final Path stationsPath;
+	private final Path platformsPath;
+	private final Path sidingsPath;
+	private final Path routesPath;
+	private final Path depotsPath;
+	private final Path railsPath;
+	private final Path signalBlocksPath;
 
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -100,11 +102,33 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 		trainPositions.add(new HashMap<>());
 		trainPositions.add(new HashMap<>());
+
+		final ResourceLocation dimensionLocation = world.dimension().location();
+		final Path savePath = ((ServerLevel) world).getServer().getWorldPath(LevelResource.ROOT).resolve("mtr").resolve(dimensionLocation.getNamespace()).resolve(dimensionLocation.getPath());
+		stationsPath = savePath.resolve("stations");
+		platformsPath = savePath.resolve("platforms");
+		sidingsPath = savePath.resolve("sidings");
+		routesPath = savePath.resolve("routes");
+		depotsPath = savePath.resolve("depots");
+		railsPath = savePath.resolve("rails");
+		signalBlocksPath = savePath.resolve("signal-blocks");
+
+		try {
+			Files.createDirectories(stationsPath);
+			Files.createDirectories(platformsPath);
+			Files.createDirectories(sidingsPath);
+			Files.createDirectories(routesPath);
+			Files.createDirectories(depotsPath);
+			Files.createDirectories(railsPath);
+			Files.createDirectories(signalBlocksPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	// TODO temporary code start
 	@Override
 	public void load(CompoundTag compoundTag) {
+		// TODO temporary code start
 		if (compoundTag.contains(KEY_RAW_MESSAGE_PACK)) {
 			try {
 				final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(compoundTag.getByteArray(KEY_RAW_MESSAGE_PACK));
@@ -159,9 +183,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 							break;
 					}
 				}
-
-				validateData();
-				dataCache.sync();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -202,15 +223,37 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				for (final String key : tagNewSignalBlocks.getAllKeys()) {
 					signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
 				}
-
-				validateData();
-				dataCache.sync();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
+		if (stations.isEmpty() && platforms.isEmpty() && sidings.isEmpty() && routes.isEmpty() && depots.isEmpty() && rails.isEmpty() && signalBlocks.signalBlocks.isEmpty()) {
+			// TODO temporary code end
+
+			readMessagePackFromFile(stationsPath, result -> stations.add(new Station(result)));
+			readMessagePackFromFile(platformsPath, result -> platforms.add(new Platform(result)));
+			readMessagePackFromFile(sidingsPath, result -> sidings.add(new Siding(result)));
+			readMessagePackFromFile(routesPath, result -> routes.add(new Route(result)));
+			readMessagePackFromFile(depotsPath, result -> depots.add(new Depot(result)));
+			readMessagePackFromFile(railsPath, result -> {
+				final RailEntry railEntry = new RailEntry(result);
+				rails.put(railEntry.pos, railEntry.connections);
+			});
+			readMessagePackFromFile(signalBlocksPath, result -> signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(result)));
+
+			System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
+
+			// TODO temporary code start
+		}
+		// TODO temporary code end
+
+		validateData();
+		dataCache.sync();
+		setDirty();
 	}
 
+	// TODO temporary code start
 	private static Map<String, Value> readMessagePackSKMap(MessageUnpacker messageUnpacker) throws IOException {
 		final int size = messageUnpacker.unpackMapHeader();
 		final HashMap<String, Value> result = new HashMap<>(size);
@@ -224,60 +267,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
 		return compoundTag;
-	}
-
-	@Override
-	public void save(File file) {
-		if (!isDataLoaded()) {
-			final Path savePath = file.getParentFile().toPath().resolve("mtr");
-			stationsPath = savePath.resolve("stations");
-			platformsPath = savePath.resolve("platforms");
-			sidingsPath = savePath.resolve("sidings");
-			routesPath = savePath.resolve("routes");
-			depotsPath = savePath.resolve("depots");
-			railsPath = savePath.resolve("rails");
-			signalBlocksPath = savePath.resolve("signal-blocks");
-
-			// TODO temporary code start
-			if (stations.isEmpty() && platforms.isEmpty() && sidings.isEmpty() && routes.isEmpty() && depots.isEmpty() && rails.isEmpty() && signalBlocks.signalBlocks.isEmpty()) {
-				// TODO temporary code end
-
-				try {
-					Files.createDirectories(stationsPath);
-					Files.createDirectories(platformsPath);
-					Files.createDirectories(sidingsPath);
-					Files.createDirectories(routesPath);
-					Files.createDirectories(depotsPath);
-					Files.createDirectories(railsPath);
-					Files.createDirectories(signalBlocksPath);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				readMessagePackFromFile(stationsPath, result -> stations.add(new Station(result)));
-				readMessagePackFromFile(platformsPath, result -> platforms.add(new Platform(result)));
-				readMessagePackFromFile(sidingsPath, result -> sidings.add(new Siding(result)));
-				readMessagePackFromFile(routesPath, result -> routes.add(new Route(result)));
-				readMessagePackFromFile(depotsPath, result -> depots.add(new Depot(result)));
-				readMessagePackFromFile(railsPath, result -> {
-					final RailEntry railEntry = new RailEntry(result);
-					rails.put(railEntry.pos, railEntry.connections);
-				});
-				readMessagePackFromFile(signalBlocksPath, result -> signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(result)));
-
-				System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
-
-				// TODO temporary code start
-			}
-			// TODO temporary code end
-
-			validateData();
-			dataCache.sync();
-			world.players().forEach(player -> onPlayerJoin((ServerPlayer) player));
-			setDirty();
-		}
-
-		super.save(file);
 	}
 
 	public void save() {
@@ -304,10 +293,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void simulateTrains() {
-		if (!isDataLoaded()) {
-			return;
-		}
-
 		final List<? extends Player> players = world.players();
 		players.forEach(player -> {
 			final BlockPos playerBlockPos = player.blockPosition();
@@ -493,9 +478,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
-		if (isDataLoaded()) {
-			PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
-		}
+		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 	}
 
 	public EntitySeat getSeatFromPlayer(Player player) {
@@ -638,10 +621,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		for (int i = 0; i < railsToRemove.size() - 1; i += 2) {
 			removeRailConnection(null, rails, railsToRemove.get(i), railsToRemove.get(i + 1));
 		}
-	}
-
-	private boolean isDataLoaded() {
-		return stationsPath != null && platformsPath != null && sidingsPath != null && routesPath != null && depotsPath != null && railsPath != null && signalBlocksPath != null;
 	}
 
 	// static finders
