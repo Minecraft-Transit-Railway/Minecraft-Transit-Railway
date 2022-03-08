@@ -378,9 +378,9 @@ public class MTR implements IPacket {
 				railwayData.disconnectPlayer(player);
 			}
 		});
-		Registry.registerServerStartingEvent(server -> {
+		Registry.registerServerStartingEvent(minecraftServer -> {
 			int port = 8888;
-			final Path path = server.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
+			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
 			try {
 				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("[^0-9]", "")), 1025, 65535);
 			} catch (Exception ignored) {
@@ -391,15 +391,21 @@ public class MTR implements IPacket {
 				}
 			}
 			serverConnector.setPort(port);
-			DataServletHandler.SERVER = server;
-			ArrivalsServletHandler.SERVER = server;
+			DataServletHandler.SERVER = minecraftServer;
+			ArrivalsServletHandler.SERVER = minecraftServer;
 			try {
 				webServer.start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
-		Registry.registerServerStoppingEvent(server -> {
+		Registry.registerServerStoppingEvent(minecraftServer -> {
+			minecraftServer.getAllLevels().forEach(serverWorld -> {
+				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
+				if (railwayData != null) {
+					railwayData.save();
+				}
+			});
 			try {
 				webServer.stop();
 			} catch (Exception e) {
