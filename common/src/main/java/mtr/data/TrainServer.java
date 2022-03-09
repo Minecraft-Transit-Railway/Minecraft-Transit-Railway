@@ -123,9 +123,9 @@ public class TrainServer extends Train {
 				}
 				if (remove) {
 					ridersToRemove.add(uuid);
-					((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(player.abilities);
+					((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
 				} else {
-					player.abilities.mayfly = true;
+					Utilities.getAbilities(player).mayfly = true;
 				}
 			}
 		});
