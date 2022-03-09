@@ -509,7 +509,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			writeDirtyDataToFile(dirtySidingIds, dataCache.sidingIdMap::get, id -> id, sidingsPath, existingFiles, checkFilesToDelete);
 			writeDirtyDataToFile(dirtyRouteIds, dataCache.routeIdMap::get, id -> id, routesPath, existingFiles, checkFilesToDelete);
 			writeDirtyDataToFile(dirtyDepotIds, dataCache.depotIdMap::get, id -> id, depotsPath, existingFiles, checkFilesToDelete);
-			writeDirtyDataToFile(dirtyRailPositions, pos -> new RailEntry(pos, rails.get(pos)), BlockPos::asLong, railsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath, existingFiles, checkFilesToDelete);
 			writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath, existingFiles, checkFilesToDelete);
 
 			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
@@ -937,7 +937,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			data.toMessagePack(messagePacker);
 			messagePacker.close();
 			return dataPath;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
