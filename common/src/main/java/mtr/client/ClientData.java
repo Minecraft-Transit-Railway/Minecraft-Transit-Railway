@@ -2,9 +2,13 @@ package mtr.client;
 
 import mtr.data.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.GameType;
 
 import java.util.*;
 import java.util.function.Function;
@@ -150,6 +154,23 @@ public final class ClientData {
 			}
 		});
 		return returnData;
+	}
+
+	public static boolean hasPermission() {
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) {
+			return false;
+		}
+		final ClientPacketListener clientPacketListener = Minecraft.getInstance().getConnection();
+		if (clientPacketListener == null) {
+			return false;
+		}
+		final PlayerInfo playerInfo = clientPacketListener.getPlayerInfo(player.getUUID());
+		if (playerInfo == null) {
+			return false;
+		}
+		final GameType gameMode = playerInfo.getGameMode();
+		return gameMode == GameType.CREATIVE || gameMode == GameType.SURVIVAL;
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {

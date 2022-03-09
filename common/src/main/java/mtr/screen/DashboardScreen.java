@@ -11,7 +11,6 @@ import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
@@ -433,8 +432,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	private void toggleButtons() {
-		final LocalPlayer player = Minecraft.getInstance().player;
-		final boolean hasPermission = player != null && player.isCreative();
+		final boolean hasPermission = ClientData.hasPermission();
 
 		buttonAddStation.visible = selectedTab == SelectedTab.STATIONS && editingArea == null && hasPermission;
 		buttonAddRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute == null && hasPermission;

@@ -205,15 +205,17 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
-			if (mapState == MapState.EDITING_AREA) {
-				drawArea1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
-				drawArea2 = null;
-			} else if (mapState == MapState.EDITING_ROUTE) {
-				final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
-			} else {
-				final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
-				mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
+			if (ClientData.hasPermission()) {
+				if (mapState == MapState.EDITING_AREA) {
+					drawArea1 = coordsToWorldPos((int) (mouseX - x), (int) (mouseY - y));
+					drawArea2 = null;
+				} else if (mapState == MapState.EDITING_ROUTE) {
+					final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickAddPlatformToRoute.accept(savedRail.id), true);
+				} else {
+					final Tuple<Double, Double> mouseWorldPos = coordsToWorldPos(mouseX - x, mouseY - y);
+					mouseOnSavedRail(mouseWorldPos, (savedRail, x1, z1, x2, z2) -> onClickEditSavedRail.accept(savedRail), showStations);
+				}
 			}
 			return true;
 		} else {
