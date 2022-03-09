@@ -10,46 +10,69 @@ import mtr.mappings.Utilities;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.io.FileUtils;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.Value;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RailwayData extends PersistentStateMapper implements IPacket {
 
-	public final Set<Station> stations;
-	public final Set<Platform> platforms;
-	public final Set<Siding> sidings;
-	public final Set<Route> routes;
-	public final Set<Depot> depots;
-	public final DataCache dataCache;
+	public final Set<Station> stations = new HashSet<>();
+	public final Set<Platform> platforms = new HashSet<>();
+	public final Set<Siding> sidings = new HashSet<>();
+	public final Set<Route> routes = new HashSet<>();
+	public final Set<Depot> depots = new HashSet<>();
+	public final DataCache dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
+	private boolean canAutoSave = false;
+	private long autoSaveStartMillis;
 
 	private final Level world;
-	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
+	private final Map<BlockPos, Map<BlockPos, Rail>> rails = new HashMap<>();
 	private final SignalBlocks signalBlocks = new SignalBlocks();
+
+	private final List<Long> dirtyStationIds = new ArrayList<>();
+	private final List<Long> dirtyPlatformIds = new ArrayList<>();
+	private final List<Long> dirtySidingIds = new ArrayList<>();
+	private final List<Long> dirtyRouteIds = new ArrayList<>();
+	private final List<Long> dirtyDepotIds = new ArrayList<>();
+	private final List<BlockPos> dirtyRailPositions = new ArrayList<>();
+	private final List<SignalBlocks.SignalBlock> dirtySignalBlocks = new ArrayList<>();
+
+	private final Path stationsPath;
+	private final Path platformsPath;
+	private final Path sidingsPath;
+	private final Path routesPath;
+	private final Path depotsPath;
+	private final Path railsPath;
+	private final Path signalBlocksPath;
 
 	private final List<Map<UUID, Long>> trainPositions = new ArrayList<>(2);
 	private final Map<Player, BlockPos> playerLastUpdatedPositions = new HashMap<>();
@@ -60,6 +83,8 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
 	private final Map<Long, Thread> generatingPathThreads = new HashMap<>();
+	private final Set<String> existingFiles = new HashSet<>();
+	private final List<String> checkFilesToDelete = new ArrayList<>();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
@@ -81,20 +106,36 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public RailwayData(Level world) {
 		super(NAME);
 		this.world = world;
-		stations = new HashSet<>();
-		platforms = new HashSet<>();
-		sidings = new HashSet<>();
-		routes = new HashSet<>();
-		depots = new HashSet<>();
-		rails = new HashMap<>();
-		dataCache = new DataCache(stations, platforms, sidings, routes, depots);
 
 		trainPositions.add(new HashMap<>());
 		trainPositions.add(new HashMap<>());
+
+		final ResourceLocation dimensionLocation = world.dimension().location();
+		final Path savePath = ((ServerLevel) world).getServer().getWorldPath(LevelResource.ROOT).resolve("mtr").resolve(dimensionLocation.getNamespace()).resolve(dimensionLocation.getPath());
+		stationsPath = savePath.resolve("stations");
+		platformsPath = savePath.resolve("platforms");
+		sidingsPath = savePath.resolve("sidings");
+		routesPath = savePath.resolve("routes");
+		depotsPath = savePath.resolve("depots");
+		railsPath = savePath.resolve("rails");
+		signalBlocksPath = savePath.resolve("signal-blocks");
+
+		try {
+			Files.createDirectories(stationsPath);
+			Files.createDirectories(platformsPath);
+			Files.createDirectories(sidingsPath);
+			Files.createDirectories(routesPath);
+			Files.createDirectories(depotsPath);
+			Files.createDirectories(railsPath);
+			Files.createDirectories(signalBlocksPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void load(CompoundTag compoundTag) {
+		// TODO temporary code start
 		if (compoundTag.contains(KEY_RAW_MESSAGE_PACK)) {
 			try {
 				final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(compoundTag.getByteArray(KEY_RAW_MESSAGE_PACK));
@@ -149,9 +190,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 							break;
 					}
 				}
-
-				validateData();
-				dataCache.sync();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -192,62 +230,91 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				for (final String key : tagNewSignalBlocks.getAllKeys()) {
 					signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(tagNewSignalBlocks.getCompound(key)));
 				}
-
-				validateData();
-				dataCache.sync();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
+		if (stations.isEmpty() && platforms.isEmpty() && sidings.isEmpty() && routes.isEmpty() && depots.isEmpty() && rails.isEmpty() && signalBlocks.signalBlocks.isEmpty()) {
+			// TODO temporary code end
+
+			existingFiles.clear();
+			readMessagePackFromFile(stationsPath, result -> stations.add(new Station(result)), existingFiles);
+			readMessagePackFromFile(platformsPath, result -> platforms.add(new Platform(result)), existingFiles);
+			readMessagePackFromFile(sidingsPath, result -> sidings.add(new Siding(result)), existingFiles);
+			readMessagePackFromFile(routesPath, result -> routes.add(new Route(result)), existingFiles);
+			readMessagePackFromFile(depotsPath, result -> depots.add(new Depot(result)), existingFiles);
+			readMessagePackFromFile(railsPath, result -> {
+				final RailEntry railEntry = new RailEntry(result);
+				rails.put(railEntry.pos, railEntry.connections);
+			}, existingFiles);
+			readMessagePackFromFile(signalBlocksPath, result -> signalBlocks.signalBlocks.add(new SignalBlocks.SignalBlock(result)), existingFiles);
+
+			System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
+
+			// TODO temporary code start
+		}
+		// TODO temporary code end
+
+		validateData();
+		dataCache.sync();
+		setDirty();
+		canAutoSave = true;
 	}
+
+	// TODO temporary code start
+	private static Map<String, Value> readMessagePackSKMap(MessageUnpacker messageUnpacker) throws IOException {
+		final int size = messageUnpacker.unpackMapHeader();
+		final HashMap<String, Value> result = new HashMap<>(size);
+		for (int i = 0; i < size; ++i) {
+			result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+		}
+		return result;
+	}
+	// TODO temporary code end
 
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
+		if (canAutoSave && checkFilesToDelete.isEmpty()) {
+			autoSaveStartMillis = System.currentTimeMillis();
+			dirtyStationIds.addAll(dataCache.stationIdMap.keySet());
+			dirtyPlatformIds.addAll(dataCache.platformIdMap.keySet());
+			dirtySidingIds.addAll(dataCache.sidingIdMap.keySet());
+			dirtyRouteIds.addAll(dataCache.routeIdMap.keySet());
+			dirtyDepotIds.addAll(dataCache.depotIdMap.keySet());
+			dirtyRailPositions.addAll(rails.keySet());
+			dirtySignalBlocks.addAll(signalBlocks.signalBlocks);
+			checkFilesToDelete.addAll(existingFiles);
+		}
+
 		return compoundTag;
 	}
 
-	@Override
-	public void save(File file) {
-		final ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(16777216);
-		final MessagePacker messagePacker = MessagePack.newDefaultPacker(bufferStream);
+	public void save() {
+		canAutoSave = false;
+		validateData();
 
 		try {
-			validateData();
-			messagePacker.packMapHeader(8);
-			messagePacker.packString(KEY_DATA_VERSION).packInt(DATA_VERSION);
-
-			writeMessagePackDataset(messagePacker, stations, KEY_STATIONS, false);
-			writeMessagePackDataset(messagePacker, platforms, KEY_PLATFORMS);
-			writeMessagePackDataset(messagePacker, sidings, KEY_SIDINGS);
-			writeMessagePackDataset(messagePacker, routes, KEY_ROUTES, false);
-			writeMessagePackDataset(messagePacker, depots, KEY_DEPOTS, false);
-			writeMessagePackDataset(messagePacker, signalBlocks.signalBlocks, KEY_SIGNAL_BLOCKS);
-
-			messagePacker.packString(KEY_RAILS);
-			messagePacker.packArrayHeader(rails.size());
-			for (final Map.Entry<BlockPos, Map<BlockPos, Rail>> entry : rails.entrySet()) {
-				final BlockPos startPos = entry.getKey();
-				final Map<BlockPos, Rail> railMap = entry.getValue();
-				final RailEntry data = new RailEntry(startPos, railMap);
-				messagePacker.packMapHeader(data.messagePackLength());
-				data.toMessagePack(messagePacker);
-			}
-			messagePacker.close();
-
-			CompoundTag compoundTag = new CompoundTag();
-			CompoundTag dataTag = new CompoundTag();
-			dataTag.putInt(KEY_DATA_VERSION, DATA_VERSION);
-			dataTag.putByteArray(KEY_RAW_MESSAGE_PACK, bufferStream.toByteArray());
-			compoundTag.put("data", dataTag);
-			compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-			try {
-				NbtIo.writeCompressed(compoundTag, file);
-			} catch (IOException iOException) {
-				iOException.printStackTrace();
-			}
+			FileUtils.deleteDirectory(stationsPath.toFile());
+			FileUtils.deleteDirectory(platformsPath.toFile());
+			FileUtils.deleteDirectory(sidingsPath.toFile());
+			FileUtils.deleteDirectory(routesPath.toFile());
+			FileUtils.deleteDirectory(depotsPath.toFile());
+			FileUtils.deleteDirectory(railsPath.toFile());
+			FileUtils.deleteDirectory(signalBlocksPath.toFile());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		writeMessagePackSetToFile(stations, stationsPath, existingFiles, false);
+		writeMessagePackSetToFile(platforms, platformsPath, existingFiles, true);
+		writeMessagePackSetToFile(sidings, sidingsPath, existingFiles, true);
+		writeMessagePackSetToFile(routes, routesPath, existingFiles, false);
+		writeMessagePackSetToFile(depots, depotsPath, existingFiles, false);
+		rails.forEach((startPos, connections) -> writeMessagePackToFile(new RailEntry(startPos, connections), startPos.asLong(), railsPath, existingFiles));
+		writeMessagePackSetToFile(signalBlocks.signalBlocks, signalBlocksPath, existingFiles, true);
+
+		System.out.println("Minecraft Transit Railway data successfully saved for " + world.dimension().location());
 	}
 
 	public void simulateTrains() {
@@ -433,6 +500,34 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		}
 		prevPlatformCount = platforms.size();
 		prevSidingCount = sidings.size();
+
+		if (canAutoSave) {
+			final boolean deleteEmptyOld = checkFilesToDelete.isEmpty();
+
+			writeDirtyDataToFile(dirtyStationIds, dataCache.stationIdMap::get, id -> id, stationsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtyPlatformIds, dataCache.platformIdMap::get, id -> id, platformsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtySidingIds, dataCache.sidingIdMap::get, id -> id, sidingsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtyRouteIds, dataCache.routeIdMap::get, id -> id, routesPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtyDepotIds, dataCache.depotIdMap::get, id -> id, depotsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath, existingFiles, checkFilesToDelete);
+			writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath, existingFiles, checkFilesToDelete);
+
+			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
+			if (!checkFilesToDelete.isEmpty() && doneWriting) {
+				final String pathString = checkFilesToDelete.remove(0);
+				try {
+					Files.deleteIfExists(Paths.get(pathString));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				existingFiles.remove(pathString);
+			}
+
+			if (!deleteEmptyOld && checkFilesToDelete.isEmpty() && !players.isEmpty()) {
+				System.out.println("Minecraft Transit Railway autosave complete for " + world.dimension().location() + " in " + (System.currentTimeMillis() - autoSaveStartMillis) / 1000 + " seconds\n");
+				setDirty();
+			}
+		}
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
@@ -738,40 +833,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return (float) Math.round(value * factor) / factor;
 	}
 
-	public static void writeMessagePackDataset(MessagePacker packer, Collection<? extends SerializedDataBase> dataSet, String key) throws IOException {
-		writeMessagePackDataset(packer, dataSet, key, true);
-	}
-
-	public static void writeMessagePackDataset(MessagePacker messagePacker, Collection<? extends SerializedDataBase> dataSet, String key, boolean skipVerify) throws IOException {
+	public static void writeMessagePackDataset(MessagePacker messagePacker, Collection<? extends SerializedDataBase> dataSet, String key) throws IOException {
 		messagePacker.packString(key);
-
-		int dataSetSize = 0;
-		if (skipVerify) {
-			dataSetSize = dataSet.size();
-		} else {
-			for (final SerializedDataBase data : dataSet) {
-				if (!(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
-					++dataSetSize;
-				}
-			}
-		}
-
-		messagePacker.packArrayHeader(dataSetSize);
+		messagePacker.packArrayHeader(dataSet.size());
 		for (final SerializedDataBase data : dataSet) {
-			if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
-				messagePacker.packMapHeader(data.messagePackLength());
-				data.toMessagePack(messagePacker);
-			}
+			messagePacker.packMapHeader(data.messagePackLength());
+			data.toMessagePack(messagePacker);
 		}
-	}
-
-	public static Map<String, Value> readMessagePackSKMap(MessageUnpacker messageUnpacker) throws IOException {
-		int size = messageUnpacker.unpackMapHeader();
-		HashMap<String, Value> result = new HashMap<>(size);
-		for (int i = 0; i < size; ++i) {
-			result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
-		}
-		return result;
 	}
 
 	public static Map<String, Value> castMessagePackValueToSKMap(Value value) {
@@ -821,6 +889,71 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			return delete;
 		});
+	}
+
+	private static void readMessagePackFromFile(Path path, Consumer<Map<String, Value>> callback, Set<String> existingFiles) {
+		try {
+			Files.list(path).forEach(idFolder -> {
+				try {
+					Files.list(idFolder).forEach(idFile -> {
+						try {
+							final MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(Files.newInputStream(idFile));
+							final int size = messageUnpacker.unpackMapHeader();
+							final HashMap<String, Value> result = new HashMap<>(size);
+							for (int i = 0; i < size; i++) {
+								result.put(messageUnpacker.unpackString(), messageUnpacker.unpackValue());
+							}
+							callback.accept(result);
+							existingFiles.add(idFile.toString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void writeMessagePackSetToFile(Collection<? extends NameColorDataBase> dataSet, Path path, Set<String> existingFiles, boolean skipVerify) {
+		for (final NameColorDataBase data : dataSet) {
+			if (skipVerify || !data.name.isEmpty()) {
+				writeMessagePackToFile(data, data.id, path, existingFiles);
+			}
+		}
+	}
+
+	private static Path writeMessagePackToFile(SerializedDataBase data, long id, Path path, Set<String> existingFiles) {
+		final Path parentPath = path.resolve(String.valueOf(id % 100));
+		try {
+			Files.createDirectories(parentPath);
+			final Path dataPath = parentPath.resolve(String.valueOf(id));
+			existingFiles.add(dataPath.toString());
+			final MessagePacker messagePacker = MessagePack.newDefaultPacker(Files.newOutputStream(dataPath, StandardOpenOption.CREATE));
+			messagePacker.packMapHeader(data.messagePackLength());
+			data.toMessagePack(messagePacker);
+			messagePacker.close();
+			return dataPath;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private static <T extends SerializedDataBase, U> void writeDirtyDataToFile(List<U> dirtyData, Function<U, T> getId, Function<U, Long> idToLong, Path path, Set<String> existingFiles, List<String> checkFilesToDelete) {
+		if (!dirtyData.isEmpty()) {
+			final U id = dirtyData.remove(0);
+			final T data = getId.apply(id);
+			if (data != null) {
+				final Path newPath = writeMessagePackToFile(data, idToLong.apply(id), path, existingFiles);
+				if (newPath != null) {
+					checkFilesToDelete.remove(newPath.toString());
+				}
+			}
+		}
 	}
 
 	private static class RailEntry extends SerializedDataBase {

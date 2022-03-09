@@ -43,7 +43,7 @@ public interface Items {
 	Item RAIL_CONNECTOR_SIDING = new ItemRailModifier(false, RailType.SIDING);
 	Item RAIL_CONNECTOR_TURN_BACK = new ItemRailModifier(false, RailType.TURN_BACK);
 	Item RAIL_REMOVER = new ItemRailModifier();
-	Item RESOURCE_PACK_CREATOR = new ItemResourcePackCreator(new Item.Properties().tab(ItemGroups.CORE));
+	Item RESOURCE_PACK_CREATOR = new ItemResourcePackCreator(new Item.Properties()); // TODO .tab(ItemGroups.CORE));
 	Item SIGNAL_CONNECTOR_WHITE = new ItemSignalModifier(true, DyeColor.WHITE);
 	Item SIGNAL_CONNECTOR_ORANGE = new ItemSignalModifier(true, DyeColor.ORANGE);
 	Item SIGNAL_CONNECTOR_MAGENTA = new ItemSignalModifier(true, DyeColor.MAGENTA);

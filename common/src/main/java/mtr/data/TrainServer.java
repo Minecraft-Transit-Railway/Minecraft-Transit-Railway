@@ -94,16 +94,16 @@ public class TrainServer extends Train {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
-					if (seat != null && seat.canMount()) {
+					if (seat != null) {
 						ridingEntities.add(player.getUUID());
-						seat.updateRidingByTrainServer(id);
-						seat.percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
-						seat.percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
-						seat.updateDataToClient(railProgress);
+						final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
+						final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
+						final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+						packet.writeLong(id);
+						packet.writeFloat(percentageX);
+						packet.writeFloat(percentageZ);
+						Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
 					}
-					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-					packet.writeLong(id);
-					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
 				}
 			});
 		}
@@ -112,9 +112,20 @@ public class TrainServer extends Train {
 		ridingEntities.forEach(uuid -> {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
-				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
-				if (player.isSpectator() || (doorLeftOpen || doorRightOpen) && Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2)) {
+				final boolean remove;
+				if (player.isSpectator() || player.isShiftKeyDown()) {
+					remove = true;
+				} else if (doorLeftOpen || doorRightOpen) {
+					final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
+					remove = Math.abs(positionRotated.z) <= halfSpacing && (Math.abs(positionRotated.x) > halfWidth + INNER_PADDING || Math.abs(positionRotated.y) > 2);
+				} else {
+					remove = false;
+				}
+				if (remove) {
 					ridersToRemove.add(uuid);
+					((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
+				} else {
+					Utilities.getAbilities(player).mayfly = true;
 				}
 			}
 		});
@@ -162,34 +173,7 @@ public class TrainServer extends Train {
 			});
 		}
 
-		final Set<UUID> ridersToRemove = new HashSet<>();
 		if (!ridingEntities.isEmpty()) {
-			ridingEntities.forEach(uuid -> {
-				final Player ridingPlayer = world.getPlayerByUUID(uuid);
-				final RailwayData railwayData = RailwayData.getInstance(world);
-
-				if (ridingPlayer != null && railwayData != null) {
-					final EntitySeat seat = railwayData.getSeatFromPlayer(ridingPlayer);
-
-					if (seat != null) {
-						if (!ridingPlayer.isShiftKeyDown() && seat.updateRidingByTrainServer(id)) {
-							final CalculateCarCallback moveClient = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> seat.absMoveTo(x, y, z);
-							final int currentRidingCar = (int) Math.floor(seat.percentageZ);
-							handleRider(world, positions, ticksElapsed, doorValueRaw, seat, ridingPlayer, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-								final int newRidingCar = (int) Math.floor(seat.percentageZ);
-								if (currentRidingCar == newRidingCar) {
-									moveClient.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
-								} else {
-									calculateCar(world, positions, newRidingCar, Math.abs(doorValueRaw), 0, moveClient);
-								}
-							});
-						} else {
-							ridersToRemove.add(uuid);
-						}
-					}
-				}
-			});
-
 			checkBlock(frontPos, checkPos -> {
 				if (world.getBlockState(checkPos).getBlock() instanceof BlockTrainAnnouncer) {
 					final BlockEntity entity = world.getBlockEntity(checkPos);
@@ -198,9 +182,6 @@ public class TrainServer extends Train {
 					}
 				}
 			});
-		}
-		if (!ridersToRemove.isEmpty()) {
-			ridersToRemove.forEach(ridingEntities::remove);
 		}
 
 		return playerNearby[0];

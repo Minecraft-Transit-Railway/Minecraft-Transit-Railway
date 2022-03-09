@@ -16,4 +16,9 @@ public class ModelR179Mini extends ModelR179 {
 	protected int[] getEndPositions() {
 		return new int[]{-64, 64};
 	}
+
+	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{0};
+	}
 }

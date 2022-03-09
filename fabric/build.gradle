@@ -50,3 +50,35 @@ components.java {
 		skip()
 	}
 }
+
+task moveFabricBuilds() {
+	doLast {
+		delete fileTree("../build/release").matching {
+			include "**/MTR-fabric*"
+		}
+		delete fileTree("../build/libs").matching {
+			include "**/MTR-fabric*"
+		}
+		copy {
+			from "build/libs"
+			into "../build/release"
+			rename "(.+)", "MTR-\$1"
+		}
+		copy {
+			from "../build/release"
+			include "*dev-shadow.jar"
+			into "../build/libs"
+		}
+		delete fileTree("../build/release").matching {
+			include "*dev-shadow.jar"
+		}
+	}
+}
+
+afterEvaluate {
+	for (def task in it.tasks) {
+		if (task == tasks.build) {
+			task.finalizedBy tasks.moveFabricBuilds
+		}
+	}
+}

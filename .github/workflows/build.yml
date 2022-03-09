@@ -1,48 +1,34 @@
-name: build
+name: Build
 on: [ pull_request, push ]
 
 jobs:
   build:
     strategy:
       matrix:
-        java: [ 16, 17 ]
-        os: [ ubuntu-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
+        minecraft: [ 1.16.5, 1.17.1, 1.18.2 ]
+        loader: [ fabric, forge, common ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: Setup jdk ${{ matrix.java }}
+      - name: Setup JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java }}
+          java-version: 17
       - name: Make gradle wrapper executable
-        if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      - name: Build 1.16 Fabric
-        run: ./gradlew fabric:build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.16 Forge
-        run: ./gradlew forge:build -PbuildVersion="1.16.5" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.17 Fabric
-        run: ./gradlew fabric:build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.17 Forge
-        run: ./gradlew forge:build -PbuildVersion="1.17.1" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.18 Fabric
-        if: ${{ matrix.java == '17' }}
-        run: ./gradlew fabric:build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Build 1.18 Forge
-        if: ${{ matrix.java == '17' }}
-        run: ./gradlew forge:build -PbuildVersion="1.18" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
-      - name: Capture Fabric build artifacts
-        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
+      - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
+        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Capture release artifacts
+        if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Fabric
-          path: fabric/build/libs/
-      - name: Capture Forge build artifacts
-        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
+          name: Fabric and Forge
+          path: build/release/
+      - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Forge
-          path: forge/build/libs/
+          name: Libraries
+          path: build/libs/
