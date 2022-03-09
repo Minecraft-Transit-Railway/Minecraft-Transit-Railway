@@ -3,6 +3,7 @@ package mtr.screen;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
@@ -135,11 +136,12 @@ public class DashboardList implements IGui {
 	public void setData(List<? extends NameColorDataBase> dataList, boolean hasFind, boolean hasDrawArea, boolean hasEdit, boolean hasSort, boolean hasAdd, boolean hasDelete) {
 		dataSorted = new ArrayList<>(dataList);
 		this.hasFind = hasFind;
-		this.hasDrawArea = hasDrawArea;
-		this.hasEdit = hasEdit;
-		this.hasSort = hasSort;
-		this.hasAdd = hasAdd;
-		this.hasDelete = hasDelete;
+		final boolean hasPermission = ClientData.hasPermission();
+		this.hasDrawArea = hasPermission && hasDrawArea;
+		this.hasEdit = hasPermission && hasEdit;
+		this.hasSort = hasPermission && hasSort;
+		this.hasAdd = hasPermission && hasAdd;
+		this.hasDelete = hasPermission && hasDelete;
 	}
 
 	public void render(PoseStack matrices, Font textRenderer) {

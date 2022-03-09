@@ -432,9 +432,11 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	}
 
 	private void toggleButtons() {
-		buttonAddStation.visible = selectedTab == SelectedTab.STATIONS && editingArea == null;
-		buttonAddRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute == null;
-		buttonAddDepot.visible = selectedTab == SelectedTab.DEPOTS && editingArea == null;
+		final boolean hasPermission = ClientData.hasPermission();
+
+		buttonAddStation.visible = selectedTab == SelectedTab.STATIONS && editingArea == null && hasPermission;
+		buttonAddRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute == null && hasPermission;
+		buttonAddDepot.visible = selectedTab == SelectedTab.DEPOTS && editingArea == null && hasPermission;
 		buttonDoneEditingStation.visible = selectedTab == SelectedTab.STATIONS && editingArea != null;
 		buttonDoneEditingStation.active = AreaBase.nonNullCorners(editingArea);
 		buttonDoneEditingRoute.visible = selectedTab == SelectedTab.ROUTES && editingRoute != null;
