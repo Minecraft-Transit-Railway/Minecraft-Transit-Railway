@@ -79,6 +79,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final List<Rail.RailActions> railActions = new ArrayList<>();
@@ -382,6 +383,16 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			seat.updateSeatByRailwayData(player);
 		});
 
+		final Set<Player> playersToRemove = new HashSet<>();
+		playerRidingCoolDown.forEach((player, coolDown) -> {
+			if (coolDown <= 0) {
+				updatePlayerRiding(player, false);
+				playersToRemove.add(player);
+			}
+			playerRidingCoolDown.put(player, coolDown - 1);
+		});
+		playersToRemove.forEach(playerRidingCoolDown::remove);
+
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);
 			PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
@@ -524,7 +535,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 
 			if (!deleteEmptyOld && checkFilesToDelete.isEmpty() && !players.isEmpty()) {
-				System.out.println("Minecraft Transit Railway autosave complete for " + world.dimension().location() + " in " + (System.currentTimeMillis() - autoSaveStartMillis) / 1000 + " seconds\n");
+				System.out.println("Minecraft Transit Railway autosave complete for " + world.dimension().location() + " in " + (System.currentTimeMillis() - autoSaveStartMillis) / 1000 + " seconds");
 				setDirty();
 			}
 		}
@@ -532,6 +543,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
+		playerRidingCoolDown.put(serverPlayer, 2);
+	}
+
+	public void updatePlayerRiding(Player player) {
+		updatePlayerRiding(player, true);
+		playerRidingCoolDown.put(player, 2);
 	}
 
 	public EntitySeat getSeatFromPlayer(Player player) {
@@ -954,6 +971,18 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 				}
 			}
 		}
+	}
+
+	private static void updatePlayerRiding(Player player, boolean isRiding) {
+		player.fallDistance = 0;
+		player.setNoGravity(isRiding);
+		player.noPhysics = isRiding;
+		if (isRiding) {
+			Utilities.getAbilities(player).mayfly = true;
+		} else {
+			((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
+		}
+		Registry.setInTeleportationState(player, isRiding);
 	}
 
 	private static class RailEntry extends SerializedDataBase {
