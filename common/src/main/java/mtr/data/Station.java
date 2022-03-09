@@ -33,7 +33,7 @@ public final class Station extends AreaBase {
 		super(id);
 	}
 
-	public Station(Map<String, Value> map) throws IOException {
+	public Station(Map<String, Value> map) {
 		super(map);
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 		zone = messagePackHelper.getInt(KEY_ZONE);

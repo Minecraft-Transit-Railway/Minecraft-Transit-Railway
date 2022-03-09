@@ -25,7 +25,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 
 	private final Component savedRailNumberText;
 
-	protected static final int SLIDER_WIDTH = 160;
+	protected static final int SLIDER_WIDTH = 240;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
 	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component... additionalTexts) {

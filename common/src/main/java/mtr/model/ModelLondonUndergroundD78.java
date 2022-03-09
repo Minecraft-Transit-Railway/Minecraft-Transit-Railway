@@ -1251,6 +1251,11 @@ public class ModelLondonUndergroundD78 extends ModelTrainBase {
 	}
 
 	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{-92, 92};
+	}
+
+	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

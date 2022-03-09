@@ -20,6 +20,7 @@ import net.minecraft.world.item.Item;
 public class MTRClient implements IPacket {
 
 	private static boolean isReplayMod;
+	private static boolean isVivecraft;
 	private static float gameTick = 0;
 	private static float lastPlayedTrainSoundsTick = 0;
 
@@ -284,12 +285,23 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
+			try {
+				Class.forName("org.vivecraft.main.VivecraftMain");
+				isVivecraft = true;
+			} catch (Exception ignored) {
+				isVivecraft = false;
+			}
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
+			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
 		});
 	}
 
 	public static boolean isReplayMod() {
 		return isReplayMod;
+	}
+
+	public static boolean isVivecraft() {
+		return isVivecraft;
 	}
 
 	public static float getGameTick() {
