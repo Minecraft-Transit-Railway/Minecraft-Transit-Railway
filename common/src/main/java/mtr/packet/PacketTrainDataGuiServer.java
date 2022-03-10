@@ -68,9 +68,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_OPEN_RESOURCE_PACK_CREATOR_SCREEN, packet);
 	}
 
-	public static void announceS2C(ServerPlayer player, String message) {
+	public static void announceS2C(ServerPlayer player, String message, ResourceLocation soundId) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeUtf(message);
+		packet.writeUtf(soundId == null ? null : soundId.toString());
 		Registry.sendToPlayer(player, PACKET_ANNOUNCE, packet);
 	}
 
@@ -214,11 +215,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final boolean stoppedOnly = packet.readBoolean();
 		final boolean movingOnly = packet.readBoolean();
 		final int number = packet.readInt();
-		final String string = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final int stringCount = packet.readInt();
+		final String[] strings = new String[stringCount];
+		for (int i = 0; i < stringCount; i++) {
+			strings[i] = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		}
 		minecraftServer.execute(() -> {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
-				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, stoppedOnly, movingOnly, number, string);
+				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, stoppedOnly, movingOnly, number, strings);
 			}
 		});
 	}

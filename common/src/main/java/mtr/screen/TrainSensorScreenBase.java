@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -28,21 +29,30 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 	private boolean movingOnly;
 
 	protected final BlockPos pos;
-	protected final WidgetBetterTextField textField;
+	protected final WidgetBetterTextField[] textFields;
 
 	private final Set<Long> filterRouteIds;
-	private final Component textFieldLabel;
+	private final int textFieldCount;
+	private final Component[] textFieldLabels;
 	private final WidgetBetterCheckbox stoppedOnlyCheckbox;
 	private final WidgetBetterCheckbox movingOnlyCheckbox;
 	private final Button filterButton;
 	private final boolean hasSpeedCheckboxes;
 	private final int yStart;
 
-	public TrainSensorScreenBase(BlockPos pos, boolean hasSpeedCheckboxes, WidgetBetterTextField textField, Component textFieldLabel) {
+	@SafeVarargs
+	public TrainSensorScreenBase(BlockPos pos, boolean hasSpeedCheckboxes, Tuple<WidgetBetterTextField, Component>... textFieldsAndLabels) {
 		super(new TextComponent(""));
 		this.pos = pos;
-		this.textField = textField;
-		this.textFieldLabel = textFieldLabel;
+
+		textFieldCount = textFieldsAndLabels.length;
+		textFields = new WidgetBetterTextField[textFieldCount];
+		textFieldLabels = new Component[textFieldCount];
+
+		for (int i = 0; i < textFieldCount; i++) {
+			textFields[i] = textFieldsAndLabels[i].getA();
+			textFieldLabels[i] = textFieldsAndLabels[i].getB();
+		}
 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {
@@ -70,16 +80,17 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 		});
 
 		this.hasSpeedCheckboxes = hasSpeedCheckboxes;
-		yStart = (textField == null ? SQUARE_SIZE : SQUARE_SIZE * 4 + TEXT_FIELD_PADDING) + (hasSpeedCheckboxes ? 2 * SQUARE_SIZE : 0);
+		yStart = (textFieldCount == 0 ? SQUARE_SIZE : SQUARE_SIZE * 3 + TEXT_HEIGHT + TEXT_PADDING * 2 + TEXT_FIELD_PADDING) + (hasSpeedCheckboxes ? 2 * SQUARE_SIZE : 0);
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 
-		if (textField != null) {
-			IDrawing.setPositionAndWidth(textField, SQUARE_SIZE + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 + TEXT_FIELD_PADDING / 2, width - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-			addDrawableChild(textField);
+		final int textFieldWidth = textFieldCount == 0 ? 0 : (width - SQUARE_SIZE * 2) / textFieldCount;
+		for (int i = 0; i < textFieldCount; i++) {
+			IDrawing.setPositionAndWidth(textFields[i], SQUARE_SIZE + TEXT_FIELD_PADDING / 2 + textFieldWidth * i, SQUARE_SIZE + TEXT_HEIGHT + TEXT_PADDING + TEXT_FIELD_PADDING / 2, textFieldWidth - TEXT_FIELD_PADDING);
+			addDrawableChild(textFields[i]);
 		}
 
 		if (hasSpeedCheckboxes) {
@@ -97,7 +108,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 
 	@Override
 	public void tick() {
-		if (textField != null) {
+		for (final WidgetBetterTextField textField : textFields) {
 			textField.tick();
 		}
 	}
@@ -106,8 +117,8 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			if (textFieldLabel != null) {
-				font.draw(matrices, textFieldLabel, SQUARE_SIZE, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			for (int i = 0; i < textFieldCount; i++) {
+				font.draw(matrices, textFieldLabels[i], SQUARE_SIZE + (float) (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE);
 			}
 			font.draw(matrices, new TranslatableComponent("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
 			font.draw(matrices, new TranslatableComponent(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
@@ -119,6 +130,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 				}
 				i += TEXT_HEIGHT;
 			}
+			renderAdditional(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,7 +139,11 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 
 	@Override
 	public void onClose() {
-		PacketTrainDataGuiClient.sendTrainSensorC2S(pos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), getString());
+		final String[] strings = new String[textFieldCount];
+		for (int i = 0; i < textFieldCount; i++) {
+			strings[i] = textFields[i].getValue();
+		}
+		PacketTrainDataGuiClient.sendTrainSensorC2S(pos, filterRouteIds, stoppedOnly, movingOnly, getNumber(), strings);
 		super.onClose();
 	}
 
@@ -136,12 +152,11 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 		return false;
 	}
 
-	protected int getNumber() {
-		return 0;
+	protected void renderAdditional(PoseStack matrices) {
 	}
 
-	protected String getString() {
-		return "";
+	protected int getNumber() {
+		return 0;
 	}
 
 	private void setChecked(boolean newStoppedOnly, boolean newMovingOnly) {

@@ -103,6 +103,6 @@ public abstract class BlockTrainSensorBase extends Block implements EntityBlockM
 			syncData();
 		}
 
-		public abstract void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string);
+		public abstract void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings);
 	}
 }
