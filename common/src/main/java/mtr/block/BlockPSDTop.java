@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -30,11 +31,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock, IPropagateBlock {
+public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock {
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.create("door_light", EnumDoorLight.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.create("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.create("air_right");
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
 
 	public BlockPSDTop() {
 		super(Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion());
@@ -43,9 +45,9 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 1);
+			world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 1);
 		});
 	}
 
@@ -102,7 +104,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, PROPAGATE_PROPERTY);
+		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, ARROW_DIRECTION);
 	}
 
 	@Override

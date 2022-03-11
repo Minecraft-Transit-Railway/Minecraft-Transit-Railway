@@ -17,11 +17,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 
-public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IPropagateBlock, IBlock {
+public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements EntityBlockMapper, IBlock {
+
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
 
 	public BlockRouteSignBase() {
 		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 15).noOcclusion());
@@ -33,8 +36,8 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			if (isUpper && y - Math.floor(y) > 0.8125) {
-				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, Direction.DOWN, 1);
+				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
+				propagate(world, pos, Direction.DOWN, ARROW_DIRECTION, 1);
 			} else {
 				final BlockEntity entity = world.getBlockEntity(pos.below(isUpper ? 1 : 0));
 				if (entity instanceof TileEntityRouteSignBase) {
@@ -46,7 +49,7 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF, PROPAGATE_PROPERTY);
+		builder.add(FACING, HALF, ARROW_DIRECTION);
 	}
 
 	public static abstract class TileEntityRouteSignBase extends BlockEntityClientSerializableMapper {

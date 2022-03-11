@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.IBlock;
-import mtr.block.IPropagateBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
@@ -28,14 +28,16 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 	protected final float topPadding;
 	private final float z;
 	private final boolean transparentWhite;
+	private final Property<Integer> arrowDirectionProperty;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean transparentWhite) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
 		super(dispatcher);
 		this.z = z / 16;
 		this.sidePadding = sidePadding / 16;
 		this.bottomPadding = bottomPadding / 16;
 		this.topPadding = topPadding / 16;
 		this.transparentWhite = transparentWhite;
+		this.arrowDirectionProperty = arrowDirectionProperty;
 	}
 
 	@Override
@@ -71,7 +73,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 				if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
 					final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
 					final float height = 1 - topPadding - bottomPadding;
-					final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+					final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
 
 					final VertexConsumer vertexConsumer;
 					if (renderType == RenderType.ARROW) {

@@ -27,6 +27,18 @@ public interface IBlock {
 	EnumProperty<EnumSide> SIDE_EXTENDED = EnumProperty.create("side", EnumSide.class);
 	EnumProperty<EnumSide> SIDE = EnumProperty.create("side", EnumSide.class, side -> side != EnumSide.MIDDLE && side != EnumSide.SINGLE);
 
+	default <T extends Comparable<T>> void propagate(Level world, BlockPos pos, Direction direction, Property<T> property, int maxBlocksAway) {
+		for (int i = 1; i <= maxBlocksAway; i++) {
+			final BlockPos offsetPos = pos.relative(direction, i);
+			final BlockState offsetState = world.getBlockState(offsetPos);
+			if (this == offsetState.getBlock()) {
+				world.setBlockAndUpdate(offsetPos, offsetState.setValue(property, IBlock.getStatePropertySafe(world, pos, property)));
+				propagate(world, offsetPos, direction, property, maxBlocksAway);
+				return;
+			}
+		}
+	}
+
 	static InteractionResult checkHoldingBrush(Level world, Player player, Runnable callbackBrush, Runnable callbackNoBrush) {
 		if (player.isHolding(Items.BRUSH)) {
 			if (!world.isClientSide) {
