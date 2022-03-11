@@ -247,7 +247,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			if (entity instanceof BlockRailwaySign.TileEntityRailwaySign) {
 				((BlockRailwaySign.TileEntityRailwaySign) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
-				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0]);
+				final long platformId = selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0];
+				((BlockRouteSignBase.TileEntityRouteSignBase) entity).setPlatformId(platformId);
+				final BlockEntity entityAbove = player.level.getBlockEntity(signPos.above());
+				if (entityAbove instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
+					((BlockRouteSignBase.TileEntityRouteSignBase) entityAbove).setPlatformId(platformId);
+				}
 			}
 		});
 	}

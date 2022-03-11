@@ -54,6 +54,10 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	public static DynamicTexture generateStationName(long platformId, float aspectRatio) {
+		if (aspectRatio <= 0) {
+			return null;
+		}
+		
 		try {
 			final int[] dimensions = new int[2];
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(getStationName(platformId), dimensions, fontSizeBig, fontSizeSmall);
@@ -73,6 +77,10 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
+		if (aspectRatio <= 0) {
+			return null;
+		}
+
 		try {
 			final List<Integer> colors = new ArrayList<>();
 			final List<String> destinations = new ArrayList<>();
@@ -110,6 +118,10 @@ public class RouteMapGenerator implements IGui {
 			final int width = Math.round(height * aspectRatio);
 			final int padding = Math.round(height * paddingScale);
 			final int tileSize = height - padding * 2;
+
+			if (width <= 0 || height <= 0) {
+				return null;
+			}
 
 			final ClientCache clientCache = ClientData.DATA_CACHE;
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
@@ -169,6 +181,10 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	public static DynamicTexture generateRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
+		if (aspectRatio <= 0) {
+			return null;
+		}
+
 		try {
 			final List<Tuple<Route, Integer>> routeDetails = getRouteStream(platformId).map(route -> {
 				final int currentIndex = route.platformIds.indexOf(platformId);
@@ -253,6 +269,10 @@ public class RouteMapGenerator implements IGui {
 					width = Math.round(height * aspectRatio);
 					heightScale = 1;
 					widthScale = width / rawWidth / scale;
+				}
+
+				if (width <= 0 || height <= 0) {
+					return null;
 				}
 
 				final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
