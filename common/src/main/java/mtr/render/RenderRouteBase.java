@@ -23,19 +23,18 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
+	protected float bottomPadding;
+	protected float topPadding;
+
 	protected final float sidePadding;
-	protected final float bottomPadding;
-	protected final float topPadding;
 	private final float z;
 	private final boolean transparentWhite;
 	private final Property<Integer> arrowDirectionProperty;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, float bottomPadding, float topPadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
 		super(dispatcher);
 		this.z = z / 16;
 		this.sidePadding = sidePadding / 16;
-		this.bottomPadding = bottomPadding / 16;
-		this.topPadding = topPadding / 16;
 		this.transparentWhite = transparentWhite;
 		this.arrowDirectionProperty = arrowDirectionProperty;
 	}
@@ -56,7 +55,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
 			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
 
 			if (platformId != 0) {
@@ -70,7 +69,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 				final int color = ARGB_BLACK + (colorByte << 16) + (colorByte << 8) + colorByte;
 				final RenderType renderType = getRenderType(world, pos.relative(facing.getCounterClockWise(), leftBlocks), state);
 
-				if (renderType == RenderType.ARROW || renderType == RenderType.ROUTE) {
+				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
 					final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
 					final float height = 1 - topPadding - bottomPadding;
 					final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
