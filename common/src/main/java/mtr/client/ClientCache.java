@@ -381,7 +381,7 @@ public class ClientCache extends DataCache {
 		}
 
 		private void remove() {
-			if (!resourceLocation.equals(DEFAULT_BLACK_RESOURCE) && !resourceLocation.equals(DEFAULT_WHITE_RESOURCE)) {
+			if (!resourceLocation.equals(DEFAULT_BLACK_RESOURCE) && !resourceLocation.equals(DEFAULT_WHITE_RESOURCE) && !resourceLocation.equals(DEFAULT_TRANSPARENT_RESOURCE)) {
 				final TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 				textureManager.release(resourceLocation);
 				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
