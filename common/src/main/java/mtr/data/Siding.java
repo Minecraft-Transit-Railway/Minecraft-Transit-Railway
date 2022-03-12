@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class Siding extends SavedRailBase implements IPacket {
+public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	private Level world;
 	private Depot depot;
@@ -112,6 +112,12 @@ public class Siding extends SavedRailBase implements IPacket {
 
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		toReducedMessagePack(messagePacker);
+		RailwayData.writeMessagePackDataset(messagePacker, trains, KEY_TRAINS);
+	}
+
+	@Override
+	public void toReducedMessagePack(MessagePacker messagePacker) throws IOException {
 		super.toMessagePack(messagePacker);
 
 		messagePacker.packString(KEY_RAIL_LENGTH).packFloat(railLength);
@@ -121,12 +127,16 @@ public class Siding extends SavedRailBase implements IPacket {
 		messagePacker.packString(KEY_MAX_TRAINS).packInt(maxTrains);
 		messagePacker.packString(KEY_ACCELERATION_CONSTANT).packFloat(accelerationConstant);
 		RailwayData.writeMessagePackDataset(messagePacker, path, KEY_PATH);
-		RailwayData.writeMessagePackDataset(messagePacker, trains, KEY_TRAINS);
 	}
 
 	@Override
 	public int messagePackLength() {
 		return super.messagePackLength() + 8;
+	}
+
+	@Override
+	public int reducedMessagePackLength() {
+		return messagePackLength() - 1;
 	}
 
 	@Override

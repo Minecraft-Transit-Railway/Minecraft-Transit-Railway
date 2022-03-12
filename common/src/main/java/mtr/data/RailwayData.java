@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -23,6 +25,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.Value;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -190,18 +193,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataFileSaveModule.load();
 		validateData();
 		dataCache.sync();
-		setDirty();
+	}
+
+	@Override
+	public void save(File file) {
+		final MinecraftServer minecraftServer = ((ServerLevel) world).getServer();
+		if (minecraftServer.isStopped() || !minecraftServer.isRunning()) {
+			railwayDataFileSaveModule.fullSave();
+		} else {
+			railwayDataFileSaveModule.autoSave();
+		}
+		super.save(file);
 	}
 
 	@Override
 	public CompoundTag save(CompoundTag compoundTag) {
-		railwayDataFileSaveModule.autoSave();
 		return compoundTag;
-	}
-
-	public void save() {
-		validateData();
-		railwayDataFileSaveModule.fullSave();
 	}
 
 	public void simulateTrains() {

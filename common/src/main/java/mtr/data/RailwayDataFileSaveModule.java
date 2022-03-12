@@ -23,8 +23,8 @@ import java.util.function.Function;
 public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
 	private boolean canAutoSave = false;
-	private int filesWrittenDepotSiding;
-	private int filesWrittenOther;
+	private boolean useReducedHash = true;
+	private int filesWritten;
 	private int filesDeleted;
 	private long autoSaveStartMillis;
 
@@ -91,6 +91,15 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	}
 
 	public void fullSave() {
+		useReducedHash = false;
+		dirtyStationIds.clear();
+		dirtyPlatformIds.clear();
+		dirtySidingIds.clear();
+		dirtyRouteIds.clear();
+		dirtyDepotIds.clear();
+		dirtyRailPositions.clear();
+		dirtySignalBlocks.clear();
+		checkFilesToDelete.clear();
 		autoSave();
 		while (true) {
 			if (autoSaveTick()) {
@@ -103,8 +112,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	public void autoSave() {
 		if (canAutoSave && checkFilesToDelete.isEmpty()) {
 			autoSaveStartMillis = System.currentTimeMillis();
-			filesWrittenDepotSiding = 0;
-			filesWrittenOther = 0;
+			filesWritten = 0;
 			filesDeleted = 0;
 			dirtyStationIds.addAll(railwayData.dataCache.stationIdMap.keySet());
 			dirtyPlatformIds.addAll(railwayData.dataCache.platformIdMap.keySet());
@@ -142,16 +150,15 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 			}
 
 			if (!deleteEmptyOld && checkFilesToDelete.isEmpty()) {
-				if (filesWrittenOther > 0 || filesDeleted > 0) {
+				if (!useReducedHash || filesWritten > 0 || filesDeleted > 0) {
 					System.out.println("Minecraft Transit Railway save complete for " + world.dimension().location() + " in " + (System.currentTimeMillis() - autoSaveStartMillis) / 1000 + " second(s)");
-					if (filesWrittenOther > 0) {
-						System.out.println("- Changed: " + filesWrittenDepotSiding + " (Depots and Sidings), " + filesWrittenOther + " (Other)");
+					if (filesWritten > 0) {
+						System.out.println("- Changed: " + filesWritten);
 					}
 					if (filesDeleted > 0) {
 						System.out.println("- Deleted: " + filesDeleted);
 					}
 				}
-				railwayData.setDirty();
 			}
 
 			return doneWriting && checkFilesToDelete.isEmpty();
@@ -177,9 +184,9 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 							final T data = getData.apply(result);
 							if (skipVerify || !(data instanceof NameColorDataBase) || !((NameColorDataBase) data).name.isEmpty()) {
 								callback.accept(data);
-								existingFiles.put(idFile, getHash(data));
 							}
 
+							existingFiles.put(idFile, getHash(data, true));
 							messageUnpacker.close();
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -199,7 +206,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		try {
 			Files.createDirectories(parentPath);
 			final Path dataPath = parentPath.resolve(String.valueOf(id));
-			final int hash = getHash(data);
+			final int hash = getHash(data, useReducedHash);
 
 			if (!existingFiles.containsKey(dataPath) || hash != existingFiles.get(dataPath)) {
 				final MessagePacker messagePacker = MessagePack.newDefaultPacker(Files.newOutputStream(dataPath, StandardOpenOption.CREATE));
@@ -208,11 +215,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 				messagePacker.close();
 
 				existingFiles.put(dataPath, hash);
-				if (data instanceof Depot || data instanceof Siding) {
-					filesWrittenDepotSiding++;
-				} else {
-					filesWrittenOther++;
-				}
+				filesWritten++;
 			}
 
 			return dataPath;
@@ -236,13 +239,21 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		}
 	}
 
-	private static int getHash(SerializedDataBase data) {
+	private static int getHash(SerializedDataBase data, boolean useReducedHash) {
 		try {
 			final MessageBufferPacker messageBufferPacker = MessagePack.newDefaultBufferPacker();
-			messageBufferPacker.packMapHeader(data.messagePackLength());
-			data.toMessagePack(messageBufferPacker);
+
+			if (useReducedHash && data instanceof IReducedSaveData) {
+				messageBufferPacker.packMapHeader(((IReducedSaveData) data).reducedMessagePackLength());
+				((IReducedSaveData) data).toReducedMessagePack(messageBufferPacker);
+			} else {
+				messageBufferPacker.packMapHeader(data.messagePackLength());
+				data.toMessagePack(messageBufferPacker);
+			}
+
 			final int hash = Arrays.hashCode(messageBufferPacker.toByteArray());
 			messageBufferPacker.close();
+
 			return hash;
 		} catch (Exception e) {
 			e.printStackTrace();

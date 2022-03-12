@@ -400,12 +400,6 @@ public class MTR implements IPacket {
 			}
 		});
 		Registry.registerServerStoppingEvent(minecraftServer -> {
-			minecraftServer.getAllLevels().forEach(serverWorld -> {
-				final RailwayData railwayData = RailwayData.getInstance(serverWorld);
-				if (railwayData != null) {
-					railwayData.save();
-				}
-			});
 			try {
 				webServer.stop();
 			} catch (Exception e) {
