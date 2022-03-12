@@ -71,7 +71,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	public static void announceS2C(ServerPlayer player, String message, ResourceLocation soundId) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeUtf(message);
-		packet.writeUtf(soundId == null ? null : soundId.toString());
+		packet.writeUtf(soundId == null ? "" : soundId.toString());
 		Registry.sendToPlayer(player, PACKET_ANNOUNCE, packet);
 	}
 
