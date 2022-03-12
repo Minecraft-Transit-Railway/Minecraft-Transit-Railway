@@ -6,7 +6,6 @@ import com.mojang.math.Vector3f;
 import mtr.block.BlockRouteSignBase;
 import mtr.block.BlockStationNameBase;
 import mtr.block.IBlock;
-import mtr.block.IPropagateBlock;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
@@ -28,11 +27,12 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 
 	private static final float SIDE = 2.5F / 16;
 	private static final float BOTTOM = 10.5F / 16;
-	private static final float MIDDLE = 29F / 16;
-	private static final float TOP = 31.5F / 16;
+	private static final float MIDDLE = 13F / 16;
+	private static final float TOP = 15.5F / 16;
 	private static final float WIDTH = 1 - SIDE * 2;
-	private static final float HEIGHT_BOTTOM = MIDDLE - BOTTOM;
+	private static final float HEIGHT_BOTTOM = MIDDLE - BOTTOM + 1;
 	private static final float HEIGHT_TOP = TOP - MIDDLE;
+	private static final float TEXTURE_BREAK = MIDDLE / HEIGHT_BOTTOM;
 
 	public RenderRouteSign(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
@@ -52,10 +52,8 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 			return;
 		}
 
-		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-			return;
-		}
-		final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
+		final boolean isTop = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;
+		final int arrowDirection = IBlock.getStatePropertySafe(state, BlockRouteSignBase.ARROW_DIRECTION);
 
 		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 		if (station == null) {
@@ -77,10 +75,12 @@ public class RenderRouteSign<T extends BlockRouteSignBase.TileEntityRouteSignBas
 		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));
 		matrices.translate(-0.5, 0, 0.4375 - SMALL_OFFSET * 2);
 
-		final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, true, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, false)));
-		IDrawing.drawTexture(matrices, vertexConsumer1, 1 - SIDE, TOP, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		if (isTop) {
+			final VertexConsumer vertexConsumer1 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platform.id, true, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, false)));
+			IDrawing.drawTexture(matrices, vertexConsumer1, 1 - SIDE, TOP, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		}
 		final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platform.id, true, false, HEIGHT_BOTTOM / WIDTH, false)));
-		IDrawing.drawTexture(matrices, vertexConsumer2, 1 - SIDE, MIDDLE, 0, 1 - SIDE, BOTTOM, 0, SIDE, BOTTOM, 0, SIDE, MIDDLE, 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+		IDrawing.drawTexture(matrices, vertexConsumer2, 1 - SIDE, isTop ? MIDDLE : 1, 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? MIDDLE : 1, 0, isTop ? 0 : TEXTURE_BREAK, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
 
 		matrices.popPose();
 	}

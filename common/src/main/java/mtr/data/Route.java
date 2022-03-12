@@ -51,6 +51,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, messagePackHelper.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = messagePackHelper.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		isHidden = messagePackHelper.getBoolean(KEY_IS_ROUTE_HIDDEN);
 		lightRailRouteNumber = messagePackHelper.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, messagePackHelper.getString(KEY_CIRCULAR_STATE));
 	}

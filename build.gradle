@@ -11,14 +11,14 @@ def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion") : default_minecraft_version
 def is_1_16 = (minecraft_version as String).startsWith("1.16")
 def is_1_17 = (minecraft_version as String).startsWith("1.17")
+def is_1_18 = (minecraft_version as String) == "1.18"
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
 
-rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : rootProject.architectury_version_1_18
+rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : is_1_18 ? rootProject.architectury_version_1_18 : rootProject.architectury_version_1_18_2
 rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
-rootProject.ext.fabric_loader_version = is_1_16 ? rootProject.fabric_loader_version_1_16 : is_1_17 ? rootProject.fabric_loader_version_1_17 : rootProject.fabric_loader_version_1_18
-rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : rootProject.fabric_version_1_18
-rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : rootProject.forge_version_1_18
-rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : rootProject.mod_menu_version_1_18
+rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : is_1_18 ? rootProject.fabric_version_1_18 : rootProject.fabric_version_1_18_2
+rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : is_1_18 ? rootProject.forge_version_1_18 : rootProject.forge_version_1_18_2
+rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : is_1_18 ? rootProject.mod_menu_version_1_18 : rootProject.mod_menu_version_1_18_2
 
 architectury {
 	minecraft = minecraft_version
@@ -119,7 +119,7 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "fabric/src/main/UnknownPacketMixinTemplate.java"
 		into "fabric/src/main/java/mtr/mixin"
-		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 ? "apache.logging.log4j" : "slf4j"])
+		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 || is_1_18 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 || is_1_18 ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
 	if (is_1_16 || is_1_17) {

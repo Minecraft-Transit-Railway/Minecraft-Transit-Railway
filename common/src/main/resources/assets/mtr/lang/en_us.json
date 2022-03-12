@@ -206,6 +206,7 @@
 	"gui.mtr.shuffle_trains": "Shuffle Trains",
 	"gui.mtr.siding_number": "Siding Number",
 	"gui.mtr.sidings_in_depot": "Sidings in this depot: %s",
+	"gui.mtr.sound_file": "Sound File",
 	"gui.mtr.station": "%s Station",
 	"gui.mtr.station_cjk": "%s站",
 	"gui.mtr.station_color": "Station Colour",

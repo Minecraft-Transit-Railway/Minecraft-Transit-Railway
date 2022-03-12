@@ -3,7 +3,9 @@
 	"minVersion": "0.8",
 	"package": "mtr.mixin",
 	"compatibilityLevel": "JAVA_8",
-	"mixins": [],
+	"mixins": [
+		"PlayerTeleportationStateAccessor"
+	],
 	"client": [
 		"EntitySpawnMixin",
 		"UnknownPacketMixin"

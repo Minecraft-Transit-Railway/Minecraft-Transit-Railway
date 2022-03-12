@@ -14,9 +14,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMapper, IPropagateBlock {
+public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMapper {
+
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
 
 	@Override
 	public Item asItem() {
@@ -28,9 +31,9 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 		final double y = blockHitResult.getLocation().y;
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER && y - Math.floor(y) > 0.21875) {
 			return IBlock.checkHoldingBrush(world, player, () -> {
-				world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 3);
-				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 3);
+				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 3);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 3);
 			});
 		} else {
 			return super.use(state, world, pos, player, interactionHand, blockHitResult);
@@ -44,7 +47,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, HALF, SIDE_EXTENDED, PROPAGATE_PROPERTY);
+		builder.add(FACING, HALF, SIDE_EXTENDED, ARROW_DIRECTION);
 	}
 
 	public static class TileEntityAPGGlass extends BlockEntityMapper {

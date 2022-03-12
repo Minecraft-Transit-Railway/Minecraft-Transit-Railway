@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,6 +21,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.function.Consumer;
+
 public interface IBlock {
 
 	EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -27,18 +30,46 @@ public interface IBlock {
 	EnumProperty<EnumSide> SIDE_EXTENDED = EnumProperty.create("side", EnumSide.class);
 	EnumProperty<EnumSide> SIDE = EnumProperty.create("side", EnumSide.class, side -> side != EnumSide.MIDDLE && side != EnumSide.SINGLE);
 
+	default <T extends Comparable<T>> void propagate(Level world, BlockPos pos, Direction direction, Property<T> property, int maxBlocksAway) {
+		final T originalPropertyValue = IBlock.getStatePropertySafe(world, pos, property);
+		propagate(world, pos, direction, offsetPos -> world.setBlockAndUpdate(offsetPos, world.getBlockState(offsetPos).setValue(property, originalPropertyValue)), maxBlocksAway);
+	}
+
+	default void propagate(Level world, BlockPos pos, Direction direction, Consumer<BlockPos> callback, int maxBlocksAway) {
+		for (int i = 1; i <= maxBlocksAway; i++) {
+			final BlockPos offsetPos = pos.relative(direction, i);
+			if (this == world.getBlockState(offsetPos).getBlock()) {
+				callback.accept(offsetPos);
+				propagate(world, offsetPos, direction, callback, maxBlocksAway);
+				return;
+			}
+		}
+	}
+
 	static InteractionResult checkHoldingBrush(Level world, Player player, Runnable callbackBrush, Runnable callbackNoBrush) {
-		if (player.isHolding(Items.BRUSH)) {
+		return checkHoldingItem(world, player, item -> callbackBrush.run(), callbackNoBrush, Items.BRUSH);
+	}
+
+	static InteractionResult checkHoldingItem(Level world, Player player, Consumer<Item> callbackItem, Runnable callbackNoItem, Item... items) {
+		Item holdingItem = null;
+		for (final Item item : items) {
+			if (player.isHolding(item)) {
+				holdingItem = item;
+				break;
+			}
+		}
+
+		if (holdingItem != null) {
 			if (!world.isClientSide) {
-				callbackBrush.run();
+				callbackItem.accept(holdingItem);
 			}
 			return InteractionResult.SUCCESS;
 		} else {
-			if (callbackNoBrush == null) {
+			if (callbackNoItem == null) {
 				return InteractionResult.FAIL;
 			} else {
 				if (!world.isClientSide) {
-					callbackNoBrush.run();
+					callbackNoItem.run();
 					return InteractionResult.CONSUME;
 				} else {
 					return InteractionResult.SUCCESS;

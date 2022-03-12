@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockRouteSignWallMetal extends BlockRouteSignBase implements IPropagateBlock, IBlock {
+public class BlockRouteSignWallMetal extends BlockRouteSignBase implements IBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {

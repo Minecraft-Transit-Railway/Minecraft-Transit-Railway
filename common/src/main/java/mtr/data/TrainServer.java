@@ -123,10 +123,8 @@ public class TrainServer extends Train {
 				}
 				if (remove) {
 					ridersToRemove.add(uuid);
-					((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
-				} else {
-					Utilities.getAbilities(player).mayfly = true;
 				}
+				railwayData.updatePlayerRiding(player);
 			}
 		});
 		if (!ridersToRemove.isEmpty()) {
@@ -139,7 +137,7 @@ public class TrainServer extends Train {
 		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
 		final boolean[] playerNearby = {false};
 		world.players().forEach(player -> {
-			if (trainAABB.contains(player.position())) {
+			if (ridingEntities.contains(player.getUUID()) || trainAABB.contains(player.position())) {
 				if (!trainsInPlayerRange.containsKey(player)) {
 					trainsInPlayerRange.put(player, new HashSet<>());
 				}

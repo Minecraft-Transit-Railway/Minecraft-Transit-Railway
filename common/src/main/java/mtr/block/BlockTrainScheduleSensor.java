@@ -73,7 +73,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String string) {
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 			seconds = number;
 			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}

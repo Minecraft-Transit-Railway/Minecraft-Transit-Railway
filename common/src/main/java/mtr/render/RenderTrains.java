@@ -131,19 +131,20 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		final Camera camera = client.gameRenderer.getMainCamera();
 		final float cameraYaw = camera.getYRot();
-		final Vec3 playerPos = player.getPosition(client.getFrameTime());
+		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, noOffset) -> renderWithLight(world, x, y, z, noOffset, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
 			}
 
 			matrices.pushPose();
-			if (!noOffset) {
-				matrices.translate(playerPos.x, MTRClient.isVivecraft() ? 0 : playerPos.y, playerPos.z);
+			if (playerOffset != null) {
+				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
+				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
@@ -174,16 +175,17 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 
 			matrices.popPose();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, noOffset) -> renderWithLight(world, x, y, z, noOffset, (light, posAverage) -> {
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.textureId == null) {
 				return;
 			}
 
 			matrices.pushPose();
-			if (!noOffset) {
-				matrices.translate(playerPos.x, MTRClient.isVivecraft() ? 0 : playerPos.y, playerPos.z);
+			if (playerOffset != null) {
+				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
+				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
 			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
@@ -384,7 +386,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static void renderWithLight(Level world, double x, double y, double z, boolean noOffset, RenderCallback renderCallback) {
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
-		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (MTRClient.isVivecraft() || noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
+		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
 
 		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
