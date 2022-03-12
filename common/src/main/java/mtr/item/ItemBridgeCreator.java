@@ -15,6 +15,6 @@ public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 	@Override
 	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
 		final BlockState state = getSavedState(stack);
-		return state == null || railwayData.markRailForBridge(player, posStart, posEnd, radius, state);
+		return state == null || railwayData.railwayDataRailActionsModule.markRailForBridge(player, posStart, posEnd, radius, state);
 	}
 }

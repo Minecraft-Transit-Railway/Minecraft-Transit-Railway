@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class RailwayDataFileSaveModule {
+public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
 	private boolean canAutoSave = false;
 	private int filesWrittenDepotSiding;
@@ -28,9 +28,6 @@ public class RailwayDataFileSaveModule {
 	private int filesDeleted;
 	private long autoSaveStartMillis;
 
-	private final RailwayData railwayData;
-	private final Level world;
-	private final Map<BlockPos, Map<BlockPos, Rail>> rails;
 	private final SignalBlocks signalBlocks;
 
 	private final List<Long> dirtyStationIds = new ArrayList<>();
@@ -53,9 +50,7 @@ public class RailwayDataFileSaveModule {
 	private final Path signalBlocksPath;
 
 	public RailwayDataFileSaveModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, SignalBlocks signalBlocks) {
-		this.railwayData = railwayData;
-		this.world = world;
-		this.rails = rails;
+		super(railwayData, world, rails);
 		this.signalBlocks = signalBlocks;
 
 		final ResourceLocation dimensionLocation = world.dimension().location();

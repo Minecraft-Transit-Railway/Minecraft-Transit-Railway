@@ -74,7 +74,7 @@ public class EntitySeat extends Entity {
 
 				final RailwayData railwayData = RailwayData.getInstance(level);
 				if (railwayData != null) {
-					railwayData.updatePlayerSeatCoolDown(player);
+					railwayData.railwayDataCoolDownModule.updatePlayerSeatCoolDown(player);
 				}
 
 				seatRefresh--;

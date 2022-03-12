@@ -183,7 +183,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long depotId = packet.readLong();
-			minecraftServer.execute(() -> railwayData.generatePath(minecraftServer, depotId));
+			minecraftServer.execute(() -> railwayData.railwayDataPathGenerationModule.generatePath(minecraftServer, depotId));
 		}
 	}
 
@@ -300,7 +300,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long id = packet.readLong();
-			minecraftServer.execute(() -> railwayData.removeRailAction(id));
+			minecraftServer.execute(() -> railwayData.railwayDataRailActionsModule.removeRailAction(id));
 		}
 	}
 
