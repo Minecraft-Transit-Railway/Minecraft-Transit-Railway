@@ -13,6 +13,6 @@ public class ItemTunnelCreator extends ItemNodeModifierSelectableBlockBase {
 
 	@Override
 	protected boolean onConnect(Player player, ItemStack stack, RailwayData railwayData, BlockPos posStart, BlockPos posEnd, int radius, int height) {
-		return railwayData.markRailForTunnel(player, posStart, posEnd, radius, height);
+		return railwayData.railwayDataRailActionsModule.markRailForTunnel(player, posStart, posEnd, radius, height);
 	}
 }

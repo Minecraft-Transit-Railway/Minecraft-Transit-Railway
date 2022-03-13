@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Depot extends AreaBase {
+public class Depot extends AreaBase implements IReducedSaveData {
 
 	public int clientPathGenerationSuccessfulSegments;
 	public long lastDeployedMillis;
@@ -65,8 +65,8 @@ public class Depot extends AreaBase {
 			e.printStackTrace();
 		}
 
-		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
 		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
+		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
 	}
 
 	@Deprecated
@@ -104,6 +104,12 @@ public class Depot extends AreaBase {
 
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		toReducedMessagePack(messagePacker);
+		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
+	}
+
+	@Override
+	public void toReducedMessagePack(MessagePacker messagePacker) throws IOException {
 		super.toMessagePack(messagePacker);
 
 		messagePacker.packString(KEY_ROUTE_IDS).packArrayHeader(routeIds.size());
@@ -116,13 +122,17 @@ public class Depot extends AreaBase {
 			messagePacker.packInt(frequencies[i]);
 		}
 
-		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
 		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
 	}
 
 	@Override
 	public int messagePackLength() {
 		return super.messagePackLength() + 4;
+	}
+
+	@Override
+	public int reducedMessagePackLength() {
+		return messagePackLength() - 1;
 	}
 
 	@Override

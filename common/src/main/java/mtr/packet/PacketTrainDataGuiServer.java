@@ -71,7 +71,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	public static void announceS2C(ServerPlayer player, String message, ResourceLocation soundId) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeUtf(message);
-		packet.writeUtf(soundId == null ? null : soundId.toString());
+		packet.writeUtf(soundId == null ? "" : soundId.toString());
 		Registry.sendToPlayer(player, PACKET_ANNOUNCE, packet);
 	}
 
@@ -183,7 +183,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long depotId = packet.readLong();
-			minecraftServer.execute(() -> railwayData.generatePath(minecraftServer, depotId));
+			minecraftServer.execute(() -> railwayData.railwayDataPathGenerationModule.generatePath(minecraftServer, depotId));
 		}
 	}
 
@@ -300,7 +300,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
 			final long id = packet.readLong();
-			minecraftServer.execute(() -> railwayData.removeRailAction(id));
+			minecraftServer.execute(() -> railwayData.railwayDataRailActionsModule.removeRailAction(id));
 		}
 	}
 

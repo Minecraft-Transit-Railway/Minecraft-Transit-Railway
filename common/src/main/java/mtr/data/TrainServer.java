@@ -4,7 +4,6 @@ import io.netty.buffer.Unpooled;
 import mtr.Registry;
 import mtr.TrigCache;
 import mtr.block.*;
-import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
@@ -93,17 +92,14 @@ public class TrainServer extends Train {
 			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID())).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
-					final EntitySeat seat = railwayData.getSeatFromPlayer(player);
-					if (seat != null) {
-						ridingEntities.add(player.getUUID());
-						final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
-						final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
-						final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-						packet.writeLong(id);
-						packet.writeFloat(percentageX);
-						packet.writeFloat(percentageZ);
-						Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
-					}
+					ridingEntities.add(player.getUUID());
+					final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
+					final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
+					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+					packet.writeLong(id);
+					packet.writeFloat(percentageX);
+					packet.writeFloat(percentageZ);
+					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
 				}
 			});
 		}
@@ -124,7 +120,7 @@ public class TrainServer extends Train {
 				if (remove) {
 					ridersToRemove.add(uuid);
 				}
-				railwayData.updatePlayerRiding(player);
+				railwayData.railwayDataCoolDownModule.updatePlayerRiding(player);
 			}
 		});
 		if (!ridersToRemove.isEmpty()) {
