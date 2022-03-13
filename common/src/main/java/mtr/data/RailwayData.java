@@ -203,6 +203,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		} else {
 			railwayDataFileSaveModule.autoSave();
 		}
+		setDirty();
 		super.save(file);
 	}
 
