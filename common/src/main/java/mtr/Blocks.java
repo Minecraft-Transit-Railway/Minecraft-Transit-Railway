@@ -38,6 +38,7 @@ public interface Blocks {
 	Block MARBLE_BLUE = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1));
 	Block MARBLE_SANDY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1));
 	Block MARBLE_BLUE_SLAB = new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1));
+	Block MARBLE_SANDY_SLAB = new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1));
 	Block PIDS_1 = new BlockPIDS1();
 	Block PIDS_2 = new BlockPIDS2();
 	Block PIDS_3 = new BlockPIDS3();
