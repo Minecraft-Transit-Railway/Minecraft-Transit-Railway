@@ -48,9 +48,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		if (minecraft != null) {
 			UtilitiesClient.setScreen(minecraft, dashboardScreen);
 		}
-
-		data.name = textFieldName.getValue();
-		data.color = DashboardScreen.colorStringToInt(textFieldColor.getValue());
+		saveData();
 	}
 
 	@Override
@@ -84,5 +82,10 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	protected void renderTextFields(PoseStack matrices) {
 		drawCenteredString(matrices, font, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
 		drawCenteredString(matrices, font, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
+	}
+
+	protected void saveData() {
+		data.name = textFieldName.getValue();
+		data.color = DashboardScreen.colorStringToInt(textFieldColor.getValue());
 	}
 }

@@ -57,12 +57,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
+				saveData();
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES));
 				Collections.sort(routes);
 				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
 			}
 		});
 		buttonGenerateRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.refresh_path"), button -> {
+			saveData();
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
@@ -129,8 +131,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
+	protected void saveData() {
+		super.saveData();
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			data.setFrequency(sliders[i].getIntValue(), i);
 		}

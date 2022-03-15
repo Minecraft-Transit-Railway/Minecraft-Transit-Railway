@@ -93,8 +93,8 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
+	protected void saveData() {
+		super.saveData();
 
 		data.routeType = routeType;
 		data.isLightRailRoute = buttonIsLightRailRoute.selected();

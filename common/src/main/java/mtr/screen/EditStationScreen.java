@@ -157,8 +157,8 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
+	protected void saveData() {
+		super.saveData();
 		try {
 			data.zone = Integer.parseInt(textFieldZone.getValue());
 		} catch (Exception ignored) {
