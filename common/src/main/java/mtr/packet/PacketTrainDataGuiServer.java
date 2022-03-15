@@ -141,6 +141,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet, ResourceLocation packetId, Function<RailwayData, Set<T>> dataSet, Function<RailwayData, Map<Long, T>> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
+		if (RailwayData.hasNoPermission(player)) {
+			return;
+		}
+
 		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
@@ -188,6 +192,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void clearTrainsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		if (RailwayData.hasNoPermission(player)) {
+			return;
+		}
+
 		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
