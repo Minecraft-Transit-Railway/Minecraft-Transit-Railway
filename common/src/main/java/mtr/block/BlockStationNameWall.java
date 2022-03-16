@@ -16,26 +16,42 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockStationNameWall extends BlockStationNameBase {
+public class BlockStationNameWall extends BlockStationNameBase implements IBlock {
+
+	public static final BooleanProperty MERGED = BooleanProperty.create("merged");
 
 	public BlockStationNameWall(Properties settings) {
 		super(settings);
+		registerDefaultState(defaultBlockState().setValue(MERGED, false));
 	}
 
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockAndUpdate(pos, state.cycle(COLOR)));
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			world.setBlockAndUpdate(pos, state.cycle(COLOR));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), COLOR, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), COLOR, 1);
+		});
+	}
+
+	public InteractionResult toggleMerge(Level world, BlockPos pos) {
+		BlockState state = world.getBlockState(pos);
+		world.setBlockAndUpdate(pos, state.cycle(MERGED));
+		propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), MERGED, 1);
+		propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), MERGED, 1);
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
-		return world.getBlockState(pos.relative(facing)).isFaceSturdy(world, pos.relative(facing), facing.getOpposite());
+		return world.getBlockState(pos.relative(facing)).getMaterial().isSolid();
 	}
 
 	@Override
@@ -74,7 +90,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(COLOR, FACING);
+		builder.add(COLOR, FACING, MERGED);
 	}
 
 	public static class TileEntityStationNameWall extends TileEntityStationNameBase {
@@ -85,7 +101,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 
 		@Override
 		public boolean shouldRender() {
-			return true;
+			return level != null && !(level.getBlockState(worldPosition.relative(IBlock.getStatePropertySafe(level, worldPosition, FACING).getCounterClockWise())).getBlock() instanceof BlockStationNameWall && IBlock.getStatePropertySafe(level.getBlockState(worldPosition.relative(IBlock.getStatePropertySafe(level, worldPosition, FACING).getCounterClockWise())), MERGED));
 		}
 	}
 }

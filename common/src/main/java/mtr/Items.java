@@ -12,7 +12,7 @@ public interface Items {
 	Item APG_DOOR = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item APG_GLASS = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG);
 	Item APG_GLASS_END = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG);
-	Item BRUSH = new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
+	Item BRUSH = new ItemBrush(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
 	Item RAILWAY_DASHBOARD = new ItemDashboard(TransportMode.TRAIN);
 	Item BOAT_DASHBOARD = new ItemDashboard(TransportMode.BOAT);
 	Item BOAT_NODE = new WaterLilyBlockItem(Blocks.BOAT_NODE, new Item.Properties().tab(ItemGroups.CORE));
