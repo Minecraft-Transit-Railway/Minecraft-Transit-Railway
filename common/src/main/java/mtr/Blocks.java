@@ -3,6 +3,7 @@ package mtr;
 import mtr.block.*;
 import mtr.data.TransportMode;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
@@ -84,6 +85,7 @@ public interface Blocks {
 	Block SIGNAL_SEMAPHORE_2 = new BlockSignalSemaphore2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4));
 	Block SIGNAL_POLE = new BlockStationColorPole(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion(), false);
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.ANDESITE));
+	SlabBlock STATION_COLOR_ANDESITE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.ANDESITE));
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BIRCH_WOOD));
 	Block STATION_COLOR_BONE_BLOCK = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BONE_BLOCK));

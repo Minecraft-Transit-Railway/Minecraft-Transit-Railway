@@ -1,0 +1,22 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/slab",
+	"textures": {
+		"1": "block/andesite",
+		"particle": "block/andesite"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 8, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 8], "texture": "#1", "tintindex": 0},
+				"east": {"uv": [0, 0, 16, 8], "texture": "#1", "tintindex": 0},
+				"south": {"uv": [0, 0, 16, 8], "texture": "#1", "tintindex": 0},
+				"west": {"uv": [0, 0, 16, 8], "texture": "#1", "tintindex": 0},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#1", "tintindex": 0},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#1", "tintindex": 0}
+			}
+		}
+	]
+}

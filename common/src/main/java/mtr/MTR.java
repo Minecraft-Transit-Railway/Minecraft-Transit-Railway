@@ -216,6 +216,7 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_andesite_slab", Blocks.STATION_COLOR_ANDESITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_bone_block", Blocks.STATION_COLOR_BONE_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
