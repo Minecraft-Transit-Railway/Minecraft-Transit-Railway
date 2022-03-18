@@ -12,7 +12,7 @@ public class BlockArrivalProjector1Large extends BlockArrivalProjectorBase {
 		return new TileEntityArrivalProjector1Large(pos, state);
 	}
 
-	public static class TileEntityArrivalProjector1Large extends BlockEntityMapper {
+	public static class TileEntityArrivalProjector1Large extends TileEntityArrivalProjectorBase {
 
 		public TileEntityArrivalProjector1Large(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY, pos, state);

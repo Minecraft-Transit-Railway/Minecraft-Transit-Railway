@@ -1,23 +1,50 @@
 package mtr.block;
 
+import mtr.mappings.BlockEntityClientSerializableMapper;
 import mtr.mappings.EntityBlockMapper;
+import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class BlockArrivalProjectorBase extends HorizontalDirectionalBlock implements EntityBlockMapper {
 
 	public BlockArrivalProjectorBase() {
 		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 5).noOcclusion());
+	}
+
+	@Override
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			final BlockEntity entity = world.getBlockEntity(pos);
+
+			if (entity instanceof TileEntityArrivalProjectorBase) {
+				((TileEntityArrivalProjectorBase) entity).syncData();
+				PacketTrainDataGuiServer.openArrivalProjectorConfigScreenS2C((ServerPlayer) player, pos);
+			}
+		});
 	}
 
 	@Override
@@ -39,5 +66,39 @@ public abstract class BlockArrivalProjectorBase extends HorizontalDirectionalBlo
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
+	}
+
+	public static class TileEntityArrivalProjectorBase extends BlockEntityClientSerializableMapper {
+
+		private final Set<Long> platformIds = new HashSet<>();
+		private static final String KEY_PLATFORM_IDS = "platform_ids";
+
+		public TileEntityArrivalProjectorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+			super(type, pos, state);
+		}
+
+		@Override
+		public void readCompoundTag(CompoundTag compoundTag) {
+			final long[] platformIdsArray = compoundTag.getLongArray(KEY_PLATFORM_IDS);
+			for (final long platformId : platformIdsArray) {
+				platformIds.add(platformId);
+			}
+		}
+
+		@Override
+		public void writeCompoundTag(CompoundTag compoundTag) {
+			compoundTag.putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds));
+		}
+
+		public Set<Long> getPlatformIds() {
+			return platformIds;
+		}
+
+		public void setData(Set<Long> platformIds) {
+			this.platformIds.clear();
+			this.platformIds.addAll(platformIds);
+			setChanged();
+			syncData();
+		}
 	}
 }
