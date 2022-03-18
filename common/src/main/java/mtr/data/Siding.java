@@ -357,7 +357,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private void setTrainDetails(String trainId, TrainType baseTrainType) {
 		this.trainId = trainId;
 		this.baseTrainType = baseTrainType;
-		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
 	}
 
 	private void generateDefaultPath(Map<BlockPos, Map<BlockPos, Rail>> rails) {
