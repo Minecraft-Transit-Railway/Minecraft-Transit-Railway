@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_metal_slab"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_metal"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_metal_slab_top"
+		}
+	}
+}

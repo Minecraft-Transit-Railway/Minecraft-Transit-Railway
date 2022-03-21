@@ -217,6 +217,9 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
+
+		// Station Color Blocks
+
 		registerBlockItem.accept("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -249,6 +252,42 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroups.STATION_BUILDING_BLOCKS);
+
+		// Station Color Slabs
+
+		registerBlockItem.accept("station_color_andesite_slab", Blocks.STATION_COLOR_ANDESITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_bedrock_slab", Blocks.STATION_COLOR_BEDROCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_birch_wood_slab", Blocks.STATION_COLOR_BIRCH_WOOD_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_bone_block_slab", Blocks.STATION_COLOR_BONE_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_chiseled_quartz_block_slab", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_chiseled_stone_bricks_slab", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_clay_slab", Blocks.STATION_COLOR_CLAY_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_coal_ore_slab", Blocks.STATION_COLOR_COAL_ORE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_cobblestone_slab", Blocks.STATION_COLOR_COBBLESTONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_concrete_slab", Blocks.STATION_COLOR_CONCRETE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_concrete_powder_slab", Blocks.STATION_COLOR_CONCRETE_POWDER_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_cracked_stone_bricks_slab", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_dark_prismarine_slab", Blocks.STATION_COLOR_DARK_PRISMARINE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_diorite_slab", Blocks.STATION_COLOR_DIORITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_gravel_slab", Blocks.STATION_COLOR_GRAVEL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_iron_block_slab", Blocks.STATION_COLOR_IRON_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_metal_slab", Blocks.STATION_COLOR_METAL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_planks_slab", Blocks.STATION_COLOR_PLANKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_polished_andesite_slab", Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_polished_diorite_slab", Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_purpur_block_slab", Blocks.STATION_COLOR_PURPUR_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_purpur_pillar_slab", Blocks.STATION_COLOR_PURPUR_PILLAR_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_quartz_block_slab", Blocks.STATION_COLOR_QUARTZ_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_quartz_bricks_slab", Blocks.STATION_COLOR_QUARTZ_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_quartz_pillar_slab", Blocks.STATION_COLOR_QUARTZ_PILLAR_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_smooth_quartz_slab", Blocks.STATION_COLOR_SMOOTH_QUARTZ_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_smooth_stone_slab", Blocks.STATION_COLOR_SMOOTH_STONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_snow_block_slab", Blocks.STATION_COLOR_SNOW_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_stained_glass_slab", Blocks.STATION_COLOR_STAINED_GLASS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_stone_slab", Blocks.STATION_COLOR_STONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_stone_bricks_slab", Blocks.STATION_COLOR_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("station_color_wool_slab", Blocks.STATION_COLOR_WOOL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
