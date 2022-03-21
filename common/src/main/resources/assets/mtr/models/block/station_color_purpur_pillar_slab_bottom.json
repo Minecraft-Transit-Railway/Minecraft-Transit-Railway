@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/station_color_slab_bottom_pillar_base",
+	"textures": {
+		"end": "mtr:block/station_color_purpur_pillar_top",
+		"side": "mtr:block/station_color_purpur_pillar"
+	}
+}

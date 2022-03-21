@@ -1,7 +1,7 @@
 {
 	"variants": {
 		"type=bottom": {
-			"model": "mtr:block/station_color_bedrock_slab"
+			"model": "mtr:block/station_color_bedrock_slab_bottom"
 		},
 		"type=double": {
 			"model": "mtr:block/station_color_bedrock"

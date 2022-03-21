@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/station_color_slab_base",
-	"textures": {
-		"particle": "block/polished_andesite",
-		"texture": "block/polished_andesite"
-	}
-}

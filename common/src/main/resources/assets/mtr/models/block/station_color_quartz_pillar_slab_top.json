@@ -1,5 +1,5 @@
 {
-	"parent": "mtr:block/station_color_slab_base_top_side_variant",
+	"parent": "mtr:block/station_color_slab_top_pillar_base",
 	"textures": {
 		"end": "block/quartz_pillar_top",
 		"side": "block/quartz_pillar"

@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/station_color_slab_bottom_base",
+	"textures": {
+		"particle": "block/chiseled_stone_bricks",
+		"texture": "block/chiseled_stone_bricks"
+	}
+}

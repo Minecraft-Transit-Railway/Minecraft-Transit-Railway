@@ -64,7 +64,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
 	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
 
-	private static final int DETAIL_RADIUS = 128;
+	private static final int DETAIL_RADIUS = 32;
 	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 	private static final int TICKS_PER_SECOND = 20;

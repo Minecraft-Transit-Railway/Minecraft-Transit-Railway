@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/station_color_slab_base",
-	"textures": {
-		"particle": "mtr:block/station_color_purpur_block",
-		"texture": "mtr:block/station_color_purpur_block"
-	}
-}

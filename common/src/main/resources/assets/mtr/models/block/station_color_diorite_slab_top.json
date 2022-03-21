@@ -1,5 +1,5 @@
 {
-	"parent": "mtr:block/station_color_slab_base_top",
+	"parent": "mtr:block/station_color_slab_top_base",
 	"textures": {
 		"particle": "block/diorite",
 		"texture": "block/diorite"

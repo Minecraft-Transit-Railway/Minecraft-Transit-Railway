@@ -69,6 +69,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1);
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS);
+		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS_SLAB);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_WALL);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
@@ -236,9 +237,6 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL);
-		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK);
-		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL);
-		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE);
 
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE_SLAB);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK_SLAB);
@@ -272,6 +270,10 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_SLAB);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS_SLAB);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL_SLAB);
+
+		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK);
+		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE);
 
 		RegistryClient.registerNetworkReceiver(PACKET_CHUNK_S2C, packet -> PacketTrainDataGuiClient.receiveChunk(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_OPEN_DASHBOARD_SCREEN, packet -> PacketTrainDataGuiClient.openDashboardScreenS2C(Minecraft.getInstance(), packet));

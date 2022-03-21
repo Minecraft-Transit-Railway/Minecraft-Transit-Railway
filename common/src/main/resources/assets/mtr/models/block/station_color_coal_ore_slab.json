@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/station_color_slab_base",
-	"textures": {
-		"particle": "block/coal_ore",
-		"texture": "block/coal_ore"
-	}
-}
