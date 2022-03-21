@@ -92,7 +92,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 		trainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID);
 		baseTrainType = TrainType.getOrDefault(messagePackHelper.getString(KEY_TRAIN_TYPE));
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
 
 		isOnRoute = messagePackHelper.getBoolean(KEY_IS_ON_ROUTE);
 		messagePackHelper.iterateArrayValue(KEY_RIDING_ENTITIES, value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
@@ -131,7 +131,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
 		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
 		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
@@ -164,7 +164,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		reversed = packet.readBoolean();
 		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		baseTrainType = TrainType.values()[packet.readInt()];
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing()));
+		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
 		isOnRoute = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -324,7 +324,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 						final float stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
 						if (stoppingDistance < 0.5F * speed * speed / accelerationConstant) {
-							speed = stoppingDistance == 0 ? accelerationConstant : Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, accelerationConstant);
+							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : Math.max(speed - (0.5F * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
 						} else {
 							final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
 							if (speed < railSpeed) {

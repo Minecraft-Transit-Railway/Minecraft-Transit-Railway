@@ -137,7 +137,7 @@ public class TrainClient extends Train {
 					clientPlayer.fallDistance = 0;
 					clientPlayer.setDeltaMovement(0, 0, 0);
 					clientPlayer.setSpeed(0);
-					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentageX, baseTrainType.width), baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
+					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentageX, baseTrainType.width), doorLeftOpenRender || doorRightOpenRender ? 0 : baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentageZ), realSpacingRender)).xRot(pitch).yRot(yaw);
 					clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y, z + playerOffset.z);
 					if (speed > 0) {
 						Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
