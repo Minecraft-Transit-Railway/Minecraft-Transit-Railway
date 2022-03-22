@@ -69,6 +69,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1);
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS);
+		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS_SLAB);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_WALL);
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
@@ -236,6 +237,40 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL);
+
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BIRCH_WOOD_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BONE_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CHISELED_STONE_BRICKS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CLAY_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COAL_ORE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_COBBLESTONE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CONCRETE_POWDER_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_CRACKED_STONE_BRICKS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DARK_PRISMARINE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_DIORITE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_GRAVEL_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_IRON_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_METAL_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PLANKS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_PURPUR_PILLAR_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_BRICKS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_QUARTZ_PILLAR_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_QUARTZ_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SMOOTH_STONE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_SNOW_BLOCK_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STAINED_GLASS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS_SLAB);
+		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL_SLAB);
+
 		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK);
 		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL);
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE);

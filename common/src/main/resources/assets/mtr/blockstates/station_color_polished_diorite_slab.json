@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_polished_diorite_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_polished_diorite"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_polished_diorite_slab_top"
+		}
+	}
+}

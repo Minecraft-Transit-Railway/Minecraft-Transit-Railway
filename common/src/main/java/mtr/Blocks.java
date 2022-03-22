@@ -3,6 +3,7 @@ package mtr;
 import mtr.block.*;
 import mtr.data.TransportMode;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
@@ -35,7 +36,9 @@ public interface Blocks {
 	Block GLASS_FENCE_WKS = new BlockGlassFence();
 	Block LOGO = new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10));
 	Block MARBLE_BLUE = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1));
+	Block MARBLE_BLUE_SLAB = new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1));
 	Block MARBLE_SANDY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1));
+	Block MARBLE_SANDY_SLAB = new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1));
 	Block PIDS_1 = new BlockPIDS1();
 	Block PIDS_2 = new BlockPIDS2();
 	Block PIDS_3 = new BlockPIDS3();
@@ -84,6 +87,7 @@ public interface Blocks {
 	Block SIGNAL_SEMAPHORE_2 = new BlockSignalSemaphore2(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(4));
 	Block SIGNAL_POLE = new BlockStationColorPole(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion(), false);
 	Block STATION_COLOR_ANDESITE = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.ANDESITE));
+
 	Block STATION_COLOR_BEDROCK = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE));
 	Block STATION_COLOR_BIRCH_WOOD = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BIRCH_WOOD));
 	Block STATION_COLOR_BONE_BLOCK = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BONE_BLOCK));
@@ -116,6 +120,40 @@ public interface Blocks {
 	Block STATION_COLOR_STONE = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE));
 	Block STATION_COLOR_STONE_BRICKS = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE_BRICKS));
 	Block STATION_COLOR_WOOL = new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL));
+
+	SlabBlock STATION_COLOR_ANDESITE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.ANDESITE));
+	SlabBlock STATION_COLOR_BEDROCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE));
+	SlabBlock STATION_COLOR_BIRCH_WOOD_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BIRCH_WOOD));
+	SlabBlock STATION_COLOR_BONE_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.BONE_BLOCK));
+	SlabBlock STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.CHISELED_QUARTZ_BLOCK));
+	SlabBlock STATION_COLOR_CHISELED_STONE_BRICKS_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.CHISELED_STONE_BRICKS));
+	SlabBlock STATION_COLOR_CLAY_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.CLAY));
+	SlabBlock STATION_COLOR_COAL_ORE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.COAL_ORE));
+	SlabBlock STATION_COLOR_COBBLESTONE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.COBBLESTONE));
+	SlabBlock STATION_COLOR_CONCRETE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_CONCRETE));
+	SlabBlock STATION_COLOR_CONCRETE_POWDER_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_CONCRETE_POWDER));
+	SlabBlock STATION_COLOR_CRACKED_STONE_BRICKS_SLAB= new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.CRACKED_STONE_BRICKS));
+	SlabBlock STATION_COLOR_DARK_PRISMARINE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.DARK_PRISMARINE));
+	SlabBlock STATION_COLOR_DIORITE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.DIORITE));
+	SlabBlock STATION_COLOR_GRAVEL_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.GRAVEL));
+	SlabBlock STATION_COLOR_IRON_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.IRON_BLOCK));
+	SlabBlock STATION_COLOR_METAL_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(LOGO));
+	SlabBlock STATION_COLOR_PLANKS_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.OAK_PLANKS));
+	SlabBlock STATION_COLOR_POLISHED_ANDESITE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE));
+	SlabBlock STATION_COLOR_POLISHED_DIORITE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.POLISHED_DIORITE));
+	SlabBlock STATION_COLOR_PURPUR_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.PURPUR_BLOCK));
+	SlabBlock STATION_COLOR_PURPUR_PILLAR_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.PURPUR_PILLAR));
+	SlabBlock STATION_COLOR_QUARTZ_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.QUARTZ_BLOCK));
+	SlabBlock STATION_COLOR_QUARTZ_BRICKS_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.QUARTZ_BRICKS));
+	SlabBlock STATION_COLOR_QUARTZ_PILLAR_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.QUARTZ_PILLAR));
+	SlabBlock STATION_COLOR_SMOOTH_QUARTZ_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ));
+	SlabBlock STATION_COLOR_SMOOTH_STONE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_STONE));
+	SlabBlock STATION_COLOR_SNOW_BLOCK_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL));
+	SlabBlock STATION_COLOR_STAINED_GLASS_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS).noOcclusion());
+	SlabBlock STATION_COLOR_STONE_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE));
+	SlabBlock STATION_COLOR_STONE_BRICKS_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE_BRICKS));
+	SlabBlock STATION_COLOR_WOOL_SLAB = new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL));
+
 	Block STATION_NAME_ENTRANCE = new BlockStationNameEntrance(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion());
 	Block STATION_NAME_TALL_BLOCK = new BlockStationNameTallBlock();
 	Block STATION_NAME_TALL_WALL = new BlockStationNameTallWall();

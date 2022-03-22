@@ -1,6 +1,7 @@
 package mtr;
 
 import mtr.client.CustomResources;
+import mtr.item.ItemBlockEnchanted;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
@@ -47,7 +48,7 @@ public class MTRForge {
 
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> eventBus.register(ForgeUtilities.RegisterEntityRenderer.class));
 
-		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
+		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 		ITEMS.register();
 		BLOCKS.register();
 		BLOCK_ENTITY_TYPES.register();
@@ -66,6 +67,11 @@ public class MTRForge {
 	private static void registerBlock(String path, Block block, CreativeModeTab itemGroup) {
 		registerBlock(path, block);
 		ITEMS.register(path, () -> new BlockItem(block, new Item.Properties().tab(itemGroup)));
+	}
+
+	private static void registerEnchantedBlock(String path, Block block, CreativeModeTab itemGroup) {
+		registerBlock(path, block);
+		ITEMS.register(path, () -> new ItemBlockEnchanted(block, new Item.Properties().tab(itemGroup)));
 	}
 
 	private static <T extends BlockEntityMapper> void registerBlockEntityType(String path, BlockEntityType<T> blockEntityType) {
