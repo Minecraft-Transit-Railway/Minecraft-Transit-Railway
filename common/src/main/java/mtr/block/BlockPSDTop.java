@@ -141,19 +141,20 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 		boolean airLeft = false, airRight = false;
 
 		final BlockState stateBelow = world.getBlockState(pos.below());
-		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
-			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
-				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
+		final Block blockBelow = stateBelow.getBlock();
+		if (blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlassEnd) {
+			if (blockBelow instanceof BlockPSDDoor) {
+				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDDoor.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE);
 			} else {
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE_EXTENDED);
 			}
 
-			if (stateBelow.getBlock() instanceof BlockPSDAPGGlassEndBase) {
-				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_LEFT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+			if (blockBelow instanceof BlockPSDGlassEnd) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_LEFT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airLeft = true;
 				}
-				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_RIGHT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_RIGHT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airRight = true;
 				}
 			}

@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_birch_wood_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_birch_wood"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_birch_wood_slab_top"
+		}
+	}
+}

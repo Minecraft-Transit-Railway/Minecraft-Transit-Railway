@@ -3,6 +3,7 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
+import mtr.block.BlockArrivalProjectorBase;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
 import mtr.client.ClientData;
@@ -110,16 +111,25 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					return;
 				}
 
+				final Set<Long> platformIds;
+				if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
+					platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+				} else {
+					platformIds = new HashSet<>();
+				}
+
 				schedules = new HashSet<>();
 				platforms.values().forEach(platform -> {
-					final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-					if (scheduleForPlatform != null) {
-						scheduleForPlatform.forEach(scheduleEntry -> {
-							if (!scheduleEntry.isTerminating) {
-								schedules.add(scheduleEntry);
-								platformIdToName.put(platform.id, platform.name);
-							}
-						});
+					if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
+						final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+						if (scheduleForPlatform != null) {
+							scheduleForPlatform.forEach(scheduleEntry -> {
+								if (!scheduleEntry.isTerminating) {
+									schedules.add(scheduleEntry);
+									platformIdToName.put(platform.id, platform.name);
+								}
+							});
+						}
 					}
 				});
 			} else {

@@ -1,5 +1,6 @@
 package mtr;
 
+import mtr.item.ItemBlockEnchanted;
 import mtr.mappings.BlockEntityMapper;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
@@ -17,7 +18,7 @@ public class MTRFabric implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		MTR.init(MTRFabric::registerItem, MTRFabric::registerBlock, MTRFabric::registerBlock, MTRFabric::registerBlockEntityType, MTRFabric::registerEntityType, MTRFabric::registerSoundEvent);
+		MTR.init(MTRFabric::registerItem, MTRFabric::registerBlock, MTRFabric::registerBlock, MTRFabric::registerEnchantedBlock, MTRFabric::registerBlockEntityType, MTRFabric::registerEntityType, MTRFabric::registerSoundEvent);
 	}
 
 	private static void registerItem(String path, Item item) {
@@ -31,6 +32,11 @@ public class MTRFabric implements ModInitializer {
 	private static void registerBlock(String path, Block block, CreativeModeTab itemGroup) {
 		registerBlock(path, block);
 		Registry.register(Registry.ITEM, new ResourceLocation(MTR.MOD_ID, path), new BlockItem(block, new Item.Properties().tab(itemGroup)));
+	}
+
+	private static void registerEnchantedBlock(String path, Block block, CreativeModeTab itemGroup) {
+		registerBlock(path, block);
+		Registry.register(Registry.ITEM, new ResourceLocation(MTR.MOD_ID, path), new ItemBlockEnchanted(block, new Item.Properties().tab(itemGroup)));
 	}
 
 	private static <T extends BlockEntityMapper> void registerBlockEntityType(String path, BlockEntityType<T> blockEntityType) {

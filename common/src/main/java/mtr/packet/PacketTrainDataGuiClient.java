@@ -85,6 +85,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openArrivalProjectorConfigScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.screen instanceof ArrivalProjectorConfigScreen)) {
+				UtilitiesClient.setScreen(minecraftClient, new ArrivalProjectorConfigScreen(pos));
+			}
+		});
+	}
+
 	public static void openResourcePackCreatorScreen(Minecraft minecraftClient) {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof ResourcePackCreatorScreen)) {
@@ -274,5 +284,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeBoolean(hideArrival[i]);
 		}
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
+	}
+
+	public static void sendArrivalProjectorConfigC2S(BlockPos pos, Set<Long> filterPlatformIds) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		packet.writeInt(filterPlatformIds.size());
+		filterPlatformIds.forEach(packet::writeLong);
+		RegistryClient.sendToServer(PACKET_ARRIVAL_PROJECTOR_UPDATE, packet);
 	}
 }

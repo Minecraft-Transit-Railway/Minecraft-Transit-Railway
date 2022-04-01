@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_cobblestone_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_cobblestone"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_cobblestone_slab_top"
+		}
+	}
+}

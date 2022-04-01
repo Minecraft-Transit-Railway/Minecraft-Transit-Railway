@@ -63,7 +63,7 @@ public class TrainServer extends Train {
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
-		speed = accelerationConstant;
+		speed = Train.ACCELERATION_DEFAULT;
 		if (isOppositeRail) {
 			railProgress += trainCars * trainSpacing;
 			reversed = !reversed;
@@ -89,7 +89,7 @@ public class TrainServer extends Train {
 
 		if (doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
-			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID())).forEach(player -> {
+			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player)).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					ridingEntities.add(player.getUUID());
