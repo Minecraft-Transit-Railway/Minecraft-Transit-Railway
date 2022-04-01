@@ -62,7 +62,7 @@ public class TrainClient extends Train {
 
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-		trainProperties.playSpeedSoundEffect(world, soundPos, oldSpeed, speed);
+		trainProperties.playSpeedSoundEffect(world, soundPos, oldSpeed, speed, accelerationConstant);
 		if (doorLeftOpen || doorRightOpen) {
 			trainProperties.playDoorSoundEffect(world, soundPos, oldDoorValue, doorValue);
 		}
