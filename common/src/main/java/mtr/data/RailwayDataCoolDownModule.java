@@ -70,6 +70,10 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 		playerSeatCoolDowns.put(player, 3);
 	}
 
+	public boolean canRide(Player player) {
+		return !playerRidingCoolDown.containsKey(player);
+	}
+
 	private static void updatePlayerRiding(Player player, boolean isRiding) {
 		player.fallDistance = 0;
 		player.setNoGravity(isRiding);

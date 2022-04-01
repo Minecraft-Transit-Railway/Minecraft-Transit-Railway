@@ -23,6 +23,7 @@ import java.util.function.Function;
 public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
 	private boolean canAutoSave = false;
+	private boolean dataLoaded = false;
 	private boolean useReducedHash = true;
 	private int filesWritten;
 	private int filesDeleted;
@@ -88,6 +89,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
 		System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
 		canAutoSave = true;
+		dataLoaded = true;
 	}
 
 	public void fullSave() {
@@ -110,6 +112,11 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 	}
 
 	public void autoSave() {
+		if (!dataLoaded) {
+			dataLoaded = true;
+			canAutoSave = true;
+		}
+
 		if (canAutoSave && checkFilesToDelete.isEmpty()) {
 			autoSaveStartMillis = System.currentTimeMillis();
 			filesWritten = 0;
@@ -163,7 +170,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 
 			return doneWriting && checkFilesToDelete.isEmpty();
 		} else {
-			return false;
+			return true;
 		}
 	}
 
