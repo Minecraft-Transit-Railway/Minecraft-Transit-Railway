@@ -34,6 +34,19 @@ public final class ClientData {
 
 	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
 
+	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
+
+	public static void tick() {
+		final Set<UUID> playersToRemove = new HashSet<>();
+		PLAYER_RIDING_COOL_DOWN.forEach((uuid, coolDown) -> {
+			if (coolDown <= 0) {
+				playersToRemove.add(uuid);
+			}
+			PLAYER_RIDING_COOL_DOWN.put(uuid, coolDown - 1);
+		});
+		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
+	}
+
 	public static void writeRails(Minecraft client, FriendlyByteBuf packet) {
 		final Map<BlockPos, Map<BlockPos, Rail>> railsTemp = new HashMap<>();
 
@@ -83,8 +96,19 @@ public final class ClientData {
 		final TrainClient train = getTrainById(packet.readLong());
 		final float percentageX = packet.readFloat();
 		final float percentageZ = packet.readFloat();
+		final UUID uuid = packet.readUUID();
 		if (train != null) {
-			client.execute(() -> train.updateClientPercentages(client.player, percentageX, percentageZ));
+			client.execute(() -> train.startRidingClient(uuid, percentageX, percentageZ));
+		}
+	}
+
+	public static void updateTrainPassengerPosition(Minecraft client, FriendlyByteBuf packet) {
+		final TrainClient train = getTrainById(packet.readLong());
+		final float percentageX = packet.readFloat();
+		final float percentageZ = packet.readFloat();
+		final UUID uuid = packet.readUUID();
+		if (train != null) {
+			client.execute(() -> train.updateRiderPercentages(uuid, percentageX, percentageZ));
 		}
 	}
 
@@ -153,6 +177,14 @@ public final class ClientData {
 			}
 		});
 		return returnData;
+	}
+
+	public static void updatePlayerRidingOffset(UUID uuid) {
+		PLAYER_RIDING_COOL_DOWN.put(uuid, 2);
+	}
+
+	public static boolean isRiding(UUID uuid) {
+		return PLAYER_RIDING_COOL_DOWN.containsKey(uuid);
 	}
 
 	public static boolean hasPermission() {

@@ -46,6 +46,7 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_TRAINS = new ResourceLocation(MTR.MOD_ID, "update_trains");
 	ResourceLocation PACKET_DELETE_TRAINS = new ResourceLocation(MTR.MOD_ID, "delete_trains");
 	ResourceLocation PACKET_UPDATE_TRAIN_PASSENGERS = new ResourceLocation(MTR.MOD_ID, "update_train_passengers");
+	ResourceLocation PACKET_UPDATE_TRAIN_PASSENGER_POSITION = new ResourceLocation(MTR.MOD_ID, "update_train_passenger_position");
 	ResourceLocation PACKET_UPDATE_RAIL_ACTIONS = new ResourceLocation(MTR.MOD_ID, "update_rail_actions");
 	ResourceLocation PACKET_UPDATE_SCHEDULE = new ResourceLocation(MTR.MOD_ID, "update_schedule");
 	ResourceLocation PACKET_UPDATE_TRAIN_SENSOR = new ResourceLocation(MTR.MOD_ID, "packet_update_train_announcer");
