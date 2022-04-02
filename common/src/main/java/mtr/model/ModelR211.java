@@ -858,8 +858,8 @@ public class ModelR211 extends ModelTrainBase {
 
 		head = new ModelMapper(modelDataWrapper);
 		head.setPos(0, 24, 0);
-		head.texOffs(117, 126).addBox(-21, -13, 7, 1, 13, 2, 0, false);
-		head.texOffs(117, 126).addBox(20, -13, 7, 1, 13, 2, 0, true);
+		head.texOffs(117, 126).addBox(-20.5F, -13, 7, 1, 13, 2, 0, false);
+		head.texOffs(117, 126).addBox(19.5F, -13, 7, 1, 13, 2, 0, true);
 		head.texOffs(192, 113).addBox(-21, 0, 7, 42, 1, 1, 0, false);
 		head.texOffs(228, 174).addBox(-20, -36, 7, 40, 36, 0, 0, false);
 
@@ -867,13 +867,13 @@ public class ModelR211 extends ModelTrainBase {
 		upper_wall_2_r5.setPos(21.5F, -13, 0);
 		head.addChild(upper_wall_2_r5);
 		setRotationAngle(upper_wall_2_r5, 0, 0, -0.1047F);
-		upper_wall_2_r5.texOffs(8, 90).addBox(-1.5F, -21, 7, 1, 21, 2, 0, true);
+		upper_wall_2_r5.texOffs(8, 90).addBox(-2, -21, 7, 1, 21, 2, 0, true);
 
 		upper_wall_1_r4 = new ModelMapper(modelDataWrapper);
 		upper_wall_1_r4.setPos(-21.5F, -13, 0);
 		head.addChild(upper_wall_1_r4);
 		setRotationAngle(upper_wall_1_r4, 0, 0, 0.1047F);
-		upper_wall_1_r4.texOffs(8, 90).addBox(0.5F, -21, 7, 1, 21, 2, 0, false);
+		upper_wall_1_r4.texOffs(8, 90).addBox(1, -21, 7, 1, 21, 2, 0, false);
 
 		head_exterior = new ModelMapper(modelDataWrapper);
 		head_exterior.setPos(0, 24, 0);

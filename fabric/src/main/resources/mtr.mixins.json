@@ -8,6 +8,7 @@
 	],
 	"client": [
 		"EntitySpawnMixin",
+		"PlayerRendererOffsetMixin",
 		"UnknownPacketMixin"
 	],
 	"server": [],

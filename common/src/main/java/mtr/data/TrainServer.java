@@ -99,7 +99,8 @@ public class TrainServer extends Train {
 					packet.writeLong(id);
 					packet.writeFloat(percentageX);
 					packet.writeFloat(percentageZ);
-					Registry.sendToPlayer((ServerPlayer) player, PACKET_UPDATE_TRAIN_PASSENGERS, packet);
+					packet.writeUUID(player.getUUID());
+					world.players().forEach(worldPlayer -> Registry.sendToPlayer((ServerPlayer) worldPlayer, PACKET_UPDATE_TRAIN_PASSENGERS, packet));
 				}
 			});
 		}

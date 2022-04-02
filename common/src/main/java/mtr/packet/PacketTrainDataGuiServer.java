@@ -330,6 +330,15 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void receiveUpdateTrainPassengerPosition(MinecraftServer minecraftServer, Player player, FriendlyByteBuf packet) {
+		final FriendlyByteBuf packetFullCopy = new FriendlyByteBuf(packet.copy());
+		minecraftServer.execute(() -> player.level.players().forEach(sendPlayer -> {
+			if (sendPlayer != player) {
+				Registry.sendToPlayer((ServerPlayer) sendPlayer, PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packetFullCopy);
+			}
+		}));
+	}
+
 	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Collection<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));

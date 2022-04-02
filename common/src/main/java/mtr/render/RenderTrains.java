@@ -23,6 +23,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,6 +61,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
 	private static UUID renderedUuid;
+
+	public static final int PLAYER_RENDER_OFFSET = 1000;
 
 	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
 	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
@@ -131,10 +134,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		final Camera camera = client.gameRenderer.getMainCamera();
 		final float cameraYaw = camera.getYRot();
-		final Vec3 cameraOffset = client.gameRenderer.getMainCamera().isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
+		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
@@ -146,6 +149,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
+
+			matrices.pushPose();
 			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
 			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + pitch));
@@ -173,6 +178,19 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= DETAIL_RADIUS_SQUARED;
 				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, renderDetails);
 			}
+
+			matrices.popPose();
+
+			final EntityRenderDispatcher entityRenderDispatcher = client.getEntityRenderDispatcher();
+			matrices.pushPose();
+			matrices.translate(0, PLAYER_RENDER_OFFSET, 0);
+			ridingPositions.forEach((uuid, offset) -> {
+				final Player renderPlayer = world.getPlayerByUUID(uuid);
+				if (renderPlayer != null && (!uuid.equals(player.getUUID()) || camera.isDetached())) {
+					entityRenderDispatcher.render(renderPlayer, offset.x, offset.y, offset.z, 0, 1, matrices, vertexConsumers, 0xF000F0);
+				}
+			});
+			matrices.popPose();
 
 			matrices.popPose();
 		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
