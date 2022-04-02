@@ -47,10 +47,13 @@ public class RegistryClientImpl {
 		ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
 			final int defaultColor = 0x7F7F7F;
 			if (pos != null) {
-				return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
-			} else {
-				return defaultColor;
+				try {
+					return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+			return defaultColor;
 		}, block);
 	}
 
