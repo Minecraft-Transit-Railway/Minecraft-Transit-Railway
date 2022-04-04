@@ -185,7 +185,7 @@ public class TrainClient extends Train {
 					}
 				};
 
-				final int currentRidingCar = (int) Math.floor(percentagesZ.get(uuid));
+				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
 				final float doorValue = Math.abs(doorValueRaw);
 				calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 					final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
@@ -226,7 +226,7 @@ public class TrainClient extends Train {
 					percentagesX.put(uuid, newPercentageX);
 					percentagesZ.put(uuid, newPercentageZ);
 
-					final int newRidingCar = (int) Math.floor(newPercentageZ);
+					final int newRidingCar = Mth.clamp((int) Math.floor(newPercentageZ), 0, positions.length - 2);
 					if (currentRidingCar == newRidingCar) {
 						calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 					} else {
