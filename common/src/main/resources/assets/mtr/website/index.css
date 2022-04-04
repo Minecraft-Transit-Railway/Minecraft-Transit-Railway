@@ -290,6 +290,7 @@ h3 {
 .material-icons {
     color: var(--textColorGray);
     margin: 0;
+    max-height: 1em;
     padding: 0.2em;
     vertical-align: middle;
 }

@@ -496,7 +496,7 @@ function drawMap(container, data) {
 function onSearch(data) {
 	const searchBox = document.getElementById("search_box");
 	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
-	document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
+	document.getElementById("clear_search_icon").style.display = search === "" ? "none" : "";
 
 	const {stations, routes} = data;
 
