@@ -174,6 +174,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
 		ClientData.DATA_CACHE.sync();
+		ClientData.SIGNAL_BLOCKS.writeCache();
 	}
 
 	private static void setButtonText(Button button, boolean state) {

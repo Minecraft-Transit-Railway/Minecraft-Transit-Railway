@@ -194,6 +194,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataFileSaveModule.load();
 		validateData();
 		dataCache.sync();
+		signalBlocks.writeCache();
 	}
 
 	@Override

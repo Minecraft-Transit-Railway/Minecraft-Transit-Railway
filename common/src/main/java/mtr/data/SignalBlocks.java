@@ -10,10 +10,10 @@ import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SignalBlocks {
 
+	private final Map<UUID, Set<SignalBlock>> railToSignalBlocks = new HashMap<>();
 	public final List<SignalBlock> signalBlocks = new ArrayList<>();
 
 	public long add(long id, DyeColor color, UUID rail) {
@@ -27,6 +27,7 @@ public class SignalBlocks {
 		if (connectedSignalBlocks.isEmpty()) {
 			final SignalBlock newSignalBlock = new SignalBlock(id, color, rail);
 			signalBlocks.add(newSignalBlock);
+			writeCache();
 			return newSignalBlock.id;
 		} else {
 			Collections.sort(connectedSignalBlocks);
@@ -34,6 +35,7 @@ public class SignalBlocks {
 			firstSignalBlock.rails.add(rail);
 			connectedSignalBlocks.forEach(signalBlock -> firstSignalBlock.rails.addAll(signalBlock.rails));
 			signalBlocks.removeIf(connectedSignalBlocks::contains);
+			writeCache();
 			return 0;
 		}
 	}
@@ -64,10 +66,12 @@ public class SignalBlocks {
 					}
 				}
 
+				writeCache();
 				return returnId;
 			}
 		}
 
+		writeCache();
 		return 0;
 	}
 
@@ -79,12 +83,12 @@ public class SignalBlocks {
 		final Set<UUID> railsToAdd = new HashSet<>();
 		railsToAdd.add(currentRail);
 
-		signalBlocks.forEach(signalBlock -> {
-			if (signalBlock.rails.contains(currentRail)) {
+		if (railToSignalBlocks.containsKey(currentRail)) {
+			railToSignalBlocks.get(currentRail).forEach(signalBlock -> {
 				railsToAdd.addAll(signalBlock.rails);
 				signalBlock.occupied = 2;
-			}
-		});
+			});
+		}
 
 		for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
 			if (railsToAdd.stream().anyMatch(rail -> trainPositionsMap.containsKey(rail) && trainPositionsMap.get(rail) != trainId)) {
@@ -104,19 +108,27 @@ public class SignalBlocks {
 	}
 
 	public List<SignalBlock> getSignalBlocksAtTrack(UUID rail) {
-		return signalBlocks.stream().filter(signalBlock -> signalBlock.rails.contains(rail)).sorted(Comparator.comparingInt(signalBlock -> signalBlock.color.ordinal())).collect(Collectors.toList());
+		if (railToSignalBlocks.containsKey(rail)) {
+			final List<SignalBlock> matchingSignalBlocks = new ArrayList<>(railToSignalBlocks.get(rail));
+			matchingSignalBlocks.sort(Comparator.comparingInt(signalBlock -> signalBlock.color.ordinal()));
+			return matchingSignalBlocks;
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
 	public boolean isOccupied(UUID rail) {
-		return signalBlocks.stream().anyMatch(signalBlock -> signalBlock.rails.contains(rail) && signalBlock.isOccupied());
+		if (railToSignalBlocks.containsKey(rail)) {
+			return railToSignalBlocks.get(rail).stream().anyMatch(SignalBlock::isOccupied);
+		} else {
+			return false;
+		}
 	}
 
 	public void getSignalBlockStatus(Map<Long, Boolean> signalBlockStatus, UUID rail) {
-		signalBlocks.forEach(signalBlock -> {
-			if (signalBlock.rails.contains(rail)) {
-				signalBlockStatus.put(signalBlock.id, signalBlock.isOccupied());
-			}
-		});
+		if (railToSignalBlocks.containsKey(rail)) {
+			railToSignalBlocks.get(rail).forEach(signalBlock -> signalBlockStatus.put(signalBlock.id, signalBlock.isOccupied()));
+		}
 	}
 
 	public void writeSignalBlockStatus(Map<Long, Boolean> signalBlockStatus) {
@@ -154,6 +166,16 @@ public class SignalBlocks {
 			}
 			return packet;
 		}
+	}
+
+	public void writeCache() {
+		railToSignalBlocks.clear();
+		signalBlocks.forEach(signalBlock -> signalBlock.rails.forEach(rail -> {
+			if (!railToSignalBlocks.containsKey(rail)) {
+				railToSignalBlocks.put(rail, new HashSet<>());
+			}
+			railToSignalBlocks.get(rail).add(signalBlock);
+		}));
 	}
 
 	public static class SignalBlock extends NameColorDataBase {
