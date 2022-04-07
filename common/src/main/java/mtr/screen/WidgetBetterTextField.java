@@ -49,11 +49,14 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (isVisible() && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
-			if (button == 1) {
+		if (isVisible()) {
+			if (button == 1 && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
 				setValue("");
 			}
-			return super.mouseClicked(mouseX, mouseY, 0);
+			if (button == 0) {
+				onLeftClick(mouseX, mouseY);
+			}
+			return super.mouseClicked(mouseX, mouseY, button) || isMouseOver(mouseX, mouseY);
 		} else {
 			setFocused(false);
 			return false;
@@ -65,12 +68,15 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 		super.setMaxLength(Integer.MAX_VALUE);
 	}
 
+	protected void onLeftClick(double mouseX, double mouseY) {
+	}
+
 	private String trySetLength(String text) {
 		return text.isEmpty() ? "" : text.substring(0, Math.min(newMaxLength, text.length()));
 	}
 
 	public enum TextFieldFilter {
-		POSITIVE_INTEGER("[^0-9]"), POSITIVE_FLOATING_POINT("[^0-9.]"), INTEGER("[^-0-9]"), HEX("[^0-9A-F]"), LETTER("[^A-Z]");
+		POSITIVE_INTEGER("[^0-9]"), INTEGER("[^-0-9]"), HEX("[^0-9A-F]"), LETTER("[^A-Z]");
 
 		private final String filter;
 

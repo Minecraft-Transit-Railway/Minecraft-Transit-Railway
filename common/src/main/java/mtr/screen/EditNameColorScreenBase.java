@@ -23,7 +23,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final Component colorText;
 
 	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldColor;
+	private final WidgetColorSelector textFieldColor;
 
 	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
 		super(new TextComponent(""));
@@ -33,7 +33,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		colorText = new TranslatableComponent(colorKey);
 
 		textFieldName = new WidgetBetterTextField(null, "");
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
+		textFieldColor = new WidgetColorSelector(false);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		IDrawing.setPositionAndWidth(textFieldColor, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
 		textFieldName.setValue(data.name);
-		textFieldColor.setValue(DashboardScreen.colorIntToString(data.color));
+		textFieldColor.setColor(data.color);
 		textFieldColor.setResponder(text -> {
 			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
 			if (!newText.equals(text)) {

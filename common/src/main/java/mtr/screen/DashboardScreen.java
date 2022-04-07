@@ -14,9 +14,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
@@ -44,20 +46,20 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private final Button buttonOptions;
 
 	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldColor;
+	private final WidgetColorSelector textFieldColor;
 
 	private final DashboardList dashboardList;
 
 	public static final int MAX_COLOR_ZONE_LENGTH = 6;
-	private static final int COLOR_WIDTH = 48;
+	private static final int COLOR_WIDTH = 60;
 
 	public DashboardScreen(TransportMode transportMode) {
 		super(new TextComponent(""));
 		this.transportMode = transportMode;
-		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
 		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableComponent("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
+		textFieldColor = new WidgetColorSelector(true);
+		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, textFieldColor::isMouseOver);
 
 		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
@@ -351,7 +353,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.isNew = isNew;
 
 		textFieldName.setValue(editingArea.name);
-		textFieldColor.setValue(colorIntToString(editingArea.color));
+		textFieldColor.setColor(editingArea.color);
 
 		widgetMap.startEditingArea(editingArea);
 		toggleButtons();
@@ -363,7 +365,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.isNew = isNew;
 
 		textFieldName.setValue(editingRoute.name);
-		textFieldColor.setValue(colorIntToString(editingRoute.color));
+		textFieldColor.setColor(editingRoute.color);
 
 		widgetMap.startEditingRoute();
 		toggleButtons();
@@ -455,10 +457,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		} catch (Exception ignored) {
 			return 0;
 		}
-	}
-
-	public static String colorIntToString(int color) {
-		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
 	}
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}
