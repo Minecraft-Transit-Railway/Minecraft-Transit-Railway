@@ -49,14 +49,11 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (isVisible()) {
-			if (button == 1 && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
+		if (isVisible() && RailwayData.isBetween(mouseX, x, x + width) && RailwayData.isBetween(mouseY, y, y + height)) {
+			if (button == 1) {
 				setValue("");
 			}
-			if (button == 0) {
-				onLeftClick(mouseX, mouseY);
-			}
-			return super.mouseClicked(mouseX, mouseY, button) || isMouseOver(mouseX, mouseY);
+			return super.mouseClicked(mouseX, mouseY, 0);
 		} else {
 			setFocused(false);
 			return false;
@@ -66,9 +63,6 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 	@Override
 	public void setMaxLength(int maxLength) {
 		super.setMaxLength(Integer.MAX_VALUE);
-	}
-
-	protected void onLeftClick(double mouseX, double mouseY) {
 	}
 
 	private String trySetLength(String text) {

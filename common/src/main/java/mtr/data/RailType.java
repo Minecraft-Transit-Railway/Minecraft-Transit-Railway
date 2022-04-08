@@ -25,7 +25,7 @@ public enum RailType implements IGui {
 	RailType(int speedLimit, MaterialColor MaterialColor, boolean hasSavedRail, boolean canAccelerate) {
 		this.speedLimit = speedLimit;
 		maxBlocksPerTick = speedLimit / 3.6F / 20;
-		color = MaterialColor.col + ARGB_BLACK_TRANSLUCENT;
+		color = MaterialColor.col | ARGB_BLACK_TRANSLUCENT;
 		this.hasSavedRail = hasSavedRail;
 		this.canAccelerate = canAccelerate;
 	}

@@ -93,7 +93,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 			for (int j = topLeft.getB(); j <= bottomRight.getB(); j += increment) {
 				if (world != null) {
 					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getHeight(Heightmap.Types.MOTION_BLOCKING, i, j) - 1, j)).getBlock().defaultMaterialColor().col, 2);
-					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
+					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK | color);
 				}
 			}
 		}

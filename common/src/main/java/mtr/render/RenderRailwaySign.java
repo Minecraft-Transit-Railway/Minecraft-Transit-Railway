@@ -79,7 +79,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 
 		if (renderBackground) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
-			IDrawing.drawTexture(matrices, vertexConsumer, 0, 0, SMALL_OFFSET * 2, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor + ARGB_BLACK, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(matrices, vertexConsumer, 0, 0, SMALL_OFFSET * 2, 0.5F * (signIds.length), 0.5F, SMALL_OFFSET * 2, facing, backgroundColor | ARGB_BLACK, MAX_LIGHT_GLOWING);
 		}
 		for (int i = 0; i < signIds.length; i++) {
 			if (signIds[i] != null) {
@@ -188,7 +188,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				float xOffset = margin * 0.5F;
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
 					final ClientCache.ColorNameTuple route = selectedIdsSorted.get(i);
-					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.CENTER, flipCustomText ? -xOffset : xOffset, y + size / 2, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y + margin, SMALL_OFFSET, x2 + margin / 2, y + size - margin, SMALL_OFFSET, facing, route.color + ARGB_BLACK, MAX_LIGHT_GLOWING));
+					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.CENTER, flipCustomText ? -xOffset : xOffset, y + size / 2, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y + margin, SMALL_OFFSET, x2 + margin / 2, y + size - margin, SMALL_OFFSET, facing, route.color | ARGB_BLACK, MAX_LIGHT_GLOWING));
 					xOffset += textWidths.get(i) + margin * 1.5F;
 				}
 

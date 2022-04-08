@@ -66,7 +66,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 				final int leftBlocks = getTextureNumber(world, pos, facing, true);
 				final int rightBlocks = getTextureNumber(world, pos, facing, false);
 				final int colorByte = transparentWhite && facing.getAxis() == Direction.Axis.X ? 0xFF * 3 / 4 : 0xFF;
-				final int color = ARGB_BLACK + (colorByte << 16) + (colorByte << 8) + colorByte;
+				final int color = ARGB_BLACK | ((colorByte << 16) + (colorByte << 8) + colorByte);
 				final RenderType renderType = getRenderType(world, pos.relative(facing.getCounterClockWise(), leftBlocks), state);
 
 				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {

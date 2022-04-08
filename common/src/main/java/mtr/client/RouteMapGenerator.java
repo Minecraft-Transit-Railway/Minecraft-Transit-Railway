@@ -43,7 +43,7 @@ public class RouteMapGenerator implements IGui {
 			}
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, 1, colors.size(), false);
 			for (int i = 0; i < colors.size(); i++) {
-				drawPixelSafe(nativeImage, 0, i, ARGB_BLACK + colors.get(i));
+				drawPixelSafe(nativeImage, 0, i, ARGB_BLACK | colors.get(i));
 			}
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
@@ -57,7 +57,7 @@ public class RouteMapGenerator implements IGui {
 		if (aspectRatio <= 0) {
 			return null;
 		}
-		
+
 		try {
 			final int[] dimensions = new int[2];
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(getStationName(platformId), dimensions, fontSizeBig, fontSizeSmall);
@@ -287,7 +287,7 @@ public class RouteMapGenerator implements IGui {
 					for (int stationIndex = 0; stationIndex < route.platformIds.size(); stationIndex++) {
 						final StationPosition stationPosition = routeStationPositions.get(stationIndex - currentIndex);
 						if (stationIndex < route.platformIds.size() - 1) {
-							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), widthScale, heightScale, xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : ARGB_BLACK + route.color);
+							drawLine(nativeImage, stationPosition, routeStationPositions.get(stationIndex + 1 - currentIndex), widthScale, heightScale, xOffset, yOffset, stationIndex < currentIndex ? ARGB_LIGHT_GRAY : ARGB_BLACK | route.color);
 						}
 
 						final long stationId = getStationId(route.platformIds.get(stationIndex));
@@ -333,7 +333,7 @@ public class RouteMapGenerator implements IGui {
 						for (int i = 0; i < interchangeColors.size(); i++) {
 							for (int drawX = 0; drawX < lineWidth; drawX++) {
 								for (int drawY = 0; drawY < lineHeight; drawY++) {
-									drawPixelSafe(nativeImage, x + drawX + lineWidth * i - lineWidth * interchangeColors.size() / 2, y + (textBelow ? -1 : lines * lineSpacing) + (textBelow ? -drawY : drawY), passed ? ARGB_LIGHT_GRAY : ARGB_BLACK + interchangeColors.get(i));
+									drawPixelSafe(nativeImage, x + drawX + lineWidth * i - lineWidth * interchangeColors.size() / 2, y + (textBelow ? -1 : lines * lineSpacing) + (textBelow ? -drawY : drawY), passed ? ARGB_LIGHT_GRAY : ARGB_BLACK | interchangeColors.get(i));
 								}
 							}
 						}
@@ -580,7 +580,7 @@ public class RouteMapGenerator implements IGui {
 				final int g2 = (color >> 8) & 0xFF;
 				final int b2 = color & 0xFF;
 				final float inversePercent = 1 - percent;
-				final int finalColor = ARGB_BLACK + ((int) (r1 * inversePercent + r2 * percent) << 16) + ((int) (g1 * inversePercent + g2 * percent) << 8) + (int) (b1 * inversePercent + b2 * percent);
+				final int finalColor = ARGB_BLACK | (((int) (r1 * inversePercent + r2 * percent) << 16) + ((int) (g1 * inversePercent + g2 * percent) << 8) + (int) (b1 * inversePercent + b2 * percent));
 				drawPixelSafe(nativeImage, x, y, finalColor);
 			}
 		}
