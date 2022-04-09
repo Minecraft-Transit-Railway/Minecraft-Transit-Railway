@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.item.ItemPSDAPGBase;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
@@ -50,6 +51,13 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingItem(world, player, item -> {
 			if (item == Items.BRUSH) {
+				if(IBlock.getStatePropertySafe(state, SIDE) == EnumSide.LEFT) {
+					System.out.println("Middle");
+						final BlockState scanState = world.getBlockState(pos);
+						if (state.is(scanState.getBlock())) {
+							connectGlass(world, pos, scanState);
+						}
+				}
 				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 1);
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 1);
@@ -60,6 +68,61 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
 			}
 		}, null, Items.BRUSH, net.minecraft.world.item.Items.SHEARS);
+	}
+
+	private void connectGlass(Level world, BlockPos pos, BlockState state) {
+		final Direction facing = IBlock.getStatePropertySafe(state, BlockPSDTop.FACING);
+
+		final BlockPos leftPos = pos.relative(facing.getCounterClockWise());
+		final BlockState leftState = world.getBlockState(leftPos);
+		final boolean leftValid = state.is(leftState.getBlock()) && IBlock.getStatePropertySafe(leftState, PERSISTENT) == IBlock.getStatePropertySafe(state, PERSISTENT);
+
+		if (leftValid) {
+			final EnumSide side = IBlock.getStatePropertySafe(leftState, SIDE_EXTENDED);
+			EnumSide newLeftSide;
+
+			if (side == EnumSide.RIGHT) {
+				newLeftSide = EnumSide.MIDDLE;
+			} else if (side == EnumSide.SINGLE) {
+				newLeftSide = EnumSide.LEFT;
+			} else {
+				newLeftSide = side;
+			}
+
+			world.setBlockAndUpdate(leftPos, leftState.setValue(SIDE_EXTENDED, newLeftSide));
+		}
+
+		final BlockPos rightPos = pos.relative(facing.getClockWise());
+		final BlockState rightState = world.getBlockState(rightPos);
+		final boolean rightValid = state.is(rightState.getBlock()) && IBlock.getStatePropertySafe(rightState, PERSISTENT) == IBlock.getStatePropertySafe(state, PERSISTENT);
+
+		if (rightValid) {
+			final EnumSide side = IBlock.getStatePropertySafe(rightState, SIDE_EXTENDED);
+			EnumSide newRightSide;
+
+			if (side == EnumSide.LEFT) {
+				newRightSide = EnumSide.MIDDLE;
+			} else if (side == EnumSide.SINGLE) {
+				newRightSide = EnumSide.RIGHT;
+			} else {
+				newRightSide = side;
+			}
+
+			world.setBlockAndUpdate(rightPos, rightState.setValue(SIDE_EXTENDED, newRightSide));
+		}
+
+		EnumSide newSide;
+		if (leftValid && rightValid) {
+			newSide = EnumSide.MIDDLE;
+		} else if (leftValid) {
+			newSide = EnumSide.RIGHT;
+		} else if (rightValid) {
+			newSide = EnumSide.LEFT;
+		} else {
+			newSide = EnumSide.SINGLE;
+		}
+
+		world.setBlockAndUpdate(pos, state.setValue(SIDE_EXTENDED, newSide));
 	}
 
 	private void setState(Level world, BlockPos pos, boolean shouldBePersistent) {
@@ -91,7 +154,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	@Override
 	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
 		final Block blockDown = world.getBlockState(pos.below()).getBlock();
-		if (blockDown instanceof BlockPSDAPGBase) {
+		if (blockDown instanceof BlockPSDAPGBase && IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE) {
 			blockDown.playerWillDestroy(world, pos.below(), world.getBlockState(pos.below()), player);
 			world.setBlockAndUpdate(pos.below(), Blocks.AIR.defaultBlockState());
 		}

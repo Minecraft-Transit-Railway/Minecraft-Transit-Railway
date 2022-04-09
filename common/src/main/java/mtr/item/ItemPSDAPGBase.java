@@ -39,8 +39,9 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	public InteractionResult useOn(UseOnContext context) {
 		final boolean isPSD = type == EnumPSDAPGType.PSD_1 || type == EnumPSDAPGType.PSD_2;
 		final boolean isDoor = item == EnumPSDAPGItem.PSD_APG_DOOR;
+		final boolean isTopOnly = item == EnumPSDAPGItem.PSD_ONLY_ROUTE || item == EnumPSDAPGItem.PSD_ONLY_ARROW || item == EnumPSDAPGItem.PSD_ONLY_BLANK;
 
-		if (blocksNotReplaceable(context, isDoor ? 2 : 1, isPSD ? 3 : 2, getBlockStateFromItem().getBlock())) {
+		if (blocksNotReplaceable(context, isDoor ? 2 : 1, isPSD ? 3 : 2, getBlockStateFromItem().getBlock()) && !isTopOnly) {
 			return InteractionResult.FAIL;
 		}
 
@@ -49,11 +50,34 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		final BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
 
 		for (int x = 0; x < (isDoor ? 2 : 1); x++) {
+			System.out.println("x: " + x);
 			final BlockPos newPos = pos.relative(playerFacing.getClockWise(), x);
 
 			for (int y = 0; y < 2; y++) {
-				final BlockState state = getBlockStateFromItem().setValue(BlockPSDAPGBase.FACING, playerFacing).setValue(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
-				if (isDoor) {
+				BlockState state;
+				if (isTopOnly) {
+					state = getBlockStateFromItem().setValue(BlockPSDTop.FACING, playerFacing).setValue(BlockPSDTop.AIR_LEFT, false).setValue(BlockPSDTop.AIR_RIGHT, false)
+							;
+					switch (item) {
+						case PSD_ONLY_ROUTE:
+							System.out.println("PSD_ONLY_ROUTE");
+							state = state.setValue(BlockPSDTop.PERSISTENT, BlockPSDTop.EnumPersistent.ROUTE);
+							break;
+						case PSD_ONLY_ARROW:
+							System.out.println("PSD_ONLY_ARROW");
+							state = state.setValue(BlockPSDTop.PERSISTENT, BlockPSDTop.EnumPersistent.ARROW);
+							break;
+						default:
+							System.out.println("PSD_ONLY_BLANK");
+							state = state.setValue(BlockPSDTop.PERSISTENT, BlockPSDTop.EnumPersistent.BLANK);
+					}
+				} else {
+					state = getBlockStateFromItem().setValue(BlockPSDAPGBase.FACING, playerFacing).setValue(HALF, y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
+				}
+				if (isTopOnly){
+					world.setBlockAndUpdate(newPos, state);
+				}
+				else if (isDoor) {
 					final EnumSide side = x == 0 ? EnumSide.LEFT : EnumSide.RIGHT;
 					world.setBlockAndUpdate(newPos.above(y), state.setValue(SIDE, side));
 				} else {
@@ -105,6 +129,8 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 					case PSD_APG_GLASS_END:
 						return Blocks.APG_GLASS_END.defaultBlockState();
 				}
+			case TOP:
+				return Blocks.PSD_TOP.defaultBlockState();
 		}
 		return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
 	}
@@ -135,11 +161,12 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		return false;
 	}
 
-	public enum EnumPSDAPGType {PSD_1, PSD_2, APG}
+	public enum EnumPSDAPGType {PSD_1, PSD_2, APG, TOP}
 
 	public enum EnumPSDAPGItem implements StringRepresentable {
 
-		PSD_APG_DOOR("psd_apg_door"), PSD_APG_GLASS("psd_apg_glass"), PSD_APG_GLASS_END("psd_apg_glass_end");
+		PSD_APG_DOOR("psd_apg_door"), PSD_APG_GLASS("psd_apg_glass"), PSD_APG_GLASS_END("psd_apg_glass_end"),
+		PSD_ONLY_BLANK("psd_only_blank"), PSD_ONLY_ARROW("psd_only_arrow"), PSD_ONLY_ROUTE("psd_only_route");
 		private final String name;
 
 		EnumPSDAPGItem(String name) {

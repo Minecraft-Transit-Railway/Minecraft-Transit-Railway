@@ -23,6 +23,9 @@ public interface Items {
 	Item PSD_DOOR_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
 	Item PSD_GLASS_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
 	Item PSD_GLASS_END_2 = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD_2);
+	Item PSD_ONLY_BLANK = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_ONLY_BLANK, ItemPSDAPGBase.EnumPSDAPGType.TOP);
+	Item PSD_ONLY_ARROW = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_ONLY_ARROW, ItemPSDAPGBase.EnumPSDAPGType.TOP);
+	Item PSD_ONLY_ROUTE = new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_ONLY_ROUTE, ItemPSDAPGBase.EnumPSDAPGType.TOP);
 	Item RAIL_CONNECTOR_20 = new ItemRailModifier(false, RailType.WOODEN);
 	Item RAIL_CONNECTOR_20_ONE_WAY = new ItemRailModifier(true, RailType.WOODEN);
 	Item RAIL_CONNECTOR_40 = new ItemRailModifier(false, RailType.STONE);
