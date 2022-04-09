@@ -11,8 +11,7 @@ import net.minecraft.util.Tuple;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
 
 public class RouteMapGenerator implements IGui {
 
@@ -37,7 +36,8 @@ public class RouteMapGenerator implements IGui {
 
 	public static DynamicTexture generateColorStrip(long platformId) {
 		try {
-			final List<Integer> colors = getRouteStream(platformId).map(route -> route.color).distinct().collect(Collectors.toList());
+			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> {
+			});
 			if (colors.isEmpty()) {
 				return null;
 			}
@@ -82,33 +82,25 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final List<Integer> colors = new ArrayList<>();
 			final List<String> destinations = new ArrayList<>();
-			getRouteStream(platformId).forEach(route -> {
-				if (!colors.contains(route.color)) {
-					colors.add(route.color);
-				}
-
-				final int currentStationIndex = route.platformIds.indexOf(platformId);
-				if (currentStationIndex < route.platformIds.size() - 1) {
-					if (route.circularState == Route.CircularState.NONE) {
-						destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
-					} else {
-						boolean isVia = false;
-						String text = "";
-						for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-							if (getInterchangeRoutes(getStationId(route.platformIds.get(i))).size() > 1) {
-								text = getStationName(route.platformIds.get(i));
-								isVia = true;
-								break;
-							}
+			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> {
+				if (route.circularState == Route.CircularState.NONE) {
+					destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
+				} else {
+					boolean isVia = false;
+					String text = "";
+					for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
+						if (getInterchangeRoutes(getStationId(route.platformIds.get(i))).size() > 1) {
+							text = getStationName(route.platformIds.get(i));
+							isVia = true;
+							break;
 						}
-						if (!isVia) {
-							text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
-						}
-						final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
-						destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
 					}
+					if (!isVia) {
+						text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
+					}
+					final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
+					destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
 				}
 			});
 			final boolean isTerminating = destinations.isEmpty();
@@ -186,10 +178,8 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final List<Tuple<Route, Integer>> routeDetails = getRouteStream(platformId).map(route -> {
-				final int currentIndex = route.platformIds.indexOf(platformId);
-				return currentIndex + 1 < route.platformIds.size() ? new Tuple<>(route, currentIndex) : null;
-			}).filter(Objects::nonNull).collect(Collectors.toList());
+			final List<Tuple<Route, Integer>> routeDetails = new ArrayList<>();
+			getRouteStream(platformId, (route, currentStationIndex) -> routeDetails.add(new Tuple<>(route, currentStationIndex)));
 			final int routeCount = routeDetails.size();
 
 			if (routeCount > 0) {
@@ -429,8 +419,26 @@ public class RouteMapGenerator implements IGui {
 		return (float) lineSpacing / scale * (colorIndices[routeIndex] - colorIndices[colorIndices.length - 1] / 2F);
 	}
 
-	private static Stream<Route> getRouteStream(long platformId) {
-		return ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId) && !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color);
+	private static List<Integer> getRouteStream(long platformId, BiConsumer<Route, Integer> nonTerminatingCallback) {
+		final List<Integer> colors = new ArrayList<>();
+		final List<Integer> terminatingColors = new ArrayList<>();
+		ClientData.ROUTES.stream().filter(route -> route.platformIds.contains(platformId) && !route.isHidden).sorted((a, b) -> a.color == b.color ? a.compareTo(b) : a.color - b.color).forEach(route -> {
+			final int currentStationIndex = route.platformIds.indexOf(platformId);
+			if (currentStationIndex < route.platformIds.size() - 1) {
+				nonTerminatingCallback.accept(route, currentStationIndex);
+				if (!colors.contains(route.color)) {
+					colors.add(route.color);
+				}
+			} else {
+				if (!terminatingColors.contains(route.color)) {
+					terminatingColors.add(route.color);
+				}
+			}
+		});
+		if (colors.isEmpty()) {
+			colors.addAll(terminatingColors);
+		}
+		return colors;
 	}
 
 	private static long getStationId(long platformId) {
