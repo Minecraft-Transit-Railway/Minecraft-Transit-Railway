@@ -50,7 +50,6 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		final BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
 
 		for (int x = 0; x < (isDoor ? 2 : 1); x++) {
-			System.out.println("x: " + x);
 			final BlockPos newPos = pos.relative(playerFacing.getClockWise(), x);
 
 			for (int y = 0; y < 2; y++) {
