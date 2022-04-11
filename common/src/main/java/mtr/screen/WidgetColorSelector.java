@@ -66,7 +66,7 @@ public class WidgetColorSelector extends Button implements IGui {
 		private float hue;
 		private float saturation;
 		private float brightness;
-		private DraggingState draggingState;
+		private DraggingState draggingState = DraggingState.NONE;
 
 		private final int oldColor;
 		private final Consumer<Integer> colorCallback;
