@@ -66,6 +66,7 @@ public enum TrainType {
 	R211T(TransportMode.TRAIN, 19, 2, true),
 	R211T_MINI(TransportMode.TRAIN, 9, 2, true),
 	CLASS_802(TransportMode.TRAIN, 24, 2, true),
+	CLASS_802_MINI(TransportMode.TRAIN, 18, 2, true),
 	MINECART(TransportMode.TRAIN, 1, 1, false, -1.5F, 0),
 	OAK_BOAT(TransportMode.BOAT, 1, 1, false, -1.5F, 0),
 	SPRUCE_BOAT(TransportMode.BOAT, 1, 1, false, -1.5F, 0),

@@ -1721,61 +1721,53 @@ public class ModelClass802 extends ModelTrainBase {
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final ModelMapper[] windowParts = isEnd1Head || isEnd2Head ? windowEndParts() : windowParts();
-		final int windowPartsLength = windowParts.length;
-		final int offset = windowParts().length / 2;
-		final int loopMax = isEnd1Head && isEnd2Head ? windowPartsLength - offset + 1 : windowPartsLength;
+		final int loopStart = getBogiePositions()[0] + (isEnd1Head ? 94 : 4);
+		final int loopEnd = getBogiePositions()[1] - (isEnd2Head ? 94 : 4);
 
 		switch (renderStage) {
 			case LIGHTS:
-				for (int i = 0; i < loopMax; i++) {
-					renderMirror(window_light, matrices, vertices, light, (isEnd2Head ? -1 : 1) * (i - windowPartsLength + offset + 1) * 30);
+				for (int i = loopStart; i <= loopEnd; i += 30) {
+					renderMirror(window_light, matrices, vertices, light, i);
 				}
 				break;
 			case INTERIOR:
-				for (int i = 0; i < loopMax; i++) {
-					final int newPosition = (isEnd2Head ? -1 : 1) * (i - windowPartsLength + offset + 1) * 30;
-					renderMirror(window, matrices, vertices, light, newPosition);
+				int j = 0;
+				for (int i = loopStart; i <= loopEnd; i += 30) {
+					renderMirror(window, matrices, vertices, light, i);
 					if (renderDetails) {
-						if (i % 4 < 2) {
-							renderOnce(seat, matrices, vertices, light, -16, newPosition - 5);
-							renderOnce(seat, matrices, vertices, light, -16, newPosition + 10);
-							renderOnce(seat, matrices, vertices, light, -8, newPosition - 5);
-							renderOnce(seat, matrices, vertices, light, -8, newPosition + 10);
-							renderOnce(seat, matrices, vertices, light, 8, newPosition - 5);
-							renderOnce(seat, matrices, vertices, light, 8, newPosition + 10);
-							renderOnce(seat, matrices, vertices, light, 16, newPosition - 5);
-							renderOnce(seat, matrices, vertices, light, 16, newPosition + 10);
+						if (j % 4 < 2) {
+							renderOnce(seat, matrices, vertices, light, -16, i - 5);
+							renderOnce(seat, matrices, vertices, light, -16, i + 10);
+							renderOnce(seat, matrices, vertices, light, -8, i - 5);
+							renderOnce(seat, matrices, vertices, light, -8, i + 10);
+							renderOnce(seat, matrices, vertices, light, 8, i - 5);
+							renderOnce(seat, matrices, vertices, light, 8, i + 10);
+							renderOnce(seat, matrices, vertices, light, 16, i - 5);
+							renderOnce(seat, matrices, vertices, light, 16, i + 10);
 						} else {
-							renderOnceFlipped(seat, matrices, vertices, light, -16, newPosition - 10);
-							renderOnceFlipped(seat, matrices, vertices, light, -16, newPosition + 5);
-							renderOnceFlipped(seat, matrices, vertices, light, -8, newPosition - 10);
-							renderOnceFlipped(seat, matrices, vertices, light, -8, newPosition + 5);
-							renderOnceFlipped(seat, matrices, vertices, light, 8, newPosition - 10);
-							renderOnceFlipped(seat, matrices, vertices, light, 8, newPosition + 5);
-							renderOnceFlipped(seat, matrices, vertices, light, 16, newPosition - 10);
-							renderOnceFlipped(seat, matrices, vertices, light, 16, newPosition + 5);
+							renderOnceFlipped(seat, matrices, vertices, light, -16, i - 10);
+							renderOnceFlipped(seat, matrices, vertices, light, -16, i + 5);
+							renderOnceFlipped(seat, matrices, vertices, light, -8, i - 10);
+							renderOnceFlipped(seat, matrices, vertices, light, -8, i + 5);
+							renderOnceFlipped(seat, matrices, vertices, light, 8, i - 10);
+							renderOnceFlipped(seat, matrices, vertices, light, 8, i + 5);
+							renderOnceFlipped(seat, matrices, vertices, light, 16, i - 10);
+							renderOnceFlipped(seat, matrices, vertices, light, 16, i + 5);
 						}
 					}
+					j++;
 				}
 				break;
 			case EXTERIOR:
-				if (isEnd1Head || isEnd2Head) {
-					for (int i = 0; i < loopMax; i++) {
-						final int newPosition = (isEnd2Head ? -1 : 1) * (i - windowPartsLength + offset + 1) * 30;
-						renderOnce(windowParts[i], matrices, vertices, light, newPosition);
-						renderMirror(roof_exterior, matrices, vertices, light, newPosition);
+				int k = 0;
+				for (int i = loopStart; i <= loopEnd; i += 30) {
+					renderOnce(windowParts[k], matrices, vertices, light, i);
+					if (!isEnd1Head && !isEnd2Head) {
+						renderOnceFlipped(windowParts[windowParts.length - k - 1], matrices, vertices, light, i);
 					}
-				} else {
-					for (int i = 0; i < windowPartsLength; i++) {
-						renderOnce(windowParts[i], matrices, vertices, light, (i - offset) * 30);
-					}
-					for (int i = 0; i < windowPartsLength; i++) {
-						final int newPosition = (i - offset) * 30;
-						renderOnceFlipped(windowParts[windowPartsLength - i - 1], matrices, vertices, light, newPosition);
-						renderMirror(roof_exterior, matrices, vertices, light, newPosition);
-					}
+					renderMirror(roof_exterior, matrices, vertices, light, i);
+					k++;
 				}
-
 				final int[] bogiePositions = getBogiePositions();
 				renderMirror(bottom_end, matrices, vertices, light, bogiePositions[0] + 42);
 				renderMirror(bottom_end, matrices, vertices, light, bogiePositions[1] - 42);
@@ -1972,5 +1964,13 @@ public class ModelClass802 extends ModelTrainBase {
 
 	protected ModelMapper[] windowEndParts() {
 		return new ModelMapper[]{window_end_exterior_1, window_end_exterior_2, window_end_exterior_3, window_end_exterior_4, window_end_exterior_5, window_end_exterior_6};
+	}
+
+	protected final ModelMapper[] windowPartsMini() {
+		return new ModelMapper[]{window_exterior_1, window_exterior_2, window_exterior_3, window_exterior_7, window_exterior_8, window_exterior_9};
+	}
+
+	protected final ModelMapper[] windowEndPartsMini() {
+		return new ModelMapper[]{window_end_exterior_1, window_end_exterior_2, window_end_exterior_3};
 	}
 }
