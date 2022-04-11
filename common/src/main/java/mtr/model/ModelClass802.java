@@ -1675,6 +1675,7 @@ public class ModelClass802 extends ModelTrainBase {
 
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		window.setModelPart();
+		window_light.setModelPart();
 		window_exterior_1.setModelPart();
 		window_exterior_2.setModelPart();
 		window_exterior_3.setModelPart();
@@ -1701,9 +1702,18 @@ public class ModelClass802 extends ModelTrainBase {
 		door_exterior_end_2.setModelPart(door_exterior_end.name);
 		roof_exterior.setModelPart();
 		end.setModelPart();
+		end_light.setModelPart();
+		end_translucent.setModelPart();
 		end_exterior.setModelPart();
 		roof_vent.setModelPart();
 		head_exterior.setModelPart();
+		bottom_middle.setModelPart();
+		bottom_end.setModelPart();
+		seat.setModelPart();
+		headlights.setModelPart();
+		tail_lights.setModelPart();
+		door_light_off.setModelPart();
+		door_light_on.setModelPart();
 	}
 
 	private static final int DOOR_MAX = 13;
