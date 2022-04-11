@@ -1792,34 +1792,34 @@ public class ModelClass802 extends ModelTrainBase {
 				break;
 			case INTERIOR:
 				if (firstDoor) {
-					door_1.setOffset(0, 0, -doorLeftZ);
+					door_1.setOffset(0, 0, doorLeftZ);
 					door_2.setOffset(0, 0, doorRightZ);
 					renderOnceFlipped(door, matrices, vertices, light, position + doorOffset);
 				} else {
 					door_1.setOffset(0, 0, doorRightZ);
-					door_2.setOffset(0, 0, -doorLeftZ);
+					door_2.setOffset(0, 0, doorLeftZ);
 					renderOnce(door, matrices, vertices, light, position + doorOffset);
 				}
 				break;
 			case EXTERIOR:
 				if (isEnd1Head && firstDoor || isEnd2Head && !firstDoor) {
 					if (firstDoor) {
-						door_exterior_end_1.setOffset(0, 0, -doorLeftZ);
+						door_exterior_end_1.setOffset(0, 0, doorLeftZ);
 						door_exterior_end_2.setOffset(0, 0, doorRightZ);
 						renderOnceFlipped(door_exterior_end, matrices, vertices, light, position + doorOffset);
 					} else {
 						door_exterior_end_1.setOffset(0, 0, doorRightZ);
-						door_exterior_end_2.setOffset(0, 0, -doorLeftZ);
+						door_exterior_end_2.setOffset(0, 0, doorLeftZ);
 						renderOnce(door_exterior_end, matrices, vertices, light, position + doorOffset);
 					}
 				} else {
 					if (firstDoor) {
-						door_exterior_1.setOffset(0, 0, -doorLeftZ);
+						door_exterior_1.setOffset(0, 0, doorLeftZ);
 						door_exterior_2.setOffset(0, 0, doorRightZ);
 						renderOnceFlipped(door_exterior, matrices, vertices, light, position);
 					} else {
 						door_exterior_1.setOffset(0, 0, doorRightZ);
-						door_exterior_2.setOffset(0, 0, -doorLeftZ);
+						door_exterior_2.setOffset(0, 0, doorLeftZ);
 						renderOnce(door_exterior, matrices, vertices, light, position);
 					}
 				}
