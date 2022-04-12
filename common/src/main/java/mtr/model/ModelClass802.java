@@ -1040,6 +1040,8 @@ public class ModelClass802 extends ModelTrainBase {
 		end.texOffs(310, 104).addBox(11, -34, 2.9F, 9, 34, 0, 0, false);
 		end.texOffs(227, 172).addBox(-20.5F, -34, 16.1F, 11, 34, 29, 0, false);
 		end.texOffs(307, 201).addBox(-20, -34, 2.9F, 9, 34, 0, 0, false);
+		end.texOffs(237, 0).addBox(-20, -36, -8, 40, 36, 0, 0, false);
+		end.texOffs(381, 0).addBox(-10, -34, 45, 20, 34, 0, 0, false);
 
 		end_pillar_4_r1 = new ModelMapper(modelDataWrapper);
 		end_pillar_4_r1.setPos(-11, 0, 2.9F);
@@ -1131,8 +1133,8 @@ public class ModelClass802 extends ModelTrainBase {
 
 		end_translucent = new ModelMapper(modelDataWrapper);
 		end_translucent.setPos(0, 24, 0);
-		end_translucent.texOffs(237, 0).addBox(-20, -36, -8, 40, 36, 0, 0, false);
-		end_translucent.texOffs(381, 0).addBox(-10, -34, 45, 20, 34, 0, 0, false);
+		end_translucent.texOffs(331, 388).addBox(-7, -34, -8, 14, 34, 0, 0, false);
+		end_translucent.texOffs(359, 388).addBox(-7, -34, 45, 14, 34, 0, 0, false);
 
 		end_exterior = new ModelMapper(modelDataWrapper);
 		end_exterior.setPos(0, 24, 0);
