@@ -196,7 +196,6 @@ public class ModelClass802 extends ModelTrainBase {
 	private final ModelMapper roof_11_r3;
 	private final ModelMapper roof_10_r3;
 	private final ModelMapper roof_9_r1;
-	private final ModelMapper roof_8_r1;
 	private final ModelMapper roof_7_r2;
 	private final ModelMapper roof_4_r11;
 	private final ModelMapper roof_4_r12;
@@ -219,8 +218,7 @@ public class ModelClass802 extends ModelTrainBase {
 	private final ModelMapper roof_12_r4;
 	private final ModelMapper roof_11_r6;
 	private final ModelMapper roof_10_r4;
-	private final ModelMapper roof_9_r2;
-	private final ModelMapper roof_8_r2;
+	private final ModelMapper roof_8_r1;
 	private final ModelMapper roof_5_r8;
 	private final ModelMapper roof_5_r9;
 	private final ModelMapper roof_4_r14;
@@ -229,11 +227,10 @@ public class ModelClass802 extends ModelTrainBase {
 	private final ModelMapper roof_3_r13;
 	private final ModelMapper roof_2_r16;
 	private final ModelMapper middle;
-	private final ModelMapper roof_8_r3;
-	private final ModelMapper roof_7_r3;
+	private final ModelMapper roof_8_r2;
 	private final ModelMapper roof_6_r4;
 	private final ModelMapper roof_5_r10;
-	private final ModelMapper roof_9_r3;
+	private final ModelMapper roof_9_r2;
 	private final ModelMapper bottom_middle;
 	private final ModelMapper bottom_end;
 	private final ModelMapper seat;
@@ -242,8 +239,8 @@ public class ModelClass802 extends ModelTrainBase {
 	private final ModelMapper headlight_2_r1;
 	private final ModelMapper headlight_1_r1;
 	private final ModelMapper tail_lights;
-	private final ModelMapper tail_lights_2_r1;
-	private final ModelMapper tail_lights_1_r1;
+	private final ModelMapper tail_light_2_r1;
+	private final ModelMapper tail_light_1_r1;
 	private final ModelMapper door_light_off;
 	private final ModelMapper door_light_off_r1;
 	private final ModelMapper door_light_on;
@@ -934,7 +931,7 @@ public class ModelClass802 extends ModelTrainBase {
 		window_top_2_r1.setPos(-20, -13, 0);
 		door_1.addChild(window_top_2_r1);
 		setRotationAngle(window_top_2_r1, 0, 0, 0.1396F);
-		window_top_2_r1.texOffs(172, 378).addBox(0, -21, 3, 1, 21, 13, 0, false);
+		window_top_2_r1.texOffs(237, 374).addBox(0, -21, 3, 1, 21, 13, 0, false);
 
 		door_2 = new ModelMapper(modelDataWrapper);
 		door_2.setPos(0, 0, 0);
@@ -951,7 +948,7 @@ public class ModelClass802 extends ModelTrainBase {
 		window_top_3_r1.setPos(20, -13, 0);
 		door_2.addChild(window_top_3_r1);
 		setRotationAngle(window_top_3_r1, 0, 0, -0.1396F);
-		window_top_3_r1.texOffs(172, 378).addBox(-1, -21, 3, 1, 21, 13, 0, true);
+		window_top_3_r1.texOffs(237, 374).addBox(-1, -21, 3, 1, 21, 13, 0, true);
 
 		door_exterior = new ModelMapper(modelDataWrapper);
 		door_exterior.setPos(0, 24, 0);
@@ -1320,7 +1317,7 @@ public class ModelClass802 extends ModelTrainBase {
 		roof_11_r1.setPos(-16.8732F, -11.8177F, 56.7312F);
 		head_side_1.addChild(roof_11_r1);
 		setRotationAngle(roof_11_r1, 0.1745F, -1.0472F, 0);
-		roof_11_r1.texOffs(361, 319).addBox(-9.5F, -12, 0, 19, 24, 0, 0, false);
+		roof_11_r1.texOffs(361, 328).addBox(-9.5F, -3, 0, 19, 15, 0, 0, false);
 
 		roof_12_r1 = new ModelMapper(modelDataWrapper);
 		roof_12_r1.setPos(-15.5128F, 10.8301F, 58.2552F);
@@ -1364,17 +1361,11 @@ public class ModelClass802 extends ModelTrainBase {
 		setRotationAngle(roof_9_r1, 0, -0.5236F, 0);
 		roof_9_r1.texOffs(161, 13).addBox(-8, 0, 0, 8, 5, 0, 0, false);
 
-		roof_8_r1 = new ModelMapper(modelDataWrapper);
-		roof_8_r1.setPos(-12.533F, -16.0189F, 57.5648F);
-		head_side_1.addChild(roof_8_r1);
-		setRotationAngle(roof_8_r1, -0.2618F, 0.7854F, 1.0472F);
-		roof_8_r1.texOffs(158, 124).addBox(0, -6.5F, -14, 0, 13, 28, 0, false);
-
 		roof_7_r2 = new ModelMapper(modelDataWrapper);
-		roof_7_r2.setPos(-15.5298F, -29.8468F, 35.8167F);
+		roof_7_r2.setPos(-18.5824F, -19.5437F, 43.232F);
 		head_side_1.addChild(roof_7_r2);
-		setRotationAngle(roof_7_r2, -0.1745F, 0.3491F, 1.0472F);
-		roof_7_r2.texOffs(0, 108).addBox(0, -6, -15, 0, 12, 30, 0, false);
+		setRotationAngle(roof_7_r2, -0.2182F, 0.5236F, 1.0472F);
+		roof_7_r2.texOffs(118, 360).addBox(0, -8, -28.5F, 0, 11, 57, 0, false);
 
 		roof_4_r11 = new ModelMapper(modelDataWrapper);
 		roof_4_r11.setPos(-2, -42, -9);
@@ -1468,7 +1459,7 @@ public class ModelClass802 extends ModelTrainBase {
 		roof_12_r2.setPos(16.8732F, -11.8177F, 56.7312F);
 		head_side_2.addChild(roof_12_r2);
 		setRotationAngle(roof_12_r2, 0.1745F, 1.0472F, 0);
-		roof_12_r2.texOffs(361, 319).addBox(-9.5F, -12, 0, 19, 24, 0, 0, true);
+		roof_12_r2.texOffs(361, 328).addBox(-9.5F, -3, 0, 19, 15, 0, 0, true);
 
 		roof_13_r1 = new ModelMapper(modelDataWrapper);
 		roof_13_r1.setPos(15.5128F, 10.8301F, 58.2552F);
@@ -1512,17 +1503,11 @@ public class ModelClass802 extends ModelTrainBase {
 		setRotationAngle(roof_10_r4, 0, 0.5236F, 0);
 		roof_10_r4.texOffs(161, 13).addBox(0, 0, 0, 8, 5, 0, 0, true);
 
-		roof_9_r2 = new ModelMapper(modelDataWrapper);
-		roof_9_r2.setPos(12.533F, -16.0189F, 57.5648F);
-		head_side_2.addChild(roof_9_r2);
-		setRotationAngle(roof_9_r2, -0.2618F, -0.7854F, -1.0472F);
-		roof_9_r2.texOffs(158, 124).addBox(0, -6.5F, -14, 0, 13, 28, 0, true);
-
-		roof_8_r2 = new ModelMapper(modelDataWrapper);
-		roof_8_r2.setPos(15.5298F, -29.8468F, 35.8167F);
-		head_side_2.addChild(roof_8_r2);
-		setRotationAngle(roof_8_r2, -0.1745F, -0.3491F, -1.0472F);
-		roof_8_r2.texOffs(0, 108).addBox(0, -6, -15, 0, 12, 30, 0, true);
+		roof_8_r1 = new ModelMapper(modelDataWrapper);
+		roof_8_r1.setPos(18.5824F, -19.5437F, 43.232F);
+		head_side_2.addChild(roof_8_r1);
+		setRotationAngle(roof_8_r1, -0.2182F, -0.5236F, -1.0472F);
+		roof_8_r1.texOffs(118, 360).addBox(0, -8, -28.5F, 0, 11, 57, 0, true);
 
 		roof_5_r8 = new ModelMapper(modelDataWrapper);
 		roof_5_r8.setPos(2, -42, -9);
@@ -1574,23 +1559,17 @@ public class ModelClass802 extends ModelTrainBase {
 		middle.texOffs(0, 0).addBox(-19, 0, -15, 38, 1, 85, 0, false);
 		middle.texOffs(0, 231).addBox(-20, -42, -14.5F, 40, 42, 1, 0, false);
 
-		roof_8_r3 = new ModelMapper(modelDataWrapper);
-		roof_8_r3.setPos(0, 0, 70);
-		middle.addChild(roof_8_r3);
-		setRotationAngle(roof_8_r3, 0.3491F, 0, 0);
-		roof_8_r3.texOffs(32, 326).addBox(-8, -11, 0, 16, 11, 0, 0, false);
-
-		roof_7_r3 = new ModelMapper(modelDataWrapper);
-		roof_7_r3.setPos(0, -18.733F, 57.665F);
-		middle.addChild(roof_7_r3);
-		setRotationAngle(roof_7_r3, 0, -0.7854F, -1.5708F);
-		roof_7_r3.texOffs(0, 5).addBox(0, -10, -12.5F, 0, 20, 25, 0, false);
+		roof_8_r2 = new ModelMapper(modelDataWrapper);
+		roof_8_r2.setPos(0, 0, 70);
+		middle.addChild(roof_8_r2);
+		setRotationAngle(roof_8_r2, 0.3491F, 0, 0);
+		roof_8_r2.texOffs(32, 326).addBox(-8, -9, 0, 16, 9, 0, 0, false);
 
 		roof_6_r4 = new ModelMapper(modelDataWrapper);
-		roof_6_r4.setPos(0, -32.7021F, 34.7308F);
+		roof_6_r4.setPos(-10, -37.8324F, 20.6354F);
 		middle.addChild(roof_6_r4);
-		setRotationAngle(roof_6_r4, 0, -0.3491F, -1.5708F);
-		roof_6_r4.texOffs(0, 23).addBox(0, -13, -15, 0, 26, 30, 0, false);
+		setRotationAngle(roof_6_r4, 0, -0.5672F, -1.5708F);
+		roof_6_r4.texOffs(118, 336).addBox(0, -3, 0, 0, 26, 55, 0, false);
 
 		roof_5_r10 = new ModelMapper(modelDataWrapper);
 		roof_5_r10.setPos(0, -42, -3);
@@ -1598,11 +1577,11 @@ public class ModelClass802 extends ModelTrainBase {
 		setRotationAngle(roof_5_r10, 0, -0.1745F, -1.5708F);
 		roof_5_r10.texOffs(144, 241).addBox(0, -10, 0, 0, 20, 24, 0, false);
 
-		roof_9_r3 = new ModelMapper(modelDataWrapper);
-		roof_9_r3.setPos(0, 5, 70);
-		middle.addChild(roof_9_r3);
-		setRotationAngle(roof_9_r3, -0.7854F, 0, 0);
-		roof_9_r3.texOffs(230, 158).addBox(-7, 0, 0, 14, 6, 0, 0, false);
+		roof_9_r2 = new ModelMapper(modelDataWrapper);
+		roof_9_r2.setPos(0, 5, 70);
+		middle.addChild(roof_9_r2);
+		setRotationAngle(roof_9_r2, -0.7854F, 0, 0);
+		roof_9_r2.texOffs(230, 158).addBox(-7, 0, 0, 14, 6, 0, 0, false);
 
 		bottom_middle = new ModelMapper(modelDataWrapper);
 		bottom_middle.setPos(0, 24, 0);
@@ -1628,32 +1607,32 @@ public class ModelClass802 extends ModelTrainBase {
 
 
 		headlight_2_r1 = new ModelMapper(modelDataWrapper);
-		headlight_2_r1.setPos(12.533F, -16.0189F, 57.5648F);
+		headlight_2_r1.setPos(18.5824F, -19.5437F, 43.232F);
 		headlights.addChild(headlight_2_r1);
-		setRotationAngle(headlight_2_r1, -0.2618F, -0.7854F, -1.0472F);
-		headlight_2_r1.texOffs(345, 54).addBox(0.1F, -1.5F, -2.9F, 0, 5, 12, 0, true);
+		setRotationAngle(headlight_2_r1, -0.2182F, -0.5236F, -1.0472F);
+		headlight_2_r1.texOffs(345, 53).addBox(0.1F, -8, 10.5F, 0, 6, 13, 0, true);
 
 		headlight_1_r1 = new ModelMapper(modelDataWrapper);
-		headlight_1_r1.setPos(-12.533F, -16.0189F, 57.5648F);
+		headlight_1_r1.setPos(-18.5824F, -19.5437F, 43.232F);
 		headlights.addChild(headlight_1_r1);
-		setRotationAngle(headlight_1_r1, -0.2618F, 0.7854F, 1.0472F);
-		headlight_1_r1.texOffs(345, 54).addBox(-0.1F, -1.5F, -2.9F, 0, 5, 12, 0, false);
+		setRotationAngle(headlight_1_r1, -0.2182F, 0.5236F, 1.0472F);
+		headlight_1_r1.texOffs(345, 53).addBox(-0.1F, -8, 10.5F, 0, 6, 13, 0, false);
 
 		tail_lights = new ModelMapper(modelDataWrapper);
 		tail_lights.setPos(0, 24, 0);
 
 
-		tail_lights_2_r1 = new ModelMapper(modelDataWrapper);
-		tail_lights_2_r1.setPos(12.533F, -16.0189F, 57.5648F);
-		tail_lights.addChild(tail_lights_2_r1);
-		setRotationAngle(tail_lights_2_r1, -0.2618F, -0.7854F, -1.0472F);
-		tail_lights_2_r1.texOffs(345, 59).addBox(0.1F, -1.5F, -2.9F, 0, 5, 12, 0, true);
+		tail_light_2_r1 = new ModelMapper(modelDataWrapper);
+		tail_light_2_r1.setPos(18.5824F, -19.5437F, 43.232F);
+		tail_lights.addChild(tail_light_2_r1);
+		setRotationAngle(tail_light_2_r1, -0.2182F, -0.5236F, -1.0472F);
+		tail_light_2_r1.texOffs(345, 59).addBox(0.1F, -8, 10.5F, 0, 6, 13, 0, true);
 
-		tail_lights_1_r1 = new ModelMapper(modelDataWrapper);
-		tail_lights_1_r1.setPos(-12.533F, -16.0189F, 57.5648F);
-		tail_lights.addChild(tail_lights_1_r1);
-		setRotationAngle(tail_lights_1_r1, -0.2618F, 0.7854F, 1.0472F);
-		tail_lights_1_r1.texOffs(345, 59).addBox(-0.1F, -1.5F, -2.9F, 0, 5, 12, 0, false);
+		tail_light_1_r1 = new ModelMapper(modelDataWrapper);
+		tail_light_1_r1.setPos(-18.5824F, -19.5437F, 43.232F);
+		tail_lights.addChild(tail_light_1_r1);
+		setRotationAngle(tail_light_1_r1, -0.2182F, 0.5236F, 1.0472F);
+		tail_light_1_r1.texOffs(345, 59).addBox(-0.1F, -8, 10.5F, 0, 6, 13, 0, false);
 
 		door_light_off = new ModelMapper(modelDataWrapper);
 		door_light_off.setPos(0, 24, 0);
