@@ -931,7 +931,7 @@ public class ModelClass802 extends ModelTrainBase {
 		window_top_2_r1.setPos(-20, -13, 0);
 		door_1.addChild(window_top_2_r1);
 		setRotationAngle(window_top_2_r1, 0, 0, 0.1396F);
-		window_top_2_r1.texOffs(237, 374).addBox(0, -21, 3, 1, 21, 13, 0, false);
+		window_top_2_r1.texOffs(390, 235).addBox(0, -21, 3, 1, 21, 13, 0, false);
 
 		door_2 = new ModelMapper(modelDataWrapper);
 		door_2.setPos(0, 0, 0);
@@ -948,7 +948,7 @@ public class ModelClass802 extends ModelTrainBase {
 		window_top_3_r1.setPos(20, -13, 0);
 		door_2.addChild(window_top_3_r1);
 		setRotationAngle(window_top_3_r1, 0, 0, -0.1396F);
-		window_top_3_r1.texOffs(237, 374).addBox(-1, -21, 3, 1, 21, 13, 0, true);
+		window_top_3_r1.texOffs(390, 235).addBox(-1, -21, 3, 1, 21, 13, 0, true);
 
 		door_exterior = new ModelMapper(modelDataWrapper);
 		door_exterior.setPos(0, 24, 0);

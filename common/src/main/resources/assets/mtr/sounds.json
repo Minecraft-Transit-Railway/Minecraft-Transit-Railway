@@ -12881,6 +12881,22 @@
 			}
 		]
 	},
+	"class_802_door_open": {
+		"sounds": [
+			{
+				"name": "mtr:class_802/door_open",
+				"pitch": 0.5
+			}
+		]
+	},
+	"class_802_door_close": {
+		"sounds": [
+			{
+				"name": "mtr:class_802/door_close",
+				"pitch": 0.5
+			}
+		]
+	},
 	"light_rail_1_door_open": {
 		"sounds": [
 			{
