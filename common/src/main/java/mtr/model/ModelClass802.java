@@ -1742,9 +1742,11 @@ public class ModelClass802 extends ModelTrainBase {
 			case EXTERIOR:
 				int k = 0;
 				for (int i = loopStart; i <= loopEnd; i += 30) {
-					renderOnce(windowParts[k], matrices, vertices, light, i);
-					if (!isEnd1Head && !isEnd2Head) {
-						renderOnceFlipped(windowParts[windowParts.length - k - 1], matrices, vertices, light, i);
+					if (!isEnd2Head) {
+						renderOnce(windowParts[windowParts.length - k - 1], matrices, vertices, light, i);
+					}
+					if (!isEnd1Head || isEnd2Head) {
+						renderOnceFlipped(windowParts[k], matrices, vertices, light, i);
 					}
 					renderMirror(roof_exterior, matrices, vertices, light, i);
 					k++;
@@ -1944,7 +1946,7 @@ public class ModelClass802 extends ModelTrainBase {
 	}
 
 	protected ModelMapper[] windowEndParts() {
-		return new ModelMapper[]{window_end_exterior_1, window_end_exterior_2, window_end_exterior_3, window_end_exterior_4, window_end_exterior_5, window_end_exterior_6};
+		return new ModelMapper[]{window_end_exterior_6, window_end_exterior_5, window_end_exterior_4, window_end_exterior_3, window_end_exterior_2, window_end_exterior_1};
 	}
 
 	protected final ModelMapper[] windowPartsMini() {
@@ -1952,6 +1954,6 @@ public class ModelClass802 extends ModelTrainBase {
 	}
 
 	protected final ModelMapper[] windowEndPartsMini() {
-		return new ModelMapper[]{window_end_exterior_1, window_end_exterior_2, window_end_exterior_3};
+		return new ModelMapper[]{window_end_exterior_3, window_end_exterior_2, window_end_exterior_1};
 	}
 }
