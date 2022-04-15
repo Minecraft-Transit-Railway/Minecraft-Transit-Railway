@@ -557,7 +557,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos) {
-		return getClosePlatformId(platforms, dataCache, pos, 4, 0, 4);
+		return getClosePlatformId(platforms, dataCache, pos, 5, 0, 4);
 	}
 
 	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos, int radius, int lower, int upper) {
