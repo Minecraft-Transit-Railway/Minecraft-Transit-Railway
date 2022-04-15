@@ -235,12 +235,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						}
 						break;
 					case 2:
-						text = getStationText(lastStation, "last");
+						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
 						break;
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
@@ -268,10 +268,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
 							final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
 							if (nextFinalStation != null) {
+								final String modeString = thisRoute.transportMode.toString().toLowerCase();
 								if (nextRoute.isLightRailRoute) {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_light_rail_announcement_cjk", "gui.mtr.next_route_" + modeString + "_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
 								} else {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_announcement_cjk", "gui.mtr.next_route_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_announcement_cjk", "gui.mtr.next_route_" + modeString + "_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
 								}
 							}
 						}

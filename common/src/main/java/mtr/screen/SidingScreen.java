@@ -29,8 +29,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final WidgetBetterTextField textFieldMaxTrains;
 	private final WidgetShorterSlider sliderAccelerationConstant;
 
-	private static final Component SELECTED_TRAIN_TEXT = new TranslatableComponent("gui.mtr.selected_train");
-	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_trains");
+	private static final Component SELECTED_TRAIN_TEXT = new TranslatableComponent("gui.mtr.selected_vehicle");
+	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_vehicles");
 	private static final Component ACCELERATION_CONSTANT_TEXT = new TranslatableComponent("gui.mtr.acceleration");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_TRAINS_WIDTH = 80;
@@ -47,7 +47,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((MAX_ACCELERATION - MIN_ACCELERATION) * SLIDER_SCALE), this::sliderFormatter, null);
-		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_trains"), checked -> {
+		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_vehicles"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
 			} else if (!checked && textFieldMaxTrains.getValue().isEmpty()) {

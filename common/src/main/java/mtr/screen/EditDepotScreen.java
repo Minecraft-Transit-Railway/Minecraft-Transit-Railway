@@ -124,7 +124,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			}
 
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
