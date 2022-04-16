@@ -1,0 +1,3 @@
+files:
+  - source: /common/src/main/resources/assets/mtr/lang/en_us.json
+    translation: /%locale_with_underscore%.json

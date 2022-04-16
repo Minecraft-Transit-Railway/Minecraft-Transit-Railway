@@ -35,6 +35,8 @@ jobs:
   crowdin:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Upload Translations to Crowdin
         uses: crowdin/github-action@1.4.8
         with:
@@ -45,5 +47,4 @@ jobs:
           create_pull_request: false
           project_id: '455212'
           token: ${{ secrets.CROWDIN_API_KEY }}
-          source: '/common/src/main/resources/assets/mtr/lang/en_us.json'
-          translation: '/%locale_with_underscore%.json'
+          config: 'crowdin.yml'
