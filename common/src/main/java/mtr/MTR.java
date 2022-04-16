@@ -11,6 +11,8 @@ import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -29,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MTR implements IPacket {
 
@@ -41,14 +42,17 @@ public class MTR implements IPacket {
 			BiConsumer<String, Item> registerItem,
 			BiConsumer<String, Block> registerBlock,
 			RegisterBlockItem registerBlockItem,
+			RegisterBlockItem registerEnchantedBlockItem,
 			BiConsumer<String, BlockEntityType<? extends BlockEntityMapper>> registerBlockEntityType,
-			Consumer<SoundEvent> registerSoundEvent
+			BiConsumer<String, EntityType<? extends Entity>> registerEntityType,
+			BiConsumer<String, SoundEvent> registerSoundEvent
 	) {
 		registerItem.accept("apg_door", Items.APG_DOOR);
 		registerItem.accept("apg_glass", Items.APG_GLASS);
 		registerItem.accept("apg_glass_end", Items.APG_GLASS_END);
 		registerItem.accept("brush", Items.BRUSH);
-		registerItem.accept("dashboard", Items.DASHBOARD);
+		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
+		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
@@ -56,18 +60,22 @@ public class MTR implements IPacket {
 		registerItem.accept("psd_door_2", Items.PSD_DOOR_2);
 		registerItem.accept("psd_glass_2", Items.PSD_GLASS_2);
 		registerItem.accept("psd_glass_end_2", Items.PSD_GLASS_END_2);
-		registerItem.accept("rail_connector_1_wooden", Items.RAIL_CONNECTOR_1_WOODEN);
-		registerItem.accept("rail_connector_1_wooden_one_way", Items.RAIL_CONNECTOR_1_WOODEN_ONE_WAY);
-		registerItem.accept("rail_connector_2_stone", Items.RAIL_CONNECTOR_2_STONE);
-		registerItem.accept("rail_connector_2_stone_one_way", Items.RAIL_CONNECTOR_2_STONE_ONE_WAY);
-		registerItem.accept("rail_connector_3_iron", Items.RAIL_CONNECTOR_3_IRON);
-		registerItem.accept("rail_connector_3_iron_one_way", Items.RAIL_CONNECTOR_3_IRON_ONE_WAY);
-		registerItem.accept("rail_connector_4_obsidian", Items.RAIL_CONNECTOR_4_OBSIDIAN);
-		registerItem.accept("rail_connector_4_obsidian_one_way", Items.RAIL_CONNECTOR_4_OBSIDIAN_ONE_WAY);
-		registerItem.accept("rail_connector_5_blaze", Items.RAIL_CONNECTOR_5_BLAZE);
-		registerItem.accept("rail_connector_5_blaze_one_way", Items.RAIL_CONNECTOR_5_BLAZE_ONE_WAY);
-		registerItem.accept("rail_connector_6_diamond", Items.RAIL_CONNECTOR_6_DIAMOND);
-		registerItem.accept("rail_connector_6_diamond_one_way", Items.RAIL_CONNECTOR_6_DIAMOND_ONE_WAY);
+		registerItem.accept("rail_connector_20", Items.RAIL_CONNECTOR_20);
+		registerItem.accept("rail_connector_20_one_way", Items.RAIL_CONNECTOR_20_ONE_WAY);
+		registerItem.accept("rail_connector_40", Items.RAIL_CONNECTOR_40);
+		registerItem.accept("rail_connector_40_one_way", Items.RAIL_CONNECTOR_40_ONE_WAY);
+		registerItem.accept("rail_connector_60", Items.RAIL_CONNECTOR_60);
+		registerItem.accept("rail_connector_60_one_way", Items.RAIL_CONNECTOR_60_ONE_WAY);
+		registerItem.accept("rail_connector_80", Items.RAIL_CONNECTOR_80);
+		registerItem.accept("rail_connector_80_one_way", Items.RAIL_CONNECTOR_80_ONE_WAY);
+		registerItem.accept("rail_connector_120", Items.RAIL_CONNECTOR_120);
+		registerItem.accept("rail_connector_120_one_way", Items.RAIL_CONNECTOR_120_ONE_WAY);
+		registerItem.accept("rail_connector_160", Items.RAIL_CONNECTOR_160);
+		registerItem.accept("rail_connector_160_one_way", Items.RAIL_CONNECTOR_160_ONE_WAY);
+		registerItem.accept("rail_connector_200", Items.RAIL_CONNECTOR_200);
+		registerItem.accept("rail_connector_200_one_way", Items.RAIL_CONNECTOR_200_ONE_WAY);
+		registerItem.accept("rail_connector_300", Items.RAIL_CONNECTOR_300);
+		registerItem.accept("rail_connector_300_one_way", Items.RAIL_CONNECTOR_300_ONE_WAY);
 		registerItem.accept("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem.accept("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
 		registerItem.accept("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
@@ -105,7 +113,38 @@ public class MTR implements IPacket {
 		registerItem.accept("signal_remover_green", Items.SIGNAL_REMOVER_GREEN);
 		registerItem.accept("signal_remover_red", Items.SIGNAL_REMOVER_RED);
 		registerItem.accept("signal_remover_black", Items.SIGNAL_REMOVER_BLACK);
+		registerItem.accept("bridge_creator_3", Items.BRIDGE_CREATOR_3);
+		registerItem.accept("bridge_creator_5", Items.BRIDGE_CREATOR_5);
+		registerItem.accept("bridge_creator_7", Items.BRIDGE_CREATOR_7);
+		registerItem.accept("bridge_creator_9", Items.BRIDGE_CREATOR_9);
+		registerItem.accept("tunnel_creator_4_3", Items.TUNNEL_CREATOR_4_3);
+		registerItem.accept("tunnel_creator_4_5", Items.TUNNEL_CREATOR_4_5);
+		registerItem.accept("tunnel_creator_4_7", Items.TUNNEL_CREATOR_4_7);
+		registerItem.accept("tunnel_creator_4_9", Items.TUNNEL_CREATOR_4_9);
+		registerItem.accept("tunnel_creator_5_3", Items.TUNNEL_CREATOR_5_3);
+		registerItem.accept("tunnel_creator_5_5", Items.TUNNEL_CREATOR_5_5);
+		registerItem.accept("tunnel_creator_5_7", Items.TUNNEL_CREATOR_5_7);
+		registerItem.accept("tunnel_creator_5_9", Items.TUNNEL_CREATOR_5_9);
+		registerItem.accept("tunnel_creator_6_3", Items.TUNNEL_CREATOR_6_3);
+		registerItem.accept("tunnel_creator_6_5", Items.TUNNEL_CREATOR_6_5);
+		registerItem.accept("tunnel_creator_6_7", Items.TUNNEL_CREATOR_6_7);
+		registerItem.accept("tunnel_creator_6_9", Items.TUNNEL_CREATOR_6_9);
+		registerItem.accept("tunnel_wall_creator_4_3", Items.TUNNEL_WALL_CREATOR_4_3);
+		registerItem.accept("tunnel_wall_creator_4_5", Items.TUNNEL_WALL_CREATOR_4_5);
+		registerItem.accept("tunnel_wall_creator_4_7", Items.TUNNEL_WALL_CREATOR_4_7);
+		registerItem.accept("tunnel_wall_creator_4_9", Items.TUNNEL_WALL_CREATOR_4_9);
+		registerItem.accept("tunnel_wall_creator_5_3", Items.TUNNEL_WALL_CREATOR_5_3);
+		registerItem.accept("tunnel_wall_creator_5_5", Items.TUNNEL_WALL_CREATOR_5_5);
+		registerItem.accept("tunnel_wall_creator_5_7", Items.TUNNEL_WALL_CREATOR_5_7);
+		registerItem.accept("tunnel_wall_creator_5_9", Items.TUNNEL_WALL_CREATOR_5_9);
+		registerItem.accept("tunnel_wall_creator_6_3", Items.TUNNEL_WALL_CREATOR_6_3);
+		registerItem.accept("tunnel_wall_creator_6_5", Items.TUNNEL_WALL_CREATOR_6_5);
+		registerItem.accept("tunnel_wall_creator_6_7", Items.TUNNEL_WALL_CREATOR_6_7);
+		registerItem.accept("tunnel_wall_creator_6_9", Items.TUNNEL_WALL_CREATOR_6_9);
+		registerItem.accept("boat_node", Items.BOAT_NODE);
 
+		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
+		registerBlock.accept("boat_node", Blocks.BOAT_NODE);
 		registerBlock.accept("apg_door", Blocks.APG_DOOR);
 		registerBlock.accept("apg_glass", Blocks.APG_GLASS);
 		registerBlock.accept("apg_glass_end", Blocks.APG_GLASS_END);
@@ -132,6 +171,8 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_sandy", Blocks.MARBLE_SANDY, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("marble_blue_slab", Blocks.MARBLE_BLUE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("marble_sandy_slab", Blocks.MARBLE_SANDY_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("pids_1", Blocks.PIDS_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("pids_2", Blocks.PIDS_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("pids_3", Blocks.PIDS_3, ItemGroups.RAILWAY_FACILITIES);
@@ -151,7 +192,6 @@ public class MTR implements IPacket {
 		registerBlock.accept("psd_glass_2", Blocks.PSD_GLASS_2);
 		registerBlock.accept("psd_glass_end_2", Blocks.PSD_GLASS_END_2);
 		registerBlock.accept("psd_top", Blocks.PSD_TOP);
-		registerBlockItem.accept("rail", Blocks.RAIL, ItemGroups.CORE);
 		registerBlockItem.accept("railway_sign_2_even", Blocks.RAILWAY_SIGN_2_EVEN, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_2_odd", Blocks.RAILWAY_SIGN_2_ODD, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("railway_sign_3_even", Blocks.RAILWAY_SIGN_3_EVEN, ItemGroups.RAILWAY_FACILITIES);
@@ -178,43 +218,78 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
-		registerBlockItem.accept("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_bone_block", Blocks.STATION_COLOR_BONE_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_chiseled_quartz_block", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_chiseled_stone_bricks", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_clay", Blocks.STATION_COLOR_CLAY, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_coal_ore", Blocks.STATION_COLOR_COAL_ORE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_cobblestone", Blocks.STATION_COLOR_COBBLESTONE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_concrete", Blocks.STATION_COLOR_CONCRETE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_concrete_powder", Blocks.STATION_COLOR_CONCRETE_POWDER, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_cracked_stone_bricks", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_dark_prismarine", Blocks.STATION_COLOR_DARK_PRISMARINE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_diorite", Blocks.STATION_COLOR_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_gravel", Blocks.STATION_COLOR_GRAVEL, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_metal", Blocks.STATION_COLOR_METAL, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_planks", Blocks.STATION_COLOR_PLANKS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_polished_andesite", Blocks.STATION_COLOR_POLISHED_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_purpur_block", Blocks.STATION_COLOR_PURPUR_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_purpur_pillar", Blocks.STATION_COLOR_PURPUR_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_quartz_block", Blocks.STATION_COLOR_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_quartz_bricks", Blocks.STATION_COLOR_QUARTZ_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_quartz_pillar", Blocks.STATION_COLOR_QUARTZ_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_smooth_quartz", Blocks.STATION_COLOR_SMOOTH_QUARTZ, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_smooth_stone", Blocks.STATION_COLOR_SMOOTH_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_snow_block", Blocks.STATION_COLOR_SNOW_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_stained_glass", Blocks.STATION_COLOR_STAINED_GLASS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
-		registerBlockItem.accept("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroups.STATION_BUILDING_BLOCKS);
+
+		registerEnchantedBlockItem.accept("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_birch_wood", Blocks.STATION_COLOR_BIRCH_WOOD, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_bone_block", Blocks.STATION_COLOR_BONE_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_chiseled_quartz_block", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_chiseled_stone_bricks", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_clay", Blocks.STATION_COLOR_CLAY, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_coal_ore", Blocks.STATION_COLOR_COAL_ORE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_cobblestone", Blocks.STATION_COLOR_COBBLESTONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_concrete", Blocks.STATION_COLOR_CONCRETE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_concrete_powder", Blocks.STATION_COLOR_CONCRETE_POWDER, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_cracked_stone_bricks", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_dark_prismarine", Blocks.STATION_COLOR_DARK_PRISMARINE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_diorite", Blocks.STATION_COLOR_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_gravel", Blocks.STATION_COLOR_GRAVEL, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_iron_block", Blocks.STATION_COLOR_IRON_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_metal", Blocks.STATION_COLOR_METAL, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_planks", Blocks.STATION_COLOR_PLANKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_polished_andesite", Blocks.STATION_COLOR_POLISHED_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_polished_diorite", Blocks.STATION_COLOR_POLISHED_DIORITE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_purpur_block", Blocks.STATION_COLOR_PURPUR_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_purpur_pillar", Blocks.STATION_COLOR_PURPUR_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_block", Blocks.STATION_COLOR_QUARTZ_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_bricks", Blocks.STATION_COLOR_QUARTZ_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_pillar", Blocks.STATION_COLOR_QUARTZ_PILLAR, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_smooth_quartz", Blocks.STATION_COLOR_SMOOTH_QUARTZ, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_smooth_stone", Blocks.STATION_COLOR_SMOOTH_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_snow_block", Blocks.STATION_COLOR_SNOW_BLOCK, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stained_glass", Blocks.STATION_COLOR_STAINED_GLASS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stone", Blocks.STATION_COLOR_STONE, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stone_bricks", Blocks.STATION_COLOR_STONE_BRICKS, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_wool", Blocks.STATION_COLOR_WOOL, ItemGroups.STATION_BUILDING_BLOCKS);
+
+		registerEnchantedBlockItem.accept("station_color_andesite_slab", Blocks.STATION_COLOR_ANDESITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_bedrock_slab", Blocks.STATION_COLOR_BEDROCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_birch_wood_slab", Blocks.STATION_COLOR_BIRCH_WOOD_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_bone_block_slab", Blocks.STATION_COLOR_BONE_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_chiseled_quartz_block_slab", Blocks.STATION_COLOR_CHISELED_QUARTZ_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_chiseled_stone_bricks_slab", Blocks.STATION_COLOR_CHISELED_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_clay_slab", Blocks.STATION_COLOR_CLAY_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_coal_ore_slab", Blocks.STATION_COLOR_COAL_ORE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_cobblestone_slab", Blocks.STATION_COLOR_COBBLESTONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_concrete_slab", Blocks.STATION_COLOR_CONCRETE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_concrete_powder_slab", Blocks.STATION_COLOR_CONCRETE_POWDER_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_cracked_stone_bricks_slab", Blocks.STATION_COLOR_CRACKED_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_dark_prismarine_slab", Blocks.STATION_COLOR_DARK_PRISMARINE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_diorite_slab", Blocks.STATION_COLOR_DIORITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_gravel_slab", Blocks.STATION_COLOR_GRAVEL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_iron_block_slab", Blocks.STATION_COLOR_IRON_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_metal_slab", Blocks.STATION_COLOR_METAL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_planks_slab", Blocks.STATION_COLOR_PLANKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_polished_andesite_slab", Blocks.STATION_COLOR_POLISHED_ANDESITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_polished_diorite_slab", Blocks.STATION_COLOR_POLISHED_DIORITE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_purpur_block_slab", Blocks.STATION_COLOR_PURPUR_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_purpur_pillar_slab", Blocks.STATION_COLOR_PURPUR_PILLAR_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_block_slab", Blocks.STATION_COLOR_QUARTZ_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_bricks_slab", Blocks.STATION_COLOR_QUARTZ_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_quartz_pillar_slab", Blocks.STATION_COLOR_QUARTZ_PILLAR_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_smooth_quartz_slab", Blocks.STATION_COLOR_SMOOTH_QUARTZ_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_smooth_stone_slab", Blocks.STATION_COLOR_SMOOTH_STONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_snow_block_slab", Blocks.STATION_COLOR_SNOW_BLOCK_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stained_glass_slab", Blocks.STATION_COLOR_STAINED_GLASS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stone_slab", Blocks.STATION_COLOR_STONE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_stone_bricks_slab", Blocks.STATION_COLOR_STONE_BRICKS_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerEnchantedBlockItem.accept("station_color_wool_slab", Blocks.STATION_COLOR_WOOL_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
+
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
-		registerBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
-		registerBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
-		registerBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
-		registerBlockItem.accept("station_pole", Blocks.STATION_COLOR_POLE, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_pole", Blocks.STATION_COLOR_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("tactile_map", Blocks.TACTILE_MAP, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("ticket_barrier_exit_1", Blocks.TICKET_BARRIER_EXIT_1, ItemGroups.RAILWAY_FACILITIES);
@@ -232,6 +307,7 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("arrival_projector_1_small", BlockEntityTypes.ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_medium", BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY);
 		registerBlockEntityType.accept("arrival_projector_1_large", BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY);
+		registerBlockEntityType.accept("boat_node", BlockEntityTypes.BOAT_NODE_TILE_ENTITY);
 		registerBlockEntityType.accept("clock", BlockEntityTypes.CLOCK_TILE_ENTITY);
 		registerBlockEntityType.accept("psd_top", BlockEntityTypes.PSD_TOP_TILE_ENTITY);
 		registerBlockEntityType.accept("apg_glass", BlockEntityTypes.APG_GLASS_TILE_ENTITY);
@@ -271,20 +347,23 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_redstone_sensor", BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
-		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER);
-		registerSoundEvent.accept(SoundEvents.TICKET_BARRIER_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
-		registerSoundEvent.accept(SoundEvents.TICKET_PROCESSOR_FAIL);
+		registerEntityType.accept("seat", EntityTypes.SEAT);
+
+		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
+		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_entry", SoundEvents.TICKET_PROCESSOR_ENTRY);
+		registerSoundEvent.accept("ticket_processor_entry_concessionary", SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_exit", SoundEvents.TICKET_PROCESSOR_EXIT);
+		registerSoundEvent.accept("ticket_processor_exit_concessionary", SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY);
+		registerSoundEvent.accept("ticket_processor_fail", SoundEvents.TICKET_PROCESSOR_FAIL);
 
 		Registry.registerNetworkReceiver(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
 		Registry.registerNetworkReceiver(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
 		Registry.registerNetworkReceiver(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
-		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, Station::new, false));
+		Registry.registerNetworkReceiver(PACKET_ARRIVAL_PROJECTOR_UPDATE, PacketTrainDataGuiServer::receiveArrivalProjectorMessageC2S);
+		Registry.registerNetworkReceiver(PACKET_UPDATE_STATION, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_STATION, railwayData -> railwayData.stations, railwayData -> railwayData.dataCache.stationIdMap, (id, transportMode) -> new Station(id), false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_PLATFORM, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_PLATFORM, railwayData -> railwayData.platforms, railwayData -> railwayData.dataCache.platformIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_SIDING, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_SIDING, railwayData -> railwayData.sidings, railwayData -> railwayData.dataCache.sidingIdMap, null, false));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_UPDATE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, Route::new, false));
@@ -295,6 +374,8 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_SENSOR, PacketTrainDataGuiServer::receiveTrainSensorC2S);
+		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
+		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);
@@ -328,7 +409,7 @@ public class MTR implements IPacket {
 		Registry.registerPlayerJoinEvent(player -> {
 			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
 			if (railwayData != null) {
-				railwayData.broadcastToPlayer(player);
+				railwayData.onPlayerJoin(player);
 			}
 		});
 		Registry.registerPlayerQuitEvent(player -> {
@@ -337,9 +418,9 @@ public class MTR implements IPacket {
 				railwayData.disconnectPlayer(player);
 			}
 		});
-		Registry.registerServerStartingEvent(server -> {
+		Registry.registerServerStartingEvent(minecraftServer -> {
 			int port = 8888;
-			final Path path = server.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
+			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
 			try {
 				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("[^0-9]", "")), 1025, 65535);
 			} catch (Exception ignored) {
@@ -350,15 +431,15 @@ public class MTR implements IPacket {
 				}
 			}
 			serverConnector.setPort(port);
-			DataServletHandler.SERVER = server;
-			ArrivalsServletHandler.SERVER = server;
+			DataServletHandler.SERVER = minecraftServer;
+			ArrivalsServletHandler.SERVER = minecraftServer;
 			try {
 				webServer.start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
-		Registry.registerServerStoppingEvent(server -> {
+		Registry.registerServerStoppingEvent(minecraftServer -> {
 			try {
 				webServer.stop();
 			} catch (Exception e) {

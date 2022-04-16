@@ -16,12 +16,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockStationNameEntrance extends BlockStationNameBase implements IPropagateBlock {
+public class BlockStationNameEntrance extends BlockStationNameBase implements IBlock {
+
+	public static final IntegerProperty STYLE = IntegerProperty.create("propagate_property", 0, 5);
 
 	public BlockStationNameEntrance(Properties settings) {
 		super(settings);
@@ -30,9 +33,9 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 1);
+			world.setBlockAndUpdate(pos, state.cycle(STYLE));
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), STYLE, 1);
+			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), STYLE, 1);
 		});
 	}
 
@@ -63,7 +66,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		final boolean tall = IBlock.getStatePropertySafe(state, PROPAGATE_PROPERTY) % 2 == 1;
+		final boolean tall = IBlock.getStatePropertySafe(state, STYLE) % 2 == 1;
 		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
@@ -79,7 +82,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IP
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, PROPAGATE_PROPERTY);
+		builder.add(FACING, STYLE);
 	}
 
 	public static class TileEntityStationNameEntrance extends TileEntityStationNameBase {

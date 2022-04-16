@@ -3,13 +3,13 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import mtr.block.BlockRail;
+import mtr.block.BlockNode;
 import mtr.block.BlockSignalLightBase;
 import mtr.block.BlockSignalSemaphoreBase;
 import mtr.block.IBlock;
+import mtr.client.ClientData;
 import mtr.data.IGui;
 import mtr.data.Rail;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import mtr.path.PathData;
@@ -101,7 +101,7 @@ public abstract class RenderSignalBase<T extends BlockEntityMapper> extends Bloc
 				for (int y = -5; y <= 0; y++) {
 					final BlockPos checkPos = pos.above(y).relative(facing.getClockWise(), x).relative(facing, z);
 					final BlockState checkState = world.getBlockState(checkPos);
-					if (checkState.getBlock() instanceof BlockRail) {
+					if (checkState.getBlock() instanceof BlockNode) {
 						return checkPos;
 					}
 				}

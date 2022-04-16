@@ -6,18 +6,24 @@ import mtr.RegistryClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainScheduleSensor;
 import mtr.block.BlockTrainSensorBase;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import mtr.data.*;
-import mtr.gui.*;
 import mtr.mappings.UtilitiesClient;
+import mtr.screen.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
@@ -25,10 +31,11 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	private static long tempPacketId = 0;
 	private static int expectedSize = 0;
 
-	public static void openDashboardScreenS2C(Minecraft minecraftClient) {
+	public static void openDashboardScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof DashboardScreen)) {
-				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen());
+				UtilitiesClient.setScreen(minecraftClient, new DashboardScreen(transportMode));
 			}
 		});
 	}
@@ -78,6 +85,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openArrivalProjectorConfigScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.screen instanceof ArrivalProjectorConfigScreen)) {
+				UtilitiesClient.setScreen(minecraftClient, new ArrivalProjectorConfigScreen(pos));
+			}
+		});
+	}
+
 	public static void openResourcePackCreatorScreen(Minecraft minecraftClient) {
 		minecraftClient.execute(() -> {
 			if (!(minecraftClient.screen instanceof ResourcePackCreatorScreen)) {
@@ -88,18 +105,27 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 
 	public static void announceS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final String message = packet.readUtf();
-		minecraftClient.execute(() -> IDrawing.narrateOrAnnounce(message));
+		final String soundIdString = packet.readUtf();
+		minecraftClient.execute(() -> {
+			IDrawing.narrateOrAnnounce(message);
+			final ClientLevel world = minecraftClient.level;
+			final LocalPlayer player = minecraftClient.player;
+			if (!soundIdString.isEmpty() && world != null && player != null) {
+				world.playLocalSound(player.blockPosition(), new SoundEvent(new ResourceLocation(soundIdString)), SoundSource.BLOCKS, 1000000, 1, true);
+			}
+		});
 	}
 
 	public static void createRailS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());
 		final BlockPos pos1 = packet.readBlockPos();
 		final BlockPos pos2 = packet.readBlockPos();
 		final Rail rail1 = new Rail(packet);
 		final Rail rail2 = new Rail(packet);
 		final long savedRailId = packet.readLong();
 		minecraftClient.execute(() -> {
-			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, pos1, pos2, rail1, 0);
-			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, pos2, pos1, rail2, savedRailId);
+			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, transportMode, pos1, pos2, rail1, 0);
+			RailwayData.addRail(ClientData.RAILS, ClientData.PLATFORMS, ClientData.SIDINGS, transportMode, pos2, pos1, rail2, savedRailId);
 		});
 	}
 
@@ -170,7 +196,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		}
 	}
 
-	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, Function<Long, T> createDataWithId, boolean isDelete) {
+	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
 		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.DATA_CACHE.sync();
 		if (isDelete) {
 			deleteData(dataSet, minecraftClient, packet, packetCallback);
@@ -190,13 +216,18 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		sendUpdate(packetId, packet);
 	}
 
-	public static void sendTrainSensorC2S(BlockPos pos, Set<Long> filterRouteIds, int number, String string) {
+	public static void sendTrainSensorC2S(BlockPos pos, Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
 		packet.writeInt(filterRouteIds.size());
 		filterRouteIds.forEach(packet::writeLong);
+		packet.writeBoolean(stoppedOnly);
+		packet.writeBoolean(movingOnly);
 		packet.writeInt(number);
-		packet.writeUtf(string);
+		packet.writeInt(strings.length);
+		for (final String string : strings) {
+			packet.writeUtf(string);
+		}
 		RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_SENSOR, packet);
 	}
 
@@ -253,5 +284,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeBoolean(hideArrival[i]);
 		}
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
+	}
+
+	public static void sendArrivalProjectorConfigC2S(BlockPos pos, Set<Long> filterPlatformIds) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		packet.writeInt(filterPlatformIds.size());
+		filterPlatformIds.forEach(packet::writeLong);
+		RegistryClient.sendToServer(PACKET_ARRIVAL_PROJECTOR_UPDATE, packet);
 	}
 }

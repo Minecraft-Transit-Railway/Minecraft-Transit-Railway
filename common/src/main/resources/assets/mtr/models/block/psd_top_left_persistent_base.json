@@ -1,0 +1,46 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{
+			"__comment": "Main particle",
+			"from": [ 0, 8.5, 8 ],
+			"to": [ 6, 16, 16 ],
+			"faces": {
+				"up": { "uv": [ 2, 2, 3, 3 ], "texture": "#particle", "cullface": "up" },
+				"east": { "uv": [ 0, 7.5, 16, 15 ], "texture": "#particle" },
+				"west": { "uv": [ 16, 7.5, 0, 15 ], "texture": "#particle", "cullface": "west" },
+				"south": { "uv": [ 0, 7.5, 6, 15 ], "texture": "#particle", "cullface": "south" }
+			}
+		},
+		{
+			"__comment": "Bottom part",
+			"from": [ 0, 7.5, 8 ],
+			"to": [ 5, 8.5, 16 ],
+			"faces": {
+				"down": { "uv": [ 2, 2, 3, 3 ], "texture": "#particle" },
+				"west": { "uv": [ 16, 15, 0, 16 ], "texture": "#particle", "cullface": "west" },
+				"south": { "texture": "#particle", "cullface": "south" }
+			}
+		},
+		{
+			"__comment": "Bottom curve lower",
+			"from": [ 5, 7.5, 8 ],
+			"to": [ 5.7654, 8.5, 16 ],
+			"rotation": { "origin": [ 5, 7.5, 8 ], "axis": "z", "angle": 22.5 },
+			"faces": {
+				"down": { "uv": [ 2, 2, 3, 3 ], "texture": "#particle" },
+				"south": { "texture": "#particle", "cullface": "south" }
+			}
+		},
+		{
+			"__comment": "Bottom curve upper",
+			"from": [ 5, 7.7346, 8 ],
+			"to": [ 6, 8.5, 16 ],
+			"rotation": { "origin": [ 6, 8.5, 8 ], "axis": "z", "angle": -22.5 },
+			"faces": {
+				"east": { "uv": [ 0, 15, 16, 15.5 ], "texture": "#particle" },
+				"south": { "texture": "#particle", "cullface": "south" }
+			}
+		}
+	]
+}

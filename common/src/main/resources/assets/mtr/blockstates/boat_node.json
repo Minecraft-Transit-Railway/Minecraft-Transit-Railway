@@ -1,0 +1,96 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "false",
+				"is_22_5": "false",
+				"is_45": "false",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node"
+			}
+		},
+		{
+			"when": {
+				"facing": "false",
+				"is_22_5": "true",
+				"is_45": "false",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_22_5"
+			}
+		},
+		{
+			"when": {
+				"facing": "false",
+				"is_22_5": "false",
+				"is_45": "true",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_45"
+			}
+		},
+		{
+			"when": {
+				"facing": "false",
+				"is_22_5": "true",
+				"is_45": "true",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_67_5",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_22_5": "false",
+				"is_45": "false",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_22_5": "true",
+				"is_45": "false",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_22_5",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_22_5": "false",
+				"is_45": "true",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_45",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_22_5": "true",
+				"is_45": "true",
+				"is_connected": "false"
+			},
+			"apply": {
+				"model": "mtr:block/boat_node_67_5"
+			}
+		}
+	]
+}

@@ -2,10 +2,12 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import mtr.MTRClient;
+import mtr.block.BlockArrivalProjectorBase;
 import mtr.block.BlockPIDSBase;
 import mtr.block.IBlock;
+import mtr.client.ClientData;
 import mtr.data.*;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.Minecraft;
@@ -95,11 +97,11 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		}
 
 		try {
-			final Set<Route.ScheduleEntry> schedules;
+			final Set<ScheduleEntry> schedules;
 			final Map<Long, String> platformIdToName = new HashMap<>();
 
 			if (showAllPlatforms) {
-				final Station station = RailwayData.getStation(ClientData.STATIONS, pos);
+				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 				if (station == null) {
 					return;
 				}
@@ -109,29 +111,38 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					return;
 				}
 
+				final Set<Long> platformIds;
+				if (entity instanceof BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) {
+					platformIds = ((BlockArrivalProjectorBase.TileEntityArrivalProjectorBase) entity).getPlatformIds();
+				} else {
+					platformIds = new HashSet<>();
+				}
+
 				schedules = new HashSet<>();
 				platforms.values().forEach(platform -> {
-					final Set<Route.ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
-					if (scheduleForPlatform != null) {
-						scheduleForPlatform.forEach(scheduleEntry -> {
-							if (!scheduleEntry.isTerminating) {
-								schedules.add(scheduleEntry);
-								platformIdToName.put(platform.id, platform.name);
-							}
-						});
+					if (platformIds.isEmpty() || platformIds.contains(platform.id)) {
+						final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+						if (scheduleForPlatform != null) {
+							scheduleForPlatform.forEach(scheduleEntry -> {
+								if (!scheduleEntry.isTerminating) {
+									schedules.add(scheduleEntry);
+									platformIdToName.put(platform.id, platform.name);
+								}
+							});
+						}
 					}
 				});
 			} else {
-				final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-				if (platform == null) {
+				final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
+				if (platformId == 0) {
 					schedules = new HashSet<>();
 				} else {
-					final Set<Route.ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
+					final Set<ScheduleEntry> schedulesForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platformId);
 					schedules = schedulesForPlatform == null ? new HashSet<>() : schedulesForPlatform;
 				}
 			}
 
-			final List<Route.ScheduleEntry> scheduleList = new ArrayList<>(schedules);
+			final List<ScheduleEntry> scheduleList = new ArrayList<>(schedules);
 			Collections.sort(scheduleList);
 
 			final boolean showCarLength;
@@ -139,7 +150,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			if (!showAllPlatforms) {
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
-				for (final Route.ScheduleEntry scheduleEntry : scheduleList) {
+				for (final ScheduleEntry scheduleEntry : scheduleList) {
 					final int trainCars = scheduleEntry.trainCars;
 					if (trainCars > maxCars) {
 						maxCars = trainCars;
@@ -156,7 +167,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 			}
 
 			for (int i = 0; i < maxArrivals; i++) {
-				final int languageTicks = (int) Math.floor(RenderTrains.getGameTicks()) / SWITCH_LANGUAGE_TICKS;
+				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final String destinationString;
 				final boolean useCustomMessage;
 				if (i < scheduleList.size() && !hideArrival[i]) {
@@ -197,7 +208,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 					textRenderer.draw(matrices, destinationString, 0, 0, textColor);
 				} else {
-					final Route.ScheduleEntry currentSchedule = scheduleList.get(i);
+					final ScheduleEntry currentSchedule = scheduleList.get(i);
 
 					final Component arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);

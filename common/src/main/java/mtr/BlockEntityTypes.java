@@ -9,6 +9,7 @@ public interface BlockEntityTypes {
 	BlockEntityType<BlockArrivalProjector1Small.TileEntityArrivalProjector1Small> ARRIVAL_PROJECTOR_1_SMALL_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockArrivalProjector1Small.TileEntityArrivalProjector1Small::new, Blocks.ARRIVAL_PROJECTOR_1_SMALL);
 	BlockEntityType<BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium> ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockArrivalProjector1Medium.TileEntityArrivalProjector1Medium::new, Blocks.ARRIVAL_PROJECTOR_1_MEDIUM);
 	BlockEntityType<BlockArrivalProjector1Large.TileEntityArrivalProjector1Large> ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockArrivalProjector1Large.TileEntityArrivalProjector1Large::new, Blocks.ARRIVAL_PROJECTOR_1_LARGE);
+	BlockEntityType<BlockNode.TileEntityBoatNode> BOAT_NODE_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockNode.TileEntityBoatNode::new, Blocks.BOAT_NODE);
 	BlockEntityType<BlockClock.TileEntityClock> CLOCK_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockClock.TileEntityClock::new, Blocks.CLOCK);
 	BlockEntityType<BlockPSDTop.TileEntityPSDTop> PSD_TOP_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockPSDTop.TileEntityPSDTop::new, Blocks.PSD_TOP);
 	BlockEntityType<BlockAPGGlass.TileEntityAPGGlass> APG_GLASS_TILE_ENTITY = RegistryUtilities.getBlockEntityType(BlockAPGGlass.TileEntityAPGGlass::new, Blocks.APG_GLASS);

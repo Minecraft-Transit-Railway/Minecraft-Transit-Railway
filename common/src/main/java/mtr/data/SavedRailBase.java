@@ -6,7 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 
 public abstract class SavedRailBase extends NameColorDataBase {
@@ -16,42 +19,56 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	private static final String KEY_POS_1 = "pos_1";
 	private static final String KEY_POS_2 = "pos_2";
 
-	public SavedRailBase(long id, BlockPos pos1, BlockPos pos2) {
-		super(id);
+	public SavedRailBase(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(id, transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
-	public SavedRailBase(BlockPos pos1, BlockPos pos2) {
-		super();
+	public SavedRailBase(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(transportMode);
 		name = "1";
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(pos1);
 		positions.add(pos2);
 	}
 
+	public SavedRailBase(Map<String, Value> map) {
+		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		positions = new HashSet<>(2);
+		positions.add(BlockPos.of(messagePackHelper.getLong(KEY_POS_1)));
+		positions.add(BlockPos.of(messagePackHelper.getLong(KEY_POS_2)));
+	}
+
+	@Deprecated
 	public SavedRailBase(CompoundTag compoundTag) {
 		super(compoundTag);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_1)));
 		positions.add(BlockPos.of(compoundTag.getLong(KEY_POS_2)));
 	}
 
 	public SavedRailBase(FriendlyByteBuf packet) {
 		super(packet);
-		positions = new HashSet<>();
+		positions = new HashSet<>(2);
 		positions.add(packet.readBlockPos());
 		positions.add(packet.readBlockPos());
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putLong(KEY_POS_1, getPosition(0).asLong());
-		compoundTag.putLong(KEY_POS_2, getPosition(1).asLong());
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_POS_1).packLong(getPosition(0).asLong());
+		messagePacker.packString(KEY_POS_2).packLong(getPosition(1).asLong());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 2;
 	}
 
 	@Override
@@ -59,6 +76,11 @@ public abstract class SavedRailBase extends NameColorDataBase {
 		super.writePacket(packet);
 		packet.writeBlockPos(getPosition(0));
 		packet.writeBlockPos(getPosition(1));
+	}
+
+	@Override
+	protected final boolean hasTransportMode() {
+		return true;
 	}
 
 	public boolean containsPos(BlockPos pos) {
@@ -86,7 +108,15 @@ public abstract class SavedRailBase extends NameColorDataBase {
 	}
 
 	public boolean isCloseToSavedRail(BlockPos pos, int radius, int lower, int upper) {
-		return new AABB(getPosition(0), getPosition(1)).inflate(-radius, -lower, -radius).inflate(radius + 1, upper + 1, radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
+		final BlockPos pos1 = getPosition(0);
+		final BlockPos pos2 = getPosition(1);
+		final int x1 = Math.min(pos1.getX(), pos2.getX());
+		final int y1 = Math.min(pos1.getY(), pos2.getY());
+		final int z1 = Math.min(pos1.getZ(), pos2.getZ());
+		final int x2 = Math.max(pos1.getX(), pos2.getX());
+		final int y2 = Math.max(pos1.getY(), pos2.getY());
+		final int z2 = Math.max(pos1.getZ(), pos2.getZ());
+		return new AABB(x1 - radius, y1 - lower, z1 - radius, x2 + radius + 1, y2 + upper + 1, z2 + radius + 1).contains(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public List<BlockPos> getOrderedPositions(BlockPos pos, boolean reverse) {

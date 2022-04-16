@@ -1,42 +1,62 @@
 package mtr.data;
 
 import io.netty.buffer.Unpooled;
-import mtr.EnumHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Route extends NameColorDataBase implements IGui {
 
 	public RouteType routeType;
 	public boolean isLightRailRoute;
+	public boolean isHidden;
 	public CircularState circularState;
 	public String lightRailRouteNumber;
-
 	public final List<Long> platformIds;
 
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
 	private static final String KEY_ROUTE_TYPE = "route_type";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";
 	private static final String KEY_LIGHT_RAIL_ROUTE_NUMBER = "light_rail_route_number";
+	private static final String KEY_IS_ROUTE_HIDDEN = "is_route_hidden";
 	private static final String KEY_CIRCULAR_STATE = "circular_state";
 
-	public Route() {
-		this(0);
+	public Route(TransportMode transportMode) {
+		this(0, transportMode);
 	}
 
-	public Route(long id) {
-		super(id);
+	public Route(long id, TransportMode transportMode) {
+		super(id, transportMode);
 		platformIds = new ArrayList<>();
 		routeType = RouteType.NORMAL;
 		isLightRailRoute = false;
 		circularState = CircularState.NONE;
 		lightRailRouteNumber = "";
+		isHidden = false;
 	}
 
+	public Route(Map<String, Value> map) {
+		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+
+		platformIds = new ArrayList<>();
+		messagePackHelper.iterateArrayValue(KEY_PLATFORM_IDS, platformId -> platformIds.add(platformId.asIntegerValue().asLong()));
+
+		routeType = EnumHelper.valueOf(RouteType.NORMAL, messagePackHelper.getString(KEY_ROUTE_TYPE));
+		isLightRailRoute = messagePackHelper.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		isHidden = messagePackHelper.getBoolean(KEY_IS_ROUTE_HIDDEN);
+		lightRailRouteNumber = messagePackHelper.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
+		circularState = EnumHelper.valueOf(CircularState.NONE, messagePackHelper.getString(KEY_CIRCULAR_STATE));
+	}
+
+	@Deprecated
 	public Route(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -48,6 +68,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, compoundTag.getString(KEY_ROUTE_TYPE));
 		isLightRailRoute = compoundTag.getBoolean(KEY_IS_LIGHT_RAIL_ROUTE);
+		isHidden = compoundTag.getBoolean(KEY_IS_ROUTE_HIDDEN);
 		lightRailRouteNumber = compoundTag.getString(KEY_LIGHT_RAIL_ROUTE_NUMBER);
 		circularState = EnumHelper.valueOf(CircularState.NONE, compoundTag.getString(KEY_CIRCULAR_STATE));
 	}
@@ -63,21 +84,30 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readUtf(PACKET_STRING_READ_LENGTH));
 		isLightRailRoute = packet.readBoolean();
+		isHidden = packet.readBoolean();
 		lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
 		circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putLongArray(KEY_PLATFORM_IDS, platformIds);
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		compoundTag.putString(KEY_ROUTE_TYPE, routeType.toString());
-		compoundTag.putBoolean(KEY_IS_LIGHT_RAIL_ROUTE, isLightRailRoute);
-		compoundTag.putString(KEY_LIGHT_RAIL_ROUTE_NUMBER, lightRailRouteNumber);
-		compoundTag.putString(KEY_CIRCULAR_STATE, circularState.toString());
+		messagePacker.packString(KEY_PLATFORM_IDS).packArrayHeader(platformIds.size());
+		for (Long platformId : platformIds) {
+			messagePacker.packLong(platformId);
+		}
 
-		return compoundTag;
+		messagePacker.packString(KEY_ROUTE_TYPE).packString(routeType.toString());
+		messagePacker.packString(KEY_IS_LIGHT_RAIL_ROUTE).packBoolean(isLightRailRoute);
+		messagePacker.packString(KEY_IS_ROUTE_HIDDEN).packBoolean(isHidden);
+		messagePacker.packString(KEY_LIGHT_RAIL_ROUTE_NUMBER).packString(lightRailRouteNumber);
+		messagePacker.packString(KEY_CIRCULAR_STATE).packString(circularState.toString());
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 6;
 	}
 
 	@Override
@@ -88,6 +118,7 @@ public final class Route extends NameColorDataBase implements IGui {
 
 		packet.writeUtf(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
+		packet.writeBoolean(isHidden);
 		packet.writeUtf(lightRailRouteNumber);
 		packet.writeUtf(circularState.toString());
 	}
@@ -108,6 +139,7 @@ public final class Route extends NameColorDataBase implements IGui {
 				routeType = EnumHelper.valueOf(RouteType.NORMAL, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				isLightRailRoute = packet.readBoolean();
 				lightRailRouteNumber = packet.readUtf(PACKET_STRING_READ_LENGTH);
+				isHidden = packet.readBoolean();
 				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				break;
 			default:
@@ -116,9 +148,15 @@ public final class Route extends NameColorDataBase implements IGui {
 		}
 	}
 
+	@Override
+	protected boolean hasTransportMode() {
+		return true;
+	}
+
 	public void setPlatformIds(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_PLATFORM_IDS);
 		packet.writeInt(platformIds.size());
 		platformIds.forEach(packet::writeLong);
@@ -128,60 +166,16 @@ public final class Route extends NameColorDataBase implements IGui {
 	public void setExtraData(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_IS_LIGHT_RAIL_ROUTE);
 		packet.writeUtf(name);
 		packet.writeInt(color);
 		packet.writeUtf(routeType.toString());
 		packet.writeBoolean(isLightRailRoute);
 		packet.writeUtf(lightRailRouteNumber);
+		packet.writeBoolean(isHidden);
 		packet.writeUtf(circularState.toString());
 		sendPacket.accept(packet);
-	}
-
-	public static class ScheduleEntry implements Comparable<ScheduleEntry> {
-
-		public final long arrivalMillis;
-		public final int trainCars;
-		public final long platformId;
-		public final long routeId;
-		public final String destination;
-		public final boolean isTerminating;
-
-		public ScheduleEntry(long arrivalMillis, int trainCars, long platformId, long routeId, String destination, boolean isTerminating) {
-			this.arrivalMillis = arrivalMillis;
-			this.trainCars = trainCars;
-			this.platformId = platformId;
-			this.routeId = routeId;
-			this.destination = destination;
-			this.isTerminating = isTerminating;
-		}
-
-		public ScheduleEntry(FriendlyByteBuf packet) {
-			arrivalMillis = packet.readLong();
-			trainCars = packet.readInt();
-			platformId = packet.readLong();
-			routeId = packet.readLong();
-			destination = packet.readUtf(PACKET_STRING_READ_LENGTH);
-			isTerminating = packet.readBoolean();
-		}
-
-		public void writePacket(FriendlyByteBuf packet) {
-			packet.writeLong(arrivalMillis);
-			packet.writeInt(trainCars);
-			packet.writeLong(platformId);
-			packet.writeLong(routeId);
-			packet.writeUtf(destination);
-			packet.writeBoolean(isTerminating);
-		}
-
-		@Override
-		public int compareTo(ScheduleEntry o) {
-			if (arrivalMillis == o.arrivalMillis) {
-				return destination.compareTo(o.destination);
-			} else {
-				return arrivalMillis > o.arrivalMillis ? 1 : -1;
-			}
-		}
 	}
 
 	public enum CircularState {NONE, CLOCKWISE, ANTICLOCKWISE}

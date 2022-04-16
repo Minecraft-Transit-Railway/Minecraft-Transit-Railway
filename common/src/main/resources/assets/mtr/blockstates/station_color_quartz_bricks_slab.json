@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_quartz_bricks_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_quartz_bricks"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_quartz_bricks_slab_top"
+		}
+	}
+}

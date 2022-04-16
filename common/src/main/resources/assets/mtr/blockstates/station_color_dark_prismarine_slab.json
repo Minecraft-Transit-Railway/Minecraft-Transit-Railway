@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_dark_prismarine_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_dark_prismarine"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_dark_prismarine_slab_top"
+		}
+	}
+}

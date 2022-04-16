@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/rail_action_selected",
+		"layer1": "mtr:item/tunnel_creator_5_5"
+	}
+}

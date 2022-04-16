@@ -1,14 +1,13 @@
 package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.block.IBlock;
-import mtr.block.IPropagateBlock;
+import mtr.client.ClientData;
+import mtr.client.IDrawing;
 import mtr.data.IGui;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
-import mtr.gui.ClientData;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockEntityRendererMapper;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,15 +16,27 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
-public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui {
+public abstract class RenderRouteBase<T extends BlockEntityMapper> extends BlockEntityRendererMapper<T> implements IGui, IBlock {
 
-	private static final float EXTRA_PADDING = 0.0625F;
+	protected float bottomPadding;
+	protected float topPadding;
 
-	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher) {
+	protected final float sidePadding;
+	private final float z;
+	private final boolean transparentWhite;
+	private final Property<Integer> arrowDirectionProperty;
+
+	public RenderRouteBase(BlockEntityRenderDispatcher dispatcher, float z, float sidePadding, boolean transparentWhite, Property<Integer> arrowDirectionProperty) {
 		super(dispatcher);
+		this.z = z / 16;
+		this.sidePadding = sidePadding / 16;
+		this.transparentWhite = transparentWhite;
+		this.arrowDirectionProperty = arrowDirectionProperty;
 	}
 
 	@Override
@@ -42,70 +53,81 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
 		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-
 		renderAdditionalUnmodified(matrices, vertexConsumers, state, facing, light);
 
-		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
-			final int arrowDirection = IBlock.getStatePropertySafe(state, IPropagateBlock.PROPAGATE_PROPERTY);
-			final Platform platform = RailwayData.getClosePlatform(ClientData.PLATFORMS, pos);
-			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			final RouteRenderer routeRenderer = new RouteRenderer(matrices, vertexConsumers, immediate, platform, false, false);
+		if (!RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
+			final long platformId = RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, pos);
 
-			matrices.translate(0, 1, 0);
-			matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-			matrices.translate(-0.5, 0, getZ() - SMALL_OFFSET * 2);
+			if (platformId != 0) {
+				matrices.translate(0, 1, 0);
+				matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+				matrices.translate(-0.5, 0, z);
 
-			if (isLeft(state)) {
-				final int glassLength = getGlassLength(world, pos, facing);
-				if (glassLength > 1) {
-					switch (getRenderType(world, pos, state)) {
-						case ARROW:
-							routeRenderer.renderArrow(getSidePadding() + EXTRA_PADDING, glassLength - getSidePadding() - EXTRA_PADDING, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, (arrowDirection & 0b10) > 0, (arrowDirection & 0b01) > 0, facing, light);
-							break;
-						case ROUTE:
-							final boolean flipLine = arrowDirection == 1;
-							routeRenderer.renderLine(flipLine ? glassLength - getSidePadding() - EXTRA_PADDING * 2 : getSidePadding() + EXTRA_PADDING * 2, flipLine ? getSidePadding() + EXTRA_PADDING * 2 : glassLength - getSidePadding() - EXTRA_PADDING * 2, getTopPadding() + EXTRA_PADDING, 1 - getBottomPadding() - EXTRA_PADDING, getBaseScale(), facing, light, RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 4, null));
-							break;
+				final int leftBlocks = getTextureNumber(world, pos, facing, true);
+				final int rightBlocks = getTextureNumber(world, pos, facing, false);
+				final int colorByte = transparentWhite && facing.getAxis() == Direction.Axis.X ? 0xFF * 3 / 4 : 0xFF;
+				final int color = ARGB_BLACK | ((colorByte << 16) + (colorByte << 8) + colorByte);
+				final RenderType renderType = getRenderType(world, pos.relative(facing.getCounterClockWise(), leftBlocks), state);
+
+				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
+					final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
+					final float height = 1 - topPadding - bottomPadding;
+					final int arrowDirection = IBlock.getStatePropertySafe(state, arrowDirectionProperty);
+
+					final VertexConsumer vertexConsumer;
+					if (renderType == RenderType.ARROW) {
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, transparentWhite)));
+					} else {
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite)));
 					}
-				}
-			}
 
-			renderAdditional(matrices, vertexConsumers, routeRenderer, state, facing, light);
-			immediate.endBatch();
+					IDrawing.drawTexture(matrices, vertexConsumer, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
+				}
+
+				renderAdditional(matrices, vertexConsumers, platformId, state, leftBlocks, rightBlocks, facing.getOpposite(), color, light);
+			}
 		}
 
 		matrices.popPose();
 	}
 
+	@Override
+	public boolean shouldRenderOffScreen(T blockEntity) {
+		return true;
+	}
+
 	protected void renderAdditionalUnmodified(PoseStack matrices, MultiBufferSource vertexConsumers, BlockState state, Direction facing, int light) {
 	}
 
-	protected abstract float getZ();
+	protected boolean isLeft(BlockState state) {
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == IBlock.EnumSide.LEFT;
+	}
 
-	protected abstract float getSidePadding();
-
-	protected abstract float getBottomPadding();
-
-	protected abstract float getTopPadding();
-
-	protected abstract int getBaseScale();
-
-	protected abstract boolean isLeft(BlockState state);
-
-	protected abstract boolean isRight(BlockState state);
+	protected boolean isRight(BlockState state) {
+		return IBlock.getStatePropertySafe(state, SIDE_EXTENDED) == IBlock.EnumSide.RIGHT;
+	}
 
 	protected abstract RenderType getRenderType(BlockGetter world, BlockPos pos, BlockState state);
 
-	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, RouteRenderer routeRenderer, BlockState state, Direction facing, int light);
+	protected abstract void renderAdditional(PoseStack matrices, MultiBufferSource vertexConsumers, long platformId, BlockState state, int leftBlocks, int rightBlocks, Direction facing, int color, int light);
 
-	private int getGlassLength(BlockGetter world, BlockPos pos, Direction facing) {
-		int glassLength = 1;
+	private int getTextureNumber(BlockGetter world, BlockPos pos, Direction facing, boolean searchLeft) {
+		int number = 0;
+		final Block thisBlock = world.getBlockState(pos).getBlock();
 
 		while (true) {
-			final BlockState state = world.getBlockState(pos.relative(facing.getClockWise(), glassLength));
-			if (state.getBlock() == world.getBlockState(pos).getBlock() && !isLeft(state)) {
-				glassLength++;
-				if (isRight(state)) {
+			final BlockState state = world.getBlockState(pos.relative(searchLeft ? facing.getCounterClockWise() : facing.getClockWise(), number));
+
+			if (state.getBlock() == thisBlock) {
+				final boolean isLeft = isLeft(state);
+				final boolean isRight = isRight(state);
+
+				if (number == 0 || (searchLeft ? !isRight : !isLeft)) {
+					number++;
+					if (searchLeft ? isLeft : isRight) {
+						break;
+					}
+				} else {
 					break;
 				}
 			} else {
@@ -113,7 +135,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 			}
 		}
 
-		return glassLength;
+		return number - 1;
 	}
 
 	protected enum RenderType {ARROW, ROUTE, NONE}

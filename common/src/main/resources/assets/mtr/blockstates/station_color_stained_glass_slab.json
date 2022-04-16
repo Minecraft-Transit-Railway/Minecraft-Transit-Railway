@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_stained_glass_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_stained_glass"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_stained_glass_slab_top"
+		}
+	}
+}

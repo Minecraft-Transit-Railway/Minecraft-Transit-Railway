@@ -3,7 +3,10 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +16,7 @@ import java.util.function.Consumer;
 public final class Station extends AreaBase {
 
 	public int zone;
-	public final Map<String, List<String>> exits;
+	public final Map<String, List<String>> exits = new HashMap<>();
 
 	private static final String KEY_ZONE = "zone";
 	private static final String KEY_EXITS = "exits";
@@ -24,19 +27,31 @@ public final class Station extends AreaBase {
 
 	public Station() {
 		super();
-		exits = new HashMap<>();
 	}
 
 	public Station(long id) {
 		super(id);
-		exits = new HashMap<>();
 	}
 
+	public Station(Map<String, Value> map) {
+		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		zone = messagePackHelper.getInt(KEY_ZONE);
+
+		messagePackHelper.iterateMapValue(KEY_EXITS, entry -> {
+			final List<String> destinations = new ArrayList<>(entry.getValue().asArrayValue().size());
+			for (final Value destination : entry.getValue().asArrayValue()) {
+				destinations.add(destination.asStringValue().asString());
+			}
+			exits.put(entry.getKey().asStringValue().asString(), destinations);
+		});
+	}
+
+	@Deprecated
 	public Station(CompoundTag compoundTag) {
 		super(compoundTag);
 		zone = compoundTag.getInt(KEY_ZONE);
 
-		exits = new HashMap<>();
 		final CompoundTag tagExits = compoundTag.getCompound(KEY_EXITS);
 		for (final String keyParent : tagExits.getAllKeys()) {
 			final List<String> destinations = new ArrayList<>();
@@ -51,7 +66,6 @@ public final class Station extends AreaBase {
 	public Station(FriendlyByteBuf packet) {
 		super(packet);
 		zone = packet.readInt();
-		exits = new HashMap<>();
 		final int exitCount = packet.readInt();
 		for (int i = 0; i < exitCount; i++) {
 			final String parent = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -65,20 +79,26 @@ public final class Station extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putInt(KEY_ZONE, zone);
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		final CompoundTag tagExits = new CompoundTag();
-		exits.forEach((parent, destinations) -> {
-			final CompoundTag tagDestinations = new CompoundTag();
-			for (int i = 0; i < destinations.size(); i++) {
-				tagDestinations.putString(KEY_EXITS + i, destinations.get(i));
+		messagePacker.packString(KEY_ZONE).packInt(zone);
+		messagePacker.packString(KEY_EXITS);
+		messagePacker.packMapHeader(exits.size());
+		for (final Map.Entry<String, List<String>> entry : exits.entrySet()) {
+			final String key = entry.getKey();
+			final List<String> destinations = entry.getValue();
+			messagePacker.packString(key);
+			messagePacker.packArrayHeader(destinations.size());
+			for (String destination : destinations) {
+				messagePacker.packString(destination);
 			}
-			tagExits.put(parent, tagDestinations);
-		});
-		compoundTag.put(KEY_EXITS, tagExits);
-		return compoundTag;
+		}
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 2;
 	}
 
 	@Override
@@ -125,9 +145,15 @@ public final class Station extends AreaBase {
 		}
 	}
 
+	@Override
+	protected boolean hasTransportMode() {
+		return false;
+	}
+
 	public void setZone(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_ZONE);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -139,6 +165,7 @@ public final class Station extends AreaBase {
 		setExitParent(oldParent, newParent);
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_EXIT_EDIT_PARENT);
 		packet.writeUtf(oldParent);
 		packet.writeUtf(newParent);
@@ -149,6 +176,7 @@ public final class Station extends AreaBase {
 		exits.remove(parent);
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_EXIT_DELETE_PARENT);
 		packet.writeUtf(parent);
 		sendPacket.accept(packet);
@@ -158,6 +186,7 @@ public final class Station extends AreaBase {
 		if (parentExists(parent)) {
 			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeLong(id);
+			packet.writeUtf(transportMode.toString());
 			packet.writeUtf(KEY_EXIT_DESTINATIONS);
 			packet.writeUtf(parent);
 			packet.writeInt(exits.get(parent).size());

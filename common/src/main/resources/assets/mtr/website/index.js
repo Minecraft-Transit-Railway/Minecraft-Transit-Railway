@@ -1,18 +1,34 @@
-import CANVAS from "./utilities.js"
+import CANVAS from "./utilities.js";
+import DIRECTIONS from "./directions.js";
+import VERSION from "./version.js";
 import drawMap from "./drawing.js";
+import panable from "./gestures/src/gestures/pan.js";
+import pinchable from "./gestures/src/gestures/pinch.js";
+import tappable from "./gestures/src/gestures/tap.js";
 
-const URL = document.location.origin + document.location.pathname;
+const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
 	dataUrl: URL + "data",
 	arrivalsUrl: URL + "arrivals",
 	refreshDataInterval: 60000,
 	refreshArrivalsInterval: 5000,
-	routeTypes: ["normal", "light_rail", "high_speed"],
+	routeTypes: {
+		"train_normal": "directions_train",
+		"train_light_rail": "tram",
+		"train_high_speed": "train",
+		"boat_normal": "sailing",
+		"boat_light_rail": "directions_boat",
+		"boat_high_speed": "snowmobile",
+	},
 	lineSize: 6,
 	dimension: 0,
-	routeType: 0,
+	selectedRouteTypes: [],
+	selectedColor: -1,
+	selectedStation: 0,
+	selectedDirectionsStations: [],
+	selectedDirectionsSegments: {},
 	showText: true,
-	showSettings: false,
+	smoothScrollScale: 100,
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
 	onClearSearch: (data, focus) => {
@@ -21,7 +37,7 @@ const SETTINGS = {
 		if (focus) {
 			searchBox.focus();
 		}
-		document.getElementById("clear_search_icon").innerText = "";
+		document.getElementById("clear_search_icon").style.display = "none";
 		const {stations, routes} = data;
 		for (const stationId in stations) {
 			document.getElementById(stationId).style.display = "none";
@@ -30,12 +46,89 @@ const SETTINGS = {
 			document.getElementById(routes[index]["color"]).style.display = "none";
 		}
 	},
+	clearPanes: function () {
+		this.selectedStation = 0;
+		this.selectedColor = -1;
+		this.selectedDirectionsStations = [];
+		this.selectedDirectionsSegments = {};
+		showSettings = false;
+		document.getElementById("station_info").style.display = "none";
+		document.getElementById("route_info").style.display = "none";
+		document.getElementById("directions").style.display = "none";
+		document.getElementById("settings").style.display = "none";
+	},
+	drawDirectionsRoute: function (pathStations, pathRoutes) {
+		if (pathStations.length > 0 || pathRoutes.length > 0) {
+			this.selectedColor = -1;
+		}
+		this.selectedDirectionsStations = pathStations;
+		this.selectedDirectionsSegments = [];
+		for (let i = 0; i < pathRoutes.length; i++) {
+			if (pathRoutes[i] != null) {
+				for (let j = 0; j < pathRoutes[i].length; j++) {
+					const color = pathRoutes[i][j]["color"];
+					if (!(color in this.selectedDirectionsSegments)) {
+						this.selectedDirectionsSegments[color] = [];
+					}
+					this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
+				}
+			}
+		}
+		drawMap(container, json[this.dimension]);
+	},
 };
+const WALKING_SPEED_METER_PER_SECOND = 4;
 
 const fetchMainData = () => {
 	clearTimeout(refreshDataId);
 	fetch(SETTINGS.dataUrl, {cache: "no-cache"}).then(response => response.json()).then(result => {
 		json = result;
+
+		for (const dimension of json) {
+			dimension["connections"] = {};
+			const {routes, positions, connections, stations} = dimension;
+
+			for (const stationId in stations) {
+				stations[stationId]["horizontal"] = [];
+				stations[stationId]["vertical"] = [];
+
+				for (const stationId2 in stations) {
+					if (stationId !== stationId2) {
+						if (!(stationId in connections)) {
+							connections[stationId] = [];
+						}
+						connections[stationId].push({route: null, station: stationId2, duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND});
+					}
+				}
+			}
+
+			for (const routeIndex in routes) {
+				const route = routes[routeIndex];
+				for (let i = 1; i < route["stations"].length; i++) {
+					if (i > 0) {
+						const prevStationId = route["stations"][i - 1].split("_")[0];
+						if (!(prevStationId in connections)) {
+							connections[prevStationId] = [];
+						}
+						connections[prevStationId].push({route: route, station: route["stations"][i].split("_")[0], duration: route["durations"][i - 1]});
+					}
+				}
+			}
+
+			for (const positionKey in positions) {
+				const {x, y, vertical} = positions[positionKey];
+				const types = [];
+				routes.filter(route => route["stations"].includes(positionKey)).forEach(route => types.push(route["type"]));
+				stations[positionKey.split("_")[0]][vertical ? "vertical" : "horizontal"].push({
+					x: x,
+					y: y,
+					color: parseInt(positionKey.split("_")[1]),
+					types: types,
+				});
+			}
+		}
+
+		setupRouteTypeAndDimensionButtons();
 		drawMap(container, json[SETTINGS.dimension]);
 		refreshDataId = setTimeout(fetchMainData, SETTINGS.refreshDataInterval);
 	});
@@ -49,10 +142,59 @@ const resize = () => {
 	document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
 }
 
-const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true});
+const setupRouteTypeAndDimensionButtons = () => {
+	const availableTypes = json[SETTINGS.dimension]["types"];
+	const oneOrFewerTypes = availableTypes.length <= 1;
+	document.getElementById("settings_route_types").style.display = oneOrFewerTypes ? "none" : "";
+	if (oneOrFewerTypes) {
+		availableTypes.forEach(routeType => SETTINGS.selectedRouteTypes.push(routeType));
+	} else if (SETTINGS.selectedRouteTypes.filter(routeType => availableTypes.includes(routeType)).length === 0) {
+		SETTINGS.selectedRouteTypes = [availableTypes[0]];
+	}
+
+	for (const routeType of Object.keys(SETTINGS.routeTypes)) {
+		const element = document.getElementById("settings_route_type_" + routeType);
+		element.className = "material-icons clickable " + (SETTINGS.selectedRouteTypes.includes(routeType) ? "selected" : "");
+		element.style.display = json[SETTINGS.dimension]["types"].includes(routeType) ? "" : "none";
+		element.onclick = () => {
+			if (SETTINGS.selectedRouteTypes.includes(routeType)) {
+				SETTINGS.selectedRouteTypes = SETTINGS.selectedRouteTypes.filter(checkType => checkType !== routeType);
+			} else {
+				SETTINGS.selectedRouteTypes.push(routeType);
+			}
+			setupRouteTypeAndDimensionButtons();
+			drawMap(container, json[SETTINGS.dimension]);
+		}
+	}
+
+	const settingsDimensionsButtons = document.getElementById("settings_dimensions_buttons");
+	settingsDimensionsButtons.innerHTML = "";
+	let dimensionButtonCount = 0;
+	for (const dimensionIndex in json) {
+		if (json[dimensionIndex]["routes"].length > 0) {
+			const element = document.createElement("span");
+			element.id = "toggle_dimension_icon_" + dimensionIndex;
+			element.className = "material-icons clickable " + (SETTINGS.dimension === parseInt(dimensionIndex) ? "selected" : "");
+			element.innerText = "public"
+			element.onclick = () => {
+				SETTINGS.dimension = parseInt(dimensionIndex);
+				setupRouteTypeAndDimensionButtons();
+				drawMap(container, json[SETTINGS.dimension]);
+			}
+			settingsDimensionsButtons.appendChild(element);
+			settingsDimensionsButtons.appendChild(document.createTextNode("\n"));
+			dimensionButtonCount++;
+		}
+	}
+
+	document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
+}
+
+const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true, resolution: window.devicePixelRatio});
 
 let json;
 let refreshDataId = 0;
+let showSettings = false;
 
 if (window.safari !== undefined) {
 	PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL;
@@ -66,13 +208,19 @@ if (getCookie("theme").includes("dark")) {
 }
 
 document.getElementById("clear_search_icon").onclick = () => SETTINGS.onClearSearch(json[SETTINGS.dimension], true);
-document.getElementById("zoom_in_icon").onclick = () => {
-	CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
+document.getElementById("zoom_in_icon").onclick = () => CANVAS.onZoom(-1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
+document.getElementById("zoom_out_icon").onclick = () => CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container, json[SETTINGS.dimension], false);
+document.getElementById("clear_directions_1_icon").onclick = () => {
+	document.getElementById("directions_result").style.display = "none";
+	const searchBox = document.getElementById("directions_box_1");
+	searchBox.value = "";
+	searchBox.focus();
 };
-document.getElementById("zoom_out_icon").onclick = () => {
-	CANVAS.onZoom(1, window.innerWidth / 2, window.innerHeight / 2, container);
-	drawMap(container, json[SETTINGS.dimension]);
+document.getElementById("clear_directions_2_icon").onclick = () => {
+	document.getElementById("directions_result").style.display = "none";
+	const searchBox = document.getElementById("directions_box_2");
+	searchBox.value = "";
+	searchBox.focus();
 };
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
@@ -83,24 +231,6 @@ document.getElementById("toggle_text_icon").onclick = event => {
 		buttonElement.innerText = "font_download_off";
 		SETTINGS.showText = true;
 	}
-	drawMap(container, json[SETTINGS.dimension]);
-};
-document.getElementById("toggle_dimension_icon").onclick = event => {
-	do {
-		SETTINGS.dimension++;
-		if (SETTINGS.dimension >= json.length) {
-			SETTINGS.dimension = 0;
-		}
-	} while (SETTINGS.dimension > 0 && json[SETTINGS.dimension]["routes"].length === 0);
-	drawMap(container, json[SETTINGS.dimension]);
-};
-document.getElementById("toggle_route_type_icon").onclick = event => {
-	do {
-		SETTINGS.routeType++;
-		if (SETTINGS.routeType >= SETTINGS.routeTypes.length) {
-			SETTINGS.routeType = 0;
-		}
-	} while (SETTINGS.routeType > 0 && json[SETTINGS.dimension]["routes"].filter(route => route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]).length === 0);
 	drawMap(container, json[SETTINGS.dimension]);
 };
 document.getElementById("toggle_theme_icon").onclick = event => {
@@ -125,31 +255,38 @@ document.getElementById("download_icon").onclick = () => {
 	link.click();
 };
 document.getElementById("settings_icon").onclick = () => {
-	SETTINGS.showSettings = !SETTINGS.showSettings;
-	for (const settingsElement of document.getElementsByClassName("settings")) {
-		settingsElement.style.display = SETTINGS.showSettings ? "block" : "none";
-	}
+	const newShowSettings = !showSettings;
+	SETTINGS.onClearSearch(json[SETTINGS.dimension], false);
+	SETTINGS.clearPanes();
+	document.getElementById("settings").style.display = newShowSettings ? "" : "none";
+	showSettings = newShowSettings;
 };
+document.getElementById("clear_station_info_button").onclick = SETTINGS.clearPanes;
+document.getElementById("clear_route_info_button").onclick = SETTINGS.clearPanes;
+document.getElementById("version").innerText = VERSION;
 
 window.addEventListener("resize", resize);
 const background = new PIXI.Sprite(PIXI.Texture.WHITE);
 resize();
 
 background.tint = SETTINGS.getColorStyle("--backgroundColor");
-background.interactive = true;
-background.on("pointerdown", CANVAS.onCanvasMouseDown);
-background.on("pointermove", event => CANVAS.onCanvasMouseMove(event, container));
-background.on("pointerup", CANVAS.onCanvasMouseUp);
+panable(background);
+pinchable(background, true);
+tappable(background);
+background.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
+background.on("pinchmove", event => CANVAS.onPinch(event.data.global, event.center.x, event.center.y, container, json[SETTINGS.dimension], true));
+background.on("simpletap", () => {
+	SETTINGS.clearPanes();
+	drawMap(container, json[SETTINGS.dimension]);
+});
+
 APP.stage.addChild(background);
 
 const container = new PIXI.Container();
 APP.stage.addChild(container);
 
-document.body.appendChild(APP.view);
-APP.view.addEventListener("wheel", event => {
-	CANVAS.onCanvasScroll(event, container);
-	drawMap(container, json[SETTINGS.dimension]);
-});
+document.body.prepend(APP.view);
+APP.view.addEventListener("wheel", event => CANVAS.onZoom(Math.abs(event.deltaY) > 1 ? event.deltaY / SETTINGS.smoothScrollScale : 0, event.offsetX, event.offsetY, container, json[SETTINGS.dimension], false));
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
 

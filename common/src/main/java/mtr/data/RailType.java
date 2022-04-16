@@ -5,9 +5,11 @@ import net.minecraft.world.level.material.MaterialColor;
 public enum RailType implements IGui {
 	WOODEN(20, MaterialColor.WOOD, false, true),
 	STONE(40, MaterialColor.STONE, false, true),
-	IRON(80, MaterialColor.SNOW, false, true),
+	EMERALD(60, MaterialColor.EMERALD, false, true),
+	IRON(80, MaterialColor.METAL, false, true),
 	OBSIDIAN(120, MaterialColor.COLOR_PURPLE, false, true),
 	BLAZE(160, MaterialColor.COLOR_ORANGE, false, true),
+	QUARTZ(200, MaterialColor.QUARTZ, false, true),
 	DIAMOND(300, MaterialColor.DIAMOND, false, true),
 	PLATFORM(80, MaterialColor.COLOR_RED, true, false),
 	SIDING(40, MaterialColor.COLOR_YELLOW, true, false),
@@ -23,7 +25,7 @@ public enum RailType implements IGui {
 	RailType(int speedLimit, MaterialColor MaterialColor, boolean hasSavedRail, boolean canAccelerate) {
 		this.speedLimit = speedLimit;
 		maxBlocksPerTick = speedLimit / 3.6F / 20;
-		color = MaterialColor.col + ARGB_BLACK_TRANSLUCENT;
+		color = MaterialColor.col | ARGB_BLACK_TRANSLUCENT;
 		this.hasSavedRail = hasSavedRail;
 		this.canAccelerate = canAccelerate;
 	}

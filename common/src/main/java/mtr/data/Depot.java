@@ -9,12 +9,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Depot extends AreaBase {
+public class Depot extends AreaBase implements IReducedSaveData {
 
 	public int clientPathGenerationSuccessfulSegments;
 	public long lastDeployedMillis;
@@ -22,6 +26,7 @@ public class Depot extends AreaBase {
 	private int departureOffset;
 
 	public final List<Long> routeIds = new ArrayList<>();
+	public final Map<Long, Map<Long, Float>> platformTimes = new HashMap<>();
 
 	private final int[] frequencies = new int[HOURS_IN_DAY];
 	private final Map<Long, TrainServer> deployableSidings = new HashMap<>();
@@ -38,14 +43,33 @@ public class Depot extends AreaBase {
 	private static final String KEY_LAST_DEPLOYED = "last_deployed";
 	private static final String KEY_DEPLOY_INDEX = "deploy_index";
 
-	public Depot() {
-		super();
+	public Depot(TransportMode transportMode) {
+		super(transportMode);
 	}
 
-	public Depot(long id) {
-		super(id);
+	public Depot(long id, TransportMode transportMode) {
+		super(id, transportMode);
 	}
 
+	public Depot(Map<String, Value> map) {
+		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		messagePackHelper.iterateArrayValue(KEY_ROUTE_IDS, routeId -> routeIds.add(routeId.asIntegerValue().asLong()));
+
+		try {
+			final ArrayValue frequenciesArray = map.get(KEY_FREQUENCIES).asArrayValue();
+			for (int i = 0; i < HOURS_IN_DAY; i++) {
+				frequencies[i] = frequenciesArray.get(i).asIntegerValue().asInt();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		deployIndex = messagePackHelper.getInt(KEY_DEPLOY_INDEX);
+		lastDeployedMillis = System.currentTimeMillis() - messagePackHelper.getLong(KEY_LAST_DEPLOYED);
+	}
+
+	@Deprecated
 	public Depot(CompoundTag compoundTag) {
 		super(compoundTag);
 
@@ -79,19 +103,36 @@ public class Depot extends AreaBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		toReducedMessagePack(messagePacker);
+		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
+	}
 
-		compoundTag.putLongArray(KEY_ROUTE_IDS, routeIds);
+	@Override
+	public void toReducedMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
 
-		for (int i = 0; i < HOURS_IN_DAY; i++) {
-			compoundTag.putInt(KEY_FREQUENCIES + i, frequencies[i]);
+		messagePacker.packString(KEY_ROUTE_IDS).packArrayHeader(routeIds.size());
+		for (Long routeId : routeIds) {
+			messagePacker.packLong(routeId);
 		}
 
-		compoundTag.putLong(KEY_LAST_DEPLOYED, System.currentTimeMillis() - lastDeployedMillis);
-		compoundTag.putInt(KEY_DEPLOY_INDEX, deployIndex);
+		messagePacker.packString(KEY_FREQUENCIES).packArrayHeader(HOURS_IN_DAY);
+		for (int i = 0; i < HOURS_IN_DAY; i++) {
+			messagePacker.packInt(frequencies[i]);
+		}
 
-		return compoundTag;
+		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 4;
+	}
+
+	@Override
+	public int reducedMessagePackLength() {
+		return messagePackLength() - 1;
 	}
 
 	@Override
@@ -107,6 +148,11 @@ public class Depot extends AreaBase {
 
 		packet.writeLong(lastDeployedMillis);
 		packet.writeInt(deployIndex);
+	}
+
+	@Override
+	protected boolean hasTransportMode() {
+		return true;
 	}
 
 	@Override
@@ -144,6 +190,7 @@ public class Depot extends AreaBase {
 	public void setData(Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_FREQUENCIES);
 		packet.writeUtf(name);
 		packet.writeInt(color);
@@ -178,7 +225,7 @@ public class Depot extends AreaBase {
 
 				sidings.forEach(siding -> {
 					final BlockPos sidingMidPos = siding.getMidPos();
-					if (inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
+					if (siding.isTransportMode(transportMode) && inArea(sidingMidPos.getX(), sidingMidPos.getZ())) {
 						final SavedRailBase firstPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(0);
 						final SavedRailBase lastPlatform = platformsInRoute.isEmpty() ? null : platformsInRoute.get(platformsInRoute.size() - 1);
 						final int result = siding.generateRoute(minecraftServer, tempPath, successfulSegmentsMain, rails, firstPlatform, lastPlatform);
@@ -192,6 +239,8 @@ public class Depot extends AreaBase {
 				System.out.println("Finished path generation" + (name.isEmpty() ? "" : " for " + name));
 			} catch (Exception e) {
 				e.printStackTrace();
+				PacketTrainDataGuiServer.generatePathS2C(world, id, 0);
+				System.out.println("Failed to generate path" + (name.isEmpty() ? "" : " for " + name));
 			}
 		});
 		callback.accept(thread);
@@ -206,7 +255,7 @@ public class Depot extends AreaBase {
 		if (!deployableSidings.isEmpty() && getMillisUntilDeploy(hour, 1) == 0) {
 			final List<Siding> sidingsInDepot = railwayData.sidings.stream().filter(siding -> {
 				final BlockPos sidingPos = siding.getMidPos();
-				return inArea(sidingPos.getX(), sidingPos.getZ());
+				return siding.isTransportMode(transportMode) && inArea(sidingPos.getX(), sidingPos.getZ());
 			}).sorted().collect(Collectors.toList());
 
 			final int sidingsInDepotSize = sidingsInDepot.size();
