@@ -531,5 +531,6 @@
 	"train.mtr.sp1900": "SP1900",
 	"train.mtr.sp1900_mini": "SP1900 (Mini)",
 	"train.mtr.sp1900_small": "SP1900 (Small)",
-	"train.mtr.spruce_boat": "Spruce Boat"
+	"train.mtr.spruce_boat": "Spruce Boat",
+	"test": "don't translate this"
 }
