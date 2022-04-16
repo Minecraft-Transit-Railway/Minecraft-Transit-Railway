@@ -1,11 +1,5 @@
 name: Build
-on:
-  pull_request:
-    branches-ignore:
-      - 'l10n_master'
-  push:
-    branches-ignore:
-      - 'l10n_master'
+on: [ pull_request, push ]
 
 jobs:
   build:
@@ -38,3 +32,18 @@ jobs:
         with:
           name: Libraries
           path: build/libs/
+  crowdin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload Translations to Crowdin
+        uses: crowdin/github-action@1.0.4
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: false
+          push_translations: false
+          create_pull_request: false
+          project_id: '455212'
+          token: ${{ secrets.CROWDIN_API_KEY }}
+          source: '/common/src/main/resources/assets/mtr/lang/en_us.json'
+          translation: '/%locale_with_underscore%.json'
