@@ -210,8 +210,8 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 				for (int i = 0; i < selectedIdsSorted.size(); i++) {
 					final float topOffset = i * height + extraMargin;
 					final float bottomOffset = (i + 1) * height + extraMargin;
-					final float left = (flipCustomText ? x - maxWidthLeft * size : x) + margin;
-					final float right = (flipCustomText ? x + size : x + (maxWidthRight + 1) * size) - margin;
+					final float left = flipCustomText ? x - maxWidthLeft * size : x + margin;
+					final float right = flipCustomText ? x + size - margin : x + (maxWidthRight + 1) * size;
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), false), false));
 					IDrawing.drawTexture(matrices, vertexConsumer, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				}
