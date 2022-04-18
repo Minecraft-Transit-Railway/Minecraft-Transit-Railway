@@ -83,26 +83,7 @@ public class RouteMapGenerator implements IGui {
 
 		try {
 			final List<String> destinations = new ArrayList<>();
-			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> {
-				if (route.circularState == Route.CircularState.NONE) {
-					destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
-				} else {
-					boolean isVia = false;
-					String text = "";
-					for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-						if (getInterchangeRoutes(getStationId(route.platformIds.get(i))).size() > 1) {
-							text = getStationName(route.platformIds.get(i));
-							isVia = true;
-							break;
-						}
-					}
-					if (!isVia) {
-						text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
-					}
-					final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
-					destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
-				}
-			});
+			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> destinations.add(ClientData.DATA_CACHE.getFormattedRouteDestination(route, currentStationIndex, TEMP_CIRCULAR_MARKER)));
 			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;

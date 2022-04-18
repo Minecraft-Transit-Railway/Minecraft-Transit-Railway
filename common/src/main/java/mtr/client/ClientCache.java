@@ -135,6 +135,31 @@ public class ClientCache extends DataCache {
 		return platformIdToRoutes.get(platformId);
 	}
 
+	public String getFormattedRouteDestination(Route route, int currentStationIndex, String circularMarker) {
+		try {
+			if (route.circularState == Route.CircularState.NONE) {
+				return platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+			} else {
+				boolean isVia = false;
+				String text = "";
+				for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
+					if (stationIdToRoutes.get(platformIdToStation.get(route.platformIds.get(i)).id).size() > 1) {
+						text = platformIdToStation.get(route.platformIds.get(i)).name;
+						isVia = true;
+						break;
+					}
+				}
+				if (!isVia) {
+					text = platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1)).name;
+				}
+				final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
+				return circularMarker + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text);
+			}
+		} catch (Exception ignored) {
+			return "";
+		}
+	}
+
 	public ResourceLocation getColorStrip(long platformId) {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}

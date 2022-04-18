@@ -210,6 +210,20 @@ const CANVAS = {
 		element.appendChild(innerElement);
 		return element;
 	},
+	getClosestInterchangeOnRoute: (data, route, thisStation) => {
+		const {routes, stations} = data;
+		const routeStations = route["stations"];
+		let passed = false;
+		for (let i = 0; i < routeStations.length; i++) {
+			const checkStation = routeStations[i].split("_")[0];
+			if (passed && (routes.some(checkRoute => checkRoute["color"] !== route["color"] && checkRoute["stations"].some(checkRouteStation => checkRouteStation.split("_")[0] === checkStation)) || i === routeStations.length - 1)) {
+				return stations[checkStation]["name"];
+			}
+			if (checkStation === thisStation) {
+				passed = true;
+			}
+		}
+	},
 	convertColor: color => "#" + Number(color).toString(16).padStart(6, "0"),
 	formatTime: time => {
 		const hour = Math.floor(time / 3600);

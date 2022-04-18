@@ -2,10 +2,7 @@ package mtr.servlet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mtr.data.Platform;
-import mtr.data.RailwayData;
-import mtr.data.Route;
-import mtr.data.ScheduleEntry;
+import mtr.data.*;
 import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
@@ -54,15 +51,19 @@ public class ArrivalsServletHandler extends HttpServlet {
 						Collections.sort(scheduleEntries);
 
 						for (final ScheduleEntry scheduleEntry : scheduleEntries) {
-							if (!scheduleEntry.isTerminating) {
+							final DataCache dataCache = railwayData.dataCache;
+							final Route route = dataCache.routeIdMap.get(scheduleEntry.routeId);
+							if (route != null && scheduleEntry.currentStationIndex < route.platformIds.size() - 1) {
 								final JsonObject scheduleObject = new JsonObject();
 								scheduleObject.addProperty("arrival", scheduleEntry.arrivalMillis);
-								scheduleObject.addProperty("destination", scheduleEntry.destination);
-								scheduleObject.addProperty("route", scheduleEntry.routeNumber);
-								final Platform platform = railwayData.dataCache.platformIdMap.get(scheduleEntry.platformId);
+								scheduleObject.addProperty("name", route.name);
+								final Station station = railwayData.dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
+								scheduleObject.addProperty("destination", station == null ? "" : station.name);
+								scheduleObject.addProperty("circular", route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw");
+								scheduleObject.addProperty("route", route.isLightRailRoute ? route.lightRailRouteNumber : "");
+								final Platform platform = railwayData.dataCache.platformIdMap.get(route.platformIds.get(scheduleEntry.currentStationIndex));
 								scheduleObject.addProperty("platform", platform == null ? "" : platform.name);
-								final Route route = railwayData.dataCache.routeIdMap.get(scheduleEntry.routeId);
-								scheduleObject.addProperty("color", route == null ? 0 : route.color);
+								scheduleObject.addProperty("color", route.color);
 								dataArray.add(scheduleObject);
 							}
 						}

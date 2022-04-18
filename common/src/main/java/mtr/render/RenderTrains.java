@@ -221,7 +221,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.popPose();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Component text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -244,7 +244,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
 					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
@@ -283,7 +283,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
 					}
