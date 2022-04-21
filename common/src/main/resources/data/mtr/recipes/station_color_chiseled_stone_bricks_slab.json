@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"item": "mtr:station_color_chiseled_stone_bricks"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_chiseled_stone_bricks_slab",
+		"count": 6
+	}
+}

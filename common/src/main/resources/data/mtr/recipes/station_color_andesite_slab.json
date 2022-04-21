@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"item": "mtr:station_color_andesite"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_andesite_slab",
+		"count": 6
+	}
+}

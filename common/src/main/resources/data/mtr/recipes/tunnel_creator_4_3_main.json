@@ -1,20 +1,20 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"B",
-		"B",
-		"I"
+		"WWW",
+		"WIW",
+		"W W"
 	],
 	"key": {
-		"B": {
-			"item": "minecraft:iron_bars"
-		},
 		"I": {
 			"tag": "c:iron_ingots"
+		},
+		"W": {
+			"tag": "minecraft:logs"
 		}
 	},
 	"result": {
-		"item": "mtr:clock_pole",
+		"item": "mtr:tunnel_creator_4_3",
 		"count": 8
 	}
 }
