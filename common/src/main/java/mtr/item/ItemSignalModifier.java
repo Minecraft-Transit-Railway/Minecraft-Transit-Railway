@@ -12,6 +12,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemSignalModifier extends ItemNodeModifierBase {
 
@@ -32,7 +33,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected void onRemove(Level world, @Nullable Player player, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
 		PacketTrainDataGuiServer.removeSignalS2C(world, railwayData.removeSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 	}
 }

@@ -1,5 +1,6 @@
 package mtr.item;
 
+import mtr.Items;
 import mtr.block.BlockNode;
 import mtr.data.*;
 import mtr.packet.PacketTrainDataGuiServer;
@@ -8,11 +9,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -55,6 +58,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid) {
+				stack.setCount(stack.getCount() - 1);
+				returnItem(world, player, posStart, posEnd, railwayData);
 				railwayData.addRail(transportMode, posStart, posEnd, rail1, false);
 				final long newId = railwayData.addRail(transportMode, posEnd, posStart, rail2, true);
 				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockNode.IS_CONNECTED, true));
@@ -67,8 +72,55 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected void onRemove(Level world, @Nullable Player player, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+		returnItem(world, player, posStart, posEnd, railwayData);
 		railwayData.removeRailConnection(posStart, posEnd);
 		PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
+	}
+
+	protected void returnItem(Level world, @Nullable Player player, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+		if (railwayData.containsRail(posStart, posEnd)) {
+			int hasTypeRails = 0;
+			RailType railType = RailType.NONE;
+			final Rail oldRail1 = railwayData.getRail(posStart, posEnd);
+			final Rail oldRail2 = railwayData.getRail(posEnd, posStart);
+			if (oldRail1 != null) {
+				if (oldRail1.railType != RailType.NONE) {
+					hasTypeRails += 1;
+					railType = oldRail1.railType;
+				}
+			}
+			if (oldRail2 != null) {
+				if (oldRail2.railType != RailType.NONE) {
+					hasTypeRails += 1;
+					railType = oldRail2.railType;
+				}
+			}
+			if (player != null) {
+				boolean give = false;
+				ItemStack giveItem = null;
+				switch (hasTypeRails) {
+					case 1:
+						giveItem = new ItemStack(Items.RAIL_CONNECTOR_ONE_WAY_HashMapItem.get(railType), 1);
+						give = true;
+						break;
+					case 2:
+						giveItem = new ItemStack(Items.RAIL_CONNECTOR_HashMapItem.get(railType), 1);
+						give = true;
+						break;
+					default:
+						break;
+				}
+				if (give) {
+					giveItem.getOrCreateTag();
+					ItemEntity itemEntity = player.drop(giveItem, false);
+					if (itemEntity != null) {
+						itemEntity.setNoPickUpDelay();
+						itemEntity.setOwner(player.getUUID());
+					}
+					player.inventoryMenu.broadcastChanges();
+				}
+			}
+		}
 	}
 }
