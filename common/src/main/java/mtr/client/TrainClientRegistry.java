@@ -97,7 +97,7 @@ public class TrainClientRegistry {
 		register("light_rail_5_orange", TrainType.LIGHT_RAIL_5_ORANGE, new ModelLightRail(5), "mtr:textures/entity/light_rail_5_orange", "light_rail_mitsubishi", "light_rail_4", null, 0xD2A825, 45, 1, false);
 		register("london_underground_d78", TrainType.LONDON_UNDERGROUND_D78, new ModelLondonUndergroundD78(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", null, 0x007229, 93, 1, true);
 		register("london_underground_d78_mini", TrainType.LONDON_UNDERGROUND_D78_MINI, new ModelLondonUndergroundD78Mini(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", null, 0x007229, 93, 1, true);
-		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", null, 0x333333, 27, 0.5F, false);
+		register("london_underground_1995", TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", null, 0x333333, 72, 0.5F, false);
 		register("london_underground_1996", TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1995", "london_underground_1995", null, 0xA1A5A7, 27, 0.5F, false);
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
