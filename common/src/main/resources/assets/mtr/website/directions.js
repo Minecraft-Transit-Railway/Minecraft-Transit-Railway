@@ -223,32 +223,32 @@ const findRoute = data => {
 					resultElement.append(CANVAS.getDrawLineElement("directions_walk", walkingElement, null));
 					startZone = stations[nextStation]["zone"];
 				} else {
-					const routeNames = {};
+					const routeIconsAndDestinations = {};
 					const routeTypes = {};
 					routes.forEach(route => {
 						const routeName = route["name"].split("||")[0].replace(/\|/g, " ");
-						if (!(routeName in routeNames)) {
-							routeNames[routeName] = [];
+						if (!(routeName in routeIconsAndDestinations)) {
+							routeIconsAndDestinations[routeName] = [];
 						}
 						const routeStations = route["stations"];
 						if (routeStations.length > 0) {
-							const destination = stations[routeStations[routeStations.length - 1].split("_")[0]]["name"].split("||")[0].replace(/\|/g, " ");
-							if (!routeNames[routeName].includes(destination)) {
-								routeNames[routeName].push(destination);
+							const iconAndDestination = route["circular"] === "" ? ["chevron_right", stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", CANVAS.getClosestInterchangeOnRoute(data, route, station)];
+							if (!routeIconsAndDestinations[routeName].includes(iconAndDestination)) {
+								routeIconsAndDestinations[routeName].push(iconAndDestination);
 							}
 						}
 						routeTypes[routeName] = route["type"];
 					});
 
-					Object.keys(routeNames).forEach(routeName => {
+					Object.keys(routeIconsAndDestinations).forEach(routeName => {
 						const routeNameElement = document.createElement("span");
 						routeNameElement.innerHTML = routeName;
 						resultElement.append(CANVAS.getDrawLineElement(SETTINGS.routeTypes[routeTypes[routeName]], routeNameElement, color));
 
-						routeNames[routeName].forEach(destination => {
+						routeIconsAndDestinations[routeName].forEach(iconAndDestination => {
 							const routeDestinationElement = document.createElement("span");
-							routeDestinationElement.innerHTML = destination;
-							resultElement.append(CANVAS.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;chevron_right", routeDestinationElement, color));
+							routeDestinationElement.innerHTML = iconAndDestination[1].replace(/\|/g, " ");
+							resultElement.append(CANVAS.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;" + iconAndDestination[0], routeDestinationElement, color));
 						})
 					})
 

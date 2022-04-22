@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BBB"
+	],
+	"key": {
+		"B": {
+			"item": "mtr:station_color_wool"
+		}
+	},
+	"result": {
+		"item": "mtr:station_color_wool_slab",
+		"count": 6
+	}
+}

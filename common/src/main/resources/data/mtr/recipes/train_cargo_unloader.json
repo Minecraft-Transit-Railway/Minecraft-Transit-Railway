@@ -20,11 +20,11 @@
 			"item": "minecraft:smooth_stone"
 		},
 		{
-			"item": "mtr:rail"
+			"tag": "c:nodes"
 		}
 	],
 	"result": {
-		"item": "mtr:train_announcer",
+		"item": "mtr:train_cargo_unloader",
 		"count": 3
 	}
 }

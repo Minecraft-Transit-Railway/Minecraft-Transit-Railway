@@ -83,26 +83,7 @@ public class RouteMapGenerator implements IGui {
 
 		try {
 			final List<String> destinations = new ArrayList<>();
-			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> {
-				if (route.circularState == Route.CircularState.NONE) {
-					destinations.add(getStationName(route.platformIds.get(route.platformIds.size() - 1)));
-				} else {
-					boolean isVia = false;
-					String text = "";
-					for (int i = currentStationIndex + 1; i < route.platformIds.size() - 1; i++) {
-						if (getInterchangeRoutes(getStationId(route.platformIds.get(i))).size() > 1) {
-							text = getStationName(route.platformIds.get(i));
-							isVia = true;
-							break;
-						}
-					}
-					if (!isVia) {
-						text = getStationName(route.platformIds.get(route.platformIds.size() - 1));
-					}
-					final String translationString = String.format("%s_%s", route.circularState == Route.CircularState.CLOCKWISE ? "clockwise" : "anticlockwise", isVia ? "via" : "to");
-					destinations.add(TEMP_CIRCULAR_MARKER + IGui.insertTranslation("gui.mtr." + translationString + "_cjk", "gui.mtr." + translationString, 1, text));
-				}
-			});
+			final List<Integer> colors = getRouteStream(platformId, (route, currentStationIndex) -> destinations.add(ClientData.DATA_CACHE.getFormattedRouteDestination(route, currentStationIndex, TEMP_CIRCULAR_MARKER)));
 			final boolean isTerminating = destinations.isEmpty();
 
 			final boolean leftToRight = horizontalAlignment == HorizontalAlignment.CENTER ? hasLeft || !hasRight : horizontalAlignment != HorizontalAlignment.RIGHT;
@@ -135,18 +116,18 @@ public class RouteMapGenerator implements IGui {
 				final int rightSize = ((hasRight ? 1 : 0) + (leftToRight ? 0 : 1)) * (tileSize + tilePadding);
 
 				final int[] dimensionsDestination = new int[2];
-				final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * 2, tileSize * 3 / 5, tileSize * 3 / 10, 0, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
-				final int leftPadding = (int) horizontalAlignment.getOffset(0, leftSize + rightSize + dimensionsDestination[0] - width);
-				drawString(nativeImage, pixelsDestination, leftPadding + leftSize, height / 2, dimensionsDestination, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, invert ? ARGB_WHITE : ARGB_BLACK, false);
+				final byte[] pixelsDestination = clientCache.getTextPixels(destinationString, dimensionsDestination, width - leftSize - rightSize - padding * (showToString ? 2 : 1), tileSize * 3 / 5, tileSize * 3 / 10, tilePadding, leftToRight ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT);
+				final int leftPadding = (int) horizontalAlignment.getOffset(0, leftSize + rightSize + dimensionsDestination[0] - tilePadding * 2 - width);
+				drawString(nativeImage, pixelsDestination, leftPadding + leftSize - tilePadding, height / 2, dimensionsDestination, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, invert ? ARGB_WHITE : ARGB_BLACK, false);
 
 				if (hasLeft) {
 					drawResource(nativeImage, ARROW_RESOURCE, leftPadding, padding, tileSize, tileSize, false, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK);
 				}
 				if (hasRight) {
-					drawResource(nativeImage, ARROW_RESOURCE, leftPadding + leftSize + dimensionsDestination[0] + rightSize - tileSize, padding, tileSize, tileSize, true, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK);
+					drawResource(nativeImage, ARROW_RESOURCE, leftPadding + leftSize + dimensionsDestination[0] - tilePadding * 2 + rightSize - tileSize, padding, tileSize, tileSize, true, 0, 1, invert ? ARGB_WHITE : ARGB_BLACK);
 				}
 
-				circleX = leftPadding + leftSize + (leftToRight ? -tileSize - tilePadding : dimensionsDestination[0] + tilePadding);
+				circleX = leftPadding + leftSize + (leftToRight ? -tileSize - tilePadding : dimensionsDestination[0] - tilePadding);
 			}
 
 			for (int i = 0; i < colors.size(); i++) {

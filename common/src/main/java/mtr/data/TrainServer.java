@@ -263,23 +263,10 @@ public class TrainServer extends Train {
 
 				if (timeSegment.savedRailBaseId != 0) {
 					if (timeSegment.routeId == 0) {
-						RailwayData.useRoutesAndStationsFromIndex(path.get(getIndex(timeSegment.endRailProgress, true)).stopIndex - 1, depot.routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-							timeSegment.lastStationId = lastStation == null ? 0 : lastStation.id;
+						RailwayData.useRoutesAndStationsFromIndex(path.get(getIndex(timeSegment.endRailProgress, true)).stopIndex - 1, depot.routeIds, dataCache, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 							timeSegment.routeId = thisRoute == null ? 0 : thisRoute.id;
-							timeSegment.isTerminating = nextStation == null;
+							timeSegment.currentStationIndex = currentStationIndex;
 						});
-					}
-
-					final String destinationString;
-					final String routeNumber;
-					final Station lastStation = dataCache.stationIdMap.get(timeSegment.lastStationId);
-					if (lastStation != null) {
-						final Route thisRoute = dataCache.routeIdMap.get(timeSegment.routeId);
-						routeNumber = thisRoute != null && thisRoute.isLightRailRoute ? thisRoute.lightRailRouteNumber : "";
-						destinationString = lastStation.name;
-					} else {
-						routeNumber = "";
-						destinationString = "";
 					}
 
 					final long platformId = timeSegment.savedRailBaseId;
@@ -288,7 +275,7 @@ public class TrainServer extends Train {
 					}
 
 					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, platformId, timeSegment.routeId, routeNumber, destinationString, timeSegment.isTerminating));
+					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
 				}
 
 				if (routeId == 0) {
