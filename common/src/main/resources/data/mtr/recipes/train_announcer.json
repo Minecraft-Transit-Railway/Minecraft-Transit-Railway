@@ -20,7 +20,7 @@
 			"item": "minecraft:smooth_stone"
 		},
 		{
-			"item": "mtr:rail"
+			"tag": "c:nodes"
 		}
 	],
 	"result": {

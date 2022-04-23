@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -31,11 +31,16 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock, IPropagateBlock {
+public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock {
+
+	private static final float PERSISTENT_OFFSET = 7.5F;
+	public static final float PERSISTENT_OFFSET_SMALL = PERSISTENT_OFFSET / 16;
 
 	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.create("door_light", EnumDoorLight.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.create("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.create("air_right");
+	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
+	public static final EnumProperty<EnumPersistent> PERSISTENT = EnumProperty.create("persistent", EnumPersistent.class);
 
 	public BlockPSDTop() {
 		super(Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion());
@@ -43,11 +48,29 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-		return IBlock.checkHoldingBrush(world, player, () -> {
-			world.setBlockAndUpdate(pos, state.cycle(PROPAGATE_PROPERTY));
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), 1);
-			propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), 1);
-		});
+		return IBlock.checkHoldingItem(world, player, item -> {
+			if (item == Items.BRUSH) {
+				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 1);
+			} else {
+				final boolean shouldBePersistent = IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE;
+				setState(world, pos, shouldBePersistent);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
+			}
+		}, null, Items.BRUSH, net.minecraft.world.item.Items.SHEARS);
+	}
+
+	private void setState(Level world, BlockPos pos, boolean shouldBePersistent) {
+		final Block blockBelow = world.getBlockState(pos.below()).getBlock();
+		if (blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDGlassEnd) {
+			if (shouldBePersistent) {
+				world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(PERSISTENT, blockBelow instanceof BlockPSDDoor ? EnumPersistent.ARROW : blockBelow instanceof BlockPSDGlass ? EnumPersistent.ROUTE : EnumPersistent.BLANK));
+			} else {
+				world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(PERSISTENT, EnumPersistent.NONE));
+			}
+		}
 	}
 
 	@Override
@@ -76,13 +99,8 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	}
 
 	@Override
-	public void wasExploded(Level world, BlockPos pos, Explosion explosion) {
-		playerWillDestroy(world, pos, null, null);
-	}
-
-	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState newState, LevelAccessor world, BlockPos pos, BlockPos posFrom) {
-		if (direction == Direction.DOWN && !(newState.getBlock() instanceof BlockPSDAPGBase)) {
+		if (direction == Direction.DOWN && IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE && !(newState.getBlock() instanceof BlockPSDAPGBase)) {
 			return Blocks.AIR.defaultBlockState();
 		} else {
 			return getActualState(world, pos);
@@ -91,7 +109,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
+		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, FACING));
 		final boolean airLeft = IBlock.getStatePropertySafe(state, AIR_LEFT);
 		final boolean airRight = IBlock.getStatePropertySafe(state, AIR_RIGHT);
 		if (airLeft || airRight) {
@@ -108,7 +126,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, PROPAGATE_PROPERTY);
+		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, ARROW_DIRECTION, PERSISTENT);
 	}
 
 	@Override
@@ -118,24 +136,25 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	public static BlockState getActualState(BlockGetter world, BlockPos pos) {
 		EnumDoorLight doorLight = EnumDoorLight.NONE;
-		Direction facing = Direction.NORTH;
-		EnumSide side = EnumSide.SINGLE;
+		Direction facing = null;
+		EnumSide side = null;
 		boolean airLeft = false, airRight = false;
 
 		final BlockState stateBelow = world.getBlockState(pos.below());
-		if (stateBelow.getBlock() instanceof BlockPSDAPGBase) {
-			if (stateBelow.getBlock() instanceof BlockPSDAPGDoorBase) {
-				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGDoorBase.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
+		final Block blockBelow = stateBelow.getBlock();
+		if (blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlassEnd) {
+			if (blockBelow instanceof BlockPSDDoor) {
+				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDDoor.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE);
 			} else {
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE_EXTENDED);
 			}
 
-			if (stateBelow.getBlock() instanceof BlockPSDAPGGlassEndBase) {
-				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_LEFT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+			if (blockBelow instanceof BlockPSDGlassEnd) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_LEFT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airLeft = true;
 				}
-				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDAPGGlassEndBase.TOUCHING_RIGHT) == BlockPSDAPGGlassEndBase.EnumPSDAPGGlassEndSide.AIR) {
+				if (IBlock.getStatePropertySafe(stateBelow, BlockPSDGlassEnd.TOUCHING_RIGHT) == BlockPSDGlassEnd.EnumPSDAPGGlassEndSide.AIR) {
 					airRight = true;
 				}
 			}
@@ -144,7 +163,14 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		return (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(FACING, facing).setValue(SIDE_EXTENDED, side).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
+		BlockState newState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
+		if (facing != null) {
+			newState = newState.setValue(FACING, facing);
+		}
+		if (side != null) {
+			newState = newState.setValue(SIDE_EXTENDED, side);
+		}
+		return newState;
 	}
 
 	public static class TileEntityPSDTop extends BlockEntityMapper {
@@ -160,6 +186,21 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 		private final String name;
 
 		EnumDoorLight(String nameIn) {
+			name = nameIn;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return name;
+		}
+	}
+
+	public enum EnumPersistent implements StringRepresentable {
+
+		NONE("none"), ARROW("arrow"), ROUTE("route"), BLANK("blank");
+		private final String name;
+
+		EnumPersistent(String nameIn) {
 			name = nameIn;
 		}
 

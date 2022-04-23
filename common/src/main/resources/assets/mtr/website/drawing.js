@@ -1,12 +1,14 @@
 import SETTINGS from "./index.js";
-import CANVAS from "./utilities.js"
+import CANVAS from "./utilities.js";
+import DIRECTIONS from "./directions.js";
+import tappable from "./gestures/src/gestures/tap.js";
+import panable from "./gestures/src/gestures/pan.js";
 
-const TEXT_PADDING = 6;
 const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
-
-const convertColor = color => "#" + Number(color).toString(16).padStart(6, "0");
+const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
+const DIRECTIONS_BOX_2_ELEMENT = document.getElementById("directions_box_2");
 
 let graphicsRoutesLayer1 = [];
 let graphicsRoutesLayer2 = [];
@@ -16,15 +18,9 @@ let graphicsStationsTextLayer1 = [];
 let graphicsStationsTextLayer2 = [];
 let textStations = [];
 
-let selecting = false;
 let fetchArrivalId = 0;
 let refreshArrivalId = 0;
 let arrivalData = [];
-
-let selectedColor = -1;
-let selectedStation = 0;
-
-document.getElementById("clear_station_info_button").onclick = onClearStationInfo;
 
 const clearAndDestroy = array => {
 	for (const index in array) {
@@ -35,61 +31,49 @@ const clearAndDestroy = array => {
 
 const createClickable = (container, initialize, onClick) => {
 	const graphics = new PIXI.Graphics();
-	graphics.interactive = true;
 	graphics.buttonMode = true;
-	graphics.on("pointerdown", event => {
-		CANVAS.onCanvasMouseDown(event);
-		selecting = true;
-	});
-	graphics.on("pointermove", event => {
-		if (CANVAS.onCanvasMouseMove(event, container)) {
-			selecting = false;
-		}
-	});
-	graphics.on("pointerup", event => {
-		CANVAS.onCanvasMouseUp(event);
-		if (selecting) {
-			onClick();
-		}
-		selecting = false;
-	});
+	panable(graphics);
+	tappable(graphics);
+	graphics.on("panmove", event => CANVAS.onCanvasMouseMove(event, container));
+	graphics.on("simpletap", onClick);
 	graphics.on("pointerover", () => graphics.filters = [FILTER]);
 	graphics.on("pointerout", () => graphics.filters = []);
 	initialize(graphics);
 	initialize(new PIXI.Graphics());
 };
 
-const fetchArrivals = () => {
-	if (selectedStation !== 0) {
+const fetchArrivals = data => {
+	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(fetchArrivalId);
-		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
+		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
 			arrivalData = result;
-			fetchArrivalId = setTimeout(fetchArrivals, SETTINGS.refreshArrivalsInterval);
-			refreshArrivals();
+			fetchArrivalId = setTimeout(() => fetchArrivals(data), SETTINGS.refreshArrivalsInterval);
+			refreshArrivals(data);
 		});
 	}
 };
 
-const refreshArrivals = () => {
-	if (selectedStation !== 0) {
+const refreshArrivals = data => {
+	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(refreshArrivalId);
 		const arrivalsHtml = {};
-		for (const arrivalIndex in arrivalData) {
-			const {arrival, destination, platform, color} = arrivalData[arrivalIndex];
+		for (const {arrival, name, destination, circular, platform, route, color} of arrivalData) {
 			const currentMillis = Date.now();
 			const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-			const minute = Math.floor(arrivalDifference / 60);
-			const second = (arrivalDifference % 60).toString().padStart(2, "0");
-			const destinationSplit = destination.split("|");
+			const destinationSplit = circular === "" ? destination.split("|") : CANVAS.getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
+			const routeNumberSplit = route.split("|");
 			if (typeof arrivalsHtml[color] === "undefined") {
 				arrivalsHtml[color] = {html: "", count: 0};
 			}
 			if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
 				arrivalsHtml[color]["html"] +=
 					`<div class="arrival">` +
-					`<span class="arrival_text left_align" style="width: 70%">${destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+					`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
+					`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
+					(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
+					`</span>` +
 					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : minute + ":" + second}</span>` +
+					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
 					`</div>`;
 				arrivalsHtml[color]["count"]++;
 			}
@@ -100,7 +84,7 @@ const refreshArrivals = () => {
 				arrivalElement.innerHTML = arrivalsHtml[color]["html"];
 			}
 		}
-		refreshArrivalId = setTimeout(refreshArrivals, 1000);
+		refreshArrivalId = setTimeout(() => refreshArrivals(data), 1000);
 	}
 };
 
@@ -109,10 +93,9 @@ function drawMap(container, data) {
 		const element = document.createElement("div");
 		element.setAttribute("id", id);
 		element.setAttribute("class", "clickable");
-		element.setAttribute("style", "display: none");
 		element.onclick = () => onClickStation(id);
 		element.innerHTML =
-			`<span class="station" style="background: ${convertColor(color)}"></span>` +
+			(color == null ? "" : `<span class="station" style="background: ${CANVAS.convertColor(color)}"></span>`) +
 			`<span class="text">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
@@ -124,17 +107,18 @@ function drawMap(container, data) {
 		if (!visible) {
 			element.setAttribute("style", "display: none");
 		}
-		element.onclick = () => onClickLine(color);
+		element.onclick = () => onClickLine(color, true);
 		element.innerHTML =
-			`<span class="line" style="background: ${convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
-			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${type === SETTINGS.routeTypes[2] ? "train" : type === SETTINGS.routeTypes[1] ? "tram" : ""}</span>` +
+			`<span class="line" style="background: ${CANVAS.convertColor(showColor ? color : SETTINGS.getColorStyle("--textColorDisabled"))}"></span>` +
+			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${SETTINGS.routeTypes[type]}</span>` +
 			`<span class="${showColor ? "text" : "text_disabled"}">${name.replace(/\|/g, " ")}</span>`;
 		return element;
 	};
 
 	const onClickStation = id => {
 		SETTINGS.onClearSearch(data, false);
-		const {name, color} = stations[id];
+		SETTINGS.clearPanes();
+		const {name, color, zone, x, z} = stations[id];
 		const stationInfoElement = document.getElementById("station_info");
 		stationInfoElement.removeAttribute("style");
 
@@ -151,9 +135,28 @@ function drawMap(container, data) {
 				stationNameHtml += "<h2>" + namePart + "</h2>";
 			}
 		}
-		document.getElementById("station_name").innerHTML = stationNameHtml;
 
-		document.getElementById("station_line").style.backgroundColor = convertColor(color);
+		document.getElementById("station_name").innerHTML = stationNameHtml;
+		document.getElementById("station_coordinates").innerText = `(${x}, ${z})`;
+		document.getElementById("station_zone").innerText = zone;
+		document.getElementById("station_line").style.backgroundColor = CANVAS.convertColor(color);
+		document.getElementById("station_copy").onclick = event => {
+			navigator.clipboard.writeText(`/tp ${x} ~ ${z}`);
+			event.target.innerText = "check";
+			setTimeout(() => event.target.innerText = "content_copy", 1000);
+		};
+		document.getElementById("station_directions_1").onclick = () => {
+			SETTINGS.clearPanes();
+			document.getElementById("directions").style.display = "block";
+			DIRECTIONS.onSelectStation(1, id, data);
+			document.getElementById("directions_box_2").focus();
+		};
+		document.getElementById("station_directions_2").onclick = () => {
+			SETTINGS.clearPanes();
+			document.getElementById("directions").style.display = "block";
+			DIRECTIONS.onSelectStation(2, id, data);
+			document.getElementById("directions_box_1").focus();
+		};
 
 		const stationRoutesElement = document.getElementById("station_routes");
 		stationRoutesElement.innerHTML = "";
@@ -163,15 +166,15 @@ function drawMap(container, data) {
 			if (!addedRouteColors.includes(route["color"])) {
 				for (const stationIndex in route["stations"]) {
 					if (route["stations"][stationIndex].split("_")[0] === id) {
-						stationRoutesElement.append(getRouteElement(route["color"], route["name"].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color)));
+						stationRoutesElement.append(getRouteElement(route["color"], route["name"].split("||")[0].replace(/\|/g, " "), route["type"], true, "", true, () => onClickLine(container, data, color, true)));
 						addedRouteColors.push(route["color"]);
 
 						const arrivalElement = document.createElement("div");
-						arrivalElement.setAttribute("id", "station_arrivals_" + route["color"]);
+						arrivalElement.id = "station_arrivals_" + route["color"];
 						stationRoutesElement.append(arrivalElement);
 
 						const spacerElement = document.createElement("div");
-						spacerElement.setAttribute("class", "spacer");
+						spacerElement.className = "spacer";
 						stationRoutesElement.append(spacerElement);
 
 						break;
@@ -185,18 +188,89 @@ function drawMap(container, data) {
 		}
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
-		selectedStation = id;
-		fetchArrivals();
+		SETTINGS.selectedStation = id;
+		fetchArrivals(data);
 	};
 
-	const onClickLine = color => {
-		selectedColor = selectedColor === color ? -1 : color;
-		drawMap(container, data);
+	const onClickLine = (color, forceClick) => {
+		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
+		SETTINGS.onClearSearch(data, false);
+		SETTINGS.clearPanes();
+
+		if (shouldSelect) {
+			const selectedRoutes = routes.filter(route => route["color"] === color);
+			const routeInfoElement = document.getElementById("route_info");
+			routeInfoElement.removeAttribute("style");
+
+			let routeNameHtml = "";
+			const nameSplit = selectedRoutes[0]["name"].split("||")[0].split("|");
+			for (const nameSplitIndex in nameSplit) {
+				const namePart = nameSplit[nameSplitIndex];
+				if (SETTINGS.isCJK(namePart)) {
+					routeNameHtml += "<h1>" + namePart + "</h1>";
+				} else {
+					routeNameHtml += "<h2>" + namePart + "</h2>";
+				}
+			}
+
+			document.getElementById("route_name").innerHTML = routeNameHtml;
+			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
+
+			const routeDetailsElement = document.getElementById("route_stations");
+			routeDetailsElement.innerHTML = "";
+
+			selectedRoutes.forEach(route => {
+				const {stations, durations, name} = route;
+				const routeNameSplit = name.split("||");
+				if (routeNameSplit.length > 1) {
+					const element = document.createElement("h3");
+					element.innerText = routeNameSplit[1].replace(/\|/g, " ");
+					routeDetailsElement.appendChild(element);
+				}
+
+				const routeStationsElement = document.createElement("div");
+				routeStationsElement.className = "station_list"
+
+				for (let i = 0; i < stations.length; i++) {
+					const stationId = stations[i].split("_")[0];
+					routeStationsElement.appendChild(CANVAS.getDrawStationElement(getStationElement(null, data["stations"][stationId]["name"], stationId), i === 0 ? null : color, i === stations.length - 1 ? null : color));
+
+					if (i < durations.length && durations[i] > 0) {
+						const element = document.createElement("span");
+						element.innerHTML = CANVAS.formatTime(durations[i] / 20);
+						routeStationsElement.appendChild(CANVAS.getDrawLineElement("schedule", element, color));
+					}
+				}
+
+				routeDetailsElement.appendChild(routeStationsElement);
+
+				const spacerElement = document.createElement("div");
+				spacerElement.className = "spacer padded";
+				routeDetailsElement.append(spacerElement);
+			})
+
+			if (routeDetailsElement.lastChild != null) {
+				routeDetailsElement.removeChild(routeDetailsElement.lastChild);
+			}
+
+			routeInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
+			SETTINGS.selectedColor = color;
+		} else {
+			SETTINGS.selectedColor = -1;
+		}
+
+		SETTINGS.drawDirectionsRoute([], []);
 	};
 
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.onpaste = () => onSearch(data);
 	SEARCH_BOX_ELEMENT.oninput = () => onSearch(data);
+	DIRECTIONS_BOX_1_ELEMENT.onchange = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_1_ELEMENT.onpaste = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_1_ELEMENT.oninput = () => DIRECTIONS.onSearch(1, data);
+	DIRECTIONS_BOX_2_ELEMENT.onchange = () => DIRECTIONS.onSearch(2, data);
+	DIRECTIONS_BOX_2_ELEMENT.onpaste = () => DIRECTIONS.onSearch(2, data);
+	DIRECTIONS_BOX_2_ELEMENT.oninput = () => DIRECTIONS.onSearch(2, data);
 
 	clearAndDestroy(graphicsRoutesLayer1);
 	clearAndDestroy(graphicsRoutesLayer2);
@@ -214,71 +288,92 @@ function drawMap(container, data) {
 	container.children = [];
 
 	data["blobs"] = {};
-	const {blobs, positions, stations, routes} = data;
+	const {blobs, positions, stations, routes, types} = data;
 
-	const visitedPositions = {};
-	for (const positionKey in positions) {
-		const position = positions[positionKey];
-		const x = CANVAS.convertX(position["x"]);
-		const y = CANVAS.convertY(position["y"]);
+	for (const stationId in stations) {
+		const station = stations[stationId];
+		const horizontal = station["horizontal"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
+		const vertical = station["vertical"].filter(element => element["types"].some(type => SETTINGS.selectedRouteTypes.includes(type)));
 
-		const stationId = positionKey.split("_")[0];
-		const color = parseInt(positionKey.split("_")[1]);
-
-		let newX = x;
-		let newY = y;
-		if (position["vertical"]) {
-			let i = 1;
-			while (typeof visitedPositions[stationId + "_x_" + newX] !== "undefined" && visitedPositions[stationId + "_x_" + newX] !== color) {
-				newX = x + i * SETTINGS.lineSize;
-				i = i > 0 ? -i : -i + 1;
-			}
-			visitedPositions[stationId + "_x_" + newX] = color;
+		if (horizontal.length === 0 && vertical.length === 0) {
+			blobs[stationId] = {
+				xMin: CANVAS.convertX(stations[stationId]["x"]),
+				yMin: CANVAS.convertY(stations[stationId]["z"]),
+				xMax: CANVAS.convertX(stations[stationId]["x"]),
+				yMax: CANVAS.convertY(stations[stationId]["z"]),
+				name: stations[stationId]["name"],
+				colors: [],
+			};
 		} else {
-			let i = 1;
-			while (typeof visitedPositions[stationId + "_y_" + newY] !== "undefined" && visitedPositions[stationId + "_y_" + newY] !== color) {
-				newY = y + i * SETTINGS.lineSize;
-				i = i > 0 ? -i : -i + 1;
-			}
-			visitedPositions[stationId + "_y_" + newY] = color;
-		}
+			const sort = (a, b, key) => a[key] === b[key] ? a["color"] - b["color"] : a[key] - b[key];
+			horizontal.sort((a, b) => sort(a, b, "y"));
+			vertical.sort((a, b) => sort(a, b, "x"));
 
-		position["x2"] = newX;
-		position["y2"] = newY;
-
-		const route = routes.find(route => route["color"] === color);
-		if (typeof route !== "undefined" && route["type"] === SETTINGS.routeTypes[SETTINGS.routeType]) {
-			let blob = blobs[stationId];
-			if (typeof blob === "undefined") {
-				blobs[stationId] = {
-					xMin: newX,
-					yMin: newY,
-					xMax: newX,
-					yMax: newY,
-					name: stations[stationId]["name"],
-					colors: [color],
-				};
-				SETTINGS.routeTypes.forEach(routeType => blobs[stationId][routeType] = false);
+			let xCount;
+			let x = 0;
+			if (vertical.length === 0) {
+				horizontal.forEach(element => x += element["x"]);
+				xCount = 1;
+				x /= horizontal.length;
 			} else {
-				blob["xMin"] = Math.min(blob["xMin"], newX);
-				blob["yMin"] = Math.min(blob["yMin"], newY);
-				blob["xMax"] = Math.max(blob["xMax"], newX);
-				blob["yMax"] = Math.max(blob["yMax"], newY);
-				if (!blob["colors"].includes(color)) {
-					blob["colors"].push(color);
-				}
+				vertical.forEach(element => x += element["x"]);
+				xCount = vertical.length;
+				x /= xCount;
 			}
+
+			let yCount;
+			let y = 0;
+			if (horizontal.length === 0) {
+				vertical.forEach(element => y += element["y"]);
+				yCount = 1;
+				y /= vertical.length;
+			} else {
+				horizontal.forEach(element => y += element["y"]);
+				yCount = horizontal.length;
+				y /= yCount;
+			}
+
+			x = CANVAS.convertX(x);
+			y = CANVAS.convertY(y);
+
+			const colors = [];
+			for (let i = 0; i < horizontal.length; i++) {
+				const color = horizontal[i]["color"];
+				colors.push(color);
+				const position = positions[stationId + "_" + color];
+				position["x2"] = x;
+				position["y2"] = y + (i - (horizontal.length - 1) / 2) * SETTINGS.lineSize;
+			}
+			for (let i = 0; i < vertical.length; i++) {
+				const color = vertical[i]["color"];
+				colors.push(color);
+				const position = positions[stationId + "_" + color];
+				position["x2"] = x + (i - (vertical.length - 1) / 2) * SETTINGS.lineSize;
+				position["y2"] = y;
+			}
+
+			const xOffset = SETTINGS.lineSize * (xCount - 1) / 2;
+			const yOffset = SETTINGS.lineSize * (yCount - 1) / 2;
+			blobs[stationId] = {
+				xMin: x - xOffset,
+				yMin: y - yOffset,
+				xMax: x + xOffset,
+				yMax: y + yOffset,
+				name: stations[stationId]["name"],
+				colors: colors,
+			};
 		}
 	}
 
 	const routeNames = {};
 	const routeTypes = {};
 	const sortedColors = [];
-	for (const routeKey in routes) {
-		const route = routes[routeKey];
+	for (const routeIndex in routes) {
+		const route = routes[routeIndex];
 		const color = route["color"];
-		const shouldDraw = selectedColor < 0 || selectedColor === color;
+		const shouldDraw = SETTINGS.selectedDirectionsStations.length === 0 && (SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color);
 		const routeType = route["type"];
+
 		for (const stationIndex in route["stations"]) {
 			const blob = blobs[route["stations"][stationIndex].split("_")[0]];
 			if (typeof blob !== "undefined") {
@@ -286,7 +381,7 @@ function drawMap(container, data) {
 			}
 		}
 
-		if (routeType === SETTINGS.routeTypes[SETTINGS.routeType]) {
+		if (SETTINGS.selectedRouteTypes.includes(routeType)) {
 			createClickable(container, graphicsRoute => {
 				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
 				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
@@ -308,10 +403,24 @@ function drawMap(container, data) {
 				}
 
 				graphicsRoute.endFill();
-			}, () => onClickLine(color));
+			}, () => onClickLine(color, false));
+
+			if (color in SETTINGS.selectedDirectionsSegments) {
+				const graphics = new PIXI.Graphics();
+				graphicsStationsLayer2.push(graphics);
+				graphics.beginFill(color);
+
+				SETTINGS.selectedDirectionsSegments[color].forEach(segment => {
+					const position1 = positions[segment.split("_")[0] + "_" + color];
+					const position2 = positions[segment.split("_")[1] + "_" + color];
+					CANVAS.drawLine(graphics, position1["x2"], position1["y2"], position1["vertical"], position2["x2"], position2["y2"], position2["vertical"]);
+				});
+
+				graphics.endFill();
+			}
 		}
 
-		routeNames[color] = route["name"];
+		routeNames[color] = route["name"].split("||")[0];
 		routeTypes[color] = routeType;
 		if (!sortedColors.includes(color)) {
 			sortedColors.push(color);
@@ -322,8 +431,8 @@ function drawMap(container, data) {
 	for (const stationId in blobs) {
 		const blob = blobs[stationId];
 		const {xMin, yMin, xMax, yMax, colors, name} = blob;
-		if (blob[SETTINGS.routeTypes[SETTINGS.routeType]]) {
-			const shouldDraw = selectedColor < 0 || colors.includes(selectedColor);
+		if (SETTINGS.selectedRouteTypes.some(routeType => blob[routeType])) {
+			const shouldDraw = SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedColor < 0 || colors.includes(SETTINGS.selectedColor);
 
 			createClickable(container, graphicsStation => {
 				(shouldDraw ? graphicsStationsLayer2 : graphicsStationsLayer1).push(graphicsStation);
@@ -339,10 +448,13 @@ function drawMap(container, data) {
 			}, () => onClickStation(stationId));
 
 			if (SETTINGS.showText && shouldDraw) {
-				const hasNormal = SETTINGS.routeType !== 0 && blob[SETTINGS.routeTypes[0]];
-				const hasLightRail = SETTINGS.routeType !== 1 && blob[SETTINGS.routeTypes[1]];
-				const hasHighSpeed = SETTINGS.routeType !== 2 && blob[SETTINGS.routeTypes[2]];
-				CANVAS.drawText(textStations, name, hasNormal, hasLightRail, hasHighSpeed, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
+				let icons = "";
+				types.forEach(key => {
+					if (typeof blob[key] !== "undefined" && !SETTINGS.selectedRouteTypes.includes(key)) {
+						icons += SETTINGS.routeTypes[key];
+					}
+				});
+				CANVAS.drawText(textStations, stationId, name, icons, (xMin + xMax) / 2, yMax + SETTINGS.lineSize);
 			}
 		}
 	}
@@ -367,13 +479,17 @@ function drawMap(container, data) {
 	elementRoutes.innerHTML = "";
 	for (const colorIndex in sortedColors) {
 		const color = sortedColors[colorIndex];
-		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, selectedColor < 0 || selectedColor === color));
+		elementRoutes.append(getRouteElement(color, routeNames[color], routeTypes[color], false, color, SETTINGS.selectedColor < 0 || SETTINGS.selectedColor === color));
 	}
 	const elementStations = document.getElementById("search_results_stations");
 	elementStations.innerHTML = "";
 	for (const stationId in stations) {
-		elementStations.append(getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId));
+		const element = getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId);
+		element.setAttribute("style", "display: none");
+		elementStations.append(element);
 	}
+	DIRECTIONS.writeStationsInResult(1, data);
+	DIRECTIONS.writeStationsInResult(2, data);
 
 	document.getElementById("loading").style.display = "none";
 	onSearch(data);
@@ -381,12 +497,12 @@ function drawMap(container, data) {
 
 function onSearch(data) {
 	const searchBox = document.getElementById("search_box");
-	const search = searchBox.value.toLowerCase();
-	document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
+	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
+	document.getElementById("clear_search_icon").style.display = search === "" ? "none" : "";
 
 	const {stations, routes} = data;
 
-	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].toLowerCase().includes(search));
+	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].replace(/\|/g, " ").toLowerCase().includes(search));
 	for (const stationId in stations) {
 		document.getElementById(stationId).style.display = resultsStations.includes(stationId) ? "block" : "none";
 	}
@@ -401,13 +517,8 @@ function onSearch(data) {
 	document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
 
 	if (search !== "") {
-		onClearStationInfo();
+		SETTINGS.clearPanes();
 	}
-}
-
-function onClearStationInfo() {
-	selectedStation = 0;
-	document.getElementById("station_info").style.display = "none";
 }
 
 export default drawMap;

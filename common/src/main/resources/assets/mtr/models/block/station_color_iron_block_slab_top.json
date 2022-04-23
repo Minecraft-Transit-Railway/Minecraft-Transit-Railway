@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/station_color_slab_top_base",
+	"textures": {
+		"particle": "block/iron_block",
+		"texture": "block/iron_block"
+	}
+}

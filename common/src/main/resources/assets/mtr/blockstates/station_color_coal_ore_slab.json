@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"type=bottom": {
+			"model": "mtr:block/station_color_coal_ore_slab_bottom"
+		},
+		"type=double": {
+			"model": "mtr:block/station_color_coal_ore"
+		},
+		"type=top": {
+			"model": "mtr:block/station_color_coal_ore_slab_top"
+		}
+	}
+}

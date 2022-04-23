@@ -20,4 +20,9 @@ public class ModelSP1900Small extends ModelSP1900 {
 	protected int[] getEndPositions() {
 		return new int[]{-128, 128};
 	}
+
+	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{-96, 96};
+	}
 }

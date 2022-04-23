@@ -39,15 +39,19 @@ public abstract class BlockTrainSensorBase extends Block implements EntityBlockM
 		});
 	}
 
-	public static boolean matchesFilter(Level world, BlockPos pos, long routeId) {
+	public static boolean matchesFilter(Level world, BlockPos pos, long routeId, float speed) {
 		final BlockEntity entity = world.getBlockEntity(pos);
-		return entity instanceof TileEntityTrainSensorBase && ((TileEntityTrainSensorBase) entity).matchesFilter(routeId);
+		return entity instanceof TileEntityTrainSensorBase && ((TileEntityTrainSensorBase) entity).matchesFilter(routeId, speed);
 	}
 
 	public abstract static class TileEntityTrainSensorBase extends BlockEntityClientSerializableMapper {
 
+		private boolean stoppedOnly;
+		private boolean movingOnly;
 		private final Set<Long> filterRouteIds = new HashSet<>();
 		private static final String KEY_ROUTE_IDS = "route_ids";
+		private static final String KEY_STOPPED_ONLY = "stopped_only";
+		private static final String KEY_MOVING_ONLY = "moving_only";
 
 		public TileEntityTrainSensorBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state);
@@ -59,28 +63,46 @@ public abstract class BlockTrainSensorBase extends Block implements EntityBlockM
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
 			}
+			stoppedOnly = compoundTag.getBoolean(KEY_STOPPED_ONLY);
+			movingOnly = compoundTag.getBoolean(KEY_MOVING_ONLY);
 		}
 
 		@Override
 		public void writeCompoundTag(CompoundTag compoundTag) {
 			compoundTag.putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds));
+			compoundTag.putBoolean(KEY_STOPPED_ONLY, stoppedOnly);
+			compoundTag.putBoolean(KEY_MOVING_ONLY, movingOnly);
+		}
+
+		public boolean matchesFilter(long routeId, float speed) {
+			if (!filterRouteIds.isEmpty() && !filterRouteIds.contains(routeId)) {
+				return false;
+			} else {
+				return speed < 0 || !stoppedOnly && !movingOnly || stoppedOnly && speed == 0 || movingOnly && speed > 0;
+			}
 		}
 
 		public Set<Long> getRouteIds() {
 			return filterRouteIds;
 		}
 
-		public boolean matchesFilter(long routeId) {
-			return filterRouteIds.isEmpty() || filterRouteIds.contains(routeId);
+		public boolean getStoppedOnly() {
+			return stoppedOnly;
 		}
 
-		protected void setData(Set<Long> filterRouteIds) {
+		public boolean getMovingOnly() {
+			return movingOnly;
+		}
+
+		protected void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly) {
 			this.filterRouteIds.clear();
 			this.filterRouteIds.addAll(filterRouteIds);
+			this.stoppedOnly = stoppedOnly;
+			this.movingOnly = movingOnly;
 			setChanged();
 			syncData();
 		}
 
-		public abstract void setData(Set<Long> filterRouteIds, int number, String string);
+		public abstract void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings);
 	}
 }

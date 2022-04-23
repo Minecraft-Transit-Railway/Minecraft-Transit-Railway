@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"mtr:rail",
+		"mtr:boat_node"
+	]
+}

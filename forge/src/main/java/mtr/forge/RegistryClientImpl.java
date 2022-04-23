@@ -1,10 +1,8 @@
 package mtr.forge;
 
-import mtr.gui.ClientData;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.BlockEntityRendererMapper;
-import mtr.mappings.NetworkUtilities;
-import mtr.mappings.RegistryUtilitiesClient;
+import mtr.client.ClientData;
+import mtr.mappings.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -12,6 +10,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
@@ -35,6 +35,10 @@ public class RegistryClientImpl {
 		RegistryUtilitiesClient.registerTileEntityRenderer(type, function);
 	}
 
+	public static <T extends Entity> void registerEntityRenderer(EntityType<T> type, Function<Object, EntityRendererMapper<T>> function) {
+		RegistryUtilitiesClient.registerEntityRenderer(type, function::apply);
+	}
+
 	public static void registerBlockColors(Block block) {
 		RegistryUtilitiesClient.registerBlockColors(new StationColor(), block);
 	}
@@ -47,6 +51,10 @@ public class RegistryClientImpl {
 		RegistryUtilitiesClient.registerPlayerJoinEvent(consumer);
 	}
 
+	public static void registerTickEvent(Consumer<Minecraft> consumer) {
+		RegistryUtilitiesClient.registerClientTickEvent(consumer);
+	}
+
 	public static void sendToServer(ResourceLocation id, FriendlyByteBuf packet) {
 		NetworkUtilities.sendToServer(id, packet);
 	}
@@ -57,10 +65,13 @@ public class RegistryClientImpl {
 		public int getColor(BlockState blockState, BlockAndTintGetter blockAndTintGetter, BlockPos pos, int i) {
 			final int defaultColor = 0x7F7F7F;
 			if (pos != null) {
-				return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
-			} else {
-				return defaultColor;
+				try {
+					return ClientData.STATIONS.stream().filter(station1 -> station1.inArea(pos.getX(), pos.getZ())).findFirst().map(station2 -> station2.color).orElse(defaultColor);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+			return defaultColor;
 		}
 	}
 }

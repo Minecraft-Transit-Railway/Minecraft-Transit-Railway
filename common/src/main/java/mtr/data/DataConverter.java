@@ -12,4 +12,9 @@ public final class DataConverter extends NameColorDataBase {
 		this.name = name;
 		this.color = color;
 	}
+
+	@Override
+	protected boolean hasTransportMode() {
+		return false;
+	}
 }

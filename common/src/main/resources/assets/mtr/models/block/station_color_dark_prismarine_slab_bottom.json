@@ -1,0 +1,7 @@
+{
+	"parent": "mtr:block/station_color_slab_bottom_base",
+	"textures": {
+		"particle": "mtr:block/station_color_dark_prismarine",
+		"texture": "mtr:block/station_color_dark_prismarine"
+	}
+}

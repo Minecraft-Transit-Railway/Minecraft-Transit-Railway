@@ -20,4 +20,9 @@ public class ModelATrainMini extends ModelATrain {
 	protected int[] getEndPositions() {
 		return isAel ? new int[]{-104, 104} : new int[]{-64, 64};
 	}
+
+	@Override
+	protected int[] getBogiePositions() {
+		return new int[]{0};
+	}
 }

@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"TT"
+	],
+	"key": {
+		"T": {
+			"item": "mtr:tunnel_creator_6_7"
+		}
+	},
+	"result": {
+		"item": "mtr:tunnel_creator_6_9",
+		"count": 2
+	}
+}

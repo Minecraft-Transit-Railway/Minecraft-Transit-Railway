@@ -1,0 +1,25 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"III",
+		"RGL",
+		"III"
+	],
+	"key": {
+		"I": {
+			"tag": "minecraft:planks"
+		},
+		"R": {
+			"tag": "c:redstone_dusts"
+		},
+		"G": {
+			"item": "minecraft:glass_pane"
+		},
+		"L": {
+			"tag": "c:glowstone_dusts"
+		}
+	},
+	"result": {
+		"item": "mtr:dashboard_2"
+	}
+}

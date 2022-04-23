@@ -35,7 +35,6 @@ processResources {
 shadowJar {
 	configurations = [project.configurations.shadowCommon]
 	classifier "dev-shadow"
-	relocate "de.guntram", "mtr.libraries.de.guntram"
 	relocate "javax.servlet", "mtr.libraries.javax.servlet"
 	relocate "org.eclipse", "mtr.libraries.org.eclipse"
 }
@@ -49,5 +48,37 @@ remapJar {
 components.java {
 	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
 		skip()
+	}
+}
+
+task moveFabricBuilds() {
+	doLast {
+		delete fileTree("../build/release").matching {
+			include "**/MTR-fabric*"
+		}
+		delete fileTree("../build/libs").matching {
+			include "**/MTR-fabric*"
+		}
+		copy {
+			from "build/libs"
+			into "../build/release"
+			rename "(.+)", "MTR-\$1"
+		}
+		copy {
+			from "../build/release"
+			include "*dev-shadow.jar"
+			into "../build/libs"
+		}
+		delete fileTree("../build/release").matching {
+			include "*dev-shadow.jar"
+		}
+	}
+}
+
+afterEvaluate {
+	for (def task in it.tasks) {
+		if (task == tasks.build) {
+			task.finalizedBy tasks.moveFabricBuilds
+		}
 	}
 }

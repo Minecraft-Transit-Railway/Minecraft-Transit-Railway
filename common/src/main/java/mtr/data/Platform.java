@@ -4,7 +4,11 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.Value;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Platform extends SavedRailBase {
@@ -15,16 +19,23 @@ public final class Platform extends SavedRailBase {
 	private static final int DEFAULT_DWELL_TIME = 20;
 	private static final String KEY_DWELL_TIME = "dwell_time";
 
-	public Platform(long id, BlockPos pos1, BlockPos pos2) {
-		super(id, pos1, pos2);
+	public Platform(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(id, transportMode, pos1, pos2);
 		dwellTime = DEFAULT_DWELL_TIME;
 	}
 
-	public Platform(BlockPos pos1, BlockPos pos2) {
-		super(pos1, pos2);
+	public Platform(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
+		super(transportMode, pos1, pos2);
 		dwellTime = DEFAULT_DWELL_TIME;
 	}
 
+	public Platform(Map<String, Value> map) {
+		super(map);
+		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
+		dwellTime = messagePackHelper.getInt(KEY_DWELL_TIME);
+	}
+
+	@Deprecated
 	public Platform(CompoundTag compoundTag) {
 		super(compoundTag);
 		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
@@ -36,10 +47,15 @@ public final class Platform extends SavedRailBase {
 	}
 
 	@Override
-	public CompoundTag toCompoundTag() {
-		final CompoundTag compoundTag = super.toCompoundTag();
-		compoundTag.putInt(KEY_DWELL_TIME, dwellTime);
-		return compoundTag;
+	public void toMessagePack(MessagePacker messagePacker) throws IOException {
+		super.toMessagePack(messagePacker);
+
+		messagePacker.packString(KEY_DWELL_TIME).packInt(dwellTime);
+	}
+
+	@Override
+	public int messagePackLength() {
+		return super.messagePackLength() + 1;
 	}
 
 	@Override
@@ -75,6 +91,7 @@ public final class Platform extends SavedRailBase {
 
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_DWELL_TIME);
 		packet.writeUtf(name);
 		packet.writeInt(color);

@@ -1,48 +1,27 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
-import mtr.data.Platform;
 import mtr.data.RailwayData;
-import mtr.data.Route;
+import mtr.data.ScheduleEntry;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.TickableMapper;
-import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
-
-	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
+public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 
 	public BlockTrainScheduleSensor() {
 		super();
-		registerDefaultState(defaultBlockState().setValue(POWERED, false));
-	}
-
-	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
-		world.setBlockAndUpdate(pos, state.setValue(POWERED, false));
-	}
-
-	@Override
-	public boolean isSignalSource(BlockState blockState) {
-		return true;
-	}
-
-	@Override
-	public int getSignal(BlockState state, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
-		return state.getValue(POWERED) ? 15 : 0;
 	}
 
 	@Override
@@ -94,9 +73,9 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		}
 
 		@Override
-		public void setData(Set<Long> filterRouteIds, int number, String string) {
+		public void setData(Set<Long> filterRouteIds, boolean stoppedOnly, boolean movingOnly, int number, String... strings) {
 			seconds = number;
-			setData(filterRouteIds);
+			setData(filterRouteIds, stoppedOnly, movingOnly);
 		}
 
 		public int getSeconds() {
@@ -106,9 +85,10 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 		public static <T extends BlockEntityMapper> void tick(Level world, BlockPos pos, T blockEntity) {
 			if (world != null && !world.isClientSide) {
 				final BlockState state = world.getBlockState(pos);
-				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) && world.getBlockTicks().hasScheduledTick(pos, state.getBlock());
+				final Block block = state.getBlock();
+				final boolean isActive = IBlock.getStatePropertySafe(state, POWERED) > 1 && world.getBlockTicks().hasScheduledTick(pos, block);
 
-				if (isActive || !(state.getBlock() instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
+				if (isActive || !(block instanceof BlockTrainScheduleSensor) || !(blockEntity instanceof BlockTrainScheduleSensor.TileEntityTrainScheduleSensor)) {
 					return;
 				}
 
@@ -117,27 +97,26 @@ public class BlockTrainScheduleSensor extends BlockTrainSensorBase {
 					return;
 				}
 
-				final Platform platform = RailwayData.getClosePlatform(railwayData.platforms, pos, 4, 4, 0);
-				if (platform == null) {
+				final long platformId = RailwayData.getClosePlatformId(railwayData.platforms, railwayData.dataCache, pos, 4, 4, 0);
+				if (platformId == 0) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platform.id);
+				final List<ScheduleEntry> schedules = railwayData.getSchedulesAtPlatform(platformId);
 				if (schedules == null) {
 					return;
 				}
 
-				final List<Route.ScheduleEntry> scheduleList = new ArrayList<>();
+				final List<ScheduleEntry> scheduleList = new ArrayList<>();
 				schedules.forEach(scheduleEntry -> {
-					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId)) {
+					if (((TileEntityTrainScheduleSensor) blockEntity).matchesFilter(scheduleEntry.routeId, -1)) {
 						scheduleList.add(scheduleEntry);
 					}
 				});
 				if (!scheduleList.isEmpty()) {
 					Collections.sort(scheduleList);
 					if ((scheduleList.get(0).arrivalMillis - System.currentTimeMillis()) / 1000 == ((TileEntityTrainScheduleSensor) blockEntity).seconds) {
-						world.setBlockAndUpdate(pos, state.setValue(POWERED, true));
-						Utilities.scheduleBlockTick(world, pos, state.getBlock(), 20);
+						((BlockTrainScheduleSensor) block).power(world, state, pos);
 					}
 				}
 			}

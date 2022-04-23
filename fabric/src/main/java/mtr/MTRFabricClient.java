@@ -1,7 +1,7 @@
 package mtr;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.config.CustomResources;
+import mtr.client.CustomResources;
 import mtr.render.RenderTrains;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.phys.Vec3;
 
 public class MTRFabricClient implements ClientModInitializer {
 
@@ -19,9 +20,12 @@ public class MTRFabricClient implements ClientModInitializer {
 		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 			final PoseStack matrices = context.matrixStack();
 			matrices.pushPose();
-			RenderTrains.render(context.world(), matrices, context.consumers(), context.camera());
+			final Vec3 cameraPos = context.camera().getPosition();
+			matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+			RenderTrains.render(null, 0, matrices, context.consumers());
 			matrices.popPose();
 		});
+		WorldRenderEvents.END.register(event -> MTRClient.incrementGameTick());
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new CustomResourcesWrapper());
 	}
 

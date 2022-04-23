@@ -34,3 +34,11 @@ run/
 latest.log
 Keys.java
 mappings
+gestures
+BlockEntityExtension.java
+UnknownPacketMixin.java
+version.js
+**/lang/*.json
+!en_us.json
+
+.architectury-transformer/
