@@ -6,7 +6,9 @@ import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
 import mtr.model.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -181,7 +183,18 @@ public class TrainClientRegistry {
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
 					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
 					final String soundId = speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
+
+					if (floorSpeed >= 30) {
+						if(new java.util.Random().nextInt(300)==0) {
+							final String rsoundId = speedSoundBaseId + "_random";
+							LocalPlayer player = Minecraft.getInstance().player;
+							((ClientLevel) world).playLocalSound(player.blockPosition(), new SoundEvent(new ResourceLocation(MTR.MOD_ID, rsoundId)), SoundSource.BLOCKS, 1000000, 1, true);
+						} else {
+							((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
+						}
+					} else {
+						((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
+					}
 				}
 			}
 		}

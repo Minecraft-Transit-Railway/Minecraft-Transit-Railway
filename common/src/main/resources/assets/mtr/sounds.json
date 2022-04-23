@@ -12487,6 +12487,22 @@
 			}
 		]
 	},
+	"london_underground_1995_random": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/clack1",
+				"pitch": 1
+			},
+			{
+				"name": "mtr:london_underground_1995/clack2",
+				"pitch": 1
+			},
+			{
+				"name": "mtr:london_underground_1995/screech1",
+				"pitch": 1
+			}
+		]
+	},
 	"london_underground_1996_acceleration_0a": {
 		"sounds": [
 			{
