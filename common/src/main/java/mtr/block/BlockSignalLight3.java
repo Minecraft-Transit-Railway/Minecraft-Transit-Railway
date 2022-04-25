@@ -19,7 +19,7 @@ public class BlockSignalLight3 extends BlockSignalLightBase {
 	public static class TileEntitySignalLight3 extends BlockEntityMapper {
 
 		public TileEntitySignalLight3(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_LIGHT_3, pos, state);
+			super(BlockEntityTypes.SIGNAL_LIGHT_3.get(), pos, state);
 		}
 	}
 }

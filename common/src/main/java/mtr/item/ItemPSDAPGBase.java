@@ -81,29 +81,29 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 			case PSD_1:
 				switch (item) {
 					case PSD_APG_DOOR:
-						return Blocks.PSD_DOOR_1.defaultBlockState();
+						return Blocks.PSD_DOOR_1.get().defaultBlockState();
 					case PSD_APG_GLASS:
-						return Blocks.PSD_GLASS_1.defaultBlockState();
+						return Blocks.PSD_GLASS_1.get().defaultBlockState();
 					case PSD_APG_GLASS_END:
-						return Blocks.PSD_GLASS_END_1.defaultBlockState();
+						return Blocks.PSD_GLASS_END_1.get().defaultBlockState();
 				}
 			case PSD_2:
 				switch (item) {
 					case PSD_APG_DOOR:
-						return Blocks.PSD_DOOR_2.defaultBlockState();
+						return Blocks.PSD_DOOR_2.get().defaultBlockState();
 					case PSD_APG_GLASS:
-						return Blocks.PSD_GLASS_2.defaultBlockState();
+						return Blocks.PSD_GLASS_2.get().defaultBlockState();
 					case PSD_APG_GLASS_END:
-						return Blocks.PSD_GLASS_END_2.defaultBlockState();
+						return Blocks.PSD_GLASS_END_2.get().defaultBlockState();
 				}
 			case APG:
 				switch (item) {
 					case PSD_APG_DOOR:
-						return Blocks.APG_DOOR.defaultBlockState();
+						return Blocks.APG_DOOR.get().defaultBlockState();
 					case PSD_APG_GLASS:
-						return Blocks.APG_GLASS.defaultBlockState();
+						return Blocks.APG_GLASS.get().defaultBlockState();
 					case PSD_APG_GLASS_END:
-						return Blocks.APG_GLASS_END.defaultBlockState();
+						return Blocks.APG_GLASS_END.get().defaultBlockState();
 				}
 		}
 		return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();

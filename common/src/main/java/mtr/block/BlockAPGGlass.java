@@ -23,7 +23,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 
 	@Override
 	public Item asItem() {
-		return Items.APG_GLASS;
+		return Items.APG_GLASS.get();
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements EntityBlockMa
 	public static class TileEntityAPGGlass extends BlockEntityMapper {
 
 		public TileEntityAPGGlass(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.APG_GLASS_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

@@ -18,6 +18,11 @@ import java.util.function.Supplier;
 public class Registry {
 
 	@ExpectPlatform
+	public static boolean isFabric() {
+		throw new AssertionError();
+	}
+
+	@ExpectPlatform
 	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
 		throw new AssertionError();
 	}

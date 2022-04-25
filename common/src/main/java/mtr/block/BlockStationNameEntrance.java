@@ -88,7 +88,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 	public static class TileEntityStationNameEntrance extends TileEntityStationNameBase {
 
 		public TileEntityStationNameEntrance(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY, pos, state, 0, 0.00625F);
+			super(BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY.get(), pos, state, 0, 0.00625F);
 		}
 
 		@Override

@@ -27,7 +27,7 @@ public abstract class EntitySpawnMixin {
 		final EntityType<?> entityType = packet.getType();
 
 		final Entity entity;
-		if (entityType == EntityTypes.SEAT) {
+		if (entityType == EntityTypes.SEAT.get()) {
 			entity = new EntitySeat(level, x, y, z);
 		} else {
 			entity = null;

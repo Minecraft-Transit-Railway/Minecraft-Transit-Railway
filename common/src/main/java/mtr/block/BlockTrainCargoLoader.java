@@ -17,7 +17,7 @@ public class BlockTrainCargoLoader extends BlockTrainSensorBase {
 	public static class TileEntityTrainCargoLoader extends TileEntityTrainSensorBase {
 
 		public TileEntityTrainCargoLoader(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_CARGO_LOADER_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_CARGO_LOADER_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

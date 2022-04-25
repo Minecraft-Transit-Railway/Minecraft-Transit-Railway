@@ -31,7 +31,7 @@ public class BlockRouteSignStandingMetal extends BlockRouteSignBase implements I
 	public static class TileEntityRouteSignStandingMetal extends TileEntityRouteSignBase {
 
 		public TileEntityRouteSignStandingMetal(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_STANDING_METAL_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

@@ -49,7 +49,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		return IBlock.checkHoldingItem(world, player, item -> {
-			if (item == Items.BRUSH) {
+			if (item == Items.BRUSH.get()) {
 				world.setBlockAndUpdate(pos, state.cycle(ARROW_DIRECTION));
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), ARROW_DIRECTION, 1);
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), ARROW_DIRECTION, 1);
@@ -59,7 +59,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getClockWise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
 				propagate(world, pos, IBlock.getStatePropertySafe(state, FACING).getCounterClockWise(), offsetPos -> setState(world, offsetPos, shouldBePersistent), 1);
 			}
-		}, null, Items.BRUSH, net.minecraft.world.item.Items.SHEARS);
+		}, null, Items.BRUSH.get(), net.minecraft.world.item.Items.SHEARS);
 	}
 
 	private void setState(Level world, BlockPos pos, boolean shouldBePersistent) {
@@ -80,7 +80,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 
 	@Override
 	public Item asItem() {
-		return Items.PSD_GLASS_1;
+		return Items.PSD_GLASS_1.get();
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		BlockState newState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
+		BlockState newState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.get().defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
 		if (facing != null) {
 			newState = newState.setValue(FACING, facing);
 		}
@@ -176,7 +176,7 @@ public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlo
 	public static class TileEntityPSDTop extends BlockEntityMapper {
 
 		public TileEntityPSDTop(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PSD_TOP_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.PSD_TOP_TILE_ENTITY.get(), pos, state);
 		}
 	}
 

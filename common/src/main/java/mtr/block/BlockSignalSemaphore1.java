@@ -19,7 +19,7 @@ public class BlockSignalSemaphore1 extends BlockSignalSemaphoreBase {
 	public static class TileEntitySignalSemaphore1 extends BlockSignalSemaphoreBase.TileEntitySignalSemaphoreBase {
 
 		public TileEntitySignalSemaphore1(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.SIGNAL_SEMAPHORE_1, pos, state);
+			super(BlockEntityTypes.SIGNAL_SEMAPHORE_1.get(), pos, state);
 		}
 	}
 }

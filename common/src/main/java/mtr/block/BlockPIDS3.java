@@ -28,7 +28,7 @@ public class BlockPIDS3 extends BlockPIDSBase {
 		public static final int MAX_ARRIVALS = 2;
 
 		public TileEntityBlockPIDS3(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.PIDS_3_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.PIDS_3_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

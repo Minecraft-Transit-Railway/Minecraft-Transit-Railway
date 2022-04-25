@@ -36,7 +36,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 
 	@Override
 	public BlockEntityType<? extends BlockEntityMapper> getType() {
-		return BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY;
+		return BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY.get();
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 		private static final String KEY_SECONDS = "seconds";
 
 		public TileEntityTrainScheduleSensor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

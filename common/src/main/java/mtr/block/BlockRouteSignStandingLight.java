@@ -36,7 +36,7 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements I
 	public static class TileEntityRouteSignStandingLight extends TileEntityRouteSignBase {
 
 		public TileEntityRouteSignStandingLight(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_STANDING_LIGHT_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

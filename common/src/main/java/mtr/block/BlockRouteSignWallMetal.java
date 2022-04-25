@@ -25,7 +25,7 @@ public class BlockRouteSignWallMetal extends BlockRouteSignBase implements IBloc
 	public static class TileEntityRouteSignWallMetal extends TileEntityRouteSignBase {
 
 		public TileEntityRouteSignWallMetal(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_WALL_METAL_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_WALL_METAL_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

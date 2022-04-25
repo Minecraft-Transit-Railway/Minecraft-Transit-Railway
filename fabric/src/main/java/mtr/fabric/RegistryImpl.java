@@ -24,6 +24,10 @@ import java.util.function.Supplier;
 
 public class RegistryImpl {
 
+	public static boolean isFabric() {
+		return true;
+	}
+
 	public static CreativeModeTab getItemGroup(ResourceLocation id, Supplier<ItemStack> supplier) {
 		return FabricItemGroupBuilder.build(id, supplier);
 	}

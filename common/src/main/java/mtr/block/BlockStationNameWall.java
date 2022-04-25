@@ -80,7 +80,7 @@ public class BlockStationNameWall extends BlockStationNameBase {
 	public static class TileEntityStationNameWall extends TileEntityStationNameBase {
 
 		public TileEntityStationNameWall(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY, pos, state, 0, 0);
+			super(BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY.get(), pos, state, 0, 0);
 		}
 
 		@Override

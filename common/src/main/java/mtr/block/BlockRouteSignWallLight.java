@@ -34,7 +34,7 @@ public class BlockRouteSignWallLight extends BlockRouteSignBase implements IBloc
 	public static class TileEntityRouteSignWallLight extends TileEntityRouteSignBase {
 
 		public TileEntityRouteSignWallLight(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ROUTE_SIGN_WALL_LIGHT_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }
