@@ -26,6 +26,8 @@ public class TrainClientRegistry {
 	private static final String SOUND_DECELERATION = "_deceleration_";
 	private static final String SOUND_DOOR_OPEN = "_door_open";
 	private static final String SOUND_DOOR_CLOSE = "_door_close";
+	private static final String SOUND_RANDOM = "_random";
+	private static final int RANDOM_SOUND_CHANCE = 300;
 
 	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 		final String keyLower = key.toLowerCase();
@@ -178,8 +180,14 @@ public class TrainClientRegistry {
 				// TODO: Better sound system to adapt to different acceleration
 				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION_DEFAULT / MTRClient.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
+					final Random random = new Random();
+
+					if (floorSpeed >= 30 && random.nextInt(RANDOM_SOUND_CHANCE) == 0) {
+						((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundBaseId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
+					}
+
 					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
-					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || new Random().nextBoolean() : speed > oldSpeed;
+					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || random.nextBoolean() : speed > oldSpeed;
 					final String soundId = speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
 					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
 				}
