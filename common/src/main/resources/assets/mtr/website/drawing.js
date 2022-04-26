@@ -217,6 +217,7 @@ function drawMap(container, data) {
 			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
 
 			const routeDetailsElement = document.getElementById("route_stations");
+			routeDetailsElement.className = "text";
 			routeDetailsElement.innerHTML = "";
 
 			selectedRoutes.forEach(route => {
