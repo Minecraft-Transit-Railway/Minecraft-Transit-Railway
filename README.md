@@ -4,7 +4,7 @@ _Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.gamepedia.com
 
 [![Video Trailer](https://github.com/jonafanho/Minecraft-Transit-Railway/blob/master/images/footer/video-preview.png)](https://www.youtube.com/watch?v=1cZfU7t4cAk)
 
-Please report any issues or bugs that you find; that would be greatly appreciated! Refer to the [todo list](https://github.com/jonafanho/Minecraft-Transit-Railway/wiki/Todo-List) to see currently known issues.
+Please report any issues or bugs that you find; that would be greatly appreciated! Refer to the [todo list](https://github.com/jonafanho/Minecraft-Transit-Railway/projects/2) to see currently known issues.
 
 ## Downloads and Installation
 
@@ -29,9 +29,9 @@ Crowdin is a cloud-based platform for translators to contribute to a project. Wi
 ### Adding Features
 
 1. Fork this project
-1. On your fork, create a new branch based on the `beta-<version>` branch
+1. On your fork, create a new branch based on the development version branch
 1. Commit your changes to the new branch
-1. Make a Pull Request to merge your branch into the `beta-<version>` of this repository
+1. Make a Pull Request to merge your branch into the development version of this repository
 
 ### Building
 
@@ -44,7 +44,7 @@ gradlew build -PbuildVersion=<minecraft version>
 The mod jar file should be generated in the following directory:
 
 ```
-<root>/build/libs/Minecraft-Transit-Railway-<minecraft version>-<mod version>.jar
+<root>/build/release/MTR-<fabric|forge>-<minecraft version>-<mod version>.jar
 ```
 
 ## License
