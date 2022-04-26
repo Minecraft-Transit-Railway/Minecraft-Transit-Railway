@@ -38,6 +38,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Upload Translations to Crowdin
+        env:
+          MY_KEY: ${{ secrets.CROWDIN_API_KEY }}
+        if: ${{ env.MY_KEY != '' }}
         uses: crowdin/github-action@1.4.8
         with:
           upload_sources: true
