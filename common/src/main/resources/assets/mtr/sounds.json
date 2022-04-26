@@ -12490,15 +12490,15 @@
 	"london_underground_1995_random": {
 		"sounds": [
 			{
-				"name": "mtr:london_underground_1995/clack1",
+				"name": "mtr:london_underground_1995/random/random_1",
 				"pitch": 1
 			},
 			{
-				"name": "mtr:london_underground_1995/clack2",
+				"name": "mtr:london_underground_1995/random/random_2",
 				"pitch": 1
 			},
 			{
-				"name": "mtr:london_underground_1995/screech1",
+				"name": "mtr:london_underground_1995/random/random_3",
 				"pitch": 1
 			}
 		]
