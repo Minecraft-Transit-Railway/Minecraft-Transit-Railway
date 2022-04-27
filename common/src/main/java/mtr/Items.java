@@ -43,6 +43,7 @@ public interface Items {
 	RegistryObject<Item> RAIL_CONNECTOR_PLATFORM = new RegistryObject<>(() -> new ItemRailModifier(false, RailType.PLATFORM));
 	RegistryObject<Item> RAIL_CONNECTOR_SIDING = new RegistryObject<>(() -> new ItemRailModifier(false, RailType.SIDING));
 	RegistryObject<Item> RAIL_CONNECTOR_TURN_BACK = new RegistryObject<>(() -> new ItemRailModifier(false, RailType.TURN_BACK));
+	RegistryObject<Item> RAIL_CONNECTOR_CABLE_CAR = new RegistryObject<>(() -> new ItemRailModifier(true, RailType.CABLE_CAR));
 	RegistryObject<Item> RAIL_REMOVER = new RegistryObject<>(ItemRailModifier::new);
 	RegistryObject<Item> RESOURCE_PACK_CREATOR = new RegistryObject<>(() -> new ItemResourcePackCreator(new Item.Properties())); // TODO .tab(ItemGroups.CORE));
 	RegistryObject<Item> SIGNAL_CONNECTOR_WHITE = new RegistryObject<>(() -> new ItemSignalModifier(true, DyeColor.WHITE));

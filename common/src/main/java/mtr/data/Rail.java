@@ -361,9 +361,9 @@ public class Rail extends SerializedDataBase {
 		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
-	public void render(RenderRail callback, float offsetRadius1, float offsetRadius2, boolean straightY) {
-		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, offsetRadius1, offsetRadius2, reverseT1, isStraight1, straightY, callback);
-		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, straightY, callback);
+	public void render(RenderRail callback, float offsetRadius1, float offsetRadius2) {
+		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, offsetRadius1, offsetRadius2, reverseT1, isStraight1, callback);
+		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, callback);
 	}
 
 	public boolean goodRadius() {
@@ -375,20 +375,34 @@ public class Rail extends SerializedDataBase {
 	}
 
 	private double getPositionY(double value) {
-		final double intercept = getLength() / 2;
-		final double yChange;
-		final double yInitial;
-		final double offsetValue;
-		if (value < intercept) {
-			yChange = (yEnd - yStart) / 2F;
-			yInitial = yStart;
-			offsetValue = value;
+		final double length = getLength();
+
+		if (transportMode == TransportMode.CABLE_CAR) {
+			final double posY = value < 0.5 ? yStart : value > length - 0.5 ? yEnd : yStart + (yEnd - yStart) * (value - 0.5) / (length - 1);
+
+			if (!railType.hasSavedRail && railType != RailType.CABLE_CAR) {
+				return posY + (value < 0.5 || value > length - 0.5 ? 0 : 0.002 * (value - length + 0.5) * (value - 0.5));
+			} else {
+				return posY;
+			}
 		} else {
-			yChange = (yStart - yEnd) / 2F;
-			yInitial = yEnd;
-			offsetValue = getLength() - value;
+			final double intercept = length / 2;
+			final double yChange;
+			final double yInitial;
+			final double offsetValue;
+
+			if (value < intercept) {
+				yChange = (yEnd - yStart) / 2F;
+				yInitial = yStart;
+				offsetValue = value;
+			} else {
+				yChange = (yStart - yEnd) / 2F;
+				yInitial = yEnd;
+				offsetValue = length - value;
+			}
+
+			return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 		}
-		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 	}
 
 	private static Vec3 getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
@@ -399,7 +413,7 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float offsetRadius1, float offsetRadius2, boolean reverseT, boolean isStraight, boolean straightY, RenderRail callback) {
+	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float offsetRadius1, float offsetRadius2, boolean reverseT, boolean isStraight, RenderRail callback) {
 		final double count = Math.abs(tEnd - tStart);
 		final double increment = count / Math.round(count);
 
@@ -411,8 +425,8 @@ public class Rail extends SerializedDataBase {
 			final Vec3 corner3 = getPositionXZ(h, k, r, t2, offsetRadius2, isStraight);
 			final Vec3 corner4 = getPositionXZ(h, k, r, t2, offsetRadius1, isStraight);
 
-			final double y1 = straightY ? yStart + (yEnd - yStart) * (i + rawValueOffset) / getLength() : getPositionY(i + rawValueOffset);
-			final double y2 = straightY ? yStart + (yEnd - yStart) * (i + increment + rawValueOffset) / getLength() : getPositionY(i + increment + rawValueOffset);
+			final double y1 = getPositionY(i + rawValueOffset);
+			final double y2 = getPositionY(i + increment + rawValueOffset);
 
 			callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
 		}

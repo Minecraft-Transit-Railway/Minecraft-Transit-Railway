@@ -49,12 +49,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				player.displayClientMessage(new TranslatableComponent("gui.mtr.platform_or_siding_exists"), true);
 			}
 		} else {
-			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : railType, transportMode);
-			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, railType, transportMode);
-
-			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
-			final boolean isValid = rail1.isValid() && rail2.isValid();
 			final boolean isValidContinuousMovement;
+			final RailType newRailType;
 			if (transportMode.continuousMovement) {
 				final Block blockStart = stateStart.getBlock();
 				final Block blockEnd = stateEnd.getBlock();
@@ -62,19 +58,25 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				if (blockStart instanceof BlockNode.BlockContinuousMovementNode && blockEnd instanceof BlockNode.BlockContinuousMovementNode) {
 					if (((BlockNode.BlockContinuousMovementNode) blockStart).isStation && ((BlockNode.BlockContinuousMovementNode) blockEnd).isStation) {
 						isValidContinuousMovement = true;
+						newRailType = railType;
 					} else {
-						if (transportMode == TransportMode.CABLE_CAR) {
-							isValidContinuousMovement = !railType.hasSavedRail && facingStart.isParallel(facingEnd) && ((facingStart == RailAngle.N || facingStart == RailAngle.S) && posStart.getX() == posEnd.getX() || (facingStart == RailAngle.E || facingStart == RailAngle.W) && posStart.getZ() == posEnd.getZ());
-						} else {
-							isValidContinuousMovement = !railType.hasSavedRail;
-						}
+						isValidContinuousMovement = !railType.hasSavedRail && facingStart.isParallel(facingEnd) && ((facingStart == RailAngle.N || facingStart == RailAngle.S) && posStart.getX() == posEnd.getX() || (facingStart == RailAngle.E || facingStart == RailAngle.W) && posStart.getZ() == posEnd.getZ());
+						newRailType = RailType.WOODEN;
 					}
 				} else {
 					isValidContinuousMovement = false;
+					newRailType = railType;
 				}
 			} else {
 				isValidContinuousMovement = true;
+				newRailType = railType;
 			}
+
+			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : newRailType, transportMode);
+			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, newRailType, transportMode);
+
+			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
+			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid && isValidContinuousMovement) {
 				railwayData.addRail(transportMode, posStart, posEnd, rail1, false);
@@ -94,7 +96,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 		PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 	}
 
-	public boolean isOneWayOrSavedRail() {
-		return isOneWay || railType == null || railType.hasSavedRail || !isConnector;
+	public boolean forContinuousMovement() {
+		return railType == null || railType.forContinuousMovement || !isConnector;
 	}
 }

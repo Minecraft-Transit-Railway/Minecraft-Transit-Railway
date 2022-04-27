@@ -155,7 +155,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.pushPose();
 			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + pitch));
+			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (baseTrainType.transportMode.hasPitch ? pitch : 0)));
 
 			if (trainProperties.model == null || trainProperties.textureId == null) {
 				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
@@ -393,7 +393,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 				IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
 			}
-		}, -railWidth, railWidth, straightLineRendering);
+		}, -railWidth, railWidth);
 
 		if (renderColors) {
 			final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
@@ -416,7 +416,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
 					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
-				}, u1 - 1, u2 - 1, false);
+				}, u1 - 1, u2 - 1);
 			}
 		}
 
@@ -430,7 +430,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				final int b = hasSavedRail ? rail.railType.color & 0xFF : 0xFF;
 				vertexConsumer.vertex(matrix4f, (float) x1, (float) y1 + yOffset, (float) z1).color(r, g, b, 0xFF).endVertex();
 				vertexConsumer.vertex(matrix4f, (float) x3, (float) y2 + yOffset, (float) z3).color(r, g, b, 0xFF).endVertex();
-			}, 0, 0, true);
+			}, 0, 0);
 		}
 	}
 

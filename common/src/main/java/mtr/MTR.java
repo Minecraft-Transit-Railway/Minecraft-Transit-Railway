@@ -80,6 +80,7 @@ public class MTR implements IPacket {
 		registerItem.accept("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem.accept("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
 		registerItem.accept("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
+		registerItem.accept("rail_connector_cable_car", Items.RAIL_CONNECTOR_CABLE_CAR);
 		registerItem.accept("rail_remover", Items.RAIL_REMOVER);
 		registerItem.accept("resource_pack_creator", Items.RESOURCE_PACK_CREATOR);
 		registerItem.accept("signal_connector_white", Items.SIGNAL_CONNECTOR_WHITE);

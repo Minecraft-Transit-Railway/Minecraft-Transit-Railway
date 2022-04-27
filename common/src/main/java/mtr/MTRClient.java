@@ -105,6 +105,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_PLATFORM.get(), ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_SIDING.get(), ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_TURN_BACK.get(), ItemNodeModifierBase.TAG_POS);
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_CABLE_CAR.get(), ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_REMOVER.get(), ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_CONNECTOR_WHITE.get(), ItemNodeModifierBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.SIGNAL_CONNECTOR_ORANGE.get(), ItemNodeModifierBase.TAG_POS);
