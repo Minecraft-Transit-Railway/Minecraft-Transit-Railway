@@ -214,6 +214,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void simulateTrains() {
+		for (Route route : routes) {
+			route.maxWaitTime = 0;
+			route.maxWaitNextStation = null;
+		}
+
 		final List<? extends Player> players = world.players();
 		players.forEach(player -> {
 			final BlockPos playerBlockPos = player.blockPosition();

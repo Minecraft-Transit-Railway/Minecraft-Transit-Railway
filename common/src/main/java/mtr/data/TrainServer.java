@@ -4,12 +4,14 @@ import io.netty.buffer.Unpooled;
 import mtr.Registry;
 import mtr.TrigCache;
 import mtr.block.*;
+import mtr.client.ClientData;
 import mtr.mappings.Utilities;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -34,6 +36,8 @@ public class TrainServer extends Train {
 	private Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private long routeId;
 	private int updateRailProgressCounter;
+
+	private float waitTime;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
@@ -305,6 +309,23 @@ public class TrainServer extends Train {
 		if (updateRailProgressCounter == TICKS_TO_SEND_RAIL_PROGRESS) {
 			updateRailProgressCounter = 0;
 		}
+
+		if (speed < 0.001F) {
+			waitTime += ticksElapsed;
+		} else {
+			waitTime = 0;
+		}
+
+		final int trainSpacing = baseTrainType.getSpacing();
+		final int headIndex = getIndex(0, trainSpacing, false);
+		final int stopIndex = path.get(headIndex).stopIndex - 1;
+		List<Long> routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
+		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (thisRoute != null && waitTime > thisRoute.maxWaitTime) {
+				thisRoute.maxWaitTime = waitTime;
+				thisRoute.maxWaitNextStation = nextStation;
+			}
+		});
 
 		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
 	}

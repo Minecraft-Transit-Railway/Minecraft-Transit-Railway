@@ -21,6 +21,9 @@ public final class Route extends NameColorDataBase implements IGui {
 	public String lightRailRouteNumber;
 	public final List<Long> platformIds;
 
+	public float maxWaitTime = 0;
+	public Station maxWaitNextStation = null;
+
 	private static final String KEY_PLATFORM_IDS = "platform_ids";
 	private static final String KEY_ROUTE_TYPE = "route_type";
 	private static final String KEY_IS_LIGHT_RAIL_ROUTE = "is_light_rail_route";

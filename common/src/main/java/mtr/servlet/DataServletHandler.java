@@ -52,6 +52,9 @@ public class DataServletHandler extends HttpServlet {
 						final JsonArray routeDurationsArray = new JsonArray();
 						routeObject.add("durations", routeDurationsArray);
 
+						routeObject.addProperty("maxWaitTime", route.maxWaitTime);
+						routeObject.addProperty("maxWaitNextStation", Long.toString(route.maxWaitNextStation == null ? 0 : route.maxWaitNextStation.id));
+
 						final Depot depot = dataCache.routeIdToOneDepot.get(route.id);
 						float accumulatedTime = 0;
 						for (int i = 0; i < route.platformIds.size(); i++) {
