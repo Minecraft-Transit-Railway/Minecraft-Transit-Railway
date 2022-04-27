@@ -14,6 +14,6 @@ public class BlockPSDGlass extends BlockPSDAPGGlassBase {
 
 	@Override
 	public Item asItem() {
-		return style == 0 ? Items.PSD_GLASS_1 : Items.PSD_GLASS_2;
+		return style == 0 ? Items.PSD_GLASS_1.get() : Items.PSD_GLASS_2.get();
 	}
 }

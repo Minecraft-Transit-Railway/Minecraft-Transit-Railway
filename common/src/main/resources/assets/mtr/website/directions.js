@@ -69,40 +69,41 @@ const findRoutePart = (data, globalBlacklist, maxTime) => {
 
 	const getCloserStationWithRoute = elapsedTime => {
 		const currentStation = tempPathStations[tempPathStations.length - 1];
-		const currentRoute = tempPathRoutes[tempPathRoutes.length - 1];
+		const stationToRoutes = {};
 		let bestStation = 0;
 		let bestIncrease = Number.MIN_SAFE_INTEGER;
-		let bestRoute = {};
 		let bestDuration = 0;
 
 		for (const connection of connections[currentStation]) {
 			const checkStation = connection["station"];
 			const route = connection["route"];
-			const interchangePenalty = route !== currentRoute ? 10 : 0; // TODO actually calculate interchange cost
-			const duration = connection["duration"] + interchangePenalty;
+			const duration = connection["duration"];
 
-			if (duration > interchangePenalty && elapsedTime + duration < maxTime) {
-				if (checkStation === stationEnd) {
-					return [stationEnd, route, duration];
-				} else if (
-					(!(checkStation in localBlacklist) || elapsedTime + duration < localBlacklist[checkStation]) &&
-					(!(checkStation in globalBlacklist) || elapsedTime + duration <= globalBlacklist[checkStation])
-				) {
-					const increase = (DIRECTIONS.calculateDistance(stations, stationEnd, currentStation) - DIRECTIONS.calculateDistance(stations, stationEnd, checkStation)) / duration;
-					globalBlacklist[checkStation] = elapsedTime + duration;
+			if (!(checkStation in stationToRoutes)) {
+				stationToRoutes[checkStation] = [];
+			}
+			if (route != null) {
+				stationToRoutes[checkStation].push(route);
+			}
 
-					if (increase > bestIncrease) {
-						bestStation = checkStation;
-						bestIncrease = increase;
-						bestRoute = route;
-						bestDuration = duration;
-					}
+			if (
+				duration > 0 && elapsedTime + duration < maxTime &&
+				(!(checkStation in localBlacklist) || elapsedTime + duration < localBlacklist[checkStation]) &&
+				(!(checkStation in globalBlacklist) || elapsedTime + duration <= globalBlacklist[checkStation])
+			) {
+				const increase = (DIRECTIONS.calculateDistance(stations, stationEnd, currentStation) - DIRECTIONS.calculateDistance(stations, stationEnd, checkStation)) / duration;
+				globalBlacklist[checkStation] = elapsedTime + duration;
+
+				if (increase > bestIncrease) {
+					bestStation = checkStation;
+					bestIncrease = increase;
+					bestDuration = duration;
 				}
 			}
 		}
 
 		localBlacklist[bestStation] = elapsedTime + bestDuration;
-		return [bestStation, bestRoute, bestDuration];
+		return [bestStation, stationToRoutes[bestStation], bestDuration];
 	}
 
 	const tempPathRoutes = [];
@@ -169,7 +170,32 @@ const findRoute = data => {
 	resultElement.innerHTML = "";
 
 	if (hasRoute) {
-		let route = pathRoutes[0];
+		const purgeRoutes = (currentIndex, oldIndex) => {
+			const currentRoutes = pathRoutes[currentIndex];
+			const oldRoutes = pathRoutes[oldIndex];
+			if (oldRoutes.some(route => currentRoutes.includes(route))) {
+				pathRoutes[oldIndex] = oldRoutes.filter(route => currentRoutes.includes(route));
+				return false;
+			} else {
+				return true;
+			}
+		}
+		for (let i = 1; i < pathRoutes.length; i++) {
+			for (let j = i - 1; j >= 0; j--) {
+				if (purgeRoutes(i, j)) {
+					break;
+				}
+			}
+		}
+		for (let i = pathRoutes.length - 2; i >= 0; i--) {
+			for (let j = i + 1; j < pathRoutes.length; j++) {
+				if (purgeRoutes(i, j)) {
+					break;
+				}
+			}
+		}
+
+		let routes = pathRoutes.length === 0 ? [] : pathRoutes[0];
 		let station = pathStations[0];
 		let totalStationCount = 0;
 		let totalInterchangeCount = 0;
@@ -178,25 +204,54 @@ const findRoute = data => {
 		let time = 0;
 		let stationCount = 0;
 
-		resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, route == null ? null : route["color"]));
+		resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, routes.length === 0 ? null : routes[0]["color"]));
 
 		for (let i = 1; i <= pathRoutes.length; i++) {
-			const nextRoute = pathRoutes[i];
+			const nextRoutes = i === pathRoutes.length ? [] : pathRoutes[i];
 			time += times[i - 1];
 			stationCount++;
 
-			if (route !== nextRoute) {
+			if (i === pathRoutes.length || !compareArrays(routes, nextRoutes)) {
 				const nextStation = pathStations[i];
-				const isWalking = route == null;
-				const isNextWalking = nextRoute == null;
-				const color = isWalking ? null : route["color"];
-				const routeNameElement = document.createElement("span");
-				routeNameElement.innerHTML = isWalking ? Math.round(DIRECTIONS.calculateDistance(stations, station, nextStation) / 100) / 10 + " km" : route["name"].split("||")[0].replace(/\|/g, " ");
-				resultElement.append(CANVAS.getDrawLineElement(isWalking ? "directions_walk" : SETTINGS.routeTypes[route["type"]], routeNameElement, color));
+				const isWalking = routes.length === 0;
+				const isNextWalking = nextRoutes.length === 0;
+				const color = isWalking ? null : routes[0]["color"];
 
 				if (isWalking) {
+					const walkingElement = document.createElement("span");
+					walkingElement.innerHTML = Math.round(DIRECTIONS.calculateDistance(stations, station, nextStation) / 100) / 10 + " km";
+					resultElement.append(CANVAS.getDrawLineElement("directions_walk", walkingElement, null));
 					startZone = stations[nextStation]["zone"];
 				} else {
+					const routeIconsAndDestinations = {};
+					const routeTypes = {};
+					routes.forEach(route => {
+						const routeName = route["name"].split("||")[0].replace(/\|/g, " ");
+						if (!(routeName in routeIconsAndDestinations)) {
+							routeIconsAndDestinations[routeName] = [];
+						}
+						const routeStations = route["stations"];
+						if (routeStations.length > 0) {
+							const iconAndDestination = route["circular"] === "" ? ["chevron_right", stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", CANVAS.getClosestInterchangeOnRoute(data, route, station)];
+							if (!routeIconsAndDestinations[routeName].includes(iconAndDestination)) {
+								routeIconsAndDestinations[routeName].push(iconAndDestination);
+							}
+						}
+						routeTypes[routeName] = route["type"];
+					});
+
+					Object.keys(routeIconsAndDestinations).forEach(routeName => {
+						const routeNameElement = document.createElement("span");
+						routeNameElement.innerHTML = routeName;
+						resultElement.append(CANVAS.getDrawLineElement(SETTINGS.routeTypes[routeTypes[routeName]], routeNameElement, color));
+
+						routeIconsAndDestinations[routeName].forEach(iconAndDestination => {
+							const routeDestinationElement = document.createElement("span");
+							routeDestinationElement.innerHTML = iconAndDestination[1].replace(/\|/g, " ");
+							resultElement.append(CANVAS.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;" + iconAndDestination[0], routeDestinationElement, color));
+						})
+					})
+
 					const stationCountElement = document.createElement("span");
 					stationCountElement.innerHTML = stationCount.toString();
 					resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, color));
@@ -209,9 +264,9 @@ const findRoute = data => {
 				const durationElement = document.createElement("span");
 				durationElement.innerHTML = CANVAS.formatTime(time / 20);
 				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, color));
-				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoute == null ? null : nextRoute["color"]));
+				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoutes.length === 0 ? null : nextRoutes[0]["color"]));
 
-				route = nextRoute;
+				routes = nextRoutes;
 				station = nextStation;
 				totalStationCount += stationCount;
 				time = 0;
@@ -238,7 +293,7 @@ const findRoute = data => {
 			`</div>`;
 		resultElement.append(infoElement);
 	} else {
-		resultElement.innerHTML = `<div class="info_center"><span class="material-icons large">remove_road</span></div>`;
+		resultElement.innerHTML = `<div class="info_center"><span class="material-icons large">warning_amber</span></div>`;
 	}
 
 	document.getElementById("directions").style.maxHeight = window.innerHeight - 80 + "px";
@@ -250,6 +305,14 @@ const createStationElement = stationName => {
 	stationElement.innerText = stationName;
 	stationElement.className = "text";
 	return stationElement;
+}
+
+const compareArrays = (array1, array2) => {
+	if (array1.length !== array2.length) {
+		return false;
+	} else {
+		return array1.every(element => array2.includes(element));
+	}
 }
 
 document.getElementById("directions_icon").onclick = () => {

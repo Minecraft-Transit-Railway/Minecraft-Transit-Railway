@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"III",
+		" B ",
+		"LLL"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"B": {
+			"tag": "c:iron_blocks"
+		},
+		"L": {
+			"tag": "minecraft:logs"
+		}
+	},
+	"result": {
+		"item": "mtr:boat_node",
+		"count": 32
+	}
+}

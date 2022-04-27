@@ -23,7 +23,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final Component colorText;
 
 	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldColor;
+	private final WidgetColorSelector colorSelector;
 
 	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
 		super(new TextComponent(""));
@@ -33,13 +33,13 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		colorText = new TranslatableComponent(colorKey);
 
 		textFieldName = new WidgetBetterTextField(null, "");
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
+		colorSelector = new WidgetColorSelector(this, () -> {
+		});
 	}
 
 	@Override
 	public void tick() {
 		textFieldName.tick();
-		textFieldColor.tick();
 	}
 
 	@Override
@@ -64,19 +64,13 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		super.init();
 		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
 		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(textFieldColor, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
 
 		textFieldName.setValue(data.name);
-		textFieldColor.setValue(DashboardScreen.colorIntToString(data.color));
-		textFieldColor.setResponder(text -> {
-			final String newText = text.toUpperCase().replaceAll("[^0-9A-F]", "");
-			if (!newText.equals(text)) {
-				textFieldColor.setValue(newText);
-			}
-		});
+		colorSelector.setColor(data.color);
 
 		addDrawableChild(textFieldName);
-		addDrawableChild(textFieldColor);
+		addDrawableChild(colorSelector);
 	}
 
 	protected void renderTextFields(PoseStack matrices) {
@@ -86,6 +80,6 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 
 	protected void saveData() {
 		data.name = textFieldName.getValue();
-		data.color = DashboardScreen.colorStringToInt(textFieldColor.getValue());
+		data.color = colorSelector.getColor();
 	}
 }

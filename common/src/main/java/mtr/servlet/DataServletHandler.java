@@ -51,6 +51,7 @@ public class DataServletHandler extends HttpServlet {
 						routeObject.add("stations", routeStationsArray);
 						final JsonArray routeDurationsArray = new JsonArray();
 						routeObject.add("durations", routeDurationsArray);
+						routeObject.addProperty("circular", route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw");
 
 						routeObject.addProperty("maxWaitTime", route.maxWaitTime);
 						routeObject.addProperty("maxWaitNextStation", Long.toString(route.maxWaitNextStation == null ? 0 : route.maxWaitNextStation.id));

@@ -75,7 +75,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = new TranslatableComponent(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), new TranslatableComponent(mtr.Blocks.RAIL_NODE.getDescriptionId())).getString().split("\\|");
+			final String[] textSplit = new TranslatableComponent(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), new TranslatableComponent(mtr.Blocks.RAIL_NODE.get().getDescriptionId())).getString().split("\\|");
 			for (String text : textSplit) {
 				tooltip.add(new TextComponent(text).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).applyFormat(ChatFormatting.ITALIC)));
 			}

@@ -47,7 +47,7 @@ public interface IBlock {
 	}
 
 	static InteractionResult checkHoldingBrush(Level world, Player player, Runnable callbackBrush, Runnable callbackNoBrush) {
-		return checkHoldingItem(world, player, item -> callbackBrush.run(), callbackNoBrush, Items.BRUSH);
+		return checkHoldingItem(world, player, item -> callbackBrush.run(), callbackNoBrush, Items.BRUSH.get());
 	}
 
 	static InteractionResult checkHoldingItem(Level world, Player player, Consumer<Item> callbackItem, Runnable callbackNoItem, Item... items) {

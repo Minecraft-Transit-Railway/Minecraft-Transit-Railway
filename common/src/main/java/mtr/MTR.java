@@ -39,12 +39,12 @@ public class MTR implements IPacket {
 	public static final String MOD_ID = "mtr";
 
 	public static void init(
-			BiConsumer<String, Item> registerItem,
-			BiConsumer<String, Block> registerBlock,
+			BiConsumer<String, RegistryObject<Item>> registerItem,
+			BiConsumer<String, RegistryObject<Block>> registerBlock,
 			RegisterBlockItem registerBlockItem,
 			RegisterBlockItem registerEnchantedBlockItem,
-			BiConsumer<String, BlockEntityType<? extends BlockEntityMapper>> registerBlockEntityType,
-			BiConsumer<String, EntityType<? extends Entity>> registerEntityType,
+			BiConsumer<String, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>>> registerBlockEntityType,
+			BiConsumer<String, RegistryObject<? extends EntityType<? extends Entity>>> registerEntityType,
 			BiConsumer<String, SoundEvent> registerSoundEvent
 	) {
 		registerItem.accept("apg_door", Items.APG_DOOR);
@@ -454,6 +454,6 @@ public class MTR implements IPacket {
 
 	@FunctionalInterface
 	public interface RegisterBlockItem {
-		void accept(String string, Block block, CreativeModeTab tab);
+		void accept(String string, RegistryObject<Block> block, CreativeModeTab tab);
 	}
 }

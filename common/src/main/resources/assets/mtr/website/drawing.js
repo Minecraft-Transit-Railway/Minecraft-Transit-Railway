@@ -42,26 +42,25 @@ const createClickable = (container, initialize, onClick) => {
 	initialize(new PIXI.Graphics());
 };
 
-const fetchArrivals = () => {
+const fetchArrivals = data => {
 	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(fetchArrivalId);
 		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
 			arrivalData = result;
-			fetchArrivalId = setTimeout(fetchArrivals, SETTINGS.refreshArrivalsInterval);
-			refreshArrivals();
+			fetchArrivalId = setTimeout(() => fetchArrivals(data), SETTINGS.refreshArrivalsInterval);
+			refreshArrivals(data);
 		});
 	}
 };
 
-const refreshArrivals = () => {
+const refreshArrivals = data => {
 	if (SETTINGS.selectedStation !== 0) {
 		clearTimeout(refreshArrivalId);
 		const arrivalsHtml = {};
-		for (const arrivalIndex in arrivalData) {
-			const {arrival, destination, platform, route, color} = arrivalData[arrivalIndex];
+		for (const {arrival, name, destination, circular, platform, route, color} of arrivalData) {
 			const currentMillis = Date.now();
 			const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-			const destinationSplit = destination.split("|");
+			const destinationSplit = circular === "" ? destination.split("|") : CANVAS.getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
 			const routeNumberSplit = route.split("|");
 			if (typeof arrivalsHtml[color] === "undefined") {
 				arrivalsHtml[color] = {html: "", count: 0};
@@ -69,7 +68,10 @@ const refreshArrivals = () => {
 			if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
 				arrivalsHtml[color]["html"] +=
 					`<div class="arrival">` +
-					`<span class="arrival_text left_align" style="width: 70%">${(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length]}</span>` +
+					`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
+					`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
+					(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
+					`</span>` +
 					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
 					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
 					`</div>`;
@@ -82,7 +84,7 @@ const refreshArrivals = () => {
 				arrivalElement.innerHTML = arrivalsHtml[color]["html"];
 			}
 		}
-		refreshArrivalId = setTimeout(refreshArrivals, 1000);
+		refreshArrivalId = setTimeout(() => refreshArrivals(data), 1000);
 	}
 };
 
@@ -187,7 +189,7 @@ function drawMap(container, data) {
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
 		SETTINGS.selectedStation = id;
-		fetchArrivals();
+		fetchArrivals(data);
 	};
 
 	const onClickLine = (color, forceClick) => {
@@ -496,7 +498,7 @@ function drawMap(container, data) {
 function onSearch(data) {
 	const searchBox = document.getElementById("search_box");
 	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
-	document.getElementById("clear_search_icon").innerText = search === "" ? "" : "clear";
+	document.getElementById("clear_search_icon").style.display = search === "" ? "none" : "";
 
 	const {stations, routes} = data;
 

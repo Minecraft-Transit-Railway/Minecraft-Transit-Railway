@@ -37,7 +37,7 @@ const SETTINGS = {
 		if (focus) {
 			searchBox.focus();
 		}
-		document.getElementById("clear_search_icon").innerText = "";
+		document.getElementById("clear_search_icon").style.display = "none";
 		const {stations, routes} = data;
 		for (const stationId in stations) {
 			document.getElementById(stationId).style.display = "none";
@@ -65,11 +65,13 @@ const SETTINGS = {
 		this.selectedDirectionsSegments = [];
 		for (let i = 0; i < pathRoutes.length; i++) {
 			if (pathRoutes[i] != null) {
-				const color = pathRoutes[i]["color"];
-				if (!(color in this.selectedDirectionsSegments)) {
-					this.selectedDirectionsSegments[color] = [];
+				for (let j = 0; j < pathRoutes[i].length; j++) {
+					const color = pathRoutes[i][j]["color"];
+					if (!(color in this.selectedDirectionsSegments)) {
+						this.selectedDirectionsSegments[color] = [];
+					}
+					this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
 				}
-				this.selectedDirectionsSegments[color].push(pathStations[i] + "_" + pathStations[i + 1]);
 			}
 		}
 		drawMap(container, json[this.dimension]);
@@ -188,7 +190,7 @@ const setupRouteTypeAndDimensionButtons = () => {
 	document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
 }
 
-const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true});
+const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true, resolution: window.devicePixelRatio});
 
 let json;
 let refreshDataId = 0;
@@ -220,7 +222,6 @@ document.getElementById("clear_directions_2_icon").onclick = () => {
 	searchBox.value = "";
 	searchBox.focus();
 };
-document.getElementById("clear_search_icon").innerText = "";
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("off")) {
@@ -284,7 +285,7 @@ APP.stage.addChild(background);
 const container = new PIXI.Container();
 APP.stage.addChild(container);
 
-document.body.appendChild(APP.view);
+document.body.prepend(APP.view);
 APP.view.addEventListener("wheel", event => CANVAS.onZoom(Math.abs(event.deltaY) > 1 ? event.deltaY / SETTINGS.smoothScrollScale : 0, event.offsetX, event.offsetY, container, json[SETTINGS.dimension], false));
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));

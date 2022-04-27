@@ -48,7 +48,7 @@ public class BlockClock extends Block implements EntityBlockMapper {
 	public static class TileEntityClock extends BlockEntityMapper {
 
 		public TileEntityClock(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.CLOCK_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.CLOCK_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

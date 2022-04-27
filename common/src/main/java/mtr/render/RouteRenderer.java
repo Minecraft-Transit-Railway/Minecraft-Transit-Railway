@@ -66,7 +66,7 @@ public class RouteRenderer implements IGui {
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/white.png", newLight, false));
 		final float lineHeightSmall = (y2 - y1) / routeCount;
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = routeData.get(i).routeColor + ARGB_BLACK;
+			final int routeColor = routeData.get(i).routeColor | ARGB_BLACK;
 			IDrawing.drawTexture(matrices, vertexConsumer, x1, y1 + lineHeightSmall * i, z1, x2, y1 + lineHeightSmall * (i + 1), z2, facing, routeColor, newLight);
 		}
 		matrices.popPose();
@@ -88,7 +88,7 @@ public class RouteRenderer implements IGui {
 		final MultiBufferSource.BufferSource immediateFiltered = skipText ? null : immediate;
 
 		for (int i = 0; i < routeCount; i++) {
-			final int routeColor = filteredRouteData.get(i).routeColor + ARGB_BLACK;
+			final int routeColor = filteredRouteData.get(i).routeColor | ARGB_BLACK;
 			final int currentStationIndex = filteredRouteData.get(i).currentStationIndex;
 			final List<ClientCache.PlatformRouteDetails.StationDetails> stationDetails = filteredRouteData.get(i).stationDetails;
 			final int routeLength = stationDetails.size();
@@ -124,13 +124,13 @@ public class RouteRenderer implements IGui {
 					if (!onStation && interchangeCount == 1) {
 						final VertexConsumer vertexConsumerInterchange = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/block/interchange.png", newLight, true));
 						if (vertical) {
-							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, y - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, y - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(0).color | ARGB_BLACK : PASSED_STATION_COLOR, newLight);
 							IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(0).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, y, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						} else {
 							final VerticalAlignment verticalAlignment = bottomText ? VerticalAlignment.BOTTOM : VerticalAlignment.TOP;
 							final float yLine = y + (bottomText ? -STATION_CIRCLE_SIZE / 2F - INTERCHANGE_LINE_SIZE : STATION_CIRCLE_SIZE / 2F);
 							final float yText = yLine + (bottomText ? 0 : INTERCHANGE_LINE_SIZE);
-							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x - INTERCHANGE_LINE_SIZE / 2F, yLine, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.3125F, bottomText ? 0 : 0.625F, 0.6875F, bottomText ? 0.375F : 1, facing, onOrAfterStation ? interchangeRoutes.get(0).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+							IDrawing.drawTexture(matrices, vertexConsumerInterchange, x - INTERCHANGE_LINE_SIZE / 2F, yLine, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.3125F, bottomText ? 0 : 0.625F, 0.6875F, bottomText ? 0.375F : 1, facing, onOrAfterStation ? interchangeRoutes.get(0).color | ARGB_BLACK : PASSED_STATION_COLOR, newLight);
 							IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(0).name, HorizontalAlignment.CENTER, verticalAlignment, x, yText, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
 						}
 					}
@@ -147,7 +147,7 @@ public class RouteRenderer implements IGui {
 					for (int k = 0; k < interchangeCount; k++) {
 						final float yLine = y2 + (k + (vertical ? 0 : bottomText ? 0 : 1)) * INTERCHANGE_HALF_HEIGHT * 2;
 						IDrawing.drawStringWithFont(matrices, textRenderer, immediateFiltered, interchangeRoutes.get(k).name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, x + INTERCHANGE_LINE_SIZE * 2, yLine, 2, onOrAfterStation ? ARGB_BLACK : PASSED_STATION_COLOR, false, newLight, null);
-						IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, yLine - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(k).color + ARGB_BLACK : PASSED_STATION_COLOR, newLight);
+						IDrawing.drawTexture(matrices, vertexConsumerInterchange, x + STATION_CIRCLE_SIZE / 2F, yLine - INTERCHANGE_LINE_SIZE / 2F, INTERCHANGE_LINE_SIZE, INTERCHANGE_LINE_SIZE, 0.625F, 0.3125F, 1, 0.6875F, facing, onOrAfterStation ? interchangeRoutes.get(k).color | ARGB_BLACK : PASSED_STATION_COLOR, newLight);
 					}
 				}
 
@@ -216,7 +216,7 @@ public class RouteRenderer implements IGui {
 			final float chunkHeight = arrowSize / routeCount;
 			final VertexConsumer vertexConsumerCircle = vertexConsumers.getBuffer(getRenderLayer("mtr:textures/sign/circle.png", newLight, true));
 			for (int i = 0; i < routeCount; i++) {
-				IDrawing.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+				IDrawing.drawTexture(matrices, vertexConsumerCircle, centerX - arrowSize / 2, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK | routeData.get(i).routeColor, newLight);
 			}
 
 			matrices.pushPose();
@@ -251,7 +251,7 @@ public class RouteRenderer implements IGui {
 				final float chunkHeight = arrowSize / routeCount;
 				final float circleX = leftToRight ? x1 - arrowSize - arrowPadding : x2 + arrowPadding;
 				for (int i = 0; i < routeCount; i++) {
-					IDrawing.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK + routeData.get(i).routeColor, newLight);
+					IDrawing.drawTexture(matrices, vertexConsumerCircle, circleX, top + i * chunkHeight, arrowSize, chunkHeight, 0, (float) i / routeCount, 1, (float) (i + 1) / routeCount, facing, ARGB_BLACK | routeData.get(i).routeColor, newLight);
 				}
 
 				matrices.pushPose();

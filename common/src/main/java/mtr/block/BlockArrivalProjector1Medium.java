@@ -15,7 +15,7 @@ public class BlockArrivalProjector1Medium extends BlockArrivalProjectorBase {
 	public static class TileEntityArrivalProjector1Medium extends TileEntityArrivalProjectorBase {
 
 		public TileEntityArrivalProjector1Medium(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.ARRIVAL_PROJECTOR_1_MEDIUM_TILE_ENTITY.get(), pos, state);
 		}
 	}
 }

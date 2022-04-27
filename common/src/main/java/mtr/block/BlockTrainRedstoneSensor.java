@@ -28,7 +28,7 @@ public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 	public static class TileEntityTrainRedstoneSensor extends TileEntityTrainSensorBase {
 
 		public TileEntityTrainRedstoneSensor(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

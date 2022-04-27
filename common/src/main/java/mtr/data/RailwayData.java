@@ -194,6 +194,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataFileSaveModule.load();
 		validateData();
 		dataCache.sync();
+		signalBlocks.writeCache();
 	}
 
 	@Override
@@ -561,7 +562,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos) {
-		return getClosePlatformId(platforms, dataCache, pos, 4, 0, 4);
+		return getClosePlatformId(platforms, dataCache, pos, 5, 0, 4);
 	}
 
 	public static long getClosePlatformId(Set<Platform> platforms, DataCache dataCache, BlockPos pos, int radius, int lower, int upper) {
@@ -605,7 +606,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 					final Station thisStation = dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference));
 					final Station nextStation = difference < thisRoute.platformIds.size() - 1 ? dataCache.platformIdToStation.get(thisRoute.platformIds.get(difference + 1)) : null;
 					final Station lastStation = thisRoute.platformIds.isEmpty() ? null : dataCache.platformIdToStation.get(thisRoute.platformIds.get(thisRoute.platformIds.size() - 1));
-					routeAndStationsCallback.routeAndStationsCallback(thisRoute, nextRoute, thisStation, nextStation, lastStation);
+					routeAndStationsCallback.routeAndStationsCallback(difference, thisRoute, nextRoute, thisStation, nextStation, lastStation);
 					return true;
 				}
 			}
@@ -765,6 +766,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	@FunctionalInterface
 	public interface RouteAndStationsCallback {
-		void routeAndStationsCallback(Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
+		void routeAndStationsCallback(int currentStationIndex, Route thisRoute, Route nextRoute, Station thisStation, Station nextStation, Station lastStation);
 	}
 }

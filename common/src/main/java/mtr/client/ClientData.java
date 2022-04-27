@@ -167,6 +167,7 @@ public final class ClientData {
 
 		TRAINS.clear();
 		ClientData.DATA_CACHE.sync();
+		SIGNAL_BLOCKS.writeCache();
 	}
 
 	public static <T extends NameColorDataBase> Set<T> getFilteredDataSet(TransportMode transportMode, Set<T> dataSet) {

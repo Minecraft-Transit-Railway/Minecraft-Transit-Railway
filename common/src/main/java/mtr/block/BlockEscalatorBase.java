@@ -56,7 +56,7 @@ public abstract class BlockEscalatorBase extends HorizontalBlockWithSoftLanding 
 
 	@Override
 	public Item asItem() {
-		return Items.ESCALATOR;
+		return Items.ESCALATOR.get();
 	}
 
 	@Override

@@ -136,16 +136,28 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		if (canAutoSave) {
 			final boolean deleteEmptyOld = checkFilesToDelete.isEmpty();
 
-			writeDirtyDataToFile(dirtyStationIds, railwayData.dataCache.stationIdMap::get, id -> id, stationsPath);
-			writeDirtyDataToFile(dirtyPlatformIds, railwayData.dataCache.platformIdMap::get, id -> id, platformsPath);
-			writeDirtyDataToFile(dirtySidingIds, railwayData.dataCache.sidingIdMap::get, id -> id, sidingsPath);
-			writeDirtyDataToFile(dirtyRouteIds, railwayData.dataCache.routeIdMap::get, id -> id, routesPath);
-			writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
-			writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);
-			writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath);
+			boolean hasSpareTime = writeDirtyDataToFile(dirtyStationIds, railwayData.dataCache.stationIdMap::get, id -> id, stationsPath);
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyPlatformIds, railwayData.dataCache.platformIdMap::get, id -> id, platformsPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtySidingIds, railwayData.dataCache.sidingIdMap::get, id -> id, sidingsPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyRouteIds, railwayData.dataCache.routeIdMap::get, id -> id, routesPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyDepotIds, railwayData.dataCache.depotIdMap::get, id -> id, depotsPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtyRailPositions, pos -> rails.containsKey(pos) ? new RailEntry(pos, rails.get(pos)) : null, BlockPos::asLong, railsPath);
+			}
+			if (hasSpareTime) {
+				hasSpareTime = writeDirtyDataToFile(dirtySignalBlocks, signalBlock -> signalBlock, signalBlock -> signalBlock.id, signalBlocksPath);
+			}
 
 			final boolean doneWriting = dirtyStationIds.isEmpty() && dirtyPlatformIds.isEmpty() && dirtySidingIds.isEmpty() && dirtyRouteIds.isEmpty() && dirtyDepotIds.isEmpty() && dirtyRailPositions.isEmpty() && dirtySignalBlocks.isEmpty();
-			if (!checkFilesToDelete.isEmpty() && doneWriting) {
+			if (hasSpareTime && !checkFilesToDelete.isEmpty() && doneWriting) {
 				final Path path = checkFilesToDelete.remove(0);
 				try {
 					Files.deleteIfExists(path);
@@ -232,9 +244,9 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		return null;
 	}
 
-	private <T extends SerializedDataBase, U> void writeDirtyDataToFile(List<U> dirtyData, Function<U, T> getId, Function<U, Long> idToLong, Path path) {
+	private <T extends SerializedDataBase, U> boolean writeDirtyDataToFile(List<U> dirtyData, Function<U, T> getId, Function<U, Long> idToLong, Path path) {
 		final long millis = System.currentTimeMillis();
-		while (!dirtyData.isEmpty() && System.currentTimeMillis() - millis < 2) {
+		while (!dirtyData.isEmpty()) {
 			final U id = dirtyData.remove(0);
 			final T data = getId.apply(id);
 			if (data != null) {
@@ -243,7 +255,11 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 					checkFilesToDelete.remove(newPath);
 				}
 			}
+			if (System.currentTimeMillis() - millis >= 2) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	private static int getHash(SerializedDataBase data, boolean useReducedHash) {

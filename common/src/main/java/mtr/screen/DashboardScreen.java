@@ -14,9 +14,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
@@ -44,7 +46,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private final Button buttonOptions;
 
 	private final WidgetBetterTextField textFieldName;
-	private final WidgetBetterTextField textFieldColor;
+	private final WidgetColorSelector colorSelector;
 
 	private final DashboardList dashboardList;
 
@@ -54,10 +56,10 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	public DashboardScreen(TransportMode transportMode) {
 		super(new TextComponent(""));
 		this.transportMode = transportMode;
-		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail);
 
 		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
-		textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TranslatableComponent("gui.mtr.color").getString(), MAX_COLOR_ZONE_LENGTH);
+		colorSelector = new WidgetColorSelector(this, this::toggleButtons);
+		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver);
 
 		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
 		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
@@ -111,7 +113,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		IDrawing.setPositionAndWidth(buttonOptions, width - SQUARE_SIZE * 5, bottomRowY, SQUARE_SIZE * 3);
 
 		IDrawing.setPositionAndWidth(textFieldName, TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, PANEL_WIDTH - COLOR_WIDTH - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(textFieldColor, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(colorSelector, PANEL_WIDTH - COLOR_WIDTH + TEXT_FIELD_PADDING / 2, bottomRowY - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, COLOR_WIDTH - TEXT_FIELD_PADDING);
 
 		dashboardList.x = 0;
 		dashboardList.y = SQUARE_SIZE;
@@ -123,7 +125,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		buttonDoneEditingDepot.visible = false;
 
 		textFieldName.setVisible(false);
-		textFieldColor.setVisible(false);
+		colorSelector.visible = false;
 
 		dashboardList.init(this::addDrawableChild);
 
@@ -144,7 +146,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		addDrawableChild(buttonOptions);
 
 		addDrawableChild(textFieldName);
-		addDrawableChild(textFieldColor);
+		addDrawableChild(colorSelector);
 	}
 
 	@Override
@@ -177,7 +179,6 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	@Override
 	public void tick() {
 		textFieldName.tick();
-		textFieldColor.tick();
 		dashboardList.tick();
 
 		try {
@@ -351,7 +352,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.isNew = isNew;
 
 		textFieldName.setValue(editingArea.name);
-		textFieldColor.setValue(colorIntToString(editingArea.color));
+		colorSelector.setColor(editingArea.color);
 
 		widgetMap.startEditingArea(editingArea);
 		toggleButtons();
@@ -363,7 +364,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		this.isNew = isNew;
 
 		textFieldName.setValue(editingRoute.name);
-		textFieldColor.setValue(colorIntToString(editingRoute.color));
+		colorSelector.setColor(editingRoute.color);
 
 		widgetMap.startEditingRoute();
 		toggleButtons();
@@ -405,7 +406,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 			}
 		}
 		editingArea.name = IGui.textOrUntitled(textFieldName.getValue());
-		editingArea.color = colorStringToInt(textFieldColor.getValue());
+		editingArea.color = colorSelector.getColor();
 		editingArea.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(isStation ? PACKET_UPDATE_STATION : PACKET_UPDATE_DEPOT, packet));
 		stopEditing();
 	}
@@ -419,7 +420,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 			}
 		}
 		editingRoute.name = IGui.textOrUntitled(textFieldName.getValue());
-		editingRoute.color = colorStringToInt(textFieldColor.getValue());
+		editingRoute.color = colorSelector.getColor();
 		editingRoute.setNameColor(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_ROUTE, packet));
 		stopEditing();
 	}
@@ -445,20 +446,8 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 		final boolean showTextFields = ((selectedTab == SelectedTab.STATIONS || selectedTab == SelectedTab.DEPOTS) && editingArea != null) || (selectedTab == SelectedTab.ROUTES && editingRoute != null);
 		textFieldName.visible = showTextFields;
-		textFieldColor.visible = showTextFields;
+		colorSelector.visible = showTextFields;
 		dashboardList.height = height - SQUARE_SIZE * 2 - (showTextFields ? SQUARE_SIZE + TEXT_FIELD_PADDING : 0);
-	}
-
-	public static int colorStringToInt(String string) {
-		try {
-			return Integer.parseInt(string.toUpperCase().replaceAll("[^0-9A-F]", ""), 16);
-		} catch (Exception ignored) {
-			return 0;
-		}
-	}
-
-	public static String colorIntToString(int color) {
-		return StringUtils.leftPad(Integer.toHexString(color == 0 ? (new Random()).nextInt(RGB_WHITE + 1) : color).toUpperCase(), 6, "0");
 	}
 
 	private enum SelectedTab {STATIONS, ROUTES, DEPOTS}

@@ -62,7 +62,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 
 	@Override
 	public BlockEntityType<? extends BlockEntityMapper> getType() {
-		return BlockEntityTypes.TACTILE_MAP_TILE_ENTITY;
+		return BlockEntityTypes.TACTILE_MAP_TILE_ENTITY.get();
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		public static Consumer<BlockPos> onUse = null;
 
 		public TileEntityTactileMap(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TACTILE_MAP_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TACTILE_MAP_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

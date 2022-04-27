@@ -25,6 +25,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 
@@ -46,6 +47,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 	private final Runnable onDrawCornersMouseRelease;
 	private final Consumer<Long> onClickAddPlatformToRoute;
 	private final Consumer<SavedRailBase> onClickEditSavedRail;
+	private final BiFunction<Double, Double, Boolean> isRestrictedMouseArea;
 	private final ClientLevel world;
 	private final LocalPlayer player;
 	private final Font textRenderer;
@@ -54,12 +56,13 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 	private static final int SCALE_UPPER_LIMIT = 64;
 	private static final double SCALE_LOWER_LIMIT = 1 / 128D;
 
-	public WidgetMap(TransportMode transportMode, OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase> onClickEditSavedRail) {
+	public WidgetMap(TransportMode transportMode, OnDrawCorners onDrawCorners, Runnable onDrawCornersMouseRelease, Consumer<Long> onClickAddPlatformToRoute, Consumer<SavedRailBase> onClickEditSavedRail, BiFunction<Double, Double, Boolean> isRestrictedMouseArea) {
 		this.transportMode = transportMode;
 		this.onDrawCorners = onDrawCorners;
 		this.onDrawCornersMouseRelease = onDrawCornersMouseRelease;
 		this.onClickAddPlatformToRoute = onClickAddPlatformToRoute;
 		this.onClickEditSavedRail = onClickEditSavedRail;
+		this.isRestrictedMouseArea = isRestrictedMouseArea;
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		world = minecraftClient.level;
@@ -90,7 +93,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 			for (int j = topLeft.getB(); j <= bottomRight.getB(); j += increment) {
 				if (world != null) {
 					final int color = divideColorRGB(world.getBlockState(new BlockPos(i, world.getHeight(Heightmap.Types.MOTION_BLOCKING, i, j) - 1, j)).getBlock().defaultMaterialColor().col, 2);
-					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK + color);
+					drawRectangleFromWorldCoords(buffer, i, j, i + increment, j + increment, ARGB_BLACK | color);
 				}
 			}
 		}
@@ -140,6 +143,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 		} else if (mapState == MapState.EDITING_ROUTE) {
 			Gui.drawString(matrices, textRenderer, new TranslatableComponent("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
+
 		if (scale >= 8) {
 			try {
 				if (showStations) {
@@ -151,26 +155,25 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 				e.printStackTrace();
 			}
 		}
-		if (scale >= 2) {
-			final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-			if (showStations) {
-				for (final Station station : ClientData.STATIONS) {
+
+		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+		if (showStations) {
+			for (final Station station : ClientData.STATIONS) {
+				if (canDrawAreaText(station)) {
 					final BlockPos pos = station.getCenter();
-					if (pos != null) {
-						final String stationString = String.format("%s|(%s)", station.name, new TranslatableComponent("gui.mtr.zone_number", station.zone).getString());
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
-					}
-				}
-			} else {
-				for (final Depot depot : ClientData.DEPOTS) {
-					final BlockPos pos = depot.getCenter();
-					if (pos != null) {
-						drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
-					}
+					final String stationString = String.format("%s|(%s)", station.name, new TranslatableComponent("gui.mtr.zone_number", station.zone).getString());
+					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 				}
 			}
-			immediate.endBatch();
+		} else {
+			for (final Depot depot : ClientData.DEPOTS) {
+				if (canDrawAreaText(depot)) {
+					final BlockPos pos = depot.getCenter();
+					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, depot.name, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
+				}
+			}
 		}
+		immediate.endBatch();
 
 		final String mousePosText = String.format("(%s, %s)", RailwayData.round(mouseWorldPos.getA(), 1), RailwayData.round(mouseWorldPos.getB(), 1));
 		Gui.drawString(matrices, textRenderer, mousePosText, x + width - TEXT_PADDING - textRenderer.width(mousePosText), y + TEXT_PADDING, ARGB_WHITE);
@@ -240,7 +243,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 10 && mouseY >= y + height - SQUARE_SIZE);
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height && !(mouseX >= x + width - SQUARE_SIZE * 10 && mouseY >= y + height - SQUARE_SIZE) && !isRestrictedMouseArea.apply(mouseX, mouseY);
 	}
 
 	public void setPositionAndSize(int x, int y, int width, int height) {
@@ -342,6 +345,10 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 		if (x1 < width && y1 < height && x2 >= 0 && y2 >= 0) {
 			IDrawing.drawRectangle(buffer, x + Math.max(0, x1), y + y1, x + x2, y + y2, color);
 		}
+	}
+
+	private boolean canDrawAreaText(AreaBase areaBase) {
+		return areaBase.getCenter() != null && scale >= 80F / Math.max(Math.abs(areaBase.corner1.getA() - areaBase.corner2.getA()), Math.abs(areaBase.corner1.getB() - areaBase.corner2.getB()));
 	}
 
 	private void drawSavedRail(PoseStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {

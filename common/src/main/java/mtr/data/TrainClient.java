@@ -45,6 +45,7 @@ public class TrainClient extends Train {
 	private static final float CONNECTION_X_OFFSET = 0.25F;
 	private static final float TRAIN_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final int TRAIN_PERCENTAGE_UPDATE_INTERVAL = 20;
+	private static final float VIVECRAFT_EYE_HEIGHT = 1.62F;
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
@@ -171,21 +172,23 @@ public class TrainClient extends Train {
 						clientPlayer.fallDistance = 0;
 						clientPlayer.setDeltaMovement(0, 0, 0);
 						clientPlayer.setSpeed(0);
-						clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y, z + playerOffset.z);
-						if (speed > 0) {
-							Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
+						clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : 0), z + playerOffset.z);
+						if (speed > 0 || MTRClient.isVivecraft()) {
+							if (!MTRClient.isVivecraft()) {
+								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
+							}
 							offset.add(x);
 							offset.add(y);
 							offset.add(z);
 							offset.add(playerOffset.x);
-							offset.add(playerOffset.y + clientPlayer.getEyeHeight());
+							offset.add(playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : clientPlayer.getEyeHeight()));
 							offset.add(playerOffset.z);
 						}
 						clientPrevYaw = yaw;
 					}
 				};
 
-				final int currentRidingCar = (int) Math.floor(percentagesZ.get(uuid));
+				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
 				final float doorValue = Math.abs(doorValueRaw);
 				calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 					final boolean hasGangwayConnection = baseTrainType.hasGangwayConnection;
@@ -194,7 +197,7 @@ public class TrainClient extends Train {
 					final float newPercentageZ;
 
 					if (isClientPlayer) {
-						final Vec3 movement = new Vec3(Math.signum(clientPlayer.xxa) * speedMultiplier, 0, Math.signum(clientPlayer.zza) * speedMultiplier).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
+						final Vec3 movement = new Vec3(Math.abs(clientPlayer.xxa) > 0.5 ? Math.copySign(speedMultiplier, clientPlayer.xxa) : 0, 0, Math.abs(clientPlayer.zza) > 0.5 ? Math.copySign(speedMultiplier, clientPlayer.zza) : 0).yRot((float) -Math.toRadians(Utilities.getYaw(clientPlayer)) - yaw);
 						final float tempPercentageX = percentagesX.get(uuid) + (float) movement.x / baseTrainType.width;
 						final float tempPercentageZ = percentagesZ.get(uuid) + (float) (realSpacingRender == 0 ? 0 : movement.z / realSpacingRender);
 						newPercentageX = Mth.clamp(tempPercentageX, doorLeftOpenRender ? -3 : 0, doorRightOpenRender ? 4 : 1);
@@ -226,7 +229,7 @@ public class TrainClient extends Train {
 					percentagesX.put(uuid, newPercentageX);
 					percentagesZ.put(uuid, newPercentageZ);
 
-					final int newRidingCar = (int) Math.floor(newPercentageZ);
+					final int newRidingCar = Mth.clamp((int) Math.floor(newPercentageZ), 0, positions.length - 2);
 					if (currentRidingCar == newRidingCar) {
 						calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 					} else {

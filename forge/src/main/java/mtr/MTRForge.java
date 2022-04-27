@@ -35,51 +35,53 @@ public class MTRForge {
 	private static final DeferredRegisterHolder<EntityType<?>> ENTITY_TYPES = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.ENTITY_TYPE_REGISTRY);
 	private static final DeferredRegisterHolder<SoundEvent> SOUND_EVENTS = new DeferredRegisterHolder<>(MTR.MOD_ID, Registry.SOUND_EVENT_REGISTRY);
 
-	public MTRForge() {
-		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT, RenderTrains::new);
-			MinecraftForge.EVENT_BUS.register(ForgeUtilities.RenderTick.class);
-		});
+	static {
+		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
+	}
 
+	public MTRForge() {
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		ForgeUtilities.registerModEventBus(MTR.MOD_ID, eventBus);
-		eventBus.register(MTRModEventBus.class);
 
-		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> eventBus.register(ForgeUtilities.RegisterEntityRenderer.class));
-
-		MTR.init(MTRForge::registerItem, MTRForge::registerBlock, MTRForge::registerBlock, MTRForge::registerEnchantedBlock, MTRForge::registerBlockEntityType, MTRForge::registerEntityType, MTRForge::registerSoundEvent);
 		ITEMS.register();
 		BLOCKS.register();
 		BLOCK_ENTITY_TYPES.register();
 		ENTITY_TYPES.register();
 		SOUND_EVENTS.register();
+
+		eventBus.register(MTRModEventBus.class);
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
+			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
+			MinecraftForge.EVENT_BUS.register(ForgeUtilities.RenderTick.class);
+			eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
+		});
 	}
 
-	private static void registerItem(String path, Item item) {
-		ITEMS.register(path, () -> item);
+	private static void registerItem(String path, RegistryObject<Item> item) {
+		ITEMS.register(path, item::register);
 	}
 
-	private static void registerBlock(String path, Block block) {
-		BLOCKS.register(path, () -> block);
+	private static void registerBlock(String path, RegistryObject<Block> block) {
+		BLOCKS.register(path, block::register);
 	}
 
-	private static void registerBlock(String path, Block block, CreativeModeTab itemGroup) {
+	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
 		registerBlock(path, block);
-		ITEMS.register(path, () -> new BlockItem(block, new Item.Properties().tab(itemGroup)));
+		ITEMS.register(path, () -> new BlockItem(block.get(), new Item.Properties().tab(itemGroup)));
 	}
 
-	private static void registerEnchantedBlock(String path, Block block, CreativeModeTab itemGroup) {
+	private static void registerEnchantedBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
 		registerBlock(path, block);
-		ITEMS.register(path, () -> new ItemBlockEnchanted(block, new Item.Properties().tab(itemGroup)));
+		ITEMS.register(path, () -> new ItemBlockEnchanted(block.get(), new Item.Properties().tab(itemGroup)));
 	}
 
-	private static <T extends BlockEntityMapper> void registerBlockEntityType(String path, BlockEntityType<T> blockEntityType) {
-		BLOCK_ENTITY_TYPES.register(path, () -> blockEntityType);
+	private static void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>> blockEntityType) {
+		BLOCK_ENTITY_TYPES.register(path, blockEntityType::register);
 	}
 
-	private static <T extends Entity> void registerEntityType(String path, EntityType<T> entityType) {
-		ENTITY_TYPES.register(path, () -> entityType);
+	private static void registerEntityType(String path, RegistryObject<? extends EntityType<? extends Entity>> entityType) {
+		ENTITY_TYPES.register(path, entityType::register);
 	}
 
 	private static void registerSoundEvent(String path, SoundEvent soundEvent) {

@@ -7,6 +7,6 @@ public class BlockAPGGlassEnd extends BlockPSDAPGGlassEndBase {
 
 	@Override
 	public Item asItem() {
-		return Items.APG_GLASS_END;
+		return Items.APG_GLASS_END.get();
 	}
 }

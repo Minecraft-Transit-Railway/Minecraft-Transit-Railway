@@ -31,7 +31,7 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		private static final String KEY_SOUND_ID = "sound_id";
 
 		public TileEntityTrainAnnouncer(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.TRAIN_ANNOUNCER_TILE_ENTITY, pos, state);
+			super(BlockEntityTypes.TRAIN_ANNOUNCER_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override

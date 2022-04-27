@@ -124,7 +124,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			}
 
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.trains_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -152,7 +152,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			final String depotName = IGui.textOrUntitled(IGui.formatStationName(data.name));
 
 			if (successfulSegments == 1) {
-				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(0, data.routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 					routeNames.add(IGui.textOrUntitled(IGui.formatStationName(thisRoute.name)));
 				});
@@ -176,10 +176,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				if (successfulSegments >= sum + 2) {
 					return new TranslatableComponent("gui.mtr.path_found");
 				} else {
-					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation.name)));
 						if (nextStation == null) {
-							RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 1, data.routeIds, ClientData.DATA_CACHE, (thisRoute1, nextRoute1, thisStation1, nextStation1, lastStation1) -> stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation1.name))));
+							RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 1, data.routeIds, ClientData.DATA_CACHE, (currentStationIndex1, thisRoute1, nextRoute1, thisStation1, nextStation1, lastStation1) -> stationNames.add(IGui.textOrUntitled(IGui.formatStationName(thisStation1.name))));
 						} else {
 							stationNames.add(IGui.textOrUntitled(IGui.formatStationName(nextStation.name)));
 						}

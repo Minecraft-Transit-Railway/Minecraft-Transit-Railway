@@ -221,7 +221,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.popPose();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Component text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:
@@ -235,16 +235,16 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						}
 						break;
 					case 2:
-						text = getStationText(lastStation, "last");
+						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
 						break;
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.train_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					final List<String> messages = new ArrayList<>();
 					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
 					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
@@ -268,10 +268,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
 							final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
 							if (nextFinalStation != null) {
+								final String modeString = thisRoute.transportMode.toString().toLowerCase();
 								if (nextRoute.isLightRailRoute) {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_light_rail_announcement_cjk", "gui.mtr.next_route_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_light_rail_announcement_cjk", "gui.mtr.next_route_" + modeString + "_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
 								} else {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_announcement_cjk", "gui.mtr.next_route_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_announcement_cjk", "gui.mtr.next_route_" + modeString + "_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
 								}
 							}
 						}
@@ -282,7 +283,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 					if (thisRoute.isLightRailRoute && lastStation != null) {
 						IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
 					}
@@ -335,7 +336,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 					final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
 					final float u2 = u1 + width;
 
-					final int color = ARGB_BLACK + signalBlock.color.getMaterialColor().col;
+					final int color = ARGB_BLACK | signalBlock.color.getMaterialColor().col;
 					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 						final BlockPos pos2 = new BlockPos(x1, y1, z1);
 						if (shouldNotRender(pos2, maxRailDistance, null)) {

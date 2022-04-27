@@ -124,7 +124,8 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 						final Set<ScheduleEntry> scheduleForPlatform = ClientData.SCHEDULES_FOR_PLATFORM.get(platform.id);
 						if (scheduleForPlatform != null) {
 							scheduleForPlatform.forEach(scheduleEntry -> {
-								if (!scheduleEntry.isTerminating) {
+								final Route route = ClientData.DATA_CACHE.routeIdMap.get(scheduleEntry.routeId);
+								if (route != null && scheduleEntry.currentStationIndex < route.platformIds.size() - 1) {
 									schedules.add(scheduleEntry);
 									platformIdToName.put(platform.id, platform.name);
 								}
@@ -170,19 +171,27 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				final int languageTicks = (int) Math.floor(MTRClient.getGameTick()) / SWITCH_LANGUAGE_TICKS;
 				final String destinationString;
 				final boolean useCustomMessage;
-				if (i < scheduleList.size() && !hideArrival[i]) {
-					final String[] destinationSplit = scheduleList.get(i).destination.split("\\|");
+				final ScheduleEntry currentSchedule = i < scheduleList.size() ? scheduleList.get(i) : null;
+				final Route route = currentSchedule == null ? null : ClientData.DATA_CACHE.routeIdMap.get(currentSchedule.routeId);
+
+				if (i < scheduleList.size() && !hideArrival[i] && route != null) {
+					final String[] destinationSplit = ClientData.DATA_CACHE.getFormattedRouteDestination(route, currentSchedule.currentStationIndex, "").split("\\|");
+					final boolean isLightRailRoute = route.isLightRailRoute;
+					final String[] routeNumberSplit = route.lightRailRouteNumber.split("\\|");
+
 					if (customMessages[i].isEmpty()) {
-						destinationString = IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
+						destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
 						useCustomMessage = false;
 					} else {
 						final String[] customMessageSplit = customMessages[i].split("\\|");
-						final int indexToUse = languageTicks % (destinationSplit.length + customMessageSplit.length);
-						if (indexToUse < destinationSplit.length) {
-							destinationString = IGui.textOrUntitled(destinationSplit[indexToUse]);
+						final int destinationMaxIndex = Math.max(routeNumberSplit.length, destinationSplit.length);
+						final int indexToUse = languageTicks % (destinationMaxIndex + customMessageSplit.length);
+
+						if (indexToUse < destinationMaxIndex) {
+							destinationString = (isLightRailRoute ? routeNumberSplit[languageTicks % routeNumberSplit.length] + " " : "") + IGui.textOrUntitled(destinationSplit[languageTicks % destinationSplit.length]);
 							useCustomMessage = false;
 						} else {
-							destinationString = customMessageSplit[indexToUse - destinationSplit.length];
+							destinationString = customMessageSplit[indexToUse - destinationMaxIndex];
 							useCustomMessage = true;
 						}
 					}
@@ -208,8 +217,6 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					}
 					textRenderer.draw(matrices, destinationString, 0, 0, textColor);
 				} else {
-					final ScheduleEntry currentSchedule = scheduleList.get(i);
-
 					final Component arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
 					final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
@@ -228,7 +235,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 					final float newDestinationMaxWidth = destinationMaxWidth - carLengthMaxWidth;
 
 					if (showAllPlatforms) {
-						final String platformName = platformIdToName.get(currentSchedule.platformId);
+						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex));
 						if (platformName != null) {
 							textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
 						}
