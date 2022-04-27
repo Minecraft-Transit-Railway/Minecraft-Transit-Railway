@@ -361,9 +361,9 @@ public class Rail extends SerializedDataBase {
 		return Math.abs(tEnd2 - tStart2) + Math.abs(tEnd1 - tStart1);
 	}
 
-	public void render(RenderRail callback, float offsetRadius1, float offsetRadius2) {
-		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, offsetRadius1, offsetRadius2, reverseT1, isStraight1, callback);
-		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, callback);
+	public void render(RenderRail callback, float offsetRadius1, float offsetRadius2, boolean straightY) {
+		renderSegment(h1, k1, r1, tStart1, tEnd1, 0, offsetRadius1, offsetRadius2, reverseT1, isStraight1, straightY, callback);
+		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, straightY, callback);
 	}
 
 	public boolean goodRadius() {
@@ -399,7 +399,7 @@ public class Rail extends SerializedDataBase {
 		}
 	}
 
-	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float offsetRadius1, float offsetRadius2, boolean reverseT, boolean isStraight, RenderRail callback) {
+	private void renderSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float offsetRadius1, float offsetRadius2, boolean reverseT, boolean isStraight, boolean straightY, RenderRail callback) {
 		final double count = Math.abs(tEnd - tStart);
 		final double increment = count / Math.round(count);
 
@@ -411,8 +411,8 @@ public class Rail extends SerializedDataBase {
 			final Vec3 corner3 = getPositionXZ(h, k, r, t2, offsetRadius2, isStraight);
 			final Vec3 corner4 = getPositionXZ(h, k, r, t2, offsetRadius1, isStraight);
 
-			final double y1 = getPositionY(i + rawValueOffset);
-			final double y2 = getPositionY(i + increment + rawValueOffset);
+			final double y1 = straightY ? yStart + (yEnd - yStart) * (i + rawValueOffset) / getLength() : getPositionY(i + rawValueOffset);
+			final double y2 = straightY ? yStart + (yEnd - yStart) * (i + increment + rawValueOffset) / getLength() : getPositionY(i + increment + rawValueOffset);
 
 			callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
 		}

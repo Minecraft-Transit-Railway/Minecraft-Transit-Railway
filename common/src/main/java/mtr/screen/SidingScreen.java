@@ -41,7 +41,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private static final float ACCELERATION_UNIT_CONVERSION_2 = ACCELERATION_UNIT_CONVERSION_1 * 3.6F; // m/tick^2 to km/h/s
 
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
-		super(siding, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
+		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
 		this.transportMode = transportMode;
 		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
@@ -66,7 +66,9 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
 
 		addDrawableChild(buttonSelectTrain);
-		addDrawableChild(buttonUnlimitedTrains);
+		if (showScheduleControls) {
+			addDrawableChild(buttonUnlimitedTrains);
+		}
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
@@ -84,8 +86,12 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		sliderAccelerationConstant.setHeight(SQUARE_SIZE);
 		sliderAccelerationConstant.setValue(Math.round((savedRailBase.getAccelerationConstant() - MIN_ACCELERATION) * SLIDER_SCALE));
 
-		addDrawableChild(textFieldMaxTrains);
-		addDrawableChild(sliderAccelerationConstant);
+		if (showScheduleControls) {
+			addDrawableChild(textFieldMaxTrains);
+		}
+		if (showScheduleControls) {
+			addDrawableChild(sliderAccelerationConstant);
+		}
 	}
 
 	@Override
@@ -100,8 +106,10 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		super.render(matrices, mouseX, mouseY, delta);
 		if (!isSelectingTrain) {
 			font.draw(matrices, SELECTED_TRAIN_TEXT, startX, height / 2F + TEXT_FIELD_PADDING / 2F + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, MAX_TRAINS_TEXT, startX, height / 2F + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE, ARGB_WHITE);
-			font.draw(matrices, ACCELERATION_CONSTANT_TEXT, startX, height / 2F + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE * 2, ARGB_WHITE);
+			if (showScheduleControls) {
+				font.draw(matrices, MAX_TRAINS_TEXT, startX, height / 2F + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE, ARGB_WHITE);
+				font.draw(matrices, ACCELERATION_CONSTANT_TEXT, startX, height / 2F + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2F + TEXT_PADDING + SQUARE_SIZE * 2, ARGB_WHITE);
+			}
 		}
 	}
 

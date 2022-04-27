@@ -3,6 +3,7 @@ package mtr.render;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
@@ -23,6 +24,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -294,60 +296,27 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
 		}
 
-		matrices.translate(0, 0.0625 + SMALL_OFFSET, 0);
 		final boolean renderColors = isHoldingRailRelated(player);
 		final int maxRailDistance = renderDistanceChunks * 16;
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
-			final boolean isBoat = rail.transportMode == TransportMode.BOAT;
-			if (isBoat && !renderColors || !RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
+			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
 
-			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-				final BlockPos pos2 = new BlockPos(x1, y1, z1);
-				if (shouldNotRender(pos2, maxRailDistance, null)) {
-					return;
-				}
-				final int light2 = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos2), world.getBrightness(LightLayer.SKY, pos2));
-
-				if (rail.railType == RailType.NONE) {
+			switch (rail.transportMode) {
+				case TRAIN:
+					renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.0625F + SMALL_OFFSET, renderColors, false, maxRailDistance, 1);
+					break;
+				case BOAT:
 					if (renderColors) {
-						final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/one_way_rail_arrow.png")));
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
-						IDrawing.drawTexture(matrices, vertexConsumerArrow, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+						renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.0625F + SMALL_OFFSET, true, false, maxRailDistance, 0.5F);
 					}
-				} else {
-					final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
-					final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
-
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(renderColors && rail.railType == RailType.QUARTZ ? "mtr:textures/block/rail_preview.png" : "textures/block/rail.png")));
-					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
-				}
-			}, isBoat ? -0.5F : -1, isBoat ? 0.5F : 1);
-			if (renderColors) {
-				final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
-				final float width = 1F / DyeColor.values().length;
-
-				for (int i = 0; i < signalBlocks.size(); i++) {
-					final SignalBlocks.SignalBlock signalBlock = signalBlocks.get(i);
-					final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(MTRClient.getGameTick())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
-					final VertexConsumer vertexConsumer = shouldGlow ? vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false)) : vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("textures/block/white_wool.png")));
-					final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
-					final float u2 = u1 + width;
-
-					final int color = ARGB_BLACK | signalBlock.color.getMaterialColor().col;
-					rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-						final BlockPos pos2 = new BlockPos(x1, y1, z1);
-						if (shouldNotRender(pos2, maxRailDistance, null)) {
-							return;
-						}
-						final int light2 = shouldGlow ? MAX_LIGHT_GLOWING : LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos2), world.getBrightness(LightLayer.SKY, pos2));
-
-						IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
-						IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
-					}, u1 - 1, u2 - 1);
-				}
+					break;
+				case CABLE_CAR:
+					if (renderColors) {
+						renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.5F + SMALL_OFFSET, true, true, maxRailDistance, 0.5F);
+					}
+					break;
 			}
 		}));
 
@@ -400,6 +369,69 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}
 		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
+	}
+
+	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, BlockPos startPos, BlockPos endPos, float yOffset, boolean renderColors, boolean straightLineRendering, int maxRailDistance, float railWidth) {
+		rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+			final BlockPos pos2 = new BlockPos(x1, y1, z1);
+			if (shouldNotRender(pos2, maxRailDistance, null)) {
+				return;
+			}
+			final int light2 = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos2), world.getBrightness(LightLayer.SKY, pos2));
+
+			if (rail.railType == RailType.NONE) {
+				if (renderColors) {
+					final VertexConsumer vertexConsumerArrow = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/one_way_rail_arrow.png")));
+					IDrawing.drawTexture(matrices, vertexConsumerArrow, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+					IDrawing.drawTexture(matrices, vertexConsumerArrow, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, 0, 0.25F, 1, 0.75F, Direction.UP, -1, light2);
+				}
+			} else if (!straightLineRendering) {
+				final float textureOffset = (((int) (x1 + z1)) % 4) * 0.25F + (float) Config.trackTextureOffset() / Config.TRACK_OFFSET_COUNT;
+				final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
+
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(renderColors && rail.railType == RailType.QUARTZ ? "mtr:textures/block/rail_preview.png" : "textures/block/rail.png")));
+				IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+				IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, 0, 0.1875F + textureOffset, 1, 0.3125F + textureOffset, Direction.UP, color, light2);
+			}
+		}, -railWidth, railWidth, straightLineRendering);
+
+		if (renderColors) {
+			final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
+			final float width = 1F / DyeColor.values().length;
+
+			for (int i = 0; i < signalBlocks.size(); i++) {
+				final SignalBlocks.SignalBlock signalBlock = signalBlocks.get(i);
+				final boolean shouldGlow = signalBlock.isOccupied() && (((int) Math.floor(MTRClient.getGameTick())) % TICKS_PER_SECOND) < TICKS_PER_SECOND / 2;
+				final VertexConsumer vertexConsumer = shouldGlow ? vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false)) : vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("textures/block/white_wool.png")));
+				final float u1 = width * i + 1 - width * signalBlocks.size() / 2;
+				final float u2 = u1 + width;
+
+				final int color = ARGB_BLACK | signalBlock.color.getMaterialColor().col;
+				rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+					final BlockPos pos2 = new BlockPos(x1, y1, z1);
+					if (shouldNotRender(pos2, maxRailDistance, null)) {
+						return;
+					}
+					final int light2 = shouldGlow ? MAX_LIGHT_GLOWING : LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos2), world.getBrightness(LightLayer.SKY, pos2));
+
+					IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1, (float) z1, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x3, (float) y2, (float) z3, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, u1, 0, u2, 1, Direction.UP, color, light2);
+					IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + SMALL_OFFSET, (float) z4, (float) x3, (float) y2, (float) z3, (float) x2, (float) y1 + SMALL_OFFSET, (float) z2, (float) x1, (float) y1, (float) z1, u1, 0, u2, 1, Direction.UP, color, light2);
+				}, u1 - 1, u2 - 1, false);
+			}
+		}
+
+		if (straightLineRendering) {
+			rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
+				final Matrix4f matrix4f = matrices.last().pose();
+				final boolean hasSavedRail = rail.railType.hasSavedRail;
+				final int r = hasSavedRail ? (rail.railType.color >> 16) & 0xFF : 0xFF;
+				final int g = hasSavedRail ? (rail.railType.color >> 8) & 0xFF : 0xFF;
+				final int b = hasSavedRail ? rail.railType.color & 0xFF : 0xFF;
+				vertexConsumer.vertex(matrix4f, (float) x1, (float) y1 + yOffset, (float) z1).color(r, g, b, 0xFF).endVertex();
+				vertexConsumer.vertex(matrix4f, (float) x3, (float) y2 + yOffset, (float) z3).color(r, g, b, 0xFF).endVertex();
+			}, 0, 0, true);
+		}
 	}
 
 	private static void renderWithLight(Level world, double x, double y, double z, boolean noOffset, RenderCallback renderCallback) {

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
+import mtr.data.TransportMode;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
@@ -19,6 +20,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 
 	protected final T savedRailBase;
 	protected final int textWidth;
+	protected final boolean showScheduleControls;
 
 	private final DashboardScreen dashboardScreen;
 	private final WidgetBetterTextField textFieldSavedRailNumber;
@@ -28,9 +30,10 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected static final int SLIDER_WIDTH = 240;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component... additionalTexts) {
+	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, Component... additionalTexts) {
 		super(new TextComponent(""));
 		this.savedRailBase = savedRailBase;
+		showScheduleControls = !transportMode.continuousMovement;
 		this.dashboardScreen = dashboardScreen;
 		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
 

@@ -39,6 +39,8 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_DOOR.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS_END.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CABLE_CAR_NODE_LOWER.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CABLE_CAR_NODE_UPPER.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CLOCK.get());
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_CIO.get());
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_CKT.get());
@@ -65,7 +67,6 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_DOOR_2.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_2.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_2.get());
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RAIL_NODE.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.SIGNAL_LIGHT_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS.get());

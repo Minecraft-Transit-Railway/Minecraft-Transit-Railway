@@ -15,6 +15,7 @@ public interface Items {
 	RegistryObject<Item> BRUSH = new RegistryObject<>(() -> new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1)));
 	RegistryObject<Item> RAILWAY_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.TRAIN));
 	RegistryObject<Item> BOAT_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.BOAT));
+	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
 	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new WaterLilyBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
 	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES)));
 	RegistryObject<Item> PSD_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));

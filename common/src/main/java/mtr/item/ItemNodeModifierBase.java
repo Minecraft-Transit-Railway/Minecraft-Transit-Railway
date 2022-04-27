@@ -44,7 +44,7 @@ public abstract class ItemNodeModifierBase extends Item {
 			final BlockState stateStart = world.getBlockState(posStart);
 			final Block blockStart = stateStart.getBlock();
 
-			if (railwayData != null && blockStart instanceof BlockNode) {
+			if (railwayData != null && blockStart instanceof BlockNode && ((BlockNode) blockStart).transportMode.canUse(this)) {
 				final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
 
 				if (compoundTag.contains(TAG_POS) && compoundTag.contains(TAG_TRANSPORT_MODE)) {

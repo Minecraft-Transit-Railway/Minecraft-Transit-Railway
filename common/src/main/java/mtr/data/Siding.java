@@ -466,14 +466,12 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	}
 
 	private static TrainType getTrainType(TransportMode transportMode) {
-		switch (transportMode) {
-			case TRAIN:
-				return TrainType.SP1900;
-			case BOAT:
-				return TrainType.OAK_BOAT;
-			default:
-				return TrainType.values()[0];
+		for (final TrainType trainType : TrainType.values()) {
+			if (trainType.transportMode == transportMode) {
+				return trainType;
+			}
 		}
+		return TrainType.values()[0];
 	}
 
 	public static class TimeSegment {
