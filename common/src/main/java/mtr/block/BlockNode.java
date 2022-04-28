@@ -155,7 +155,7 @@ public class BlockNode extends HorizontalDirectionalBlock {
 		@Override
 		public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
 			final boolean facing = IBlock.getStatePropertySafe(state, FACING);
-			return Block.box(facing ? 0 : 6, upper ? 8 : 0, facing ? 6 : 0, facing ? 16 : 10, upper ? 16 : 8, facing ? 10 : 16);
+			return Block.box(facing ? 0 : 4, upper ? 8 : 0, facing ? 4 : 0, facing ? 16 : 12, upper ? 16 : 8, facing ? 12 : 16);
 		}
 
 		@Override

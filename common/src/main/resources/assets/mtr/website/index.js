@@ -19,6 +19,7 @@ const SETTINGS = {
 		"boat_normal": "sailing",
 		"boat_light_rail": "directions_boat",
 		"boat_high_speed": "snowmobile",
+		"cable_car_normal": "airline_seat_recline_extra",
 	},
 	lineSize: 6,
 	dimension: 0,

@@ -377,14 +377,9 @@ public class Rail extends SerializedDataBase {
 	private double getPositionY(double value) {
 		final double length = getLength();
 
-		if (transportMode == TransportMode.CABLE_CAR) {
+		if (railType.railSlopeStyle == RailType.RailSlopeStyle.CABLE) {
 			final double posY = value < 0.5 ? yStart : value > length - 0.5 ? yEnd : yStart + (yEnd - yStart) * (value - 0.5) / (length - 1);
-
-			if (!railType.hasSavedRail && railType != RailType.CABLE_CAR) {
-				return posY + (value < 0.5 || value > length - 0.5 ? 0 : 0.002 * (value - length + 0.5) * (value - 0.5));
-			} else {
-				return posY;
-			}
+			return posY + (value < 0.5 || value > length - 0.5 ? 0 : 0.002 * (value - length + 0.5) * (value - 0.5));
 		} else {
 			final double intercept = length / 2;
 			final double yChange;

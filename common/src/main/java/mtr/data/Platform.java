@@ -21,29 +21,30 @@ public final class Platform extends SavedRailBase {
 
 	public Platform(long id, TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(id, transportMode, pos1, pos2);
-		dwellTime = DEFAULT_DWELL_TIME;
+		dwellTime = transportMode.continuousMovement ? 1 : DEFAULT_DWELL_TIME;
 	}
 
 	public Platform(TransportMode transportMode, BlockPos pos1, BlockPos pos2) {
 		super(transportMode, pos1, pos2);
-		dwellTime = DEFAULT_DWELL_TIME;
+		dwellTime = transportMode.continuousMovement ? 1 : DEFAULT_DWELL_TIME;
 	}
 
 	public Platform(Map<String, Value> map) {
 		super(map);
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
-		dwellTime = messagePackHelper.getInt(KEY_DWELL_TIME);
+		dwellTime = transportMode.continuousMovement ? 1 : messagePackHelper.getInt(KEY_DWELL_TIME);
 	}
 
 	@Deprecated
 	public Platform(CompoundTag compoundTag) {
 		super(compoundTag);
-		dwellTime = compoundTag.getInt(KEY_DWELL_TIME);
+		dwellTime = transportMode.continuousMovement ? 1 : compoundTag.getInt(KEY_DWELL_TIME);
 	}
 
 	public Platform(FriendlyByteBuf packet) {
 		super(packet);
 		dwellTime = packet.readInt();
+		dwellTime = transportMode.continuousMovement ? 1 : dwellTime;
 	}
 
 	@Override
@@ -70,6 +71,7 @@ public final class Platform extends SavedRailBase {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
 			dwellTime = packet.readInt();
+			dwellTime = transportMode.continuousMovement ? 1 : dwellTime;
 		} else {
 			super.update(key, packet);
 		}
@@ -79,11 +81,13 @@ public final class Platform extends SavedRailBase {
 		if (dwellTime <= 0 || dwellTime > MAX_DWELL_TIME) {
 			dwellTime = DEFAULT_DWELL_TIME;
 		}
-		return dwellTime;
+		return transportMode.continuousMovement ? 1 : dwellTime;
 	}
 
 	public void setDwellTime(int newDwellTime, Consumer<FriendlyByteBuf> sendPacket) {
-		if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
+		if (transportMode.continuousMovement) {
+			dwellTime = 1;
+		} else if (newDwellTime <= 0 || newDwellTime > MAX_DWELL_TIME) {
 			dwellTime = DEFAULT_DWELL_TIME;
 		} else {
 			dwellTime = newDwellTime;

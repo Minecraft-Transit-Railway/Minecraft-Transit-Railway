@@ -49,6 +49,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		super(id, transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
+		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 	}
 
@@ -56,6 +57,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		super(transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
+		unlimitedTrains = transportMode.continuousMovement;
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 	}
 
