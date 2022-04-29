@@ -119,7 +119,9 @@ public class TrainClientRegistry {
 		register("acacia_boat", TrainType.ACACIA_BOAT, null, "textures/entity/boat/acacia", null, null, null, 0x8F7748, 0, 0.5F, false);
 		register("dark_oak_boat", TrainType.DARK_OAK_BOAT, null, "textures/entity/boat/dark_oak", null, null, null, 0x8F7748, 0, 0.5F, false);
 		register("ngong_ping_360_crystal", TrainType.NGONG_PING_360_CRYSTAL, new ModelNgongPing360(), "mtr:textures/entity/ngong_ping_360_crystal", null, null, null, 0x062540, 0, 0.5F, false);
+		register("ngong_ping_360_normal_red", TrainType.NGONG_PING_360_NORMAL_RED, new ModelNgongPing360(), "mtr:textures/entity/ngong_ping_360_normal_red", null, null, null, 0x062540, 0, 0.5F, false);
 		register("ngong_ping_360_normal_orange", TrainType.NGONG_PING_360_NORMAL_ORANGE, new ModelNgongPing360(), "mtr:textures/entity/ngong_ping_360_normal_orange", null, null, null, 0x062540, 0, 0.5F, false);
+		register("ngong_ping_360_normal_light_blue", TrainType.NGONG_PING_360_NORMAL_LIGHT_BLUE, new ModelNgongPing360(), "mtr:textures/entity/ngong_ping_360_normal_light_blue", null, null, null, 0x062540, 0, 0.5F, false);
 	}
 
 	public static TrainProperties getTrainProperties(String key, TrainType baseTrainType) {
