@@ -3,6 +3,7 @@ package mtr.render;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
@@ -315,33 +316,35 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			switch (rail.transportMode) {
 				case TRAIN:
-					renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.0625F + SMALL_OFFSET, renderColors, 1);
+					renderRailStandard(world, matrices, vertexConsumers, rail, 0.0625F + SMALL_OFFSET, renderColors, 1);
 					if (renderColors) {
 						renderSignalsStandard(world, matrices, vertexConsumers, rail, startPos, endPos);
 					}
 					break;
 				case BOAT:
 					if (renderColors) {
-						renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.0625F + SMALL_OFFSET, true, 0.5F);
+						renderRailStandard(world, matrices, vertexConsumers, rail, 0.0625F + SMALL_OFFSET, true, 0.5F);
 						renderSignalsStandard(world, matrices, vertexConsumers, rail, startPos, endPos);
 					}
 					break;
 				case CABLE_CAR:
 					if (rail.railType.hasSavedRail || rail.railType == RailType.CABLE_CAR_STATION) {
-						renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.25F + SMALL_OFFSET, renderColors, 0.25F, "mtr:textures/block/metal.png", 0.25F, 0, 0.75F, 1);
-					} else if (renderColors) {
-						renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, 0.5F + SMALL_OFFSET, renderColors, 1, "mtr:textures/block/one_way_rail_arrow.png", 0, 0.25F, 1, 0.75F);
+						renderRailStandard(world, matrices, vertexConsumers, rail, 0.25F + SMALL_OFFSET, renderColors, 0.25F, "mtr:textures/block/metal.png", 0.25F, 0, 0.75F, 1);
+					}
+					if (renderColors && !rail.railType.hasSavedRail) {
+						renderRailStandard(world, matrices, vertexConsumers, rail, 0.5F + SMALL_OFFSET, true, 1, "mtr:textures/block/one_way_rail_arrow.png", 0, 0.75F, 1, 0.25F);
 					}
 
 					if (rail.railType != RailType.NONE) {
 						rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 							final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
 							final Matrix4f matrix4f = matrices.last().pose();
+							final Matrix3f matrix3f = matrices.last().normal();
 							final int r = renderColors ? (rail.railType.color >> 16) & 0xFF : 0;
 							final int g = renderColors ? (rail.railType.color >> 8) & 0xFF : 0;
 							final int b = renderColors ? rail.railType.color & 0xFF : 0;
-							vertexConsumer.vertex(matrix4f, (float) x1, (float) y1 + 0.5F, (float) z1).color(r, g, b, 0xFF).endVertex();
-							vertexConsumer.vertex(matrix4f, (float) x3, (float) y2 + 0.5F, (float) z3).color(r, g, b, 0xFF).endVertex();
+							vertexConsumer.vertex(matrix4f, (float) x1, (float) y1 + 0.5F, (float) z1).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
+							vertexConsumer.vertex(matrix4f, (float) x3, (float) y2 + 0.5F, (float) z3).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
 						}, 0, 0);
 					}
 
@@ -400,11 +403,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		return cameraPos == null || playerFacingAway || maxDistanceXZ(cameraPos, pos) > (MTRClient.isReplayMod() ? MAX_RADIUS_REPLAY_MOD : maxDistance);
 	}
 
-	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, BlockPos startPos, BlockPos endPos, float yOffset, boolean renderColors, float railWidth) {
-		renderRailStandard(world, matrices, vertexConsumers, rail, startPos, endPos, yOffset, renderColors, railWidth, renderColors && rail.railType == RailType.QUARTZ ? "mtr:textures/block/rail_preview.png" : "textures/block/rail.png", -1, -1, -1, -1);
+	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, float yOffset, boolean renderColors, float railWidth) {
+		renderRailStandard(world, matrices, vertexConsumers, rail, yOffset, renderColors, railWidth, renderColors && rail.railType == RailType.QUARTZ ? "mtr:textures/block/rail_preview.png" : "textures/block/rail.png", -1, -1, -1, -1);
 	}
 
-	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, BlockPos startPos, BlockPos endPos, float yOffset, boolean renderColors, float railWidth, String texture, float u1, float v1, float u2, float v2) {
+	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, float yOffset, boolean renderColors, float railWidth, String texture, float u1, float v1, float u2, float v2) {
 		final int maxRailDistance = Minecraft.getInstance().options.renderDistance * 16;
 
 		rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
@@ -425,7 +428,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				final int color = renderColors || !Config.hideSpecialRailColors() && rail.railType.hasSavedRail ? rail.railType.color : -1;
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(texture)));
 				IDrawing.drawTexture(matrices, vertexConsumer, (float) x1, (float) y1 + yOffset, (float) z1, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x3, (float) y2 + yOffset, (float) z3, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light2);
-				IDrawing.drawTexture(matrices, vertexConsumer, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light2);
+				IDrawing.drawTexture(matrices, vertexConsumer, (float) x2, (float) y1 + yOffset + SMALL_OFFSET, (float) z2, (float) x1, (float) y1 + yOffset, (float) z1, (float) x4, (float) y2 + yOffset + SMALL_OFFSET, (float) z4, (float) x3, (float) y2 + yOffset, (float) z3, u1 < 0 ? 0 : u1, v1 < 0 ? 0.1875F + textureOffset : v1, u2 < 0 ? 1 : u2, v2 < 0 ? 0.3125F + textureOffset : v2, Direction.UP, color, light2);
 			}
 		}, -railWidth, railWidth);
 	}
