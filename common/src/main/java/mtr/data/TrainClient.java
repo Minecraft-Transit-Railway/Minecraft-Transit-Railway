@@ -164,7 +164,7 @@ public class TrainClient extends Train {
 				}
 
 				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), baseTrainType.width), doorLeftOpenRender || doorRightOpenRender ? 0 : baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), realSpacingRender)).xRot(pitch).yRot(yaw);
+					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), baseTrainType.width), doorLeftOpenRender || doorRightOpenRender ? 0 : baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), realSpacingRender)).xRot(baseTrainType.transportMode.hasPitch ? pitch : 0).yRot(yaw);
 					ClientData.updatePlayerRidingOffset(uuid);
 					riderPositions.put(uuid, playerOffset.add(x, y, z));
 
@@ -174,7 +174,7 @@ public class TrainClient extends Train {
 						clientPlayer.setSpeed(0);
 						clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : 0), z + playerOffset.z);
 						if (speed > 0 || MTRClient.isVivecraft()) {
-							if (!MTRClient.isVivecraft()) {
+							if (!MTRClient.isVivecraft() && doorValueRaw == 0) {
 								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
 							}
 							offset.add(x);
