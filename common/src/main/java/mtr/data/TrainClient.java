@@ -60,7 +60,7 @@ public class TrainClient extends Train {
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
+			float doorValueRaw, float oldSpeed, float oldDoorValue, double oldRailProgress
 	) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
@@ -116,7 +116,7 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
@@ -141,7 +141,7 @@ public class TrainClient extends Train {
 				}
 
 				if (announcementCallback != null) {
-					float targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * trainSpacing;
+					final double targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * trainSpacing;
 					if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
 						announcementCallback.announcementCallback(stopIndex, routeIds);
 					}
