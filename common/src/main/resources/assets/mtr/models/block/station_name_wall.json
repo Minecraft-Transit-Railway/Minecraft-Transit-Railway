@@ -1,6 +1,6 @@
 {
 	"parent": "block/air",
 	"textures": {
-		"particle": "mtr:item/station_name_wall"
+		"particle": "mtr:item/station_name_wall_white"
 	}
 }

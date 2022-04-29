@@ -293,7 +293,9 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
-		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL_WHITE, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall_gray", Blocks.STATION_NAME_WALL_GRAY, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall_black", Blocks.STATION_NAME_WALL_BLACK, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_pole", Blocks.STATION_COLOR_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("tactile_map", Blocks.TACTILE_MAP, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroups.RAILWAY_FACILITIES);
@@ -342,7 +344,9 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("signal_semaphore_1", BlockEntityTypes.SIGNAL_SEMAPHORE_1);
 		registerBlockEntityType.accept("signal_semaphore_2", BlockEntityTypes.SIGNAL_SEMAPHORE_2);
 		registerBlockEntityType.accept("station_name_entrance", BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY);
-		registerBlockEntityType.accept("station_name_wall", BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall", BlockEntityTypes.STATION_NAME_WALL_WHITE_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall_gray", BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall_black", BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_block", BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_wall", BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY);
 		registerBlockEntityType.accept("tactile_map", BlockEntityTypes.TACTILE_MAP_TILE_ENTITY);
