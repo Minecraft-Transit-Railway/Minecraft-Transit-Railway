@@ -37,7 +37,7 @@ public enum RailType implements IGui {
 	}
 
 	public static float getDefaultMaxBlocksPerTick(TransportMode transportMode) {
-		return (transportMode.continuousMovement ? CABLE_CAR : WOODEN).maxBlocksPerTick;
+		return (transportMode.continuousMovement ? CABLE_CAR_STATION : WOODEN).maxBlocksPerTick;
 	}
 
 	public enum RailSlopeStyle {CURVE, CABLE}
