@@ -56,7 +56,7 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final int quadrant = RailAngle.getQuadrant(ctx.getRotation());
+		final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), true);
 		return defaultBlockState().setValue(FACING, quadrant % 8 >= 4).setValue(IS_45, quadrant % 4 >= 2).setValue(IS_22_5, quadrant % 2 >= 1).setValue(IS_CONNECTED, false);
 	}
 
@@ -149,13 +149,13 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 		@Override
 		public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-			return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getAxis() == Direction.Axis.X).setValue(IS_22_5, false).setValue(IS_45, false).setValue(IS_CONNECTED, false);
+			final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), false);
+			return defaultBlockState().setValue(FACING, quadrant % 4 >= 2).setValue(IS_45, quadrant % 2 >= 1).setValue(IS_22_5, false).setValue(IS_CONNECTED, false);
 		}
 
 		@Override
 		public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
-			final boolean facing = IBlock.getStatePropertySafe(state, FACING);
-			return Block.box(facing ? 0 : 4, upper ? 8 : 0, facing ? 4 : 0, facing ? 16 : 12, upper ? 16 : 8, facing ? 12 : 16);
+			return Block.box(0, upper ? 8 : 0, 0, 16, upper ? 16 : 8, 16);
 		}
 
 		@Override

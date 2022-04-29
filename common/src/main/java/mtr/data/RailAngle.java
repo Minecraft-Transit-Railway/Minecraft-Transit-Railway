@@ -95,12 +95,13 @@ public enum RailAngle {
 		return Math.abs(normalizeAngle(angleDegrees1 - angleDegrees2)) < DEGREES_IN_CIRCLE / 4F;
 	}
 
-	public static int getQuadrant(float angleDegrees) {
-		return Math.round((normalizeAngle(angleDegrees) + DEGREES_IN_CIRCLE) / ANGLE_INCREMENT) % QUADRANTS;
+	public static int getQuadrant(float angleDegrees, boolean include225) {
+		final int factor = include225 ? 1 : 2;
+		return (Math.round((normalizeAngle(angleDegrees) + DEGREES_IN_CIRCLE) / ANGLE_INCREMENT / factor) % (QUADRANTS / factor));
 	}
 
 	public static RailAngle fromAngle(float angleDegrees) {
-		return RailAngle.values()[getQuadrant(angleDegrees)];
+		return RailAngle.values()[getQuadrant(angleDegrees, true)];
 	}
 
 	private static float normalizeAngle(float angleDegrees) {

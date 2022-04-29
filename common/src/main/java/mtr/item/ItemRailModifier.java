@@ -60,7 +60,13 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 						isValidContinuousMovement = true;
 						newRailType = railType.hasSavedRail ? railType : RailType.CABLE_CAR_STATION;
 					} else {
-						isValidContinuousMovement = !railType.hasSavedRail && facingStart.isParallel(facingEnd) && ((facingStart == RailAngle.N || facingStart == RailAngle.S) && posStart.getX() == posEnd.getX() || (facingStart == RailAngle.E || facingStart == RailAngle.W) && posStart.getZ() == posEnd.getZ());
+						final int differenceX = posEnd.getX() - posStart.getX();
+						final int differenceZ = posEnd.getZ() - posStart.getZ();
+						isValidContinuousMovement = !railType.hasSavedRail && facingStart.isParallel(facingEnd)
+								&& ((facingStart == RailAngle.N || facingStart == RailAngle.S) && differenceX == 0
+								|| (facingStart == RailAngle.E || facingStart == RailAngle.W) && differenceZ == 0
+								|| (facingStart == RailAngle.NE || facingStart == RailAngle.SW) && differenceX == -differenceZ
+								|| (facingStart == RailAngle.SE || facingStart == RailAngle.NW) && differenceX == differenceZ);
 						newRailType = RailType.CABLE_CAR;
 					}
 				} else {
