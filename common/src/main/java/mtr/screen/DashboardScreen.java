@@ -273,7 +273,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 						}
 					} else {
 						if (data instanceof Platform) {
-							UtilitiesClient.setScreen(minecraft, new PlatformScreen((Platform) data, this));
+							UtilitiesClient.setScreen(minecraft, new PlatformScreen((Platform) data, transportMode, this));
 						}
 					}
 					break;
@@ -387,7 +387,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 
 	private void onClickEditSavedRail(SavedRailBase savedRail) {
 		if (savedRail instanceof Platform) {
-			UtilitiesClient.setScreen(Minecraft.getInstance(), new PlatformScreen((Platform) savedRail, this));
+			UtilitiesClient.setScreen(Minecraft.getInstance(), new PlatformScreen((Platform) savedRail, transportMode, this));
 		} else if (savedRail instanceof Siding) {
 			UtilitiesClient.setScreen(Minecraft.getInstance(), new SidingScreen((Siding) savedRail, transportMode, this));
 		}

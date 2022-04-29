@@ -18,7 +18,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	private final DyeColor color;
 
 	public ItemSignalModifier(boolean isConnector, DyeColor color) {
-		super(isConnector);
+		super(true, false, isConnector);
 		this.color = color;
 	}
 

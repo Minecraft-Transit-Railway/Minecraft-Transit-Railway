@@ -53,6 +53,7 @@ public class MTR implements IPacket {
 		registerItem.accept("brush", Items.BRUSH);
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
+		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
@@ -79,6 +80,7 @@ public class MTR implements IPacket {
 		registerItem.accept("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem.accept("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
 		registerItem.accept("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
+		registerItem.accept("rail_connector_cable_car", Items.RAIL_CONNECTOR_CABLE_CAR);
 		registerItem.accept("rail_remover", Items.RAIL_REMOVER);
 		registerItem.accept("resource_pack_creator", Items.RESOURCE_PACK_CREATOR);
 		registerItem.accept("signal_connector_white", Items.SIGNAL_CONNECTOR_WHITE);
@@ -145,6 +147,9 @@ public class MTR implements IPacket {
 
 		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
 		registerBlock.accept("boat_node", Blocks.BOAT_NODE);
+		registerBlockItem.accept("cable_car_node_lower", Blocks.CABLE_CAR_NODE_LOWER, ItemGroups.CORE);
+		registerBlockItem.accept("cable_car_node_upper", Blocks.CABLE_CAR_NODE_UPPER, ItemGroups.CORE);
+		registerBlockItem.accept("cable_car_node_station", Blocks.CABLE_CAR_NODE_STATION, ItemGroups.CORE);
 		registerBlock.accept("apg_door", Blocks.APG_DOOR);
 		registerBlock.accept("apg_glass", Blocks.APG_GLASS);
 		registerBlock.accept("apg_glass_end", Blocks.APG_GLASS_END);

@@ -25,13 +25,17 @@ import java.util.List;
 
 public abstract class ItemNodeModifierBase extends Item {
 
+	public final boolean forNonContinuousMovementNode;
+	public final boolean forContinuousMovementNode;
 	protected final boolean isConnector;
 
 	public static final String TAG_POS = "pos";
 	private static final String TAG_TRANSPORT_MODE = "transport_mode";
 
-	public ItemNodeModifierBase(boolean isConnector) {
+	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean isConnector) {
 		super(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1));
+		this.forNonContinuousMovementNode = forNonContinuousMovementNode;
+		this.forContinuousMovementNode = forContinuousMovementNode;
 		this.isConnector = isConnector;
 	}
 
@@ -44,7 +48,7 @@ public abstract class ItemNodeModifierBase extends Item {
 			final BlockState stateStart = world.getBlockState(posStart);
 			final Block blockStart = stateStart.getBlock();
 
-			if (railwayData != null && blockStart instanceof BlockNode) {
+			if (railwayData != null && blockStart instanceof BlockNode && (((BlockNode) blockStart).transportMode.continuousMovement && forContinuousMovementNode || !((BlockNode) blockStart).transportMode.continuousMovement && forNonContinuousMovementNode)) {
 				final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
 
 				if (compoundTag.contains(TAG_POS) && compoundTag.contains(TAG_TRANSPORT_MODE)) {

@@ -49,14 +49,16 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		super(id, transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
-		accelerationConstant = Train.ACCELERATION_DEFAULT;
+		unlimitedTrains = transportMode.continuousMovement;
+		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 	}
 
 	public Siding(TransportMode transportMode, BlockPos pos1, BlockPos pos2, float railLength) {
 		super(transportMode, pos1, pos2);
 		this.railLength = railLength;
 		setTrainDetails("", getTrainType(transportMode));
-		accelerationConstant = Train.ACCELERATION_DEFAULT;
+		unlimitedTrains = transportMode.continuousMovement;
+		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 	}
 
 	public Siding(Map<String, Value> map) {
@@ -64,10 +66,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 		railLength = messagePackHelper.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), TrainType.getOrDefault(messagePackHelper.getString(KEY_BASE_TRAIN_TYPE)));
-		unlimitedTrains = messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
+		unlimitedTrains = transportMode.continuousMovement || messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
 		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT), 3);
-		accelerationConstant = tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
+		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 
 		messagePackHelper.iterateArrayValue(KEY_PATH, pathSection -> path.add(new PathData(RailwayData.castMessagePackValueToSKMap(pathSection))));
 
@@ -83,9 +85,9 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 		railLength = compoundTag.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), TrainType.getOrDefault(compoundTag.getString(KEY_BASE_TRAIN_TYPE)));
-		unlimitedTrains = compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
+		unlimitedTrains = transportMode.continuousMovement || compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
-		accelerationConstant = Train.ACCELERATION_DEFAULT;
+		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 
 		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
 		final int pathCount = tagPath.getAllKeys().size();
@@ -104,10 +106,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		super(packet);
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
-		unlimitedTrains = packet.readBoolean();
+		unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
 		maxTrains = packet.readInt();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
-		accelerationConstant = tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
+		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 	}
 
 	@Override
@@ -160,12 +162,12 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
-				unlimitedTrains = packet.readBoolean();
+				unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
 				maxTrains = packet.readInt();
 				final float newAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 				if (newAccelerationConstant > 0) {
 					trains.clear();
-					accelerationConstant = newAccelerationConstant;
+					accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
 				}
 				break;
 			default:
@@ -197,11 +199,11 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 		packet.writeFloat(tempAccelerationConstant);
 		sendPacket.accept(packet);
-		this.unlimitedTrains = unlimitedTrains;
+		this.unlimitedTrains = transportMode.continuousMovement || unlimitedTrains;
 		this.maxTrains = maxTrains;
 		if (tempAccelerationConstant > 0) {
 			trains.clear();
-			this.accelerationConstant = tempAccelerationConstant;
+			this.accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant;
 		}
 	}
 
@@ -327,7 +329,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			}
 			railProgressSet.add(roundedRailProgress);
 
-			if (trainPositions != null) {
+			if (trainPositions != null && !transportMode.continuousMovement) {
 				train.writeTrainPositions(trainPositions, signalBlocks);
 			}
 		}
@@ -416,7 +418,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			}
 
 			final PathData pathData = path.get(i);
-			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.railType.maxBlocksPerTick : Math.max(speed, RailType.WOODEN.maxBlocksPerTick);
+			final float railSpeed = pathData.rail.railType.canAccelerate ? pathData.rail.railType.maxBlocksPerTick : Math.max(speed, RailType.getDefaultMaxBlocksPerTick(transportMode));
 			distanceSum2 += pathData.rail.getLength();
 
 			while (railProgress < distanceSum2) {
@@ -466,14 +468,12 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	}
 
 	private static TrainType getTrainType(TransportMode transportMode) {
-		switch (transportMode) {
-			case TRAIN:
-				return TrainType.SP1900;
-			case BOAT:
-				return TrainType.OAK_BOAT;
-			default:
-				return TrainType.values()[0];
+		for (final TrainType trainType : TrainType.values()) {
+			if (trainType.transportMode == transportMode) {
+				return trainType;
+			}
 		}
+		return TrainType.values()[0];
 	}
 
 	public static class TimeSegment {

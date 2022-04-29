@@ -192,7 +192,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected boolean isRailBlocked(int checkIndex) {
-		if (trainPositions != null && checkIndex < path.size()) {
+		if (!baseTrainType.transportMode.continuousMovement && trainPositions != null && checkIndex < path.size()) {
 			final UUID railProduct = path.get(checkIndex).getRailProduct();
 			for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
 				if (trainPositionsMap.containsKey(railProduct) && trainPositionsMap.get(railProduct) != id) {

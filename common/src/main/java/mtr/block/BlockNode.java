@@ -7,9 +7,16 @@ import mtr.data.TransportMode;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,6 +36,8 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.List;
 
 public class BlockNode extends HorizontalDirectionalBlock {
 
@@ -124,6 +133,37 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 		public TileEntityBoatNode(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.BOAT_NODE_TILE_ENTITY.get(), pos, state);
+		}
+	}
+
+	public static class BlockContinuousMovementNode extends BlockNode {
+
+		public final boolean upper;
+		public final boolean isStation;
+
+		public BlockContinuousMovementNode(boolean upper, boolean isStation) {
+			super(TransportMode.CABLE_CAR);
+			this.upper = upper;
+			this.isStation = isStation;
+		}
+
+		@Override
+		public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+			return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getAxis() == Direction.Axis.X).setValue(IS_22_5, false).setValue(IS_45, false).setValue(IS_CONNECTED, false);
+		}
+
+		@Override
+		public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+			final boolean facing = IBlock.getStatePropertySafe(state, FACING);
+			return Block.box(facing ? 0 : 4, upper ? 8 : 0, facing ? 4 : 0, facing ? 16 : 12, upper ? 16 : 8, facing ? 12 : 16);
+		}
+
+		@Override
+		public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+			final String[] strings = new TranslatableComponent("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
+			for (final String string : strings) {
+				tooltip.add(new TextComponent(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			}
 		}
 	}
 }

@@ -60,6 +60,9 @@ public interface Blocks {
 	RegistryObject<Block> PSD_TOP = new RegistryObject<>(BlockPSDTop::new);
 	RegistryObject<Block> RAIL_NODE = new RegistryObject<>(() -> new BlockNode(TransportMode.TRAIN));
 	RegistryObject<Block> BOAT_NODE = new RegistryObject<>(BlockNode.BlockBoatNode::new);
+	RegistryObject<Block> CABLE_CAR_NODE_LOWER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, false));
+	RegistryObject<Block> CABLE_CAR_NODE_UPPER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(true, false));
+	RegistryObject<Block> CABLE_CAR_NODE_STATION = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, true));
 	RegistryObject<Block> RAILWAY_SIGN_2_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(2, false));
 	RegistryObject<Block> RAILWAY_SIGN_2_ODD = new RegistryObject<>(() -> new BlockRailwaySign(2, true));
 	RegistryObject<Block> RAILWAY_SIGN_3_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(3, false));

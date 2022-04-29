@@ -375,20 +375,29 @@ public class Rail extends SerializedDataBase {
 	}
 
 	private double getPositionY(double value) {
-		final double intercept = getLength() / 2;
-		final double yChange;
-		final double yInitial;
-		final double offsetValue;
-		if (value < intercept) {
-			yChange = (yEnd - yStart) / 2F;
-			yInitial = yStart;
-			offsetValue = value;
+		final double length = getLength();
+
+		if (railType.railSlopeStyle == RailType.RailSlopeStyle.CABLE) {
+			final double posY = value < 0.5 ? yStart : value > length - 0.5 ? yEnd : yStart + (yEnd - yStart) * (value - 0.5) / (length - 1);
+			return posY + (value < 0.5 || value > length - 0.5 ? 0 : 0.002 * (value - length + 0.5) * (value - 0.5));
 		} else {
-			yChange = (yStart - yEnd) / 2F;
-			yInitial = yEnd;
-			offsetValue = getLength() - value;
+			final double intercept = length / 2;
+			final double yChange;
+			final double yInitial;
+			final double offsetValue;
+
+			if (value < intercept) {
+				yChange = (yEnd - yStart) / 2F;
+				yInitial = yStart;
+				offsetValue = value;
+			} else {
+				yChange = (yStart - yEnd) / 2F;
+				yInitial = yEnd;
+				offsetValue = length - value;
+			}
+
+			return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 		}
-		return yChange * offsetValue * offsetValue / (intercept * intercept) + yInitial;
 	}
 
 	private static Vec3 getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
