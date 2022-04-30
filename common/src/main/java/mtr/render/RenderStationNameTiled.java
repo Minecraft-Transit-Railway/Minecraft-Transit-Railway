@@ -59,7 +59,7 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 		int length = 1;
 		while (true) {
 			final Block checkBlock = world.getBlockState(pos.relative(facing.getClockWise(), length)).getBlock();
-			if (checkBlock == thisBlock) {
+			if (checkBlock instanceof BlockStationNameBase && checkBlock == thisBlock) {
 				length++;
 			} else {
 				break;
