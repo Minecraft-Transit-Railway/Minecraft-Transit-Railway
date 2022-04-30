@@ -189,6 +189,9 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				if (!baseTrainType.transportMode.hasPitch) {
 					matrices.mulPose(Vector3f.XP.rotation(pitch));
 				}
+				if (baseTrainType.toString().endsWith("_RHT")) {
+					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+				}
 				MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
 			}
 
