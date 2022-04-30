@@ -259,6 +259,7 @@ public class ModelQTrain extends ModelTrainBase {
         window_handrails = new ModelMapper(modelDataWrapper);
         window_handrails.setPos(0, 24, 0);
         window_handrails.texOffs(319, 0).addBox(-2, -34.4F, 15.8F, 0, 3, 0, 0.2F, false);
+        window_handrails.texOffs(319, 0).addBox(-2, -34.4F, -15.8F, 0, 3, 0, 0.2F, false);
         window_handrails.texOffs(319, 0).addBox(-8.4923F, -33.8142F, -11, 0, 1, 0, 0.2F, false);
         window_handrails.texOffs(319, 0).addBox(-8.4923F, -33.8142F, 0, 0, 1, 0, 0.2F, false);
         window_handrails.texOffs(319, 0).addBox(-8.4923F, -33.8142F, 11, 0, 1, 0, 0.2F, false);
