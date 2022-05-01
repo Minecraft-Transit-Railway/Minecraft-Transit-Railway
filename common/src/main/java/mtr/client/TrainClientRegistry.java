@@ -122,10 +122,10 @@ public class TrainClientRegistry {
 		register("r211_mini", TrainType.R211_MINI, new ModelR211Mini(false), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
 		register("r211t", TrainType.R211T, new ModelR211(true), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
 		register("r211t_mini", TrainType.R211T_MINI, new ModelR211Mini(true), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
-		register("class_802_gwr", TrainType.CLASS_802_GWR, new ModelClass802(), "mtr:textures/entity/class_802_gwr", "k_train", "class_802", null, 0x021E15, 66, 1, false);
-		register("class_802_gwr_mini", TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", "k_train", "class_802", null, 0x021E15, 66, 1, false);
-		register("class_802_tpe", TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", "k_train", "class_802", null, 0x00A6E6, 66, 1, false);
-		register("class_802_tpe_mini", TrainType.CLASS_802_TPE_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_tpe", "k_train", "class_802", null, 0x00A6E6, 66, 1, false);
+		register("class_802_gwr", TrainType.CLASS_802_GWR, new ModelClass802(), "mtr:textures/entity/class_802_gwr", "class_802", "class_802", null, 0x021E15, 120, 1, false);
+		register("class_802_gwr_mini", TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", "class_802", "class_802", null, 0x021E15, 120, 1, false);
+		register("class_802_tpe", TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", "class_802", "class_802", null, 0x00A6E6, 120, 1, false);
+		register("class_802_tpe_mini", TrainType.CLASS_802_TPE_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_tpe", "class_802", "class_802", null, 0x00A6E6, 120, 1, false);
 		register("minecart", TrainType.MINECART, null, "textures/entity/minecart", null, null, null, 0x666666, 0, 0.5F, false);
 		register("oak_boat", TrainType.OAK_BOAT, null, "textures/entity/boat/oak", null, null, null, 0x8F7748, 0, 0.5F, false);
 		register("spruce_boat", TrainType.SPRUCE_BOAT, null, "textures/entity/boat/spruce", null, null, null, 0x8F7748, 0, 0.5F, false);
