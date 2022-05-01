@@ -74,9 +74,9 @@ public class TrainClientRegistry {
 		register("c_train", TrainType.C_TRAIN, new ModelCTrain(), "mtr:textures/entity/c_train", "c_train", "sp1900", null, 0xFDD900, 69, 0.5F, false);
 		register("c_train_small", TrainType.C_TRAIN_SMALL, new ModelCTrainSmall(), "mtr:textures/entity/c_train", "c_train", "sp1900", null, 0xFDD900, 69, 0.5F, false);
 		register("c_train_mini", TrainType.C_TRAIN_MINI, new ModelCTrainMini(), "mtr:textures/entity/c_train", "c_train", "sp1900", null, 0xFDD900, 69, 0.5F, false);
-		register("s_train", TrainType.S_TRAIN, new ModelSTrain(), "mtr:textures/entity/s_train", "c_train", "sp1900", null, 0xC1CD23, 69, 0.5F, false);
-		register("s_train_small", TrainType.S_TRAIN_SMALL, new ModelSTrainSmall(), "mtr:textures/entity/s_train", "c_train", "sp1900", null, 0xC1CD23, 69, 0.5F, false);
-		register("s_train_mini", TrainType.S_TRAIN_MINI, new ModelSTrainMini(), "mtr:textures/entity/s_train", "c_train", "sp1900", null, 0xC1CD23, 69, 0.5F, false);
+		register("s_train", TrainType.S_TRAIN, new ModelSTrain(), "mtr:textures/entity/s_train", "s_train", "sp1900", null, 0xC1CD23, 42, 0.5F, false);
+		register("s_train_small", TrainType.S_TRAIN_SMALL, new ModelSTrainSmall(), "mtr:textures/entity/s_train", "s_train", "sp1900", null, 0xC1CD23, 42, 0.5F, false);
+		register("s_train_mini", TrainType.S_TRAIN_MINI, new ModelSTrainMini(), "mtr:textures/entity/s_train", "s_train", "sp1900", null, 0xC1CD23, 42, 0.5F, false);
 		register("a_train_tcl", TrainType.A_TRAIN_TCL, new ModelATrain(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", null, 0xF69447, 78, 0.5F, false);
 		register("a_train_tcl_small", TrainType.A_TRAIN_TCL_SMALL, new ModelATrainSmall(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", null, 0xF69447, 78, 0.5F, false);
 		register("a_train_tcl_mini", TrainType.A_TRAIN_TCL_MINI, new ModelATrainMini(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", null, 0xF69447, 78, 0.5F, false);
@@ -118,10 +118,10 @@ public class TrainClientRegistry {
 		register("london_underground_1996", TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1996", "london_underground_1995", null, 0xA1A5A7, 93, 0.5F, false);
 		register("r179", TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
 		register("r179_mini", TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
-		register("r211", TrainType.R211, new ModelR211(false), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
-		register("r211_mini", TrainType.R211_MINI, new ModelR211Mini(false), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
-		register("r211t", TrainType.R211T, new ModelR211(true), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
-		register("r211t_mini", TrainType.R211T_MINI, new ModelR211Mini(true), "mtr:textures/entity/r211", "r179", "r179", null, 0xD5D5D5, 66, 1, false);
+		register("r211", TrainType.R211, new ModelR211(false), "mtr:textures/entity/r211", "s_train", "r179", null, 0xD5D5D5, 42, 1, false);
+		register("r211_mini", TrainType.R211_MINI, new ModelR211Mini(false), "mtr:textures/entity/r211", "s_train", "r179", null, 0xD5D5D5, 42, 1, false);
+		register("r211t", TrainType.R211T, new ModelR211(true), "mtr:textures/entity/r211", "s_train", "r179", null, 0xD5D5D5, 42, 1, false);
+		register("r211t_mini", TrainType.R211T_MINI, new ModelR211Mini(true), "mtr:textures/entity/r211", "s_train", "r179", null, 0xD5D5D5, 42, 1, false);
 		register("class_802_gwr", TrainType.CLASS_802_GWR, new ModelClass802(), "mtr:textures/entity/class_802_gwr", "class_802", "class_802", null, 0x021E15, 120, 1, false);
 		register("class_802_gwr_mini", TrainType.CLASS_802_GWR_MINI, new ModelClass802Mini(), "mtr:textures/entity/class_802_gwr", "class_802", "class_802", null, 0x021E15, 120, 1, false);
 		register("class_802_tpe", TrainType.CLASS_802_TPE, new ModelClass802(), "mtr:textures/entity/class_802_tpe", "class_802", "class_802", null, 0x00A6E6, 120, 1, false);
