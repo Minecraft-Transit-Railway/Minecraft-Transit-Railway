@@ -144,6 +144,8 @@
 		"mtr:station_name_tall_block",
 		"mtr:station_name_tall_wall",
 		"mtr:station_name_wall",
+		"mtr:station_name_wall_gray",
+		"mtr:station_name_wall_black",
 		"mtr:station_pole",
 		"mtr:tactile_map",
 		"mtr:ticket_barrier_entrance_1",

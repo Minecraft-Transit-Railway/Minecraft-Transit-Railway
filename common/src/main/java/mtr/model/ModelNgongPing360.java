@@ -30,7 +30,11 @@ public class ModelNgongPing360 extends ModelTrainBase {
 	private final ModelMapper upper_wall_right_r1;
 	private final ModelMapper lower_wall_right_r2;
 
-	public ModelNgongPing360() {
+	private final boolean isRHT;
+
+	public ModelNgongPing360(boolean isRHT) {
+		this.isRHT = isRHT;
+
 		final int textureWidth = 192;
 		final int textureHeight = 192;
 
@@ -178,10 +182,16 @@ public class ModelNgongPing360 extends ModelTrainBase {
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		if (renderStage == RenderStage.EXTERIOR) {
-			renderOnce(body, matrices, vertices, light, position);
 			renderMirror(wall_1, matrices, vertices, light, position);
-			renderOnce(wall_2, matrices, vertices, light, position);
-			renderOnce(wall_3, matrices, vertices, light, position);
+			if (isRHT) {
+				renderOnceFlipped(body, matrices, vertices, light, position);
+				renderOnceFlipped(wall_2, matrices, vertices, light, position);
+				renderOnceFlipped(wall_3, matrices, vertices, light, position);
+			} else {
+				renderOnce(body, matrices, vertices, light, position);
+				renderOnce(wall_2, matrices, vertices, light, position);
+				renderOnce(wall_3, matrices, vertices, light, position);
+			}
 		}
 	}
 
@@ -190,7 +200,11 @@ public class ModelNgongPing360 extends ModelTrainBase {
 		if (renderStage == RenderStage.EXTERIOR) {
 			door_left.setOffset(0, 0, -doorLeftZ);
 			door_right.setOffset(0, 0, doorLeftZ);
-			renderOnce(doors, matrices, vertices, light, position);
+			if (isRHT) {
+				renderOnceFlipped(doors, matrices, vertices, light, position);
+			} else {
+				renderOnce(doors, matrices, vertices, light, position);
+			}
 		}
 	}
 

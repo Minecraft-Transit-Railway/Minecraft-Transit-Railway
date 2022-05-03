@@ -34,6 +34,8 @@ public class Rail extends SerializedDataBase {
 
 	private static final double ACCEPT_THRESHOLD = 1E-4;
 	private static final int MIN_RADIUS = 2;
+	private static final int CABLE_CURVATURE_SCALE = 1000;
+	private static final int MAX_CABLE_DIP = 8;
 
 	private static final String KEY_H_1 = "h_1";
 	private static final String KEY_K_1 = "k_1";
@@ -378,8 +380,17 @@ public class Rail extends SerializedDataBase {
 		final double length = getLength();
 
 		if (railType.railSlopeStyle == RailType.RailSlopeStyle.CABLE) {
-			final double posY = value < 0.5 ? yStart : value > length - 0.5 ? yEnd : yStart + (yEnd - yStart) * (value - 0.5) / (length - 1);
-			return posY + (value < 0.5 || value > length - 0.5 ? 0 : 0.002 * (value - length + 0.5) * (value - 0.5));
+			if (value < 0.5) {
+				return yStart;
+			} else if (value > length - 0.5) {
+				return yEnd;
+			}
+
+			final double offsetValue = value - 0.5;
+			final double offsetLength = length - 1;
+			final double posY = yStart + (yEnd - yStart) * offsetValue / offsetLength;
+			final double dip = offsetLength * offsetLength / 4 / CABLE_CURVATURE_SCALE;
+			return posY + (dip > MAX_CABLE_DIP ? MAX_CABLE_DIP / dip : 1) * (offsetValue - offsetLength) * offsetValue / CABLE_CURVATURE_SCALE;
 		} else {
 			final double intercept = length / 2;
 			final double yChange;
