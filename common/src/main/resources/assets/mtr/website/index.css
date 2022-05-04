@@ -178,6 +178,20 @@ h3 {
     font-size: 1em;
 }
 
+.delay_outer {
+    align-items: center;
+    display: flex;
+    height: 2.8em;
+    margin: 0.2em;
+}
+
+.delay {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    height: 1em;
+}
+
 .route_station_name {
     align-items: center;
     display: flex;
