@@ -27,6 +27,7 @@ public class RailwayDataPathGenerationModule extends RailwayDataModuleBase {
 				System.out.println("Starting path generation" + (depot.name.isEmpty() ? "" : " for " + depot.name));
 			}
 			depot.generateMainRoute(minecraftServer, world, railwayData.dataCache, rails, railwayData.sidings, thread -> generatingPathThreads.put(depotId, thread));
+			railwayData.resetTrainDelays(depot);
 		} else {
 			PacketTrainDataGuiServer.generatePathS2C(world, depotId, 0);
 			System.out.println("Failed to generate path, depot is null");

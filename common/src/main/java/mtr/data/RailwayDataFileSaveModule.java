@@ -178,6 +178,27 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 						System.out.println("- Deleted: " + filesDeleted);
 					}
 				}
+
+				final Map<Long, Map<BlockPos, TrainDelay>> trainDelays = railwayData.getTrainDelays();
+				final List<Long> routeIdsToRemove = new ArrayList<>();
+				final List<BlockPos> posToRemove = new ArrayList<>();
+				trainDelays.forEach((routeId, trainDelaysForRouteId) -> trainDelaysForRouteId.forEach((pos, trainDelay) -> {
+					if (trainDelay.isExpired()) {
+						routeIdsToRemove.add(routeId);
+						posToRemove.add(pos);
+					}
+				}));
+
+				if (!routeIdsToRemove.isEmpty()) {
+					System.out.println("- Delays Cleared: " + routeIdsToRemove.size());
+					for (int i = 0; i < routeIdsToRemove.size(); i++) {
+						final long routeId = routeIdsToRemove.get(i);
+						trainDelays.get(routeId).remove(posToRemove.get(i));
+						if (trainDelays.get(routeId).isEmpty()) {
+							trainDelays.remove(routeId);
+						}
+					}
+				}
 			}
 
 			return doneWriting && checkFilesToDelete.isEmpty();

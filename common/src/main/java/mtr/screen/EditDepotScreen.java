@@ -72,7 +72,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.clear_vehicles"), button -> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
-			PacketTrainDataGuiClient.clearTrainsC2S(sidingsInDepot.values());
+			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
 	}
 

@@ -311,7 +311,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							doorValueRaw = getDoorValue();
 						}
 
-						if (stopCounter >= dwellTicks) {
+						if (!world.isClientSide() && stopCounter >= dwellTicks) {
 							final boolean isOppositeRail = isOppositeRail();
 							if (!isRailBlocked(getIndex(0, trainSpacing, true) + (isOppositeRail ? 2 : 1))) {
 								startUp(world, trainCars, trainSpacing, isOppositeRail);
