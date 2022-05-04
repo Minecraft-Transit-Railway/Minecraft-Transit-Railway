@@ -106,6 +106,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
 		toReducedMessagePack(messagePacker);
+		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
 		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
 	}
 
@@ -122,8 +123,6 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
 			messagePacker.packInt(frequencies[i]);
 		}
-
-		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
 	}
 
 	@Override
