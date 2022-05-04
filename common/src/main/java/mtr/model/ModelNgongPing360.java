@@ -198,8 +198,8 @@ public class ModelNgongPing360 extends ModelTrainBase {
 	@Override
 	protected void renderDoorPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		if (renderStage == RenderStage.EXTERIOR) {
-			door_left.setOffset(0, 0, -doorLeftZ);
-			door_right.setOffset(0, 0, doorLeftZ);
+			door_left.setOffset(0, 0, isRHT ? -doorRightZ : -doorLeftZ);
+			door_right.setOffset(0, 0, isRHT ? doorRightZ : doorLeftZ);
 			if (isRHT) {
 				renderOnceFlipped(doors, matrices, vertices, light, position);
 			} else {
