@@ -56,7 +56,6 @@ const SETTINGS = {
 		document.getElementById("station_info").style.display = "none";
 		document.getElementById("route_info").style.display = "none";
 		document.getElementById("directions").style.display = "none";
-		document.getElementById("delays").style.display = "none";
 		document.getElementById("settings").style.display = "none";
 	},
 	drawDirectionsRoute: function (pathStations, pathRoutes) {

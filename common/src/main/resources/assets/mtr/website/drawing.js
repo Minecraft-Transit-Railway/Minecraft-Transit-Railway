@@ -5,12 +5,16 @@ import DIRECTIONS from "./directions.js";
 import tappable from "./gestures/src/gestures/tap.js";
 import panable from "./gestures/src/gestures/pan.js";
 
+const REFRESH_INTERVAL = 5000;
+const BIG_DELAY_THRESHOLD = 15 * 20;
+const HUGE_DELAY_THRESHOLD = 30 * 20;
+const MAX_DELAY_THRESHOLD = 600 * 20;
 const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
 const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
 const DIRECTIONS_BOX_2_ELEMENT = document.getElementById("directions_box_2");
-const FETCH_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, 5000, true, () => SETTINGS.selectedStation !== 0, (result, data) => {
+const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, REFRESH_INTERVAL, true, () => SETTINGS.selectedStation !== 0, (result, data) => {
 	const arrivalsHtml = {};
 	for (const {arrival, name, destination, circular, platform, route, color} of result) {
 		const currentMillis = Date.now();
@@ -40,6 +44,64 @@ const FETCH_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldIndex=" + S
 		}
 	}
 });
+const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERVAL, true, () => SETTINGS.selectedColor >= 0, result => {
+	const delaysElement = document.getElementById("delays");
+	const delaysRealtimeElement = document.createElement("div");
+	const delaysHistoricalElement = document.createElement("div");
+	delaysElement.innerText = "";
+	delaysElement.appendChild(delaysRealtimeElement);
+	delaysElement.appendChild(delaysHistoricalElement);
+	let needsInitRealtime = true;
+	let needsInitHistorical = true;
+
+	const data = result[SETTINGS.dimension].filter(data => data["color"] === SETTINGS.selectedColor).sort((a, b) => b["time"] - a["time"]);
+	const millis = Date.now();
+	const visitedPositions = [];
+
+	for (const {delay, time, x, y, z} of data) {
+		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
+		const copyButtonText = x + "_" + y + "_" + z;
+
+		if (!visitedPositions.includes(copyButtonText)) {
+			visitedPositions.push(copyButtonText);
+
+			const element = document.createElement("div");
+			element.className = "arrival clickable";
+			element.innerHTML =
+				`<span class="arrival_text material-icons small" style="width: 5%; ${delay >= HUGE_DELAY_THRESHOLD ? "color: " + CANVAS.convertColor(SETTINGS.selectedColor) : ""}">${delay >= BIG_DELAY_THRESHOLD ? "warning" : "warning_amber"}</span>` +
+				`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : CANVAS.formatTime(delay / 20)}</span>` +
+				`<span class="arrival_text material-icons tight" id="delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
+				`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
+				`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + CANVAS.formatTime((millis - time) / 1000)}</span>` +
+				`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
+			element.onclick = () => {
+				navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`);
+				document.getElementById(`delay_copy_${copyButtonText}`).innerText = "check";
+				delayCopyButton = copyButtonText;
+				setTimeout(() => {
+					document.getElementById(`delay_copy_${copyButtonText}`).innerText = "content_copy";
+					delayCopyButton = "";
+				}, 1000);
+			};
+
+			if (isRealtime) {
+				if (needsInitRealtime) {
+					delaysRealtimeElement.innerHTML = `<div class="spacer"/>`;
+				}
+				needsInitRealtime = false;
+				delaysRealtimeElement.appendChild(element);
+			} else {
+				if (needsInitHistorical) {
+					delaysHistoricalElement.innerHTML = `<div class="spacer"/>`;
+				}
+				needsInitHistorical = false;
+				delaysHistoricalElement.appendChild(element);
+			}
+		}
+	}
+
+	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
+});
 
 let graphicsRoutesLayer1 = [];
 let graphicsRoutesLayer2 = [];
@@ -48,6 +110,7 @@ let graphicsStationsLayer2 = [];
 let graphicsStationsTextLayer1 = [];
 let graphicsStationsTextLayer2 = [];
 let textStations = [];
+let delayCopyButton = "";
 
 const clearAndDestroy = array => {
 	for (const index in array) {
@@ -170,13 +233,14 @@ function drawMap(container, data) {
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
 		SETTINGS.selectedStation = id;
-		FETCH_DATA.fetchData(data);
+		FETCH_ARRIVAL_DATA.fetchData(data);
 	};
 
 	const onClickLine = (color, forceClick) => {
 		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
 		SETTINGS.onClearSearch(data, false);
 		SETTINGS.clearPanes();
+		document.getElementById("delays").innerText = "";
 
 		if (shouldSelect) {
 			const selectedRoutes = routes.filter(route => route["color"] === color);
@@ -242,6 +306,7 @@ function drawMap(container, data) {
 		}
 
 		SETTINGS.drawDirectionsRoute([], []);
+		FETCH_DELAYS_DATA.fetchData(data);
 	};
 
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);

@@ -16,7 +16,6 @@
 	<script type="module" src="index.js"></script>
 	<script type="module" src="drawing.js"></script>
 	<script type="module" src="directions.js"></script>
-	<script type="module" src="delays.js"></script>
 	<script type="module" src="utilities.js"></script>
 	<script type="module" src="fetch.js"></script>
 	<script type="module" src="version.js"></script>
@@ -62,6 +61,7 @@
 		</div>
 		<div id="route_line" class="info_line"></div>
 		<div id="route_stations"></div>
+		<div id="delays"></div>
 	</div>
 	<div id="directions" class="search_results" style="display: none">
 		<div class="spacer"></div>
@@ -83,9 +83,6 @@
 			<div class="spacer"></div>
 			<div id="directions_result_route" class="station_list"></div>
 		</div>
-	</div>
-	<div id="delays" class="search_results" style="display: none">
-		<div id="delays_result"></div>
 	</div>
 	<div id="settings" class="search_results" style="display: none">
 		<div id="settings_route_types" style="display: none">
@@ -110,7 +107,6 @@
 				<span id="zoom_in_icon" class="material-icons clickable ">zoom_in</span>
 				<span id="zoom_out_icon" class="material-icons clickable ">zoom_out</span>
 				<span id="directions_icon" class="material-icons clickable ">directions</span>
-				<span id="delays_icon" class="material-icons clickable ">warning</span>
 				<span id="toggle_text_icon" class="material-icons clickable ">font_download_off</span>
 				<span id="toggle_theme_icon" class="material-icons clickable "></span>
 				<span id="download_icon" class="material-icons clickable ">download</span>
