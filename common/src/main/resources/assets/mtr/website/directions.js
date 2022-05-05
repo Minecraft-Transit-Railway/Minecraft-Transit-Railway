@@ -231,9 +231,10 @@ const findRoute = data => {
 							routeIconsAndDestinations[routeName] = [];
 						}
 						const routeStations = route["stations"];
+						const routeNumber = route["number"] + (route["number"] === "" ? "" : " ");
 						if (routeStations.length > 0) {
-							const iconAndDestination = route["circular"] === "" ? ["chevron_right", stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", CANVAS.getClosestInterchangeOnRoute(data, route, station)];
-							if (!routeIconsAndDestinations[routeName].includes(iconAndDestination)) {
+							const iconAndDestination = route["circular"] === "" ? ["chevron_right", routeNumber + stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", routeNumber + CANVAS.getClosestInterchangeOnRoute(data, route, station)];
+							if (!routeIconsAndDestinations[routeName].some(iconAndDestinationCheck => iconAndDestinationCheck[0] === iconAndDestination[0] && iconAndDestinationCheck[1] === iconAndDestination[1])) {
 								routeIconsAndDestinations[routeName].push(iconAndDestination);
 							}
 						}

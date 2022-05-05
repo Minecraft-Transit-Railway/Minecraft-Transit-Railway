@@ -33,15 +33,18 @@ public class DelaysServletHandler extends HttpServlet {
 
 					railwayData.getTrainDelays().forEach((routeId, trainDelaysForRoute) -> trainDelaysForRoute.forEach((pos, trainDelay) -> {
 						final String routeName;
+						final String routeNumber;
 						final String destination;
 						final int color;
 						final Route route = dataCache.routeIdMap.get(routeId);
 						if (route == null) {
 							routeName = "";
+							routeNumber = "";
 							destination = "";
 							color = 0;
 						} else {
 							routeName = route.name;
+							routeNumber = route.isLightRailRoute ? route.lightRailRouteNumber : "";
 							final Station station = dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
 							destination = station == null ? "" : station.name;
 							color = route.color;
@@ -49,6 +52,7 @@ public class DelaysServletHandler extends HttpServlet {
 
 						final JsonObject delayObject = new JsonObject();
 						delayObject.addProperty("name", routeName);
+						delayObject.addProperty("number", routeNumber);
 						delayObject.addProperty("destination", destination);
 						delayObject.addProperty("color", color);
 						delayObject.addProperty("delay", trainDelay.getDelayTicks());

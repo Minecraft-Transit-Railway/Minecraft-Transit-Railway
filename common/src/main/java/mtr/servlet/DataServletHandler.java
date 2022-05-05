@@ -44,6 +44,7 @@ public class DataServletHandler extends HttpServlet {
 						final JsonObject routeObject = new JsonObject();
 						routeObject.addProperty("color", route.color);
 						routeObject.addProperty("name", route.name);
+						routeObject.addProperty("number", route.isLightRailRoute ? route.lightRailRouteNumber : "");
 						final String type = createKey(route.transportMode, route.routeType);
 						routeObject.addProperty("type", type);
 						types.add(type);
