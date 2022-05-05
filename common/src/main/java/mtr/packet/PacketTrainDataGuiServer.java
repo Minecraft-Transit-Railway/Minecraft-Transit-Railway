@@ -202,17 +202,24 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
+			final long depotId = packet.readInt();
 			final int sidingCount = packet.readInt();
 			final Set<Long> sidingIds = new HashSet<>();
 			for (int i = 0; i < sidingCount; i++) {
 				sidingIds.add(packet.readLong());
 			}
-			minecraftServer.execute(() -> sidingIds.forEach(sidingId -> {
-				final Siding siding = railwayData.dataCache.sidingIdMap.get(sidingId);
-				if (siding != null) {
-					siding.clearTrains();
+			minecraftServer.execute(() -> {
+				final Depot depot = railwayData.dataCache.depotIdMap.get(depotId);
+				if (depot != null) {
+					railwayData.resetTrainDelays(depot);
 				}
-			}));
+				sidingIds.forEach(sidingId -> {
+					final Siding siding = railwayData.dataCache.sidingIdMap.get(sidingId);
+					if (siding != null) {
+						siding.clearTrains();
+					}
+				});
+			});
 		}
 	}
 
