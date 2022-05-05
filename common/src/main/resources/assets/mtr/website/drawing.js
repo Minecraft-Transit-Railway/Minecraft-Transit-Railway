@@ -298,7 +298,7 @@ function drawMap(container, data) {
 
 			selectedRoutes.forEach(route => {
 				const {stations, durations, name, number} = route;
-				addRouteHeader(routeDetailsElement, number, data["stations"][stations[stations.length - 1].split("_")[0]]["name"], name);
+				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", name);
 
 				const routeStationsElement = document.createElement("div");
 				routeStationsElement.className = "station_list"

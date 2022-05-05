@@ -10,6 +10,7 @@ import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
 import mtr.servlet.DelaysServletHandler;
+import mtr.servlet.InfoServletHandler;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -405,6 +406,7 @@ public class MTR implements IPacket {
 		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
 		context.addServlet(servletHolder, "/");
 		context.addServlet(DataServletHandler.class, "/data");
+		context.addServlet(InfoServletHandler.class, "/info");
 		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
 		context.addServlet(DelaysServletHandler.class, "/delays");
 
@@ -443,6 +445,7 @@ public class MTR implements IPacket {
 			}
 			serverConnector.setPort(port);
 			DataServletHandler.SERVER = minecraftServer;
+			InfoServletHandler.SERVER = minecraftServer;
 			ArrivalsServletHandler.SERVER = minecraftServer;
 			DelaysServletHandler.SERVER = minecraftServer;
 			try {

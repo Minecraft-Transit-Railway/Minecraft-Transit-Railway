@@ -10,6 +10,7 @@ import tappable from "./gestures/src/gestures/tap.js";
 const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
 	dataUrl: URL + "data",
+	infoUrl: URL + "info",
 	arrivalsUrl: URL + "arrivals",
 	delaysUrl: URL + "delays",
 	routeTypes: {
@@ -79,8 +80,8 @@ const SETTINGS = {
 	},
 };
 const WALKING_SPEED_METER_PER_SECOND = 4;
-const REFRESH_INTERVAL = 60000;
-const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, REFRESH_INTERVAL, false, () => true, result => {
+const DATA_REFRESH_INTERVAL = 60000;
+const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, DATA_REFRESH_INTERVAL, false, () => true, result => {
 	json = result;
 
 	for (const dimension of json) {
@@ -129,6 +130,38 @@ const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, REFRESH_INTERVAL, false
 
 	setupRouteTypeAndDimensionButtons();
 	drawMap(container, json[SETTINGS.dimension]);
+});
+const INFO_REFRESH_INTERVAL = 5000;
+const FETCH_SERVER_INFO_DATA = new FetchData(() => SETTINGS.infoUrl, INFO_REFRESH_INTERVAL, false, () => true, result => {
+	const playerListElement = document.getElementById("player_list");
+	playerListElement.innerText = "";
+
+	for (let i = 0; i < result.length; i++) {
+		result[i].forEach(playerData => {
+			const {player, name, number, destination, color} = playerData;
+			const noRoute = name === "" && destination === "";
+			playerListElement.innerHTML +=
+				`<div class="player text">` +
+				`<img src="https://mc-heads.net/avatar/${player}" alt=""/>` +
+				`<span style="${noRoute ? "" : "max-width: 6em; min-width: 6em; overflow: hidden"}">&nbsp;&nbsp;&nbsp;${player}</span>` +
+				`<div class="player_route" style="display: ${noRoute ? "none" : ""}; border-left: 0.3em solid ${CANVAS.convertColor(color)}">` +
+				`<div class="arrival">` +
+				`<span class="arrival_text">&nbsp;${number.replace(/\|/g, " ")} ${name.split("||")[0].replace(/\|/g, " ")}</span>` +
+				`</div>` +
+				`<div class="arrival">` +
+				`<span class="material-icons small">chevron_right</span>` +
+				`<span class="arrival_text">${destination.replace(/\|/g, " ")}</span>` +
+				`</div>` +
+				`</div>` +
+				`</div>`;
+		});
+
+		if (result[i].length > 0) {
+			playerListElement.innerHTML += `<div class="spacer"></div>`;
+		}
+	}
+
+	document.getElementById("settings").style.maxHeight = window.innerHeight - 80 + "px";
 });
 
 const resize = () => {
@@ -185,7 +218,7 @@ const setupRouteTypeAndDimensionButtons = () => {
 	}
 
 	document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
-}
+};
 
 const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true, resolution: window.devicePixelRatio});
 
@@ -287,6 +320,7 @@ APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
 
 FETCH_DATA.fetchData();
+FETCH_SERVER_INFO_DATA.fetchData();
 
 function setCookie(name, value) {
 	document.cookie = name + "=" + value + ";expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/";
