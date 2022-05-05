@@ -138,7 +138,7 @@ public class ModelQTrain extends ModelTrainBase {
     private final ModelMapper panel_4_r2;
     private final ModelMapper panel_3_r2;
     private final ModelMapper panel_2_r1;
-    private final ModelMapper roof_door_light;
+    private final ModelMapper roof_middle_light;
     private final ModelMapper door_light_on;
     private final ModelMapper light_r1;
     private final ModelMapper door_light_off;
@@ -942,9 +942,9 @@ public class ModelQTrain extends ModelTrainBase {
         setRotationAngle(panel_2_r1, 0.2618F, 0.1309F, 0);
         panel_2_r1.texOffs(79, 190).addBox(-5.5F, -1.5F, 2, 13, 11, 0, 0, false);
 
-        roof_door_light = new ModelMapper(modelDataWrapper);
-        roof_door_light.setPos(0, 24, 0);
-        roof_door_light.texOffs(8, 0).addBox(-4, -33.891F, -4, 4, 0, 8, 0, false);
+        roof_middle_light = new ModelMapper(modelDataWrapper);
+        roof_middle_light.setPos(0, 24, 0);
+        roof_middle_light.texOffs(8, 0).addBox(-4, -33.891F, -4, 4, 0, 8, 0, false);
 
         door_light_on = new ModelMapper(modelDataWrapper);
         door_light_on.setPos(0, 24, 0);
@@ -1020,7 +1020,7 @@ public class ModelQTrain extends ModelTrainBase {
         end.setModelPart();
         roof_end_exterior.setModelPart();
         roof_light.setModelPart();
-        roof_door_light.setModelPart();
+        roof_middle_light.setModelPart();
         roof_end_light.setModelPart();
         roof_head_exterior.setModelPart();
         head.setModelPart();
@@ -1074,7 +1074,7 @@ public class ModelQTrain extends ModelTrainBase {
 
         switch (renderStage) {
             case LIGHTS:
-                renderMirror(roof_door_light, matrices, vertices, light, position);
+                renderMirror(roof_middle_light, matrices, vertices, light, position);
                 if (notLastDoor) {
                     renderMirror(roof_light, matrices, vertices, light, position);
                 }
