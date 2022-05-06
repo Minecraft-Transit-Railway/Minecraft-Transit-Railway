@@ -35,18 +35,21 @@ public class DelaysServletHandler extends HttpServlet {
 						final String routeName;
 						final String routeNumber;
 						final String destination;
+						final String circular;
 						final int color;
 						final Route route = dataCache.routeIdMap.get(routeId);
 						if (route == null) {
 							routeName = "";
 							routeNumber = "";
 							destination = "";
+							circular = "";
 							color = 0;
 						} else {
 							routeName = route.name;
 							routeNumber = route.isLightRailRoute ? route.lightRailRouteNumber : "";
 							final Station station = dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
 							destination = station == null ? "" : station.name;
+							circular = route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw";
 							color = route.color;
 						}
 
@@ -54,6 +57,7 @@ public class DelaysServletHandler extends HttpServlet {
 						delayObject.addProperty("name", routeName);
 						delayObject.addProperty("number", routeNumber);
 						delayObject.addProperty("destination", destination);
+						delayObject.addProperty("circular", circular);
 						delayObject.addProperty("color", color);
 						delayObject.addProperty("delay", trainDelay.getDelayTicks());
 						delayObject.addProperty("time", trainDelay.getLastDelayTime());

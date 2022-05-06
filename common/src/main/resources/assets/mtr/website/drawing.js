@@ -55,7 +55,7 @@ const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERV
 	let hasBigDelay = false;
 	let hasHugeDelay = false;
 
-	for (const {name, number, destination, delay, time, x, y, z} of data) {
+	for (const {name, number, destination, circular, delay, time, x, y, z} of data) {
 		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
 		const copyButtonText = x + "_" + y + "_" + z;
 
@@ -93,7 +93,7 @@ const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERV
 			routeNameElementMap[name] = document.createElement("div");
 			routeNameElementMap[name].className = "station_list";
 
-			addRouteHeader(delaysElement, number, destination, name);
+			addRouteHeader(delaysElement, number, destination, circular, name);
 
 			delaysElement.append(routeNameElementMap[name]);
 			const spacerElement = document.createElement("div");
@@ -149,9 +149,9 @@ const createClickable = (container, initialize, onClick) => {
 	initialize(new PIXI.Graphics());
 };
 
-const addRouteHeader = (element, number, destination, routeName) => {
+const addRouteHeader = (element, number, destination, circular, routeName) => {
 	const headerElement = document.createElement("h3");
-	headerElement.innerHTML = number.replace(/\|/g, " ") + `<span class="material-icons tight">chevron_right</span>` + destination.replace(/\|/g, " ");
+	headerElement.innerHTML = number.replace(/\|/g, " ") + `<span class="material-icons tight">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` + destination.replace(/\|/g, " ");
 	element.appendChild(headerElement);
 
 	const routeNameSplit = routeName.split("||");
@@ -297,8 +297,8 @@ function drawMap(container, data) {
 			routeDetailsElement.innerHTML = "";
 
 			selectedRoutes.forEach(route => {
-				const {stations, durations, name, number} = route;
-				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", name);
+				const {stations, durations, name, number, circular} = route;
+				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", circular, name);
 
 				const routeStationsElement = document.createElement("div");
 				routeStationsElement.className = "station_list"

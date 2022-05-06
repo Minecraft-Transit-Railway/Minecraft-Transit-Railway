@@ -138,7 +138,7 @@ const FETCH_SERVER_INFO_DATA = new FetchData(() => SETTINGS.infoUrl, INFO_REFRES
 
 	for (let i = 0; i < result.length; i++) {
 		result[i].forEach(playerData => {
-			const {player, name, number, destination, color} = playerData;
+			const {player, name, number, destination, circular, color} = playerData;
 			const noRoute = name === "" && destination === "";
 			playerListElement.innerHTML +=
 				`<div class="player text">` +
@@ -149,7 +149,7 @@ const FETCH_SERVER_INFO_DATA = new FetchData(() => SETTINGS.infoUrl, INFO_REFRES
 				`<span class="arrival_text">&nbsp;${number.replace(/\|/g, " ")} ${name.split("||")[0].replace(/\|/g, " ")}</span>` +
 				`</div>` +
 				`<div class="arrival">` +
-				`<span class="material-icons small">chevron_right</span>` +
+				`<span class="material-icons small">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
 				`<span class="arrival_text">${destination.replace(/\|/g, " ")}</span>` +
 				`</div>` +
 				`</div>` +

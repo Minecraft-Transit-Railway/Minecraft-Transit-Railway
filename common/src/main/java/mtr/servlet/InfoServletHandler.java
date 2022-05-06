@@ -35,23 +35,27 @@ public class InfoServletHandler extends HttpServlet {
 						final String routeName;
 						final String routeNumber;
 						final String destination;
+						final String circular;
 						final int color;
 						final Route route = railwayData.railwayDataCoolDownModule.getRidingRoute(player);
 						if (route == null) {
 							routeName = "";
 							routeNumber = "";
 							destination = "";
+							circular = "";
 							color = 0;
 						} else {
 							routeName = route.name;
 							routeNumber = route.isLightRailRoute ? route.lightRailRouteNumber : "";
 							final Station station = railwayData.dataCache.platformIdToStation.get(route.platformIds.get(route.platformIds.size() - 1));
 							destination = station == null ? "" : station.name;
+							circular = route.circularState == Route.CircularState.NONE ? "" : route.circularState == Route.CircularState.CLOCKWISE ? "cw" : "ccw";
 							color = route.color;
 						}
 						dataObject.addProperty("name", routeName);
 						dataObject.addProperty("number", routeNumber);
 						dataObject.addProperty("destination", destination);
+						dataObject.addProperty("circular", circular);
 						dataObject.addProperty("color", color);
 
 						playersArray.add(dataObject);
