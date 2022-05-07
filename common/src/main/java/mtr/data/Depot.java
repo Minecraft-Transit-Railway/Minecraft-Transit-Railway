@@ -168,6 +168,9 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			for (int i = 0; i < routeIdCount; i++) {
 				routeIds.add(packet.readLong());
 			}
+			// TODO ZBX Temporary Log
+			System.out.printf("车厂更新 (ID %d): 名称-> %s, 颜色-> %s 频率-> %s, 路线ID-> %s\n",
+					id, name, color, Arrays.toString(frequencies), Arrays.toString(routeIds.toArray()));
 		} else {
 			super.update(key, packet);
 		}

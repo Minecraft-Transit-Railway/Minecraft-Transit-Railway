@@ -154,6 +154,8 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			return;
 		}
 
+		System.out.printf("玩家要求更新铁路数据: %s\n", player.getDisplayName().getString());
+
 		final PacketCallback packetCallback = (updatePacket, fullPacket) -> world.players().forEach(worldPlayer -> {
 			if (!worldPlayer.getUUID().equals(player.getUUID())) {
 				Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, fullPacket);

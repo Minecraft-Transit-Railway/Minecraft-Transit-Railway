@@ -156,6 +156,9 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			case KEY_BASE_TRAIN_TYPE:
 				setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				trains.clear();
+				// TODO ZBX Temporary Log
+				System.out.printf("侧线更新 (ID %d 车厂名称 %s): 车型-> %s\n",
+						id, depot.name, TrainType.values()[packet.readInt()].name());
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -167,6 +170,9 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 					trains.clear();
 					accelerationConstant = newAccelerationConstant;
 				}
+				// TODO ZBX Temporary Log
+				System.out.printf("侧线更新 (ID %d 车厂名称 %s): 无限列车-> %s, 最多列车数-> %d, 加速度-> %f (0代表未修改)\n",
+						id, depot.name, Boolean.toString(unlimitedTrains), maxTrains, accelerationConstant);
 				break;
 			default:
 				super.update(key, packet);

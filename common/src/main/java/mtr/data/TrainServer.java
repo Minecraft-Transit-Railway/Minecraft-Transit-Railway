@@ -307,7 +307,7 @@ public class TrainServer extends Train {
 		final int headIndex = getIndex(0, trainSpacing, false);
 		final int stopIndex = path.get(headIndex).stopIndex - 1;
 		List<Long> routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
-		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, dataCache, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 			if (thisRoute != null && waitTime > thisRoute.maxWaitTime) {
 				thisRoute.maxWaitTime = waitTime;
 				thisRoute.maxWaitNextStation = nextStation;

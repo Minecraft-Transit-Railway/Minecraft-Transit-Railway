@@ -8,6 +8,7 @@ import org.msgpack.value.Value;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -135,6 +136,9 @@ public final class Route extends NameColorDataBase implements IGui {
 				for (int i = 0; i < platformCount; i++) {
 					platformIds.add(packet.readLong());
 				}
+				// TODO ZBX Temporary Log
+				System.out.printf("路线更新 (ID %d 名称 %s): 站台ID-> %s\n",
+						id, name, Arrays.toString(platformIds.toArray()));
 				break;
 			case KEY_IS_LIGHT_RAIL_ROUTE:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
