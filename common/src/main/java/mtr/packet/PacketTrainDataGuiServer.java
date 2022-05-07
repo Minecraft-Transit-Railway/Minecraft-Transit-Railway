@@ -1,6 +1,7 @@
 package mtr.packet;
 
 import io.netty.buffer.Unpooled;
+import mtr.Keys;
 import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
@@ -27,6 +28,12 @@ import java.util.function.Function;
 public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	private static final int PACKET_CHUNK_SIZE = (int) Math.pow(2, 14); // 16384
+
+	public static void versionCheckS2C(ServerPlayer player) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUtf(Keys.MOD_VERSION);
+		Registry.sendToPlayer(player, PACKET_VERSION_CHECK, packet);
+	}
 
 	public static void openDashboardScreenS2C(ServerPlayer player, TransportMode transportMode) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());

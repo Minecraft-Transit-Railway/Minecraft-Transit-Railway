@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface IPacket {
 
+	ResourceLocation PACKET_VERSION_CHECK = new ResourceLocation(MTR.MOD_ID, "packet_version_check");
+
 	ResourceLocation PACKET_OPEN_DASHBOARD_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_dashboard_screen");
 	ResourceLocation PACKET_OPEN_PIDS_CONFIG_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_pids_config_screen");
 	ResourceLocation PACKET_OPEN_ARRIVAL_PROJECTOR_CONFIG_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_arrival_projector_config_screen");

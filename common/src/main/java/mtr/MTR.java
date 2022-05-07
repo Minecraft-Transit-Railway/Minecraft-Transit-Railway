@@ -422,6 +422,7 @@ public class MTR implements IPacket {
 			gameTick++;
 		});
 		Registry.registerPlayerJoinEvent(player -> {
+			PacketTrainDataGuiServer.versionCheckS2C(player);
 			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
 			if (railwayData != null) {
 				railwayData.onPlayerJoin(player);
