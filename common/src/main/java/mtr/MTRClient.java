@@ -72,6 +72,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS.get());
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS_SLAB.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_WALL.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_ENTRANCE_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_EXIT_1.get());
@@ -202,6 +203,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.SIGNAL_SEMAPHORE_2.get(), dispatcher -> new RenderSignalSemaphore<>(dispatcher, false));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, true));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY.get(), RenderStationNameTall::new);
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED_TILE_ENTITY.get(), RenderStationNameTall::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY.get(), RenderStationNameTall::new);
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
@@ -276,6 +278,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL_SLAB.get());
 
 		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK.get());
+		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_NAME_TALL_WALL.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_POLE.get());
 

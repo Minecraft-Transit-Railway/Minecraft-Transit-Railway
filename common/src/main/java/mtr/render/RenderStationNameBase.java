@@ -39,7 +39,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, entity.isDoubleSided ? null : facing)) {
 			return;
 		}
 
@@ -60,10 +60,15 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		matrices.translate(0.5, 0.5 + entity.yOffset, 0.5);
 		matrices.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
-		matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
 		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? new TranslatableComponent("gui.mtr.untitled").getString() : station.name, color, light);
+		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
+			matrices.pushPose();
+			matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
+			drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? new TranslatableComponent("gui.mtr.untitled").getString() : station.name, color, light);
+			matrices.popPose();
+			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+		}
 		immediate.endBatch();
 		matrices.popPose();
 	}

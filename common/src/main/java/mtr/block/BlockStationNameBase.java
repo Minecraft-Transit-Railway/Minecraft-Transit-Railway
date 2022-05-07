@@ -34,11 +34,13 @@ public abstract class BlockStationNameBase extends HorizontalDirectionalBlock im
 
 		public final float yOffset;
 		public final float zOffset;
+		public final boolean isDoubleSided;
 
-		public TileEntityStationNameBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float yOffset, float zOffset) {
+		public TileEntityStationNameBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float yOffset, float zOffset, boolean isDoubleSided) {
 			super(type, pos, state);
 			this.yOffset = yOffset;
 			this.zOffset = zOffset;
+			this.isDoubleSided = isDoubleSided;
 		}
 
 		public abstract boolean shouldRender();

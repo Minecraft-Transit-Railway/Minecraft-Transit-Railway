@@ -294,6 +294,7 @@ public class MTR implements IPacket {
 
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_tall_block_double_sided", Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL_WHITE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_wall_gray", Blocks.STATION_NAME_WALL_GRAY, ItemGroups.RAILWAY_FACILITIES);
@@ -350,6 +351,7 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("station_name_wall_gray", BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_wall_black", BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_block", BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_tall_block_double_sided", BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_wall", BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY);
 		registerBlockEntityType.accept("tactile_map", BlockEntityTypes.TACTILE_MAP_TILE_ENTITY);
 		registerBlockEntityType.accept("train_announcer", BlockEntityTypes.TRAIN_ANNOUNCER_TILE_ENTITY);

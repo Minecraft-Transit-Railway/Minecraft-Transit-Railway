@@ -159,6 +159,7 @@ public interface Blocks {
 
 	RegistryObject<Block> STATION_NAME_ENTRANCE = new RegistryObject<>(() -> new BlockStationNameEntrance(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> STATION_NAME_TALL_BLOCK = new RegistryObject<>(BlockStationNameTallBlock::new);
+	RegistryObject<Block> STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = new RegistryObject<>(BlockStationNameTallBlockDoubleSided::new);
 	RegistryObject<Block> STATION_NAME_TALL_WALL = new RegistryObject<>(BlockStationNameTallWall::new);
 	RegistryObject<Block> STATION_NAME_WALL_WHITE = new RegistryObject<>(() -> new BlockStationNameWallWhite(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> STATION_NAME_WALL_GRAY = new RegistryObject<>(() -> new BlockStationNameWallGray(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));

@@ -96,6 +96,7 @@
 	"block.mtr.signal_semaphore_2": "Semaphore Signal (Double Sided)",
 	"block.mtr.station_name_entrance": "Station Name (Entrance)",
 	"block.mtr.station_name_tall_block": "Station Name (Tall Block)",
+	"block.mtr.station_name_tall_block_double_sided": "Station Name (Tall Block, Double-sided)",
 	"block.mtr.station_name_tall_wall": "Station Name (Tall Wall Text)",
 	"block.mtr.station_name_wall": "Station Name (Wall Text, White)",
 	"block.mtr.station_name_wall_black": "Station Name (Wall Text, Black)",

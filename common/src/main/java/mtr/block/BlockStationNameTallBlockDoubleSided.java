@@ -12,7 +12,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockStationNameTallBlock extends BlockStationNameTallBase {
+public class BlockStationNameTallBlockDoubleSided extends BlockStationNameTallBase {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
@@ -27,13 +27,13 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 
 	@Override
 	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
-		return new TileEntityStationNameTallBlock(pos, state);
+		return new TileEntityStationNameTallBlockDoubleSided(pos, state);
 	}
 
-	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
+	public static class TileEntityStationNameTallBlockDoubleSided extends TileEntityStationNameTallBase {
 
-		public TileEntityStationNameTallBlock(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY.get(), pos, state, 0.6875F, false);
+		public TileEntityStationNameTallBlockDoubleSided(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED_TILE_ENTITY.get(), pos, state, 0.6875F, true);
 		}
 	}
 }
