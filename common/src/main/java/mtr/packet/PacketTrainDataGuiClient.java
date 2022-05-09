@@ -2,6 +2,7 @@ package mtr.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import mtr.Keys;
 import mtr.RegistryClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainScheduleSensor;
@@ -13,9 +14,12 @@ import mtr.mappings.UtilitiesClient;
 import mtr.screen.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -30,6 +34,40 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	private static final Map<Integer, ByteBuf> TEMP_PACKETS_RECEIVER = new HashMap<>();
 	private static long tempPacketId = 0;
 	private static int expectedSize = 0;
+
+	public static void openVersionCheckS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final String version = packet.readUtf();
+		minecraftClient.execute(() -> {
+			if (!Keys.MOD_VERSION.equals(version)) {
+				final ClientPacketListener connection = minecraftClient.getConnection();
+				if (connection != null) {
+					final int widthDifference1 = minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_your_version")) - minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_server_version"));
+					final int widthDifference2 = minecraftClient.font.width(Keys.MOD_VERSION) - minecraftClient.font.width(version);
+					final int spaceWidth = minecraftClient.font.width(" ");
+
+					final StringBuilder text = new StringBuilder();
+					for (int i = 0; i < -widthDifference1 / spaceWidth; i++) {
+						text.append(" ");
+					}
+					text.append(new TranslatableComponent("gui.mtr.mismatched_versions_your_version", Keys.MOD_VERSION).getString());
+					for (int i = 0; i < -widthDifference2 / spaceWidth; i++) {
+						text.append(" ");
+					}
+					text.append("\n");
+					for (int i = 0; i < widthDifference1 / spaceWidth; i++) {
+						text.append(" ");
+					}
+					text.append(new TranslatableComponent("gui.mtr.mismatched_versions_server_version", version).getString());
+					for (int i = 0; i < widthDifference2 / spaceWidth; i++) {
+						text.append(" ");
+					}
+					text.append("\n\n");
+
+					connection.getConnection().disconnect(new TextComponent(text.toString()).append(new TranslatableComponent("gui.mtr.mismatched_versions")));
+				}
+			}
+		});
+	}
 
 	public static void openDashboardScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		TransportMode transportMode = EnumHelper.valueOf(TransportMode.TRAIN, packet.readUtf());

@@ -46,60 +46,76 @@ const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldInd
 });
 const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERVAL, true, () => SETTINGS.selectedColor >= 0, result => {
 	const delaysElement = document.getElementById("delays");
-	const delaysRealtimeElement = document.createElement("div");
-	const delaysHistoricalElement = document.createElement("div");
 	delaysElement.innerText = "";
-	delaysElement.appendChild(delaysRealtimeElement);
-	delaysElement.appendChild(delaysHistoricalElement);
-	let needsInitRealtime = true;
-	let needsInitHistorical = true;
-
 	const data = result[SETTINGS.dimension].filter(data => data["color"] === SETTINGS.selectedColor).sort((a, b) => b["time"] - a["time"]);
 	const millis = Date.now();
-	const visitedPositions = [];
+	const routeNameElementMap = {};
 
-	for (const {delay, time, x, y, z} of data) {
+	let hasDelay = false;
+	let hasBigDelay = false;
+	let hasHugeDelay = false;
+
+	for (const {name, number, destination, circular, delay, time, x, y, z} of data) {
 		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
 		const copyButtonText = x + "_" + y + "_" + z;
 
-		if (!visitedPositions.includes(copyButtonText)) {
-			visitedPositions.push(copyButtonText);
+		const bigDelay = delay >= BIG_DELAY_THRESHOLD;
+		const hugeDelay = delay >= HUGE_DELAY_THRESHOLD;
 
-			const element = document.createElement("div");
-			element.className = "arrival clickable";
-			element.innerHTML =
-				`<span class="arrival_text material-icons small" style="width: 5%; ${delay >= HUGE_DELAY_THRESHOLD ? "color: " + CANVAS.convertColor(SETTINGS.selectedColor) : ""}">${delay >= BIG_DELAY_THRESHOLD ? "warning" : "warning_amber"}</span>` +
-				`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : CANVAS.formatTime(delay / 20)}</span>` +
-				`<span class="arrival_text material-icons tight" id="delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
-				`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
-				`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + CANVAS.formatTime((millis - time) / 1000)}</span>` +
-				`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
-			element.onclick = () => {
-				navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`);
-				document.getElementById(`delay_copy_${copyButtonText}`).innerText = "check";
-				delayCopyButton = copyButtonText;
-				setTimeout(() => {
-					document.getElementById(`delay_copy_${copyButtonText}`).innerText = "content_copy";
-					delayCopyButton = "";
-				}, 1000);
-			};
+		const element = document.createElement("div");
+		element.className = "arrival clickable";
+		element.innerHTML =
+			`<span class="arrival_text material-icons small" style="width: 5%; ${hugeDelay ? "color: " + CANVAS.convertColor(SETTINGS.selectedColor) : ""}">${bigDelay ? "warning" : "warning_amber"}</span>` +
+			`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : CANVAS.formatTime(delay / 20)}</span>` +
+			`<span class="arrival_text material-icons tight delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
+			`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
+			`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + CANVAS.formatTime((millis - time) / 1000)}</span>` +
+			`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
+		element.onclick = () => {
+			navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`);
+			Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "check");
+			delayCopyButton = copyButtonText;
+			setTimeout(() => {
+				Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "content_copy");
+				delayCopyButton = "";
+			}, 1000);
+		};
 
-			if (isRealtime) {
-				if (needsInitRealtime) {
-					delaysRealtimeElement.innerHTML = `<div class="spacer"/>`;
-				}
-				needsInitRealtime = false;
-				delaysRealtimeElement.appendChild(element);
-			} else {
-				if (needsInitHistorical) {
-					delaysHistoricalElement.innerHTML = `<div class="spacer"/>`;
-				}
-				needsInitHistorical = false;
-				delaysHistoricalElement.appendChild(element);
-			}
+		hasDelay = true;
+		if (bigDelay) {
+			hasBigDelay = true;
 		}
+		if (hugeDelay) {
+			hasHugeDelay = true;
+		}
+
+		if (!(name in routeNameElementMap)) {
+			routeNameElementMap[name] = document.createElement("div");
+			routeNameElementMap[name].className = "station_list";
+
+			addRouteHeader(delaysElement, number, destination, circular, name);
+
+			delaysElement.append(routeNameElementMap[name]);
+			const spacerElement = document.createElement("div");
+			spacerElement.className = "spacer padded";
+			delaysElement.append(spacerElement);
+		}
+		routeNameElementMap[name].appendChild(element);
 	}
 
+	if (delaysElement.lastChild != null) {
+		delaysElement.removeChild(delaysElement.lastChild);
+	}
+
+	const routeStationsTabElement = document.getElementById("route_stations_tab");
+	const routeDelaysTabElement = document.getElementById("route_delays_tab");
+	if (hasDelay) {
+		routeStationsTabElement.style.display = "";
+		routeDelaysTabElement.innerText = hasBigDelay ? "warning" : "warning_amber";
+		routeDelaysTabElement.style.color = hasHugeDelay ? CANVAS.convertColor(SETTINGS.selectedColor) : "";
+		routeDelaysTabElement.style.display = "";
+	}
+	onSelectDelaysTab(selectedDelaysTab);
 	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
 });
 
@@ -110,6 +126,7 @@ let graphicsStationsLayer2 = [];
 let graphicsStationsTextLayer1 = [];
 let graphicsStationsTextLayer2 = [];
 let textStations = [];
+let selectedDelaysTab = false;
 let delayCopyButton = "";
 
 const clearAndDestroy = array => {
@@ -131,6 +148,19 @@ const createClickable = (container, initialize, onClick) => {
 	initialize(graphics);
 	initialize(new PIXI.Graphics());
 };
+
+const addRouteHeader = (element, number, destination, circular, routeName) => {
+	const headerElement = document.createElement("h3");
+	headerElement.innerHTML = number.replace(/\|/g, " ") + `<span class="material-icons tight">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` + destination.replace(/\|/g, " ");
+	element.appendChild(headerElement);
+
+	const routeNameSplit = routeName.split("||");
+	if (routeNameSplit.length > 1) {
+		const smallHeaderElement = document.createElement("h4");
+		smallHeaderElement.innerText = routeNameSplit[1].replace(/\|/g, " ");
+		element.appendChild(smallHeaderElement);
+	}
+}
 
 function drawMap(container, data) {
 	const getStationElement = (color, name, id) => {
@@ -240,7 +270,9 @@ function drawMap(container, data) {
 		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
 		SETTINGS.onClearSearch(data, false);
 		SETTINGS.clearPanes();
-		document.getElementById("delays").innerText = "";
+		document.getElementById("route_stations_tab").style.display = "none";
+		document.getElementById("route_delays_tab").style.display = "none";
+		onSelectDelaysTab(false);
 
 		if (shouldSelect) {
 			const selectedRoutes = routes.filter(route => route["color"] === color);
@@ -261,18 +293,12 @@ function drawMap(container, data) {
 			document.getElementById("route_name").innerHTML = routeNameHtml;
 			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
 
-			const routeDetailsElement = document.getElementById("route_stations");
-			routeDetailsElement.className = "text";
+			const routeDetailsElement = document.getElementById("route_details");
 			routeDetailsElement.innerHTML = "";
 
 			selectedRoutes.forEach(route => {
-				const {stations, durations, name} = route;
-				const routeNameSplit = name.split("||");
-				if (routeNameSplit.length > 1) {
-					const element = document.createElement("h3");
-					element.innerText = routeNameSplit[1].replace(/\|/g, " ");
-					routeDetailsElement.appendChild(element);
-				}
+				const {stations, durations, name, number, circular} = route;
+				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", circular, name);
 
 				const routeStationsElement = document.createElement("div");
 				routeStationsElement.className = "station_list"
@@ -293,7 +319,7 @@ function drawMap(container, data) {
 				const spacerElement = document.createElement("div");
 				spacerElement.className = "spacer padded";
 				routeDetailsElement.append(spacerElement);
-			})
+			});
 
 			if (routeDetailsElement.lastChild != null) {
 				routeDetailsElement.removeChild(routeDetailsElement.lastChild);
@@ -567,5 +593,16 @@ function onSearch(data) {
 		SETTINGS.clearPanes();
 	}
 }
+
+function onSelectDelaysTab(selectDelaysTab) {
+	selectedDelaysTab = selectDelaysTab;
+	document.getElementById("route_stations_tab").className = "material-icons clickable" + (selectedDelaysTab ? "" : " selected");
+	document.getElementById("route_delays_tab").className = "material-icons clickable" + (selectedDelaysTab ? " selected" : "");
+	document.getElementById("route_details").style.display = selectedDelaysTab ? "none" : "";
+	document.getElementById("delays").style.display = selectedDelaysTab ? "" : "none";
+}
+
+document.getElementById("route_stations_tab").onclick = () => onSelectDelaysTab(false);
+document.getElementById("route_delays_tab").onclick = () => onSelectDelaysTab(true);
 
 export default drawMap;

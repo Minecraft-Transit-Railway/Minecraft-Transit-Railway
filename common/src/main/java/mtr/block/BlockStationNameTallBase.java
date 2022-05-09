@@ -117,8 +117,8 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 
 	public static class TileEntityStationNameTallBase extends TileEntityStationNameBase {
 
-		public TileEntityStationNameTallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float zOffset) {
-			super(type, pos, state, 0.25F, zOffset);
+		public TileEntityStationNameTallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, float zOffset, boolean isDoubleSided) {
+			super(type, pos, state, 0.25F, zOffset, isDoubleSided);
 		}
 
 		@Override

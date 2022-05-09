@@ -293,7 +293,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					startUp(world, trainCars, trainSpacing, isOppositeRail());
 				}
 			} else {
-				oldDoorValue = Math.abs(getDoorValue());
+				oldDoorValue = Math.abs(baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
 				final float newAcceleration = accelerationConstant * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * trainSpacing) / 2) {
@@ -301,14 +301,16 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					ridingEntities.clear();
 					doorValueRaw = 0;
 				} else {
+					final float tempDoorValueRaw;
+
 					if (speed <= 0) {
 						speed = 0;
 
 						if (dwellTicks == 0) {
-							doorValueRaw = 0;
+							tempDoorValueRaw = 0;
 						} else {
 							stopCounter += ticksElapsed;
-							doorValueRaw = getDoorValue();
+							tempDoorValueRaw = getDoorValue();
 						}
 
 						if (!world.isClientSide() && stopCounter >= dwellTicks) {
@@ -325,20 +327,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							}
 						}
 
-						if (baseTrainType.transportMode.continuousMovement) {
-							final int index = getIndex(railProgress, false);
-							if (path.get(index).dwellTime > 0 && index > 0) {
-								final double distance1 = distances.get(index - 1);
-								final double distance2 = distances.get(index);
-								doorValueRaw = (float) Mth.clamp(Math.min(railProgress - distance1, distance2 - railProgress) * 0.5, 0, 1) * (railProgress > (distance2 + distance1) / 2 ? -1 : 1);
-							} else {
-								doorValueRaw = 0;
-							}
-						} else {
-							doorValueRaw = 0;
-						}
-
-
 						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
 						if (!baseTrainType.transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
 							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
@@ -350,6 +338,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 								speed = Math.max(speed - newAcceleration, railSpeed);
 							}
 						}
+
+						tempDoorValueRaw = 0;
 					}
 
 					railProgress += speed * ticksElapsed;
@@ -357,6 +347,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						railProgress = distances.get(nextStoppingIndex);
 						speed = 0;
 					}
+
+					doorValueRaw = tempDoorValueRaw + (baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : 0);
 				}
 			}
 
@@ -496,6 +488,17 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			return (stopCounter - stage1) / DOOR_MOVE_TIME;
 		} else if (stopCounter >= stage3) {
 			return -(stage4 - stopCounter) / DOOR_MOVE_TIME;
+		} else {
+			return 0;
+		}
+	}
+
+	private float getDoorValueContinuous() {
+		final int index = getIndex(railProgress, false);
+		if (path.get(index).dwellTime > 0 && index > 0) {
+			final double distance1 = distances.get(index - 1);
+			final double distance2 = distances.get(index);
+			return (float) Mth.clamp(Math.min(railProgress - distance1, distance2 - railProgress) * 0.5, 0, 1) * (railProgress > (distance2 + distance1) / 2 ? -1 : 1);
 		} else {
 			return 0;
 		}

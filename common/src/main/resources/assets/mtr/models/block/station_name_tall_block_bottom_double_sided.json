@@ -1,0 +1,50 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "mtr:block/station_pole",
+		"main": "mtr:block/station_name_tall",
+		"overlay": "mtr:block/station_name_tall_overlay"
+	},
+	"elements": [
+		{
+			"from": [ 6, 0, 6 ],
+			"to": [ 10, 10, 10 ],
+			"faces": {
+				"down": { "texture": "#particle", "tintindex": 0, "cullface": "down" },
+				"east": { "texture": "#particle", "tintindex": 0 },
+				"west": { "texture": "#particle", "tintindex": 0 },
+				"north": { "texture": "#particle", "tintindex": 0 },
+				"south": { "texture": "#particle", "tintindex": 0 }
+			}
+		},
+		{
+			"from": [ 2, 10, 5 ],
+			"to": [ 14, 16, 11 ],
+			"faces": {
+				"down": { "texture": "#main", "tintindex": 0 },
+				"east": { "texture": "#main", "tintindex": 0 },
+				"west": { "texture": "#main", "tintindex": 0 },
+				"north": { "texture": "#main", "tintindex": 0 },
+				"south": { "texture": "#main", "tintindex": 0 }
+			}
+		},
+		{
+			"from": [ 1.95, 10, 10.5 ],
+			"to": [ 14.05, 16, 11.05 ],
+			"faces": {
+				"east": { "texture": "#overlay" },
+				"west": { "texture": "#overlay" },
+				"south": { "texture": "#overlay" }
+			}
+		},
+		{
+			"from": [ 1.95, 10, 4.95 ],
+			"to": [ 14.05, 16, 5.5 ],
+			"faces": {
+				"east": { "texture": "#overlay" },
+				"west": { "texture": "#overlay" },
+				"north": { "texture": "#overlay" }
+			}
+		}
+	]
+}

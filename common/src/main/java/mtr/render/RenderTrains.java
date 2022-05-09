@@ -312,9 +312,19 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		final boolean renderColors = isHoldingRailRelated(player);
 		final int maxRailDistance = renderDistanceChunks * 16;
+		final Map<UUID, RailType> renderedRailMap = new HashMap<>();
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
+			}
+
+			final UUID railProduct = PathData.getRailProduct(startPos, endPos);
+			if (renderedRailMap.containsKey(railProduct)) {
+				if (renderedRailMap.get(railProduct) == rail.railType) {
+					return;
+				}
+			} else {
+				renderedRailMap.put(railProduct, rail.railType);
 			}
 
 			switch (rail.transportMode) {

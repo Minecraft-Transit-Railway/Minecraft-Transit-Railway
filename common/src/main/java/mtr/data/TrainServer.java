@@ -122,7 +122,7 @@ public class TrainServer extends Train {
 				if (remove) {
 					ridersToRemove.add(uuid);
 				}
-				railwayData.railwayDataCoolDownModule.updatePlayerRiding(player);
+				railwayData.railwayDataCoolDownModule.updatePlayerRiding(player, routeId);
 			}
 		});
 		if (!ridersToRemove.isEmpty()) {
