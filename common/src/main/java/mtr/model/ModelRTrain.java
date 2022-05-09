@@ -450,7 +450,7 @@ public class ModelRTrain extends ModelTrainBase {
         inner_roof_5_r1.setPos(10.1444F, -36.2367F, 26);
         side_2.addChild(inner_roof_5_r1);
         setRotationAngle(inner_roof_5_r1, 0, 0, 0.9599F);
-        inner_roof_5_r1.texOffs(0, 0).addBox(0, 0.001F, -33, 5, 0, 17, 0, false);
+        inner_roof_5_r1.texOffs(0, 0).addBox(0, 0.001F, -33, 5, 0, 17, 0, true);
 
         roof_exterior = new ModelMapper(modelDataWrapper);
         roof_exterior.setPos(0, 24, 0);
@@ -1076,7 +1076,7 @@ public class ModelRTrain extends ModelTrainBase {
         inner_roof_6_r1.setPos(10.1444F, -36.2367F, 26);
         side_6.addChild(inner_roof_6_r1);
         setRotationAngle(inner_roof_6_r1, 0, 0, 0.9599F);
-        inner_roof_6_r1.texOffs(3, 0).addBox(0, 0.001F, -30, 5, 0, 14, 0, false);
+        inner_roof_6_r1.texOffs(3, 0).addBox(0, 0.001F, -30, 5, 0, 14, 0, true);
 
         door_light_on = new ModelMapper(modelDataWrapper);
         door_light_on.setPos(0, 24, 0);
