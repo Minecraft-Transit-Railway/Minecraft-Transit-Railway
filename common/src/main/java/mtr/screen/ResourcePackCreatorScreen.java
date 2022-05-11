@@ -1,12 +1,8 @@
 package mtr.screen;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.blaze3d.platform.NativeImage;
+import com.google.gson.JsonArray;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import mtr.MTR;
-import mtr.client.DynamicTrainModel;
 import mtr.client.IDrawing;
 import mtr.data.DataConverter;
 import mtr.data.IGui;
@@ -16,31 +12,24 @@ import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderTrains;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
-	private DynamicTrainModel model;
 	private float translation;
 	private float pitch;
 	private float scale = 10;
+	private int editingPartIndex = -1;
 
-	private final List<DataConverter> partsListData = new ArrayList<>();
-	private final DashboardList partsList;
-	private final Button buttonChooseBlockbenchFile;
+	private final DashboardList availableModelPartsList;
+	private final DashboardList usedModelPartsList;
+	private final Button buttonChooseModelFile;
 	private final Button buttonChoosePropertiesFile;
 	private final Button buttonChooseTextureFile;
 
@@ -49,42 +38,45 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
 	public ResourcePackCreatorScreen() {
 		super(new TextComponent(""));
-		partsList = new DashboardList(null, null, this::onEdit, null, null, null, null, () -> "", text -> {
+		availableModelPartsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> "", text -> {
 		});
-		buttonChooseBlockbenchFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> readJson(path, (fileName, jsonObject) -> {
-			jsonObject.remove("textures");
-			updateModelFile(fileName, jsonObject);
-		})));
-		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> readJson(path, this::updatePropertiesFile)));
+		usedModelPartsList = new DashboardList(null, null, this::onEdit, null, null, this::onDelete, null, () -> "", text -> {
+		});
+		buttonChooseModelFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+			RenderTrains.creatorProperties.loadModelFile(path);
+			updateModelButtonAndPartsList();
+		}));
+		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+			RenderTrains.creatorProperties.loadPropertiesFile(path);
+			updatePropertiesButton();
+		}));
 		buttonChooseTextureFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
-			if (minecraft != null) {
-				try {
-					final NativeImage nativeImage = NativeImage.read(Files.newInputStream(path, StandardOpenOption.READ));
-					final ResourceLocation identifier = minecraft.getTextureManager().register(MTR.MOD_ID, new DynamicTexture(nativeImage));
-					updateTextureFile(path.getFileName().toString(), identifier);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			RenderTrains.creatorProperties.loadTextureFile(path);
+			updateTextureButton();
 		}));
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		updateModelFile(RenderTrains.creatorModelFileName, RenderTrains.creatorModel);
-		updatePropertiesFile(RenderTrains.creatorPropertiesFileName, RenderTrains.creatorProperties);
-		updateTextureFile(RenderTrains.creatorTextureFileName, RenderTrains.creatorTexture);
+		updateModelButtonAndPartsList();
+		updatePropertiesButton();
+		updateTextureButton();
 
-		partsList.y = SQUARE_SIZE * 3;
-		partsList.width = PANEL_WIDTH;
-		partsList.height = height - SQUARE_SIZE * 3;
-		IDrawing.setPositionAndWidth(buttonChooseBlockbenchFile, 0, 0, PANEL_WIDTH);
+		availableModelPartsList.y = SQUARE_SIZE * 4;
+		availableModelPartsList.width = PANEL_WIDTH;
+		availableModelPartsList.height = height - SQUARE_SIZE * 4;
+		usedModelPartsList.x = width;
+		usedModelPartsList.y = SQUARE_SIZE;
+		usedModelPartsList.width = PANEL_WIDTH;
+		usedModelPartsList.height = height;
+		IDrawing.setPositionAndWidth(buttonChooseModelFile, 0, 0, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonChoosePropertiesFile, 0, SQUARE_SIZE, PANEL_WIDTH);
 		IDrawing.setPositionAndWidth(buttonChooseTextureFile, 0, SQUARE_SIZE * 2, PANEL_WIDTH);
 
-		partsList.init(this::addDrawableChild);
-		addDrawableChild(buttonChooseBlockbenchFile);
+		availableModelPartsList.init(this::addDrawableChild);
+		usedModelPartsList.init(this::addDrawableChild);
+		addDrawableChild(buttonChooseModelFile);
 		addDrawableChild(buttonChoosePropertiesFile);
 		addDrawableChild(buttonChooseTextureFile);
 	}
@@ -94,23 +86,23 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 		try {
 			renderBackground(matrices);
 
-			if (model != null && RenderTrains.creatorTexture != null && minecraft != null) {
-				matrices.pushPose();
-				matrices.translate((width - PANEL_WIDTH) / 2F + PANEL_WIDTH + translation, height / 2F, 250);
-				matrices.scale(scale, scale, -scale);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
-				matrices.mulPose(Vector3f.ZP.rotation(pitch));
-				final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-				model.render(matrices, immediate, RenderTrains.creatorTexture, MAX_LIGHT_INTERIOR, 0, 0, true, true, false, true, true, false, true);
-				immediate.endBatch();
-				matrices.popPose();
-			}
+			matrices.pushPose();
+			matrices.translate((width - PANEL_WIDTH) / 2F + PANEL_WIDTH + translation, height / 2F, 250);
+			matrices.scale(scale, scale, -scale);
+			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+			matrices.mulPose(Vector3f.ZP.rotation(pitch));
+			RenderTrains.creatorProperties.render(matrices);
+			matrices.popPose();
 
 			matrices.pushPose();
 			matrices.translate(0, 0, 500);
 			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
-			partsList.render(matrices, font);
+			Gui.fill(matrices, usedModelPartsList.x, 0, width, height, ARGB_BACKGROUND);
+			availableModelPartsList.render(matrices, font);
+			usedModelPartsList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.available_model_parts"), PANEL_WIDTH / 2 + availableModelPartsList.x, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.used_model_parts"), PANEL_WIDTH / 2 + usedModelPartsList.x, TEXT_PADDING, ARGB_WHITE);
 			matrices.popPose();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,7 +111,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
 	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
-		partsList.mouseMoved(mouseX, mouseY);
+		availableModelPartsList.mouseMoved(mouseX, mouseY);
+		usedModelPartsList.mouseMoved(mouseX, mouseY);
 	}
 
 	@Override
@@ -127,7 +120,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 		if (mouseX > PANEL_WIDTH) {
 			scale += amount;
 		}
-		partsList.mouseScrolled(mouseX, mouseY, amount);
+		availableModelPartsList.mouseScrolled(mouseX, mouseY, amount);
+		usedModelPartsList.mouseScrolled(mouseX, mouseY, amount);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
@@ -142,7 +136,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 
 	@Override
 	public void tick() {
-		partsList.tick();
+		availableModelPartsList.tick();
+		usedModelPartsList.tick();
 	}
 
 	@Override
@@ -150,46 +145,49 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 		return false;
 	}
 
-	private void updateModelFile(String fileName, JsonObject jsonObject) {
-		jsonObject.remove("textures");
-		buttonChooseBlockbenchFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_blockbench_file") : new TextComponent(fileName));
-		RenderTrains.creatorModelFileName = fileName;
-		RenderTrains.creatorModel = jsonObject;
-		updateModel();
-
-		final boolean isNotEmpty = jsonObject.size() > 0;
-		partsList.x = isNotEmpty ? 0 : width;
-		partsListData.clear();
+	private List<DataConverter> updatePartsList(DashboardList dashboardList, JsonArray jsonArray, int x) {
+		final boolean isNotEmpty = jsonArray.size() > 0;
+		dashboardList.x = isNotEmpty ? x : width;
+		final List<DataConverter> partsListData = new ArrayList<>();
 		if (isNotEmpty) {
 			try {
-				jsonObject.getAsJsonArray("outliner").forEach(jsonElement -> partsListData.add(new DataConverter(jsonElement.getAsJsonObject().get("name").getAsString(), ARGB_EXTERIOR)));
+				jsonArray.forEach(jsonElement -> partsListData.add(new DataConverter(jsonElement.getAsJsonObject().get("name").getAsString(), ARGB_BLACK)));
 			} catch (Exception ignored) {
 			}
 		}
-		partsList.setData(partsListData, false, false, true, false, false, false);
+		return partsListData;
 	}
 
-	private void updatePropertiesFile(String fileName, JsonObject jsonObject) {
+	private void updateModelButtonAndPartsList() {
+		final String fileName = RenderTrains.creatorProperties.getModelFileName();
+		buttonChooseModelFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_model_file") : new TextComponent(fileName));
+		availableModelPartsList.setData(updatePartsList(availableModelPartsList, RenderTrains.creatorProperties.getModelPartsArray(), 0), false, false, false, false, true, false);
+	}
+
+	private void updatePropertiesButton() {
+		final String fileName = RenderTrains.creatorProperties.getPropertiesFileName();
 		buttonChoosePropertiesFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_properties_file") : new TextComponent(fileName));
-		RenderTrains.creatorPropertiesFileName = fileName;
-		RenderTrains.creatorProperties = jsonObject;
-		updateModel();
+		usedModelPartsList.setData(updatePartsList(usedModelPartsList, RenderTrains.creatorProperties.getPropertiesPartsArray(), width - PANEL_WIDTH), false, false, true, false, false, true);
 	}
 
-	private void updateTextureFile(String fileName, ResourceLocation identifier) {
+	private void updateTextureButton() {
+		final String fileName = RenderTrains.creatorProperties.getTextureFileName();
 		buttonChooseTextureFile.setMessage(fileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_texture_file") : new TextComponent(fileName));
-		RenderTrains.creatorTextureFileName = fileName;
-		RenderTrains.creatorTexture = identifier;
 	}
 
-	private void updateModel() {
-		try {
-			model = new DynamicTrainModel(RenderTrains.creatorModel, RenderTrains.creatorProperties);
-		} catch (Exception ignored) {
-		}
+	private void onAdd(NameColorDataBase data, int index) {
+		RenderTrains.creatorProperties.addPart(data.name);
+		usedModelPartsList.setData(updatePartsList(usedModelPartsList, RenderTrains.creatorProperties.getPropertiesPartsArray(), width - PANEL_WIDTH), false, false, true, false, false, true);
 	}
 
 	private void onEdit(NameColorDataBase data, int index) {
+		editingPartIndex = index;
+	}
+
+	private void onDelete(NameColorDataBase data, int index) {
+		RenderTrains.creatorProperties.removePart(index);
+		editingPartIndex = -1;
+		usedModelPartsList.setData(updatePartsList(usedModelPartsList, RenderTrains.creatorProperties.getPropertiesPartsArray(), width - PANEL_WIDTH), false, false, true, false, false, true);
 	}
 
 	private void buttonCallback(Consumer<Path> callback) {
@@ -203,14 +201,6 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IGui {
 					}
 				}
 			}));
-		}
-	}
-
-	private void readJson(Path path, BiConsumer<String, JsonObject> jsonCallback) {
-		try {
-			jsonCallback.accept(path.getFileName().toString(), new JsonParser().parse(String.join("", Files.readAllLines(path))).getAsJsonObject());
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package mtr.render;
 
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
@@ -54,12 +53,7 @@ import java.util.stream.Collectors;
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
 	public static int maxTrainRenderDistance;
-	public static String creatorModelFileName = "";
-	public static JsonObject creatorModel = new JsonObject();
-	public static String creatorPropertiesFileName = "";
-	public static JsonObject creatorProperties = new JsonObject();
-	public static String creatorTextureFileName = "";
-	public static ResourceLocation creatorTexture;
+	public static ResourcePackCreatorProperties creatorProperties = new ResourcePackCreatorProperties();
 
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
