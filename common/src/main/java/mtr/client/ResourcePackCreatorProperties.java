@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ResourcePackCreatorProperties implements IGui {
+public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, IGui {
 
 	private String modelFileName = "";
 	private JsonObject modelObject = new JsonObject();
@@ -33,22 +33,6 @@ public class ResourcePackCreatorProperties implements IGui {
 	private JsonObject propertiesObject = new JsonObject();
 	private String textureFileName = "";
 	private ResourceLocation texture;
-
-	private static final String KEY_MODEL_OUTLINER = "outliner";
-
-	private static final String KEY_PROPERTIES_DOOR_MAX = "door_max";
-	private static final String KEY_PROPERTIES_PARTS = "parts";
-
-	private static final String KEY_PROPERTIES_NAME = "name";
-	private static final String KEY_PROPERTIES_STAGE = "stage";
-	private static final String KEY_PROPERTIES_MIRROR = "mirror";
-	private static final String KEY_PROPERTIES_POSITIONS = "positions";
-
-	private static final String KEY_PROPERTIES_POSITION_X = "x";
-	private static final String KEY_PROPERTIES_POSITION_Z = "z";
-
-	private static final String KEY_PROPERTIES_WHITELISTED_CARS = "whitelisted_cars";
-	private static final String KEY_PROPERTIES_BLACKLISTED_CARS = "blacklisted_cars";
 
 	public ResourcePackCreatorProperties() {
 		propertiesObject.addProperty(KEY_PROPERTIES_DOOR_MAX, 14);
@@ -94,7 +78,15 @@ public class ResourcePackCreatorProperties implements IGui {
 		partsObject.addProperty(KEY_PROPERTIES_NAME, partName);
 		partsObject.addProperty(KEY_PROPERTIES_STAGE, ModelTrainBase.RenderStage.EXTERIOR.toString());
 		partsObject.addProperty(KEY_PROPERTIES_MIRROR, false);
-		partsObject.add(KEY_PROPERTIES_POSITIONS, new JsonArray());
+		partsObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, false);
+		partsObject.addProperty(KEY_PROPERTIES_DOOR_OFFSET, DoorOffset.NONE.toString());
+		partsObject.addProperty(KEY_PROPERTIES_RENDER_CONDITION, RenderCondition.ALL.toString());
+		final JsonArray positionsArray = new JsonArray();
+		final JsonArray positionPairArray = new JsonArray();
+		positionPairArray.add(0);
+		positionPairArray.add(0);
+		positionsArray.add(positionPairArray);
+		partsObject.add(KEY_PROPERTIES_POSITIONS, positionsArray);
 		partsObject.add(KEY_PROPERTIES_WHITELISTED_CARS, new JsonArray());
 		partsObject.add(KEY_PROPERTIES_BLACKLISTED_CARS, new JsonArray());
 
@@ -122,28 +114,31 @@ public class ResourcePackCreatorProperties implements IGui {
 		updateModel();
 	}
 
-	public void addPartPosition(int index) {
-		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> {
-			final JsonObject positionObject = new JsonObject();
-			positionObject.addProperty(KEY_PROPERTIES_POSITION_X, 0);
-			positionObject.addProperty(KEY_PROPERTIES_POSITION_Z, 0);
-			partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).add(positionObject);
-		});
+	public void editPartSkipRenderingIfTooFar(int index, boolean mirror) {
+		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> partObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, mirror));
 		updateModel();
 	}
 
-	public void editPartPositionX(int index, int positionIndex, float x) {
-		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> getPartFromIndex(positionIndex, partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS), positionObject -> positionObject.addProperty(KEY_PROPERTIES_POSITION_X, x)));
+	public void editPartDoorOffset(int index, DoorOffset doorOffset) {
+		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> partObject.addProperty(KEY_PROPERTIES_DOOR_OFFSET, doorOffset.toString()));
 		updateModel();
 	}
 
-	public void editPartPositionZ(int index, int positionIndex, float z) {
-		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> getPartFromIndex(positionIndex, partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS), positionObject -> positionObject.addProperty(KEY_PROPERTIES_POSITION_Z, z)));
+	public void editPartRenderCondition(int index, RenderCondition renderCondition) {
+		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> partObject.addProperty(KEY_PROPERTIES_RENDER_CONDITION, renderCondition.toString()));
 		updateModel();
 	}
 
-	public void removePartPosition(int index, int positionIndex) {
-		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> getPartFromIndex(positionIndex, partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS), positionObject -> partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).remove(positionIndex)));
+	public void editPartPositions(int index, String positions) {
+		final JsonArray positionsArray = new JsonArray();
+		final String[] positionsSplit = positions.replaceAll("[^\\d,]", "").split(",");
+		for (int i = 1; i < positionsSplit.length; i += 2) {
+			final JsonArray positionPairArray = new JsonArray();
+			positionPairArray.add(positionsSplit[i - 1]);
+			positionPairArray.add(positionsSplit[i]);
+			positionsArray.add(positionPairArray);
+		}
+		getPartFromIndex(index, propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS), partObject -> partObject.add(KEY_PROPERTIES_POSITIONS, positionsArray));
 		updateModel();
 	}
 
@@ -173,11 +168,11 @@ public class ResourcePackCreatorProperties implements IGui {
 		updateModel();
 	}
 
-	public void render(PoseStack matrices) {
+	public void render(PoseStack matrices, int currentCar, int trainCars) {
 		if (model != null) {
 			final Minecraft minecraft = Minecraft.getInstance();
 			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, MAX_LIGHT_INTERIOR, 0, 0, true, true, false, true, true, false, true);
+			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, MAX_LIGHT_INTERIOR, 0, 0, true, currentCar, trainCars, true, true, false, true);
 			immediate.endBatch();
 		}
 	}
@@ -242,4 +237,8 @@ public class ResourcePackCreatorProperties implements IGui {
 			e.printStackTrace();
 		}
 	}
+
+	public enum DoorOffset {NONE, LEFT_POSITIVE, RIGHT_POSITIVE, LEFT_NEGATIVE, RIGHT_NEGATIVE}
+
+	public enum RenderCondition {ALL, DOORS_OPEN, DOORS_CLOSED, DOOR_LEFT_OPEN, DOOR_RIGHT_OPEN, DOOR_LEFT_CLOSED, DOOR_RIGHT_CLOSED, MOVING_FORWARDS, MOVING_BACKWARDS}
 }

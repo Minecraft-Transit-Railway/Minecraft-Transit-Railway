@@ -5,17 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.data.EnumHelper;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
-import mtr.model.ModelDoorOverlay;
-import mtr.model.ModelDoorOverlayTopBase;
 import mtr.model.ModelTrainBase;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class DynamicTrainModel extends ModelTrainBase {
+public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCreatorProperties {
 
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
@@ -67,7 +66,7 @@ public class DynamicTrainModel extends ModelTrainBase {
 		});
 
 		this.properties = properties;
-		doorMax = properties.get("door_max").getAsInt();
+		doorMax = properties.get(KEY_PROPERTIES_DOOR_MAX).getAsInt();
 
 		modelDataWrapper.setModelPart(textureWidth, textureHeight);
 		parts.values().forEach(part -> {
@@ -78,72 +77,89 @@ public class DynamicTrainModel extends ModelTrainBase {
 	}
 
 	@Override
-	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
-	}
+	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
+		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
+			final JsonObject partObject = partElement.getAsJsonObject();
+			if (!renderDetails && getBoolean(partObject, KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR) || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase())) {
+				return;
+			}
 
-	@Override
-	protected void renderDoorPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
-		renderParts("parts_normal", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		if (doorLeftZ > 0 || doorRightZ > 0) {
-			renderParts("parts_door_opened", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		} else {
-			renderParts("parts_door_closed", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		}
-	}
+			if (partObject.has(KEY_PROPERTIES_RENDER_CONDITION)) {
+				final boolean skipRender;
+				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
+					case DOORS_OPEN:
+						skipRender = doorLeftZ == 0 && doorRightZ == 0;
+						break;
+					case DOORS_CLOSED:
+						skipRender = doorLeftZ > 0 || doorRightZ > 0;
+						break;
+					case DOOR_LEFT_OPEN:
+						skipRender = doorLeftZ == 0;
+						break;
+					case DOOR_RIGHT_OPEN:
+						skipRender = doorRightZ == 0;
+						break;
+					case DOOR_LEFT_CLOSED:
+						skipRender = doorLeftZ > 0;
+						break;
+					case DOOR_RIGHT_CLOSED:
+						skipRender = doorRightZ > 0;
+						break;
+					case MOVING_FORWARDS:
+						skipRender = !head1IsFront;
+						break;
+					case MOVING_BACKWARDS:
+						skipRender = head1IsFront;
+						break;
+					default:
+						skipRender = false;
+						break;
+				}
+				if (skipRender) {
+					return;
+				}
+			}
 
-	@Override
-	protected void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		renderParts("parts_head_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		if (useHeadlights) {
-			renderParts("parts_head_1_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		} else {
-			renderParts("parts_head_1_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		}
-	}
+			final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
 
-	@Override
-	protected void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
-		renderParts("parts_head_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		if (useHeadlights) {
-			renderParts("parts_head_2_headlights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		} else {
-			renderParts("parts_head_2_tail_lights", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-		}
-	}
+			if (part != null) {
+				final float zOffset;
+				if (partObject.has(KEY_PROPERTIES_DOOR_OFFSET)) {
+					switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
+						case LEFT_POSITIVE:
+							zOffset = doorLeftZ;
+							break;
+						case RIGHT_POSITIVE:
+							zOffset = doorRightZ;
+							break;
+						case LEFT_NEGATIVE:
+							zOffset = -doorLeftZ;
+							break;
+						case RIGHT_NEGATIVE:
+							zOffset = -doorRightZ;
+							break;
+						default:
+							zOffset = 0;
+							break;
+					}
+				} else {
+					zOffset = 0;
+				}
 
-	@Override
-	protected void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		renderParts("parts_end_1", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-	}
-
-	@Override
-	protected void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
-		renderParts("parts_end_2", matrices, vertices, renderStage, light, renderDetails, doorLeftZ, doorRightZ);
-	}
-
-	@Override
-	protected ModelDoorOverlay getModelDoorOverlay() {
-		return null;
-	}
-
-	@Override
-	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
-		return null;
-	}
-
-	@Override
-	protected int[] getWindowPositions() {
-		return new int[]{0};
-	}
-
-	@Override
-	protected int[] getDoorPositions() {
-		return new int[]{0};
-	}
-
-	@Override
-	protected int[] getEndPositions() {
-		return new int[]{0, 0};
+				if (partObject.has(KEY_PROPERTIES_POSITIONS)) {
+					final boolean mirror = getBoolean(partObject, KEY_PROPERTIES_MIRROR);
+					partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
+						final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
+						final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
+						if (mirror) {
+							renderOnceFlipped(part, matrices, vertices, light, x, z - zOffset);
+						} else {
+							renderOnce(part, matrices, vertices, light, x, z + zOffset);
+						}
+					});
+				}
+			}
+		});
 	}
 
 	@Override
@@ -167,60 +183,8 @@ public class DynamicTrainModel extends ModelTrainBase {
 		return part;
 	}
 
-	private void renderParts(String category, PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, boolean renderDetails, float doorLeftZ, float doorRightZ) {
-		if (!properties.has(category)) {
-			return;
-		}
-
-		properties.getAsJsonArray(category).forEach(partElement -> {
-			final JsonObject partObject = partElement.getAsJsonObject();
-			final boolean shouldRender = renderDetails || !partObject.has("skip_rendering_if_too_far") || !partObject.get("skip_rendering_if_too_far").getAsBoolean();
-
-			if (shouldRender && renderStage.toString().equals(partObject.get("stage").getAsString().toUpperCase())) {
-				final ModelMapper part = parts.get(partObject.get("part_name").getAsString());
-
-				if (part != null) {
-					final float zOffset;
-					if (partObject.has("door_offset_z")) {
-						switch (partObject.get("door_offset_z").getAsString()) {
-							case "left":
-								zOffset = doorLeftZ;
-								break;
-							case "right":
-								zOffset = doorRightZ;
-								break;
-							case "left_negative":
-								zOffset = -doorLeftZ;
-								break;
-							case "right_negative":
-								zOffset = -doorRightZ;
-								break;
-							default:
-								zOffset = 0;
-								break;
-						}
-					} else {
-						zOffset = 0;
-					}
-
-					if (partObject.has("positions")) {
-						partObject.getAsJsonArray("positions").forEach(positionElement -> {
-							final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
-							final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
-							renderOnce(part, matrices, vertices, light, x, z + zOffset);
-						});
-					}
-
-					if (partObject.has("positions_flipped")) {
-						partObject.getAsJsonArray("positions_flipped").forEach(positionElement -> {
-							final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
-							final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
-							renderOnceFlipped(part, matrices, vertices, light, x, z - zOffset);
-						});
-					}
-				}
-			}
-		});
+	private static boolean getBoolean(JsonObject jsonObject, String key) {
+		return jsonObject.has(key) && jsonObject.get(key).getAsBoolean();
 	}
 
 	private static <T> void getArrayFromValue(T[] array, JsonObject jsonObject, String key, Function<JsonElement, T> function) {
