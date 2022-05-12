@@ -382,11 +382,11 @@ public class ModelRTrain extends ModelTrainBase {
 
         side_panel = new ModelMapper(modelDataWrapper);
         side_panel.setPos(0, 24, 0);
-        side_panel.texOffs(227, 0).addBox(-18, -29, 0, 7, 24, 0, 0, false);
+        side_panel.texOffs(227, 0).addBox(-18, -33, 0, 7, 28, 0, 0, false);
 
         side_panel_translucent = new ModelMapper(modelDataWrapper);
         side_panel_translucent.setPos(0, 24, 0);
-        side_panel_translucent.texOffs(227, 135).addBox(-18, -28, 0, 6, 22, 0, 0, false);
+        side_panel_translucent.texOffs(227, 134).addBox(-18, -31, 0, 6, 25, 0, 0, false);
 
         roof_window = new ModelMapper(modelDataWrapper);
         roof_window.setPos(0, 24, 0);
