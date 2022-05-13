@@ -271,6 +271,7 @@ public class ModelRTrain extends ModelTrainBase {
 		door.setPos(0.0F, 24.0F, 0.0F);
 		door.texOffs(0, 194).addBox(-20.0F, 0.0F, -16.0F, 20.0F, 1.0F, 32.0F, 0.0F, false);
 		door.texOffs(96, 163).addBox(-4.0F, -37.25F, -4.0F, 4.0F, 1.0F, 8.0F, 0.0F, false);
+		door.texOffs(69, 164).addBox(-3.0F, -37.25F, -3.0F, 3.0F, 0.0F, 6.0F, 0.0F, false);
 
 		door_left = new ModelMapper(modelDataWrapper);
 		door_left.setPos(0.0F, 0.0F, 0.0F);
