@@ -44,7 +44,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A", 1);
 		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
-		textFieldExitDestination = new WidgetBetterTextField(null, "");
+		textFieldExitDestination = new WidgetBetterTextField("");
 
 		buttonAddExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
 		buttonDoneExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitParent());

@@ -57,7 +57,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		super(new TextComponent(""));
 		this.transportMode = transportMode;
 
-		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
+		textFieldName = new WidgetBetterTextField(new TranslatableComponent("gui.mtr.name").getString());
 		colorSelector = new WidgetColorSelector(this, this::toggleButtons);
 		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver);
 

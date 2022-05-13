@@ -65,6 +65,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 			);
 		});
 
+		IResourcePackCreatorProperties.checkSchema(properties);
 		this.properties = properties;
 		doorMax = properties.get(KEY_PROPERTIES_DOOR_MAX).getAsInt();
 
@@ -80,84 +81,76 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	protected void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails) {
 		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
-			if (!renderDetails && getBoolean(partObject, KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR) || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase())) {
+			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase())) {
 				return;
 			}
 
-			if (partObject.has(KEY_PROPERTIES_RENDER_CONDITION)) {
-				final boolean skipRender;
-				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
-					case DOORS_OPEN:
-						skipRender = doorLeftZ == 0 && doorRightZ == 0;
-						break;
-					case DOORS_CLOSED:
-						skipRender = doorLeftZ > 0 || doorRightZ > 0;
-						break;
-					case DOOR_LEFT_OPEN:
-						skipRender = doorLeftZ == 0;
-						break;
-					case DOOR_RIGHT_OPEN:
-						skipRender = doorRightZ == 0;
-						break;
-					case DOOR_LEFT_CLOSED:
-						skipRender = doorLeftZ > 0;
-						break;
-					case DOOR_RIGHT_CLOSED:
-						skipRender = doorRightZ > 0;
-						break;
-					case MOVING_FORWARDS:
-						skipRender = !head1IsFront;
-						break;
-					case MOVING_BACKWARDS:
-						skipRender = head1IsFront;
-						break;
-					default:
-						skipRender = false;
-						break;
-				}
-				if (skipRender) {
-					return;
-				}
+			final boolean skipRender;
+			switch (EnumHelper.valueOf(ResourcePackCreatorProperties.RenderCondition.ALL, partObject.get(KEY_PROPERTIES_RENDER_CONDITION).getAsString())) {
+				case DOORS_OPEN:
+					skipRender = doorLeftZ == 0 && doorRightZ == 0;
+					break;
+				case DOORS_CLOSED:
+					skipRender = doorLeftZ > 0 || doorRightZ > 0;
+					break;
+				case DOOR_LEFT_OPEN:
+					skipRender = doorLeftZ == 0;
+					break;
+				case DOOR_RIGHT_OPEN:
+					skipRender = doorRightZ == 0;
+					break;
+				case DOOR_LEFT_CLOSED:
+					skipRender = doorLeftZ > 0;
+					break;
+				case DOOR_RIGHT_CLOSED:
+					skipRender = doorRightZ > 0;
+					break;
+				case MOVING_FORWARDS:
+					skipRender = !head1IsFront;
+					break;
+				case MOVING_BACKWARDS:
+					skipRender = head1IsFront;
+					break;
+				default:
+					skipRender = false;
+					break;
+			}
+			if (skipRender) {
+				return;
 			}
 
 			final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
 
 			if (part != null) {
 				final float zOffset;
-				if (partObject.has(KEY_PROPERTIES_DOOR_OFFSET)) {
-					switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
-						case LEFT_POSITIVE:
-							zOffset = doorLeftZ;
-							break;
-						case RIGHT_POSITIVE:
-							zOffset = doorRightZ;
-							break;
-						case LEFT_NEGATIVE:
-							zOffset = -doorLeftZ;
-							break;
-						case RIGHT_NEGATIVE:
-							zOffset = -doorRightZ;
-							break;
-						default:
-							zOffset = 0;
-							break;
-					}
-				} else {
-					zOffset = 0;
+				switch (EnumHelper.valueOf(ResourcePackCreatorProperties.DoorOffset.NONE, partObject.get(KEY_PROPERTIES_DOOR_OFFSET).getAsString())) {
+					case LEFT_POSITIVE:
+						zOffset = doorLeftZ;
+						break;
+					case RIGHT_POSITIVE:
+						zOffset = doorRightZ;
+						break;
+					case LEFT_NEGATIVE:
+						zOffset = -doorLeftZ;
+						break;
+					case RIGHT_NEGATIVE:
+						zOffset = -doorRightZ;
+						break;
+					default:
+						zOffset = 0;
+						break;
 				}
 
-				if (partObject.has(KEY_PROPERTIES_POSITIONS)) {
-					final boolean mirror = getBoolean(partObject, KEY_PROPERTIES_MIRROR);
-					partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
-						final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
-						final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
-						if (mirror) {
-							renderOnceFlipped(part, matrices, vertices, light, x, z - zOffset);
-						} else {
-							renderOnce(part, matrices, vertices, light, x, z + zOffset);
-						}
-					});
-				}
+				final boolean mirror = partObject.get(KEY_PROPERTIES_MIRROR).getAsBoolean();
+				partObject.getAsJsonArray(KEY_PROPERTIES_POSITIONS).forEach(positionElement -> {
+					final float x = positionElement.getAsJsonArray().get(0).getAsFloat();
+					final float z = positionElement.getAsJsonArray().get(1).getAsFloat();
+					if (mirror) {
+						renderOnceFlipped(part, matrices, vertices, light, x, z - zOffset);
+					} else {
+						renderOnce(part, matrices, vertices, light, x, z + zOffset);
+					}
+				});
 			}
 		});
 	}
@@ -181,10 +174,6 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		final ModelMapper part = new ModelMapper(modelDataWrapper);
 		jsonObject.getAsJsonArray("children").forEach(child -> part.addChild(child.isJsonObject() ? addChildren(child.getAsJsonObject(), children, modelDataWrapper) : children.get(child.getAsString())));
 		return part;
-	}
-
-	private static boolean getBoolean(JsonObject jsonObject, String key) {
-		return jsonObject.has(key) && jsonObject.get(key).getAsBoolean();
 	}
 
 	private static <T> void getArrayFromValue(T[] array, JsonObject jsonObject, String key, Function<JsonElement, T> function) {
