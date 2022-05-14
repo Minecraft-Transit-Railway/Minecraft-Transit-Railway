@@ -1,14 +1,123 @@
+import FetchData from "./fetch.js";
 import SETTINGS from "./index.js";
 import CANVAS from "./utilities.js";
 import DIRECTIONS from "./directions.js";
 import tappable from "./gestures/src/gestures/tap.js";
 import panable from "./gestures/src/gestures/pan.js";
 
+const REFRESH_INTERVAL = 5000;
+const BIG_DELAY_THRESHOLD = 15 * 20;
+const HUGE_DELAY_THRESHOLD = 30 * 20;
+const MAX_DELAY_THRESHOLD = 600 * 20;
 const MAX_ARRIVALS = 5;
 const FILTER = new PIXI.filters.BlurFilter();
 const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
 const DIRECTIONS_BOX_1_ELEMENT = document.getElementById("directions_box_1");
 const DIRECTIONS_BOX_2_ELEMENT = document.getElementById("directions_box_2");
+const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, REFRESH_INTERVAL, true, () => SETTINGS.selectedStation !== 0, (result, data) => {
+	const arrivalsHtml = {};
+	for (const {arrival, name, destination, circular, platform, route, color} of result) {
+		const currentMillis = Date.now();
+		const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
+		const destinationSplit = circular === "" ? destination.split("|") : CANVAS.getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
+		const routeNumberSplit = route.split("|");
+		if (typeof arrivalsHtml[color] === "undefined") {
+			arrivalsHtml[color] = {html: "", count: 0};
+		}
+		if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
+			arrivalsHtml[color]["html"] +=
+				`<div class="arrival">` +
+				`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
+				`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
+				(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
+				`</span>` +
+				`<span class="arrival_text" style="width: 10%">${platform}</span>` +
+				`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
+				`</div>`;
+			arrivalsHtml[color]["count"]++;
+		}
+	}
+	for (const color in arrivalsHtml) {
+		const arrivalElement = document.getElementById("station_arrivals_" + color);
+		if (arrivalElement != null) {
+			arrivalElement.innerHTML = arrivalsHtml[color]["html"];
+		}
+	}
+});
+const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.delaysUrl, REFRESH_INTERVAL, true, () => SETTINGS.selectedColor >= 0, result => {
+	const delaysElement = document.getElementById("delays");
+	delaysElement.innerText = "";
+	const data = result[SETTINGS.dimension].filter(data => data["color"] === SETTINGS.selectedColor).sort((a, b) => b["time"] - a["time"]);
+	const millis = Date.now();
+	const routeNameElementMap = {};
+
+	let hasDelay = false;
+	let hasBigDelay = false;
+	let hasHugeDelay = false;
+
+	for (const {name, number, destination, circular, delay, time, x, y, z} of data) {
+		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
+		const copyButtonText = x + "_" + y + "_" + z;
+
+		const bigDelay = delay >= BIG_DELAY_THRESHOLD;
+		const hugeDelay = delay >= HUGE_DELAY_THRESHOLD;
+
+		const element = document.createElement("div");
+		element.className = "arrival clickable";
+		element.innerHTML =
+			`<span class="arrival_text material-icons small" style="width: 5%; ${hugeDelay ? "color: " + CANVAS.convertColor(SETTINGS.selectedColor) : ""}">${bigDelay ? "warning" : "warning_amber"}</span>` +
+			`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : CANVAS.formatTime(delay / 20)}</span>` +
+			`<span class="arrival_text material-icons tight delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
+			`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
+			`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + CANVAS.formatTime((millis - time) / 1000)}</span>` +
+			`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
+		element.onclick = () => {
+			navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`);
+			Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "check");
+			delayCopyButton = copyButtonText;
+			setTimeout(() => {
+				Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "content_copy");
+				delayCopyButton = "";
+			}, 1000);
+		};
+
+		hasDelay = true;
+		if (bigDelay) {
+			hasBigDelay = true;
+		}
+		if (hugeDelay) {
+			hasHugeDelay = true;
+		}
+
+		if (!(name in routeNameElementMap)) {
+			routeNameElementMap[name] = document.createElement("div");
+			routeNameElementMap[name].className = "station_list";
+
+			addRouteHeader(delaysElement, number, destination, circular, name);
+
+			delaysElement.append(routeNameElementMap[name]);
+			const spacerElement = document.createElement("div");
+			spacerElement.className = "spacer padded";
+			delaysElement.append(spacerElement);
+		}
+		routeNameElementMap[name].appendChild(element);
+	}
+
+	if (delaysElement.lastChild != null) {
+		delaysElement.removeChild(delaysElement.lastChild);
+	}
+
+	const routeStationsTabElement = document.getElementById("route_stations_tab");
+	const routeDelaysTabElement = document.getElementById("route_delays_tab");
+	if (hasDelay) {
+		routeStationsTabElement.style.display = "";
+		routeDelaysTabElement.innerText = hasBigDelay ? "warning" : "warning_amber";
+		routeDelaysTabElement.style.color = hasHugeDelay ? CANVAS.convertColor(SETTINGS.selectedColor) : "";
+		routeDelaysTabElement.style.display = "";
+	}
+	onSelectDelaysTab(selectedDelaysTab);
+	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
+});
 
 let graphicsRoutesLayer1 = [];
 let graphicsRoutesLayer2 = [];
@@ -17,10 +126,8 @@ let graphicsStationsLayer2 = [];
 let graphicsStationsTextLayer1 = [];
 let graphicsStationsTextLayer2 = [];
 let textStations = [];
-
-let fetchArrivalId = 0;
-let refreshArrivalId = 0;
-let arrivalData = [];
+let selectedDelaysTab = false;
+let delayCopyButton = "";
 
 const clearAndDestroy = array => {
 	for (const index in array) {
@@ -42,51 +149,18 @@ const createClickable = (container, initialize, onClick) => {
 	initialize(new PIXI.Graphics());
 };
 
-const fetchArrivals = data => {
-	if (SETTINGS.selectedStation !== 0) {
-		clearTimeout(fetchArrivalId);
-		fetch(SETTINGS.arrivalsUrl + "?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, {cache: "no-cache"}).then(response => response.json()).then(result => {
-			arrivalData = result;
-			fetchArrivalId = setTimeout(() => fetchArrivals(data), SETTINGS.refreshArrivalsInterval);
-			refreshArrivals(data);
-		});
-	}
-};
+const addRouteHeader = (element, number, destination, circular, routeName) => {
+	const headerElement = document.createElement("h3");
+	headerElement.innerHTML = number.replace(/\|/g, " ") + `<span class="material-icons tight">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` + destination.replace(/\|/g, " ");
+	element.appendChild(headerElement);
 
-const refreshArrivals = data => {
-	if (SETTINGS.selectedStation !== 0) {
-		clearTimeout(refreshArrivalId);
-		const arrivalsHtml = {};
-		for (const {arrival, name, destination, circular, platform, route, color} of arrivalData) {
-			const currentMillis = Date.now();
-			const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-			const destinationSplit = circular === "" ? destination.split("|") : CANVAS.getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
-			const routeNumberSplit = route.split("|");
-			if (typeof arrivalsHtml[color] === "undefined") {
-				arrivalsHtml[color] = {html: "", count: 0};
-			}
-			if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
-				arrivalsHtml[color]["html"] +=
-					`<div class="arrival">` +
-					`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
-					`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
-					(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
-					`</span>` +
-					`<span class="arrival_text" style="width: 10%">${platform}</span>` +
-					`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : CANVAS.formatTime(arrivalDifference)}</span>` +
-					`</div>`;
-				arrivalsHtml[color]["count"]++;
-			}
-		}
-		for (const color in arrivalsHtml) {
-			const arrivalElement = document.getElementById("station_arrivals_" + color);
-			if (arrivalElement != null) {
-				arrivalElement.innerHTML = arrivalsHtml[color]["html"];
-			}
-		}
-		refreshArrivalId = setTimeout(() => refreshArrivals(data), 1000);
+	const routeNameSplit = routeName.split("||");
+	if (routeNameSplit.length > 1) {
+		const smallHeaderElement = document.createElement("h4");
+		smallHeaderElement.innerText = routeNameSplit[1].replace(/\|/g, " ");
+		element.appendChild(smallHeaderElement);
 	}
-};
+}
 
 function drawMap(container, data) {
 	const getStationElement = (color, name, id) => {
@@ -189,13 +263,16 @@ function drawMap(container, data) {
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
 		SETTINGS.selectedStation = id;
-		fetchArrivals(data);
+		FETCH_ARRIVAL_DATA.fetchData(data);
 	};
 
 	const onClickLine = (color, forceClick) => {
 		const shouldSelect = forceClick || SETTINGS.selectedColor !== color;
 		SETTINGS.onClearSearch(data, false);
 		SETTINGS.clearPanes();
+		document.getElementById("route_stations_tab").style.display = "none";
+		document.getElementById("route_delays_tab").style.display = "none";
+		onSelectDelaysTab(false);
 
 		if (shouldSelect) {
 			const selectedRoutes = routes.filter(route => route["color"] === color);
@@ -216,17 +293,12 @@ function drawMap(container, data) {
 			document.getElementById("route_name").innerHTML = routeNameHtml;
 			document.getElementById("route_line").style.backgroundColor = CANVAS.convertColor(color);
 
-			const routeDetailsElement = document.getElementById("route_stations");
+			const routeDetailsElement = document.getElementById("route_details");
 			routeDetailsElement.innerHTML = "";
 
 			selectedRoutes.forEach(route => {
-				const {stations, durations, name} = route;
-				const routeNameSplit = name.split("||");
-				if (routeNameSplit.length > 1) {
-					const element = document.createElement("h3");
-					element.innerText = routeNameSplit[1].replace(/\|/g, " ");
-					routeDetailsElement.appendChild(element);
-				}
+				const {stations, durations, name, number, circular} = route;
+				addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", circular, name);
 
 				const routeStationsElement = document.createElement("div");
 				routeStationsElement.className = "station_list"
@@ -247,7 +319,7 @@ function drawMap(container, data) {
 				const spacerElement = document.createElement("div");
 				spacerElement.className = "spacer padded";
 				routeDetailsElement.append(spacerElement);
-			})
+			});
 
 			if (routeDetailsElement.lastChild != null) {
 				routeDetailsElement.removeChild(routeDetailsElement.lastChild);
@@ -260,6 +332,7 @@ function drawMap(container, data) {
 		}
 
 		SETTINGS.drawDirectionsRoute([], []);
+		FETCH_DELAYS_DATA.fetchData(data);
 	};
 
 	SEARCH_BOX_ELEMENT.onchange = () => onSearch(data);
@@ -520,5 +593,16 @@ function onSearch(data) {
 		SETTINGS.clearPanes();
 	}
 }
+
+function onSelectDelaysTab(selectDelaysTab) {
+	selectedDelaysTab = selectDelaysTab;
+	document.getElementById("route_stations_tab").className = "material-icons clickable" + (selectedDelaysTab ? "" : " selected");
+	document.getElementById("route_delays_tab").className = "material-icons clickable" + (selectedDelaysTab ? " selected" : "");
+	document.getElementById("route_details").style.display = selectedDelaysTab ? "none" : "";
+	document.getElementById("delays").style.display = selectedDelaysTab ? "" : "none";
+}
+
+document.getElementById("route_stations_tab").onclick = () => onSelectDelaysTab(false);
+document.getElementById("route_delays_tab").onclick = () => onSelectDelaysTab(true);
 
 export default drawMap;

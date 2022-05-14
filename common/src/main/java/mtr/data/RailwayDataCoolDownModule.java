@@ -16,6 +16,7 @@ import java.util.Set;
 public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 
 	private final Map<Player, Integer> playerRidingCoolDown = new HashMap<>();
+	private final Map<Player, Long> playerRidingRoute = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 
@@ -44,12 +45,15 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 		final Set<Player> playersToRemove = new HashSet<>();
 		playerRidingCoolDown.forEach((player, coolDown) -> {
 			if (coolDown <= 0) {
-				updatePlayerRiding(player, false);
+				updatePlayerRiding(player, 0);
 				playersToRemove.add(player);
 			}
 			playerRidingCoolDown.put(player, coolDown - 1);
 		});
-		playersToRemove.forEach(playerRidingCoolDown::remove);
+		playersToRemove.forEach(player -> {
+			playerRidingCoolDown.remove(player);
+			playerRidingRoute.remove(player);
+		});
 	}
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
@@ -61,9 +65,19 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 		playerSeatCoolDowns.remove(player);
 	}
 
-	public void updatePlayerRiding(Player player) {
-		updatePlayerRiding(player, true);
-		playerRidingCoolDown.put(player, 2);
+	public void updatePlayerRiding(Player player, long routeId) {
+		final boolean isRiding = routeId != 0;
+		player.fallDistance = 0;
+		player.setNoGravity(isRiding);
+		player.noPhysics = isRiding;
+		if (isRiding) {
+			Utilities.getAbilities(player).mayfly = true;
+			playerRidingCoolDown.put(player, 2);
+			playerRidingRoute.put(player, routeId);
+		} else {
+			((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
+		}
+		Registry.setInTeleportationState(player, isRiding);
 	}
 
 	public void updatePlayerSeatCoolDown(Player player) {
@@ -74,15 +88,11 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 		return !playerRidingCoolDown.containsKey(player);
 	}
 
-	private static void updatePlayerRiding(Player player, boolean isRiding) {
-		player.fallDistance = 0;
-		player.setNoGravity(isRiding);
-		player.noPhysics = isRiding;
-		if (isRiding) {
-			Utilities.getAbilities(player).mayfly = true;
+	public Route getRidingRoute(Player player) {
+		if (playerRidingRoute.containsKey(player)) {
+			return railwayData.dataCache.routeIdMap.get(playerRidingRoute.get(player));
 		} else {
-			((ServerPlayer) player).gameMode.getGameModeForPlayer().updatePlayerAbilities(Utilities.getAbilities(player));
+			return null;
 		}
-		Registry.setInTeleportationState(player, isRiding);
 	}
 }

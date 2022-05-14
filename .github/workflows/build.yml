@@ -40,7 +40,7 @@ jobs:
       - name: Upload Translations to Crowdin
         env:
           MY_KEY: ${{ secrets.CROWDIN_API_KEY }}
-        if: ${{ env.MY_KEY != '' }}
+        if: ${{ env.MY_KEY != '' && github.ref == 'refs/heads/master' }}
         uses: crowdin/github-action@1.4.8
         with:
           upload_sources: true

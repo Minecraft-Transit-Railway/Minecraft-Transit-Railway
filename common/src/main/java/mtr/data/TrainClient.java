@@ -60,7 +60,7 @@ public class TrainClient extends Train {
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, float oldRailProgress
+			float doorValueRaw, float oldSpeed, float oldDoorValue, double oldRailProgress
 	) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
@@ -116,7 +116,7 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, float oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
@@ -141,7 +141,7 @@ public class TrainClient extends Train {
 				}
 
 				if (announcementCallback != null) {
-					float targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * trainSpacing;
+					final double targetProgress = distances.get(getPreviousStoppingIndex(headIndex)) + (trainCars + 1) * trainSpacing;
 					if (oldRailProgress < targetProgress && railProgress >= targetProgress) {
 						announcementCallback.announcementCallback(stopIndex, routeIds);
 					}
@@ -164,7 +164,7 @@ public class TrainClient extends Train {
 				}
 
 				final CalculateCarCallback calculateCarCallback = (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), baseTrainType.width), doorLeftOpenRender || doorRightOpenRender ? 0 : baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), realSpacingRender)).xRot(pitch).yRot(yaw);
+					final Vec3 playerOffset = new Vec3(getValueFromPercentage(percentagesX.get(uuid), baseTrainType.width), doorLeftOpenRender || doorRightOpenRender ? 0 : baseTrainType.riderOffset, getValueFromPercentage(Mth.frac(percentagesZ.get(uuid)), realSpacingRender)).xRot(baseTrainType.transportMode.hasPitch ? pitch : 0).yRot(yaw);
 					ClientData.updatePlayerRidingOffset(uuid);
 					riderPositions.put(uuid, playerOffset.add(x, y, z));
 
@@ -174,7 +174,7 @@ public class TrainClient extends Train {
 						clientPlayer.setSpeed(0);
 						clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : 0), z + playerOffset.z);
 						if (speed > 0 || MTRClient.isVivecraft()) {
-							if (!MTRClient.isVivecraft()) {
+							if (!MTRClient.isVivecraft() && doorValueRaw == 0) {
 								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
 							}
 							offset.add(x);

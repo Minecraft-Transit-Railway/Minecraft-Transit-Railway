@@ -97,9 +97,11 @@ public class ModelLightRail extends ModelTrainBase {
 	private final ModelMapper tail_lights;
 
 	private final int phase;
+	private final boolean isRHT;
 
-	public ModelLightRail(int phase) {
+	public ModelLightRail(int phase, boolean isRHT) {
 		this.phase = phase;
+		this.isRHT = isRHT;
 
 		final int textureWidth = 368;
 		final int textureHeight = 368;
@@ -739,9 +741,13 @@ public class ModelLightRail extends ModelTrainBase {
 
 	private static final int DOOR_MAX = 14;
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_left.png", "door_overlay_light_rail_right.png", false, true);
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_3 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_3_left.png", "door_overlay_light_rail_3_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_3_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_3_left.png", "door_overlay_light_rail_3_right.png", false, true);
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_4_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_4_left.png", "door_overlay_light_rail_4_right.png", false, true);
 	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5 = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", true, false);
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY_5_RHT = new ModelDoorOverlay(DOOR_MAX, 0, 14, "door_overlay_light_rail_5_left.png", "door_overlay_light_rail_5_right.png", false, true);
 
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
@@ -788,21 +794,41 @@ public class ModelLightRail extends ModelTrainBase {
 				renderMirror(phase == 5 ? roof_light_5 : roof_light, matrices, vertices, light, position);
 				break;
 			case INTERIOR:
-				(phase == 5 ? door_left_5 : door_left).setOffset(0, 0, doorLeftZ);
-				(phase == 5 ? door_right_5 : door_right).setOffset(0, 0, -doorLeftZ);
-				renderOnceFlipped(phase == 5 ? door_5 : door, matrices, vertices, light, position);
-				renderOnceFlipped(door_window, matrices, vertices, light, position);
+				if (isRHT) {
+					(phase == 5 ? door_left_5 : door_left).setOffset(0, 0, doorRightZ);
+					(phase == 5 ? door_right_5 : door_right).setOffset(0, 0, -doorRightZ);
+					renderOnce(phase == 5 ? door_5 : door, matrices, vertices, light, position);
+					renderOnce(door_window, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnce(phase >= 4 ? phase == 4 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
+						renderOnce(phase >= 4 ? phase == 4 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
+					}
+				} else {
+					(phase == 5 ? door_left_5 : door_left).setOffset(0, 0, doorLeftZ);
+					(phase == 5 ? door_right_5 : door_right).setOffset(0, 0, -doorLeftZ);
+					renderOnceFlipped(phase == 5 ? door_5 : door, matrices, vertices, light, position);
+					renderOnceFlipped(door_window, matrices, vertices, light, position);
+					if (renderDetails) {
+						renderOnceFlipped(phase >= 4 ? phase == 4 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
+						renderOnceFlipped(phase >= 4 ? phase == 4 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
+					}
+				}
 				if (renderDetails) {
-					renderOnceFlipped(phase >= 4 ? phase == 4 ? door_handrails_4 : door_handrails_5 : door_handrails, matrices, vertices, light, position);
-					renderOnceFlipped(phase >= 4 ? phase == 4 ? door_window_handrails_4 : door_window_handrails_5 : door_window_handrails, matrices, vertices, light, position);
 					renderMirror(roof, matrices, vertices, light, position);
 				}
 				break;
 			case EXTERIOR:
-				(phase == 5 ? door_left_exterior_5 : door_left_exterior).setOffset(0, 0, doorLeftZ);
-				(phase == 5 ? door_right_exterior_5 : door_right_exterior).setOffset(0, 0, -doorLeftZ);
-				renderOnceFlipped(phase == 5 ? door_exterior_5 : door_exterior, matrices, vertices, light, position);
-				renderOnceFlipped(door_window_exterior, matrices, vertices, light, position);
+				if (isRHT) {
+					(phase == 5 ? door_left_exterior_5 : door_left_exterior).setOffset(0, 0, doorRightZ);
+					(phase == 5 ? door_right_exterior_5 : door_right_exterior).setOffset(0, 0, -doorRightZ);
+					renderOnce(phase == 5 ? door_exterior_5 : door_exterior, matrices, vertices, light, position);
+					renderOnce(door_window_exterior, matrices, vertices, light, position);
+				} else {
+					(phase == 5 ? door_left_exterior_5 : door_left_exterior).setOffset(0, 0, doorLeftZ);
+					(phase == 5 ? door_right_exterior_5 : door_right_exterior).setOffset(0, 0, -doorLeftZ);
+					renderOnceFlipped(phase == 5 ? door_exterior_5 : door_exterior, matrices, vertices, light, position);
+					renderOnceFlipped(door_window_exterior, matrices, vertices, light, position);
+				}
 				renderMirror(roof_exterior, matrices, vertices, light, position);
 				if (position == 0) {
 					renderMirror(vents_top, matrices, vertices, light, position);
@@ -899,13 +925,13 @@ public class ModelLightRail extends ModelTrainBase {
 		switch (phase) {
 			case 1:
 			case 2:
-				return MODEL_DOOR_OVERLAY;
+				return isRHT ? MODEL_DOOR_OVERLAY_RHT : MODEL_DOOR_OVERLAY;
 			case 3:
-				return MODEL_DOOR_OVERLAY_3;
+				return isRHT ? MODEL_DOOR_OVERLAY_3_RHT : MODEL_DOOR_OVERLAY_3;
 			case 4:
-				return MODEL_DOOR_OVERLAY_4;
+				return isRHT ? MODEL_DOOR_OVERLAY_4_RHT : MODEL_DOOR_OVERLAY_4;
 			case 5:
-				return MODEL_DOOR_OVERLAY_5;
+				return isRHT ? MODEL_DOOR_OVERLAY_5_RHT : MODEL_DOOR_OVERLAY_5;
 		}
 		return null;
 	}

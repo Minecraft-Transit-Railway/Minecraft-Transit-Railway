@@ -1,3 +1,4 @@
+import FetchData from "./fetch.js";
 import CANVAS from "./utilities.js";
 import DIRECTIONS from "./directions.js";
 import VERSION from "./version.js";
@@ -9,9 +10,9 @@ import tappable from "./gestures/src/gestures/tap.js";
 const URL = document.location.origin + document.location.pathname.replace("index.html", "");
 const SETTINGS = {
 	dataUrl: URL + "data",
+	infoUrl: URL + "info",
 	arrivalsUrl: URL + "arrivals",
-	refreshDataInterval: 60000,
-	refreshArrivalsInterval: 5000,
+	delaysUrl: URL + "delays",
 	routeTypes: {
 		"train_normal": "directions_train",
 		"train_light_rail": "tram",
@@ -19,6 +20,7 @@ const SETTINGS = {
 		"boat_normal": "sailing",
 		"boat_light_rail": "directions_boat",
 		"boat_high_speed": "snowmobile",
+		"cable_car_normal": "airline_seat_recline_extra",
 	},
 	lineSize: 6,
 	dimension: 0,
@@ -78,61 +80,89 @@ const SETTINGS = {
 	},
 };
 const WALKING_SPEED_METER_PER_SECOND = 4;
+const DATA_REFRESH_INTERVAL = 60000;
+const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, DATA_REFRESH_INTERVAL, false, () => true, result => {
+	json = result;
 
-const fetchMainData = () => {
-	clearTimeout(refreshDataId);
-	fetch(SETTINGS.dataUrl, {cache: "no-cache"}).then(response => response.json()).then(result => {
-		json = result;
+	for (const dimension of json) {
+		dimension["connections"] = {};
+		const {routes, positions, connections, stations} = dimension;
 
-		for (const dimension of json) {
-			dimension["connections"] = {};
-			const {routes, positions, connections, stations} = dimension;
+		for (const stationId in stations) {
+			stations[stationId]["horizontal"] = [];
+			stations[stationId]["vertical"] = [];
 
-			for (const stationId in stations) {
-				stations[stationId]["horizontal"] = [];
-				stations[stationId]["vertical"] = [];
-
-				for (const stationId2 in stations) {
-					if (stationId !== stationId2) {
-						if (!(stationId in connections)) {
-							connections[stationId] = [];
-						}
-						connections[stationId].push({route: null, station: stationId2, duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND});
+			for (const stationId2 in stations) {
+				if (stationId !== stationId2) {
+					if (!(stationId in connections)) {
+						connections[stationId] = [];
 					}
+					connections[stationId].push({route: null, station: stationId2, duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND});
 				}
-			}
-
-			for (const routeIndex in routes) {
-				const route = routes[routeIndex];
-				for (let i = 1; i < route["stations"].length; i++) {
-					if (i > 0) {
-						const prevStationId = route["stations"][i - 1].split("_")[0];
-						if (!(prevStationId in connections)) {
-							connections[prevStationId] = [];
-						}
-						connections[prevStationId].push({route: route, station: route["stations"][i].split("_")[0], duration: route["durations"][i - 1]});
-					}
-				}
-			}
-
-			for (const positionKey in positions) {
-				const {x, y, vertical} = positions[positionKey];
-				const types = [];
-				routes.filter(route => route["stations"].includes(positionKey)).forEach(route => types.push(route["type"]));
-				stations[positionKey.split("_")[0]][vertical ? "vertical" : "horizontal"].push({
-					x: x,
-					y: y,
-					color: parseInt(positionKey.split("_")[1]),
-					types: types,
-				});
 			}
 		}
 
-		setupRouteTypeAndDimensionButtons();
-		drawMap(container, json[SETTINGS.dimension]);
-		refreshDataId = setTimeout(fetchMainData, SETTINGS.refreshDataInterval);
-	});
-}
+		for (const routeIndex in routes) {
+			const route = routes[routeIndex];
+			for (let i = 1; i < route["stations"].length; i++) {
+				if (i > 0) {
+					const prevStationId = route["stations"][i - 1].split("_")[0];
+					if (!(prevStationId in connections)) {
+						connections[prevStationId] = [];
+					}
+					connections[prevStationId].push({route: route, station: route["stations"][i].split("_")[0], duration: route["durations"][i - 1]});
+				}
+			}
+		}
+
+		for (const positionKey in positions) {
+			const {x, y, vertical} = positions[positionKey];
+			const types = [];
+			routes.filter(route => route["stations"].includes(positionKey)).forEach(route => types.push(route["type"]));
+			stations[positionKey.split("_")[0]][vertical ? "vertical" : "horizontal"].push({
+				x: x,
+				y: y,
+				color: parseInt(positionKey.split("_")[1]),
+				types: types,
+			});
+		}
+	}
+
+	setupRouteTypeAndDimensionButtons();
+	drawMap(container, json[SETTINGS.dimension]);
+});
+const INFO_REFRESH_INTERVAL = 5000;
+const FETCH_SERVER_INFO_DATA = new FetchData(() => SETTINGS.infoUrl, INFO_REFRESH_INTERVAL, false, () => true, result => {
+	const playerListElement = document.getElementById("player_list");
+	playerListElement.innerText = "";
+
+	for (let i = 0; i < result.length; i++) {
+		result[i].forEach(playerData => {
+			const {player, name, number, destination, circular, color} = playerData;
+			const noRoute = name === "" && destination === "";
+			playerListElement.innerHTML +=
+				`<div class="player text">` +
+				`<img src="https://mc-heads.net/avatar/${player}" alt=""/>` +
+				`<span style="${noRoute ? "" : "max-width: 6em; min-width: 6em; overflow: hidden"}">&nbsp;&nbsp;&nbsp;${player}</span>` +
+				`<div class="player_route" style="display: ${noRoute ? "none" : ""}; border-left: 0.3em solid ${CANVAS.convertColor(color)}">` +
+				`<div class="arrival">` +
+				`<span class="arrival_text">&nbsp;${number.replace(/\|/g, " ")} ${name.split("||")[0].replace(/\|/g, " ")}</span>` +
+				`</div>` +
+				`<div class="arrival">` +
+				`<span class="material-icons small">${circular === "" ? "chevron_right" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
+				`<span class="arrival_text">${destination.replace(/\|/g, " ")}</span>` +
+				`</div>` +
+				`</div>` +
+				`</div>`;
+		});
+
+		if (result[i].length > 0) {
+			playerListElement.innerHTML += `<div class="spacer"></div>`;
+		}
+	}
+
+	document.getElementById("settings").style.maxHeight = window.innerHeight - 80 + "px";
+});
 
 const resize = () => {
 	APP.renderer.resize(window.innerWidth, window.innerHeight);
@@ -188,12 +218,11 @@ const setupRouteTypeAndDimensionButtons = () => {
 	}
 
 	document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
-}
+};
 
 const APP = new PIXI.Application({autoResize: true, antialias: true, preserveDrawingBuffer: true, resolution: window.devicePixelRatio});
 
 let json;
-let refreshDataId = 0;
 let showSettings = false;
 
 if (window.safari !== undefined) {
@@ -290,7 +319,8 @@ APP.view.addEventListener("wheel", event => CANVAS.onZoom(Math.abs(event.deltaY)
 APP.view.setAttribute("id", "canvas");
 APP.ticker.add(delta => CANVAS.update(delta, container));
 
-fetchMainData();
+FETCH_DATA.fetchData();
+FETCH_SERVER_INFO_DATA.fetchData();
 
 function setCookie(name, value) {
 	document.cookie = name + "=" + value + ";expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/";

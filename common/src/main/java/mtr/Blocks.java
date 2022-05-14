@@ -60,6 +60,9 @@ public interface Blocks {
 	RegistryObject<Block> PSD_TOP = new RegistryObject<>(BlockPSDTop::new);
 	RegistryObject<Block> RAIL_NODE = new RegistryObject<>(() -> new BlockNode(TransportMode.TRAIN));
 	RegistryObject<Block> BOAT_NODE = new RegistryObject<>(BlockNode.BlockBoatNode::new);
+	RegistryObject<Block> CABLE_CAR_NODE_LOWER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, false));
+	RegistryObject<Block> CABLE_CAR_NODE_UPPER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(true, false));
+	RegistryObject<Block> CABLE_CAR_NODE_STATION = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, true));
 	RegistryObject<Block> RAILWAY_SIGN_2_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(2, false));
 	RegistryObject<Block> RAILWAY_SIGN_2_ODD = new RegistryObject<>(() -> new BlockRailwaySign(2, true));
 	RegistryObject<Block> RAILWAY_SIGN_3_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(3, false));
@@ -157,7 +160,9 @@ public interface Blocks {
 	RegistryObject<Block> STATION_NAME_ENTRANCE = new RegistryObject<>(() -> new BlockStationNameEntrance(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> STATION_NAME_TALL_BLOCK = new RegistryObject<>(BlockStationNameTallBlock::new);
 	RegistryObject<Block> STATION_NAME_TALL_WALL = new RegistryObject<>(BlockStationNameTallWall::new);
-	RegistryObject<Block> STATION_NAME_WALL = new RegistryObject<>(() -> new BlockStationNameWall(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_WHITE = new RegistryObject<>(() -> new BlockStationNameWallWhite(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_GRAY = new RegistryObject<>(() -> new BlockStationNameWallGray(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_BLACK = new RegistryObject<>(() -> new BlockStationNameWallBlack(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> TACTILE_MAP = new RegistryObject<>(() -> new BlockTactileMap(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> TICKET_BARRIER_ENTRANCE_1 = new RegistryObject<>(() -> new BlockTicketBarrier(true));
 	RegistryObject<Block> TICKET_BARRIER_EXIT_1 = new RegistryObject<>(() -> new BlockTicketBarrier(false));

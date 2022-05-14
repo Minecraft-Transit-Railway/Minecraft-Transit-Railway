@@ -5,18 +5,19 @@
 	<meta charset="UTF-8">
 	<title>Railway System Map</title>
 	<link rel="stylesheet" href="index.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans/400.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc/400.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc/400.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-jp/400.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-kr/400.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/material-icons/400.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+TC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+SC">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="icon" type="image/png" href="../../../../../../../forge/src/main/resources/icon.png"/>
-	<script src="https://cdn.jsdelivr.net/npm/pixi.js@6.2.2/dist/browser/pixi.min.js"></script>
+	<script src="https://pixijs.download/release/pixi.js"></script>
 	<script type="module" src="index.js"></script>
 	<script type="module" src="drawing.js"></script>
 	<script type="module" src="directions.js"></script>
 	<script type="module" src="utilities.js"></script>
+	<script type="module" src="fetch.js"></script>
 	<script type="module" src="version.js"></script>
 </head>
 <body>
@@ -58,8 +59,13 @@
 			<div id="route_name" class="info_name text"></div>
 			<span id="clear_route_info_button" class="material-icons clickable right_align">clear</span>
 		</div>
+		<div class="info_middle">
+			<span id="route_stations_tab" class="material-icons clickable">commit</span>
+			<span id="route_delays_tab" class="material-icons clickable"></span>
+		</div>
 		<div id="route_line" class="info_line"></div>
-		<div id="route_stations"></div>
+		<div id="route_details" class="text"></div>
+		<div id="delays" class="text"></div>
 	</div>
 	<div id="directions" class="search_results" style="display: none">
 		<div class="spacer"></div>
@@ -92,6 +98,7 @@
 				<span id="settings_route_type_boat_normal" class="material-icons clickable">sailing</span>
 				<span id="settings_route_type_boat_light_rail" class="material-icons clickable">directions_boat</span>
 				<span id="settings_route_type_boat_high_speed" class="material-icons clickable">snowmobile</span>
+				<span id="settings_route_type_cable_car_normal" class="material-icons clickable">airline_seat_recline_extra</span>
 			</div>
 		</div>
 		<div id="settings_dimensions">
@@ -111,6 +118,7 @@
 		</div>
 		<div>
 			<div class="spacer"></div>
+			<div id="player_list"></div>
 			<div class="version">Minecraft Transit Railway</div>
 			<div id="version" class="version"></div>
 		</div>

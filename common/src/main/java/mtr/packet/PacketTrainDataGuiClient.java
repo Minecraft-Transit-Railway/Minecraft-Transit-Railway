@@ -248,8 +248,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_GENERATE_PATH, packet);
 	}
 
-	public static void clearTrainsC2S(Collection<Siding> sidings) {
+	public static void clearTrainsC2S(long depotId, Collection<Siding> sidings) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(depotId);
 		packet.writeInt(sidings.size());
 		sidings.forEach(siding -> packet.writeLong(siding.id));
 		RegistryClient.sendToServer(PACKET_CLEAR_TRAINS, packet);

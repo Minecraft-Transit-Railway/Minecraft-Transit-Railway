@@ -29,10 +29,8 @@ public class ClientCache extends DataCache {
 
 	public final Map<Long, Map<Integer, ColorNameTuple>> stationIdToRoutes = new HashMap<>();
 
-	private final Map<BlockPos, List<Platform>> posToTrainPlatforms = new HashMap<>();
-	private final Map<BlockPos, List<Platform>> posToBoatPlatforms = new HashMap<>();
-	private final Map<BlockPos, List<Siding>> posToTrainSidings = new HashMap<>();
-	private final Map<BlockPos, List<Siding>> posToBoatSidings = new HashMap<>();
+	private final Map<TransportMode, Map<BlockPos, List<Platform>>> posToPlatforms = new HashMap<>();
+	private final Map<TransportMode, Map<BlockPos, List<Siding>>> posToSidings = new HashMap<>();
 	private final Map<Long, Map<Long, Platform>> stationIdToPlatforms = new HashMap<>();
 	private final Map<Long, Map<Long, Siding>> depotIdToSidings = new HashMap<>();
 	private final Map<Long, List<PlatformRouteDetails>> platformIdToRoutes = new HashMap<>();
@@ -51,14 +49,18 @@ public class ClientCache extends DataCache {
 
 	public ClientCache(Set<Station> stations, Set<Platform> platforms, Set<Siding> sidings, Set<Route> routes, Set<Depot> depots) {
 		super(stations, platforms, sidings, routes, depots);
+		for (final TransportMode transportMode : TransportMode.values()) {
+			posToPlatforms.put(transportMode, new HashMap<>());
+			posToSidings.put(transportMode, new HashMap<>());
+		}
 	}
 
 	@Override
 	protected void syncAdditional() {
-		mapPosToSavedRails(posToTrainPlatforms, platforms, TransportMode.TRAIN);
-		mapPosToSavedRails(posToBoatPlatforms, platforms, TransportMode.BOAT);
-		mapPosToSavedRails(posToTrainSidings, sidings, TransportMode.TRAIN);
-		mapPosToSavedRails(posToBoatSidings, sidings, TransportMode.BOAT);
+		for (final TransportMode transportMode : TransportMode.values()) {
+			mapPosToSavedRails(posToPlatforms.get(transportMode), platforms, transportMode);
+			mapPosToSavedRails(posToSidings.get(transportMode), sidings, transportMode);
+		}
 
 		stationIdToRoutes.clear();
 		routes.forEach(route -> {
@@ -260,25 +262,11 @@ public class ClientCache extends DataCache {
 	}
 
 	public Map<BlockPos, List<Platform>> getPosToPlatforms(TransportMode transportMode) {
-		switch (transportMode) {
-			case TRAIN:
-				return posToTrainPlatforms;
-			case BOAT:
-				return posToBoatPlatforms;
-			default:
-				return new HashMap<>();
-		}
+		return posToPlatforms.get(transportMode);
 	}
 
 	public Map<BlockPos, List<Siding>> getPosToSidings(TransportMode transportMode) {
-		switch (transportMode) {
-			case TRAIN:
-				return posToTrainSidings;
-			case BOAT:
-				return posToBoatSidings;
-			default:
-				return new HashMap<>();
-		}
+		return posToSidings.get(transportMode);
 	}
 
 	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {

@@ -42,7 +42,7 @@ input {
     text-align: left;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     line-height: 1.2em;
     text-align: center;
     white-space: break-spaces;
@@ -59,6 +59,16 @@ h2 {
 
 h3 {
     font-size: 1em;
+}
+
+h4 {
+    color: var(--textColorGray);
+    font-size: 0.8em;
+}
+
+img {
+    width: 3em;
+    height: 3em;
 }
 
 #legend {
@@ -109,6 +119,19 @@ h3 {
 
 .text_box {
     width: 100%;
+}
+
+.player {
+    align-items: center;
+    display: flex;
+    overflow: hidden;
+}
+
+.player_route {
+    display: flex;
+    flex-direction: column;
+    height: 3em;
+    margin-left: 0.5em;
 }
 
 .version {

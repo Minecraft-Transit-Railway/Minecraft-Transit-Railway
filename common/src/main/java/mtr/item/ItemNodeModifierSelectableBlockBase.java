@@ -34,7 +34,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	private static final String TAG_BLOCK_ID = "block_id";
 
 	public ItemNodeModifierSelectableBlockBase(boolean canSaveBlock, int height, int width) {
-		super(true);
+		super(true, false, true);
 		this.canSaveBlock = canSaveBlock;
 		this.height = height;
 		this.width = width;

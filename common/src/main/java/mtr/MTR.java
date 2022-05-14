@@ -9,6 +9,8 @@ import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.servlet.ArrivalsServletHandler;
 import mtr.servlet.DataServletHandler;
+import mtr.servlet.DelaysServletHandler;
+import mtr.servlet.InfoServletHandler;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -53,6 +55,7 @@ public class MTR implements IPacket {
 		registerItem.accept("brush", Items.BRUSH);
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
+		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
@@ -79,6 +82,7 @@ public class MTR implements IPacket {
 		registerItem.accept("rail_connector_platform", Items.RAIL_CONNECTOR_PLATFORM);
 		registerItem.accept("rail_connector_siding", Items.RAIL_CONNECTOR_SIDING);
 		registerItem.accept("rail_connector_turn_back", Items.RAIL_CONNECTOR_TURN_BACK);
+		registerItem.accept("rail_connector_cable_car", Items.RAIL_CONNECTOR_CABLE_CAR);
 		registerItem.accept("rail_remover", Items.RAIL_REMOVER);
 		registerItem.accept("resource_pack_creator", Items.RESOURCE_PACK_CREATOR);
 		registerItem.accept("signal_connector_white", Items.SIGNAL_CONNECTOR_WHITE);
@@ -145,6 +149,9 @@ public class MTR implements IPacket {
 
 		registerBlockItem.accept("rail", Blocks.RAIL_NODE, ItemGroups.CORE);
 		registerBlock.accept("boat_node", Blocks.BOAT_NODE);
+		registerBlockItem.accept("cable_car_node_lower", Blocks.CABLE_CAR_NODE_LOWER, ItemGroups.CORE);
+		registerBlockItem.accept("cable_car_node_upper", Blocks.CABLE_CAR_NODE_UPPER, ItemGroups.CORE);
+		registerBlockItem.accept("cable_car_node_station", Blocks.CABLE_CAR_NODE_STATION, ItemGroups.CORE);
 		registerBlock.accept("apg_door", Blocks.APG_DOOR);
 		registerBlock.accept("apg_glass", Blocks.APG_GLASS);
 		registerBlock.accept("apg_glass_end", Blocks.APG_GLASS_END);
@@ -288,7 +295,9 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
-		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL_WHITE, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall_gray", Blocks.STATION_NAME_WALL_GRAY, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_wall_black", Blocks.STATION_NAME_WALL_BLACK, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_pole", Blocks.STATION_COLOR_POLE, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("tactile_map", Blocks.TACTILE_MAP, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("ticket_barrier_entrance_1", Blocks.TICKET_BARRIER_ENTRANCE_1, ItemGroups.RAILWAY_FACILITIES);
@@ -337,7 +346,9 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("signal_semaphore_1", BlockEntityTypes.SIGNAL_SEMAPHORE_1);
 		registerBlockEntityType.accept("signal_semaphore_2", BlockEntityTypes.SIGNAL_SEMAPHORE_2);
 		registerBlockEntityType.accept("station_name_entrance", BlockEntityTypes.STATION_NAME_ENTRANCE_TILE_ENTITY);
-		registerBlockEntityType.accept("station_name_wall", BlockEntityTypes.STATION_NAME_WALL_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall", BlockEntityTypes.STATION_NAME_WALL_WHITE_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall_gray", BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_wall_black", BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_block", BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_wall", BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY);
 		registerBlockEntityType.accept("tactile_map", BlockEntityTypes.TACTILE_MAP_TILE_ENTITY);
@@ -395,7 +406,9 @@ public class MTR implements IPacket {
 		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
 		context.addServlet(servletHolder, "/");
 		context.addServlet(DataServletHandler.class, "/data");
+		context.addServlet(InfoServletHandler.class, "/info");
 		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
+		context.addServlet(DelaysServletHandler.class, "/delays");
 
 		Registry.registerTickEvent(minecraftServer -> {
 			minecraftServer.getAllLevels().forEach(serverWorld -> {
@@ -432,7 +445,9 @@ public class MTR implements IPacket {
 			}
 			serverConnector.setPort(port);
 			DataServletHandler.SERVER = minecraftServer;
+			InfoServletHandler.SERVER = minecraftServer;
 			ArrivalsServletHandler.SERVER = minecraftServer;
+			DelaysServletHandler.SERVER = minecraftServer;
 			try {
 				webServer.start();
 			} catch (Exception e) {

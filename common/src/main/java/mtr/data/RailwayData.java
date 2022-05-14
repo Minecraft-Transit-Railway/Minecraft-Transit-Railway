@@ -58,6 +58,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	private final List<Player> playersToSyncSchedules = new ArrayList<>();
 	private final Map<Player, Set<TrainServer>> trainsInPlayerRange = new HashMap<>();
 	private final Map<Long, List<ScheduleEntry>> schedulesForPlatform = new HashMap<>();
+	private final Map<Long, Map<BlockPos, TrainDelay>> trainDelays = new HashMap<>();
 
 	private static final int RAIL_UPDATE_DISTANCE = 128;
 	private static final int PLAYER_MOVE_UPDATE_THRESHOLD = 16;
@@ -262,7 +263,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		signalBlocks.resetOccupied();
 		sidings.forEach(siding -> {
 			siding.setSidingData(world, dataCache.sidingIdToDepot.get(siding.id), rails);
-			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform);
+			siding.simulateTrain(dataCache, trainPositions, signalBlocks, newTrainsInPlayerRange, trainsToSync, schedulesForPlatform, trainDelays);
 		});
 		final int hour = Depot.getHour(world);
 		depots.forEach(depot -> depot.deployTrain(this, hour));
@@ -455,6 +456,14 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	public List<ScheduleEntry> getSchedulesAtPlatform(long platformId) {
 		return schedulesForPlatform.get(platformId);
+	}
+
+	public Map<Long, Map<BlockPos, TrainDelay>> getTrainDelays() {
+		return trainDelays;
+	}
+
+	public void resetTrainDelays(Depot depot) {
+		depot.routeIds.forEach(trainDelays::remove);
 	}
 
 	private void validateData() {

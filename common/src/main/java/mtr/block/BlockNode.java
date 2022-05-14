@@ -7,9 +7,16 @@ import mtr.data.TransportMode;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -30,6 +37,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.List;
+
 public class BlockNode extends HorizontalDirectionalBlock {
 
 	public final TransportMode transportMode;
@@ -47,7 +56,7 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final int quadrant = RailAngle.getQuadrant(ctx.getRotation());
+		final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), true);
 		return defaultBlockState().setValue(FACING, quadrant % 8 >= 4).setValue(IS_45, quadrant % 4 >= 2).setValue(IS_22_5, quadrant % 2 >= 1).setValue(IS_CONNECTED, false);
 	}
 
@@ -124,6 +133,37 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 		public TileEntityBoatNode(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.BOAT_NODE_TILE_ENTITY.get(), pos, state);
+		}
+	}
+
+	public static class BlockContinuousMovementNode extends BlockNode {
+
+		public final boolean upper;
+		public final boolean isStation;
+
+		public BlockContinuousMovementNode(boolean upper, boolean isStation) {
+			super(TransportMode.CABLE_CAR);
+			this.upper = upper;
+			this.isStation = isStation;
+		}
+
+		@Override
+		public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+			final int quadrant = RailAngle.getQuadrant(ctx.getRotation(), false);
+			return defaultBlockState().setValue(FACING, quadrant % 4 >= 2).setValue(IS_45, quadrant % 2 >= 1).setValue(IS_22_5, false).setValue(IS_CONNECTED, false);
+		}
+
+		@Override
+		public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+			return Block.box(0, upper ? 8 : 0, 0, 16, upper ? 16 : 8, 16);
+		}
+
+		@Override
+		public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+			final String[] strings = new TranslatableComponent("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
+			for (final String string : strings) {
+				tooltip.add(new TextComponent(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			}
 		}
 	}
 }
