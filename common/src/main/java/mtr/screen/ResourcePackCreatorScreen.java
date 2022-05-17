@@ -15,6 +15,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
@@ -28,12 +31,6 @@ import java.util.function.Function;
 
 public class ResourcePackCreatorScreen extends ScreenMapper implements IResourcePackCreatorProperties, IGui {
 
-	private float translation;
-	private float yaw;
-	private float roll;
-	private float scale = 10;
-	private int cars;
-	private int brightness = 50;
 	private int editingPartIndex = -1;
 
 	private final DashboardList availableModelPartsList;
@@ -59,7 +56,17 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	private final WidgetBetterTextField textFieldBlacklistedCars;
 	private final Button buttonDone;
 
+	private static int guiCounter;
+	private static boolean hideGui;
+	private static float translation;
+	private static float yaw;
+	private static float roll;
+	private static float scale = 10;
+	private static int cars;
+	private static int brightness = 50;
+
 	private static final int MIN_SCALE = 1;
+	private static final float MOUSE_SCALE = 0.005F;
 
 	public ResourcePackCreatorScreen() {
 		super(new TextComponent(""));
@@ -240,25 +247,11 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
-			renderBackground(matrices);
-
-			matrices.pushPose();
-			matrices.translate(width / 2F, height / 2F, 250);
-			matrices.scale(scale, scale, -scale);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
-			matrices.mulPose(Vector3f.YP.rotation(yaw));
-			matrices.mulPose(Vector3f.ZP.rotation(roll));
-			final int light = LightTexture.pack((int) Math.round(brightness / 100D * 0xB), 0xF000);
-			for (int i = 0; i < cars; i++) {
-				matrices.pushPose();
-				matrices.translate(0, 0, (i - (cars - 1) / 2F) * RenderTrains.creatorProperties.getLength() + translation);
-				RenderTrains.creatorProperties.render(matrices, i, cars, light);
-				matrices.popPose();
+			if (guiCounter == 0 && minecraft != null) {
+				hideGui = minecraft.options.hideGui;
+				Gui.fill(matrices, 0, 0, width, height, ARGB_BLACK);
 			}
-			matrices.popPose();
 
-			matrices.pushPose();
-			matrices.translate(0, 0, 500);
 			Gui.fill(matrices, 0, 0, PANEL_WIDTH, height, ARGB_BACKGROUND);
 			Gui.fill(matrices, width - PANEL_WIDTH, 0, width, height, ARGB_BACKGROUND);
 			availableModelPartsList.render(matrices, font);
@@ -269,10 +262,10 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_positions"), PANEL_WIDTH / 2 + textFieldPositions.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_whitelisted_cars"), PANEL_WIDTH / 2 + textFieldWhitelistedCars.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_PADDING * 2 + TEXT_HEIGHT + TEXT_FIELD_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_blacklisted_cars"), PANEL_WIDTH / 2 + textFieldBlacklistedCars.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 7 + TEXT_PADDING * 3 + TEXT_HEIGHT * 2 + TEXT_FIELD_PADDING * 2, ARGB_WHITE);
-			matrices.popPose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		guiCounter = 2;
 	}
 
 	@Override
@@ -284,7 +277,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
 		if (mouseX >= PANEL_WIDTH && mouseX < width - PANEL_WIDTH) {
-			scale = Math.max(scale + (float) amount, MIN_SCALE);
+			scale = Math.max(scale - (float) amount, MIN_SCALE);
 			final float bound = cars * RenderTrains.creatorProperties.getLength() / 2F;
 			translation = Mth.clamp(translation, -bound, bound);
 		}
@@ -297,12 +290,12 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (mouseX >= PANEL_WIDTH && mouseX < width - PANEL_WIDTH && mouseY < height - TEXT_HEIGHT * 4) {
 			if (button == 0) {
-				final Vec3 movement = new Vec3(0, deltaY / scale, deltaX / scale).yRot(yaw).zRot(roll);
+				final Vec3 movement = new Vec3(0, deltaY * MOUSE_SCALE * scale, deltaX * MOUSE_SCALE * scale).yRot(yaw).zRot(roll);
 				final float bound = cars * RenderTrains.creatorProperties.getLength() / 2F;
-				translation = Mth.clamp(translation + (float) movement.z, -bound, bound);
+				translation = Mth.clamp(translation - (float) movement.z, -bound, bound);
 			} else {
-				yaw -= (float) deltaX / scale;
-				roll += (float) deltaY / scale * Math.cos(yaw);
+				yaw -= (float) deltaX * MOUSE_SCALE * scale;
+				roll -= (float) deltaY * MOUSE_SCALE * scale * Math.cos(yaw);
 			}
 		}
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
@@ -456,6 +449,32 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 					}
 				}
 			}));
+		}
+	}
+
+	public static void render(PoseStack matrices) {
+		if (guiCounter > 0) {
+			guiCounter--;
+			final Minecraft minecraft = Minecraft.getInstance();
+			minecraft.options.hideGui = guiCounter != 0 || hideGui;
+
+			matrices.pushPose();
+			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
+			IDrawing.drawTexture(matrices, immediate.getBuffer(RenderType.solid()), Integer.MIN_VALUE, Integer.MAX_VALUE, -256, Integer.MAX_VALUE, Integer.MIN_VALUE, -256, Direction.UP, ARGB_BLACK, 0);
+			immediate.endBatch();
+			matrices.translate(0, 0, -scale);
+			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+			matrices.mulPose(Vector3f.XP.rotationDegrees(180));
+			matrices.mulPose(Vector3f.YP.rotation(yaw));
+			matrices.mulPose(Vector3f.ZP.rotation(roll));
+			final int light = LightTexture.pack((int) Math.round(brightness / 100D * 0xB), 0xF000);
+			for (int i = 0; i < cars; i++) {
+				matrices.pushPose();
+				matrices.translate(0, 0, (i - (cars - 1) / 2F) * RenderTrains.creatorProperties.getLength() + translation);
+				RenderTrains.creatorProperties.render(matrices, i, cars, light);
+				matrices.popPose();
+			}
+			matrices.popPose();
 		}
 	}
 
