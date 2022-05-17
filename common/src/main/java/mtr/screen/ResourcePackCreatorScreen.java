@@ -137,9 +137,9 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			RenderTrains.creatorProperties.editPartRenderCondition(editingPartIndex);
 			updateControls(true);
 		});
-		textFieldPositions = new WidgetBetterTextField("[^0-9.,\\[\\] ]", "[0,0]", Integer.MAX_VALUE);
-		textFieldWhitelistedCars = new WidgetBetterTextField("[^0-9, ]", "0,1", Integer.MAX_VALUE);
-		textFieldBlacklistedCars = new WidgetBetterTextField("[^0-9, ]", "", Integer.MAX_VALUE);
+		textFieldPositions = new WidgetBetterTextField("[^\\d.,\\[\\] ]", "[0,0]", Integer.MAX_VALUE);
+		textFieldWhitelistedCars = new WidgetBetterTextField("[^%\\d,+\\- ]", "5,-4,%3,%2+1", Integer.MAX_VALUE);
+		textFieldBlacklistedCars = new WidgetBetterTextField("[^%\\d,+\\- ]", "5,-4,%3,%2+1", Integer.MAX_VALUE);
 		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> {
 			editingPartIndex = -1;
 			updateControls(true);
@@ -317,7 +317,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		textFieldBlacklistedCars.tick();
 	}
 
-	private List<DataConverter> updatePartsList(DashboardList dashboardList, JsonArray jsonArray, Function<JsonObject, Integer> color, Function<JsonObject, String> extraText) {
+	private List<DataConverter> updatePartsList(JsonArray jsonArray, Function<JsonObject, Integer> color, Function<JsonObject, String> extraText) {
 		final List<DataConverter> listData = new ArrayList<>();
 		if (jsonArray.size() > 0) {
 			try {
@@ -335,14 +335,14 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	private void updateControls(boolean formatTextFields) {
 		final String modelFileName = RenderTrains.creatorProperties.getModelFileName();
 		buttonChooseModelFile.setMessage(modelFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_model_file") : new TextComponent(modelFileName));
-		availableModelPartsList.setData(updatePartsList(availableModelPartsList, RenderTrains.creatorProperties.getModelPartsArray(), null, null), false, false, false, false, true, false);
+		availableModelPartsList.setData(updatePartsList(RenderTrains.creatorProperties.getModelPartsArray(), null, null), false, false, false, false, true, false);
 		final String propertiesFileName = RenderTrains.creatorProperties.getPropertiesFileName();
 		buttonChoosePropertiesFile.setMessage(propertiesFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_properties_file") : new TextComponent(propertiesFileName));
 		final String textureFileName = RenderTrains.creatorProperties.getTextureFileName();
 		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_texture_file") : new TextComponent(textureFileName));
 
 		final JsonArray partsArray = RenderTrains.creatorProperties.getPropertiesPartsArray();
-		usedModelPartsList.setData(updatePartsList(usedModelPartsList, partsArray, ResourcePackCreatorScreen::getColor, ResourcePackCreatorScreen::getName), false, false, true, false, false, true);
+		usedModelPartsList.setData(updatePartsList(partsArray, ResourcePackCreatorScreen::getColor, ResourcePackCreatorScreen::getName), false, false, true, false, false, true);
 
 		final String transportModeString = RenderTrains.creatorProperties.getTransportMode();
 		buttonTransportMode.setMessage(new TranslatableComponent("gui.mtr.transport_mode_" + transportModeString.toLowerCase()));

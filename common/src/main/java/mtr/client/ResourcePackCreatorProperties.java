@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, IGui {
 
@@ -155,12 +157,12 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	}
 
 	public void editPartWhitelistedCars(int index, String whitelistedCars) {
-		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_WHITELISTED_CARS, whitelistedCars));
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_WHITELISTED_CARS, formatCarExpression(whitelistedCars)));
 		updateModel();
 	}
 
 	public void editPartBlacklistedCars(int index, String blacklistedCars) {
-		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_BLACKLISTED_CARS, blacklistedCars));
+		getPartFromIndex(index, partObject -> partObject.addProperty(KEY_PROPERTIES_BLACKLISTED_CARS, formatCarExpression(blacklistedCars)));
 		updateModel();
 	}
 
@@ -235,6 +237,16 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String formatCarExpression(String expression) {
+		final Matcher matcher = Pattern.compile("%\\d+(\\+\\d+)*|-?\\d+").matcher(expression);
+		final StringBuilder result = new StringBuilder();
+		while (matcher.find()) {
+			result.append(matcher.group()).append(",");
+		}
+		final String resultString = result.toString();
+		return resultString.endsWith(",") ? resultString.substring(0, resultString.length() - 1) : resultString;
 	}
 
 	public enum DoorOffset {NONE, LEFT_POSITIVE, RIGHT_POSITIVE, LEFT_NEGATIVE, RIGHT_NEGATIVE}

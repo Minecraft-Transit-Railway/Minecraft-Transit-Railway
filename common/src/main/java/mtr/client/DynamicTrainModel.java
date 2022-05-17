@@ -19,6 +19,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
 	private final int doorMax;
+	private final Map<Integer, boolean[]> whitelistBlacklistCache = new HashMap<>();
 
 	public DynamicTrainModel(JsonObject model, JsonObject properties) {
 		final JsonObject resolution = model.getAsJsonObject("resolution");
@@ -82,6 +83,27 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		properties.getAsJsonArray(KEY_PROPERTIES_PARTS).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
 			if (!renderDetails && partObject.get(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR).getAsBoolean() || !renderStage.toString().equals(partObject.get(KEY_PROPERTIES_STAGE).getAsString().toUpperCase())) {
+				return;
+			}
+
+			final boolean[] whitelistBlacklists;
+			if (whitelistBlacklistCache.containsKey(trainCars)) {
+				whitelistBlacklists = whitelistBlacklistCache.get(trainCars);
+			} else {
+				whitelistBlacklists = new boolean[trainCars];
+				final String whitelistedCarsString = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
+				final String blacklistedCarsString = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString();
+
+				for (int i = 0; i < trainCars; i++) {
+					final boolean matchesWhitelist = matchesFilter(whitelistedCarsString.split(","), i, trainCars);
+					final boolean matchesBlacklist = matchesFilter(blacklistedCarsString.split(","), i, trainCars);
+					whitelistBlacklists[i] = matchesBlacklist && !matchesWhitelist || !whitelistedCarsString.isEmpty() && !matchesWhitelist;
+				}
+
+				whitelistBlacklistCache.put(trainCars, whitelistBlacklists);
+			}
+
+			if (whitelistBlacklists[currentCar]) {
 				return;
 			}
 
@@ -174,6 +196,34 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 		final ModelMapper part = new ModelMapper(modelDataWrapper);
 		jsonObject.getAsJsonArray("children").forEach(child -> part.addChild(child.isJsonObject() ? addChildren(child.getAsJsonObject(), children, modelDataWrapper) : children.get(child.getAsString())));
 		return part;
+	}
+
+	private boolean matchesFilter(String[] filters, int currentCar, int trainCars) {
+		for (final String filter : filters) {
+			if (!filter.isEmpty()) {
+				if (filter.contains("%")) {
+					try {
+						final String[] filterSplit = filter.split("\\+");
+						final int multiple = Integer.parseInt(filterSplit[0].replace("%", ""));
+						final int additional = filterSplit.length == 1 ? 0 : Integer.parseInt(filterSplit[1]);
+						if ((currentCar + 1 + additional) % multiple == 0) {
+							return true;
+						}
+					} catch (Exception ignored) {
+					}
+				} else {
+					try {
+						final int car = Integer.parseInt(filter);
+						if (car == currentCar + 1 || car == currentCar - trainCars) {
+							return true;
+						}
+					} catch (Exception ignored) {
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private static <T> void getArrayFromValue(T[] array, JsonObject jsonObject, String key, Function<JsonElement, T> function) {
