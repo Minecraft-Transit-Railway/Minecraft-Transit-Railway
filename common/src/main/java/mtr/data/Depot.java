@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.ArrayValue;
@@ -156,7 +157,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		if (KEY_FREQUENCIES.equals(key)) {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
@@ -168,12 +169,18 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			for (int i = 0; i < routeIdCount; i++) {
 				routeIds.add(packet.readLong());
 			}
-			// TODO ZBX Temporary Log
-			System.out.printf("车厂更新 (ID %d): 名称-> %s, 颜色-> %s 频率-> %s, 路线ID-> %s\n",
-					id, name, color, Arrays.toString(frequencies), Arrays.toString(routeIds.toArray()));
 		} else {
-			super.update(key, packet);
+			super.update(initiator, key, packet);
 		}
+	}
+
+	@Override
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+		diffLogger
+				.addBasicProperties("Depot", this)
+				.addField("Frequencies").addValue(frequencies)
+				.addField("Route IDs").addValue(routeIds)
+				.finishAddingValues();
 	}
 
 	public int getFrequency(int index) {

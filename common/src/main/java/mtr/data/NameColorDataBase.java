@@ -3,6 +3,7 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
@@ -85,7 +86,7 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 		packet.writeInt(color);
 	}
 
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		if (key.equals(KEY_NAME)) {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
@@ -113,5 +114,9 @@ public abstract class NameColorDataBase extends SerializedDataBase implements Co
 	@Override
 	public int compareTo(NameColorDataBase compare) {
 		return (name.toLowerCase() + color).compareTo((compare.name + compare.color).toLowerCase());
+	}
+
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+
 	}
 }

@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.msgpack.core.MessagePacker;
@@ -153,14 +154,11 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_BASE_TRAIN_TYPE:
 				setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), TrainType.values()[packet.readInt()]);
 				trains.clear();
-				// TODO ZBX Temporary Log
-				System.out.printf("侧线更新 (ID %d 车厂名称 %s): 车型-> %s\n",
-						id, depot.name, TrainType.values()[packet.readInt()].name());
 				break;
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -172,14 +170,23 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 					trains.clear();
 					accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
 				}
-				// TODO ZBX Temporary Log
-				System.out.printf("侧线更新 (ID %d 车厂名称 %s): 无限列车-> %s, 最多列车数-> %d, 加速度-> %f (0代表未修改)\n",
-						id, depot.name, Boolean.toString(unlimitedTrains), maxTrains, accelerationConstant);
 				break;
 			default:
-				super.update(key, packet);
+				super.update(initiator, key, packet);
 				break;
 		}
+	}
+
+	@Override
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+		diffLogger
+				.addBasicProperties("Siding", this, depot)
+				.addField("Train Type").addValue(trainId)
+				.addField("Train Base Type").addValue(baseTrainType.name())
+				.addField("Unlimited Trains").addValue(unlimitedTrains)
+				.addField("Max Trains").addValue(maxTrains)
+				.addField("Acceleration").addValue(accelerationConstant)
+				.finishAddingValues();
 	}
 
 	public void setTrainIdAndBaseType(String customId, TrainType trainType, Consumer<FriendlyByteBuf> sendPacket) {

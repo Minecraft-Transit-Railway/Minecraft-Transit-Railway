@@ -199,9 +199,9 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete) {
 		final PacketCallback packetCallback = (updatePacket, fullPacket) -> ClientData.DATA_CACHE.sync();
 		if (isDelete) {
-			deleteData(dataSet, minecraftClient, packet, packetCallback);
+			deleteData(dataSet, minecraftClient, packet, packetCallback, null);
 		} else {
-			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, createDataWithId);
+			updateData(dataSet, cacheMap, minecraftClient, packet, packetCallback, null, createDataWithId);
 		}
 	}
 

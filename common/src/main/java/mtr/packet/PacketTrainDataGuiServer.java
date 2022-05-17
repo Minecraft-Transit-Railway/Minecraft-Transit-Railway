@@ -164,9 +164,9 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 
 		if (isDelete) {
-			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);
+			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback, player);
 		} else {
-			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
+			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, player, createDataWithId);
 		}
 
 		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION)) {

@@ -368,6 +368,50 @@ public class Rail extends SerializedDataBase {
 		renderSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), offsetRadius1, offsetRadius2, reverseT2, isStraight2, callback);
 	}
 
+	public void renderOhlShape(RenderOhlShape callback, float nodeSpacing, float minHeightTop, float faceHeight) {
+		renderOhlSegment(h1, k1, r1, tStart1, tEnd1, 0, nodeSpacing, minHeightTop, faceHeight, reverseT1, isStraight1, callback);
+		renderOhlSegment(h2, k2, r2, tStart2, tEnd2, Math.abs(tEnd1 - tStart1), nodeSpacing, minHeightTop, faceHeight, reverseT2, isStraight2, callback);
+	}
+
+	private void renderOhlSegment(double h, double k, double r, double tStart, double tEnd, double rawValueOffset, float nodeSpacing, float minHeightTop, float faceHeight, boolean reverseT, boolean isStraight, RenderOhlShape callback) {
+		final double segLength = Math.abs(tEnd - tStart);
+		int fullSpacingCount = (int)(segLength / nodeSpacing);
+		if (fullSpacingCount > 0 && segLength % nodeSpacing < 1.0f) fullSpacingCount--;
+		final double incrDirection = reverseT ? -1 : 1;
+		final double startOffset = (segLength - fullSpacingCount * nodeSpacing) / 2;
+
+		if (fullSpacingCount > 0) {
+			for (int i = -1; i <= fullSpacingCount; ++i) {
+				double offset1, offset2;
+				if (i == -1) {
+					offset1 = 0;
+					offset2 = startOffset;
+				} else if (i == fullSpacingCount) {
+					offset1 = segLength - startOffset;
+					offset2 = segLength;
+				} else {
+					offset1 = startOffset + nodeSpacing * i;
+					offset2 = offset1 + nodeSpacing;
+				}
+				final Vec3 corner1 = snapToBlockCenter(getPositionXZ(h, k, r, incrDirection * offset1 + tStart, 0, isStraight));
+				final Vec3 corner2 = snapToBlockCenter(getPositionXZ(h, k, r, incrDirection * offset2 + tStart, 0, isStraight));
+				final double y1 = Math.ceil(getPositionY(offset1 + rawValueOffset) + minHeightTop) - 0.5;
+				final double y2 = Math.ceil(getPositionY(offset2 + rawValueOffset) + minHeightTop) - 0.5;
+				callback.renderOhlShape(corner1.x, corner1.z, corner2.x, corner2.z, y1, y1-faceHeight, y2, y2-faceHeight, offset2 - offset1);
+			}
+		} else {
+			final Vec3 corner1 = snapToBlockCenter(getPositionXZ(h, k, r, tStart, 0, isStraight));
+			final Vec3 corner2 = snapToBlockCenter(getPositionXZ(h, k, r, tEnd, 0, isStraight));
+			final double y1 = Math.ceil(getPositionY(rawValueOffset) + minHeightTop) - 0.5;
+			final double y2 = Math.ceil(getPositionY(rawValueOffset + segLength) + minHeightTop) - 0.5;
+			callback.renderOhlShape(corner1.x, corner1.z, corner2.x, corner2.z, y1, y1-faceHeight, y2, y2-faceHeight, segLength);
+		}
+	}
+
+	private static Vec3 snapToBlockCenter(Vec3 src) {
+		return new Vec3(Math.round(src.x - 0.5) + 0.5, src.y, Math.round(src.z - 0.5) + 0.5);
+	}
+
 	public boolean goodRadius() {
 		return (isStraight1 || r1 > MIN_RADIUS - ACCEPT_THRESHOLD) && (isStraight2 || r2 > MIN_RADIUS - ACCEPT_THRESHOLD);
 	}
@@ -624,6 +668,11 @@ public class Rail extends SerializedDataBase {
 	@FunctionalInterface
 	public interface RenderRail {
 		void renderRail(double x1, double z1, double x2, double z2, double x3, double z3, double x4, double z4, double y1, double y2);
+	}
+
+	@FunctionalInterface
+	public interface RenderOhlShape {
+		void renderOhlShape(double x1, double z1, double x2, double z2, double yTop1, double yBottom1, double yTop2, double yBottom2, double deltaT);
 	}
 
 	public enum RailActionType {

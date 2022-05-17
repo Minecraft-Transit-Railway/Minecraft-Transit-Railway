@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
@@ -66,15 +67,23 @@ public final class Platform extends SavedRailBase {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		if (KEY_DWELL_TIME.equals(key)) {
 			name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 			color = packet.readInt();
 			dwellTime = packet.readInt();
 			dwellTime = transportMode.continuousMovement ? 1 : dwellTime;
 		} else {
-			super.update(key, packet);
+			super.update(initiator, key, packet);
 		}
+	}
+
+	@Override
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+		diffLogger
+				.addBasicProperties("Platform", this)
+				.addField("Dwell Time").addValue(dwellTime)
+				.finishAddingValues();
 	}
 
 	public int getDwellTime() {

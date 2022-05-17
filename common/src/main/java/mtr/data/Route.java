@@ -3,6 +3,7 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
@@ -128,7 +129,7 @@ public final class Route extends NameColorDataBase implements IGui {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_PLATFORM_IDS:
 				platformIds.clear();
@@ -136,9 +137,6 @@ public final class Route extends NameColorDataBase implements IGui {
 				for (int i = 0; i < platformCount; i++) {
 					platformIds.add(packet.readLong());
 				}
-				// TODO ZBX Temporary Log
-				System.out.printf("路线更新 (ID %d 名称 %s): 站台ID-> %s\n",
-						id, name, Arrays.toString(platformIds.toArray()));
 				break;
 			case KEY_IS_LIGHT_RAIL_ROUTE:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -150,9 +148,21 @@ public final class Route extends NameColorDataBase implements IGui {
 				circularState = EnumHelper.valueOf(CircularState.NONE, packet.readUtf(PACKET_STRING_READ_LENGTH));
 				break;
 			default:
-				super.update(key, packet);
+				super.update(initiator, key, packet);
 				break;
 		}
+	}
+
+	@Override
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+		diffLogger
+				.addBasicProperties("Route", this)
+				.addField("Route Type").addValue(routeType.toString())
+				.addField("Platform IDs").addValue(platformIds)
+				.addField("Circular State").addValue(circularState.toString())
+				.addField("LR Route Number").addValue(isLightRailRoute ? lightRailRouteNumber : "")
+				.addField("Is Hidden").addValue(isHidden)
+				.finishAddingValues();
 	}
 
 	@Override

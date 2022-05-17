@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
@@ -80,11 +81,11 @@ public abstract class AreaBase extends NameColorDataBase {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		if (key.equals(KEY_CORNERS)) {
 			setCorners(packet.readInt(), packet.readInt(), packet.readInt(), packet.readInt());
 		} else {
-			super.update(key, packet);
+			super.update(initiator, key, packet);
 		}
 	}
 

@@ -3,14 +3,12 @@ package mtr.data;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 public final class Station extends AreaBase {
@@ -114,7 +112,7 @@ public final class Station extends AreaBase {
 	}
 
 	@Override
-	public void update(String key, FriendlyByteBuf packet) {
+	public void update(ServerPlayer initiator, String key, FriendlyByteBuf packet) {
 		switch (key) {
 			case KEY_EXIT_EDIT_PARENT:
 				final String oldParent = packet.readUtf(PACKET_STRING_READ_LENGTH);
@@ -140,9 +138,26 @@ public final class Station extends AreaBase {
 				zone = packet.readInt();
 				break;
 			default:
-				super.update(key, packet);
+				super.update(initiator, key, packet);
 				break;
 		}
+	}
+
+	@Override
+	public void applyToDiffLogger(DataDiffLogger diffLogger) {
+		diffLogger
+				.addBasicProperties("Station", this)
+				.addField("Fare Zone").addValue(zone)
+				.addValue("Exits").addValue(exitsToString())
+				.finishAddingValues();
+	}
+
+	private String exitsToString() {
+		StringBuilder sb = new StringBuilder();
+		exits.forEach((key, value) -> {
+			sb.append(key).append(": ").append(Arrays.toString(value.toArray())).append("\n");
+		});
+		return sb.toString().trim();
 	}
 
 	@Override
