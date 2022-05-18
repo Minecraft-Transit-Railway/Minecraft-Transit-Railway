@@ -25,6 +25,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private String baseTrainType;
 	private int trainCars;
 	private boolean unlimitedTrains;
+	private boolean disableTrain;
 	private int maxTrains;
 
 	private float accelerationConstant;
@@ -41,6 +42,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private static final String KEY_TRAIN_ID = "train_custom_id";
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
 	private static final String KEY_MAX_TRAINS = "max_trains";
+	private static final String KEY_DISABLE_TRAIN = "disable_train";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
 	private static final String KEY_ACCELERATION_CONSTANT = "acceleration_constant";
@@ -67,6 +69,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		railLength = messagePackHelper.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(messagePackHelper.getString(KEY_TRAIN_ID), messagePackHelper.getString(KEY_BASE_TRAIN_TYPE));
 		unlimitedTrains = transportMode.continuousMovement || messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
+		disableTrain = messagePackHelper.getBoolean(KEY_DISABLE_TRAIN);
 		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
 		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
@@ -86,6 +89,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		railLength = compoundTag.getFloat(KEY_RAIL_LENGTH);
 		setTrainDetails(compoundTag.getString(KEY_TRAIN_ID), compoundTag.getString(KEY_BASE_TRAIN_TYPE));
 		unlimitedTrains = transportMode.continuousMovement || compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
+		disableTrain = compoundTag.getBoolean(KEY_DISABLE_TRAIN);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 
@@ -107,6 +111,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		railLength = packet.readFloat();
 		setTrainDetails(packet.readUtf(PACKET_STRING_READ_LENGTH), packet.readUtf(PACKET_STRING_READ_LENGTH));
 		unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
+		disableTrain = packet.readBoolean();
 		maxTrains = packet.readInt();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
@@ -126,6 +131,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		messagePacker.packString(KEY_TRAIN_ID).packString(trainId);
 		messagePacker.packString(KEY_BASE_TRAIN_TYPE).packString(baseTrainType);
 		messagePacker.packString(KEY_UNLIMITED_TRAINS).packBoolean(unlimitedTrains);
+		messagePacker.packString(KEY_DISABLE_TRAIN).packBoolean(disableTrain);
 		messagePacker.packString(KEY_MAX_TRAINS).packInt(maxTrains);
 		messagePacker.packString(KEY_ACCELERATION_CONSTANT).packFloat(accelerationConstant);
 		RailwayData.writeMessagePackDataset(messagePacker, path, KEY_PATH);
@@ -148,6 +154,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		packet.writeUtf(trainId);
 		packet.writeUtf(baseTrainType);
 		packet.writeBoolean(unlimitedTrains);
+		packet.writeBoolean(disableTrain);
 		packet.writeInt(maxTrains);
 		packet.writeFloat(accelerationConstant);
 	}
@@ -169,6 +176,11 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 					trains.clear();
 					accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
 				}
+				break;
+			case KEY_DISABLE_TRAIN:
+				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
+				color = packet.readInt();
+				disableTrain = packet.readBoolean();
 				break;
 			default:
 				super.update(key, packet);
@@ -207,6 +219,18 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 	}
 
+	public void setDisableTrain(boolean disableTrain,Consumer<FriendlyByteBuf> sendPacket) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(id);
+		packet.writeUtf(transportMode.toString());
+		packet.writeUtf(KEY_DISABLE_TRAIN);
+		packet.writeUtf(name);
+		packet.writeInt(color);
+		packet.writeBoolean(disableTrain);
+		sendPacket.accept(packet);
+		this.disableTrain = disableTrain;
+	}
+
 	public String getTrainId() {
 		return trainId;
 	}
@@ -219,7 +243,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		this.world = world;
 		this.depot = depot;
 
-		if (depot == null) {
+		if (depot == null || disableTrain) {
 			trains.clear();
 			path.clear();
 			distances.clear();
@@ -236,7 +260,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform) {
 		final List<PathData> tempPath = new ArrayList<>();
 		final int successfulSegments;
-		if (firstPlatform == null || lastPlatform == null) {
+		if (firstPlatform == null || lastPlatform == null || disableTrain) {
 			successfulSegments = 0;
 		} else {
 			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
@@ -294,7 +318,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	}
 
 	public void simulateTrain(DataCache dataCache, List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks, Map<Player, Set<TrainServer>> trainsInPlayerRange, Set<TrainServer> trainsToSync, Map<Long, List<ScheduleEntry>> schedulesForPlatform, Map<Long, Map<BlockPos, TrainDelay>> trainDelays) {
-		if (depot == null) {
+		if (depot == null || disableTrain) {
 			return;
 		}
 
@@ -346,6 +370,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public boolean getUnlimitedTrains() {
 		return unlimitedTrains;
+	}
+
+	public boolean getDisableTrain() {
+		return disableTrain;
 	}
 
 	public void clearTrains() {

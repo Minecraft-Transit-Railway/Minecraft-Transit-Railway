@@ -25,6 +25,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final Button buttonSelectTrain;
 	private final DashboardList availableTrainsList;
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
+	private final WidgetBetterCheckbox buttonDisableTrain;
 	private final WidgetBetterTextField textFieldMaxTrains;
 	private final WidgetShorterSlider sliderAccelerationConstant;
 
@@ -51,6 +52,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				textFieldMaxTrains.setValue("1");
 			}
 		});
+		buttonDisableTrain = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.disable_train"), checked -> {});
 		oldAcceleration = savedRailBase.getAccelerationConstant();
 	}
 
@@ -61,8 +63,10 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 		IDrawing.setPositionAndWidth(buttonSelectTrain, startX + textWidth, height / 2 + TEXT_FIELD_PADDING / 2, SLIDER_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDisableTrain, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE + SQUARE_SIZE + SQUARE_SIZE, SLIDER_WIDTH);
 
 		addDrawableChild(buttonSelectTrain);
+		addDrawableChild(buttonDisableTrain);
 		if (showScheduleControls) {
 			addDrawableChild(buttonUnlimitedTrains);
 		}
@@ -71,6 +75,9 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
 		availableTrainsList.width = SLIDER_WIDTH;
 		availableTrainsList.init(this::addDrawableChild);
+
+		buttonDisableTrain.setChecked(savedRailBase.getDisableTrain());
+		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
 
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
 
@@ -125,6 +132,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
 		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, oldAcceleration == accelerationConstant ? 0 : accelerationConstant, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
+		savedRailBase.setDisableTrain(buttonDisableTrain.selected(), packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		super.onClose();
 	}
 
@@ -170,6 +178,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		this.isSelectingTrain = isSelectingTrain;
 		buttonSelectTrain.visible = !isSelectingTrain;
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
+		buttonDisableTrain.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
 		sliderAccelerationConstant.visible = !isSelectingTrain;
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId()).name);
