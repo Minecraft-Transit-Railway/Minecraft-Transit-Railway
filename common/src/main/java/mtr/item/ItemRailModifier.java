@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -85,7 +86,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			final boolean isValid = rail1.isValid() && rail2.isValid();
 
 			if (goodRadius && isValid && isValidContinuousMovement) {
-				railwayData.addRail(transportMode, posStart, posEnd, rail1, false);
+				ServerPlayer sp = (player instanceof ServerPlayer) ? (ServerPlayer) player : null;
+				railwayData.addRail(sp, transportMode, posStart, posEnd, rail1, false);
 				final long newId = railwayData.addRail(transportMode, posEnd, posStart, rail2, true);
 				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockNode.IS_CONNECTED, true));
 				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
@@ -97,8 +99,9 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
-		railwayData.removeRailConnection(posStart, posEnd);
+	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData) {
+		ServerPlayer sp = (player instanceof ServerPlayer) ? (ServerPlayer) player : null;
+		railwayData.removeRailConnection(sp, posStart, posEnd);
 		PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 	}
 }

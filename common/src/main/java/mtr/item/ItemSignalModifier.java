@@ -32,7 +32,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, RailwayData railwayData) {
+	protected void onRemove(Level world, BlockPos posStart, BlockPos posEnd, Player player, RailwayData railwayData) {
 		PacketTrainDataGuiServer.removeSignalS2C(world, railwayData.removeSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 	}
 }

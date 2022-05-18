@@ -406,6 +406,22 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		return newId;
 	}
 
+	public long addRail(ServerPlayer initiator, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
+		final long newId = validate ? new Random().nextLong() : 0;
+		SavedRailBase srb = addRail(rails, platforms, sidings, transportMode, posStart, posEnd, rail, newId);
+		if (srb != null) {
+			DataDiffLogger diffLogger = new DataDiffLogger(DataDiffLogger.ActionType.CREATE, initiator);
+			srb.applyToDiffLogger(diffLogger);
+			diffLogger.sendReports();
+		}
+
+		if (validate) {
+			validateData();
+		}
+
+		return newId;
+	}
+
 	public long addSignal(DyeColor color, BlockPos posStart, BlockPos posEnd) {
 		return signalBlocks.add(0, color, PathData.getRailProduct(posStart, posEnd));
 	}
@@ -420,6 +436,15 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
+		removeRailConnection(world, rails, pos1, pos2);
+		validateData();
+		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
+		if (packet != null) {
+			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
+		}
+	}
+
+	public void removeRailConnection(ServerPlayer initiator, BlockPos pos1, BlockPos pos2) {
 		removeRailConnection(world, rails, pos1, pos2);
 		validateData();
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
@@ -495,7 +520,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 	// other
 
-	public static void addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
+	public static SavedRailBase addRail(Map<BlockPos, Map<BlockPos, Rail>> rails, Set<Platform> platforms, Set<Siding> sidings, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, long savedRailId) {
 		try {
 			if (!rails.containsKey(posStart)) {
 				rails.put(posStart, new HashMap<>());
@@ -504,14 +529,19 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 
 			if (savedRailId != 0) {
 				if (rail.railType == RailType.PLATFORM && platforms.stream().noneMatch(platform -> platform.containsPos(posStart) || platform.containsPos(posEnd))) {
-					platforms.add(new Platform(savedRailId, transportMode, posStart, posEnd));
+					Platform newPlatform = new Platform(savedRailId, transportMode, posStart, posEnd);
+					platforms.add(newPlatform);
+					return newPlatform;
 				} else if (rail.railType == RailType.SIDING && sidings.stream().noneMatch(siding -> siding.containsPos(posStart) || siding.containsPos(posEnd))) {
-					sidings.add(new Siding(savedRailId, transportMode, posStart, posEnd, (int) Math.floor(rail.getLength())));
+					Siding newSiding = new Siding(savedRailId, transportMode, posStart, posEnd, (int) Math.floor(rail.getLength()));
+					sidings.add(newSiding);
+					return newSiding;
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 	public static void removeNode(Level world, Map<BlockPos, Map<BlockPos, Rail>> rails, BlockPos pos) {
