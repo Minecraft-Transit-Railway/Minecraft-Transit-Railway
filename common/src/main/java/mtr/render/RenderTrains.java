@@ -136,8 +136,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, currentCar, trainCars, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, transportMode, currentCar, trainCars, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
 			}
@@ -152,10 +152,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.pushPose();
 			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (baseTrainType.transportMode.hasPitch ? pitch : 0)));
+			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (transportMode.hasPitch ? pitch : 0)));
 
 			if (trainProperties.model == null || trainProperties.textureId == null) {
-				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
+				final boolean isBoat = transportMode == TransportMode.BOAT;
 
 				matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
@@ -178,12 +178,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, currentCar, trainCars, head1IsFront, lightsOn, isTranslucent, renderDetails);
 			}
 
-			if (baseTrainType.transportMode == TransportMode.CABLE_CAR) {
+			if (transportMode == TransportMode.CABLE_CAR) {
 				matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
-				if (!baseTrainType.transportMode.hasPitch) {
+				if (!transportMode.hasPitch) {
 					matrices.mulPose(Vector3f.XP.rotation(pitch));
 				}
-				if (baseTrainType.toString().endsWith("_RHT")) {
+				if (trainId.endsWith("_rht")) {
 					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 				}
 				MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
@@ -203,8 +203,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.popPose();
 
 			matrices.popPose();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			if (trainProperties.textureId == null) {
 				return;
 			}
@@ -506,7 +506,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		if (available) {
 			return id;
 		} else {
-			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
+			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType).textureId;
 			return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
 		}
 	}

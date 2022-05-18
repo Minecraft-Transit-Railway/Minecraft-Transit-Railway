@@ -33,7 +33,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	public final long sidingId;
 	protected final String trainId;
-	protected final TrainType baseTrainType;
+	protected final String baseTrainType;
+	protected final TransportMode transportMode;
+	protected final int spacing;
+	protected final int width;
 	protected final int trainCars;
 	protected final List<PathData> path;
 	protected final List<Double> distances;
@@ -61,12 +64,15 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_CARGO = "cargo";
 
-	public Train(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant) {
+	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant) {
 		super(id);
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.trainId = trainId;
 		this.baseTrainType = baseTrainType;
+		transportMode = TrainType.getTransportMode(baseTrainType);
+		spacing = TrainType.getSpacing(baseTrainType);
+		width = TrainType.getWidth(baseTrainType);
 		this.trainCars = trainCars;
 		this.path = path;
 		this.distances = distances;
@@ -92,9 +98,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		nextStoppingIndex = messagePackHelper.getInt(KEY_NEXT_STOPPING_INDEX);
 		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
-		trainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID);
-		baseTrainType = TrainType.getOrDefault(messagePackHelper.getString(KEY_TRAIN_TYPE));
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
+		final String tempTrainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID).toLowerCase();
+		baseTrainType = messagePackHelper.getString(KEY_TRAIN_TYPE).toLowerCase();
+		trainId = tempTrainId.isEmpty() ? baseTrainType : tempTrainId;
+		transportMode = TrainType.getTransportMode(baseTrainType);
+		spacing = TrainType.getSpacing(baseTrainType);
+		width = TrainType.getWidth(baseTrainType);
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
 
 		isOnRoute = messagePackHelper.getBoolean(KEY_IS_ON_ROUTE);
 		messagePackHelper.iterateArrayValue(KEY_RIDING_ENTITIES, value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
@@ -132,8 +142,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		reversed = compoundTag.getBoolean(KEY_REVERSED);
 
 		trainId = compoundTag.getString(KEY_TRAIN_CUSTOM_ID);
-		baseTrainType = TrainType.getOrDefault(compoundTag.getString(KEY_TRAIN_TYPE));
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
+		baseTrainType = compoundTag.getString(KEY_TRAIN_TYPE);
+		transportMode = TrainType.getTransportMode(baseTrainType);
+		spacing = TrainType.getSpacing(baseTrainType);
+		width = TrainType.getWidth(baseTrainType);
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
 		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
@@ -165,8 +178,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		nextStoppingIndex = packet.readInt();
 		reversed = packet.readBoolean();
 		trainId = packet.readUtf(PACKET_STRING_READ_LENGTH);
-		baseTrainType = TrainType.values()[packet.readInt()];
-		trainCars = Math.min(baseTrainType.transportMode.maxLength, (int) Math.floor(railLength / baseTrainType.getSpacing() + 0.01F));
+		baseTrainType = packet.readUtf(PACKET_STRING_READ_LENGTH);
+		transportMode = TrainType.getTransportMode(baseTrainType);
+		spacing = TrainType.getSpacing(baseTrainType);
+		width = TrainType.getWidth(baseTrainType);
+		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
 		isOnRoute = packet.readBoolean();
 
 		final int ridingEntitiesCount = packet.readInt();
@@ -188,7 +204,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		messagePacker.packString(KEY_NEXT_STOPPING_INDEX).packLong(nextStoppingIndex);
 		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
 		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
-		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType.toString());
+		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType);
 		messagePacker.packString(KEY_IS_ON_ROUTE).packBoolean(isOnRoute);
 
 		messagePacker.packString(KEY_RIDING_ENTITIES).packArrayHeader(ridingEntities.size());
@@ -243,7 +259,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		packet.writeInt(nextStoppingIndex);
 		packet.writeBoolean(reversed);
 		packet.writeUtf(trainId);
-		packet.writeInt(baseTrainType.ordinal());
+		packet.writeUtf(baseTrainType);
 		packet.writeBoolean(isOnRoute);
 		packet.writeInt(ridingEntities.size());
 		ridingEntities.forEach(packet::writeUUID);
@@ -272,7 +288,6 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		try {
-			final int trainSpacing = baseTrainType.getSpacing();
 			final double oldRailProgress = railProgress;
 			final float oldSpeed = speed;
 			final float oldDoorValue;
@@ -283,20 +298,20 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 
 			if (!isOnRoute) {
-				railProgress = (railLength + trainCars * trainSpacing) / 2;
+				railProgress = (railLength + trainCars * spacing) / 2;
 				oldDoorValue = 0;
 				doorValueRaw = 0;
 				speed = 0;
 				nextStoppingIndex = 0;
 
 				if (canDeploy(depot)) {
-					startUp(world, trainCars, trainSpacing, isOppositeRail());
+					startUp(world, trainCars, spacing, isOppositeRail());
 				}
 			} else {
-				oldDoorValue = Math.abs(baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
+				oldDoorValue = Math.abs(transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
 				final float newAcceleration = accelerationConstant * ticksElapsed;
 
-				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * trainSpacing) / 2) {
+				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * spacing) / 2) {
 					isOnRoute = false;
 					ridingEntities.clear();
 					doorValueRaw = 0;
@@ -315,23 +330,23 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 						if (!world.isClientSide() && stopCounter >= dwellTicks) {
 							final boolean isOppositeRail = isOppositeRail();
-							if (!isRailBlocked(getIndex(0, trainSpacing, true) + (isOppositeRail ? 2 : 1))) {
-								startUp(world, trainCars, trainSpacing, isOppositeRail);
+							if (!isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1))) {
+								startUp(world, trainCars, spacing, isOppositeRail);
 							}
 						}
 					} else {
 						if (!world.isClientSide()) {
-							final int checkIndex = getIndex(0, trainSpacing, true) + 1;
+							final int checkIndex = getIndex(0, spacing, true) + 1;
 							if (isRailBlocked(checkIndex)) {
 								nextStoppingIndex = checkIndex - 1;
 							}
 						}
 
 						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
-						if (!baseTrainType.transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
+						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
 							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
 						} else {
-							final float railSpeed = getRailSpeed(getIndex(0, trainSpacing, false));
+							final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
 							if (speed < railSpeed) {
 								speed = Math.min(speed + newAcceleration, railSpeed);
 							} else if (speed > railSpeed) {
@@ -343,19 +358,19 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					}
 
 					railProgress += speed * ticksElapsed;
-					if (!baseTrainType.transportMode.continuousMovement && railProgress > distances.get(nextStoppingIndex)) {
+					if (!transportMode.continuousMovement && railProgress > distances.get(nextStoppingIndex)) {
 						railProgress = distances.get(nextStoppingIndex);
 						speed = 0;
 					}
 
-					doorValueRaw = tempDoorValueRaw + (baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : 0);
+					doorValueRaw = tempDoorValueRaw + (transportMode.continuousMovement ? getDoorValueContinuous() : 0);
 				}
 			}
 
 			if (!path.isEmpty()) {
 				final Vec3[] positions = new Vec3[trainCars + 1];
 				for (int i = 0; i <= trainCars; i++) {
-					positions[i] = getRoutePosition(reversed ? trainCars - i : i, trainSpacing);
+					positions[i] = getRoutePosition(reversed ? trainCars - i : i, spacing);
 				}
 
 				if (handlePositions(world, positions, ticksElapsed, doorValueRaw, oldDoorValue, oldRailProgress)) {
@@ -431,7 +446,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			railSpeed = thisRail.maxBlocksPerTick;
 		} else {
 			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
-			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.getDefaultMaxBlocksPerTick(baseTrainType.transportMode), speed);
+			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.getDefaultMaxBlocksPerTick(transportMode), speed);
 		}
 		return railSpeed;
 	}
@@ -468,9 +483,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private Vec3 getRoutePosition(int car, int trainSpacing) {
-		final double tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - baseTrainType.modelZOffset, 0);
+		final double tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - 0, 0); // TODO model z offset
 		final int index = getIndex(tempRailProgress, false);
-		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1))).add(0, baseTrainType.transportMode.railOffset, 0);
+		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1))).add(0, transportMode.railOffset, 0);
 	}
 
 	private float getDoorValue() {
