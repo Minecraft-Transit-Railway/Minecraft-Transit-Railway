@@ -265,6 +265,7 @@
 	"gui.mtr.tph": "/hr",
 	"gui.mtr.train_schedule_sensor": "Arrival Offset (Seconds)",
 	"gui.mtr.unlimited_vehicles": "Unlimited Vehicles",
+	"gui.mtr.disable_train": "Disable Train",
 	"gui.mtr.untitled": "Untitled",
 	"gui.mtr.vehicle_speed": "Speed: %s m/s (%s km/h)",
 	"gui.mtr.vehicles_per_hour": "Vehicles Per Hour",
