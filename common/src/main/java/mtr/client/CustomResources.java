@@ -21,36 +21,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-public class CustomResources {
+public class CustomResources implements ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
 
-	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
-	private static final String CUSTOM_TRAIN_ID_PREFIX = "mtr_custom_train_";
-	private static final String CUSTOM_SIGN_ID_PREFIX = "mtr_custom_sign_";
-
-	private static final String CUSTOM_TRAINS_KEY = "custom_trains";
-	private static final String CUSTOM_SIGNS_KEY = "custom_signs";
-
-	private static final String CUSTOM_TRAINS_BASE_TRAIN_TYPE = "base_train_type";
-	private static final String CUSTOM_TRAINS_NAME = "name";
-	private static final String CUSTOM_TRAINS_COLOR = "color";
-	private static final String CUSTOM_TRAINS_MODEL = "model";
-	private static final String CUSTOM_TRAINS_MODEL_PROPERTIES = "model_properties";
-	private static final String CUSTOM_TRAINS_TEXTURE_ID = "texture_id";
-	private static final String CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION = "has_gangway_connection";
-	private static final String CUSTOM_TRAINS_RIDER_OFFSET = "rider_offset";
-	private static final String CUSTOM_TRAINS_SPEED_SOUND_COUNT = "speed_sound_count";
-	private static final String CUSTOM_TRAINS_SPEED_SOUND_BASE_ID = "speed_sound_base_id";
-	private static final String CUSTOM_TRAINS_DOOR_SOUND_BASE_ID = "door_sound_base_id";
-	private static final String CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME = "door_close_sound_time";
-
-	private static final String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
-	private static final String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
-	private static final String CUSTOM_SIGNS_CUSTOM_TEXT = "custom_text";
-	private static final String CUSTOM_SIGNS_FLIP_CUSTOM_TEXT = "flip_custom_text";
-	private static final String CUSTOM_SIGNS_SMALL = "small";
-	private static final String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();

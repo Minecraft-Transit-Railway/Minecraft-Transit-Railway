@@ -23,21 +23,17 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ResourcePackCreatorScreen extends ScreenMapper implements IResourcePackCreatorProperties, IGui {
 
 	private int editingPartIndex = -1;
 
+	private final Button buttonOptions;
 	private final DashboardList availableModelPartsList;
 	private final DashboardList usedModelPartsList;
-	private final Button buttonChooseModelFile;
-	private final Button buttonChoosePropertiesFile;
-	private final Button buttonChooseTextureFile;
 	private final WidgetShorterSlider sliderCars;
 	private final WidgetShorterSlider sliderBrightness;
 
@@ -70,23 +66,16 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 
 	public ResourcePackCreatorScreen() {
 		super(new TextComponent(""));
+
+		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("menu.options"), button -> {
+			if (minecraft != null) {
+				UtilitiesClient.setScreen(minecraft, new ResourcePackCreatorOptionsScreen(this));
+			}
+		});
 		availableModelPartsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> "", text -> {
 		});
 		usedModelPartsList = new DashboardList(null, null, this::onEdit, null, null, this::onDelete, null, () -> "", text -> {
 		});
-
-		buttonChooseModelFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
-			RenderTrains.creatorProperties.loadModelFile(path);
-			updateControls(true);
-		}));
-		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
-			RenderTrains.creatorProperties.loadPropertiesFile(path);
-			updateControls(true);
-		}));
-		buttonChooseTextureFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
-			RenderTrains.creatorProperties.loadTextureFile(path);
-			updateControls(true);
-		}));
 
 		sliderCars = new WidgetShorterSlider(0, 0, 31, value -> {
 			cars = value + 1;
@@ -144,7 +133,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			RenderTrains.creatorProperties.editPartRenderCondition(editingPartIndex);
 			updateControls(true);
 		});
-		textFieldPositions = new WidgetBetterTextField("[^\\d.,\\[\\] ]", "[0,0]", Integer.MAX_VALUE);
+		textFieldPositions = new WidgetBetterTextField("[^\\d.,\\[\\]\\- ]", "[0,0]", Integer.MAX_VALUE);
 		textFieldWhitelistedCars = new WidgetBetterTextField("[^%\\d,+\\- ]", "5,-4,%3,%2+1", Integer.MAX_VALUE);
 		textFieldBlacklistedCars = new WidgetBetterTextField("[^%\\d,+\\- ]", "5,-4,%3,%2+1", Integer.MAX_VALUE);
 		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> {
@@ -157,41 +146,40 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	protected void init() {
 		super.init();
 
+		IDrawing.setPositionAndWidth(buttonOptions, 0, height - SQUARE_SIZE, PANEL_WIDTH);
+
 		availableModelPartsList.x = 0;
-		availableModelPartsList.y = SQUARE_SIZE * 4;
+		availableModelPartsList.y = SQUARE_SIZE;
 		availableModelPartsList.width = PANEL_WIDTH;
-		availableModelPartsList.height = height - SQUARE_SIZE * 4;
-		usedModelPartsList.y = SQUARE_SIZE * 5;
+		availableModelPartsList.height = height - SQUARE_SIZE * 2;
+		usedModelPartsList.y = SQUARE_SIZE * 7 / 2;
 		usedModelPartsList.width = PANEL_WIDTH;
-		usedModelPartsList.height = height - SQUARE_SIZE * 5;
-		IDrawing.setPositionAndWidth(buttonChooseModelFile, 0, 0, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonChoosePropertiesFile, 0, SQUARE_SIZE, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonChooseTextureFile, 0, SQUARE_SIZE * 2, PANEL_WIDTH);
+		usedModelPartsList.height = height - SQUARE_SIZE * 7 / 2;
 
 		final int textWidth = Math.max(font.width(new TranslatableComponent("gui.mtr.vehicle_cars", 88)), font.width(new TranslatableComponent("gui.mtr.vehicle_brightness", 888)));
 		sliderCars.x = PANEL_WIDTH + TEXT_HEIGHT;
-		sliderCars.y = height - TEXT_HEIGHT * 4;
+		sliderCars.y = height - TEXT_HEIGHT - SQUARE_SIZE;
 		sliderCars.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth);
-		sliderCars.setHeight(TEXT_HEIGHT);
+		sliderCars.setHeight(SQUARE_SIZE / 2);
 		sliderCars.setValue(-1);
 		sliderBrightness.x = PANEL_WIDTH + TEXT_HEIGHT;
-		sliderBrightness.y = height - TEXT_HEIGHT * 2;
+		sliderBrightness.y = height - TEXT_HEIGHT - SQUARE_SIZE / 2;
 		sliderBrightness.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth);
-		sliderBrightness.setHeight(TEXT_HEIGHT);
+		sliderBrightness.setHeight(SQUARE_SIZE / 2);
 
 		final int xStart = width - PANEL_WIDTH;
 		IDrawing.setPositionAndWidth(buttonTransportMode, xStart, 0, PANEL_WIDTH);
 		sliderLength.x = xStart;
 		sliderLength.y = SQUARE_SIZE;
-		sliderLength.setHeight(SQUARE_SIZE);
+		sliderLength.setHeight(SQUARE_SIZE / 2);
 		sliderLength.setValue(RenderTrains.creatorProperties.getLength() - 1);
 		sliderWidth.x = xStart;
-		sliderWidth.y = SQUARE_SIZE * 2;
-		sliderWidth.setHeight(SQUARE_SIZE);
+		sliderWidth.y = SQUARE_SIZE * 3 / 2;
+		sliderWidth.setHeight(SQUARE_SIZE / 2);
 		sliderWidth.setValue(RenderTrains.creatorProperties.getWidth() - 1);
 		sliderDoorMax.x = xStart;
-		sliderDoorMax.y = SQUARE_SIZE * 3;
-		sliderDoorMax.setHeight(SQUARE_SIZE);
+		sliderDoorMax.y = SQUARE_SIZE * 2;
+		sliderDoorMax.setHeight(SQUARE_SIZE / 2);
 		sliderDoorMax.setValue(RenderTrains.creatorProperties.getDoorMax() - 1);
 
 		IDrawing.setPositionAndWidth(buttonPartStage, xStart, 0, PANEL_WIDTH);
@@ -219,11 +207,9 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 
 		updateControls(true);
 
+		addDrawableChild(buttonOptions);
 		availableModelPartsList.init(this::addDrawableChild);
 		usedModelPartsList.init(this::addDrawableChild);
-		addDrawableChild(buttonChooseModelFile);
-		addDrawableChild(buttonChoosePropertiesFile);
-		addDrawableChild(buttonChooseTextureFile);
 
 		addDrawableChild(sliderCars);
 		addDrawableChild(sliderBrightness);
@@ -257,8 +243,8 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			availableModelPartsList.render(matrices, font);
 			usedModelPartsList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.available_model_parts"), PANEL_WIDTH / 2, SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.used_model_parts"), PANEL_WIDTH / 2 + usedModelPartsList.x, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.available_model_parts"), PANEL_WIDTH / 2, TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.used_model_parts"), PANEL_WIDTH / 2 + usedModelPartsList.x, SQUARE_SIZE * 5 / 2 + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_positions"), PANEL_WIDTH / 2 + textFieldPositions.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 5 + TEXT_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_whitelisted_cars"), PANEL_WIDTH / 2 + textFieldWhitelistedCars.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 6 + TEXT_PADDING * 2 + TEXT_HEIGHT + TEXT_FIELD_PADDING, ARGB_WHITE);
 			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.part_blacklisted_cars"), PANEL_WIDTH / 2 + textFieldBlacklistedCars.x - TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 7 + TEXT_PADDING * 3 + TEXT_HEIGHT * 2 + TEXT_FIELD_PADDING * 2, ARGB_WHITE);
@@ -288,7 +274,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		if (mouseX >= PANEL_WIDTH && mouseX < width - PANEL_WIDTH && mouseY < height - TEXT_HEIGHT * 4) {
+		if (mouseX >= PANEL_WIDTH && mouseX < width - PANEL_WIDTH && mouseY < height - TEXT_HEIGHT - SQUARE_SIZE) {
 			if (button == 0) {
 				final Vec3 movement = new Vec3(0, deltaY * MOUSE_SCALE * scale, deltaX * MOUSE_SCALE * scale).yRot(yaw).zRot(roll);
 				final float bound = cars * RenderTrains.creatorProperties.getLength() / 2F;
@@ -326,14 +312,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 	}
 
 	private void updateControls(boolean formatTextFields) {
-		final String modelFileName = RenderTrains.creatorProperties.getModelFileName();
-		buttonChooseModelFile.setMessage(modelFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_model_file") : new TextComponent(modelFileName));
 		availableModelPartsList.setData(updatePartsList(RenderTrains.creatorProperties.getModelPartsArray(), null, null), false, false, false, false, true, false);
-		final String propertiesFileName = RenderTrains.creatorProperties.getPropertiesFileName();
-		buttonChoosePropertiesFile.setMessage(propertiesFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_properties_file") : new TextComponent(propertiesFileName));
-		final String textureFileName = RenderTrains.creatorProperties.getTextureFileName();
-		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? new TranslatableComponent("gui.mtr.choose_texture_file") : new TextComponent(textureFileName));
-
 		final JsonArray partsArray = RenderTrains.creatorProperties.getPropertiesPartsArray();
 		usedModelPartsList.setData(updatePartsList(partsArray, ResourcePackCreatorScreen::getColor, ResourcePackCreatorScreen::getName), false, false, true, false, false, true);
 
@@ -436,20 +415,6 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		RenderTrains.creatorProperties.removePart(index);
 		editingPartIndex = -1;
 		updateControls(true);
-	}
-
-	private void buttonCallback(Consumer<Path> callback) {
-		if (minecraft != null) {
-			UtilitiesClient.setScreen(minecraft, new FileUploaderScreen(this, paths -> {
-				if (!paths.isEmpty()) {
-					try {
-						callback.accept(paths.get(0));
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}));
-		}
 	}
 
 	public static void render(PoseStack matrices) {

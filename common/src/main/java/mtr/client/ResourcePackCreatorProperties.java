@@ -24,8 +24,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, IGui {
+public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, ICustomResources, IGui {
 
+	private String customTrainId = "my_custom_train";
 	private String modelFileName = "";
 	private JsonObject modelObject = new JsonObject();
 	private DynamicTrainModel model;
@@ -33,9 +34,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	private JsonObject propertiesObject = new JsonObject();
 	private String textureFileName = "";
 	private ResourceLocation texture;
+	private final JsonObject customResourcesObject = new JsonObject();
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train", 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -65,6 +68,21 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void editCustomResourcesId(String id) {
+		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
+		final int color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsInt();
+		customTrainId = id;
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color);
+	}
+
+	public void editCustomResourcesName(String name) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_NAME, name);
+	}
+
+	public void editCustomResourcesColor(int color) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, color);
 	}
 
 	public void editTransportMode() {
@@ -175,6 +193,10 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		}
 	}
 
+	public JsonObject getCustomTrainObject() {
+		return customResourcesObject.getAsJsonObject(CUSTOM_TRAINS_KEY).getAsJsonObject(customTrainId);
+	}
+
 	public JsonArray getModelPartsArray() {
 		return modelObject.has(KEY_MODEL_OUTLINER) ? modelObject.getAsJsonArray(KEY_MODEL_OUTLINER) : new JsonArray();
 	}
@@ -197,6 +219,10 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public JsonArray getPropertiesPartsArray() {
 		return propertiesObject.getAsJsonArray(KEY_PROPERTIES_PARTS);
+	}
+
+	public String getCustomTrainId() {
+		return customTrainId;
 	}
 
 	public String getModelFileName() {
