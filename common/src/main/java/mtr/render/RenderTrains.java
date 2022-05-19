@@ -34,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -123,17 +122,17 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			maxTrainRenderDistance = renderDistanceChunks * (Config.trainRenderDistanceRatio() + 1);
 		}
 
-		matrices.pushPose();
-		if (!backupRendering) {
-			final double entityX = Mth.lerp(tickDelta, entity.xOld, entity.getX());
-			final double entityY = Mth.lerp(tickDelta, entity.yOld, entity.getY());
-			final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
-			matrices.translate(-entityX, -entityY, -entityZ);
-		}
-
 		final Camera camera = client.gameRenderer.getMainCamera();
-		final float cameraYaw = camera.getYRot();
 		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
+
+		if (!backupRendering) {
+			matrices.popPose();
+			matrices.pushPose();
+			matrices.translate(-cameraOffset.x, -cameraOffset.y, -cameraOffset.z);
+		}
+		matrices.pushPose();
+
+		final float cameraYaw = camera.getYRot();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, transportMode, currentCar, trainCars, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {

@@ -98,8 +98,8 @@ public class TrainClient extends Train {
 			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));
 
-			final float xStart = width / 2F - CONNECTION_X_OFFSET;
-			final float zStart = spacing / 2F - CONNECTION_Z_OFFSET;
+			final double xStart = width / 2D - CONNECTION_X_OFFSET;
+			final double zStart = spacing / 2D - CONNECTION_Z_OFFSET;
 
 			final Vec3 prevPos1 = new Vec3(xStart, SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
 			final Vec3 prevPos2 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
