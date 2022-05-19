@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -65,7 +66,8 @@ public class BlockNode extends HorizontalDirectionalBlock {
 		if (!world.isClientSide) {
 			final RailwayData railwayData = RailwayData.getInstance(world);
 			if (railwayData != null) {
-				railwayData.removeNode(pos);
+				ServerPlayer sp = (player instanceof ServerPlayer) ? (ServerPlayer) player : null;
+				railwayData.removeNode(sp, pos);
 				PacketTrainDataGuiServer.removeNodeS2C(world, pos);
 			}
 		}

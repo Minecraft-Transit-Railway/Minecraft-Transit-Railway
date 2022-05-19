@@ -143,7 +143,7 @@ task setupFiles() {
 allprojects {
 	apply plugin: "architectury-plugin"
 
-	version = minecraft_version + "-" + rootProject.mod_version
+	version = minecraft_version + "-" + rootProject.mod_version + rootProject.third_party_suffix
 	group = rootProject.maven_group
 
 	repositories {

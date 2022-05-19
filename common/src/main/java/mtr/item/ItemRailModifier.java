@@ -88,7 +88,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 			if (goodRadius && isValid && isValidContinuousMovement) {
 				ServerPlayer sp = (player instanceof ServerPlayer) ? (ServerPlayer) player : null;
 				railwayData.addRail(sp, transportMode, posStart, posEnd, rail1, false);
-				final long newId = railwayData.addRail(transportMode, posEnd, posStart, rail2, true);
+				final long newId = railwayData.addRail(sp, transportMode, posEnd, posStart, rail2, true);
 				world.setBlockAndUpdate(posStart, stateStart.setValue(BlockNode.IS_CONNECTED, true));
 				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
 				PacketTrainDataGuiServer.createRailS2C(world, transportMode, posStart, posEnd, rail1, rail2, newId);

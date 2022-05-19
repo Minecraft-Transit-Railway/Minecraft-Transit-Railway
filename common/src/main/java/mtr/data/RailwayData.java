@@ -396,19 +396,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	// writing data
 
 	public long addRail(TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
-		final long newId = validate ? new Random().nextLong() : 0;
-		addRail(rails, platforms, sidings, transportMode, posStart, posEnd, rail, newId);
-
-		if (validate) {
-			validateData();
-		}
-
-		return newId;
+		return addRail(null, transportMode, posStart, posEnd, rail, validate);
 	}
 
 	public long addRail(ServerPlayer initiator, TransportMode transportMode, BlockPos posStart, BlockPos posEnd, Rail rail, boolean validate) {
 		final long newId = validate ? new Random().nextLong() : 0;
 		SavedRailBase srb = addRail(rails, platforms, sidings, transportMode, posStart, posEnd, rail, newId);
+
 		if (srb != null) {
 			DataDiffLogger diffLogger = new DataDiffLogger(DataDiffLogger.ActionType.CREATE, initiator);
 			srb.applyToDiffLogger(diffLogger);
@@ -427,8 +421,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void removeNode(BlockPos pos) {
+		removeNode(null, pos);
+	}
+
+	public void removeNode(ServerPlayer initiator, BlockPos pos) {
 		removeNode(world, rails, pos);
-		validateData();
+		validateData(initiator);
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
 			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
@@ -436,17 +434,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	public void removeRailConnection(BlockPos pos1, BlockPos pos2) {
-		removeRailConnection(world, rails, pos1, pos2);
-		validateData();
-		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
-		if (packet != null) {
-			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
-		}
+		removeRailConnection(null, pos1, pos2);
 	}
 
 	public void removeRailConnection(ServerPlayer initiator, BlockPos pos1, BlockPos pos2) {
 		removeRailConnection(world, rails, pos1, pos2);
-		validateData();
+		validateData(initiator);
 		final FriendlyByteBuf packet = signalBlocks.getValidationPacket(rails);
 		if (packet != null) {
 			world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, PACKET_REMOVE_SIGNALS, packet));
@@ -492,8 +485,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	}
 
 	private void validateData() {
-		removeSavedRailS2C(world, platforms, rails, PACKET_DELETE_PLATFORM);
-		removeSavedRailS2C(world, sidings, rails, PACKET_DELETE_SIDING);
+		validateData(null);
+	}
+
+	private void validateData(ServerPlayer initiator) {
+		removeSavedRailS2C(world, initiator, platforms, rails, PACKET_DELETE_PLATFORM);
+		removeSavedRailS2C(world, initiator, sidings, rails, PACKET_DELETE_SIDING);
 
 		final List<BlockPos> railsToRemove = new ArrayList<>();
 		rails.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
@@ -723,10 +720,13 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railsNodesToRemove.forEach(pos -> removeNode(null, rails, pos));
 	}
 
-	private static void removeSavedRailS2C(Level world, Set<? extends SavedRailBase> savedRailBases, Map<BlockPos, Map<BlockPos, Rail>> rails, ResourceLocation packetId) {
+	private static void removeSavedRailS2C(Level world, ServerPlayer initiator, Set<? extends SavedRailBase> savedRailBases, Map<BlockPos, Map<BlockPos, Rail>> rails, ResourceLocation packetId) {
 		savedRailBases.removeIf(savedRailBase -> {
 			final boolean delete = savedRailBase.isInvalidSavedRail(rails);
 			if (delete) {
+				DataDiffLogger diffLogger = new DataDiffLogger(DataDiffLogger.ActionType.REMOVE, initiator);
+				savedRailBase.applyToDiffLogger(diffLogger);
+				diffLogger.sendReports();
 				final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 				packet.writeLong(savedRailBase.id);
 				world.players().forEach(player -> Registry.sendToPlayer((ServerPlayer) player, packetId, packet));

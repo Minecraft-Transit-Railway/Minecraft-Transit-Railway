@@ -204,7 +204,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final Level world = player.level;
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData != null) {
-			final long depotId = packet.readInt();
+			final long depotId = packet.readLong();
 			final int sidingCount = packet.readInt();
 			final Set<Long> sidingIds = new HashSet<>();
 			for (int i = 0; i < sidingCount; i++) {
