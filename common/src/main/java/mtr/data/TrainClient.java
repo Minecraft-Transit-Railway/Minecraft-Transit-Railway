@@ -272,6 +272,11 @@ public class TrainClient extends Train {
 	}
 
 	@Override
+	protected float getModelZOffset() {
+		return trainId.startsWith("london_underground_199") ? 0.5F : 0; // TODO integrate this into TrainClientRegistry
+	}
+
+	@Override
 	protected double asin(double value) {
 		return Math.asin(value);
 	}

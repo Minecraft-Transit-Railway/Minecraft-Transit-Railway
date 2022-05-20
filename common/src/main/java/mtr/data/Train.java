@@ -454,6 +454,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
 	}
 
+	protected float getModelZOffset() {
+		return 0;
+	}
+
 	protected abstract void simulateCar(
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
@@ -483,7 +487,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private Vec3 getRoutePosition(int car, int trainSpacing) {
-		final double tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - 0, 0); // TODO model z offset
+		final double tempRailProgress = Math.max(getRailProgress(car, trainSpacing) - getModelZOffset(), 0);
 		final int index = getIndex(tempRailProgress, false);
 		return path.get(index).rail.getPosition(tempRailProgress - (index == 0 ? 0 : distances.get(index - 1))).add(0, transportMode.railOffset, 0);
 	}
