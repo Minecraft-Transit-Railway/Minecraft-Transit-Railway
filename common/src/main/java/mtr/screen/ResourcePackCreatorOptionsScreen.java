@@ -28,7 +28,8 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	private final WidgetBetterTextField textFieldId;
 	private final WidgetBetterTextField textFieldName;
 	private final WidgetColorSelector colorSelector;
-	private final WidgetBetterCheckbox checkboxHasGangwayConnection;
+	private final WidgetBetterTextField textFieldGangwayConnectionId;
+	private final WidgetBetterTextField textFieldTrainBarrierId;
 	private final WidgetShorterSlider sliderRiderOffset;
 
 	private final Button buttonDone;
@@ -37,6 +38,10 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	private static final TranslatableComponent FILE_MODEL_TEXT = new TranslatableComponent("gui.mtr.file_model");
 	private static final TranslatableComponent FILE_PROPERTIES_TEXT = new TranslatableComponent("gui.mtr.file_properties");
 	private static final TranslatableComponent FILE_TEXTURE_TEXT = new TranslatableComponent("gui.mtr.file_texture");
+	private static final TranslatableComponent NAME_TEXT = new TranslatableComponent("gui.mtr.custom_resources_name");
+	private static final TranslatableComponent ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_id");
+	private static final TranslatableComponent GANGWAY_CONNECTION_ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_gangway_connection_id");
+	private static final TranslatableComponent TRAIN_BARRIER_ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_train_barrier_id");
 
 	public ResourcePackCreatorOptionsScreen(ResourcePackCreatorScreen resourcePackCreatorScreen) {
 		super(new TextComponent(""));
@@ -58,10 +63,8 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		textFieldId = new WidgetBetterTextField("my_custom_train_id");
 		textFieldName = new WidgetBetterTextField("My Custom Train Name");
 		colorSelector = new WidgetColorSelector(this, this::onUpdateColor);
-		checkboxHasGangwayConnection = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.custom_resources_has_gangway_connection"), checked -> {
-			RenderTrains.creatorProperties.editCustomResourcesHasGangwayConnection(checked);
-			updateControls(true);
-		});
+		textFieldGangwayConnectionId = new WidgetBetterTextField("mtr:textures/entity/sp1900");
+		textFieldTrainBarrierId = new WidgetBetterTextField("mtr:textures/entity/r211");
 		sliderRiderOffset = new WidgetShorterSlider(0, PANEL_WIDTH, 18, value -> {
 			RenderTrains.creatorProperties.editCustomResourcesRiderOffset((value - 2) / 4F);
 			updateControls(true);
@@ -75,39 +78,41 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	@Override
 	protected void init() {
 		super.init();
-		final int xStart = width / 2 - PANEL_WIDTH;
-		final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 2) / 2;
+		final int newWidth = width - SQUARE_SIZE * 2;
+		final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 4) / 2;
 
-		final int textWidth = Math.max(font.width(FILE_MODEL_TEXT), Math.max(font.width(FILE_PROPERTIES_TEXT), font.width(FILE_TEXTURE_TEXT))) + TEXT_PADDING;
-		IDrawing.setPositionAndWidth(buttonChooseModelFile, xStart + textWidth, yStart, PANEL_WIDTH * 2 - textWidth);
-		IDrawing.setPositionAndWidth(buttonChoosePropertiesFile, xStart + textWidth, yStart + SQUARE_SIZE, PANEL_WIDTH * 2 - textWidth);
-		IDrawing.setPositionAndWidth(buttonChooseTextureFile, xStart + textWidth, yStart + SQUARE_SIZE * 2, PANEL_WIDTH * 2 - textWidth);
+		final int textWidth = Math.max(Math.max(font.width(FILE_MODEL_TEXT), Math.max(font.width(FILE_PROPERTIES_TEXT), font.width(FILE_TEXTURE_TEXT))), Math.max(Math.max(font.width(NAME_TEXT), font.width(ID_TEXT)), Math.max(font.width(GANGWAY_CONNECTION_ID_TEXT), font.width(TRAIN_BARRIER_ID_TEXT)))) + TEXT_PADDING;
+		IDrawing.setPositionAndWidth(buttonChooseModelFile, SQUARE_SIZE + textWidth, yStart, newWidth - textWidth);
+		IDrawing.setPositionAndWidth(buttonChoosePropertiesFile, SQUARE_SIZE + textWidth, yStart + SQUARE_SIZE, newWidth - textWidth);
+		IDrawing.setPositionAndWidth(buttonChooseTextureFile, SQUARE_SIZE + textWidth, yStart + SQUARE_SIZE * 2, newWidth - textWidth);
 
-		IDrawing.setPositionAndWidth(textFieldId, xStart + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, PANEL_WIDTH * 2 - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(colorSelector, xStart + PANEL_WIDTH * 2 + TEXT_FIELD_PADDING / 2 - SQUARE_SIZE * 2, yStart + SQUARE_SIZE * 4 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
-		IDrawing.setPositionAndWidth(textFieldName, xStart + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 5 + TEXT_FIELD_PADDING * 3 / 2, PANEL_WIDTH * 2 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldId, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 7 / 2 + TEXT_FIELD_PADDING / 2, newWidth - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING - textWidth);
+		IDrawing.setPositionAndWidth(colorSelector, SQUARE_SIZE + newWidth + TEXT_FIELD_PADDING / 2 - SQUARE_SIZE * 2, yStart + SQUARE_SIZE * 7 / 2 + TEXT_FIELD_PADDING / 2, SQUARE_SIZE * 2 - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(textFieldName, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 9 / 2 + TEXT_FIELD_PADDING * 3 / 2, newWidth - TEXT_FIELD_PADDING - textWidth);
+		IDrawing.setPositionAndWidth(textFieldGangwayConnectionId, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 11 / 2 + TEXT_FIELD_PADDING * 5 / 2, newWidth - TEXT_FIELD_PADDING - textWidth);
+		IDrawing.setPositionAndWidth(textFieldTrainBarrierId, SQUARE_SIZE + textWidth + TEXT_FIELD_PADDING / 2, yStart + SQUARE_SIZE * 13 / 2 + TEXT_FIELD_PADDING * 7 / 2, newWidth - TEXT_FIELD_PADDING - textWidth);
 
 		textFieldId.setResponder(text -> {
-			String cutText = text.toLowerCase().replaceAll("\\W", "");
-			while (!cutText.isEmpty() && cutText.substring(0, 1).replaceAll("[^a-z]", "").isEmpty()) {
-				cutText = cutText.substring(1);
-			}
-			if (!cutText.equals(text)) {
-				textFieldId.setValue(cutText);
-			}
-			RenderTrains.creatorProperties.editCustomResourcesId(cutText);
+			RenderTrains.creatorProperties.editCustomResourcesId(formatText(textFieldId, text, false));
 			updateControls(false);
 		});
 		textFieldName.setResponder(text -> {
 			RenderTrains.creatorProperties.editCustomResourcesName(text);
 			updateControls(false);
 		});
+		textFieldGangwayConnectionId.setResponder(text -> {
+			RenderTrains.creatorProperties.editCustomResourcesGangwayConnectionId(formatText(textFieldGangwayConnectionId, text, true));
+			updateControls(false);
+		});
+		textFieldTrainBarrierId.setResponder(text -> {
+			RenderTrains.creatorProperties.editCustomResourcesTrainBarrierId(formatText(textFieldTrainBarrierId, text, true));
+			updateControls(false);
+		});
 
-		IDrawing.setPositionAndWidth(checkboxHasGangwayConnection, xStart, yStart + SQUARE_SIZE * 6 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH * 2);
-		IDrawing.setPositionAndWidth(sliderRiderOffset, xStart, yStart + SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(sliderRiderOffset, SQUARE_SIZE, yStart + SQUARE_SIZE * 15 / 2 + TEXT_FIELD_PADDING * 4, textWidth);
 		sliderRiderOffset.setHeight(SQUARE_SIZE);
-		IDrawing.setPositionAndWidth(buttonDone, xStart, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
-		IDrawing.setPositionAndWidth(buttonExport, xStart + PANEL_WIDTH, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonDone, SQUARE_SIZE, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 4, textWidth);
+		IDrawing.setPositionAndWidth(buttonExport, SQUARE_SIZE + textWidth, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 4, newWidth - textWidth);
 
 		updateControls(true);
 
@@ -118,7 +123,8 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		addDrawableChild(textFieldId);
 		addDrawableChild(colorSelector);
 		addDrawableChild(textFieldName);
-		addDrawableChild(checkboxHasGangwayConnection);
+		addDrawableChild(textFieldGangwayConnectionId);
+		addDrawableChild(textFieldTrainBarrierId);
 		addDrawableChild(sliderRiderOffset);
 		addDrawableChild(buttonDone);
 		addDrawableChild(buttonExport);
@@ -128,6 +134,8 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	public void tick() {
 		textFieldId.tick();
 		textFieldName.tick();
+		textFieldGangwayConnectionId.tick();
+		textFieldTrainBarrierId.tick();
 	}
 
 	@Override
@@ -135,11 +143,14 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		try {
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
-			final int xStart = width / 2 - PANEL_WIDTH;
-			final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 2) / 2;
-			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_model"), xStart, yStart + TEXT_PADDING, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_properties"), xStart, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_texture"), xStart, yStart + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 4) / 2;
+			drawString(matrices, font, FILE_MODEL_TEXT, SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, FILE_PROPERTIES_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, FILE_TEXTURE_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, ID_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE * 7 / 2 + TEXT_FIELD_PADDING / 2 + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, NAME_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE * 9 / 2 + TEXT_FIELD_PADDING * 3 / 2 + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, GANGWAY_CONNECTION_ID_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE * 11 / 2 + TEXT_FIELD_PADDING * 5 / 2 + TEXT_PADDING, ARGB_WHITE);
+			drawString(matrices, font, TRAIN_BARRIER_ID_TEXT, SQUARE_SIZE, yStart + SQUARE_SIZE * 13 / 2 + TEXT_FIELD_PADDING * 7 / 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -162,21 +173,21 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? new TranslatableComponent("gui.mtr.file_upload") : new TextComponent(textureFileName));
 
 		final JsonObject customTrainObject = RenderTrains.creatorProperties.getCustomTrainObject();
-		checkboxHasGangwayConnection.setChecked(customTrainObject.get(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION).getAsBoolean());
 		final int sliderRiderOffsetValue = Math.round(customTrainObject.get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat() * 4 + 2);
 		if (sliderRiderOffsetValue != sliderRiderOffset.getIntValue()) {
 			sliderRiderOffset.setValue(sliderRiderOffsetValue);
 		}
 
 		if (formatTextFields) {
-			final String id = RenderTrains.creatorProperties.getCustomTrainId();
-			textFieldId.setValue(id);
+			textFieldId.setValue(RenderTrains.creatorProperties.getCustomTrainId());
 			final int color = CustomResources.colorStringToInt(customTrainObject.get(CUSTOM_TRAINS_COLOR).getAsString());
 			colorSelector.setColor(color);
-			textFieldName.setValue(customTrainObject.get(CUSTOM_TRAINS_NAME).getAsString());
 			if (color == 0) {
 				RenderTrains.creatorProperties.editCustomResourcesColor(colorSelector.getColor());
 			}
+			textFieldName.setValue(customTrainObject.get(CUSTOM_TRAINS_NAME).getAsString());
+			textFieldGangwayConnectionId.setValue(customTrainObject.get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString());
+			textFieldTrainBarrierId.setValue(customTrainObject.get(CUSTOM_TRAINS_TRAIN_BARRIER_ID).getAsString());
 		}
 
 		buttonExport.active = !textFieldId.getValue().isEmpty() && !textFieldName.getValue().isEmpty() && !RenderTrains.creatorProperties.getModelFileName().isEmpty() && !RenderTrains.creatorProperties.getTextureFileName().isEmpty();
@@ -199,5 +210,16 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 				}
 			}));
 		}
+	}
+
+	private static String formatText(WidgetBetterTextField textField, String text, boolean isFileName) {
+		String cutText = text.toLowerCase().replaceAll(isFileName ? "[^\\w:/]" : "\\W", "");
+		while (!cutText.isEmpty() && cutText.substring(0, 1).replaceAll("[^a-z]", "").isEmpty()) {
+			cutText = cutText.substring(1);
+		}
+		if (!cutText.equals(text)) {
+			textField.setValue(cutText);
+		}
+		return cutText;
 	}
 }

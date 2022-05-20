@@ -45,7 +45,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
-		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", true, 0);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", "", "", 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -81,10 +81,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void editCustomResourcesId(String id) {
 		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
 		final String color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsString();
-		final boolean hasGangwayConnection = getCustomTrainObject().get(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION).getAsBoolean();
+		final String gangwayConnectionId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
+		final String trainBarrierId = getCustomTrainObject().get(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID).getAsString();
 		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
 		customTrainId = id;
-		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, hasGangwayConnection, riderOffset);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, gangwayConnectionId, trainBarrierId, riderOffset);
 	}
 
 	public void editCustomResourcesName(String name) {
@@ -95,8 +96,12 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase());
 	}
 
-	public void editCustomResourcesHasGangwayConnection(boolean hasGangwayConnection) {
-		getCustomTrainObject().addProperty(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION, hasGangwayConnection);
+	public void editCustomResourcesGangwayConnectionId(String gangwayConnectionId) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, gangwayConnectionId);
+	}
+
+	public void editCustomResourcesTrainBarrierId(String trainBarrierId) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_TRAIN_BARRIER_ID, trainBarrierId);
 	}
 
 	public void editCustomResourcesRiderOffset(float riderOffset) {
@@ -176,7 +181,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editPartPositions(int index, String positions) {
 		final JsonArray positionsArray = new JsonArray();
-		final String[] positionsSplit = positions.replaceAll("[^\\d.,]", "").split(",");
+		final String[] positionsSplit = positions.replaceAll("[^\\d.,\\-]", "").split(",");
 		for (int i = 1; i < positionsSplit.length; i += 2) {
 			try {
 				final float x = Float.parseFloat(positionsSplit[i - 1]);
