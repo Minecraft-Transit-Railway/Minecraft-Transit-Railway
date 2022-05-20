@@ -80,7 +80,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	@Override
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
-		render(entity, tickDelta, matrices, vertexConsumers);
+		render(entity, matrices, vertexConsumers);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		return null;
 	}
 
-	public static void render(EntitySeat entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers) {
+	public static void render(EntitySeat entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
 		final Minecraft client = Minecraft.getInstance();
 		final boolean backupRendering = entity == null;
 		final boolean alreadyRendered = renderedUuid != null && (backupRendering || entity.getUUID() != renderedUuid);
@@ -128,7 +128,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		if (!backupRendering) {
 			matrices.popPose();
 			matrices.pushPose();
-			matrices.translate(-cameraOffset.x, -cameraOffset.y, -cameraOffset.z);
+			final Vec3 cameraPosition = camera.getPosition();
+			matrices.translate(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z);
 		}
 		matrices.pushPose();
 

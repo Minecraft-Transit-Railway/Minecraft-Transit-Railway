@@ -28,7 +28,7 @@ public abstract class LevelRendererMixin {
 		matrices.pushPose();
 		final Vec3 cameraPos = camera.getPosition();
 		matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-		RenderTrains.render(null, 0, matrices, renderBuffers.bufferSource());
+		RenderTrains.render(null, matrices, renderBuffers.bufferSource());
 		matrices.popPose();
 	}
 }
