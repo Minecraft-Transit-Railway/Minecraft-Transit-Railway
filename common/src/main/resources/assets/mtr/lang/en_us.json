@@ -165,7 +165,7 @@
 	"gui.mtr.exit_destinations": "Exit Destinations",
 	"gui.mtr.exit_parents": "Station Exits",
 	"gui.mtr.file_model": "Blockbench File",
-	"gui.mtr.file_properties": "Properties File",
+	"gui.mtr.file_properties": "Properties File (Optional)",
 	"gui.mtr.file_texture": "Texture File",
 	"gui.mtr.file_upload": "Upload...",
 	"gui.mtr.filtered_platforms": "Filtered Platforms (%s)",

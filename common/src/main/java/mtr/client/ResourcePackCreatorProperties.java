@@ -45,7 +45,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
-		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", 0, true, 0);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", "000000", true, 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -80,7 +80,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editCustomResourcesId(String id) {
 		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
-		final int color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsInt();
+		final String color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsString();
 		final boolean hasGangwayConnection = getCustomTrainObject().get(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION).getAsBoolean();
 		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
 		customTrainId = id;
@@ -92,7 +92,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	}
 
 	public void editCustomResourcesColor(int color) {
-		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, color);
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, Integer.toHexString(color & RGB_WHITE).toUpperCase());
 	}
 
 	public void editCustomResourcesHasGangwayConnection(boolean hasGangwayConnection) {

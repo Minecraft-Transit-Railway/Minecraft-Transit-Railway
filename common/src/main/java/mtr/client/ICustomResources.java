@@ -31,7 +31,7 @@ public interface ICustomResources {
 	String CUSTOM_SIGNS_SMALL = "small";
 	String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
-	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, int color, boolean hasGangwayConnection, float riderOffset) {
+	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, String color, boolean hasGangwayConnection, float riderOffset) {
 		final JsonObject customTrainsObject = new JsonObject();
 		jsonObject.add(CUSTOM_TRAINS_KEY, customTrainsObject);
 		final JsonObject customTrainObject = new JsonObject();

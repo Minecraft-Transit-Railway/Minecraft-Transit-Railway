@@ -173,7 +173,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 		if (editingExit != null) {
 			textFieldExitParentLetter.setValue(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setValue(editingExit.replaceAll("[^0-9]", ""));
+			textFieldExitParentNumber.setValue(editingExit.replaceAll("\\D", ""));
 		}
 		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {
 			textFieldExitDestination.setValue(data.exits.get(editingExit).get(editingDestinationIndex));

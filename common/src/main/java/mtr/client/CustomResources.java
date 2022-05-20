@@ -7,7 +7,6 @@ import mtr.MTR;
 import mtr.render.RenderTrains;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.sounds.SoundEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
-public class CustomResources implements ICustomResources {
+public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
 
@@ -59,7 +57,8 @@ public class CustomResources implements ICustomResources {
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, riderOffset, speedSoundCount, doorCloseSoundTime, false);
+								final String newBaseTrainType = String.format("%s_%s_%s", jsonProperties.get(KEY_PROPERTIES_TRANSPORT_MODE).getAsString(), jsonProperties.get(KEY_PROPERTIES_LENGTH).getAsInt(), jsonProperties.get(KEY_PROPERTIES_WIDTH).getAsInt());
+								TrainClientRegistry.register(trainId, newBaseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, hasGangwayConnection, riderOffset, speedSoundCount, doorCloseSoundTime, false);
 								customTrains.add(trainId);
 							}));
 						}
@@ -96,6 +95,14 @@ public class CustomResources implements ICustomResources {
 		CUSTOM_SIGNS.keySet().forEach(System.out::println);
 	}
 
+	public static int colorStringToInt(String string) {
+		try {
+			return Integer.parseInt(string.toUpperCase().replaceAll("[^\\dA-F]", ""), 16);
+		} catch (Exception ignored) {
+			return 0;
+		}
+	}
+
 	private static void readResource(ResourceManager manager, String path, Consumer<JsonObject> callback) {
 		try {
 			manager.getResources(new ResourceLocation(path)).forEach(resource -> {
@@ -112,35 +119,6 @@ public class CustomResources implements ICustomResources {
 			});
 		} catch (Exception ignored) {
 		}
-	}
-
-	private static int colorStringToInt(String string) {
-		try {
-			return Integer.parseInt(string.toUpperCase().replaceAll("[^0-9A-F]", ""), 16);
-		} catch (Exception ignored) {
-			return 0;
-		}
-	}
-
-	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
-		return IntStream.range(0, size).mapToObj(i -> {
-			String group;
-			switch (i % groupSize) {
-				case 0:
-					group = "a";
-					break;
-				case 1:
-					group = "b";
-					break;
-				case 2:
-					group = "c";
-					break;
-				default:
-					group = "";
-					break;
-			}
-			return new SoundEvent(new ResourceLocation(path + (i / 3) + group));
-		}).toArray(SoundEvent[]::new);
 	}
 
 	private static <T> T getOrDefault(JsonObject jsonObject, String key, T defaultValue, Function<JsonElement, T> function) {

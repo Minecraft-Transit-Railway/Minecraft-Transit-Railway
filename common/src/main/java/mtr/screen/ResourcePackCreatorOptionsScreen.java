@@ -2,6 +2,7 @@ package mtr.screen;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.client.CustomResources;
 import mtr.client.ICustomResources;
 import mtr.client.IDrawing;
 import mtr.client.IResourcePackCreatorProperties;
@@ -170,7 +171,7 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		if (formatTextFields) {
 			final String id = RenderTrains.creatorProperties.getCustomTrainId();
 			textFieldId.setValue(id);
-			final int color = customTrainObject.get(CUSTOM_TRAINS_COLOR).getAsInt();
+			final int color = CustomResources.colorStringToInt(customTrainObject.get(CUSTOM_TRAINS_COLOR).getAsString());
 			colorSelector.setColor(color);
 			textFieldName.setValue(customTrainObject.get(CUSTOM_TRAINS_NAME).getAsString());
 			if (color == 0) {
