@@ -207,11 +207,11 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 		updateModel();
 	}
 
-	public void render(PoseStack matrices, int currentCar, int trainCars, int light) {
+	public void render(PoseStack matrices, int currentCar, int trainCars, boolean head1IsFront, float leftDoorValue, float rightDoorValue, boolean opening, int light) {
 		if (model != null) {
 			final Minecraft minecraft = Minecraft.getInstance();
 			final MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
-			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, 0, 0, true, currentCar, trainCars, true, true, false, true);
+			model.render(matrices, immediate, texture == null ? new ResourceLocation("mtr:textures/block/white.png") : texture, light, leftDoorValue, rightDoorValue, opening, currentCar, trainCars, head1IsFront, true, false, true);
 			immediate.endBatch();
 		}
 	}
