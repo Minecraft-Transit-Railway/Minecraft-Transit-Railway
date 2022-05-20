@@ -31,15 +31,18 @@ public interface ICustomResources {
 	String CUSTOM_SIGNS_SMALL = "small";
 	String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
-	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, int color) {
+	static void createCustomTrainSchema(JsonObject jsonObject, String id, String name, int color, boolean hasGangwayConnection, float riderOffset) {
 		final JsonObject customTrainsObject = new JsonObject();
 		jsonObject.add(CUSTOM_TRAINS_KEY, customTrainsObject);
 		final JsonObject customTrainObject = new JsonObject();
 		customTrainsObject.add(id, customTrainObject);
 		customTrainObject.addProperty(CUSTOM_TRAINS_NAME, name);
 		customTrainObject.addProperty(CUSTOM_TRAINS_COLOR, color);
-		customTrainObject.addProperty(CUSTOM_TRAINS_TEXTURE_ID, "");
-		customTrainObject.addProperty(CUSTOM_TRAINS_MODEL, "");
-		customTrainObject.addProperty(CUSTOM_TRAINS_MODEL_PROPERTIES, "");
+		customTrainObject.addProperty(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION, hasGangwayConnection);
+		customTrainObject.addProperty(CUSTOM_TRAINS_RIDER_OFFSET, riderOffset);
+		final String resource = String.format("mtr:%s/%s", id, id);
+		customTrainObject.addProperty(CUSTOM_TRAINS_TEXTURE_ID, resource);
+		customTrainObject.addProperty(CUSTOM_TRAINS_MODEL, resource + ".bbmodel");
+		customTrainObject.addProperty(CUSTOM_TRAINS_MODEL_PROPERTIES, resource + ".json");
 	}
 }

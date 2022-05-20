@@ -23,9 +23,15 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	private final Button buttonChooseModelFile;
 	private final Button buttonChoosePropertiesFile;
 	private final Button buttonChooseTextureFile;
+
 	private final WidgetBetterTextField textFieldId;
 	private final WidgetBetterTextField textFieldName;
 	private final WidgetColorSelector colorSelector;
+	private final WidgetBetterCheckbox checkboxHasGangwayConnection;
+	private final WidgetShorterSlider sliderRiderOffset;
+
+	private final Button buttonDone;
+	private final Button buttonExport;
 
 	private static final TranslatableComponent FILE_MODEL_TEXT = new TranslatableComponent("gui.mtr.file_model");
 	private static final TranslatableComponent FILE_PROPERTIES_TEXT = new TranslatableComponent("gui.mtr.file_properties");
@@ -47,16 +53,29 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 			RenderTrains.creatorProperties.loadTextureFile(path);
 			updateControls(false);
 		}));
-		textFieldId = new WidgetBetterTextField("my_custom_train");
-		textFieldName = new WidgetBetterTextField("My Custom Train");
+
+		textFieldId = new WidgetBetterTextField("my_custom_train_id");
+		textFieldName = new WidgetBetterTextField("My Custom Train Name");
 		colorSelector = new WidgetColorSelector(this, this::onUpdateColor);
+		checkboxHasGangwayConnection = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.custom_resources_has_gangway_connection"), checked -> {
+			RenderTrains.creatorProperties.editCustomResourcesHasGangwayConnection(checked);
+			updateControls(true);
+		});
+		sliderRiderOffset = new WidgetShorterSlider(0, PANEL_WIDTH, 18, value -> {
+			RenderTrains.creatorProperties.editCustomResourcesRiderOffset((value - 2) / 4F);
+			updateControls(true);
+			return new TranslatableComponent("gui.mtr.custom_resources_rider_offset", (value - 2) / 4F).getString();
+		}, null);
+
+		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onClose());
+		buttonExport = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.custom_resources_export_resource_pack"), button -> RenderTrains.creatorProperties.export());
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 		final int xStart = width / 2 - PANEL_WIDTH;
-		final int yStart = (height - SQUARE_SIZE * 10) / 2;
+		final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 2) / 2;
 
 		final int textWidth = Math.max(font.width(FILE_MODEL_TEXT), Math.max(font.width(FILE_PROPERTIES_TEXT), font.width(FILE_TEXTURE_TEXT))) + TEXT_PADDING;
 		IDrawing.setPositionAndWidth(buttonChooseModelFile, xStart + textWidth, yStart, PANEL_WIDTH * 2 - textWidth);
@@ -83,14 +102,25 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 			updateControls(false);
 		});
 
+		IDrawing.setPositionAndWidth(checkboxHasGangwayConnection, xStart, yStart + SQUARE_SIZE * 6 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH * 2);
+		IDrawing.setPositionAndWidth(sliderRiderOffset, xStart, yStart + SQUARE_SIZE * 7 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
+		sliderRiderOffset.setHeight(SQUARE_SIZE);
+		IDrawing.setPositionAndWidth(buttonDone, xStart, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
+		IDrawing.setPositionAndWidth(buttonExport, xStart + PANEL_WIDTH, yStart + SQUARE_SIZE * 9 + TEXT_FIELD_PADDING * 2, PANEL_WIDTH);
+
 		updateControls(true);
 
 		addDrawableChild(buttonChooseModelFile);
 		addDrawableChild(buttonChoosePropertiesFile);
 		addDrawableChild(buttonChooseTextureFile);
+
 		addDrawableChild(textFieldId);
 		addDrawableChild(colorSelector);
 		addDrawableChild(textFieldName);
+		addDrawableChild(checkboxHasGangwayConnection);
+		addDrawableChild(sliderRiderOffset);
+		addDrawableChild(buttonDone);
+		addDrawableChild(buttonExport);
 	}
 
 	@Override
@@ -105,7 +135,7 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
 			final int xStart = width / 2 - PANEL_WIDTH;
-			final int yStart = (height - SQUARE_SIZE * 10) / 2;
+			final int yStart = (height - SQUARE_SIZE * 10 - TEXT_FIELD_PADDING * 2) / 2;
 			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_model"), xStart, yStart + TEXT_PADDING, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_properties"), xStart, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("gui.mtr.file_texture"), xStart, yStart + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
@@ -130,10 +160,16 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		final String textureFileName = RenderTrains.creatorProperties.getTextureFileName();
 		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? new TranslatableComponent("gui.mtr.file_upload") : new TextComponent(textureFileName));
 
+		final JsonObject customTrainObject = RenderTrains.creatorProperties.getCustomTrainObject();
+		checkboxHasGangwayConnection.setChecked(customTrainObject.get(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION).getAsBoolean());
+		final int sliderRiderOffsetValue = Math.round(customTrainObject.get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat() * 4 + 2);
+		if (sliderRiderOffsetValue != sliderRiderOffset.getIntValue()) {
+			sliderRiderOffset.setValue(sliderRiderOffsetValue);
+		}
+
 		if (formatTextFields) {
 			final String id = RenderTrains.creatorProperties.getCustomTrainId();
 			textFieldId.setValue(id);
-			final JsonObject customTrainObject = RenderTrains.creatorProperties.getCustomTrainObject();
 			final int color = customTrainObject.get(CUSTOM_TRAINS_COLOR).getAsInt();
 			colorSelector.setColor(color);
 			textFieldName.setValue(customTrainObject.get(CUSTOM_TRAINS_NAME).getAsString());
@@ -141,6 +177,8 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 				RenderTrains.creatorProperties.editCustomResourcesColor(colorSelector.getColor());
 			}
 		}
+
+		buttonExport.active = !textFieldId.getValue().isEmpty() && !textFieldName.getValue().isEmpty() && !RenderTrains.creatorProperties.getModelFileName().isEmpty() && !RenderTrains.creatorProperties.getTextureFileName().isEmpty();
 	}
 
 	private void onUpdateColor() {

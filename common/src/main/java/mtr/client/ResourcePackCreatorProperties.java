@@ -10,35 +10,42 @@ import mtr.data.EnumHelper;
 import mtr.data.IGui;
 import mtr.data.TransportMode;
 import mtr.model.ModelTrainBase;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class ResourcePackCreatorProperties implements IResourcePackCreatorProperties, ICustomResources, IGui {
 
-	private String customTrainId = "my_custom_train";
+	private String customTrainId = "my_custom_train_id";
 	private String modelFileName = "";
 	private JsonObject modelObject = new JsonObject();
 	private DynamicTrainModel model;
 	private String propertiesFileName = "";
 	private JsonObject propertiesObject = new JsonObject();
 	private String textureFileName = "";
+	private Path textureFilePath;
 	private ResourceLocation texture;
 	private final JsonObject customResourcesObject = new JsonObject();
 
 	public ResourcePackCreatorProperties() {
 		IResourcePackCreatorProperties.checkSchema(propertiesObject);
-		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train", 0);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, customTrainId, "My Custom Train Name", 0, true, 0);
 	}
 
 	public void loadModelFile(Path path) {
@@ -65,6 +72,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 			final NativeImage nativeImage = NativeImage.read(Files.newInputStream(path, StandardOpenOption.READ));
 			texture = minecraft.getTextureManager().register(MTR.MOD_ID, new DynamicTexture(nativeImage));
 			textureFileName = path.getFileName().toString();
+			textureFilePath = path;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -73,8 +81,10 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void editCustomResourcesId(String id) {
 		final String name = getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString();
 		final int color = getCustomTrainObject().get(CUSTOM_TRAINS_COLOR).getAsInt();
+		final boolean hasGangwayConnection = getCustomTrainObject().get(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION).getAsBoolean();
+		final float riderOffset = getCustomTrainObject().get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat();
 		customTrainId = id;
-		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color);
+		ICustomResources.createCustomTrainSchema(customResourcesObject, id, name, color, hasGangwayConnection, riderOffset);
 	}
 
 	public void editCustomResourcesName(String name) {
@@ -83,6 +93,14 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public void editCustomResourcesColor(int color) {
 		getCustomTrainObject().addProperty(CUSTOM_TRAINS_COLOR, color);
+	}
+
+	public void editCustomResourcesHasGangwayConnection(boolean hasGangwayConnection) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_HAS_GANGWAY_CONNECTION, hasGangwayConnection);
+	}
+
+	public void editCustomResourcesRiderOffset(float riderOffset) {
+		getCustomTrainObject().addProperty(CUSTOM_TRAINS_RIDER_OFFSET, riderOffset);
 	}
 
 	public void editTransportMode() {
@@ -235,6 +253,42 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 
 	public String getTextureFileName() {
 		return textureFileName;
+	}
+
+	public void export() {
+		try {
+			final Minecraft minecraft = Minecraft.getInstance();
+			final File resourcePackDirectory = minecraft.getResourcePackDirectory();
+			final FileOutputStream fileOutputStream = new FileOutputStream(String.format("%s/%s_%s.zip", resourcePackDirectory.toString(), customTrainId, ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu_MM_dd_HH_mm_ss"))));
+			final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+			writeToZip(zipOutputStream, "pack.mcmeta", "{\"pack\":{\"pack_format\":6,\"description\":\"Minecraft Transit Railway\\n" + getCustomTrainObject().get(CUSTOM_TRAINS_NAME).getAsString() + "\"}}");
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s.json", CUSTOM_RESOURCES_ID), customResourcesObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.bbmodel", customTrainId, customTrainId), modelObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.json", customTrainId, customTrainId), propertiesObject.toString());
+			writeToZip(zipOutputStream, String.format("assets/mtr/%s/%s.png", customTrainId, customTrainId), Files.newInputStream(textureFilePath));
+
+			zipOutputStream.close();
+			fileOutputStream.close();
+
+			Util.getPlatform().openFile(resourcePackDirectory);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void writeToZip(ZipOutputStream zipOutputStream, String fileName, String content) throws IOException {
+		writeToZip(zipOutputStream, fileName, new ByteArrayInputStream(content.getBytes()));
+	}
+
+	private void writeToZip(ZipOutputStream zipOutputStream, String fileName, InputStream inputStream) throws IOException {
+		zipOutputStream.putNextEntry(new ZipEntry(fileName));
+		final byte[] bytes = new byte[1024];
+		int length;
+		while ((length = inputStream.read(bytes)) >= 0) {
+			zipOutputStream.write(bytes, 0, length);
+		}
+		inputStream.close();
 	}
 
 	private void updateModel() {

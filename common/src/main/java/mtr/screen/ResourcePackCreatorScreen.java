@@ -92,22 +92,17 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			RenderTrains.creatorProperties.editTransportMode();
 			updateControls(true);
 		});
-		final TranslatableComponent lengthText = new TranslatableComponent("gui.mtr.vehicle_length", 88);
-		final TranslatableComponent widthText = new TranslatableComponent("gui.mtr.vehicle_width", 88);
-		final TranslatableComponent doorMaxText = new TranslatableComponent("gui.mtr.vehicle_door_max", 88);
-		font = Minecraft.getInstance().font;
-		final int textWidth = Math.max(font.width(lengthText), Math.max(font.width(widthText), font.width(doorMaxText))) + TEXT_PADDING * 2;
-		sliderLength = new WidgetShorterSlider(0, PANEL_WIDTH - textWidth, 31, value -> {
+		sliderLength = new WidgetShorterSlider(0, 0, 31, value -> {
 			RenderTrains.creatorProperties.editLength(value + 1);
 			updateControls(true);
 			return new TranslatableComponent("gui.mtr.vehicle_length", value + 1).getString();
 		}, null);
-		sliderWidth = new WidgetShorterSlider(0, PANEL_WIDTH - textWidth, 7, value -> {
+		sliderWidth = new WidgetShorterSlider(0, 0, 7, value -> {
 			RenderTrains.creatorProperties.editWidth(value + 1);
 			updateControls(true);
 			return new TranslatableComponent("gui.mtr.vehicle_width", value + 1).getString();
 		}, null);
-		sliderDoorMax = new WidgetShorterSlider(0, PANEL_WIDTH - textWidth, 31, value -> {
+		sliderDoorMax = new WidgetShorterSlider(0, 0, 31, value -> {
 			RenderTrains.creatorProperties.editDoorMax(value + 1);
 			updateControls(true);
 			return new TranslatableComponent("gui.mtr.vehicle_door_max", value + 1).getString();
@@ -156,29 +151,37 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 		usedModelPartsList.width = PANEL_WIDTH;
 		usedModelPartsList.height = height - SQUARE_SIZE * 7 / 2;
 
-		final int textWidth = Math.max(font.width(new TranslatableComponent("gui.mtr.vehicle_cars", 88)), font.width(new TranslatableComponent("gui.mtr.vehicle_brightness", 888)));
+		final int textWidth1 = Math.max(font.width(new TranslatableComponent("gui.mtr.vehicle_cars", 88)), font.width(new TranslatableComponent("gui.mtr.vehicle_brightness", 888)));
 		sliderCars.x = PANEL_WIDTH + TEXT_HEIGHT;
 		sliderCars.y = height - TEXT_HEIGHT - SQUARE_SIZE;
-		sliderCars.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth);
+		sliderCars.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth1);
 		sliderCars.setHeight(SQUARE_SIZE / 2);
 		sliderCars.setValue(-1);
 		sliderBrightness.x = PANEL_WIDTH + TEXT_HEIGHT;
 		sliderBrightness.y = height - TEXT_HEIGHT - SQUARE_SIZE / 2;
-		sliderBrightness.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth);
+		sliderBrightness.setWidth(width - PANEL_WIDTH * 2 - TEXT_HEIGHT * 3 - textWidth1);
 		sliderBrightness.setHeight(SQUARE_SIZE / 2);
 
 		final int xStart = width - PANEL_WIDTH;
 		IDrawing.setPositionAndWidth(buttonTransportMode, xStart, 0, PANEL_WIDTH);
+
+		final TranslatableComponent lengthText = new TranslatableComponent("gui.mtr.vehicle_length", 88);
+		final TranslatableComponent widthText = new TranslatableComponent("gui.mtr.vehicle_width", 88);
+		final TranslatableComponent doorMaxText = new TranslatableComponent("gui.mtr.vehicle_door_max", 88);
+		final int textWidth2 = Math.max(font.width(lengthText), Math.max(font.width(widthText), font.width(doorMaxText))) + TEXT_PADDING * 2;
 		sliderLength.x = xStart;
 		sliderLength.y = SQUARE_SIZE;
+		sliderLength.setWidth(PANEL_WIDTH - textWidth2);
 		sliderLength.setHeight(SQUARE_SIZE / 2);
 		sliderLength.setValue(RenderTrains.creatorProperties.getLength() - 1);
 		sliderWidth.x = xStart;
 		sliderWidth.y = SQUARE_SIZE * 3 / 2;
+		sliderWidth.setWidth(PANEL_WIDTH - textWidth2);
 		sliderWidth.setHeight(SQUARE_SIZE / 2);
 		sliderWidth.setValue(RenderTrains.creatorProperties.getWidth() - 1);
 		sliderDoorMax.x = xStart;
 		sliderDoorMax.y = SQUARE_SIZE * 2;
+		sliderDoorMax.setWidth(PANEL_WIDTH - textWidth2);
 		sliderDoorMax.setHeight(SQUARE_SIZE / 2);
 		sliderDoorMax.setValue(RenderTrains.creatorProperties.getDoorMax() - 1);
 
