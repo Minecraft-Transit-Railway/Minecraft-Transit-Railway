@@ -51,15 +51,23 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
 						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, baseTrainProperties.doorCloseSoundTime, JsonElement::getAsFloat);
 
-						if (jsonObject.has(CUSTOM_TRAINS_BASE_TRAIN_TYPE)) {
+						if (!baseTrainProperties.baseTrainType.isEmpty()) {
 							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
 							customTrains.add(trainId);
 						}
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
+								IResourcePackCreatorProperties.checkSchema(jsonProperties);
 								final String newBaseTrainType = String.format("%s_%s_%s", jsonProperties.get(KEY_PROPERTIES_TRANSPORT_MODE).getAsString(), jsonProperties.get(KEY_PROPERTIES_LENGTH).getAsInt(), jsonProperties.get(KEY_PROPERTIES_WIDTH).getAsInt());
-								TrainClientRegistry.register(trainId, newBaseTrainType.toLowerCase(), new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
+
+								// TODO temporary code for backwards compatibility
+								final String gangwayConnectionId2 = gangwayConnectionId.isEmpty() ? getOrDefault(jsonObject, "has_gangway_connection", true, JsonElement::getAsBoolean) ? "mtr:textures/entity/sp1900" : "" : gangwayConnectionId;
+								final String newBaseTrainType2 = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : newBaseTrainType;
+								final boolean useLegacy = jsonProperties.has("parts_normal");
+								// TODO temporary code end
+
+								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
 								customTrains.add(trainId);
 							}));
 						}
