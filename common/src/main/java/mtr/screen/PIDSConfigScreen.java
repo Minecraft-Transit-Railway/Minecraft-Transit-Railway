@@ -40,7 +40,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 
 		textFieldMessages = new WidgetBetterTextField[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH);
+			textFieldMessages[i] = new WidgetBetterTextField("", MAX_MESSAGE_LENGTH);
 		}
 
 		buttonsHideArrival = new WidgetBetterCheckbox[maxArrivals];

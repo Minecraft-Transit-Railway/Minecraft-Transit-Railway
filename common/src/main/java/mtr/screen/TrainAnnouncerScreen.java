@@ -27,8 +27,8 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos) {
 		super(pos, true,
-				new Tuple<>(new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message")),
-				new Tuple<>(new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.sound_file"))
+				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message")),
+				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.sound_file"))
 		);
 
 		minecraft = Minecraft.getInstance();

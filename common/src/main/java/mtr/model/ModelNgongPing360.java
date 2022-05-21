@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelNgongPing360 extends ModelTrainBase {
+public class ModelNgongPing360 extends ModelSimpleTrainBase {
 
 	private final ModelMapper body;
 	private final ModelMapper pole_2_r1;

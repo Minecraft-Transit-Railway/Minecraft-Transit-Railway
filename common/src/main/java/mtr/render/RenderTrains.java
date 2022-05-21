@@ -1,6 +1,5 @@
 package mtr.render;
 
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
@@ -35,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -54,12 +52,7 @@ import java.util.stream.Collectors;
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
 	public static int maxTrainRenderDistance;
-	public static String creatorModelFileName = "";
-	public static JsonObject creatorModel = new JsonObject();
-	public static String creatorPropertiesFileName = "";
-	public static JsonObject creatorProperties = new JsonObject();
-	public static String creatorTextureFileName = "";
-	public static ResourceLocation creatorTexture;
+	public static ResourcePackCreatorProperties creatorProperties = new ResourcePackCreatorProperties();
 
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
@@ -87,7 +80,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	@Override
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
-		render(entity, tickDelta, matrices, vertexConsumers);
+		render(entity, matrices, vertexConsumers);
 	}
 
 	@Override
@@ -95,7 +88,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		return null;
 	}
 
-	public static void render(EntitySeat entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers) {
+	public static void render(EntitySeat entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
 		final Minecraft client = Minecraft.getInstance();
 		final boolean backupRendering = entity == null;
 		final boolean alreadyRendered = renderedUuid != null && (backupRendering || entity.getUUID() != renderedUuid);
@@ -129,21 +122,22 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			maxTrainRenderDistance = renderDistanceChunks * (Config.trainRenderDistanceRatio() + 1);
 		}
 
-		matrices.pushPose();
-		if (!backupRendering) {
-			final double entityX = Mth.lerp(tickDelta, entity.xOld, entity.getX());
-			final double entityY = Mth.lerp(tickDelta, entity.yOld, entity.getY());
-			final double entityZ = Mth.lerp(tickDelta, entity.zOld, entity.getZ());
-			matrices.translate(-entityX, -entityY, -entityZ);
-		}
-
 		final Camera camera = client.gameRenderer.getMainCamera();
-		final float cameraYaw = camera.getYRot();
 		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
+
+		if (!backupRendering) {
+			matrices.popPose();
+			matrices.pushPose();
+			final Vec3 cameraPosition = camera.getPosition();
+			matrices.translate(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z);
+		}
+		matrices.pushPose();
+
+		final float cameraYaw = camera.getYRot();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
 
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, transportMode, currentCar, trainCars, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
 			}
@@ -158,16 +152,16 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.pushPose();
 			matrices.translate(x, y, z);
 			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (baseTrainType.transportMode.hasPitch ? pitch : 0)));
+			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (transportMode.hasPitch ? pitch : 0)));
 
 			if (trainProperties.model == null || trainProperties.textureId == null) {
-				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
+				final boolean isBoat = transportMode == TransportMode.BOAT;
 
 				matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
 
 				final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties, textureId -> textureId + ".png")));
+				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties.baseTrainType, trainProperties.textureId, textureId -> textureId + ".png")));
 
 				if (isBoat) {
 					if (!BOATS.containsKey(train.id)) {
@@ -181,15 +175,15 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 			} else {
 				final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= DETAIL_RADIUS_SQUARED;
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, renderDetails);
+				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties.baseTrainType, trainProperties.textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, currentCar, trainCars, head1IsFront, lightsOn, isTranslucent, renderDetails);
 			}
 
-			if (baseTrainType.transportMode == TransportMode.CABLE_CAR) {
+			if (transportMode == TransportMode.CABLE_CAR) {
 				matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
-				if (!baseTrainType.transportMode.hasPitch) {
+				if (!transportMode.hasPitch) {
 					matrices.mulPose(Vector3f.XP.rotation(pitch));
 				}
-				if (baseTrainType.toString().endsWith("_RHT")) {
+				if (trainId.endsWith("_rht")) {
 					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 				}
 				MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
@@ -209,8 +203,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.popPose();
 
 			matrices.popPose();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, lightsOn, isConnector, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 			if (trainProperties.textureId == null) {
 				return;
 			}
@@ -222,18 +216,24 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
 
-			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
+			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, isConnector, "exterior")));
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
-			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
-			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
-			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
-			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
-			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			if (isConnector) {
+				drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
+				drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
+
+				final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
+				final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "side")));
+				drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
+				drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
+				drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+				drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			} else {
+				drawTexture(matrices, vertexConsumerExterior, thisPos3, prevPos2, prevPos1, thisPos4, light);
+				drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos1, prevPos4, light);
+			}
 
 			matrices.popPose();
 		}), (speed, stopIndex, routeIds) -> {
@@ -494,8 +494,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
 	}
 
-	private static ResourceLocation resolveTexture(TrainClientRegistry.TrainProperties trainProperties, Function<String, String> formatter) {
-		final String textureString = formatter.apply(trainProperties.textureId);
+	private static ResourceLocation resolveTexture(String baseTrainType, String textureId, Function<String, String> formatter) {
+		final String textureString = formatter.apply(textureId);
 		final ResourceLocation id = new ResourceLocation(textureString);
 		final boolean available;
 
@@ -512,13 +512,13 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		if (available) {
 			return id;
 		} else {
-			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
-			return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
+			final String newTextureId = TrainClientRegistry.getTrainProperties(baseTrainType).textureId;
+			return new ResourceLocation(newTextureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(newTextureId));
 		}
 	}
 
-	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {
-		return resolveTexture(trainProperties, textureId -> textureId + "_connector_" + connectorPart + ".png");
+	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, boolean isConnector, String partName) {
+		return resolveTexture(trainProperties.baseTrainType, isConnector ? trainProperties.gangwayConnectionId : trainProperties.trainBarrierId, textureId -> String.format("%s_%s_%s.png", textureId, isConnector ? "connector" : "barrier", partName));
 	}
 
 	private static class FakeBoat extends Boat {

@@ -38,7 +38,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
 
 		font = Minecraft.getInstance().font;
-		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
+		textFieldSavedRailNumber = new WidgetBetterTextField("1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
 		int additionalTextWidths = 0;
 		for (final Component additionalText : additionalTexts) {

@@ -32,7 +32,7 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 		nameText = new TranslatableComponent(nameKey);
 		colorText = new TranslatableComponent(colorKey);
 
-		textFieldName = new WidgetBetterTextField(null, "");
+		textFieldName = new WidgetBetterTextField("");
 		colorSelector = new WidgetColorSelector(this, () -> {
 		});
 	}

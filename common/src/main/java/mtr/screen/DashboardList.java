@@ -64,7 +64,7 @@ public class DashboardList implements IGui {
 	public <T> DashboardList(BiConsumer<NameColorDataBase, Integer> onFind, BiConsumer<NameColorDataBase, Integer> onDrawArea, BiConsumer<NameColorDataBase, Integer> onEdit, Runnable onSort, BiConsumer<NameColorDataBase, Integer> onAdd, BiConsumer<NameColorDataBase, Integer> onDelete, Supplier<List<T>> getList, Supplier<String> getSearch, Consumer<String> setSearch, boolean playSound) {
 		this.getSearch = getSearch;
 		this.setSearch = setSearch;
-		textFieldSearch = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.search").getString());
+		textFieldSearch = new WidgetBetterTextField(new TranslatableComponent("gui.mtr.search").getString());
 		buttonPrevPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_left.png"), 20, 40, button -> setPage(page - 1));
 		buttonNextPage = new ImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_right.png"), 20, 40, button -> setPage(page + 1));
 		buttonFind = new WidgetSilentImageButton(0, 0, 0, SQUARE_SIZE, 0, 0, 20, new ResourceLocation("mtr:textures/gui/icon_find.png"), 20, 40, button -> onClick(onFind), playSound);
