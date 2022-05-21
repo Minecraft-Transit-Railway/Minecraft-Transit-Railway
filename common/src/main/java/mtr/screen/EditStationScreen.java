@@ -44,7 +44,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A", 1);
 		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
-		textFieldExitDestination = new WidgetBetterTextField(null, "");
+		textFieldExitDestination = new WidgetBetterTextField("");
 
 		buttonAddExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
 		buttonDoneExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitParent());
@@ -173,7 +173,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 		if (editingExit != null) {
 			textFieldExitParentLetter.setValue(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setValue(editingExit.replaceAll("[^0-9]", ""));
+			textFieldExitParentNumber.setValue(editingExit.replaceAll("\\D", ""));
 		}
 		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {
 			textFieldExitDestination.setValue(data.exits.get(editingExit).get(editingDestinationIndex));

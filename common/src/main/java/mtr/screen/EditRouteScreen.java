@@ -30,7 +30,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
-		textFieldLightRailRouteNumber = new WidgetBetterTextField(null, "");
+		textFieldLightRailRouteNumber = new WidgetBetterTextField("");
 		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
 		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
 		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_route_hidden"), this::setIsRouteHidden);

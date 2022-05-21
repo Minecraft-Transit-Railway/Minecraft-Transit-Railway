@@ -438,7 +438,7 @@ public class MTR implements IPacket {
 			int port = 8888;
 			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
 			try {
-				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("[^0-9]", "")), 1025, 65535);
+				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("\\D", "")), 1025, 65535);
 			} catch (Exception ignored) {
 				try {
 					Files.write(path, Collections.singleton(String.valueOf(port)));

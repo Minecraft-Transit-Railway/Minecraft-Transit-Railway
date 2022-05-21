@@ -45,9 +45,4 @@ public class FileUploaderScreen extends ScreenMapper implements IGui {
 			UtilitiesClient.setScreen(minecraft, screen);
 		}
 	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return false;
-	}
 }
