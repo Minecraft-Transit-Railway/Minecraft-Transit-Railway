@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelRTrain extends ModelTrainBase {
+public class ModelRTrain extends ModelSimpleTrainBase {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;
@@ -222,24 +222,24 @@ public class ModelRTrain extends ModelTrainBase {
 		door_left_exterior_1 = new ModelMapper(modelDataWrapper);
 		door_left_exterior_1.setPos(0, 0, 0);
 		door_exterior_1.addChild(door_left_exterior_1);
-		door_left_exterior_1.texOffs(282, 0).addBox(-20.8F, -14, 0, 1, 14, 16, 0, false);
+		door_left_exterior_1.texOffs(283, 1).addBox(-20.8F, -14, 0, 1, 14, 15, 0, false);
 
 		door_left_top_r1 = new ModelMapper(modelDataWrapper);
 		door_left_top_r1.setPos(-20.8F, -14, 0);
 		door_left_exterior_1.addChild(door_left_top_r1);
 		setRotationAngle(door_left_top_r1, 0, 0, 0.1107F);
-		door_left_top_r1.texOffs(214, 272).addBox(0, -19, 0, 1, 19, 16, 0, false);
+		door_left_top_r1.texOffs(215, 273).addBox(0, -19, 0, 1, 19, 15, 0, false);
 
 		door_right_exterior_1 = new ModelMapper(modelDataWrapper);
 		door_right_exterior_1.setPos(0, 0, 0);
 		door_exterior_1.addChild(door_right_exterior_1);
-		door_right_exterior_1.texOffs(0, 277).addBox(-20.8F, -14, -16, 1, 14, 16, 0, false);
+		door_right_exterior_1.texOffs(1, 278).addBox(-20.8F, -14, -15, 1, 14, 15, 0, false);
 
 		door_right_top_r1 = new ModelMapper(modelDataWrapper);
 		door_right_top_r1.setPos(-20.8F, -14, 0);
 		door_right_exterior_1.addChild(door_right_top_r1);
 		setRotationAngle(door_right_top_r1, 0, 0, 0.1107F);
-		door_right_top_r1.texOffs(180, 272).addBox(0, -19, -16, 1, 19, 16, 0, false);
+		door_right_top_r1.texOffs(181, 273).addBox(0, -19, -15, 1, 19, 15, 0, false);
 
 		door_exterior_2 = new ModelMapper(modelDataWrapper);
 		door_exterior_2.setPos(0, 24, 0);
@@ -248,24 +248,24 @@ public class ModelRTrain extends ModelTrainBase {
 		door_right_exterior_2 = new ModelMapper(modelDataWrapper);
 		door_right_exterior_2.setPos(0, 0, 0);
 		door_exterior_2.addChild(door_right_exterior_2);
-		door_right_exterior_2.texOffs(282, 0).addBox(19.8F, -14, 0, 1, 14, 16, 0, true);
+		door_right_exterior_2.texOffs(283, 1).addBox(19.8F, -14, 0, 1, 14, 15, 0, true);
 
 		door_left_top_r2 = new ModelMapper(modelDataWrapper);
 		door_left_top_r2.setPos(20.8F, -14, 0);
 		door_right_exterior_2.addChild(door_left_top_r2);
 		setRotationAngle(door_left_top_r2, 0, 0, -0.1107F);
-		door_left_top_r2.texOffs(214, 272).addBox(-1, -19, 0, 1, 19, 16, 0, true);
+		door_left_top_r2.texOffs(215, 273).addBox(-1, -19, 0, 1, 19, 15, 0, true);
 
 		door_left_exterior_2 = new ModelMapper(modelDataWrapper);
 		door_left_exterior_2.setPos(0, 0, 0);
 		door_exterior_2.addChild(door_left_exterior_2);
-		door_left_exterior_2.texOffs(0, 277).addBox(19.8F, -14, -16, 1, 14, 16, 0, true);
+		door_left_exterior_2.texOffs(1, 278).addBox(19.8F, -14, -15, 1, 14, 15, 0, true);
 
 		door_right_top_r2 = new ModelMapper(modelDataWrapper);
 		door_right_top_r2.setPos(20.8F, -14, 0);
 		door_left_exterior_2.addChild(door_right_top_r2);
 		setRotationAngle(door_right_top_r2, 0, 0, -0.1107F);
-		door_right_top_r2.texOffs(180, 272).addBox(-1, -19, -16, 1, 19, 16, 0, true);
+		door_right_top_r2.texOffs(181, 273).addBox(-1, -19, -15, 1, 19, 15, 0, true);
 
 		door = new ModelMapper(modelDataWrapper);
 		door.setPos(0, 24, 0);
@@ -276,24 +276,24 @@ public class ModelRTrain extends ModelTrainBase {
 		door_left = new ModelMapper(modelDataWrapper);
 		door_left.setPos(0, 0, 0);
 		door.addChild(door_left);
-		door_left.texOffs(172, 195).addBox(-19.8F, -14, 0, 0, 14, 16, 0, false);
+		door_left.texOffs(173, 196).addBox(-19.8F, -14, 0, 0, 14, 15, 0, false);
 
 		door_left_top_r3 = new ModelMapper(modelDataWrapper);
 		door_left_top_r3.setPos(-20.8F, -14, 0);
 		door_left.addChild(door_left_top_r3);
 		setRotationAngle(door_left_top_r3, 0, 0, 0.1107F);
-		door_left_top_r3.texOffs(72, 178).addBox(1, -19, 0, 0, 19, 16, 0, false);
+		door_left_top_r3.texOffs(73, 179).addBox(1, -19, 0, 0, 19, 15, 0, false);
 
 		door_right = new ModelMapper(modelDataWrapper);
 		door_right.setPos(0, 0, 0);
 		door.addChild(door_right);
-		door_right.texOffs(118, 195).addBox(-19.8F, -14, -16, 0, 14, 16, 0, false);
+		door_right.texOffs(119, 196).addBox(-19.8F, -14, -15, 0, 14, 15, 0, false);
 
 		door_right_top_r3 = new ModelMapper(modelDataWrapper);
 		door_right_top_r3.setPos(-20.8F, -14, 0);
 		door_right.addChild(door_right_top_r3);
 		setRotationAngle(door_right_top_r3, 0, 0, 0.1107F);
-		door_right_top_r3.texOffs(0, 178).addBox(1, -19, -16, 0, 19, 16, 0, false);
+		door_right_top_r3.texOffs(1, 179).addBox(1, -19, -15, 0, 19, 15, 0, false);
 
 		end = new ModelMapper(modelDataWrapper);
 		end.setPos(0, 24, 0);
@@ -319,12 +319,12 @@ public class ModelRTrain extends ModelTrainBase {
 		seat_end_1 = new ModelMapper(modelDataWrapper);
 		seat_end_1.setPos(0, 0, 24);
 		end.addChild(seat_end_1);
-		
+
 
 		seat_end_2 = new ModelMapper(modelDataWrapper);
 		seat_end_2.setPos(0, 0, 24);
 		end.addChild(seat_end_2);
-		
+
 
 		seat_bottom_3_r1 = new ModelMapper(modelDataWrapper);
 		seat_bottom_3_r1.setPos(0, 0, 0);
@@ -428,7 +428,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		roof_light = new ModelMapper(modelDataWrapper);
 		roof_light.setPos(0, 24, 0);
-		
+
 
 		roof_light_r1 = new ModelMapper(modelDataWrapper);
 		roof_light_r1.setPos(-8.1444F, -36.2367F, 26);
@@ -450,7 +450,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		roof_end = new ModelMapper(modelDataWrapper);
 		roof_end.setPos(0, 24, 0);
-		
+
 
 		side_1 = new ModelMapper(modelDataWrapper);
 		side_1.setPos(0, 0, 0);
@@ -508,7 +508,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		roof_end_exterior = new ModelMapper(modelDataWrapper);
 		roof_end_exterior.setPos(0, 24, 0);
-		
+
 
 		side_3 = new ModelMapper(modelDataWrapper);
 		side_3.setPos(0, 0, 0);
@@ -690,20 +690,21 @@ public class ModelRTrain extends ModelTrainBase {
 		head_exterior.texOffs(230, 195).addBox(20, 0, -4, 1, 9, 12, 0, false);
 		head_exterior.texOffs(144, 137).addBox(-20, 0, -25, 40, 9, 18, 0, false);
 		head_exterior.texOffs(230, 195).addBox(-21, 0, -4, 1, 9, 12, 0, true);
-		head_exterior.texOffs(82, 122).addBox(18, -14, -7, 2, 14, 17, 0, false);
-		head_exterior.texOffs(82, 122).addBox(-20, -14, -7, 2, 14, 17, 0, true);
+		head_exterior.texOffs(247, 272).addBox(-18, -44, -7, 36, 44, 0, 0, false);
+		head_exterior.texOffs(82, 122).addBox(18, -14, -8, 2, 14, 18, 0, false);
+		head_exterior.texOffs(82, 122).addBox(-20, -14, -8, 2, 14, 18, 0, true);
 
 		upper_wall_2_r4 = new ModelMapper(modelDataWrapper);
 		upper_wall_2_r4.setPos(-20, -14, 24);
 		head_exterior.addChild(upper_wall_2_r4);
 		setRotationAngle(upper_wall_2_r4, 0, 0, 0.1107F);
-		upper_wall_2_r4.texOffs(194, 80).addBox(0, -18, -31, 2, 18, 17, 0, true);
+		upper_wall_2_r4.texOffs(194, 80).addBox(0, -18, -32, 2, 18, 18, 0, true);
 
 		upper_wall_1_r3 = new ModelMapper(modelDataWrapper);
 		upper_wall_1_r3.setPos(20, -14, 24);
 		head_exterior.addChild(upper_wall_1_r3);
 		setRotationAngle(upper_wall_1_r3, 0, 0, -0.1107F);
-		upper_wall_1_r3.texOffs(194, 80).addBox(-2, -18, -31, 2, 18, 17, 0, false);
+		upper_wall_1_r3.texOffs(194, 80).addBox(-2, -18, -32, 2, 18, 18, 0, false);
 
 		bottom_r1 = new ModelMapper(modelDataWrapper);
 		bottom_r1.setPos(-20, 7.263F, -15.3805F);
@@ -756,7 +757,7 @@ public class ModelRTrain extends ModelTrainBase {
 		front_side_2 = new ModelMapper(modelDataWrapper);
 		front_side_2.setPos(0, 0, 0);
 		head_exterior.addChild(front_side_2);
-		
+
 
 		front_side_lower_4_r1 = new ModelMapper(modelDataWrapper);
 		front_side_lower_4_r1.setPos(-20, 7, -24.9988F);
@@ -773,7 +774,7 @@ public class ModelRTrain extends ModelTrainBase {
 		front_panel = new ModelMapper(modelDataWrapper);
 		front_panel.setPos(0, 0, 0);
 		head_exterior.addChild(front_panel);
-		
+
 
 		panel_6_r1 = new ModelMapper(modelDataWrapper);
 		panel_6_r1.setPos(-7.5573F, -13.881F, -33.7427F);
@@ -832,12 +833,12 @@ public class ModelRTrain extends ModelTrainBase {
 		nose = new ModelMapper(modelDataWrapper);
 		nose.setPos(0, 0, 0);
 		head_exterior.addChild(nose);
-		
+
 
 		nose_edge = new ModelMapper(modelDataWrapper);
 		nose_edge.setPos(0, 0, 0);
 		nose.addChild(nose_edge);
-		
+
 
 		edge_6_r1 = new ModelMapper(modelDataWrapper);
 		edge_6_r1.setPos(7.7367F, 6, -40.4098F);
@@ -855,13 +856,13 @@ public class ModelRTrain extends ModelTrainBase {
 		edge_4_r1.setPos(-15.3656F, 13, -38.0024F);
 		nose_edge.addChild(edge_4_r1);
 		setRotationAngle(edge_4_r1, 0, 0.3054F, 0);
-		edge_4_r1.texOffs(103, 122).addBox(0, -15.8F, 0, 8, 9, 0, 0, true);
+		edge_4_r1.texOffs(104, 122).addBox(0, -15.8F, 0, 8, 9, 0, 0, true);
 
 		edge_3_r1 = new ModelMapper(modelDataWrapper);
 		edge_3_r1.setPos(15.3664F, -2, -38.0042F);
 		nose_edge.addChild(edge_3_r1);
 		setRotationAngle(edge_3_r1, 0, -0.3054F, 0);
-		edge_3_r1.texOffs(103, 122).addBox(-8, -0.8F, 0, 8, 9, 0, 0, false);
+		edge_3_r1.texOffs(104, 122).addBox(-8, -0.8F, 0, 8, 9, 0, 0, false);
 
 		edge_2_r1 = new ModelMapper(modelDataWrapper);
 		edge_2_r1.setPos(18.052F, 17, -33.7867F);
@@ -878,7 +879,7 @@ public class ModelRTrain extends ModelTrainBase {
 		nose_top = new ModelMapper(modelDataWrapper);
 		nose_top.setPos(0, 0, 0);
 		nose.addChild(nose_top);
-		
+
 
 		nose_top_3_r1 = new ModelMapper(modelDataWrapper);
 		nose_top_3_r1.setPos(7.4428F, -2.9742F, -35.178F);
@@ -901,9 +902,9 @@ public class ModelRTrain extends ModelTrainBase {
 		driver_door = new ModelMapper(modelDataWrapper);
 		driver_door.setPos(0, 0, 0);
 		head_exterior.addChild(driver_door);
-		driver_door.texOffs(284, 245).addBox(18, -14, -20, 1, 14, 13, 0, false);
+		driver_door.texOffs(285, 246).addBox(18, -14, -20, 1, 14, 12, 0, false);
 		driver_door.texOffs(10, 33).addBox(19, -14, -20, 1, 14, 0, 0, false);
-		driver_door.texOffs(284, 245).addBox(-19, -14, -20, 1, 14, 13, 0, true);
+		driver_door.texOffs(285, 246).addBox(-19, -14, -20, 1, 14, 12, 0, true);
 		driver_door.texOffs(10, 33).addBox(-20, -14, -20, 1, 14, 0, 0, true);
 
 		driver_door_edge_upper_2_r1 = new ModelMapper(modelDataWrapper);
@@ -912,7 +913,7 @@ public class ModelRTrain extends ModelTrainBase {
 		setRotationAngle(driver_door_edge_upper_2_r1, 0, 0, 0.1107F);
 		driver_door_edge_upper_2_r1.texOffs(26, 54).addBox(0, -18, -18, 1, 18, 0, 0, true);
 		driver_door_edge_upper_2_r1.texOffs(11, 17).addBox(0, -18, -15, 1, 0, 10, 0, true);
-		driver_door_edge_upper_2_r1.texOffs(292, 85).addBox(1, -18, -18, 1, 18, 13, 0, true);
+		driver_door_edge_upper_2_r1.texOffs(293, 86).addBox(1, -18, -18, 1, 18, 12, 0, true);
 		driver_door_edge_upper_2_r1.texOffs(15, 17).addBox(-1, -18, -23, 2, 0, 8, 0, true);
 
 		driver_door_edge_roof_3_r1 = new ModelMapper(modelDataWrapper);
@@ -922,7 +923,7 @@ public class ModelRTrain extends ModelTrainBase {
 		driver_door_edge_roof_3_r1.texOffs(15, 17).addBox(-1, -18, -26, 2, 0, 8, 0, false);
 		driver_door_edge_roof_3_r1.texOffs(11, 17).addBox(-1, -18, -18, 1, 0, 10, 0, false);
 		driver_door_edge_roof_3_r1.texOffs(26, 54).addBox(-1, -18, -21, 1, 18, 0, 0, false);
-		driver_door_edge_roof_3_r1.texOffs(292, 85).addBox(-2, -18, -21, 1, 18, 13, 0, false);
+		driver_door_edge_roof_3_r1.texOffs(293, 86).addBox(-2, -18, -21, 1, 18, 12, 0, false);
 
 		roof_vent = new ModelMapper(modelDataWrapper);
 		roof_vent.setPos(0, 24, 0);
@@ -942,7 +943,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		roof_head_exterior = new ModelMapper(modelDataWrapper);
 		roof_head_exterior.setPos(0, 24, 0);
-		
+
 
 		side_7 = new ModelMapper(modelDataWrapper);
 		side_7.setPos(0, 0, 0);
@@ -968,10 +969,10 @@ public class ModelRTrain extends ModelTrainBase {
 		outer_roof_16_r1.texOffs(0, 112).addBox(-4, 0, -9, 4, 0, 9, 0, false);
 
 		outer_roof_15_r1 = new ModelMapper(modelDataWrapper);
-		outer_roof_15_r1.setPos(-16.7234F, -40.5947F, -15.9066F);
+		outer_roof_15_r1.setPos(-16.566F, -41.5562F, -15.0338F);
 		side_7.addChild(outer_roof_15_r1);
-		setRotationAngle(outer_roof_15_r1, 0.2184F, 0.0426F, -0.9505F);
-		outer_roof_15_r1.texOffs(27, 103).addBox(-4, 0, -9, 5, 0, 9, 0, false);
+		setRotationAngle(outer_roof_15_r1, 0.2618F, 0, -1.0472F);
+		outer_roof_15_r1.texOffs(25, 103).addBox(-8, 0, -12, 8, 0, 11, 0, false);
 
 		outer_roof_14_r1 = new ModelMapper(modelDataWrapper);
 		outer_roof_14_r1.setPos(-18.3436F, -37.9636F, -17);
@@ -1001,7 +1002,7 @@ public class ModelRTrain extends ModelTrainBase {
 		outer_roof_10_r3.setPos(-17.3427F, -39.6952F, -4);
 		side_7.addChild(outer_roof_10_r3);
 		setRotationAngle(outer_roof_10_r3, 0, 0, -1.0472F);
-		outer_roof_10_r3.texOffs(236, 54).addBox(-2, 0, -12, 4, 1, 26, 0, false);
+		outer_roof_10_r3.texOffs(236, 54).addBox(-2, -0.1F, -12, 4, 1, 26, 0, false);
 
 		side_8 = new ModelMapper(modelDataWrapper);
 		side_8.setPos(0, 0, 0);
@@ -1027,10 +1028,10 @@ public class ModelRTrain extends ModelTrainBase {
 		outer_roof_17_r2.texOffs(0, 112).addBox(0, 0, -9, 4, 0, 9, 0, true);
 
 		outer_roof_16_r2 = new ModelMapper(modelDataWrapper);
-		outer_roof_16_r2.setPos(16.7234F, -40.5947F, -15.9066F);
+		outer_roof_16_r2.setPos(16.566F, -41.5562F, -15.0338F);
 		side_8.addChild(outer_roof_16_r2);
-		setRotationAngle(outer_roof_16_r2, 0.2184F, -0.0426F, 0.9505F);
-		outer_roof_16_r2.texOffs(27, 103).addBox(-1, 0, -9, 5, 0, 9, 0, true);
+		setRotationAngle(outer_roof_16_r2, 0.2618F, 0, 1.0472F);
+		outer_roof_16_r2.texOffs(25, 103).addBox(0, 0, -12, 8, 0, 11, 0, true);
 
 		outer_roof_15_r2 = new ModelMapper(modelDataWrapper);
 		outer_roof_15_r2.setPos(18.3436F, -37.9636F, -17);
@@ -1060,11 +1061,11 @@ public class ModelRTrain extends ModelTrainBase {
 		outer_roof_11_r3.setPos(17.3427F, -39.6952F, -4);
 		side_8.addChild(outer_roof_11_r3);
 		setRotationAngle(outer_roof_11_r3, 0, 0, 1.0472F);
-		outer_roof_11_r3.texOffs(236, 54).addBox(-2, 0, -12, 4, 1, 26, 0, true);
+		outer_roof_11_r3.texOffs(236, 54).addBox(-2, -0.1F, -12, 4, 1, 26, 0, true);
 
 		headlights = new ModelMapper(modelDataWrapper);
 		headlights.setPos(0, 24, 0);
-		
+
 
 		headlight_2_r1 = new ModelMapper(modelDataWrapper);
 		headlight_2_r1.setPos(7.132F, -13.881F, -33.7767F);
@@ -1080,7 +1081,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		tail_lights = new ModelMapper(modelDataWrapper);
 		tail_lights.setPos(0, 24, 0);
-		
+
 
 		tail_light_2_r1 = new ModelMapper(modelDataWrapper);
 		tail_light_2_r1.setPos(7.132F, -13.881F, -33.7767F);
@@ -1096,7 +1097,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		roof_head = new ModelMapper(modelDataWrapper);
 		roof_head.setPos(0, 24, 0);
-		
+
 
 		side_5 = new ModelMapper(modelDataWrapper);
 		side_5.setPos(0, 0, 0);
@@ -1126,7 +1127,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		door_light_on = new ModelMapper(modelDataWrapper);
 		door_light_on.setPos(0, 24, 0);
-		
+
 
 		light_r1 = new ModelMapper(modelDataWrapper);
 		light_r1.setPos(-20, -14, 0);
@@ -1136,7 +1137,7 @@ public class ModelRTrain extends ModelTrainBase {
 
 		door_light_off = new ModelMapper(modelDataWrapper);
 		door_light_off.setPos(0, 24, 0);
-		
+
 
 		light_r2 = new ModelMapper(modelDataWrapper);
 		light_r2.setPos(-20, -14, 0);
@@ -1207,8 +1208,10 @@ public class ModelRTrain extends ModelTrainBase {
 		door_light_off.setModelPart();
 		end_handrail.setModelPart();
 	}
+
 	private static final int DOOR_MAX = 14;
-	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_c_train_left.png", "door_overlay_c_train_right.png");
+	private static final ModelDoorOverlay MODEL_DOOR_OVERLAY = new ModelDoorOverlay(DOOR_MAX, 6.34F, "door_overlay_r_train_left.png", "door_overlay_r_train_right.png");
+	private static final ModelDoorOverlayTopSP1900 MODEL_DOOR_OVERLAY_TOP = new ModelDoorOverlayTopSP1900();
 
 	@Override
 	protected void renderWindowPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
@@ -1250,6 +1253,7 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected void renderDoorPositions(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean isEnd1Head, boolean isEnd2Head) {
 		final boolean middleDoor = isIndex(getDoorPositions().length / 2, position, getDoorPositions());
@@ -1299,6 +1303,7 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected void renderHeadPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
@@ -1321,6 +1326,7 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected void renderHeadPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, boolean useHeadlights) {
 		switch (renderStage) {
@@ -1343,6 +1349,7 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected void renderEndPosition1(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
@@ -1353,7 +1360,7 @@ public class ModelRTrain extends ModelTrainBase {
 				renderOnce(end, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnce(roof_end, matrices, vertices, light, position);
-					renderMirror(side_panel, matrices, vertices, light, position +9);
+					renderMirror(side_panel, matrices, vertices, light, position + 9);
 					renderOnce(end_handrail, matrices, vertices, light, position);
 				}
 				break;
@@ -1367,6 +1374,7 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected void renderEndPosition2(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, int position, boolean renderDetails, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ) {
 		switch (renderStage) {
@@ -1377,7 +1385,7 @@ public class ModelRTrain extends ModelTrainBase {
 				renderOnceFlipped(end, matrices, vertices, light, position);
 				if (renderDetails) {
 					renderOnceFlipped(roof_end, matrices, vertices, light, position);
-					renderMirror(side_panel, matrices, vertices, light, position -9);
+					renderMirror(side_panel, matrices, vertices, light, position - 9);
 					renderOnceFlipped(end_handrail, matrices, vertices, light, position);
 				}
 				break;
@@ -1391,38 +1399,47 @@ public class ModelRTrain extends ModelTrainBase {
 				break;
 		}
 	}
+
 	@Override
 	protected ModelDoorOverlay getModelDoorOverlay() {
-		return null;
+		return MODEL_DOOR_OVERLAY;
 	}
+
 	@Override
 	protected ModelDoorOverlayTopBase getModelDoorOverlayTop() {
-		return null;
+		return MODEL_DOOR_OVERLAY_TOP;
 	}
+
 	@Override
 	protected int[] getWindowPositions() {
 		return new int[]{-120, -40, 40, 120};
 	}
+
 	@Override
 	protected int[] getDoorPositions() {
 		return new int[]{-160, -80, 0, 80, 160};
 	}
+
 	@Override
 	protected int[] getEndPositions() {
 		return new int[]{-184, 184};
 	}
+
 	@Override
 	protected int[] getBogiePositions() {
 		return new int[]{-136, 136};
 	}
+
 	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}
+
 	@Override
 	protected float getDoorAnimationZ(float value, boolean opening) {
 		return smoothEnds(0, DOOR_MAX, 0, 0.5F, value);
 	}
+
 	private boolean isEvenWindow(int position) {
 		return isIndex(1, position, getWindowPositions()) || isIndex(3, position, getWindowPositions());
 	}
