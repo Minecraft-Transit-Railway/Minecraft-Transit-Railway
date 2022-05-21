@@ -82,6 +82,9 @@ public class TrainClientRegistry {
 		register(TrainType.S_TRAIN, new ModelSTrain(), "mtr:textures/entity/s_train", "s_train", "sp1900", 0xC1CD23, "mtr:textures/entity/s_train", "", 0, 42, 0.5F, false);
 		register(TrainType.S_TRAIN_SMALL, new ModelSTrainSmall(), "mtr:textures/entity/s_train", "s_train", "sp1900", 0xC1CD23, "mtr:textures/entity/s_train", "", 0, 42, 0.5F, false);
 		register(TrainType.S_TRAIN_MINI, new ModelSTrainMini(), "mtr:textures/entity/s_train", "s_train", "sp1900", 0xC1CD23, "mtr:textures/entity/s_train", "", 0, 42, 0.5F, false);
+		register(TrainType.Q_TRAIN, new ModelQTrain(), "mtr:textures/entity/q_train", "c_train", "sp1900", 0xFDD900, "mtr:textures/entity/s_train", "", 0, 69, 0.5F, false);
+		register(TrainType.Q_TRAIN_SMALL, new ModelQTrainSmall(), "mtr:textures/entity/q_train", "c_train", "sp1900", 0xFDD900, "mtr:textures/entity/s_train", "", 0, 69, 0.5F, false);
+		register(TrainType.Q_TRAIN_MINI, new ModelQTrainMini(), "mtr:textures/entity/q_train", "c_train", "sp1900", 0xFDD900, "mtr:textures/entity/s_train", "", 0, 69, 0.5F, false);
 		register(TrainType.A_TRAIN_TCL, new ModelATrain(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", 0xF69447, "mtr:textures/entity/a_train", "", 0, 78, 0.5F, false);
 		register(TrainType.A_TRAIN_TCL_SMALL, new ModelATrainSmall(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", 0xF69447, "mtr:textures/entity/a_train", "", 0, 78, 0.5F, false);
 		register(TrainType.A_TRAIN_TCL_MINI, new ModelATrainMini(false), "mtr:textures/entity/a_train_tcl", "a_train", "a_train", 0xF69447, "mtr:textures/entity/a_train", "", 0, 78, 0.5F, false);
