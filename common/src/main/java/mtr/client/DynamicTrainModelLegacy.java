@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class DynamicTrainModelLegacy extends ModelSimpleTrainBase {
+public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IResourcePackCreatorProperties {
 
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
@@ -230,6 +230,85 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase {
 			for (int i = 0; i < array.length; i++) {
 				array[i] = function.apply(jsonArray.get(i));
 			}
+		}
+	}
+
+	public static void migrateOldSchema(JsonObject jsonObject) {
+		final JsonArray partsArray = new JsonArray();
+		addParts(jsonObject, partsArray, "parts_normal", ResourcePackCreatorProperties.RenderCondition.ALL, "", "");
+		addParts(jsonObject, partsArray, "parts_head_1", ResourcePackCreatorProperties.RenderCondition.ALL, "1", "%1");
+		addParts(jsonObject, partsArray, "parts_head_2", ResourcePackCreatorProperties.RenderCondition.ALL, "-1", "%1");
+		addParts(jsonObject, partsArray, "parts_head_1_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "1", "%1");
+		addParts(jsonObject, partsArray, "parts_head_1_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "1", "%1");
+		addParts(jsonObject, partsArray, "parts_head_2_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "-1", "%1");
+		addParts(jsonObject, partsArray, "parts_head_2_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "-1", "%1");
+		addParts(jsonObject, partsArray, "parts_end_1", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "1");
+		addParts(jsonObject, partsArray, "parts_end_2", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "-1");
+		addParts(jsonObject, partsArray, "parts_door_opened", ResourcePackCreatorProperties.RenderCondition.DOORS_OPEN, "", "");
+		addParts(jsonObject, partsArray, "parts_door_closed", ResourcePackCreatorProperties.RenderCondition.DOORS_CLOSED, "", "");
+		jsonObject.add("parts", partsArray);
+		jsonObject.remove("parts_normal");
+		jsonObject.remove("parts_head_1");
+		jsonObject.remove("parts_head_2");
+		jsonObject.remove("parts_head_1_headlights");
+		jsonObject.remove("parts_head_1_tail_lights");
+		jsonObject.remove("parts_head_2_headlights");
+		jsonObject.remove("parts_head_2_tail_lights");
+		jsonObject.remove("parts_end_1");
+		jsonObject.remove("parts_end_2");
+		jsonObject.remove("parts_door_opened");
+		jsonObject.remove("parts_door_closed");
+	}
+
+	private static void addParts(JsonObject jsonObject, JsonArray partsArray, String key, ResourcePackCreatorProperties.RenderCondition renderCondition, String whitelistedCars, String blacklistedCars) {
+		jsonObject.getAsJsonArray(key).forEach(partElement -> {
+			final JsonObject partObject = partElement.getAsJsonObject();
+
+			for (int i = 0; i < 2; i++) {
+				final JsonObject newPartObject = new JsonObject();
+				final String checkKey = i == 0 ? "positions" : "positions_flipped";
+				if (!partObject.has("part_name") || !partObject.has(checkKey) || !partObject.get(checkKey).isJsonArray()) {
+					continue;
+				}
+
+				newPartObject.addProperty(KEY_PROPERTIES_NAME, partObject.get("part_name").getAsString());
+				newPartObject.add(KEY_PROPERTIES_POSITIONS, partObject.getAsJsonArray(checkKey));
+				newPartObject.addProperty(KEY_PROPERTIES_MIRROR, i == 1);
+				newPartObject.addProperty(KEY_PROPERTIES_STAGE, getOrDefault(partObject, "stage", "", JsonElement::getAsString).toUpperCase());
+				newPartObject.addProperty(KEY_PROPERTIES_SKIP_RENDERING_IF_TOO_FAR, getOrDefault(partObject, "skip_rendering_if_too_far", false, JsonElement::getAsBoolean));
+				final String newDoorOffsetString;
+				switch (getOrDefault(partObject, "door_offset_z", "", JsonElement::getAsString)) {
+					case "left":
+						newDoorOffsetString = "LEFT_POSITIVE";
+						break;
+					case "left_negative":
+						newDoorOffsetString = "LEFT_NEGATIVE";
+						break;
+					case "right":
+						newDoorOffsetString = "RIGHT_POSITIVE";
+						break;
+					case "right_negative":
+						newDoorOffsetString = "RIGHT_NEGATIVE";
+						break;
+					default:
+						newDoorOffsetString = "NONE";
+						break;
+				}
+				newPartObject.addProperty(KEY_PROPERTIES_DOOR_OFFSET, newDoorOffsetString);
+				newPartObject.addProperty(KEY_PROPERTIES_RENDER_CONDITION, renderCondition.toString());
+				newPartObject.addProperty(KEY_PROPERTIES_WHITELISTED_CARS, whitelistedCars);
+				newPartObject.addProperty(KEY_PROPERTIES_BLACKLISTED_CARS, blacklistedCars);
+
+				partsArray.add(newPartObject);
+			}
+		});
+	}
+
+	private static <T> T getOrDefault(JsonObject jsonObject, String key, T defaultValue, Function<JsonElement, T> function) {
+		if (jsonObject.has(key)) {
+			return function.apply(jsonObject.get(key));
+		} else {
+			return defaultValue;
 		}
 	}
 }

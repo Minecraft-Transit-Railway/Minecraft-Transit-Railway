@@ -60,6 +60,7 @@ public class ResourcePackCreatorProperties implements IResourcePackCreatorProper
 	public void loadPropertiesFile(Path path) {
 		readJson(path, (fileName, jsonObject) -> {
 			propertiesFileName = fileName;
+			DynamicTrainModelLegacy.migrateOldSchema(jsonObject);
 			IResourcePackCreatorProperties.checkSchema(jsonObject);
 			propertiesObject = jsonObject;
 			updateModel();

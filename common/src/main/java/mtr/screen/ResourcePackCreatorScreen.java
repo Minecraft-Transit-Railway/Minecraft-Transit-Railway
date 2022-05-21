@@ -491,7 +491,7 @@ public class ResourcePackCreatorScreen extends ScreenMapper implements IResource
 			final int light = LightTexture.pack((int) Math.round(brightness / 100D * 0xB), 0xF000);
 			for (int i = 0; i < cars; i++) {
 				matrices.pushPose();
-				matrices.translate(0, 0, (i - (cars - 1) / 2F) * RenderTrains.creatorProperties.getLength() + translation);
+				matrices.translate(0, 0, (i - (cars - 1) / 2F) * (RenderTrains.creatorProperties.getLength() + 1) + translation);
 				RenderTrains.creatorProperties.render(matrices, i, cars, head1IsFront, doorLeftValue, doorRightValue, openingRight || openingLeft, light);
 				matrices.popPose();
 			}

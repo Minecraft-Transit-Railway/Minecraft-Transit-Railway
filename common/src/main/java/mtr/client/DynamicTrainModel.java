@@ -19,7 +19,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 	private final Map<String, ModelMapper> parts = new HashMap<>();
 	private final JsonObject properties;
 	private final int doorMax;
-	private final Map<Integer, Map<String, boolean[]>> whitelistBlacklistCache = new HashMap<>();
+	private final Map<String, Boolean> whitelistBlacklistCache = new HashMap<>();
 
 	public DynamicTrainModel(JsonObject model, JsonObject properties) {
 		final JsonObject resolution = model.getAsJsonObject("resolution");
@@ -86,27 +86,20 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				return;
 			}
 
-			final String partName = partObject.get(KEY_PROPERTIES_NAME).getAsString();
-			if (!whitelistBlacklistCache.containsKey(trainCars)) {
-				whitelistBlacklistCache.put(trainCars, new HashMap<>());
-			}
-
-			final boolean[] whitelistBlacklists;
-			if (whitelistBlacklistCache.get(trainCars).containsKey(partName)) {
-				whitelistBlacklists = whitelistBlacklistCache.get(trainCars).get(partName);
+			final String whitelistedCars = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString();
+			final String blacklistedCars = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString();
+			final String key = String.format("%s|%s|%s|%s", trainCars, currentCar, whitelistedCars, blacklistedCars);
+			final boolean skip;
+			if (whitelistBlacklistCache.containsKey(key)) {
+				skip = whitelistBlacklistCache.get(key);
 			} else {
-				whitelistBlacklists = new boolean[trainCars];
-				final String[] whitelistedCarsFilters = partObject.get(KEY_PROPERTIES_WHITELISTED_CARS).getAsString().split(",");
-				final String[] blacklistedCarsFilters = partObject.get(KEY_PROPERTIES_BLACKLISTED_CARS).getAsString().split(",");
-
-				for (int i = 0; i < trainCars; i++) {
-					whitelistBlacklists[i] = matchesFilter(blacklistedCarsFilters, i, trainCars) > matchesFilter(whitelistedCarsFilters, i, trainCars);
-				}
-
-				whitelistBlacklistCache.get(trainCars).put(partName, whitelistBlacklists);
+				final String[] whitelistedCarsFilters = whitelistedCars.split(",");
+				final String[] blacklistedCarsFilters = blacklistedCars.split(",");
+				skip = matchesFilter(blacklistedCarsFilters, currentCar, trainCars) > matchesFilter(whitelistedCarsFilters, currentCar, trainCars);
+				whitelistBlacklistCache.put(key, skip);
 			}
 
-			if (whitelistBlacklists[currentCar]) {
+			if (skip) {
 				return;
 			}
 
@@ -144,7 +137,7 @@ public class DynamicTrainModel extends ModelTrainBase implements IResourcePackCr
 				return;
 			}
 
-			final ModelMapper part = parts.get(partName);
+			final ModelMapper part = parts.get(partObject.get(KEY_PROPERTIES_NAME).getAsString());
 
 			if (part != null) {
 				final float zOffset;
