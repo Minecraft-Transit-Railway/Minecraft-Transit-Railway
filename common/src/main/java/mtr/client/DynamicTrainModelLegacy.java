@@ -234,7 +234,7 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	}
 
 	public static void migrateOldSchema(JsonObject jsonObject) {
-		final JsonArray partsArray = new JsonArray();
+		final JsonArray partsArray = jsonObject.has("parts") ? jsonObject.getAsJsonArray("parts") : new JsonArray();
 		addParts(jsonObject, partsArray, "parts_normal", ResourcePackCreatorProperties.RenderCondition.ALL, "", "");
 		addParts(jsonObject, partsArray, "parts_head_1", ResourcePackCreatorProperties.RenderCondition.ALL, "1", "%1");
 		addParts(jsonObject, partsArray, "parts_head_2", ResourcePackCreatorProperties.RenderCondition.ALL, "-1", "%1");
@@ -261,6 +261,10 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	}
 
 	private static void addParts(JsonObject jsonObject, JsonArray partsArray, String key, ResourcePackCreatorProperties.RenderCondition renderCondition, String whitelistedCars, String blacklistedCars) {
+		if (!jsonObject.has(key)) {
+			return;
+		}
+
 		jsonObject.getAsJsonArray(key).forEach(partElement -> {
 			final JsonObject partObject = partElement.getAsJsonObject();
 
