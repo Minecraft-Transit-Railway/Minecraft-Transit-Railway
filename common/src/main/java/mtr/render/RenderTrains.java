@@ -51,6 +51,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static mtr.client.ClientData.TRAINS;
+
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
 	public static int maxTrainRenderDistance;
@@ -64,6 +66,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
+	public static int prevTrainCount;
 	private static UUID renderedUuid;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
@@ -141,13 +144,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final float cameraYaw = camera.getYRot();
 		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
-
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
+		TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 			if (trainProperties.model == null && isTranslucent) {
 				return;
 			}
-
 			matrices.pushPose();
 			if (playerOffset != null) {
 				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
@@ -307,17 +308,16 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			}
 		}));
 		if (!Config.hideTranslucentParts()) {
-			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
+			TRAINS.forEach(TrainClient::renderTranslucent);
 		}
 
 		final boolean renderColors = isHoldingRailRelated(player);
-		final int maxRailDistance = renderDistanceChunks * 16;
+		final int maxRailDistance = Config.trackRenderDistance() + 1;
 		final Map<UUID, RailType> renderedRailMap = new HashMap<>();
 		ClientData.RAILS.forEach((startPos, railMap) -> railMap.forEach((endPos, rail) -> {
 			if (!RailwayData.isBetween(player.getX(), startPos.getX(), endPos.getX(), maxRailDistance) || !RailwayData.isBetween(player.getZ(), startPos.getZ(), endPos.getZ(), maxRailDistance)) {
 				return;
 			}
-
 			final UUID railProduct = PathData.getRailProduct(startPos, endPos);
 			if (renderedRailMap.containsKey(railProduct)) {
 				if (renderedRailMap.get(railProduct) == rail.railType) {
@@ -476,9 +476,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
-
-		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
-			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains()) {
+				renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}
 
@@ -546,3 +545,4 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		void renderCallback(int light, BlockPos posAverage);
 	}
 }
+

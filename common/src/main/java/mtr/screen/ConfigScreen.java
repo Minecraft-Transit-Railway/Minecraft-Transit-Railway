@@ -21,16 +21,20 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private boolean hideSpecialRailColors;
 	private boolean hideTranslucentParts;
 	private boolean useDynamicFPS;
-
+	private boolean hideAllTrains;
+	private boolean hideAllTracks;
 	private final Button buttonUseMTRFont;
 	private final Button buttonShowAnnouncementMessages;
 	private final Button buttonUseTTSAnnouncements;
 	private final Button buttonHideSpecialRailColors;
 	private final Button buttonHideTranslucentParts;
 	private final Button buttonUseDynamicFPS;
+	private final Button buttonHideAllTrains;
+	private final Button buttonHideAllTracks;
 	private final WidgetShorterSlider sliderTrackTextureOffset;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final WidgetShorterSlider sliderTrainRenderDistanceRatio;
+	private final WidgetShorterSlider sliderTrackRenderDistance;
 	private final Button buttonSupportPatreon;
 
 	private static final int BUTTON_WIDTH = 60;
@@ -63,9 +67,18 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			useDynamicFPS = Config.setUseDynamicFPS(!useDynamicFPS);
 			setButtonText(button, useDynamicFPS);
 		});
+		buttonHideAllTrains = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+			hideAllTrains = Config.hideAllTrains(!hideAllTrains);
+			setButtonText(button, hideAllTrains);
+		});
+		buttonHideAllTracks = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+			hideAllTracks = Config.hideAllTracks(!hideAllTracks);
+			setButtonText(button, hideAllTracks);
+		});
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
+		sliderTrackRenderDistance = new WidgetShorterSlider(0, 0, Config.TRACK_RENDER_DISTANCE_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRACK_RENDER_DISTANCE_COUNT), null);
 		buttonSupportPatreon = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
@@ -79,6 +92,8 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		hideSpecialRailColors = Config.hideSpecialRailColors();
 		hideTranslucentParts = Config.hideTranslucentParts();
 		useDynamicFPS = Config.useDynamicFPS();
+		hideAllTrains = Config.hideAllTrains();
+		hideAllTracks = Config.hideAllTracks();
 
 		int i = 1;
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
@@ -87,9 +102,12 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonHideAllTrains, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonHideAllTracks, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+		IDrawing.setPositionAndWidth(sliderTrackRenderDistance, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
 		setButtonText(buttonShowAnnouncementMessages, showAnnouncementMessages);
@@ -97,12 +115,16 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		setButtonText(buttonHideSpecialRailColors, hideSpecialRailColors);
 		setButtonText(buttonHideTranslucentParts, hideTranslucentParts);
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
+		setButtonText(buttonHideAllTrains, hideAllTrains);
+		setButtonText(buttonHideAllTracks, hideAllTracks);
 		sliderTrackTextureOffset.setHeight(BUTTON_HEIGHT);
 		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
 		sliderDynamicTextureResolution.setValue(Config.dynamicTextureResolution());
 		sliderTrainRenderDistanceRatio.setHeight(BUTTON_HEIGHT);
 		sliderTrainRenderDistanceRatio.setValue(Config.trainRenderDistanceRatio());
+		sliderTrackRenderDistance.setHeight(BUTTON_HEIGHT);
+		sliderTrackRenderDistance.setValue(Config.trackRenderDistance());
 		buttonSupportPatreon.setMessage(new TranslatableComponent("gui.mtr.support"));
 
 		addDrawableChild(buttonUseMTRFont);
@@ -111,9 +133,12 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		addDrawableChild(buttonHideSpecialRailColors);
 		addDrawableChild(buttonHideTranslucentParts);
 		addDrawableChild(buttonUseDynamicFPS);
+		addDrawableChild(buttonHideAllTrains);
+		addDrawableChild(buttonHideAllTracks);
 		addDrawableChild(sliderTrackTextureOffset);
 		addDrawableChild(sliderDynamicTextureResolution);
 		addDrawableChild(sliderTrainRenderDistanceRatio);
+		addDrawableChild(sliderTrackRenderDistance);
 		addDrawableChild(buttonSupportPatreon);
 	}
 
@@ -131,9 +156,12 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_special_rail_colors"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_translucent_parts"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.use_dynamic_fps"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_all_vehicles"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_all_tracks"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.vehicle_render_distance_ratio"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, new TranslatableComponent("options.mtr.track_rendering_distance"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.support_patreon"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 
 			final int yStart2 = BUTTON_HEIGHT * (i + 1) + yStart1;
@@ -173,6 +201,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		Config.setTrackTextureOffset(sliderTrackTextureOffset.getIntValue());
 		Config.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		Config.setTrainRenderDistanceRatio(sliderTrainRenderDistanceRatio.getIntValue());
+		Config.setTrackRenderDistance(sliderTrackRenderDistance.getIntValue());
 		ClientData.DATA_CACHE.sync();
 		ClientData.SIGNAL_BLOCKS.writeCache();
 	}

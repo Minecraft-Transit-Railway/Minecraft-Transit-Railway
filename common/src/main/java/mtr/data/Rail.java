@@ -1,6 +1,7 @@
 package mtr.data;
 
 import mtr.block.BlockNode;
+import mtr.client.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -434,7 +435,9 @@ public class Rail extends SerializedDataBase {
 			final double y1 = getPositionY(i + rawValueOffset);
 			final double y2 = getPositionY(i + increment + rawValueOffset);
 
-			callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
+			if (!Config.hideAllTracks()) {
+				callback.renderRail(corner1.x, corner1.z, corner2.x, corner2.z, corner3.x, corner3.z, corner4.x, corner4.z, y1, y2);
+			}
 		}
 	}
 

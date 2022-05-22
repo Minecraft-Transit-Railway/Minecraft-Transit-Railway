@@ -53,7 +53,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 				textFieldMaxTrains.setValue("1");
 			}
 		});
-		buttonDisableTrain = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.disable_train"), checked -> {});
+		buttonDisableTrain = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.disable_vehicle"), checked -> {});
 		oldAcceleration = savedRailBase.getAccelerationConstant();
 	}
 

@@ -24,11 +24,15 @@ public class Config {
 	private static int trackTextureOffset;
 	private static int dynamicTextureResolution = 2;
 	private static int trainRenderDistanceRatio = 7;
-
+	private static int trackRenderDistance = 16;
+	private static int maxTrainsThatShow = 16;
+	private static boolean hideAllTrains;
+	private static boolean hideAllTracks;
 	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
 	public static final int TRACK_OFFSET_COUNT = 32;
 	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
 	public static final int TRAIN_RENDER_DISTANCE_RATIO_COUNT = 16;
+	public static final int TRACK_RENDER_DISTANCE_COUNT = 128;
 	private static final Path CONFIG_FILE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr.json");
 	private static final String USE_MTR_FONT_KEY = "use_mtr_font";
 	private static final String SHOW_ANNOUNCEMENT_MESSAGES = "show_announcement_messages";
@@ -38,7 +42,9 @@ public class Config {
 	private static final String TRACK_TEXTURE_OFFSET = "track_texture_offset";
 	private static final String DYNAMIC_TEXTURE_RESOLUTION = "dynamic texture resolution";
 	private static final String TRAIN_RENDER_DISTANCE_RATIO = "train_render_distance_ratio";
-
+	private static final String TRACK_RENDER_DISTANCE = "track_rendering_distance";
+	private static final String HIDE_ALL_TRAINS = "hide_all_trains";
+	private static final String HIDE_ALL_TRACKS = "hide_all_tracks";
 	public static boolean useMTRFont() {
 		return useMTRFont;
 	}
@@ -73,6 +79,22 @@ public class Config {
 
 	public static int trainRenderDistanceRatio() {
 		return trainRenderDistanceRatio;
+	}
+
+	public static int trackRenderDistance() {
+		return trackRenderDistance;
+	}
+
+	public static int maxTrainsThatShow() {
+		return maxTrainsThatShow;
+	}
+
+	public static boolean hideAllTrains() {
+		return hideAllTrains;
+	}
+
+	public static boolean hideAllTracks() {
+		return hideAllTracks;
 	}
 
 	public static boolean setUseMTRFont(boolean value) {
@@ -111,6 +133,18 @@ public class Config {
 		return useDynamicFPS;
 	}
 
+	public static boolean hideAllTrains(boolean value) {
+		hideAllTrains = value;
+		writeToFile();
+		return hideAllTrains;
+	}
+
+	public static boolean hideAllTracks(boolean value) {
+		hideAllTracks = value;
+		writeToFile();
+		return hideAllTracks;
+	}
+
 	public static void setTrackTextureOffset(int value) {
 		trackTextureOffset = Mth.clamp(value, 0, TRACK_OFFSET_COUNT - 1);
 		writeToFile();
@@ -123,6 +157,11 @@ public class Config {
 
 	public static void setTrainRenderDistanceRatio(int value) {
 		trainRenderDistanceRatio = Mth.clamp(value, 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
+		writeToFile();
+	}
+
+	public static void setTrackRenderDistance(int value) {
+		trackRenderDistance = Mth.clamp(value, 0, TRACK_RENDER_DISTANCE_COUNT - 1);
 		writeToFile();
 	}
 
@@ -162,6 +201,18 @@ public class Config {
 				trainRenderDistanceRatio = Mth.clamp(jsonConfig.get(TRAIN_RENDER_DISTANCE_RATIO).getAsInt(), 0, TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1);
 			} catch (Exception ignored) {
 			}
+			try {
+				trackRenderDistance = Mth.clamp(jsonConfig.get(TRACK_RENDER_DISTANCE).getAsInt(), 0, TRACK_RENDER_DISTANCE_COUNT - 1);
+			} catch (Exception ignored) {
+			}
+			try {
+				hideAllTrains = jsonConfig.get(HIDE_ALL_TRAINS).getAsBoolean();
+			} catch (Exception ignored) {
+			}
+			try {
+				hideAllTracks = jsonConfig.get(HIDE_ALL_TRACKS).getAsBoolean();
+			} catch (Exception ignored) {
+			}
 		} catch (Exception e) {
 			writeToFile();
 			e.printStackTrace();
@@ -184,6 +235,9 @@ public class Config {
 		jsonConfig.addProperty(TRACK_TEXTURE_OFFSET, trackTextureOffset);
 		jsonConfig.addProperty(DYNAMIC_TEXTURE_RESOLUTION, dynamicTextureResolution);
 		jsonConfig.addProperty(TRAIN_RENDER_DISTANCE_RATIO, trainRenderDistanceRatio);
+		jsonConfig.addProperty(TRACK_RENDER_DISTANCE, trackRenderDistance);
+		jsonConfig.addProperty(HIDE_ALL_TRAINS, hideAllTrains);
+		jsonConfig.addProperty(HIDE_ALL_TRACKS, hideAllTracks);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));

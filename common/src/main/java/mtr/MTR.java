@@ -372,6 +372,8 @@ public class MTR implements IPacket {
 
 		Registry.registerNetworkReceiver(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
 		Registry.registerNetworkReceiver(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
+		Registry.registerNetworkReceiver(PACKET_ENABLE_TRAINS, PacketTrainDataGuiServer::EnableTrainsC2S);
+		Registry.registerNetworkReceiver(PACKET_DISABLE_TRAINS, PacketTrainDataGuiServer::DisableTrainsC2S);
 		Registry.registerNetworkReceiver(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);

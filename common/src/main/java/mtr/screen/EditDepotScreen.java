@@ -30,6 +30,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final Button buttonGenerateRoute;
 	private final Button buttonClearTrains;
 
+	private final Button buttonEnableAllTrains;
+
+	private final Button buttonDisableAllTrains;
+
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
 	private static final int SLIDER_WIDTH = 64;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
@@ -74,6 +78,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
+		buttonEnableAllTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.enable_vehicles"), button -> {
+			sidingsInDepot.values().forEach(Siding::EnableTrains);
+			PacketTrainDataGuiClient.enableTrainsC2S(depot.id, sidingsInDepot.values());
+		});
+
+		buttonDisableAllTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.disable_vehicles"), button -> {
+			sidingsInDepot.values().forEach(Siding::DisableTrains);
+			PacketTrainDataGuiClient.disableTrainsC2S(depot.id, sidingsInDepot.values());
+		});
 	}
 
 	@Override
@@ -81,9 +94,13 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
 		final int buttonWidth = (width - rightPanelsX) / 2;
+		final int buttonSmallWidth = (width - rightPanelsX) / 3;
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
+		IDrawing.setPositionAndWidth(buttonEnableAllTrains, rightPanelsX + SQUARE_SIZE * 2 + buttonWidth, PANELS_START + SQUARE_SIZE * 2, buttonSmallWidth + TEXT_FIELD_PADDING / 2);
+		IDrawing.setPositionAndWidth(buttonDisableAllTrains, rightPanelsX + SQUARE_SIZE * 2 + buttonWidth, PANELS_START + SQUARE_SIZE * 3, buttonSmallWidth + TEXT_FIELD_PADDING / 2);
+
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
@@ -96,6 +113,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 		addDrawableChild(buttonEditInstructions);
 		addDrawableChild(buttonGenerateRoute);
+		addDrawableChild(buttonEnableAllTrains);
+		addDrawableChild(buttonDisableAllTrains);
 		if (showScheduleControls) {
 			addDrawableChild(buttonClearTrains);
 		}

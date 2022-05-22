@@ -230,6 +230,62 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 	}
 
+	public static void EnableTrainsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		if (RailwayData.hasNoPermission(player)) {
+			return;
+		}
+		final long depotId = packet.readLong();
+		final Level world = player.level;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final int sidingCount = packet.readInt();
+			final Set<Long> sidingIds = new HashSet<>();
+			for (int i = 0; i < sidingCount; i++) {
+				sidingIds.add(packet.readLong());
+			}
+			minecraftServer.execute(() -> {
+				final Depot depot = railwayData.dataCache.depotIdMap.get(depotId);
+				if (depot != null) {
+					railwayData.resetTrainDelays(depot);
+				}
+				sidingIds.forEach(sidingId -> {
+					final Siding siding = railwayData.dataCache.sidingIdMap.get(sidingId);
+					if (siding != null) {
+						siding.EnableTrains();
+					}
+				});
+			});
+		}
+	}
+
+	public static void DisableTrainsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		if (RailwayData.hasNoPermission(player)) {
+			return;
+		}
+		final long depotId = packet.readLong();
+		final Level world = player.level;
+		final RailwayData railwayData = RailwayData.getInstance(world);
+		if (railwayData != null) {
+			final int sidingCount = packet.readInt();
+			final Set<Long> sidingIds = new HashSet<>();
+			for (int i = 0; i < sidingCount; i++) {
+				sidingIds.add(packet.readLong());
+			}
+			minecraftServer.execute(() -> {
+				final Depot depot = railwayData.dataCache.depotIdMap.get(depotId);
+				if (depot != null) {
+					railwayData.resetTrainDelays(depot);
+				}
+				sidingIds.forEach(sidingId -> {
+					final Siding siding = railwayData.dataCache.sidingIdMap.get(sidingId);
+					if (siding != null) {
+						siding.DisableTrains();
+					}
+				});
+			});
+		}
+	}
+
 	public static void receiveTrainSensorC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final BlockPos pos = packet.readBlockPos();
 		final Set<Long> filterIds = new HashSet<>();
