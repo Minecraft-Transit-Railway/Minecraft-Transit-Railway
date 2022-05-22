@@ -66,7 +66,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
-	public static int prevTrainCount;
 	private static UUID renderedUuid;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
