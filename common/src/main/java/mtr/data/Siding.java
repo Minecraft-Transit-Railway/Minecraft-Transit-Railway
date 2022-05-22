@@ -372,6 +372,14 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		return unlimitedTrains;
 	}
 
+	public boolean EnableTrains() {
+		return disableTrain = false;
+	}
+
+	public boolean DisableTrains() {
+		return disableTrain = true;
+	}
+
 	public boolean getDisableTrain() {
 		return disableTrain;
 	}

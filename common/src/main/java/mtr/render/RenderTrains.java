@@ -46,6 +46,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static mtr.client.ClientData.TRAINS;
+
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
 	public static int maxTrainRenderDistance;
@@ -54,6 +56,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
+	public static int prevTrainCount;
 	private static UUID renderedUuid;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
@@ -501,7 +504,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
 
-		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
+		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains()) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}

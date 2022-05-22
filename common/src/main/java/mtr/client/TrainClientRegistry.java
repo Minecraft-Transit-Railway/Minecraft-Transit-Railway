@@ -210,7 +210,7 @@ public class TrainClientRegistry {
 		}
 
 		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
-			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
+			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null && !Config.hideAllTrains()) {
 				// TODO: Better sound system to adapt to different acceleration
 				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION_DEFAULT / MTRClient.TICKS_PER_SPEED_SOUND);
 				if (floorSpeed > 0) {
@@ -229,7 +229,7 @@ public class TrainClientRegistry {
 		}
 
 		public void playDoorSoundEffect(Level world, BlockPos pos, float oldDoorValue, float doorValue) {
-			if (world instanceof ClientLevel && doorSoundBaseId != null) {
+			if (world instanceof ClientLevel && doorSoundBaseId != null && !Config.hideAllTrains()) {
 				final String soundId;
 				if (oldDoorValue <= 0 && doorValue > 0) {
 					soundId = doorSoundBaseId + SOUND_DOOR_OPEN;

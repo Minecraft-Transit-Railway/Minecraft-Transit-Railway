@@ -84,11 +84,9 @@ public final class ClientData {
 
 	public static void updateTrains(Minecraft client, FriendlyByteBuf packet) {
 		final Set<TrainClient> trainsToUpdate = new HashSet<>();
-
 		while (packet.isReadable()) {
 			trainsToUpdate.add(new TrainClient(packet));
 		}
-
 		client.execute(() -> trainsToUpdate.forEach(newTrain -> {
 			final TrainClient existingTrain = getTrainById(newTrain.id);
 			if (existingTrain == null) {
@@ -98,7 +96,6 @@ public final class ClientData {
 			}
 		}));
 	}
-
 	public static void deleteTrains(Minecraft client, FriendlyByteBuf packet) {
 		final Set<Long> trainIdsToKeep = new HashSet<>();
 
@@ -106,7 +103,6 @@ public final class ClientData {
 		for (int i = 0; i < trainsCount; i++) {
 			trainIdsToKeep.add(packet.readLong());
 		}
-
 		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
 	}
 

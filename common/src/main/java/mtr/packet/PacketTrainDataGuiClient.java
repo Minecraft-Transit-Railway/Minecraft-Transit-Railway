@@ -319,6 +319,22 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_UPDATE_ENTITY_SEAT_POSITION, packet);
 	}
 
+	public static void enableTrainsC2S(long depotId, Collection<Siding> sidings) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(depotId);
+		packet.writeInt(sidings.size());
+		sidings.forEach(siding -> packet.writeLong(siding.id));
+		RegistryClient.sendToServer(PACKET_ENABLE_TRAINS, packet);
+	}
+
+	public static void disableTrainsC2S(long depotId, Collection<Siding> sidings) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeLong(depotId);
+		packet.writeInt(sidings.size());
+		sidings.forEach(siding -> packet.writeLong(siding.id));
+		RegistryClient.sendToServer(PACKET_DISABLE_TRAINS, packet);
+	}
+
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(signPos);

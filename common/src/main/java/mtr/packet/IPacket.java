@@ -27,6 +27,8 @@ public interface IPacket {
 
 	ResourceLocation PACKET_GENERATE_PATH = new ResourceLocation(MTR.MOD_ID, "packet_generate_path");
 	ResourceLocation PACKET_CLEAR_TRAINS = new ResourceLocation(MTR.MOD_ID, "packet_clear_trains");
+	ResourceLocation PACKET_ENABLE_TRAINS = new ResourceLocation(MTR.MOD_ID, "packet_enable_trains");
+	ResourceLocation PACKET_DISABLE_TRAINS = new ResourceLocation(MTR.MOD_ID, "packet_disable_trains");
 	ResourceLocation PACKET_SIGN_TYPES = new ResourceLocation(MTR.MOD_ID, "packet_sign_types");
 	ResourceLocation PACKET_PRESS_LIFT_BUTTON = new ResourceLocation(MTR.MOD_ID, "packet_press_lift_button");
 	ResourceLocation PACKET_ADD_BALANCE = new ResourceLocation(MTR.MOD_ID, "packet_add_balance");
