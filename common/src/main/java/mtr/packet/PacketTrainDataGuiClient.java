@@ -38,7 +38,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	public static void openVersionCheckS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final String version = packet.readUtf();
 		minecraftClient.execute(() -> {
-			if (!Keys.MOD_VERSION.equals(version)) {
+			if (!Keys.MOD_VERSION.split("-hotfix-")[0].equals(version)) {
 				final ClientPacketListener connection = minecraftClient.getConnection();
 				if (connection != null) {
 					final int widthDifference1 = minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_your_version")) - minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_server_version"));

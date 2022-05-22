@@ -31,7 +31,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 	public static void versionCheckS2C(ServerPlayer player) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeUtf(Keys.MOD_VERSION);
+		packet.writeUtf(Keys.MOD_VERSION.split("-hotfix-")[0]);
 		Registry.sendToPlayer(player, PACKET_VERSION_CHECK, packet);
 	}
 
