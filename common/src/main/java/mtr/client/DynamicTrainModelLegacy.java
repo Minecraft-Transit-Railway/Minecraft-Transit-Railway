@@ -23,59 +23,63 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	private final int doorMax;
 
 	public DynamicTrainModelLegacy(JsonObject model, JsonObject properties) {
-		final JsonObject resolution = model.getAsJsonObject("resolution");
-		final int textureWidth = resolution.get("width").getAsInt();
-		final int textureHeight = resolution.get("height").getAsInt();
+		try {
+			final JsonObject resolution = model.getAsJsonObject("resolution");
+			final int textureWidth = resolution.get("width").getAsInt();
+			final int textureHeight = resolution.get("height").getAsInt();
 
-		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
+			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
 
-		final Map<String, ModelMapper> elementsByKey = new HashMap<>();
-		model.getAsJsonArray("elements").forEach(element -> elementsByKey.put(element.getAsJsonObject().get("uuid").getAsString(), new ModelMapper(modelDataWrapper)));
+			final Map<String, ModelMapper> elementsByKey = new HashMap<>();
+			model.getAsJsonArray("elements").forEach(element -> elementsByKey.put(element.getAsJsonObject().get("uuid").getAsString(), new ModelMapper(modelDataWrapper)));
 
-		model.getAsJsonArray("outliner").forEach(element -> {
-			final JsonObject elementObject = element.getAsJsonObject();
-			parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey, modelDataWrapper));
-		});
+			model.getAsJsonArray("outliner").forEach(element -> {
+				final JsonObject elementObject = element.getAsJsonObject();
+				parts.put(elementObject.get("name").getAsString(), addChildren(elementObject, elementsByKey, modelDataWrapper));
+			});
 
-		model.getAsJsonArray("elements").forEach(element -> {
-			final JsonObject elementObject = element.getAsJsonObject();
-			final ModelMapper child = elementsByKey.get(elementObject.get("uuid").getAsString());
+			model.getAsJsonArray("elements").forEach(element -> {
+				final JsonObject elementObject = element.getAsJsonObject();
+				final ModelMapper child = elementsByKey.get(elementObject.get("uuid").getAsString());
 
-			final Double[] origin = {0D, 0D, 0D};
-			getArrayFromValue(origin, elementObject, "origin", JsonElement::getAsDouble);
-			child.setPos(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
+				final Double[] origin = {0D, 0D, 0D};
+				getArrayFromValue(origin, elementObject, "origin", JsonElement::getAsDouble);
+				child.setPos(-origin[0].floatValue(), -origin[1].floatValue(), origin[2].floatValue());
 
-			final Double[] rotation = {0D, 0D, 0D};
-			getArrayFromValue(rotation, elementObject, "rotation", JsonElement::getAsDouble);
-			setRotationAngle(child, -(float) Math.toRadians(rotation[0]), -(float) Math.toRadians(rotation[1]), (float) Math.toRadians(rotation[2]));
+				final Double[] rotation = {0D, 0D, 0D};
+				getArrayFromValue(rotation, elementObject, "rotation", JsonElement::getAsDouble);
+				setRotationAngle(child, -(float) Math.toRadians(rotation[0]), -(float) Math.toRadians(rotation[1]), (float) Math.toRadians(rotation[2]));
 
-			final Integer[] uvOffset = {0, 0};
-			getArrayFromValue(uvOffset, elementObject, "uv_offset", JsonElement::getAsInt);
+				final Integer[] uvOffset = {0, 0};
+				getArrayFromValue(uvOffset, elementObject, "uv_offset", JsonElement::getAsInt);
 
-			final Double[] posFrom = {0D, 0D, 0D};
-			getArrayFromValue(posFrom, elementObject, "from", JsonElement::getAsDouble);
-			final Double[] posTo = {0D, 0D, 0D};
-			getArrayFromValue(posTo, elementObject, "to", JsonElement::getAsDouble);
+				final Double[] posFrom = {0D, 0D, 0D};
+				getArrayFromValue(posFrom, elementObject, "from", JsonElement::getAsDouble);
+				final Double[] posTo = {0D, 0D, 0D};
+				getArrayFromValue(posTo, elementObject, "to", JsonElement::getAsDouble);
 
-			final double inflate = elementObject.has("inflate") ? elementObject.get("inflate").getAsDouble() : 0;
-			final boolean mirror = elementObject.has("shade") && !elementObject.get("shade").getAsBoolean();
+				final double inflate = elementObject.has("inflate") ? elementObject.get("inflate").getAsDouble() : 0;
+				final boolean mirror = elementObject.has("shade") && !elementObject.get("shade").getAsBoolean();
 
-			child.texOffs(uvOffset[0], uvOffset[1]).addBox(
-					origin[0].floatValue() - posTo[0].floatValue(), origin[1].floatValue() - posTo[1].floatValue(), posFrom[2].floatValue() - origin[2].floatValue(),
-					Math.round(posTo[0].floatValue() - posFrom[0].floatValue()), Math.round(posTo[1].floatValue() - posFrom[1].floatValue()), Math.round(posTo[2].floatValue() - posFrom[2].floatValue()),
-					(float) inflate, mirror
-			);
-		});
+				child.texOffs(uvOffset[0], uvOffset[1]).addBox(
+						origin[0].floatValue() - posTo[0].floatValue(), origin[1].floatValue() - posTo[1].floatValue(), posFrom[2].floatValue() - origin[2].floatValue(),
+						Math.round(posTo[0].floatValue() - posFrom[0].floatValue()), Math.round(posTo[1].floatValue() - posFrom[1].floatValue()), Math.round(posTo[2].floatValue() - posFrom[2].floatValue()),
+						(float) inflate, mirror
+				);
+			});
+
+			modelDataWrapper.setModelPart(textureWidth, textureHeight);
+			parts.values().forEach(part -> {
+				part.setPos(0, 0, 0);
+				part.texOffs(0, 0).addBox(0, 0, 0, 0, 0, 0, 0, false);
+				part.setModelPart();
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		this.properties = properties;
-		doorMax = properties.get("door_max").getAsInt();
-
-		modelDataWrapper.setModelPart(textureWidth, textureHeight);
-		parts.values().forEach(part -> {
-			part.setPos(0, 0, 0);
-			part.texOffs(0, 0).addBox(0, 0, 0, 0, 0, 0, 0, false);
-			part.setModelPart();
-		});
+		doorMax = getOrDefault(properties, "door_max", 14, JsonElement::getAsInt);
 	}
 
 	@Override

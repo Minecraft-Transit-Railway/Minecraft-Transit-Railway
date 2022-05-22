@@ -69,6 +69,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.trainId = trainId;
+		// TODO temporary code for backwards compatibility
+		baseTrainType = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : baseTrainType;
+		// TODO temporary code end
 		this.baseTrainType = baseTrainType;
 		transportMode = TrainType.getTransportMode(baseTrainType);
 		spacing = TrainType.getSpacing(baseTrainType);
@@ -99,7 +102,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		reversed = messagePackHelper.getBoolean(KEY_REVERSED);
 
 		final String tempTrainId = messagePackHelper.getString(KEY_TRAIN_CUSTOM_ID).toLowerCase();
-		baseTrainType = messagePackHelper.getString(KEY_TRAIN_TYPE).toLowerCase();
+		// TODO temporary code for backwards compatibility
+		String tempBaseTrainType = messagePackHelper.getString(KEY_TRAIN_TYPE).toLowerCase();
+		baseTrainType = tempBaseTrainType.startsWith("base_") ? tempBaseTrainType.replace("base_", "train_") : tempBaseTrainType;
+		// TODO temporary code end
 		trainId = tempTrainId.isEmpty() ? baseTrainType : tempTrainId;
 		transportMode = TrainType.getTransportMode(baseTrainType);
 		spacing = TrainType.getSpacing(baseTrainType);
