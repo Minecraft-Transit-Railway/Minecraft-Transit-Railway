@@ -1181,8 +1181,14 @@ public class ModelRTrain extends ModelSimpleTrainBase {
 		window_exterior_1.setModelPart();
 		window_exterior_2.setModelPart();
 		door_exterior_1.setModelPart();
+		door_left_exterior_1.setModelPart(door_exterior_1.name);
+		door_right_exterior_1.setModelPart(door_exterior_1.name);
 		door_exterior_2.setModelPart();
+		door_left_exterior_2.setModelPart(door_exterior_2.name);
+		door_right_exterior_2.setModelPart(door_exterior_2.name);
 		door.setModelPart();
+		door_left.setModelPart(door.name);
+		door_right.setModelPart(door.name);
 		end.setModelPart();
 		end_exterior.setModelPart();
 		seat.setModelPart();
