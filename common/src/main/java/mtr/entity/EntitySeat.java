@@ -53,7 +53,7 @@ public class EntitySeat extends Entity {
 				clientPlayer = entityData == null ? null : entityData.get(PLAYER_ID).map(value -> level.getPlayerByUUID(value)).orElse(null);
 			}
 
-			if (clientPlayer == null) {
+			if (clientPlayer == null || hasPassenger(clientPlayer)) {
 				if (clientInterpolationSteps > 0) {
 					final double x = getX() + (clientX - getX()) / clientInterpolationSteps;
 					final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
@@ -70,7 +70,9 @@ public class EntitySeat extends Entity {
 			if (player == null || seatRefresh <= 0) {
 				kill();
 			} else {
-				setPos(player.getX(), player.getY(), player.getZ());
+				if (!hasPassenger(player)) {
+					setPos(player.getX(), player.getY(), player.getZ());
+				}
 
 				final RailwayData railwayData = RailwayData.getInstance(level);
 				if (railwayData != null) {
@@ -84,10 +86,12 @@ public class EntitySeat extends Entity {
 
 	@Override
 	public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
-		clientX = x;
-		clientY = y;
-		clientZ = z;
-		clientInterpolationSteps = interpolationSteps;
+		if (!hasPassenger(clientPlayer)) {
+			clientX = x;
+			clientY = y;
+			clientZ = z;
+			clientInterpolationSteps = interpolationSteps;
+		}
 	}
 
 	@Override
@@ -127,5 +131,12 @@ public class EntitySeat extends Entity {
 			seatRefresh = SEAT_REFRESH;
 		}
 		this.player = player;
+	}
+
+	public void setPosByTrain(double x, double y, double z) {
+		clientX = x;
+		clientY = y;
+		clientZ = z;
+		clientInterpolationSteps = 1;
 	}
 }

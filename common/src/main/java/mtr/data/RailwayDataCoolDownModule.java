@@ -47,6 +47,7 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 			if (coolDown <= 0) {
 				updatePlayerRiding(player, 0);
 				playersToRemove.add(player);
+				player.stopRiding();
 			}
 			playerRidingCoolDown.put(player, coolDown - 1);
 		});
@@ -93,6 +94,14 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 			return railwayData.dataCache.routeIdMap.get(playerRidingRoute.get(player));
 		} else {
 			return null;
+		}
+	}
+
+	public void moveSeat(Player player, double x, double y, double z) {
+		final EntitySeat entitySeat = playerSeats.get(player);
+		if (entitySeat != null) {
+			player.startRiding(entitySeat);
+			entitySeat.setPos(x, y, z);
 		}
 	}
 }

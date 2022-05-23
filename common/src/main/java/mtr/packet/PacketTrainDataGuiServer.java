@@ -353,6 +353,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}));
 	}
 
+	public static void receiveUpdateEntitySeatPassengerPosition(MinecraftServer minecraftServer, Player player, FriendlyByteBuf packet) {
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+		if (railwayData != null) {
+			final double x = packet.readDouble();
+			final double y = packet.readDouble();
+			final double z = packet.readDouble();
+			minecraftServer.execute(() -> railwayData.railwayDataCoolDownModule.moveSeat(player, x, y, z));
+		}
+	}
+
 	private static <T extends SerializedDataBase> void serializeData(FriendlyByteBuf packet, Collection<T> objects) {
 		packet.writeInt(objects.size());
 		objects.forEach(object -> object.writePacket(packet));

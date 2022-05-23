@@ -294,6 +294,14 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_CLEAR_TRAINS, packet);
 	}
 
+	public static void sendUpdateEntitySeatPassengerPosition(double x, double y, double z) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeDouble(x);
+		packet.writeDouble(y);
+		packet.writeDouble(z);
+		RegistryClient.sendToServer(PACKET_UPDATE_ENTITY_SEAT_POSITION, packet);
+	}
+
 	public static void sendSignIdsC2S(BlockPos signPos, Set<Long> selectedIds, String[] signIds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(signPos);

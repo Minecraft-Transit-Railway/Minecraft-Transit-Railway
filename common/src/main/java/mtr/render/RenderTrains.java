@@ -34,6 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -80,7 +81,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	@Override
 	public void render(EntitySeat entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int entityLight) {
-		render(entity, matrices, vertexConsumers);
+		render(entity, tickDelta, matrices, vertexConsumers);
 	}
 
 	@Override
@@ -88,7 +89,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		return null;
 	}
 
-	public static void render(EntitySeat entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+	public static void render(EntitySeat entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers) {
 		final Minecraft client = Minecraft.getInstance();
 		final boolean backupRendering = entity == null;
 		final boolean alreadyRendered = renderedUuid != null && (backupRendering || entity.getUUID() != renderedUuid);
@@ -135,6 +136,9 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		final float cameraYaw = camera.getYRot();
 		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
+		final double entityX = entity == null ? 0 : Mth.lerp(tickDelta, entity.xOld, entity.getX());
+		final double entityY = entity == null ? 0 : Mth.lerp(tickDelta, entity.yOld, entity.getY());
+		final double entityZ = entity == null ? 0 : Mth.lerp(tickDelta, entity.zOld, entity.getZ());
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, transportMode, currentCar, trainCars, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
 			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
@@ -144,7 +148,19 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.pushPose();
 			if (playerOffset != null) {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+				final double offsetX;
+				final double offsetY;
+				final double offsetZ;
+				if (MTRClient.isVivecraft() && entity != null) {
+					offsetX = entityX;
+					offsetY = entityY;
+					offsetZ = entityZ;
+				} else {
+					offsetX = cameraOffset.x;
+					offsetY = cameraOffset.y;
+					offsetZ = cameraOffset.z;
+				}
+				matrices.translate(offsetX, offsetY, offsetZ);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}
@@ -211,7 +227,19 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.pushPose();
 			if (playerOffset != null) {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+				final double offsetX;
+				final double offsetY;
+				final double offsetZ;
+				if (MTRClient.isVivecraft() && entity != null) {
+					offsetX = entityX;
+					offsetY = entityY;
+					offsetZ = entityZ;
+				} else {
+					offsetX = cameraOffset.x;
+					offsetY = cameraOffset.y;
+					offsetZ = cameraOffset.z;
+				}
+				matrices.translate(offsetX, offsetY, offsetZ);
 				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
 				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
 			}

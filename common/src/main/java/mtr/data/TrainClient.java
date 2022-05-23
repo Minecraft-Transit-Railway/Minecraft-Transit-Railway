@@ -5,12 +5,15 @@ import mtr.MTRClient;
 import mtr.RegistryClient;
 import mtr.client.ClientData;
 import mtr.client.TrainClientRegistry;
+import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -24,6 +27,10 @@ public class TrainClient extends Train {
 	private int previousInterval;
 	private float oldPercentageX;
 	private float oldPercentageZ;
+	private double lastSentX;
+	private double lastSentY;
+	private double lastSentZ;
+	private float lastSentTicks;
 
 	private RenderTrainCallback renderTrainCallback;
 	private RenderConnectionCallback renderConnectionCallback;
@@ -45,7 +52,6 @@ public class TrainClient extends Train {
 	private static final float CONNECTION_X_OFFSET = 0.25F;
 	private static final float TRAIN_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final int TRAIN_PERCENTAGE_UPDATE_INTERVAL = 20;
-	private static final float VIVECRAFT_EYE_HEIGHT = 1.62F;
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
@@ -176,19 +182,51 @@ public class TrainClient extends Train {
 					riderPositions.put(uuid, playerOffset.add(x, y, z));
 
 					if (isClientPlayer) {
-						clientPlayer.fallDistance = 0;
-						clientPlayer.setDeltaMovement(0, 0, 0);
-						clientPlayer.setSpeed(0);
-						clientPlayer.absMoveTo(x + playerOffset.x, y + playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : 0), z + playerOffset.z);
-						if (speed > 0 || MTRClient.isVivecraft()) {
-							if (!MTRClient.isVivecraft() && doorValueRaw == 0) {
+						final double moveX = x + playerOffset.x;
+						final double moveY = y + playerOffset.y;
+						final double moveZ = z + playerOffset.z;
+						final boolean movePlayer;
+
+						if (MTRClient.isVivecraft()) {
+							final Entity vehicle = clientPlayer.getVehicle();
+							if (vehicle instanceof EntitySeat) {
+								((EntitySeat) vehicle).setPosByTrain(moveX, moveY, moveZ);
+								movePlayer = false;
+							} else {
+								movePlayer = true;
+							}
+
+							final float tempPercentageX = percentagesX.get(uuid);
+							final boolean doorOpen = doorLeftOpenRender && tempPercentageX < 0 || doorRightOpenRender && tempPercentageX > 1;
+							final boolean movedFar = Math.abs(lastSentX - moveX) > 2 || Math.abs(lastSentY - moveY) > 2 || Math.abs(lastSentZ - moveZ) > 2;
+
+							if (doorOpen || MTRClient.getGameTick() - lastSentTicks > 60 && movedFar) {
+								PacketTrainDataGuiClient.sendUpdateEntitySeatPassengerPosition(moveX, moveY, moveZ);
+								lastSentX = moveX;
+								lastSentY = moveY;
+								lastSentZ = moveZ;
+								lastSentTicks = MTRClient.getGameTick();
+							}
+						} else {
+							movePlayer = true;
+						}
+
+						if (movePlayer) {
+							clientPlayer.fallDistance = 0;
+							clientPlayer.setDeltaMovement(0, 0, 0);
+							clientPlayer.setSpeed(0);
+							clientPlayer.absMoveTo(moveX, moveY, moveZ);
+						}
+
+						if (speed > 0) {
+							if (doorValueRaw == 0) {
 								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
 							}
 							offset.add(x);
 							offset.add(y);
 							offset.add(z);
 							offset.add(playerOffset.x);
-							offset.add(playerOffset.y + (MTRClient.isVivecraft() ? VIVECRAFT_EYE_HEIGHT : clientPlayer.getEyeHeight()));
+							offset.add(playerOffset.y + (MTRClient.isVivecraft() ? 0 : clientPlayer.getEyeHeight()));
 							offset.add(playerOffset.z);
 						}
 						clientPrevYaw = yaw;
