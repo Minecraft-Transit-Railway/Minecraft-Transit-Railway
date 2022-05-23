@@ -122,8 +122,8 @@ public class TrainClientRegistry {
 		register(TrainType.LIGHT_RAIL_5_ORANGE_RHT, new ModelLightRail(5, true), "mtr:textures/entity/light_rail_5_orange", "light_rail_mitsubishi", "light_rail_4", 0xD2A825, "", "", 0, 45, 1, false);
 		register(TrainType.LONDON_UNDERGROUND_D78, new ModelLondonUndergroundD78(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", 0x007229, "", "mtr:textures/entity/london_underground_d78", 0, 93, 1, true);
 		register(TrainType.LONDON_UNDERGROUND_D78_MINI, new ModelLondonUndergroundD78Mini(), "mtr:textures/entity/london_underground_d78", "mlr", "london_underground_d78", 0x007229, "", "mtr:textures/entity/london_underground_d78", 0, 93, 1, true);
-		register(TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", 0x333333, "", "mtr:textures/entity/london_underground_1995", 0, 72, 0.5F, false);
-		register(TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1996", "london_underground_1995", 0xA1A5A7, "", "mtr:textures/entity/london_underground_1995", 0, 93, 0.5F, false);
+		register(TrainType.LONDON_UNDERGROUND_1995, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1995", "london_underground_1995", "london_underground_1995", 0x333333, "", "", 0, 72, 0.5F, false);
+		register(TrainType.LONDON_UNDERGROUND_1996, new ModelLondonUnderground1995(), "mtr:textures/entity/london_underground_1996", "london_underground_1996", "london_underground_1995", 0xA1A5A7, "", "", 0, 93, 0.5F, false);
 		register(TrainType.R179, new ModelR179(), "mtr:textures/entity/r179", "r179", "r179", 0xD5D5D5, "", "mtr:textures/entity/r179", 0, 66, 1, false);
 		register(TrainType.R179_MINI, new ModelR179Mini(), "mtr:textures/entity/r179", "r179", "r179", 0xD5D5D5, "", "mtr:textures/entity/r179", 0, 66, 1, false);
 		register(TrainType.R211, new ModelR211(false), "mtr:textures/entity/r211", "s_train", "r179", 0xD5D5D5, "", "mtr:textures/entity/r179", 0, 42, 1, false);
