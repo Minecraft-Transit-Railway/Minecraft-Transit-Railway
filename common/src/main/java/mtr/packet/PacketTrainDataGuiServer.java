@@ -175,13 +175,10 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 
 		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION)) {
-			try {
-				UpdateBlueMap.updateBlueMap(world);
-			} catch (NoClassDefFoundError ignored) {
-				System.out.println("BlueMap is not loaded");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			UpdateWebMaps.updateBlueMap(world, railwayData);
+		}
+		if (packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
+			UpdateWebMaps.updateSquaremap(world, railwayData);
 		}
 	}
 
