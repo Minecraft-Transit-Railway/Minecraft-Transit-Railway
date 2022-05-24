@@ -174,10 +174,9 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
 		}
 
-		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION)) {
+		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION) || packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
+			UpdateWebMaps.updateDynmap(world, railwayData);
 			UpdateWebMaps.updateBlueMap(world, railwayData);
-		}
-		if (packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
 			UpdateWebMaps.updateSquaremap(world, railwayData);
 		}
 	}

@@ -92,6 +92,7 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		canAutoSave = true;
 		dataLoaded = true;
 
+		UpdateWebMaps.updateDynmap(world, railwayData);
 		UpdateWebMaps.updateBlueMap(world, railwayData);
 		UpdateWebMaps.updateSquaremap(world, railwayData);
 	}

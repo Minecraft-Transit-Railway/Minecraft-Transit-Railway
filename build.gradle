@@ -38,6 +38,7 @@ subprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${minecraft_version}"
 		mappings loom.officialMojangMappings()
+		implementation "us.dynmap:dynmap-api:${rootProject.dynmap_version}"
 		implementation "com.github.BlueMap-Minecraft:BlueMapAPI:${rootProject.blue_map_version}"
 		implementation "xyz.jpenilla:squaremap-api:${rootProject.squaremap_version}"
 		implementation "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
@@ -150,6 +151,7 @@ allprojects {
 	repositories {
 		maven { url = "https://jitpack.io/" }
 		maven { url = "https://maven.terraformersmc.com/" }
+		maven { url = "https://repo.mikeprimm.com/" }
 	}
 
 	tasks.withType(JavaCompile) {
