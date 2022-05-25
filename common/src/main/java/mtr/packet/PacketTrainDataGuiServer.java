@@ -175,9 +175,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		}
 
 		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION) || packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
-			UpdateWebMaps.updateDynmap(world, railwayData);
-			UpdateWebMaps.updateBlueMap(world, railwayData);
-			UpdateWebMaps.updateSquaremap(world, railwayData);
+			try {
+				UpdateDynmap.updateDynmap(world, railwayData);
+			} catch (Exception ignored) {
+			}
+			try {
+				UpdateBlueMap.updateBlueMap(world, railwayData);
+			} catch (Exception ignored) {
+			}
+			try {
+				UpdateSquaremap.updateSquaremap(world, railwayData);
+			} catch (Exception ignored) {
+			}
 		}
 	}
 

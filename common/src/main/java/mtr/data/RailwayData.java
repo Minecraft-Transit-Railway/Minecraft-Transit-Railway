@@ -5,9 +5,7 @@ import mtr.MTR;
 import mtr.Registry;
 import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
-import mtr.packet.IPacket;
-import mtr.packet.PacketTrainDataGuiServer;
-import mtr.packet.UpdateWebMaps;
+import mtr.packet.*;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -198,9 +196,24 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		dataCache.sync();
 		signalBlocks.writeCache();
 
-		UpdateWebMaps.updateDynmap(world, this);
-		UpdateWebMaps.updateBlueMap(world, this);
-		UpdateWebMaps.updateSquaremap(world, this);
+		try {
+			UpdateDynmap.updateDynmap(world, this);
+		} catch (NoClassDefFoundError | IllegalStateException ignored) {
+			System.out.println("Dynamp is not loaded");
+		} catch (Exception ignored) {
+		}
+		try {
+			UpdateBlueMap.updateBlueMap(world, this);
+		} catch (NoClassDefFoundError | IllegalStateException ignored) {
+			System.out.println("BlueMap is not loaded");
+		} catch (Exception ignored) {
+		}
+		try {
+			UpdateSquaremap.updateSquaremap(world, this);
+		} catch (NoClassDefFoundError | IllegalStateException ignored) {
+			System.out.println("Squaremap is not loaded");
+		} catch (Exception ignored) {
+		}
 	}
 
 	@Override
