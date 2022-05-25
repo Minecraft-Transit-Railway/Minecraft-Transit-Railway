@@ -2,12 +2,10 @@ package mtr.packet;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
-import de.bluecolored.bluemap.api.marker.MarkerAPI;
-import de.bluecolored.bluemap.api.marker.MarkerSet;
 import de.bluecolored.bluemap.api.marker.Shape;
-import de.bluecolored.bluemap.api.marker.ShapeMarker;
+import de.bluecolored.bluemap.api.marker.*;
+import mtr.MTR;
 import mtr.data.AreaBase;
-import mtr.data.Depot;
 import mtr.data.IGui;
 import mtr.data.RailwayData;
 import net.minecraft.core.BlockPos;
@@ -17,20 +15,26 @@ import net.minecraft.world.level.Level;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
-import org.dynmap.markers.MarkerIcon;
 import xyz.jpenilla.squaremap.api.Point;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Marker;
 import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class UpdateWebMaps implements IGui {
 
 	private static DynmapCommonAPI dynmapCommonAPI;
+	private static String bluemapStationIcon = "";
+	private static String bluemapDepotIcon = "";
 	private static final String MARKER_SET_STATIONS_ID = "mtr_stations";
 	private static final String MARKER_SET_STATION_AREAS_ID = "mtr_station_areas";
 	private static final String MARKER_SET_STATIONS_TITLE = "Stations";
@@ -39,14 +43,27 @@ public class UpdateWebMaps implements IGui {
 	private static final String MARKER_SET_DEPOT_AREAS_ID = "mtr_depot_areas";
 	private static final String MARKER_SET_DEPOTS_TITLE = "Depots";
 	private static final String MARKER_SET_DEPOT_AREAS_TITLE = "Depot Areas";
+	private static final String ICON_STATION_KEY = "mtr_station";
+	private static final String ICON_DEPOT_KEY = "mtr_depot";
+	private static final int ICON_SIZE = 24;
 
 	static {
+		final String stationPath = "/assets/mtr/textures/sign/logo.png";
+		final String depotPath = "/assets/mtr/textures/sign/logo_grayscale.png";
+
 		try {
 			DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
 
 				@Override
 				public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
 					UpdateWebMaps.dynmapCommonAPI = dynmapCommonAPI;
+					try {
+						final org.dynmap.markers.MarkerAPI markerAPI = dynmapCommonAPI.getMarkerAPI();
+						readResource(stationPath, inputStream -> markerAPI.createMarkerIcon(ICON_STATION_KEY, ICON_STATION_KEY, inputStream));
+						readResource(depotPath, inputStream -> markerAPI.createMarkerIcon(ICON_DEPOT_KEY, ICON_DEPOT_KEY, inputStream));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			});
 		} catch (NoClassDefFoundError ignored) {
@@ -54,12 +71,58 @@ public class UpdateWebMaps implements IGui {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		try {
+			BlueMapAPI.getInstance().ifPresent(api -> {
+				readResource(stationPath, inputStream -> resizeImage(inputStream, bufferedImage -> {
+					try {
+						bluemapStationIcon = api.createImage(bufferedImage, ICON_STATION_KEY + "_bluemap");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}));
+				readResource(depotPath, inputStream -> resizeImage(inputStream, bufferedImage -> {
+					try {
+						bluemapDepotIcon = api.createImage(bufferedImage, ICON_DEPOT_KEY + "_bluemap");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}));
+			});
+		} catch (NoClassDefFoundError ignored) {
+			System.out.println("BlueMap is not loaded");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			final Registry<BufferedImage> iconRegistry = SquaremapProvider.get().iconRegistry();
+			readResource(stationPath, inputStream -> {
+				try {
+					iconRegistry.register(Key.of(ICON_STATION_KEY), ImageIO.read(inputStream));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			readResource(depotPath, inputStream -> {
+				try {
+					iconRegistry.register(Key.of(ICON_DEPOT_KEY), ImageIO.read(inputStream));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (NoClassDefFoundError | IllegalStateException ignored) {
+			System.out.println("Squaremap is not loaded");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void updateDynmap(Level world, RailwayData railwayData) {
 		try {
-			updateDynmap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE);
-			updateDynmap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE);
+			updateDynmap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, ICON_STATION_KEY);
+			updateDynmap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, ICON_DEPOT_KEY);
+		} catch (NoClassDefFoundError ignored) {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,10 +130,9 @@ public class UpdateWebMaps implements IGui {
 
 	public static void updateBlueMap(Level world, RailwayData railwayData) {
 		try {
-			updateBlueMap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE);
-			updateBlueMap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE);
+			updateBlueMap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, bluemapStationIcon);
+			updateBlueMap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, bluemapDepotIcon);
 		} catch (NoClassDefFoundError ignored) {
-			System.out.println("BlueMap is not loaded");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -78,16 +140,15 @@ public class UpdateWebMaps implements IGui {
 
 	public static void updateSquaremap(Level world, RailwayData railwayData) {
 		try {
-			updateSquaremap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE);
-			updateSquaremap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE);
-		} catch (NoClassDefFoundError ignored) {
-			System.out.println("Squaremap is not loaded");
+			updateSquaremap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, ICON_STATION_KEY);
+			updateSquaremap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, ICON_DEPOT_KEY);
+		} catch (NoClassDefFoundError | IllegalStateException ignored) {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static <T extends AreaBase> void updateDynmap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle) {
+	private static <T extends AreaBase> void updateDynmap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
 		if (dynmapCommonAPI != null) {
 			final String worldId;
 			switch (world.dimension().location().toString()) {
@@ -111,34 +172,40 @@ public class UpdateWebMaps implements IGui {
 
 			final org.dynmap.markers.MarkerSet markerSetAreas;
 			org.dynmap.markers.MarkerSet tempMarkerSetAreas = markerAPI.getMarkerSet(areasId);
-			markerSetAreas = tempMarkerSetAreas == null ? markerAPI.createMarkerSet(areasId, areasTitle, new HashSet<>(), false) : tempMarkerSetAreas;
-			markerSetAreas.getMarkers().clear();
-			markerSetAreas.setHideByDefault(true);
+			markerSetAreas = tempMarkerSetAreas == null ? markerAPI.createMarkerSet(areasId, areasTitle, Collections.singleton(markerAPI.getMarkerIcon(iconKey)), false) : tempMarkerSetAreas;
+			markerSetAreas.getMarkers().forEach(marker -> {
+				if (marker.getMarkerID().startsWith(worldId)) {
+					marker.deleteMarker();
+				}
+			});
 
 			final org.dynmap.markers.MarkerSet markerSetAreaAreas;
 			org.dynmap.markers.MarkerSet tempMarkerSetAreaAreas = markerAPI.getMarkerSet(areaAreasId);
 			markerSetAreaAreas = tempMarkerSetAreaAreas == null ? markerAPI.createMarkerSet(areaAreasId, areaAreasTitle, new HashSet<>(), false) : tempMarkerSetAreaAreas;
-			markerSetAreaAreas.getMarkers().clear();
-
-			final MarkerIcon markerIcon = markerAPI.getMarkerIcons().stream().filter(markerIcon1 -> markerIcon1.getMarkerIconID().equals(areas.stream().findFirst().orElse(null) instanceof Depot ? "factory" : "building")).findFirst().orElse(null);
-			markerSetAreas.addAllowedMarkerIcon(markerIcon);
+			markerSetAreaAreas.setHideByDefault(true);
+			markerSetAreaAreas.getMarkers().forEach(marker -> {
+				if (marker.getMarkerID().startsWith(worldId)) {
+					marker.deleteMarker();
+				}
+			});
 
 			iterateAreas(areas, (id, name, color, areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z, areaX, areaZ) -> {
-				markerSetAreas.createMarker(id, name, worldId, areaX, areaY, areaZ, markerIcon, false);
-				final AreaMarker areaMarker = markerSetAreaAreas.createAreaMarker(id, name, false, worldId, new double[]{areaCorner1X, areaCorner2X}, new double[]{areaCorner1Z, areaCorner2Z}, false);
+				markerSetAreas.createMarker(worldId + id, name, worldId, areaX, areaY, areaZ, markerAPI.getMarkerIcon(iconKey), false);
+				final AreaMarker areaMarker = markerSetAreaAreas.createAreaMarker(worldId + id, name, false, worldId, new double[]{areaCorner1X, areaCorner2X}, new double[]{areaCorner1Z, areaCorner2Z}, false);
 				areaMarker.setFillStyle(0.5, color.getRGB() & RGB_WHITE);
 				areaMarker.setLineStyle(1, 1, color.darker().getRGB() & RGB_WHITE);
 			});
 		}
 	}
 
-	private static <T extends AreaBase> void updateBlueMap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle) throws IOException {
+	private static <T extends AreaBase> void updateBlueMap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) throws IOException {
 		final BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
 		if (api == null) {
 			return;
 		}
 
-		final BlueMapMap map = api.getMaps().stream().filter(map1 -> world.dimension().location().getPath().contains(map1.getId())).findFirst().orElse(null);
+		final String worldId = world.dimension().location().getPath();
+		final BlueMapMap map = api.getMaps().stream().filter(map1 -> worldId.contains(map1.getId())).findFirst().orElse(null);
 		if (map == null) {
 			return;
 		}
@@ -148,19 +215,26 @@ public class UpdateWebMaps implements IGui {
 
 		final MarkerSet markerSetAreas = markerApi.createMarkerSet(areasId);
 		markerSetAreas.setLabel(areasTitle);
-		markerSetAreas.setDefaultHidden(true);
-		markerSetAreas.getMarkers().forEach(markerSetAreas::removeMarker);
+		markerSetAreas.getMarkers().forEach(marker -> {
+			if (marker.getId().startsWith("1_" + worldId)) {
+				markerSetAreas.removeMarker(marker);
+			}
+		});
 
 		final MarkerSet markerSetAreaAreas = markerApi.createMarkerSet(areaAreasId);
 		markerSetAreaAreas.setLabel(areaAreasTitle);
-		markerSetAreaAreas.getMarkers().forEach(markerSetAreaAreas::removeMarker);
+		markerSetAreaAreas.setDefaultHidden(true);
+		markerSetAreaAreas.getMarkers().forEach(marker -> {
+			if (marker.getId().startsWith("2_" + worldId)) {
+				markerSetAreaAreas.removeMarker(marker);
+			}
+		});
 
 		iterateAreas(areas, (id, name, color, areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z, areaX, areaZ) -> {
-			final ShapeMarker markerArea = markerSetAreas.createShapeMarker(id, map, areaX, areaY, areaZ, Shape.createCircle(areaX, areaZ, 4, 32), areaY);
+			final POIMarker markerArea = markerSetAreas.createPOIMarker("1_" + worldId + id, map, areaX, areaY, areaZ);
 			markerArea.setLabel(name);
-			markerArea.setFillColor(color);
-			markerArea.setLineColor(color.darker());
-			final ShapeMarker markerAreaArea = markerSetAreaAreas.createShapeMarker(id, map, areaX, areaY, areaZ, Shape.createRect(areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z), areaY);
+			markerArea.setIcon(iconKey, ICON_SIZE / 2, ICON_SIZE / 2);
+			final ShapeMarker markerAreaArea = markerSetAreaAreas.createShapeMarker("2_" + worldId + id, map, areaX, areaY, areaZ, Shape.createRect(areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z), areaY);
 			markerAreaArea.setLabel(name);
 			markerAreaArea.setFillColor(new Color((color.getRGB() & RGB_WHITE) | ARGB_BLACK_TRANSLUCENT, true));
 			markerAreaArea.setLineColor(color.darker());
@@ -169,7 +243,7 @@ public class UpdateWebMaps implements IGui {
 		markerApi.save();
 	}
 
-	private static <T extends AreaBase> void updateSquaremap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle) {
+	private static <T extends AreaBase> void updateSquaremap(Level world, Set<T> areas, String areasId, String areasTitle, String areaAreasId, String areaAreasTitle, String iconKey) {
 		final MapWorld mapWorld = SquaremapProvider.get().getWorldIfEnabled(WorldIdentifier.parse(world.dimension().location().toString())).orElse(null);
 		if (mapWorld == null) {
 			return;
@@ -182,7 +256,7 @@ public class UpdateWebMaps implements IGui {
 			providerAreas = (SimpleLayerProvider) layerRegistry.get(Key.of(areasId));
 			providerAreas.clearMarkers();
 		} else {
-			providerAreas = SimpleLayerProvider.builder(areasTitle).showControls(true).defaultHidden(true).build();
+			providerAreas = SimpleLayerProvider.builder(areasTitle).showControls(true).build();
 			layerRegistry.register(Key.of(areasId), providerAreas);
 		}
 
@@ -191,13 +265,13 @@ public class UpdateWebMaps implements IGui {
 			providerAreaAreas = (SimpleLayerProvider) layerRegistry.get(Key.of(areaAreasId));
 			providerAreaAreas.clearMarkers();
 		} else {
-			providerAreaAreas = SimpleLayerProvider.builder(areaAreasTitle).showControls(true).build();
+			providerAreaAreas = SimpleLayerProvider.builder(areaAreasTitle).showControls(true).defaultHidden(true).build();
 			layerRegistry.register(Key.of(areaAreasId), providerAreaAreas);
 		}
 
 		iterateAreas(areas, (id, name, color, areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z, areaX, areaZ) -> {
 			final MarkerOptions markerOptions = MarkerOptions.builder().hoverTooltip(name).fillColor(color).strokeColor(color.darker()).build();
-			providerAreas.addMarker(Key.of(id), Marker.circle(Point.of(areaX, areaZ), 4).markerOptions(markerOptions));
+			providerAreas.addMarker(Key.of(id), Marker.icon(Point.of(areaX, areaZ), Key.of(iconKey), ICON_SIZE).markerOptions(markerOptions));
 			providerAreaAreas.addMarker(Key.of(id), Marker.rectangle(Point.of(areaCorner1X, areaCorner1Z), Point.of(areaCorner2X, areaCorner2Z)).markerOptions(markerOptions));
 		});
 	}
@@ -211,6 +285,30 @@ public class UpdateWebMaps implements IGui {
 				areaCallback.areaCallback(String.valueOf(area.id), IGui.formatStationName(area.name), new Color(area.color), corner1.getA(), corner1.getB(), corner2.getA(), corner2.getB(), areaPos.getX(), areaPos.getZ());
 			}
 		});
+	}
+
+	private static void readResource(String path, Consumer<InputStream> callback) {
+		final InputStream inputStream = MTR.class.getResourceAsStream(path);
+		if (inputStream != null) {
+			callback.accept(inputStream);
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private static void resizeImage(InputStream inputStream, Consumer<BufferedImage> callback) {
+		try {
+			final BufferedImage bufferedImage = ImageIO.read(inputStream);
+			final BufferedImage newBufferedImage = new BufferedImage(ICON_SIZE, ICON_SIZE, bufferedImage.getType());
+			newBufferedImage.getGraphics().drawImage(bufferedImage.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_SMOOTH), 0, 0, null);
+			callback.accept(newBufferedImage);
+			inputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@FunctionalInterface

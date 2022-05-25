@@ -1,6 +1,5 @@
 package mtr.data;
 
-import mtr.packet.UpdateWebMaps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -91,10 +90,6 @@ public class RailwayDataFileSaveModule extends RailwayDataModuleBase {
 		System.out.println("Minecraft Transit Railway data successfully loaded for " + world.dimension().location());
 		canAutoSave = true;
 		dataLoaded = true;
-
-		UpdateWebMaps.updateDynmap(world, railwayData);
-		UpdateWebMaps.updateBlueMap(world, railwayData);
-		UpdateWebMaps.updateSquaremap(world, railwayData);
 	}
 
 	public void fullSave() {

@@ -7,6 +7,7 @@ import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
+import mtr.packet.UpdateWebMaps;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -196,6 +197,10 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		validateData();
 		dataCache.sync();
 		signalBlocks.writeCache();
+
+		UpdateWebMaps.updateDynmap(world, this);
+		UpdateWebMaps.updateBlueMap(world, this);
+		UpdateWebMaps.updateSquaremap(world, this);
 	}
 
 	@Override
