@@ -83,7 +83,7 @@ public class UpdateDynmap implements IGui, IUpdateWebMap {
 			org.dynmap.markers.MarkerSet tempMarkerSetAreaAreas = markerAPI.getMarkerSet(areaAreasId);
 			markerSetAreaAreas = tempMarkerSetAreaAreas == null ? markerAPI.createMarkerSet(areaAreasId, areaAreasTitle, new HashSet<>(), false) : tempMarkerSetAreaAreas;
 			markerSetAreaAreas.setHideByDefault(true);
-			markerSetAreaAreas.getMarkers().forEach(marker -> {
+			markerSetAreaAreas.getAreaMarkers().forEach(marker -> {
 				if (marker.getMarkerID().startsWith(worldId)) {
 					marker.deleteMarker();
 				}

@@ -41,6 +41,7 @@ public class UpdateSquaremap implements IGui, IUpdateWebMap {
 		try {
 			updateSquaremap(world, railwayData.stations, MARKER_SET_STATIONS_ID, MARKER_SET_STATIONS_TITLE, MARKER_SET_STATION_AREAS_ID, MARKER_SET_STATION_AREAS_TITLE, STATION_ICON_KEY);
 			updateSquaremap(world, railwayData.depots, MARKER_SET_DEPOTS_ID, MARKER_SET_DEPOTS_TITLE, MARKER_SET_DEPOT_AREAS_ID, MARKER_SET_DEPOT_AREAS_TITLE, DEPOT_ICON_KEY);
+		} catch (IllegalStateException ignored) {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
