@@ -46,7 +46,7 @@ public interface IUpdateWebMap {
 			final Tuple<Integer, Integer> corner2 = area.corner2;
 			final BlockPos areaPos = area.getCenter();
 			if (corner1 != null && corner2 != null && areaPos != null) {
-				areaCallback.areaCallback(String.valueOf(area.id), IGui.formatStationName(area.name), new Color(area.color), corner1.getA(), corner1.getB(), corner2.getA(), corner2.getB(), areaPos.getX(), areaPos.getZ());
+				areaCallback.areaCallback(area.id + "_" + System.currentTimeMillis(), IGui.formatStationName(area.name), new Color(area.color), corner1.getA(), corner1.getB(), corner2.getA(), corner2.getB(), areaPos.getX(), areaPos.getZ());
 			}
 		});
 	}

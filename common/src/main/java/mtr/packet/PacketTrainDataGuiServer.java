@@ -161,32 +161,34 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			return;
 		}
 
-		final PacketCallback packetCallback = (updatePacket, fullPacket) -> world.players().forEach(worldPlayer -> {
-			if (!worldPlayer.getUUID().equals(player.getUUID())) {
-				Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, fullPacket);
+		final PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+			world.players().forEach(worldPlayer -> {
+				if (!worldPlayer.getUUID().equals(player.getUUID())) {
+					Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, fullPacket);
+				}
+				railwayData.dataCache.sync();
+			});
+
+			if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION) || packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
+				try {
+					UpdateDynmap.updateDynmap(world, railwayData);
+				} catch (NoClassDefFoundError | Exception ignored) {
+				}
+				try {
+					UpdateBlueMap.updateBlueMap(world, railwayData);
+				} catch (NoClassDefFoundError | Exception ignored) {
+				}
+				try {
+					UpdateSquaremap.updateSquaremap(world, railwayData);
+				} catch (NoClassDefFoundError | Exception ignored) {
+				}
 			}
-			railwayData.dataCache.sync();
-		});
+		};
 
 		if (isDelete) {
 			deleteData(dataSet.apply(railwayData), minecraftServer, packet, packetCallback);
 		} else {
 			updateData(dataSet.apply(railwayData), cacheMap.apply(railwayData), minecraftServer, packet, packetCallback, createDataWithId);
-		}
-
-		if (packetId.equals(PACKET_UPDATE_STATION) || packetId.equals(PACKET_DELETE_STATION) || packetId.equals(PACKET_UPDATE_DEPOT) || packetId.equals(PACKET_DELETE_DEPOT)) {
-			try {
-				UpdateDynmap.updateDynmap(world, railwayData);
-			} catch (Exception ignored) {
-			}
-			try {
-				UpdateBlueMap.updateBlueMap(world, railwayData);
-			} catch (Exception ignored) {
-			}
-			try {
-				UpdateSquaremap.updateSquaremap(world, railwayData);
-			} catch (Exception ignored) {
-			}
 		}
 	}
 
