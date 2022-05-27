@@ -30,7 +30,7 @@ public class EntitySeat extends EntityBase {
 
 	public EntitySeat(Level world, double x, double y, double z) {
 		this(EntityTypes.SEAT.get(), world);
-		absMoveTo(x, y, z);
+		setPos(x, y, z);
 		setDeltaMovement(Vec3.ZERO);
 		xo = x;
 		yo = y;

@@ -28,8 +28,8 @@ public interface EntityTypes {
 		LiftType(int width, int depth, BiFunction<EntityType<?>, Level, EntityLift> function, LiftSupplier liftSupplier) {
 			this.width = width;
 			this.depth = depth;
-			this.key = String.format("lift_%s_%s", width, depth);
-			this.registryObject = new RegistryObject<>(() -> EntityType.Builder.of(function::apply, MobCategory.MISC).sized(Math.max(width, depth), EntityLift.HEIGHT).clientTrackingRange(8).build(key));
+			key = String.format("lift_%s_%s", width, depth);
+			registryObject = new RegistryObject<>(() -> EntityType.Builder.of(function::apply, MobCategory.MISC).sized(Math.max(width, depth) - 0.5F, 1).clientTrackingRange(8).build(key));
 			this.liftSupplier = liftSupplier;
 		}
 	}

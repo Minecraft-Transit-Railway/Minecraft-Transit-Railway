@@ -13,6 +13,9 @@ public abstract class EntityBase extends Entity {
 	private double clientX;
 	private double clientY;
 	private double clientZ;
+	private double speedX;
+	private double speedY;
+	private double speedZ;
 
 	public EntityBase(EntityType<?> entityType, Level level) {
 		super(entityType, level);
@@ -24,6 +27,15 @@ public abstract class EntityBase extends Entity {
 		clientY = y;
 		clientZ = z;
 		clientInterpolationSteps = interpolationSteps;
+		setDeltaMovement(speedX, speedY, speedZ);
+	}
+
+	@Override
+	public void lerpMotion(double speedX, double speedY, double speedZ) {
+		this.speedX = speedX;
+		this.speedY = speedY;
+		this.speedZ = speedZ;
+		setDeltaMovement(speedX, speedY, speedZ);
 	}
 
 	@Override
@@ -45,7 +57,7 @@ public abstract class EntityBase extends Entity {
 			final double y = getY() + (clientY - getY()) / clientInterpolationSteps;
 			final double z = getZ() + (clientZ - getZ()) / clientInterpolationSteps;
 			--clientInterpolationSteps;
-			absMoveTo(x, y, z);
+			setPos(x, y, z);
 		} else {
 			reapplyPosition();
 		}
