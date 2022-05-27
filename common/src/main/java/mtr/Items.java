@@ -23,6 +23,8 @@ public interface Items {
 	RegistryObject<Item> LIFT_3_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_3));
 	RegistryObject<Item> LIFT_4_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_3));
 	RegistryObject<Item> LIFT_4_4 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_4));
+	RegistryObject<Item> LIFT_BUTTONS_LINK_CONNECTOR = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(true));
+	RegistryObject<Item> LIFT_BUTTONS_LINK_REMOVER = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(false));
 	RegistryObject<Item> LIFT_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, null));
 	RegistryObject<Item> PSD_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));
 	RegistryObject<Item> PSD_GLASS_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));

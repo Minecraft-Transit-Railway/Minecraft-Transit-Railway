@@ -1,0 +1,14 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/lift_buttons_link"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"mtr:selected": 1
+			},
+			"model": "mtr:item/lift_buttons_link_connector_selected"
+		}
+	]
+}

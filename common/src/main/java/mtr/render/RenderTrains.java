@@ -2,8 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
@@ -25,7 +23,6 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -378,14 +375,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 					if (rail.railType != RailType.NONE) {
 						rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-							final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
-							final Matrix4f matrix4f = matrices.last().pose();
-							final Matrix3f matrix3f = matrices.last().normal();
 							final int r = renderColors ? (rail.railType.color >> 16) & 0xFF : 0;
 							final int g = renderColors ? (rail.railType.color >> 8) & 0xFF : 0;
 							final int b = renderColors ? rail.railType.color & 0xFF : 0;
-							vertexConsumer.vertex(matrix4f, (float) x1, (float) y1 + 0.5F, (float) z1).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
-							vertexConsumer.vertex(matrix4f, (float) x3, (float) y2 + 0.5F, (float) z3).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
+							IDrawing.drawLine(matrices, vertexConsumers, (float) x1, (float) y1 + 0.5F, (float) z1, (float) x3, (float) y2 + 0.5F, (float) z3, r, g, b);
 						}, 0, 0);
 					}
 

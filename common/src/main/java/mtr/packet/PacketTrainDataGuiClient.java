@@ -103,6 +103,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		});
 	}
 
+	public static void openLiftTrackFloorS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (!(minecraftClient.screen instanceof LiftTrackFloorScreen)) {
+				UtilitiesClient.setScreen(minecraftClient, new LiftTrackFloorScreen(pos));
+			}
+		});
+	}
+
 	public static void openTicketMachineScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
 		final int balance = packet.readInt();
 		minecraftClient.execute(() -> {
@@ -267,6 +276,15 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			packet.writeUtf(string);
 		}
 		RegistryClient.sendToServer(PACKET_UPDATE_TRAIN_SENSOR, packet);
+	}
+
+	public static void sendLiftTrackFloorC2S(BlockPos pos, String floorNumber, String floorDescription, boolean shouldDing) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		packet.writeUtf(floorNumber);
+		packet.writeUtf(floorDescription);
+		packet.writeBoolean(shouldDing);
+		RegistryClient.sendToServer(PACKET_UPDATE_LIFT_TRACK_FLOOR, packet);
 	}
 
 	public static void generatePathS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {

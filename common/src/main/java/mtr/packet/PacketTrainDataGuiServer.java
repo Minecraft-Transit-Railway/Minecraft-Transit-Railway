@@ -59,6 +59,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		Registry.sendToPlayer(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
 	}
 
+	public static void openLiftTrackFloorScreenS2C(ServerPlayer player, BlockPos blockPos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(blockPos);
+		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet);
+	}
+
 	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
@@ -256,6 +262,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			final BlockEntity entity = player.level.getBlockEntity(pos);
 			if (entity instanceof BlockTrainSensorBase.TileEntityTrainSensorBase) {
 				((BlockTrainSensorBase.TileEntityTrainSensorBase) entity).setData(filterIds, stoppedOnly, movingOnly, number, strings);
+			}
+		});
+	}
+
+	public static void receiveLiftTrackFloorC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String floorNumber = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final String floorDescription = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final boolean shouldDing = packet.readBoolean();
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.level.getBlockEntity(pos);
+			if (entity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
+				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).setData(floorNumber, floorDescription, shouldDing);
 			}
 		});
 	}

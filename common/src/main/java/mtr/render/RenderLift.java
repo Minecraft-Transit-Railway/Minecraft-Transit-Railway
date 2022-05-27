@@ -20,6 +20,7 @@ public class RenderLift extends EntityRendererMapper<EntityLift> {
 	public void render(EntityLift entity, float entityYaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
 		matrices.pushPose();
 		matrices.mulPose(Vector3f.YP.rotationDegrees(entityYaw));
+		matrices.mulPose(Vector3f.XP.rotationDegrees(entity.getDoorValueClient() * 3));
 		UtilitiesClient.getMinecartModel().renderToBuffer(matrices, vertexConsumers.getBuffer(RenderType.entityCutout(new ResourceLocation("textures/entity/minecart.png"))), light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		matrices.popPose();
 	}

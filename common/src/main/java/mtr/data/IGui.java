@@ -26,6 +26,7 @@ public interface IGui {
 	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
 	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
 	int ARGB_LIGHT_GRAY = 0xFFAAAAAA;
+	int ARGB_GRAY = 0xFF666666;
 	int ARGB_BACKGROUND = 0xFF121212;
 
 	int MAX_LIGHT_INTERIOR = 0xF000B0; // LightmapTextureManager.pack(0xFF,0xFF); doesn't work with shaders

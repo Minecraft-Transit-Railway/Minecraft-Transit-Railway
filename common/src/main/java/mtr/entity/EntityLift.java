@@ -2,8 +2,14 @@ package mtr.entity;
 
 import mtr.EntityTypes;
 import mtr.block.BlockLiftTrackFloor;
+import mtr.data.LiftInstructions;
 import mtr.data.Train;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,19 +20,23 @@ import java.util.Map;
 
 public abstract class EntityLift extends EntityBase {
 
-	private long targetFloor = Long.MIN_VALUE;
-	private long lastScannedY = Long.MIN_VALUE;
+	private LiftDirection liftDirection = LiftDirection.NONE;
 	private double speed;
 	private BlockPos trackPos = new BlockPos(0, 0, 0);
+	private long lastScannedY = Long.MIN_VALUE;
 
-	private double movementCoolDown = MOVEMENT_COOLDOWN_DEFAULT;
-	private double trackCoolDown = TRACK_COOLDOWN_DEFAULT;
+	private boolean doorOpen = true;
+	private int doorValue = DOOR_MAX;
+	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
 
+	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
 	private final Map<Integer, String> floors = new HashMap<>();
 	private final EntityTypes.LiftType liftType;
 
-	private static final int MOVEMENT_COOLDOWN_DEFAULT = 40;
-	private static final int TRACK_COOLDOWN_DEFAULT = 60;
+	private static final int DOOR_MAX = 24;
+	private static final int TRACK_COOL_DOWN_DEFAULT = 60;
+	private static final EntityDataAccessor<Integer> DOOR_VALUE = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<String> STOPPING_FLOORS = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.STRING);
 
 	public EntityLift(EntityTypes.LiftType liftType, EntityType<?> type, Level world) {
 		super(type, world);
@@ -47,56 +57,71 @@ public abstract class EntityLift extends EntityBase {
 	public void tick() {
 		final BlockEntity blockEntity = level.getBlockEntity(trackPos);
 		final boolean atFloor = blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor;
-		final long currentFloor = trackPos.getY();
+		final int lastTrackY = trackPos.getY();
 
 		if (atFloor) {
-			if (targetFloor == Long.MIN_VALUE) {
-				targetFloor = currentFloor;
-			}
-			if (currentFloor != lastScannedY) {
-				System.out.println("Arrived at " + ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber());
+			((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).setEntityLift(this);
+			if (lastTrackY != lastScannedY) {
 				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).scanFloors(floors);
-				lastScannedY = currentFloor;
+				lastScannedY = lastTrackY;
 			}
 		}
 
 		if (level.isClientSide) {
 			setClientPosition();
 		} else {
-			if (movementCoolDown == 0) {
-				final boolean outOfBounds = trackCoolDown < TRACK_COOLDOWN_DEFAULT - 2;
+			if (liftInstructions.hasInstructions() && doorValue == DOOR_MAX * 2) {
+				doorOpen = false;
+			}
+
+			if (!doorOpen && doorValue == 0) {
+				final boolean outOfBounds = trackCoolDown < TRACK_COOL_DOWN_DEFAULT - 2;
 
 				if (outOfBounds) {
-					speed = (currentFloor - getY()) * 2;
+					speed = Math.abs(lastTrackY - getY()) * 2;
+					liftDirection = lastTrackY > getY() ? LiftDirection.UP : LiftDirection.DOWN;
 				} else {
-					final double stoppingDistance = targetFloor - getY();
-					final double absStoppingDistance = Math.abs(stoppingDistance);
-					if (absStoppingDistance < Train.ACCELERATION_DEFAULT) {
-						if (atFloor) {
-							speed = stoppingDistance;
-							movementCoolDown = MOVEMENT_COOLDOWN_DEFAULT;
+					liftInstructions.getTargetFloor(targetFloor -> {
+						final double stoppingDistance = Math.abs(targetFloor - getY());
+						liftDirection = stoppingDistance < Train.ACCELERATION_DEFAULT ? LiftDirection.NONE : targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN;
+
+						if (liftDirection == LiftDirection.NONE) {
+							speed = 0;
+							doorOpen = true;
+							setDeltaMovement(0, 0, 0);
+							setPos(getX(), targetFloor, getZ());
+							liftInstructions.arrived();
+
+							if (atFloor) {
+								System.out.println("Arrived at " + ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber() + " " + ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorDescription());
+								if (((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
+									level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
+								}
+							}
 						} else {
-							speed = Train.ACCELERATION_DEFAULT;
-							targetFloor = Long.MIN_VALUE;
+							if (stoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
+								speed = Math.max(speed - 0.5 * speed * speed / stoppingDistance, Train.ACCELERATION_DEFAULT);
+							} else {
+								speed = Math.min(speed + Train.ACCELERATION_DEFAULT, 1);
+							}
+
+							final double velocity = speed * liftDirection.speedMultiplier;
+							setDeltaMovement(0, velocity, 0);
+							setPos(getX(), getY() + velocity, getZ());
 						}
-					} else {
-						if (absStoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
-							speed = Math.copySign(Math.max(Math.abs(speed) - 0.5 * speed * speed / absStoppingDistance, Train.ACCELERATION_DEFAULT), stoppingDistance);
-						} else {
-							speed = Math.copySign(Math.min(Math.abs(speed) + Train.ACCELERATION_DEFAULT, 1), speed);
-						}
-					}
+					});
 				}
 
-				if (speed != 0) {
-					setDeltaMovement(0, speed, 0);
-					setPos(getX(), getY() + speed, getZ());
-					if (outOfBounds) {
-						speed = Math.copySign(Train.ACCELERATION_DEFAULT, speed);
-					}
+				if (outOfBounds) {
+					speed = Train.ACCELERATION_DEFAULT;
 				}
 			} else {
-				movementCoolDown--;
+				if (doorOpen) {
+					doorValue = Math.min(doorValue + 1, DOOR_MAX * 2);
+				} else {
+					doorValue = Math.max(doorValue - 1, 0);
+				}
+				entityData.set(DOOR_VALUE, doorValue);
 			}
 
 			if (trackCoolDown == 0) {
@@ -111,11 +136,36 @@ public abstract class EntityLift extends EntityBase {
 
 	@Override
 	protected void defineSynchedData() {
+		entityData.define(DOOR_VALUE, DOOR_MAX);
+		entityData.define(STOPPING_FLOORS, "");
+	}
+
+	public LiftDirection getLiftDirection() {
+		return liftDirection;
+	}
+
+	public int getDoorValueClient() {
+		return entityData.get(DOOR_VALUE);
+	}
+
+	public boolean hasStoppingFloorsClient(int floor, boolean movingUp) {
+		return entityData.get(STOPPING_FLOORS).contains(LiftInstructions.getStringPart(floor, movingUp));
 	}
 
 	public void updateByTrack(BlockPos pos) {
-		trackCoolDown = TRACK_COOLDOWN_DEFAULT;
+		trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
 		trackPos = new BlockPos(pos.getX(), Math.round(getY()), pos.getZ());
+	}
+
+	public void hasButton(int floor, boolean[] hasButton) {
+		floors.keySet().forEach(checkFloor -> {
+			if (checkFloor > floor) {
+				hasButton[0] = true;
+			}
+			if (checkFloor < floor) {
+				hasButton[1] = true;
+			}
+		});
 	}
 
 	public static class EntityLift22 extends EntityLift {
@@ -170,6 +220,16 @@ public abstract class EntityLift extends EntityBase {
 
 		public EntityLift44(Level world, double x, double y, double z) {
 			super(EntityTypes.LiftType.SIZE_4_4, world, x, y, z);
+		}
+	}
+
+	public enum LiftDirection {
+		NONE(0), UP(1), DOWN(-1);
+
+		private final int speedMultiplier;
+
+		LiftDirection(int speedMultiplier) {
+			this.speedMultiplier = speedMultiplier;
 		}
 	}
 }

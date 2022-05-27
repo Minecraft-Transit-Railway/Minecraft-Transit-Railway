@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.EntityTypes;
 import mtr.ItemGroups;
+import mtr.block.BlockLiftTrackFloor;
 import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
@@ -24,11 +25,15 @@ public class ItemLift extends Item {
 	public InteractionResult useOn(UseOnContext context) {
 		final Level world = context.getLevel();
 		final BlockPos pos = context.getClickedPos();
-		final float rotation = -context.getHorizontalDirection().toYRot();
-		final Vec3 offset = new Vec3(liftType.width % 2 == 1 ? 0 : -0.5, 0, liftType.depth % 2 == 1 ? 0 : 0.5).yRot((float) Math.toRadians(rotation)).add(pos.getX() + 0.5, 0, pos.getZ() + 0.5);
-		final EntityLift entity = liftType.liftSupplier.liftSupplier(world, Math.round(offset.x * 2) / 2D, pos.getY() + 1, Math.round(offset.z * 2) / 2D);
-		Utilities.setYaw(entity, rotation);
-		world.addFreshEntity(entity);
-		return InteractionResult.SUCCESS;
+		if (world.getBlockState(pos).getBlock() instanceof BlockLiftTrackFloor) {
+			final float rotation = -context.getHorizontalDirection().toYRot();
+			final Vec3 offset = new Vec3(liftType.width % 2 == 1 ? 0 : -0.5, 0, liftType.depth % 2 == 1 ? 0 : 0.5).yRot((float) Math.toRadians(rotation)).add(pos.getX() + 0.5, 0, pos.getZ() + 0.5);
+			final EntityLift entity = liftType.liftSupplier.liftSupplier(world, Math.round(offset.x * 2) / 2D, pos.getY(), Math.round(offset.z * 2) / 2D);
+			Utilities.setYaw(entity, rotation);
+			world.addFreshEntity(entity);
+			return InteractionResult.SUCCESS;
+		} else {
+			return InteractionResult.FAIL;
+		}
 	}
 }
