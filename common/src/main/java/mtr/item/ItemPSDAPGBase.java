@@ -77,36 +77,41 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	}
 
 	private BlockState getBlockStateFromItem() {
-		switch (type) {
-			case PSD_1:
-				switch (item) {
-					case PSD_APG_DOOR:
-						return Blocks.PSD_DOOR_1.get().defaultBlockState();
-					case PSD_APG_GLASS:
-						return Blocks.PSD_GLASS_1.get().defaultBlockState();
-					case PSD_APG_GLASS_END:
-						return Blocks.PSD_GLASS_END_1.get().defaultBlockState();
-				}
-			case PSD_2:
-				switch (item) {
-					case PSD_APG_DOOR:
-						return Blocks.PSD_DOOR_2.get().defaultBlockState();
-					case PSD_APG_GLASS:
-						return Blocks.PSD_GLASS_2.get().defaultBlockState();
-					case PSD_APG_GLASS_END:
-						return Blocks.PSD_GLASS_END_2.get().defaultBlockState();
-				}
-			case APG:
-				switch (item) {
-					case PSD_APG_DOOR:
-						return Blocks.APG_DOOR.get().defaultBlockState();
-					case PSD_APG_GLASS:
-						return Blocks.APG_GLASS.get().defaultBlockState();
-					case PSD_APG_GLASS_END:
-						return Blocks.APG_GLASS_END.get().defaultBlockState();
-				}
+		if (type == null) {
+			return Blocks.LIFT_DOOR_1.get().defaultBlockState();
+		} else {
+			switch (type) {
+				case PSD_1:
+					switch (item) {
+						case PSD_APG_DOOR:
+							return Blocks.PSD_DOOR_1.get().defaultBlockState();
+						case PSD_APG_GLASS:
+							return Blocks.PSD_GLASS_1.get().defaultBlockState();
+						case PSD_APG_GLASS_END:
+							return Blocks.PSD_GLASS_END_1.get().defaultBlockState();
+					}
+				case PSD_2:
+					switch (item) {
+						case PSD_APG_DOOR:
+							return Blocks.PSD_DOOR_2.get().defaultBlockState();
+						case PSD_APG_GLASS:
+							return Blocks.PSD_GLASS_2.get().defaultBlockState();
+						case PSD_APG_GLASS_END:
+							return Blocks.PSD_GLASS_END_2.get().defaultBlockState();
+					}
+				case APG:
+					switch (item) {
+						case PSD_APG_DOOR:
+							return Blocks.APG_DOOR.get().defaultBlockState();
+						case PSD_APG_GLASS:
+							return Blocks.APG_GLASS.get().defaultBlockState();
+						case PSD_APG_GLASS_END:
+							return Blocks.APG_GLASS_END.get().defaultBlockState();
+					}
+				default:
+					return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+			}
 		}
-		return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
 	}
 
 	public static boolean blocksNotReplaceable(UseOnContext context, int width, int height, Block blacklistBlock) {

@@ -18,6 +18,12 @@ public interface Items {
 	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
 	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new WaterLilyBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
 	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES)));
+	RegistryObject<Item> LIFT_2_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2));
+	RegistryObject<Item> LIFT_3_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_2));
+	RegistryObject<Item> LIFT_3_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_3));
+	RegistryObject<Item> LIFT_4_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_3));
+	RegistryObject<Item> LIFT_4_4 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_4));
+	RegistryObject<Item> LIFT_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, null));
 	RegistryObject<Item> PSD_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));
 	RegistryObject<Item> PSD_GLASS_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));
 	RegistryObject<Item> PSD_GLASS_END_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.PSD_1));

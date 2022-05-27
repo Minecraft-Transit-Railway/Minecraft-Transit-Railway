@@ -57,6 +57,12 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
+		registerItem.accept("lift_2_2", Items.LIFT_2_2);
+		registerItem.accept("lift_3_2", Items.LIFT_3_2);
+		registerItem.accept("lift_3_3", Items.LIFT_3_3);
+		registerItem.accept("lift_4_3", Items.LIFT_4_3);
+		registerItem.accept("lift_4_4", Items.LIFT_4_4);
+		registerItem.accept("lift_door_1", Items.LIFT_DOOR_1);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -176,6 +182,8 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlock.accept("lift_door_1", Blocks.LIFT_DOOR_1);
+		registerBlockItem.accept("lift_track_1", Blocks.LIFT_TRACK_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_sandy", Blocks.MARBLE_SANDY, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_blue_slab", Blocks.MARBLE_BLUE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -361,6 +369,11 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
 		registerEntityType.accept("seat", EntityTypes.SEAT);
+		registerEntityType.accept("lift_2_2", EntityTypes.LiftType.SIZE_2_2.registryObject);
+		registerEntityType.accept("lift_3_2", EntityTypes.LiftType.SIZE_3_2.registryObject);
+		registerEntityType.accept("lift_3_3", EntityTypes.LiftType.SIZE_3_3.registryObject);
+		registerEntityType.accept("lift_4_3", EntityTypes.LiftType.SIZE_4_3.registryObject);
+		registerEntityType.accept("lift_4_4", EntityTypes.LiftType.SIZE_4_4.registryObject);
 
 		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
 		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
