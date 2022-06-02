@@ -86,14 +86,12 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 			lookingAtBottomHalf = false;
 		} else {
 			final Vec3 hitLocation = hitResult.getLocation();
-			if (new BlockPos(hitLocation).equals(pos)) {
-				final double hitY = hitLocation.y - Math.floor(hitLocation.y);
-				lookingAtTopHalf = !buttonStates[1] || hitY > 0.25;
-				lookingAtBottomHalf = !buttonStates[0] || hitY < 0.25;
-			} else {
-				lookingAtTopHalf = false;
-				lookingAtBottomHalf = false;
-			}
+			final double hitX = hitLocation.x - Math.floor(hitLocation.x);
+			final double hitY = hitLocation.y - Math.floor(hitLocation.y);
+			final double hitZ = hitLocation.z - Math.floor(hitLocation.z);
+			final boolean inBlock = hitX > 0 && hitY > 0 && hitZ > 0 && new BlockPos(hitLocation).equals(pos);
+			lookingAtTopHalf = inBlock && (!buttonStates[1] || hitY > 0.25 && hitY < 0.5);
+			lookingAtBottomHalf = inBlock && (!buttonStates[0] || hitY < 0.25);
 		}
 
 		matrices.mulPose(Vector3f.YN.rotationDegrees(facing.toYRot()));

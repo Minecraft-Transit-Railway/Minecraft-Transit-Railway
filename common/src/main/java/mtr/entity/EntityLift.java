@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public abstract class EntityLift extends EntityBase {
 	private LiftDirection liftDirection = LiftDirection.NONE;
 	private double speed;
 	private BlockPos trackPos = new BlockPos(0, 0, 0);
-	private long lastScannedY = Long.MIN_VALUE;
+	private int scanCoolDown;
 
 	private boolean doorOpen = true;
 	private int doorValue = DOOR_MAX;
@@ -48,6 +49,7 @@ public abstract class EntityLift extends EntityBase {
 	private static final int TRACK_COOL_DOWN_DEFAULT = 60;
 	private static final float LIFT_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final EntityDataAccessor<Integer> DOOR_VALUE = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<String> STOPPING_FLOORS = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.STRING);
 
 	public EntityLift(EntityTypes.LiftType liftType, EntityType<?> type, Level world) {
@@ -73,10 +75,13 @@ public abstract class EntityLift extends EntityBase {
 
 		if (atFloor) {
 			((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).setEntityLift(this);
-			if (lastTrackY != lastScannedY) {
+			if (scanCoolDown >= TRACK_COOL_DOWN_DEFAULT) {
 				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).scanFloors(floors);
-				lastScannedY = lastTrackY;
+				scanCoolDown = 0;
 			}
+			scanCoolDown++;
+		} else {
+			scanCoolDown = TRACK_COOL_DOWN_DEFAULT;
 		}
 
 		if (level.isClientSide) {
@@ -84,6 +89,9 @@ public abstract class EntityLift extends EntityBase {
 		} else {
 			if (liftInstructions.hasInstructions() && doorValue == DOOR_MAX * 2) {
 				doorOpen = false;
+				liftInstructions.getTargetFloor(targetFloor -> entityData.set(DIRECTION, (targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN).ordinal()));
+			} else if (!liftInstructions.hasInstructions()) {
+				entityData.set(DIRECTION, LiftDirection.NONE.ordinal());
 			}
 
 			if (!doorOpen && doorValue == 0) {
@@ -104,11 +112,8 @@ public abstract class EntityLift extends EntityBase {
 							setPos(getX(), targetFloor, getZ());
 							liftInstructions.arrived();
 
-							if (atFloor) {
-								System.out.println("Arrived at " + ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorNumber() + " " + ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getFloorDescription());
-								if (((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
-									level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
-								}
+							if (atFloor && ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
+								level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
 							}
 						} else {
 							if (stoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
@@ -128,7 +133,7 @@ public abstract class EntityLift extends EntityBase {
 					speed = Train.ACCELERATION_DEFAULT;
 				}
 			} else {
-				if (!doorOpen && doorValue > 0 || doorOpen && doorValue < DOOR_MAX * 2) {
+				if (!doorOpen && doorValue > 0 || doorOpen && doorValue < DOOR_MAX * 2 || level.getNearestPlayer(this, 8) != null) {
 					if (doorOpen) {
 						doorValue = Math.min(doorValue + 1, DOOR_MAX * 2);
 					} else {
@@ -201,6 +206,7 @@ public abstract class EntityLift extends EntityBase {
 	@Override
 	protected void defineSynchedData() {
 		entityData.define(DOOR_VALUE, DOOR_MAX);
+		entityData.define(DIRECTION, 0);
 		entityData.define(STOPPING_FLOORS, "");
 	}
 
@@ -213,7 +219,11 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	public int getDoorValueClient() {
-		return entityData.get(DOOR_VALUE);
+		return Math.min(DOOR_MAX, entityData.get(DOOR_VALUE));
+	}
+
+	public LiftDirection getLiftDirectionClient() {
+		return LiftDirection.values()[Math.abs(entityData.get(DIRECTION)) % LiftDirection.values().length];
 	}
 
 	public boolean hasStoppingFloorsClient(int floor, boolean movingUp) {
@@ -236,13 +246,17 @@ public abstract class EntityLift extends EntityBase {
 		});
 	}
 
+	public String[] getCurrentFloorDisplay() {
+		return floors.keySet().stream().min(Comparator.comparingInt(a -> (int) Math.abs(getY() - a))).map(floors::get).orElse("").split("\\|\\|");
+	}
+
 	private double getNegativeXBound(boolean includeDoorCheck) {
 		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
 			case 0:
 			case 180:
 				return -liftType.width / 2D;
 			case 90:
-				return (doorValue > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+				return (getDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			case 270:
 				return -liftType.depth / 2D;
 			default:
@@ -253,7 +267,7 @@ public abstract class EntityLift extends EntityBase {
 	private double getNegativeZBound(boolean includeDoorCheck) {
 		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
 			case 0:
-				return (doorValue > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+				return (getDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			case 180:
 				return -liftType.depth / 2D;
 			case 90:
@@ -272,7 +286,7 @@ public abstract class EntityLift extends EntityBase {
 			case 90:
 				return liftType.depth / 2D;
 			case 270:
-				return (doorValue > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+				return (getDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			default:
 				return 0;
 		}
@@ -283,7 +297,7 @@ public abstract class EntityLift extends EntityBase {
 			case 0:
 				return liftType.depth / 2D;
 			case 180:
-				return (doorValue > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+				return (getDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			case 90:
 			case 270:
 				return liftType.width / 2D;

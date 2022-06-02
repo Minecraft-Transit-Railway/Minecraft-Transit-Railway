@@ -5,7 +5,7 @@
 	},
 	"elements": [
 		{
-			"from": [ 0, 0, 4 ],
+			"from": [ 0.5, 0, 4 ],
 			"to": [ 2, 16, 16 ],
 			"faces": {
 				"down": { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },

@@ -54,11 +54,11 @@ public class MTRForge {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
 			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject::get, RenderLift::new);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject::get, RenderLift::new);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3.registryObject::get, RenderLift::new);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3.registryObject::get, RenderLift::new);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject::get, RenderLift::new);
+			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject::get, dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_2_2));
+			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject::get, dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_3_2));
+			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3.registryObject::get, dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_3_3));
+			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3.registryObject::get, dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_4_3));
+			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject::get, dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_4_4));
 			MinecraftForge.EVENT_BUS.register(ForgeUtilities.RenderTick.class);
 			eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
 		});

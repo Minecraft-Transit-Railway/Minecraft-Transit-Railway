@@ -38,7 +38,7 @@ public class BlockLiftTrack extends HorizontalDirectionalBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
-		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 2, IBlock.getStatePropertySafe(state, FACING));
+		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, FACING));
 	}
 
 	@Override
