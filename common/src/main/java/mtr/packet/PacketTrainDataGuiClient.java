@@ -332,6 +332,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_SIGN_TYPES, packet);
 	}
 
+	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUUID(uuid);
+		packet.writeInt(floor);
+		RegistryClient.sendToServer(PACKET_PRESS_LIFT_BUTTON, packet);
+	}
+
 	public static void addBalanceC2S(int addAmount, int emeralds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeInt(addAmount);

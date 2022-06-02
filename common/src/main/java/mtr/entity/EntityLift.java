@@ -39,7 +39,7 @@ public abstract class EntityLift extends EntityBase {
 	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
 
 	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
-	private final Map<Integer, String> floors = new HashMap<>();
+	public final Map<Integer, String> floors = new HashMap<>();
 	private final Map<Player, Double> playerPositionX = new HashMap<>();
 	private final Map<Player, Double> playerPositionZ = new HashMap<>();
 	private final EntityTypes.LiftType liftType;
@@ -206,6 +206,10 @@ public abstract class EntityLift extends EntityBase {
 
 	public LiftDirection getLiftDirection() {
 		return liftDirection;
+	}
+
+	public void pressLiftButton(int floor) {
+		liftInstructions.addInstruction((int) Math.round(getY()), liftDirection == LiftDirection.UP, floor);
 	}
 
 	public int getDoorValueClient() {

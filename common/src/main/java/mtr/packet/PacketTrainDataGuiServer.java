@@ -5,15 +5,18 @@ import mtr.Keys;
 import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
+import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
@@ -304,6 +307,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				if (entityAbove instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
 					((BlockRouteSignBase.TileEntityRouteSignBase) entityAbove).setPlatformId(platformId);
 				}
+			}
+		});
+	}
+
+	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final UUID uuid = packet.readUUID();
+		final int floor = packet.readInt();
+
+		minecraftServer.execute(() -> {
+			final Entity entity = ((ServerLevel) player.level).getEntity(uuid);
+			if (entity instanceof EntityLift) {
+				((EntityLift) entity).pressLiftButton(floor);
 			}
 		});
 	}

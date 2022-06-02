@@ -1,6 +1,10 @@
 package mtr.client;
 
+import mtr.KeyMappings;
 import mtr.data.*;
+import mtr.entity.EntityLift;
+import mtr.mappings.UtilitiesClient;
+import mtr.screen.LiftSelectionScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -8,6 +12,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.function.Function;
@@ -45,6 +51,18 @@ public final class ClientData {
 			PLAYER_RIDING_COOL_DOWN.put(uuid, coolDown - 1);
 		});
 		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
+
+		final Minecraft minecraftClient = Minecraft.getInstance();
+		final Player player = minecraftClient.player;
+		if (player != null) {
+			final Entity vehicle = player.getVehicle();
+			if (vehicle instanceof EntityLift) {
+				if (KeyMappings.LIFT_MENU.isDown() && !(minecraftClient.screen instanceof LiftSelectionScreen)) {
+					UtilitiesClient.setScreen(minecraftClient, new LiftSelectionScreen((EntityLift) vehicle));
+				}
+				player.displayClientMessage(new TranslatableComponent("gui.mtr.press_to_select_floor", KeyMappings.LIFT_MENU.getTranslatedKeyMessage()), true);
+			}
+		}
 	}
 
 	public static void writeRails(Minecraft client, FriendlyByteBuf packet) {

@@ -94,11 +94,11 @@ public class BlockLiftTrackFloor extends BlockLiftTrack implements EntityBlockMa
 		public void scanFloors(Map<Integer, String> floors) {
 			floors.clear();
 			scanFloors(level, worldPosition, false, tileEntityLiftTrackFloor -> {
-				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber);
+				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber + "||" + tileEntityLiftTrackFloor.floorDescription);
 				return false;
 			});
 			scanFloors(level, worldPosition, true, tileEntityLiftTrackFloor -> {
-				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber);
+				floors.put(tileEntityLiftTrackFloor.worldPosition.getY(), tileEntityLiftTrackFloor.floorNumber + "||" + tileEntityLiftTrackFloor.floorDescription);
 				return false;
 			});
 		}
