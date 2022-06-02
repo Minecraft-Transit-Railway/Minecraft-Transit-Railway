@@ -1,18 +1,27 @@
 package mtr.entity;
 
 import mtr.EntityTypes;
+import mtr.block.BlockLiftDoor;
 import mtr.block.BlockLiftTrackFloor;
 import mtr.data.LiftInstructions;
+import mtr.data.RailwayData;
 import mtr.data.Train;
+import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -31,10 +40,13 @@ public abstract class EntityLift extends EntityBase {
 
 	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
 	private final Map<Integer, String> floors = new HashMap<>();
+	private final Map<Player, Double> playerPositionX = new HashMap<>();
+	private final Map<Player, Double> playerPositionZ = new HashMap<>();
 	private final EntityTypes.LiftType liftType;
 
 	private static final int DOOR_MAX = 24;
 	private static final int TRACK_COOL_DOWN_DEFAULT = 60;
+	private static final float LIFT_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final EntityDataAccessor<Integer> DOOR_VALUE = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<String> STOPPING_FLOORS = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.STRING);
 
@@ -116,12 +128,27 @@ public abstract class EntityLift extends EntityBase {
 					speed = Train.ACCELERATION_DEFAULT;
 				}
 			} else {
-				if (doorOpen) {
-					doorValue = Math.min(doorValue + 1, DOOR_MAX * 2);
-				} else {
-					doorValue = Math.max(doorValue - 1, 0);
+				if (!doorOpen && doorValue > 0 || doorOpen && doorValue < DOOR_MAX * 2) {
+					if (doorOpen) {
+						doorValue = Math.min(doorValue + 1, DOOR_MAX * 2);
+					} else {
+						doorValue = Math.max(doorValue - 1, 0);
+					}
+
+					entityData.set(DOOR_VALUE, doorValue);
+
+					final Direction direction = Direction.fromYRot(-Utilities.getYaw(this));
+					final Direction directionClockwise = direction.getClockWise();
+					for (int i = -1; i <= 1; i++) {
+						final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
+						final BlockState checkState1 = level.getBlockState(checkPos);
+						final BlockState checkState2 = level.getBlockState(checkPos.above());
+						if (checkState1.getBlock() instanceof BlockLiftDoor && checkState2.getBlock() instanceof BlockLiftDoor) {
+							level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockLiftDoor.OPEN, Math.min(doorValue, DOOR_MAX)));
+							level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockLiftDoor.OPEN, Math.min(doorValue, DOOR_MAX)));
+						}
+					}
 				}
-				entityData.set(DOOR_VALUE, doorValue);
 			}
 
 			if (trackCoolDown == 0) {
@@ -131,7 +158,44 @@ public abstract class EntityLift extends EntityBase {
 			}
 		}
 
+		getPassengers().forEach(entity -> {
+			if (entity instanceof Player) {
+				final Vec3 movement = new Vec3(Math.signum(((Player) entity).xxa) * LIFT_WALKING_SPEED_MULTIPLIER, 0, Math.signum(((Player) entity).zza) * LIFT_WALKING_SPEED_MULTIPLIER).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
+				playerPositionX.put((Player) entity, Mth.clamp(playerPositionX.getOrDefault(entity, 0D) + movement.x, getNegativeXBound(true) + 0.5, getPositiveXBound(true) - 0.5));
+				playerPositionZ.put((Player) entity, Mth.clamp(playerPositionZ.getOrDefault(entity, 0D) + movement.z, getNegativeZBound(true) + 0.5, getPositiveZBound(true) - 0.5));
+			}
+		});
+
 		checkInsideBlocks();
+	}
+
+	@Override
+	public void playerTouch(Player player) {
+		if (RailwayData.isBetween(player.getX() - getX(), getNegativeXBound(false), getPositiveXBound(false)) && RailwayData.isBetween(player.getZ() - getZ(), getNegativeZBound(false), getPositiveZBound(false))) {
+			if (!hasPassenger(player)) {
+				playerPositionX.put(player, player.getX() - getX());
+				playerPositionZ.put(player, player.getZ() - getZ());
+				player.startRiding(this);
+			}
+		} else {
+			if (hasPassenger(player)) {
+				player.stopRiding();
+			}
+		}
+	}
+
+	@Override
+	public void positionRider(Entity entity) {
+		if (entity instanceof Player && hasPassenger(entity)) {
+			entity.setPos(getX() + playerPositionX.getOrDefault(entity, 0D), getY(), getZ() + playerPositionZ.getOrDefault(entity, 0D));
+		} else {
+			super.positionRider(entity);
+		}
+	}
+
+	@Override
+	public Vec3 getDismountLocationForPassenger(LivingEntity livingEntity) {
+		return livingEntity.position();
 	}
 
 	@Override
@@ -166,6 +230,62 @@ public abstract class EntityLift extends EntityBase {
 				hasButton[1] = true;
 			}
 		});
+	}
+
+	private double getNegativeXBound(boolean includeDoorCheck) {
+		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
+			case 0:
+			case 180:
+				return -liftType.width / 2D;
+			case 90:
+				return (doorValue > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+			case 270:
+				return -liftType.depth / 2D;
+			default:
+				return 0;
+		}
+	}
+
+	private double getNegativeZBound(boolean includeDoorCheck) {
+		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
+			case 0:
+				return (doorValue > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+			case 180:
+				return -liftType.depth / 2D;
+			case 90:
+			case 270:
+				return -liftType.width / 2D;
+			default:
+				return 0;
+		}
+	}
+
+	private double getPositiveXBound(boolean includeDoorCheck) {
+		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
+			case 0:
+			case 180:
+				return liftType.width / 2D;
+			case 90:
+				return liftType.depth / 2D;
+			case 270:
+				return (doorValue > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+			default:
+				return 0;
+		}
+	}
+
+	private double getPositiveZBound(boolean includeDoorCheck) {
+		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
+			case 0:
+				return liftType.depth / 2D;
+			case 180:
+				return (doorValue > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+			case 90:
+			case 270:
+				return liftType.width / 2D;
+			default:
+				return 0;
+		}
 	}
 
 	public static class EntityLift22 extends EntityLift {
