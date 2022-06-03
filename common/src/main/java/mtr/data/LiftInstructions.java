@@ -52,7 +52,6 @@ public class LiftInstructions {
 		for (int i = 0; i < tempInstructions.size() - 1; i++) {
 			final LiftInstruction previousInstruction = tempInstructions.get(i);
 			final LiftInstruction nextInstruction = tempInstructions.get(i + 1);
-			distance += Math.abs(nextInstruction.floor - previousInstruction.floor);
 			final boolean newMovingUpTemp = noDirection ? nextInstruction.movingUp : newMovingUp;
 
 			if (instructions.contains(new LiftInstruction(newFloor, newMovingUpTemp))) {
@@ -64,15 +63,18 @@ public class LiftInstructions {
 					instructions.add(i, new LiftInstruction(newFloor, newMovingUpTemp));
 					callback.accept(toString());
 				}
-				return distance + Math.abs(newFloor - nextInstruction.floor);
+				return distance + Math.abs(newFloor - previousInstruction.floor);
 			}
+
+			distance += Math.abs(nextInstruction.floor - previousInstruction.floor);
 		}
 
+		final int lastInstruction = hasInstructions() ? instructions.get(instructions.size() - 1).floor : currentFloor;
 		if (shouldAdd) {
-			instructions.add(new LiftInstruction(newFloor, noDirection ? newFloor > (hasInstructions() ? instructions.get(instructions.size() - 1).floor : currentFloor) : newMovingUp));
+			instructions.add(new LiftInstruction(newFloor, noDirection ? newFloor > lastInstruction : newMovingUp));
 			callback.accept(toString());
 		}
-		return distance + Math.abs(newFloor - currentFloor);
+		return distance + Math.abs(newFloor - lastInstruction);
 	}
 
 	@Override
@@ -114,7 +116,7 @@ public class LiftInstructions {
 				final boolean liftMovingUp = entityLift.getLiftDirection() == EntityLift.LiftDirection.UP;
 				final int weight = entityLift.liftInstructions.addInstruction(liftFloor, liftMovingUp, newLiftFloor, newMovingUp, false, false);
 
-				if (weight >= 0 && (topHalfClicked == newMovingUp && weight < currentWeight[0] || newMovingUp && !hasButtonOverall[0] || !hasButtonOverall[1])) {
+				if (weight >= 0 && (topHalfClicked == newMovingUp && weight < currentWeight[0] || newMovingUp && !hasButtonOverall[0] || !newMovingUp && !hasButtonOverall[1])) {
 					currentWeight[0] = weight;
 					liftInstructionsToUse[0] = entityLift.liftInstructions;
 					liftFloorToUse[0] = liftFloor;
