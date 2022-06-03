@@ -41,12 +41,6 @@ public class LiftInstructions {
 	}
 
 	private int addInstruction(int currentFloor, boolean currentMovingUp, int newFloor, boolean newMovingUp, boolean noDirection, boolean shouldAdd) {
-		final LiftInstruction liftInstruction = new LiftInstruction(newFloor, newMovingUp);
-
-		if (instructions.contains(liftInstruction)) {
-			return -1;
-		}
-
 		if (currentFloor == newFloor) {
 			return 0;
 		}
@@ -59,10 +53,15 @@ public class LiftInstructions {
 			final LiftInstruction previousInstruction = tempInstructions.get(i);
 			final LiftInstruction nextInstruction = tempInstructions.get(i + 1);
 			distance += Math.abs(nextInstruction.floor - previousInstruction.floor);
+			final boolean newMovingUpTemp = noDirection ? nextInstruction.movingUp : newMovingUp;
 
-			if (nextInstruction.canInsert(previousInstruction, newFloor, newMovingUp, noDirection)) {
+			if (instructions.contains(new LiftInstruction(newFloor, newMovingUpTemp))) {
+				return -1;
+			}
+
+			if (nextInstruction.canInsert(previousInstruction, newFloor, newMovingUpTemp)) {
 				if (shouldAdd) {
-					instructions.add(i, liftInstruction);
+					instructions.add(i, new LiftInstruction(newFloor, newMovingUpTemp));
 					callback.accept(toString());
 				}
 				return distance + Math.abs(newFloor - nextInstruction.floor);
@@ -70,7 +69,7 @@ public class LiftInstructions {
 		}
 
 		if (shouldAdd) {
-			instructions.add(liftInstruction);
+			instructions.add(new LiftInstruction(newFloor, noDirection ? newFloor > (hasInstructions() ? instructions.get(instructions.size() - 1).floor : currentFloor) : newMovingUp));
 			callback.accept(toString());
 		}
 		return distance + Math.abs(newFloor - currentFloor);
@@ -157,19 +156,11 @@ public class LiftInstructions {
 			this.movingUp = movingUp;
 		}
 
-		private boolean canInsert(LiftInstruction previousInstruction, int newFloor, boolean newMovingUp, boolean noDirection) {
-			if (previousInstruction.movingUp) {
-				if (newMovingUp || noDirection) {
-					return newFloor > previousInstruction.floor && floor > newFloor;
-				} else {
-					return newFloor > floor;
-				}
+		private boolean canInsert(LiftInstruction previousInstruction, int newFloor, boolean newMovingUp) {
+			if (RailwayData.isBetween(newFloor, previousInstruction.floor, floor) && newMovingUp == movingUp) {
+				return true;
 			} else {
-				if (!newMovingUp || noDirection) {
-					return newFloor < previousInstruction.floor && floor < newFloor;
-				} else {
-					return newFloor < floor;
-				}
+				return previousInstruction.movingUp != movingUp && previousInstruction.movingUp == (newFloor > previousInstruction.floor);
 			}
 		}
 
