@@ -18,7 +18,6 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -42,7 +41,7 @@ public class RegistryClientImpl {
 	}
 
 	public static void registerKeyBinding(KeyMapping keyMapping) {
-		ClientRegistry.registerKeyBinding(keyMapping);
+		ForgeUtilities.registerKeyBinding(keyMapping);
 	}
 
 	public static void registerBlockColors(Block block) {
