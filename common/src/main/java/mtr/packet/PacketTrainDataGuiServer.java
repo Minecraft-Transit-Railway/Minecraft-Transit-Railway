@@ -5,15 +5,18 @@ import mtr.Keys;
 import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
+import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
@@ -57,6 +60,12 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(blockPos);
 		Registry.sendToPlayer(player, PACKET_OPEN_TRAIN_SENSOR_SCREEN, packet);
+	}
+
+	public static void openLiftTrackFloorScreenS2C(ServerPlayer player, BlockPos blockPos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(blockPos);
+		Registry.sendToPlayer(player, PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet);
 	}
 
 	public static void openPIDSConfigScreenS2C(ServerPlayer player, BlockPos pos1, BlockPos pos2, int maxArrivals) {
@@ -260,6 +269,19 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
+	public static void receiveLiftTrackFloorC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String floorNumber = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final String floorDescription = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		final boolean shouldDing = packet.readBoolean();
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.level.getBlockEntity(pos);
+			if (entity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
+				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) entity).setData(floorNumber, floorDescription, shouldDing);
+			}
+		});
+	}
+
 	public static void receiveSignIdsC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final BlockPos signPos = packet.readBlockPos();
 		final int selectedIdsLength = packet.readInt();
@@ -285,6 +307,18 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 				if (entityAbove instanceof BlockRouteSignBase.TileEntityRouteSignBase) {
 					((BlockRouteSignBase.TileEntityRouteSignBase) entityAbove).setPlatformId(platformId);
 				}
+			}
+		});
+	}
+
+	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final UUID uuid = packet.readUUID();
+		final int floor = packet.readInt();
+
+		minecraftServer.execute(() -> {
+			final Entity entity = ((ServerLevel) player.level).getEntity(uuid);
+			if (entity instanceof EntityLift) {
+				((EntityLift) entity).pressLiftButton(floor);
 			}
 		});
 	}

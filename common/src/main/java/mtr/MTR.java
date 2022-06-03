@@ -57,6 +57,15 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
+		registerItem.accept("lift_2_2", Items.LIFT_2_2);
+		registerItem.accept("lift_3_2", Items.LIFT_3_2);
+		registerItem.accept("lift_3_3", Items.LIFT_3_3);
+		registerItem.accept("lift_4_3", Items.LIFT_4_3);
+		registerItem.accept("lift_4_4", Items.LIFT_4_4);
+		registerItem.accept("lift_buttons_link_connector", Items.LIFT_BUTTONS_LINK_CONNECTOR);
+		registerItem.accept("lift_buttons_link_remover", Items.LIFT_BUTTONS_LINK_REMOVER);
+		registerItem.accept("lift_door_1", Items.LIFT_DOOR_1);
+		registerItem.accept("lift_door_odd_1", Items.LIFT_DOOR_ODD_1);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -176,6 +185,11 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("glass_fence_tsh", Blocks.GLASS_FENCE_TSH, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("glass_fence_wks", Blocks.GLASS_FENCE_WKS, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
+		registerBlockItem.accept("lift_buttons_1", Blocks.LIFT_BUTTONS_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlock.accept("lift_door_1", Blocks.LIFT_DOOR_1);
+		registerBlock.accept("lift_door_odd_1", Blocks.LIFT_DOOR_ODD_1);
+		registerBlockItem.accept("lift_track_1", Blocks.LIFT_TRACK_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlockItem.accept("lift_track_floor_1", Blocks.LIFT_TRACK_FLOOR_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_sandy", Blocks.MARBLE_SANDY, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("marble_blue_slab", Blocks.MARBLE_BLUE_SLAB, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -319,6 +333,8 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("arrival_projector_1_large", BlockEntityTypes.ARRIVAL_PROJECTOR_1_LARGE_TILE_ENTITY);
 		registerBlockEntityType.accept("boat_node", BlockEntityTypes.BOAT_NODE_TILE_ENTITY);
 		registerBlockEntityType.accept("clock", BlockEntityTypes.CLOCK_TILE_ENTITY);
+		registerBlockEntityType.accept("lift_buttons_1", BlockEntityTypes.LIFT_BUTTONS_1_TILE_ENTITY);
+		registerBlockEntityType.accept("lift_track_floor_1", BlockEntityTypes.LIFT_TRACK_FLOOR_1_TILE_ENTITY);
 		registerBlockEntityType.accept("psd_top", BlockEntityTypes.PSD_TOP_TILE_ENTITY);
 		registerBlockEntityType.accept("apg_glass", BlockEntityTypes.APG_GLASS_TILE_ENTITY);
 		registerBlockEntityType.accept("pids_1", BlockEntityTypes.PIDS_1_TILE_ENTITY);
@@ -361,6 +377,11 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
 
 		registerEntityType.accept("seat", EntityTypes.SEAT);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_2_2.key, EntityTypes.LiftType.SIZE_2_2.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_2.key, EntityTypes.LiftType.SIZE_3_2.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_3.key, EntityTypes.LiftType.SIZE_3_3.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_3.key, EntityTypes.LiftType.SIZE_4_3.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_4.key, EntityTypes.LiftType.SIZE_4_4.registryObject);
 
 		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
 		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);
@@ -373,6 +394,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_GENERATE_PATH, PacketTrainDataGuiServer::generatePathC2S);
 		Registry.registerNetworkReceiver(PACKET_CLEAR_TRAINS, PacketTrainDataGuiServer::clearTrainsC2S);
 		Registry.registerNetworkReceiver(PACKET_SIGN_TYPES, PacketTrainDataGuiServer::receiveSignIdsC2S);
+		Registry.registerNetworkReceiver(PACKET_PRESS_LIFT_BUTTON, PacketTrainDataGuiServer::receivePressLiftButtonC2S);
 		Registry.registerNetworkReceiver(PACKET_ADD_BALANCE, PacketTrainDataGuiServer::receiveAddBalanceC2S);
 		Registry.registerNetworkReceiver(PACKET_PIDS_UPDATE, PacketTrainDataGuiServer::receivePIDSMessageC2S);
 		Registry.registerNetworkReceiver(PACKET_ARRIVAL_PROJECTOR_UPDATE, PacketTrainDataGuiServer::receiveArrivalProjectorMessageC2S);
@@ -387,6 +409,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_DELETE_ROUTE, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_ROUTE, railwayData -> railwayData.routes, railwayData -> railwayData.dataCache.routeIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_DELETE_DEPOT, (minecraftServer, player, packet) -> PacketTrainDataGuiServer.receiveUpdateOrDeleteC2S(minecraftServer, player, packet, PACKET_DELETE_DEPOT, railwayData -> railwayData.depots, railwayData -> railwayData.dataCache.depotIdMap, null, true));
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_SENSOR, PacketTrainDataGuiServer::receiveTrainSensorC2S);
+		Registry.registerNetworkReceiver(PACKET_UPDATE_LIFT_TRACK_FLOOR, PacketTrainDataGuiServer::receiveLiftTrackFloorC2S);
 		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
@@ -469,6 +492,10 @@ public class MTR implements IPacket {
 
 	public static boolean isGameTickInterval(int interval) {
 		return gameTick % interval == 0;
+	}
+
+	public static boolean isGameTickInterval(int interval, int offset) {
+		return (gameTick + offset) % interval == 0;
 	}
 
 	@FunctionalInterface

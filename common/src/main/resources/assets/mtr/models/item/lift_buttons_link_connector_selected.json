@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/lift_buttons_link",
+		"layer1": "mtr:item/rail_action_selected"
+	}
+}

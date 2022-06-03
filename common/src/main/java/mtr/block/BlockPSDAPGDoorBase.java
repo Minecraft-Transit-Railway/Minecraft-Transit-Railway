@@ -25,6 +25,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.create("end");
+	public static final BooleanProperty ODD = BooleanProperty.create("odd");
 	public static final IntegerProperty OPEN = IntegerProperty.create("open", 0, MAX_OPEN_VALUE);
 
 	@Override
