@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.*;
 
 public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButtons.TileEntityLiftButtons> implements IGui, IBlock {
 
@@ -60,6 +63,8 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		matrices.translate(0.5, 0, 0.5);
 
 		final boolean[] buttonStates = {false, false, false, false};
+		final Map<BlockPos, Tuple<String[], EntityLift.LiftDirection>> liftDisplays = new HashMap<>();
+		final List<BlockPos> liftPositions = new ArrayList<>();
 		entity.forEachTrackPosition(world, (trackPosition, trackFloorTileEntity) -> {
 			if (holdingLinker) {
 				final Direction trackFacing = IBlock.getStatePropertySafe(world, trackPosition, HorizontalDirectionalBlock.FACING);
@@ -75,8 +80,13 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 				if (entityLift.hasStoppingFloorsClient(trackPosition.getY(), false)) {
 					buttonStates[3] = true;
 				}
+
+				final BlockPos liftPos = new BlockPos(entityLift.getX(), 0, entityLift.getZ());
+				liftPositions.add(liftPos);
+				liftDisplays.put(liftPos, new Tuple<>(entityLift.getCurrentFloorDisplay(), entityLift.getLiftDirectionClient()));
 			}
 		});
+		liftPositions.sort(Comparator.comparingInt(checkPos -> facing.getStepX() * (checkPos.getZ() - pos.getZ()) - facing.getStepZ() * (checkPos.getX() - pos.getX())));
 
 		final HitResult hitResult = Minecraft.getInstance().hitResult;
 		final boolean lookingAtTopHalf;
@@ -105,6 +115,20 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(buttonStates[3] || lookingAtBottomHalf ? MoreRenderLayers.getLight(BUTTON_TEXTURE, true) : MoreRenderLayers.getExterior(BUTTON_TEXTURE));
 			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[0] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[3] ? PRESSED_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
 		}
+
+		final float maxWidth = Math.min(0.25F, 0.375F / liftPositions.size());
+		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
+		matrices.translate(maxWidth * (0.5 - liftPositions.size() / 2F), 0, 0);
+		IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/black.png"))), -maxWidth / 2, -0.9375F, maxWidth * liftPositions.size(), 0.40625F, Direction.UP, light);
+		matrices.translate(0, -0.625, -SMALL_OFFSET);
+
+		liftPositions.forEach(liftPosition -> {
+			final Tuple<String[], EntityLift.LiftDirection> liftDisplay = liftDisplays.get(liftPosition);
+			if (liftDisplay != null) {
+				RenderLift.renderLiftDisplay(matrices, vertexConsumers, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.25F);
+			}
+			matrices.translate(maxWidth, 0, 0);
+		});
 
 		matrices.popPose();
 	}

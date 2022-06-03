@@ -38,14 +38,7 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 
 		matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 		matrices.translate(0.875F, -1.25, depth / 2F - 0.25 - SMALL_OFFSET);
-		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, entity.getCurrentFloorDisplay()[0], IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, 0, 0, 0.15625F, -1, 96, LIGHT_COLOR, false, MAX_LIGHT_GLOWING, null);
-		immediate.endBatch();
-
-		final EntityLift.LiftDirection liftDirection = entity.getLiftDirectionClient();
-		if (liftDirection != EntityLift.LiftDirection.NONE) {
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -0.03125F, -0.25F, 0.0625F, 0.0625F, 0, liftDirection == EntityLift.LiftDirection.UP ? 0 : 1, 1, liftDirection == EntityLift.LiftDirection.UP ? 1 : 0, Direction.UP, LIGHT_COLOR, MAX_LIGHT_GLOWING);
-		}
+		renderLiftDisplay(matrices, vertexConsumers, entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.25F);
 
 		matrices.popPose();
 	}
@@ -53,5 +46,15 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 	@Override
 	public ResourceLocation getTextureLocation(EntityLift entity) {
 		return null;
+	}
+
+	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float spacing) {
+		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, floorNumber, IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, 0, 0, maxWidth, -1, 18 / maxWidth, LIGHT_COLOR, false, MAX_LIGHT_GLOWING, null);
+		immediate.endBatch();
+
+		if (liftDirection != EntityLift.LiftDirection.NONE) {
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -maxWidth / 6, -spacing, maxWidth / 3, maxWidth / 3, 0, liftDirection == EntityLift.LiftDirection.UP ? 0 : 1, 1, liftDirection == EntityLift.LiftDirection.UP ? 1 : 0, Direction.UP, LIGHT_COLOR, MAX_LIGHT_GLOWING);
+		}
 	}
 }
