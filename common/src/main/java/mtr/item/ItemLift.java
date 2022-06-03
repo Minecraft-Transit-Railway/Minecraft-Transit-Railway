@@ -5,12 +5,20 @@ import mtr.ItemGroups;
 import mtr.block.BlockLiftTrack;
 import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class ItemLift extends Item {
 
@@ -32,5 +40,11 @@ public class ItemLift extends Item {
 		Utilities.setYaw(entity, rotation);
 		world.addFreshEntity(entity);
 		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
+		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_width", liftType.width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_depth", liftType.depth).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 }

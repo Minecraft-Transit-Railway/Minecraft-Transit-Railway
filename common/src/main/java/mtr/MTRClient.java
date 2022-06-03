@@ -53,6 +53,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_TSH.get());
 		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_WKS.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_1.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_ODD_1.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LOGO.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_INDENTED.get());

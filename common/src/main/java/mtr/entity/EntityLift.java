@@ -1,8 +1,8 @@
 package mtr.entity;
 
 import mtr.EntityTypes;
-import mtr.block.BlockLiftDoor;
 import mtr.block.BlockLiftTrackFloor;
+import mtr.block.BlockPSDAPGDoorBase;
 import mtr.data.LiftInstructions;
 import mtr.data.RailwayData;
 import mtr.data.Train;
@@ -141,9 +141,9 @@ public abstract class EntityLift extends EntityBase {
 						final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
 						final BlockState checkState1 = level.getBlockState(checkPos);
 						final BlockState checkState2 = level.getBlockState(checkPos.above());
-						if (checkState1.getBlock() instanceof BlockLiftDoor && checkState2.getBlock() instanceof BlockLiftDoor) {
-							level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockLiftDoor.OPEN, Math.min(doorValue, DOOR_MAX)));
-							level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockLiftDoor.OPEN, Math.min(doorValue, DOOR_MAX)));
+						if (checkState1.getBlock() instanceof BlockPSDAPGDoorBase && checkState2.getBlock() instanceof BlockPSDAPGDoorBase) {
+							level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
+							level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
 						}
 					}
 				}

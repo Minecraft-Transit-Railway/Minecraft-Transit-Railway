@@ -65,6 +65,7 @@ public class MTR implements IPacket {
 		registerItem.accept("lift_buttons_link_connector", Items.LIFT_BUTTONS_LINK_CONNECTOR);
 		registerItem.accept("lift_buttons_link_remover", Items.LIFT_BUTTONS_LINK_REMOVER);
 		registerItem.accept("lift_door_1", Items.LIFT_DOOR_1);
+		registerItem.accept("lift_door_odd_1", Items.LIFT_DOOR_ODD_1);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -186,6 +187,7 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("logo", Blocks.LOGO, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerBlockItem.accept("lift_buttons_1", Blocks.LIFT_BUTTONS_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlock.accept("lift_door_1", Blocks.LIFT_DOOR_1);
+		registerBlock.accept("lift_door_odd_1", Blocks.LIFT_DOOR_ODD_1);
 		registerBlockItem.accept("lift_track_1", Blocks.LIFT_TRACK_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("lift_track_floor_1", Blocks.LIFT_TRACK_FLOOR_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("marble_blue", Blocks.MARBLE_BLUE, ItemGroups.STATION_BUILDING_BLOCKS);
