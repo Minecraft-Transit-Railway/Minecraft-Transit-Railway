@@ -46,7 +46,8 @@ public abstract class EntityLift extends EntityBase {
 	private final EntityTypes.LiftType liftType;
 
 	private static final int DOOR_MAX = 24;
-	private static final int TRACK_COOL_DOWN_DEFAULT = 60;
+	private static final int TRACK_COOL_DOWN_DEFAULT = 10;
+	private static final int SCAN_COOL_DOWN_DEFAULT = 60;
 	private static final float LIFT_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final EntityDataAccessor<Integer> DOOR_VALUE = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
@@ -70,19 +71,14 @@ public abstract class EntityLift extends EntityBase {
 	@Override
 	public void tick() {
 		final BlockEntity blockEntity = level.getBlockEntity(trackPos);
-		final boolean atFloor = blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor;
-		final int lastTrackY = trackPos.getY();
-
-		if (atFloor) {
+		if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
 			((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).setEntityLift(this);
-			if (scanCoolDown >= TRACK_COOL_DOWN_DEFAULT) {
+			if (floors.isEmpty() || scanCoolDown >= SCAN_COOL_DOWN_DEFAULT) {
 				((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).scanFloors(floors);
 				scanCoolDown = 0;
 			}
-			scanCoolDown++;
-		} else {
-			scanCoolDown = TRACK_COOL_DOWN_DEFAULT;
 		}
+		scanCoolDown++;
 
 		if (level.isClientSide) {
 			setClientPosition();
@@ -94,44 +90,41 @@ public abstract class EntityLift extends EntityBase {
 				entityData.set(DIRECTION, LiftDirection.NONE.ordinal());
 			}
 
+			if (floors.isEmpty() && scanCoolDown >= SCAN_COOL_DOWN_DEFAULT) {
+				doorOpen = false;
+				doorValue = 0;
+				entityData.set(DOOR_VALUE, 0);
+				final int currentFloor = (int) Math.round(getY());
+				liftInstructions.addInstruction(currentFloor, true, currentFloor + 1);
+			}
+
 			if (!doorOpen && doorValue == 0) {
-				final boolean outOfBounds = trackCoolDown < TRACK_COOL_DOWN_DEFAULT - 2;
+				liftInstructions.getTargetFloor(targetFloor -> {
+					final double stoppingDistance = Math.abs(targetFloor - getY());
+					liftDirection = stoppingDistance < Train.ACCELERATION_DEFAULT ? LiftDirection.NONE : targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN;
 
-				if (outOfBounds) {
-					speed = Math.abs(lastTrackY - getY()) * 2;
-					liftDirection = lastTrackY > getY() ? LiftDirection.UP : LiftDirection.DOWN;
-				} else {
-					liftInstructions.getTargetFloor(targetFloor -> {
-						final double stoppingDistance = Math.abs(targetFloor - getY());
-						liftDirection = stoppingDistance < Train.ACCELERATION_DEFAULT ? LiftDirection.NONE : targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN;
+					if (liftDirection == LiftDirection.NONE) {
+						speed = 0;
+						doorOpen = true;
+						setDeltaMovement(0, 0, 0);
+						setPos(getX(), targetFloor, getZ());
+						liftInstructions.arrived();
 
-						if (liftDirection == LiftDirection.NONE) {
-							speed = 0;
-							doorOpen = true;
-							setDeltaMovement(0, 0, 0);
-							setPos(getX(), targetFloor, getZ());
-							liftInstructions.arrived();
-
-							if (atFloor && ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
-								level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
-							}
-						} else {
-							if (stoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
-								speed = Math.max(speed - 0.5 * speed * speed / stoppingDistance, Train.ACCELERATION_DEFAULT);
-							} else {
-								speed = Math.min(speed + Train.ACCELERATION_DEFAULT, 1);
-							}
-
-							final double velocity = speed * liftDirection.speedMultiplier;
-							setDeltaMovement(0, velocity, 0);
-							setPos(getX(), getY() + velocity, getZ());
+						if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor && ((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).getShouldDing()) {
+							level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
 						}
-					});
-				}
+					} else {
+						if (stoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
+							speed = Math.max(speed - 0.5 * speed * speed / stoppingDistance, Train.ACCELERATION_DEFAULT);
+						} else {
+							speed = Math.min(speed + Train.ACCELERATION_DEFAULT, 1);
+						}
 
-				if (outOfBounds) {
-					speed = Train.ACCELERATION_DEFAULT;
-				}
+						final double velocity = speed * liftDirection.speedMultiplier;
+						setDeltaMovement(0, velocity, 0);
+						setPos(getX(), getY() + velocity, getZ());
+					}
+				});
 			} else {
 				if (!doorOpen && doorValue > 0 || doorOpen && doorValue < DOOR_MAX * 2 || level.getNearestPlayer(this, 8) != null) {
 					if (doorOpen) {

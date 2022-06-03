@@ -2,6 +2,7 @@ package mtr.item;
 
 import mtr.EntityTypes;
 import mtr.ItemGroups;
+import mtr.block.BlockLiftTrack;
 import mtr.entity.EntityLift;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,8 @@ public class ItemLift extends Item {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		final Level world = context.getLevel();
-		final BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
+		final BlockPos clickedPos = context.getClickedPos();
+		final BlockPos pos = world.getBlockState(clickedPos).getBlock() instanceof BlockLiftTrack ? clickedPos : clickedPos.relative(context.getClickedFace());
 		final float rotation = -context.getHorizontalDirection().toYRot();
 		final Vec3 offset = new Vec3(0.5 - liftType.width / 2F, 0, liftType.depth / 2F - 0.5).yRot((float) Math.toRadians(rotation)).add(pos.getX() + 0.5, 0, pos.getZ() + 0.5);
 		final EntityLift entity = liftType.liftSupplier.liftSupplier(world, Math.round(offset.x * 2) / 2D, pos.getY(), Math.round(offset.z * 2) / 2D);

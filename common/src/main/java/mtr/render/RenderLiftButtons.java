@@ -120,12 +120,12 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		matrices.mulPose(Vector3f.ZP.rotationDegrees(180));
 		matrices.translate(maxWidth * (0.5 - liftPositions.size() / 2F), 0, 0);
 		IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/block/black.png"))), -maxWidth / 2, -0.9375F, maxWidth * liftPositions.size(), 0.40625F, Direction.UP, light);
-		matrices.translate(0, -0.625, -SMALL_OFFSET);
+		matrices.translate(0, -0.875, -SMALL_OFFSET);
 
 		liftPositions.forEach(liftPosition -> {
 			final Tuple<String[], EntityLift.LiftDirection> liftDisplay = liftDisplays.get(liftPosition);
 			if (liftDisplay != null) {
-				RenderLift.renderLiftDisplay(matrices, vertexConsumers, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.25F);
+				RenderLift.renderLiftDisplay(matrices, vertexConsumers, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.3125F);
 			}
 			matrices.translate(maxWidth, 0, 0);
 		});

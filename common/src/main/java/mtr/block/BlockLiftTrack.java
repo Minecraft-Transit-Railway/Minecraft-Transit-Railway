@@ -32,7 +32,18 @@ public class BlockLiftTrack extends HorizontalDirectionalBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		final Direction facing = ctx.getHorizontalDirection();
+		final Direction facing;
+		final Direction oppositeFace = ctx.getClickedFace().getOpposite();
+		if (oppositeFace.getStepY() == 0) {
+			facing = oppositeFace;
+		} else {
+			final BlockState state = ctx.getLevel().getBlockState(ctx.getClickedPos().relative(oppositeFace));
+			if (state.getBlock() instanceof BlockLiftTrack) {
+				facing = IBlock.getStatePropertySafe(state, FACING);
+			} else {
+				facing = ctx.getHorizontalDirection();
+			}
+		}
 		return defaultBlockState().setValue(FACING, facing);
 	}
 

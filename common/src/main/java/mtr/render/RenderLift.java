@@ -37,8 +37,8 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 		modelLift1.render(matrices, vertexConsumers, LIFT_TEXTURE, light, entity.getDoorValueClient(), 0, false, 0, 1, false, true, false, false);
 
 		matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-		matrices.translate(0.875F, -1.25, depth / 2F - 0.25 - SMALL_OFFSET);
-		renderLiftDisplay(matrices, vertexConsumers, entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.25F);
+		matrices.translate(0.875F, -1.5, depth / 2F - 0.25 - SMALL_OFFSET);
+		renderLiftDisplay(matrices, vertexConsumers, entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.3125F);
 
 		matrices.popPose();
 	}
@@ -48,13 +48,13 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 		return null;
 	}
 
-	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float spacing) {
+	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
 		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, floorNumber, IGui.HorizontalAlignment.CENTER, IGui.VerticalAlignment.CENTER, 0, 0, maxWidth, -1, 18 / maxWidth, LIGHT_COLOR, false, MAX_LIGHT_GLOWING, null);
+		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, floorNumber, IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, maxWidth, -1, 18 / maxWidth, LIGHT_COLOR, false, MAX_LIGHT_GLOWING, null);
 		immediate.endBatch();
 
 		if (liftDirection != EntityLift.LiftDirection.NONE) {
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -maxWidth / 6, -spacing, maxWidth / 3, maxWidth / 3, 0, liftDirection == EntityLift.LiftDirection.UP ? 0 : 1, 1, liftDirection == EntityLift.LiftDirection.UP ? 1 : 0, Direction.UP, LIGHT_COLOR, MAX_LIGHT_GLOWING);
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(ARROW_TEXTURE, true)), -maxWidth / 6, 0, maxWidth / 3, maxWidth / 3, 0, liftDirection == EntityLift.LiftDirection.UP ? 0 : 1, 1, liftDirection == EntityLift.LiftDirection.UP ? 1 : 0, Direction.UP, LIGHT_COLOR, MAX_LIGHT_GLOWING);
 		}
 	}
 }
