@@ -470,6 +470,7 @@
 	"options.mtr.track_rendering_distance": "Track Rendering Distance",
 	"options.mtr.hide_all_vehicles": "Hide All Vehicles",
 	"options.mtr.hide_all_tracks": "Hide All Tracks",
+	"options.mtr.hide_train_when_riding": "Hide Train When Riding",
 	"options.mtr.use_mtr_font": "Use custom MTR fonts (might not work on some computers)",
 	"options.mtr.use_tts_announcements": "Enable \"next station\" text-to-speech announcements",
 	"options.mtr.vehicle_render_distance_ratio": "Vehicle rendering to Minecraft render distance ratio",

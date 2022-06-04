@@ -25,9 +25,9 @@ public class Config {
 	private static int dynamicTextureResolution = 2;
 	private static int trainRenderDistanceRatio = 7;
 	private static int trackRenderDistance = 16;
-	private static int maxTrainsThatShow = 16;
 	private static boolean hideAllTrains;
 	private static boolean hideAllTracks;
+	private static boolean hideTrainWhenRiding;
 	public static final List<Patreon> PATREON_LIST = new ArrayList<>();
 	public static final int TRACK_OFFSET_COUNT = 32;
 	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
@@ -45,6 +45,7 @@ public class Config {
 	private static final String TRACK_RENDER_DISTANCE = "track_rendering_distance";
 	private static final String HIDE_ALL_TRAINS = "hide_all_trains";
 	private static final String HIDE_ALL_TRACKS = "hide_all_tracks";
+	private static final String HIDE_TRAIN_WHEN_RIDING = "hide_train_when_riding";
 	public static boolean useMTRFont() {
 		return useMTRFont;
 	}
@@ -85,16 +86,16 @@ public class Config {
 		return trackRenderDistance;
 	}
 
-	public static int maxTrainsThatShow() {
-		return maxTrainsThatShow;
-	}
-
 	public static boolean hideAllTrains() {
 		return hideAllTrains;
 	}
 
 	public static boolean hideAllTracks() {
 		return hideAllTracks;
+	}
+
+	public static boolean hideTrainWhenRiding() {
+		return hideTrainWhenRiding;
 	}
 
 	public static boolean setUseMTRFont(boolean value) {
@@ -143,6 +144,12 @@ public class Config {
 		hideAllTracks = value;
 		writeToFile();
 		return hideAllTracks;
+	}
+
+	public static boolean hideTrainWhenRiding(boolean value) {
+		hideTrainWhenRiding = value;
+		writeToFile();
+		return hideTrainWhenRiding;
 	}
 
 	public static void setTrackTextureOffset(int value) {
@@ -213,6 +220,10 @@ public class Config {
 				hideAllTracks = jsonConfig.get(HIDE_ALL_TRACKS).getAsBoolean();
 			} catch (Exception ignored) {
 			}
+			try {
+				hideTrainWhenRiding = jsonConfig.get(HIDE_TRAIN_WHEN_RIDING).getAsBoolean();
+			} catch (Exception ignored) {
+			}
 		} catch (Exception e) {
 			writeToFile();
 			e.printStackTrace();
@@ -238,6 +249,7 @@ public class Config {
 		jsonConfig.addProperty(TRACK_RENDER_DISTANCE, trackRenderDistance);
 		jsonConfig.addProperty(HIDE_ALL_TRAINS, hideAllTrains);
 		jsonConfig.addProperty(HIDE_ALL_TRACKS, hideAllTracks);
+		jsonConfig.addProperty(HIDE_TRAIN_WHEN_RIDING, hideTrainWhenRiding);
 
 		try {
 			Files.write(CONFIG_FILE_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));

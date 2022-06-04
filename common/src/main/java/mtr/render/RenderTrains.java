@@ -502,9 +502,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
-
 		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains()) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+		} else if (Config.hideTrainWhenRiding()) {
+			if (!posAverage.closerThan(cameraPos, 2)) {
+				renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+			}
 		}
 	}
 
@@ -572,3 +575,4 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		void renderCallback(int light, BlockPos posAverage);
 	}
 }
+
