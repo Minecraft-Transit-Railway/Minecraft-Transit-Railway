@@ -215,11 +215,11 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 
 		RegistryClient.registerEntityRenderer(EntityTypes.SEAT.get(), RenderTrains::new);
-		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject.get(), dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_2_2));
-		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject.get(), dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_3_2));
-		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3.registryObject.get(), dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_3_3));
-		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3.registryObject.get(), dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_4_3));
-		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject.get(), dispatcher -> new RenderLift(dispatcher, EntityTypes.LiftType.SIZE_4_4));
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_3.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3.registryObject.get(), RenderLift::new);
+		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject.get(), RenderLift::new);
 
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK.get());

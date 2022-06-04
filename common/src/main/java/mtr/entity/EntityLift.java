@@ -41,9 +41,9 @@ public abstract class EntityLift extends EntityBase {
 
 	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
 	public final Map<Integer, String> floors = new HashMap<>();
+	public final EntityTypes.LiftType liftType;
 	private final Map<Player, Double> playerPositionX = new HashMap<>();
 	private final Map<Player, Double> playerPositionZ = new HashMap<>();
-	private final EntityTypes.LiftType liftType;
 
 	private static final int DOOR_MAX = 24;
 	private static final int TRACK_COOL_DOWN_DEFAULT = 10;

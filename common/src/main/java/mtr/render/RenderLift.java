@@ -3,7 +3,6 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Vector3f;
-import mtr.EntityTypes;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.entity.EntityLift;
@@ -16,17 +15,12 @@ import net.minecraft.resources.ResourceLocation;
 
 public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui {
 
-	private final int depth;
-	private final ModelLift1 modelLift1;
-
 	private static final int LIGHT_COLOR = 0xFFFF0000;
 	private static final ResourceLocation LIFT_TEXTURE = new ResourceLocation("mtr:textures/entity/lift_1.png");
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/sign/lift_arrow.png");
 
-	public RenderLift(Object parameter, EntityTypes.LiftType liftType) {
+	public RenderLift(Object parameter) {
 		super(parameter);
-		depth = liftType.depth;
-		modelLift1 = new ModelLift1(liftType.width, liftType.depth);
 	}
 
 	@Override
@@ -34,10 +28,10 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 		matrices.pushPose();
 		matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 		matrices.mulPose(Vector3f.YP.rotationDegrees(180 - entityYaw));
-		modelLift1.render(matrices, vertexConsumers, LIFT_TEXTURE, light, entity.getDoorValueClient(), 0, false, 0, 1, false, true, false, false);
+		new ModelLift1(entity.liftType.width, entity.liftType.depth).render(matrices, vertexConsumers, LIFT_TEXTURE, light, entity.getDoorValueClient(), 0, false, 0, 1, false, true, false, false);
 
 		matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-		matrices.translate(0.875F, -1.5, depth / 2F - 0.25 - SMALL_OFFSET);
+		matrices.translate(0.875F, -1.5, entity.liftType.depth / 2F - 0.25 - SMALL_OFFSET);
 		renderLiftDisplay(matrices, vertexConsumers, entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.3125F);
 
 		matrices.popPose();
