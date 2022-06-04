@@ -23,6 +23,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private boolean useDynamicFPS;
 	private boolean hideAllTrains;
 	private boolean hideAllTracks;
+	private boolean hideTrainWhenRiding;
 	private final Button buttonUseMTRFont;
 	private final Button buttonShowAnnouncementMessages;
 	private final Button buttonUseTTSAnnouncements;
@@ -31,6 +32,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private final Button buttonUseDynamicFPS;
 	private final Button buttonHideAllTrains;
 	private final Button buttonHideAllTracks;
+	private final Button buttonHideTrainWhenRiding;
 	private final WidgetShorterSlider sliderTrackTextureOffset;
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final WidgetShorterSlider sliderTrainRenderDistanceRatio;
@@ -75,6 +77,10 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			hideAllTracks = Config.hideAllTracks(!hideAllTracks);
 			setButtonText(button, hideAllTracks);
 		});
+		buttonHideTrainWhenRiding = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+			hideTrainWhenRiding = Config.hideTrainWhenRiding(!hideTrainWhenRiding);
+			setButtonText(button, hideTrainWhenRiding);
+		});
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
@@ -94,6 +100,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		useDynamicFPS = Config.useDynamicFPS();
 		hideAllTrains = Config.hideAllTrains();
 		hideAllTracks = Config.hideAllTracks();
+		hideTrainWhenRiding = Config.hideTrainWhenRiding();
 
 		int i = 1;
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
@@ -104,6 +111,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideAllTrains, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonHideAllTracks, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonHideTrainWhenRiding, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
 		IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
@@ -117,6 +125,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		setButtonText(buttonUseDynamicFPS, useDynamicFPS);
 		setButtonText(buttonHideAllTrains, hideAllTrains);
 		setButtonText(buttonHideAllTracks, hideAllTracks);
+		setButtonText(buttonHideTrainWhenRiding, hideTrainWhenRiding);
 		sliderTrackTextureOffset.setHeight(BUTTON_HEIGHT);
 		sliderTrackTextureOffset.setValue(Config.trackTextureOffset());
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
@@ -135,6 +144,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		addDrawableChild(buttonUseDynamicFPS);
 		addDrawableChild(buttonHideAllTrains);
 		addDrawableChild(buttonHideAllTracks);
+		addDrawableChild(buttonHideTrainWhenRiding);
 		addDrawableChild(sliderTrackTextureOffset);
 		addDrawableChild(sliderDynamicTextureResolution);
 		addDrawableChild(sliderTrainRenderDistanceRatio);
@@ -158,6 +168,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			drawString(matrices, font, new TranslatableComponent("options.mtr.use_dynamic_fps"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_all_vehicles"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_all_tracks"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_train_when_riding"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 			drawString(matrices, font, new TranslatableComponent("options.mtr.vehicle_render_distance_ratio"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);

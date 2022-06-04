@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import io.netty.buffer.ByteBuf;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
 import mtr.block.BlockPlatform;
@@ -51,7 +52,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static mtr.client.ClientData.TRAINS;
+import static mtr.client.ClientData.*;
 
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
 
@@ -66,7 +67,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	private static float lastRenderedTick;
 	private static int prevPlatformCount;
 	private static int prevSidingCount;
-	private static UUID renderedUuid;
+	public static UUID renderedUuid;
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 
@@ -475,8 +476,12 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
-		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains()) {
+		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains() && !Config.hideTrainWhenRiding()) {
+			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+		} else if (Config.hideTrainWhenRiding()) {
+			if (!posAverage.closerThan(cameraPos, 2)) {
 				renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
+			}
 		}
 	}
 
@@ -497,7 +502,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final ResourceLocation id = new ResourceLocation(textureString);
 		final boolean available;
 
-		if (!AVAILABLE_TEXTURES.contains(textureString) && !UNAVAILABLE_TEXTURES.contains(textureString)) {
+		if (AVAILABLE_TEXTURES.contains(textureString) && !UNAVAILABLE_TEXTURES.contains(textureString)) {
 			available = Minecraft.getInstance().getResourceManager().hasResource(id);
 			(available ? AVAILABLE_TEXTURES : UNAVAILABLE_TEXTURES).add(textureString);
 			if (!available) {
@@ -507,7 +512,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			available = AVAILABLE_TEXTURES.contains(textureString);
 		}
 
-		if (available) {
+		if (!available) {
 			return id;
 		} else {
 			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
