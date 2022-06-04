@@ -42,8 +42,6 @@ public abstract class EntityLift extends EntityBase {
 	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
 	public final Map<Integer, String> floors = new HashMap<>();
 	public final EntityTypes.LiftType liftType;
-	private final Map<Player, Double> playerPositionX = new HashMap<>();
-	private final Map<Player, Double> playerPositionZ = new HashMap<>();
 
 	private static final int DOOR_MAX = 24;
 	private static final int TRACK_COOL_DOWN_DEFAULT = 10;
@@ -156,27 +154,15 @@ public abstract class EntityLift extends EntityBase {
 			}
 		}
 
-		getPassengers().forEach(entity -> {
-			if (entity instanceof Player) {
-				final Vec3 movement = new Vec3(Math.signum(((Player) entity).xxa) * LIFT_WALKING_SPEED_MULTIPLIER, 0, Math.signum(((Player) entity).zza) * LIFT_WALKING_SPEED_MULTIPLIER).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
-				playerPositionX.put((Player) entity, Mth.clamp(playerPositionX.getOrDefault(entity, 0D) + movement.x, getNegativeXBound(true) + 0.5, getPositiveXBound(true) - 0.5));
-				playerPositionZ.put((Player) entity, Mth.clamp(playerPositionZ.getOrDefault(entity, 0D) + movement.z, getNegativeZBound(true) + 0.5, getPositiveZBound(true) - 0.5));
-			}
-		});
-
 		checkInsideBlocks();
 	}
 
 	@Override
 	public void playerTouch(Player player) {
-		if (RailwayData.isBetween(player.getX() - getX(), getNegativeXBound(false), getPositiveXBound(false)) && RailwayData.isBetween(player.getZ() - getZ(), getNegativeZBound(false), getPositiveZBound(false))) {
-			if (!hasPassenger(player)) {
-				playerPositionX.put(player, player.getX() - getX());
-				playerPositionZ.put(player, player.getZ() - getZ());
+		if (!level.isClientSide) {
+			if (playerInBounds(player)) {
 				player.startRiding(this);
-			}
-		} else {
-			if (hasPassenger(player)) {
+			} else {
 				player.stopRiding();
 			}
 		}
@@ -185,15 +171,18 @@ public abstract class EntityLift extends EntityBase {
 	@Override
 	public void positionRider(Entity entity) {
 		if (entity instanceof Player && hasPassenger(entity)) {
-			entity.setPos(getX() + playerPositionX.getOrDefault(entity, 0D), getY(), getZ() + playerPositionZ.getOrDefault(entity, 0D));
+			final Vec3 movement = new Vec3(Math.signum(((Player) entity).xxa) * LIFT_WALKING_SPEED_MULTIPLIER, 0, Math.signum(((Player) entity).zza) * LIFT_WALKING_SPEED_MULTIPLIER).yRot((float) -Math.toRadians(Utilities.getYaw(entity)));
+			final double movementX = Mth.clamp(entity.getX() - getX() + movement.x, getNegativeXBound(true) + 0.5, getPositiveXBound(true) - 0.5);
+			final double movementZ = Mth.clamp(entity.getZ() - getZ() + movement.z, getNegativeZBound(true) + 0.5, getPositiveZBound(true) - 0.5);
+			entity.setPos(getX() + movementX, getY(), getZ() + movementZ);
 		} else {
-			super.positionRider(entity);
+			entity.setPos(getX(), getY(), getZ());
 		}
 	}
 
 	@Override
 	public Vec3 getDismountLocationForPassenger(LivingEntity livingEntity) {
-		return livingEntity.position();
+		return livingEntity.position().add(0, playerInBounds(livingEntity) ? (liftDirection == LiftDirection.UP ? speed : 0) + 3 : 0, 0);
 	}
 
 	@Override
@@ -297,6 +286,11 @@ public abstract class EntityLift extends EntityBase {
 			default:
 				return 0;
 		}
+	}
+
+	private boolean playerInBounds(Entity entity) {
+		final double offset = hasPassenger(entity) ? 0.25 : 0;
+		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false) - offset, getPositiveXBound(false) + offset) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false) - offset, getPositiveZBound(false) + offset);
 	}
 
 	public static class EntityLift22 extends EntityLift {
