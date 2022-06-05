@@ -1,79 +1,63 @@
 package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mtr.client.IDrawing;
+import mtr.data.DataConverter;
 import mtr.data.IGui;
+import mtr.data.NameColorDataBase;
 import mtr.entity.EntityLift;
 import mtr.mappings.ScreenMapper;
 import mtr.packet.PacketTrainDataGuiClient;
-import net.minecraft.client.gui.components.Button;
+import mtr.render.RenderLift;
 import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class LiftSelectionScreen extends ScreenMapper implements IGui {
 
-	private final Button[] buttons;
+	private final DashboardList selectionList;
 	private final List<Integer> floorLevels;
 	private final List<String> floorDescriptions = new ArrayList<>();
-	private final Function<Integer, Boolean> hasStoppingFloor;
-
-	private static final int BUTTON_WIDTH = SQUARE_SIZE * 3;
-	private static final int DESCRIPTION_WIDTH = SQUARE_SIZE * 5;
+	private final EntityLift entityLift;
 
 	public LiftSelectionScreen(EntityLift entityLift) {
 		super(new TextComponent(""));
-
+		this.entityLift = entityLift;
 		final Map<Integer, String> floors = entityLift == null ? new HashMap<>() : entityLift.floors;
 		floorLevels = new ArrayList<>(floors.keySet());
-		floorLevels.sort(Integer::compareTo);
-		buttons = new Button[floorLevels.size()];
-		for (int i = 0; i < floorLevels.size(); i++) {
-			final String[] floorStringSplit = floors.getOrDefault(floorLevels.get(i), "").split("\\|\\|");
-			floorDescriptions.add(floorStringSplit.length > 1 ? IGui.formatStationName(floorStringSplit[1]) : "");
-			final int index = i;
-			buttons[i] = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(floorStringSplit[0]), button -> {
-				if (entityLift != null) {
-					PacketTrainDataGuiClient.sendPressLiftButtonC2S(entityLift.getUUID(), floorLevels.get(index));
-				}
-			});
-		}
-		hasStoppingFloor = floor -> {
-			if (entityLift != null) {
-				return entityLift.hasStoppingFloorsClient(floor, true) || entityLift.hasStoppingFloorsClient(floor, false);
-			} else {
-				return false;
-			}
-		};
+		floorLevels.sort((a, b) -> b - a);
+		floorLevels.forEach(floorLevel -> floorDescriptions.add(IGui.formatStationName(floors.getOrDefault(floorLevel, ""))));
+		selectionList = new DashboardList(this::onPress, null, null, null, null, null, null, () -> "", text -> {
+		});
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		iterateButtons((index, x, y) -> {
-			IDrawing.setPositionAndWidth(buttons[index], x, y, BUTTON_WIDTH);
-			addDrawableChild(buttons[index]);
-		});
+		selectionList.x = width / 2 - PANEL_WIDTH;
+		selectionList.y = SQUARE_SIZE;
+		selectionList.width = PANEL_WIDTH * 2;
+		selectionList.height = height - SQUARE_SIZE * 2;
+		selectionList.init(this::addDrawableChild);
 	}
 
 	@Override
 	public void tick() {
+		selectionList.tick();
+		final List<NameColorDataBase> list = new ArrayList<>();
 		for (int i = 0; i < floorLevels.size(); i++) {
-			buttons[i].active = !hasStoppingFloor.apply(floorLevels.get(i));
+			list.add(new DataConverter(floorDescriptions.get(i), hasStoppingFloor(floorLevels.get(i)) ? RenderLift.LIGHT_COLOR : ARGB_BLACK));
 		}
+		selectionList.setData(list, true, false, false, false, false, false);
 	}
 
 	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			iterateButtons((index, x, y) -> {
-				font.draw(matrices, floorDescriptions.get(index), x + BUTTON_WIDTH + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
-			});
+			selectionList.render(matrices, font);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,30 +65,32 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	}
 
 	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		selectionList.mouseMoved(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		selectionList.mouseScrolled(mouseX, mouseY, amount);
+		return super.mouseScrolled(mouseX, mouseY, amount);
+	}
+
+	@Override
 	public boolean isPauseScreen() {
 		return false;
 	}
 
-	private void iterateButtons(IterateButtonsCallback iterateButtonsCallback) {
-		final int maxRows = (height - SQUARE_SIZE * 2) / SQUARE_SIZE;
-		final int columns = (int) Math.ceil((float) floorLevels.size() / maxRows);
-		final int rows = (int) Math.ceil((float) floorLevels.size() / columns);
-
-		int row = rows - 1;
-		int column = 0;
-		for (int i = 0; i < floorLevels.size(); i++) {
-			iterateButtonsCallback.iterateButtonsCallback(i, width / 2 + (int) ((column - columns / 2F) * (BUTTON_WIDTH + DESCRIPTION_WIDTH)), row * SQUARE_SIZE + SQUARE_SIZE);
-			if (row == 0) {
-				row = rows - 1;
-				column++;
-			} else {
-				row--;
-			}
+	private void onPress(NameColorDataBase data, int index) {
+		if (entityLift != null) {
+			PacketTrainDataGuiClient.sendPressLiftButtonC2S(entityLift.getUUID(), floorLevels.get(index));
 		}
 	}
 
-	@FunctionalInterface
-	private interface IterateButtonsCallback {
-		void iterateButtonsCallback(int index, int x, int y);
+	private boolean hasStoppingFloor(int floor) {
+		if (entityLift != null) {
+			return entityLift.hasStoppingFloorsClient(floor, true) || entityLift.hasStoppingFloorsClient(floor, false);
+		} else {
+			return false;
+		}
 	}
 }

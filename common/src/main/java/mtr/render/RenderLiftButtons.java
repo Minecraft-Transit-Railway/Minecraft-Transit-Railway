@@ -30,7 +30,6 @@ import java.util.*;
 
 public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButtons.TileEntityLiftButtons> implements IGui, IBlock {
 
-	private static final int PRESSED_COLOR = 0xFFFF0000;
 	private static final int HOVER_COLOR = 0xFFFFAAAA;
 	private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation("mtr:textures/block/lift_button.png");
 
@@ -109,11 +108,11 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 
 		if (buttonStates[0]) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(buttonStates[2] || lookingAtTopHalf ? MoreRenderLayers.getLight(BUTTON_TEXTURE, true) : MoreRenderLayers.getExterior(BUTTON_TEXTURE));
-			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[1] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[2] ? PRESSED_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[1] ? 4.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 1, 1, 0, facing, buttonStates[2] ? RenderLift.LIGHT_COLOR : lookingAtTopHalf ? HOVER_COLOR : ARGB_GRAY, light);
 		}
 		if (buttonStates[1]) {
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(buttonStates[3] || lookingAtBottomHalf ? MoreRenderLayers.getLight(BUTTON_TEXTURE, true) : MoreRenderLayers.getExterior(BUTTON_TEXTURE));
-			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[0] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[3] ? PRESSED_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
+			IDrawing.drawTexture(matrices, vertexConsumer, -1.5F / 16, (buttonStates[0] ? 0.5F : 2.5F) / 16, 3F / 16, 3F / 16, 0, 0, 1, 1, facing, buttonStates[3] ? RenderLift.LIGHT_COLOR : lookingAtBottomHalf ? HOVER_COLOR : ARGB_GRAY, light);
 		}
 
 		final float maxWidth = Math.min(0.25F, 0.375F / liftPositions.size());

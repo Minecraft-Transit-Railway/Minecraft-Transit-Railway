@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui {
 
-	private static final int LIGHT_COLOR = 0xFFFF0000;
+	public static final int LIGHT_COLOR = 0xFFFF0000;
 	private static final ResourceLocation LIFT_TEXTURE = new ResourceLocation("mtr:textures/entity/lift_1.png");
 	private static final ResourceLocation ARROW_TEXTURE = new ResourceLocation("mtr:textures/sign/lift_arrow.png");
 
