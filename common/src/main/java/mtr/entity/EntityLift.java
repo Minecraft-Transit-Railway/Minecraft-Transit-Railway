@@ -68,6 +68,10 @@ public abstract class EntityLift extends EntityBase {
 
 	@Override
 	public void tick() {
+		if (!playerVerticallyNearby(level, blockPosition().getX(), blockPosition().getZ())) {
+			return;
+		}
+
 		final BlockEntity blockEntity = level.getBlockEntity(trackPos);
 		if (blockEntity instanceof BlockLiftTrackFloor.TileEntityLiftTrackFloor) {
 			((BlockLiftTrackFloor.TileEntityLiftTrackFloor) blockEntity).setEntityLift(this);
@@ -291,6 +295,17 @@ public abstract class EntityLift extends EntityBase {
 	private boolean playerInBounds(Entity entity) {
 		final double offset = hasPassenger(entity) ? 0.25 : 0;
 		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false) - offset, getPositiveXBound(false) + offset) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false) - offset, getPositiveZBound(false) + offset);
+	}
+
+	public static boolean playerVerticallyNearby(Level world, int x, int z) {
+		for (final Player player : world.players()) {
+			final int differenceX = Math.abs(player.blockPosition().getX() - x);
+			final int differenceZ = Math.abs(player.blockPosition().getZ() - z);
+			if (differenceX + differenceZ <= 16) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static class EntityLift22 extends EntityLift {

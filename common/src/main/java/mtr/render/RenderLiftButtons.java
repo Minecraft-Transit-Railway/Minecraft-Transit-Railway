@@ -50,12 +50,12 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		}
 
 		final BlockPos pos = entity.getBlockPos();
-		final BlockState state = world.getBlockState(pos);
-		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
 		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, null)) {
 			return;
 		}
 
+		final BlockState state = world.getBlockState(pos);
+		final Direction facing = IBlock.getStatePropertySafe(state, HorizontalDirectionalBlock.FACING);
 		final boolean holdingLinker = Utilities.isHolding(player, item -> item instanceof ItemLiftButtonsLinkModifier || Block.byItem(item) instanceof BlockLiftButtons);
 
 		matrices.pushPose();
