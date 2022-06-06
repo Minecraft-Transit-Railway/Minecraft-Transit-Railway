@@ -184,6 +184,11 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	@Override
+	protected boolean canAddPassenger(Entity entity) {
+		return !hasPassenger(entity);
+	}
+
+	@Override
 	protected void defineSynchedData() {
 		entityData.define(DOOR_VALUE, DOOR_MAX);
 		entityData.define(FRONT_OPEN, false);
@@ -311,7 +316,7 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	private boolean playerInBounds(Entity entity) {
-		final double offset = hasPassenger(entity) ? 0.25 : 0;
+		final double offset = hasPassenger(entity) ? 0.5 : 0;
 		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false) - offset, getPositiveXBound(false) + offset) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false) - offset, getPositiveZBound(false) + offset);
 	}
 
