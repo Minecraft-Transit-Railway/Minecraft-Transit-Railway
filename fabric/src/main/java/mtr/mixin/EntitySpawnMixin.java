@@ -32,14 +32,24 @@ public abstract class EntitySpawnMixin {
 			entity = new EntitySeat(level, x, y, z);
 		} else if (entityType == EntityTypes.LiftType.SIZE_2_2.registryObject.get()) {
 			entity = EntityTypes.LiftType.SIZE_2_2.liftSupplier.liftSupplier(level, x, y, z);
+		} else if (entityType == EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.registryObject.get()) {
+			entity = EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.liftSupplier.liftSupplier(level, x, y, z);
 		} else if (entityType == EntityTypes.LiftType.SIZE_3_2.registryObject.get()) {
 			entity = EntityTypes.LiftType.SIZE_3_2.liftSupplier.liftSupplier(level, x, y, z);
+		} else if (entityType == EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED.registryObject.get()) {
+			entity = EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED.liftSupplier.liftSupplier(level, x, y, z);
 		} else if (entityType == EntityTypes.LiftType.SIZE_3_3.registryObject.get()) {
 			entity = EntityTypes.LiftType.SIZE_3_3.liftSupplier.liftSupplier(level, x, y, z);
+		} else if (entityType == EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED.registryObject.get()) {
+			entity = EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED.liftSupplier.liftSupplier(level, x, y, z);
 		} else if (entityType == EntityTypes.LiftType.SIZE_4_3.registryObject.get()) {
 			entity = EntityTypes.LiftType.SIZE_4_3.liftSupplier.liftSupplier(level, x, y, z);
+		} else if (entityType == EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.registryObject.get()) {
+			entity = EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.liftSupplier.liftSupplier(level, x, y, z);
 		} else if (entityType == EntityTypes.LiftType.SIZE_4_4.registryObject.get()) {
 			entity = EntityTypes.LiftType.SIZE_4_4.liftSupplier.liftSupplier(level, x, y, z);
+		} else if (entityType == EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.registryObject.get()) {
+			entity = EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.liftSupplier.liftSupplier(level, x, y, z);
 		} else {
 			entity = null;
 		}

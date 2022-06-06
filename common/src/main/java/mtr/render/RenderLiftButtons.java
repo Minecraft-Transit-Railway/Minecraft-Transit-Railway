@@ -124,7 +124,7 @@ public class RenderLiftButtons extends BlockEntityRendererMapper<BlockLiftButton
 		liftPositions.forEach(liftPosition -> {
 			final Tuple<String[], EntityLift.LiftDirection> liftDisplay = liftDisplays.get(liftPosition);
 			if (liftDisplay != null) {
-				RenderLift.renderLiftDisplay(matrices, vertexConsumers, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.3125F);
+				RenderLift.renderLiftDisplay(matrices, vertexConsumers, pos, liftDisplay.getA()[0], liftDisplay.getB(), maxWidth, 0.3125F);
 			}
 			matrices.translate(maxWidth, 0, 0);
 		});

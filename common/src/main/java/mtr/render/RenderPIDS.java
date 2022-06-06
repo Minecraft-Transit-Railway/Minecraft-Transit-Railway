@@ -43,9 +43,9 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 	private final int firstTrainColor;
 	private final boolean appendDotAfterMin;
 
+	public static final int MAX_VIEW_DISTANCE = 16;
 	private static final int SWITCH_LANGUAGE_TICKS = 60;
 	private static final int CAR_TEXT_COLOR = 0xFF0000;
-	private static final int MAX_VIEW_DISTANCE = 16;
 
 	public RenderPIDS(BlockEntityRenderDispatcher dispatcher, int maxArrivals, float startX, float startY, float startZ, float maxHeight, int maxWidth, boolean rotate90, boolean renderArrivalNumber, boolean showAllPlatforms, int textColor, int firstTrainColor, float textPadding, boolean appendDotAfterMin) {
 		super(dispatcher);

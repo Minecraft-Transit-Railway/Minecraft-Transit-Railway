@@ -19,10 +19,15 @@ public interface Items {
 	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new WaterLilyBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
 	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES)));
 	RegistryObject<Item> LIFT_2_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2));
+	RegistryObject<Item> LIFT_2_2_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_3_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_2));
+	RegistryObject<Item> LIFT_3_2_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_3_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_3));
+	RegistryObject<Item> LIFT_3_3_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_4_3 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_3));
+	RegistryObject<Item> LIFT_4_3_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_4_4 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_4));
+	RegistryObject<Item> LIFT_4_4_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_BUTTONS_LINK_CONNECTOR = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(true));
 	RegistryObject<Item> LIFT_BUTTONS_LINK_REMOVER = new RegistryObject<>(() -> new ItemLiftButtonsLinkModifier(false));
 	RegistryObject<Item> LIFT_DOOR_1 = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.LIFT_DOOR_1));

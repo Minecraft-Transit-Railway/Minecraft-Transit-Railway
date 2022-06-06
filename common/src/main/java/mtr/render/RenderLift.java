@@ -10,6 +10,7 @@ import mtr.mappings.EntityRendererMapper;
 import mtr.model.ModelLift1;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,11 +29,15 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 		matrices.pushPose();
 		matrices.mulPose(Vector3f.XP.rotationDegrees(180));
 		matrices.mulPose(Vector3f.YP.rotationDegrees(180 - entityYaw));
-		new ModelLift1(entity.liftType.width, entity.liftType.depth).render(matrices, vertexConsumers, LIFT_TEXTURE, light, entity.getDoorValueClient(), 0, false, 0, 1, false, true, false, false);
+		new ModelLift1(entity.liftType).render(matrices, vertexConsumers, LIFT_TEXTURE, light, entity.getFrontDoorValueClient(), entity.getBackDoorValueClient(), false, 0, 1, false, true, false, false);
 
-		matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-		matrices.translate(0.875F, -1.5, entity.liftType.depth / 2F - 0.25 - SMALL_OFFSET);
-		renderLiftDisplay(matrices, vertexConsumers, entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.3125F);
+		for (int i = 0; i < (entity.liftType.isDoubleSided ? 2 : 1); i++) {
+			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+			matrices.pushPose();
+			matrices.translate(0.875F, -1.5, entity.liftType.depth / 2F - 0.25 - SMALL_OFFSET);
+			renderLiftDisplay(matrices, vertexConsumers, entity.blockPosition(), entity.getCurrentFloorDisplay()[0], entity.getLiftDirectionClient(), 0.1875F, 0.3125F);
+			matrices.popPose();
+		}
 
 		matrices.popPose();
 	}
@@ -42,7 +47,11 @@ public class RenderLift extends EntityRendererMapper<EntityLift> implements IGui
 		return null;
 	}
 
-	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
+	public static void renderLiftDisplay(PoseStack matrices, MultiBufferSource vertexConsumers, BlockPos pos, String floorNumber, EntityLift.LiftDirection liftDirection, float maxWidth, float height) {
+		if (RenderTrains.shouldNotRender(pos, Math.min(RenderPIDS.MAX_VIEW_DISTANCE, RenderTrains.maxTrainRenderDistance), null)) {
+			return;
+		}
+
 		final MultiBufferSource.BufferSource immediate = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, floorNumber, IGui.HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, 0, height, maxWidth, -1, 18 / maxWidth, LIGHT_COLOR, false, MAX_LIGHT_GLOWING, null);
 		immediate.endBatch();

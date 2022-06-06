@@ -58,10 +58,15 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
 		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("lift_2_2", Items.LIFT_2_2);
+		registerItem.accept("lift_2_2_double_sided", Items.LIFT_2_2_DOUBLE_SIDED);
 		registerItem.accept("lift_3_2", Items.LIFT_3_2);
+		registerItem.accept("lift_3_2_double_sided", Items.LIFT_3_2_DOUBLE_SIDED);
 		registerItem.accept("lift_3_3", Items.LIFT_3_3);
+		registerItem.accept("lift_3_3_double_sided", Items.LIFT_3_3_DOUBLE_SIDED);
 		registerItem.accept("lift_4_3", Items.LIFT_4_3);
+		registerItem.accept("lift_4_3_double_sided", Items.LIFT_4_3_DOUBLE_SIDED);
 		registerItem.accept("lift_4_4", Items.LIFT_4_4);
+		registerItem.accept("lift_4_4_double_sided", Items.LIFT_4_4_DOUBLE_SIDED);
 		registerItem.accept("lift_buttons_link_connector", Items.LIFT_BUTTONS_LINK_CONNECTOR);
 		registerItem.accept("lift_buttons_link_remover", Items.LIFT_BUTTONS_LINK_REMOVER);
 		registerItem.accept("lift_door_1", Items.LIFT_DOOR_1);
@@ -378,10 +383,15 @@ public class MTR implements IPacket {
 
 		registerEntityType.accept("seat", EntityTypes.SEAT);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_2_2.key, EntityTypes.LiftType.SIZE_2_2.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.key, EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.registryObject);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_2.key, EntityTypes.LiftType.SIZE_3_2.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED.key, EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED.registryObject);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_3.key, EntityTypes.LiftType.SIZE_3_3.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED.key, EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED.registryObject);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_3.key, EntityTypes.LiftType.SIZE_4_3.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.key, EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.registryObject);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_4.key, EntityTypes.LiftType.SIZE_4_4.registryObject);
+		registerEntityType.accept(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.key, EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.registryObject);
 
 		registerSoundEvent.accept("ticket_barrier", SoundEvents.TICKET_BARRIER);
 		registerSoundEvent.accept("ticket_barrier_concessionary", SoundEvents.TICKET_BARRIER_CONCESSIONARY);

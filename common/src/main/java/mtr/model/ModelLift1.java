@@ -2,6 +2,7 @@ package mtr.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.EntityTypes;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -28,10 +29,12 @@ public class ModelLift1 extends ModelTrainBase {
 
 	private final int width;
 	private final int depth;
+	private final boolean isDoubleSided;
 
-	public ModelLift1(int width, int depth) {
-		this.width = width;
-		this.depth = depth;
+	public ModelLift1(EntityTypes.LiftType liftType) {
+		width = liftType.width;
+		depth = liftType.depth;
+		isDoubleSided = liftType.isDoubleSided;
 
 		final int textureWidth = 128;
 		final int textureHeight = 128;
@@ -195,15 +198,15 @@ public class ModelLift1 extends ModelTrainBase {
 							mainEdgePiece.render(matrices, vertices, x, z - 4, (float) Math.PI / 2, light, OverlayTexture.NO_OVERLAY);
 							mainEdgePiece.render(matrices, vertices, x, z + 4, (float) Math.PI / 2, light, OverlayTexture.NO_OVERLAY);
 						}
-						if (!edge1X && !edge2X && !edge1Z && edge2Z) {
+						if (!edge1X && !edge2X && !edge1Z && edge2Z && !isDoubleSided) {
 							ModelTrainBase.renderOnce(mainEdgePiece, matrices, vertices, light, x - 4, z);
 							ModelTrainBase.renderOnce(mainEdgePiece, matrices, vertices, light, x + 4, z);
 						}
 
-						if (edge1X && !edge2X && !edge1Z && edge2Z) {
+						if (edge1X && !edge2X && !edge1Z && edge2Z && (width > 2 || !isDoubleSided)) {
 							mainCornerPiece.render(matrices, vertices, x, z, 0, light, OverlayTexture.NO_OVERLAY);
 						}
-						if (!edge1X && edge2X && !edge1Z && edge2Z) {
+						if (!edge1X && edge2X && !edge1Z && edge2Z && (width > 2 || !isDoubleSided)) {
 							mainCornerPiece.render(matrices, vertices, x, z, (float) Math.PI / 2, light, OverlayTexture.NO_OVERLAY);
 						}
 						if (edge1X && !edge2X && edge1Z && !edge2Z && width > 2) {
@@ -228,13 +231,26 @@ public class ModelLift1 extends ModelTrainBase {
 			doorRightPiece.setOffset(doorLeftZ, 0, 0);
 			ModelTrainBase.renderOnceFlipped(doorPiece, matrices, vertices, light, 8 - depth * 8);
 
+			if (isDoubleSided) {
+				doorLeftPiece.setOffset(-doorRightZ, 0, 0);
+				doorRightPiece.setOffset(doorRightZ, 0, 0);
+				ModelTrainBase.renderOnce(doorPiece, matrices, vertices, light, -8 + depth * 8);
+			}
+
 			if (renderStage == RenderStage.INTERIOR && width == 2) {
 				ModelTrainBase.renderOnceFlipped(wall_patch, matrices, vertices, light, 8 - depth * 8);
+				if (isDoubleSided) {
+					ModelTrainBase.renderOnce(wall_patch, matrices, vertices, light, -8 + depth * 8);
+				}
 			}
 
 			for (int i = 1; i < width - 2; i++) {
 				ModelTrainBase.renderOnceFlipped(mainEdgePiece, matrices, vertices, light, i * 8 - width * 8 + 4, -depth * 8);
 				ModelTrainBase.renderOnceFlipped(mainEdgePiece, matrices, vertices, light, -i * 8 + width * 8 - 4, -depth * 8);
+				if (isDoubleSided) {
+					ModelTrainBase.renderOnce(mainEdgePiece, matrices, vertices, light, i * 8 - width * 8 + 4, depth * 8);
+					ModelTrainBase.renderOnce(mainEdgePiece, matrices, vertices, light, -i * 8 + width * 8 - 4, depth * 8);
+				}
 			}
 		}
 	}

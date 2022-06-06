@@ -48,6 +48,8 @@ public abstract class EntityLift extends EntityBase {
 	private static final int SCAN_COOL_DOWN_DEFAULT = 60;
 	private static final float LIFT_WALKING_SPEED_MULTIPLIER = 0.25F;
 	private static final EntityDataAccessor<Integer> DOOR_VALUE = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Boolean> FRONT_OPEN = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.BOOLEAN);
+	private static final EntityDataAccessor<Boolean> BACK_OPEN = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.BOOLEAN);
 	private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<String> STOPPING_FLOORS = SynchedEntityData.defineId(EntityLift.class, EntityDataSerializers.STRING);
 
@@ -136,17 +138,9 @@ public abstract class EntityLift extends EntityBase {
 					}
 
 					entityData.set(DOOR_VALUE, doorValue);
-
-					final Direction direction = Direction.fromYRot(-Utilities.getYaw(this));
-					final Direction directionClockwise = direction.getClockWise();
-					for (int i = -1; i <= 1; i++) {
-						final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
-						final BlockState checkState1 = level.getBlockState(checkPos);
-						final BlockState checkState2 = level.getBlockState(checkPos.above());
-						if (checkState1.getBlock() instanceof BlockPSDAPGDoorBase && checkState2.getBlock() instanceof BlockPSDAPGDoorBase) {
-							level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
-							level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
-						}
+					entityData.set(FRONT_OPEN, checkDoor(true));
+					if (liftType.isDoubleSided) {
+						entityData.set(BACK_OPEN, checkDoor(false));
 					}
 				}
 			}
@@ -192,6 +186,8 @@ public abstract class EntityLift extends EntityBase {
 	@Override
 	protected void defineSynchedData() {
 		entityData.define(DOOR_VALUE, DOOR_MAX);
+		entityData.define(FRONT_OPEN, false);
+		entityData.define(BACK_OPEN, false);
 		entityData.define(DIRECTION, 0);
 		entityData.define(STOPPING_FLOORS, "");
 	}
@@ -204,8 +200,12 @@ public abstract class EntityLift extends EntityBase {
 		liftInstructions.addInstruction((int) Math.round(getY()), liftDirection == LiftDirection.UP, floor);
 	}
 
-	public int getDoorValueClient() {
-		return Math.min(DOOR_MAX, entityData.get(DOOR_VALUE));
+	public int getFrontDoorValueClient() {
+		return entityData.get(FRONT_OPEN) ? Math.min(DOOR_MAX, entityData.get(DOOR_VALUE)) : 0;
+	}
+
+	public int getBackDoorValueClient() {
+		return liftType.isDoubleSided && entityData.get(BACK_OPEN) ? Math.min(DOOR_MAX, entityData.get(DOOR_VALUE)) : 0;
 	}
 
 	public LiftDirection getLiftDirectionClient() {
@@ -242,9 +242,9 @@ public abstract class EntityLift extends EntityBase {
 			case 180:
 				return -liftType.width / 2D;
 			case 90:
-				return (getDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			case 270:
-				return -liftType.depth / 2D;
+				return (getBackDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			default:
 				return 0;
 		}
@@ -253,9 +253,9 @@ public abstract class EntityLift extends EntityBase {
 	private double getNegativeZBound(boolean includeDoorCheck) {
 		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
 			case 0:
-				return (getDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
+				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			case 180:
-				return -liftType.depth / 2D;
+				return (getBackDoorValueClient() > 0 && includeDoorCheck ? -5 : 0) - liftType.depth / 2D;
 			case 90:
 			case 270:
 				return -liftType.width / 2D;
@@ -270,9 +270,9 @@ public abstract class EntityLift extends EntityBase {
 			case 180:
 				return liftType.width / 2D;
 			case 90:
-				return liftType.depth / 2D;
+				return (getBackDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			case 270:
-				return (getDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			default:
 				return 0;
 		}
@@ -281,15 +281,33 @@ public abstract class EntityLift extends EntityBase {
 	private double getPositiveZBound(boolean includeDoorCheck) {
 		switch ((Math.round(Utilities.getYaw(this)) + 360) % 360) {
 			case 0:
-				return liftType.depth / 2D;
+				return (getBackDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			case 180:
-				return (getDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
+				return (getFrontDoorValueClient() > 0 && includeDoorCheck ? 5 : 0) + liftType.depth / 2D;
 			case 90:
 			case 270:
 				return liftType.width / 2D;
 			default:
 				return 0;
 		}
+	}
+
+	private boolean checkDoor(boolean front) {
+		final Direction direction = Direction.fromYRot(-Utilities.getYaw(this));
+		final Direction directionClockwise = direction.getClockWise();
+		final int sign = front ? 1 : -1;
+		boolean hasDoor = false;
+		for (int i = -1; i <= 1; i++) {
+			final BlockPos checkPos = new BlockPos(position().add(-direction.getStepX() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepX() * i, 0, -direction.getStepZ() * sign * (liftType.depth / 2F + 0.5) + directionClockwise.getStepZ() * i));
+			final BlockState checkState1 = level.getBlockState(checkPos);
+			final BlockState checkState2 = level.getBlockState(checkPos.above());
+			if (checkState1.getBlock() instanceof BlockPSDAPGDoorBase && checkState2.getBlock() instanceof BlockPSDAPGDoorBase) {
+				level.setBlockAndUpdate(checkPos, checkState1.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
+				level.setBlockAndUpdate(checkPos.above(), checkState2.setValue(BlockPSDAPGDoorBase.OPEN, Math.min(doorValue, DOOR_MAX)));
+				hasDoor = true;
+			}
+		}
+		return hasDoor;
 	}
 
 	private boolean playerInBounds(Entity entity) {
@@ -319,6 +337,17 @@ public abstract class EntityLift extends EntityBase {
 		}
 	}
 
+	public static class EntityLift22DoubleSided extends EntityLift {
+
+		public EntityLift22DoubleSided(EntityType<?> type, Level world) {
+			super(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED, type, world);
+		}
+
+		public EntityLift22DoubleSided(Level world, double x, double y, double z) {
+			super(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED, world, x, y, z);
+		}
+	}
+
 	public static class EntityLift32 extends EntityLift {
 
 		public EntityLift32(EntityType<?> type, Level world) {
@@ -327,6 +356,17 @@ public abstract class EntityLift extends EntityBase {
 
 		public EntityLift32(Level world, double x, double y, double z) {
 			super(EntityTypes.LiftType.SIZE_3_2, world, x, y, z);
+		}
+	}
+
+	public static class EntityLift32DoubleSided extends EntityLift {
+
+		public EntityLift32DoubleSided(EntityType<?> type, Level world) {
+			super(EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED, type, world);
+		}
+
+		public EntityLift32DoubleSided(Level world, double x, double y, double z) {
+			super(EntityTypes.LiftType.SIZE_3_2_DOUBLE_SIDED, world, x, y, z);
 		}
 	}
 
@@ -341,6 +381,17 @@ public abstract class EntityLift extends EntityBase {
 		}
 	}
 
+	public static class EntityLift33DoubleSided extends EntityLift {
+
+		public EntityLift33DoubleSided(EntityType<?> type, Level world) {
+			super(EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED, type, world);
+		}
+
+		public EntityLift33DoubleSided(Level world, double x, double y, double z) {
+			super(EntityTypes.LiftType.SIZE_3_3_DOUBLE_SIDED, world, x, y, z);
+		}
+	}
+
 	public static class EntityLift43 extends EntityLift {
 
 		public EntityLift43(EntityType<?> type, Level world) {
@@ -352,6 +403,17 @@ public abstract class EntityLift extends EntityBase {
 		}
 	}
 
+	public static class EntityLift43DoubleSided extends EntityLift {
+
+		public EntityLift43DoubleSided(EntityType<?> type, Level world) {
+			super(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED, type, world);
+		}
+
+		public EntityLift43DoubleSided(Level world, double x, double y, double z) {
+			super(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED, world, x, y, z);
+		}
+	}
+
 	public static class EntityLift44 extends EntityLift {
 
 		public EntityLift44(EntityType<?> type, Level world) {
@@ -360,6 +422,17 @@ public abstract class EntityLift extends EntityBase {
 
 		public EntityLift44(Level world, double x, double y, double z) {
 			super(EntityTypes.LiftType.SIZE_4_4, world, x, y, z);
+		}
+	}
+
+	public static class EntityLift44DoubleSided extends EntityLift {
+
+		public EntityLift44DoubleSided(EntityType<?> type, Level world) {
+			super(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED, type, world);
+		}
+
+		public EntityLift44DoubleSided(Level world, double x, double y, double z) {
+			super(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED, world, x, y, z);
 		}
 	}
 
