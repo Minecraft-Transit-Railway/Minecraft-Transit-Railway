@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			});
 		}
 
-		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.edit_instructions"), button -> {
+		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
 				saveData();
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.getFilteredDataSet(transportMode, ClientData.ROUTES));
@@ -65,12 +65,12 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				UtilitiesClient.setScreen(minecraft, new DashboardListSelectorScreen(this, routes, data.routeIds, false, true));
 			}
 		});
-		buttonGenerateRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.refresh_path"), button -> {
+		buttonGenerateRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.refresh_path"), button -> {
 			saveData();
 			depot.clientPathGenerationSuccessfulSegments = -1;
 			PacketTrainDataGuiClient.generatePathC2S(depot.id);
 		});
-		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.clear_vehicles"), button -> {
+		buttonClearTrains = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.clear_vehicles"), button -> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
@@ -124,7 +124,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			}
 			super.render(matrices, mouseX, mouseY, delta);
 
-			font.draw(matrices, new TranslatableComponent("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 
 			final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
@@ -132,8 +132,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			}
 
 			if (showScheduleControls) {
-				drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
-				drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+				drawCenteredString(matrices, font, Text.translatable("gui.mtr.game_time"), sliderX / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
+				drawCenteredString(matrices, font, Text.translatable("gui.mtr.vehicles_per_hour"), sliderX + sliderWidthWithText / 2, TEXT_PADDING, ARGB_LIGHT_GRAY);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,9 +153,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		final int successfulSegments = data.clientPathGenerationSuccessfulSegments;
 
 		if (successfulSegments < 0) {
-			return new TranslatableComponent("gui.mtr.generating_path");
+			return Text.translatable("gui.mtr.generating_path");
 		} else if (successfulSegments == 0) {
-			return new TranslatableComponent("gui.mtr.path_not_generated");
+			return Text.translatable("gui.mtr.path_not_generated");
 		} else {
 			final List<String> stationNames = new ArrayList<>();
 			final List<String> routeNames = new ArrayList<>();
@@ -169,7 +169,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				stationNames.add("-");
 				routeNames.add("-");
 
-				return new TranslatableComponent("gui.mtr.path_not_found_between", routeNames.get(0), depotName, stationNames.get(0));
+				return Text.translatable("gui.mtr.path_not_found_between", routeNames.get(0), depotName, stationNames.get(0));
 			} else {
 				int sum = 0;
 				for (int i = 0; i < data.routeIds.size(); i++) {
@@ -184,7 +184,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				}
 
 				if (successfulSegments >= sum + 2) {
-					return new TranslatableComponent("gui.mtr.path_found");
+					return Text.translatable("gui.mtr.path_found");
 				} else {
 					RailwayData.useRoutesAndStationsFromIndex(successfulSegments - 2, data.routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 						stationNames.add(IGui.textOrUntitled(thisStation == null ? "" : IGui.formatStationName(thisStation.name)));
@@ -200,9 +200,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 					routeNames.add("-");
 
 					if (successfulSegments < sum + 1) {
-						return new TranslatableComponent("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), stationNames.get(1));
+						return Text.translatable("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), stationNames.get(1));
 					} else {
-						return new TranslatableComponent("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), depotName);
+						return Text.translatable("gui.mtr.path_not_found_between", routeNames.get(0), stationNames.get(0), depotName);
 					}
 				}
 			}
@@ -214,9 +214,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		if (value == 0) {
 			headwayText = "";
 		} else {
-			headwayText = " (" + RailwayData.round((float) Depot.TRAIN_FREQUENCY_MULTIPLIER * SECONDS_PER_MC_HOUR / value, 1) + new TranslatableComponent("gui.mtr.s").getString() + ")";
+			headwayText = " (" + RailwayData.round((float) Depot.TRAIN_FREQUENCY_MULTIPLIER * SECONDS_PER_MC_HOUR / value, 1) + Text.translatable("gui.mtr.s").getString() + ")";
 		}
-		return value / (float) Depot.TRAIN_FREQUENCY_MULTIPLIER + new TranslatableComponent("gui.mtr.tph").getString() + headwayText;
+		return value / (float) Depot.TRAIN_FREQUENCY_MULTIPLIER + Text.translatable("gui.mtr.tph").getString() + headwayText;
 	}
 
 	private static String getTimeString(int hour) {

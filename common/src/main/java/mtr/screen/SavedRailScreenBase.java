@@ -6,12 +6,11 @@ import mtr.data.IGui;
 import mtr.data.SavedRailBase;
 import mtr.data.TransportMode;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
@@ -31,11 +30,11 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
 	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, Component... additionalTexts) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.savedRailBase = savedRailBase;
 		showScheduleControls = !transportMode.continuousMovement;
 		this.dashboardScreen = dashboardScreen;
-		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
+		savedRailNumberText = Text.translatable(getNumberStringKey());
 
 		font = Minecraft.getInstance().font;
 		textFieldSavedRailNumber = new WidgetBetterTextField("1", MAX_SAVED_RAIL_NUMBER_LENGTH);

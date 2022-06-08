@@ -4,10 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 
@@ -21,14 +20,14 @@ public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 	private static final int BUTTON_HALF_PADDING = 10;
 
 	public DeleteConfirmationScreen(Runnable deleteCallback, String name, DashboardScreen dashboardScreen) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 
 		this.deleteCallback = deleteCallback;
 		this.name = name;
 		this.dashboardScreen = dashboardScreen;
 
-		buttonYes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.yes"), button -> onYes());
-		buttonNo = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.no"), button -> onNo());
+		buttonYes = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.yes"), button -> onYes());
+		buttonNo = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.no"), button -> onNo());
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class DeleteConfirmationScreen extends ScreenMapper implements IGui {
 		try {
 			renderBackground(matrices);
 			super.render(matrices, mouseX, mouseY, delta);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, Text.translatable("gui.mtr.delete_confirmation", IGui.formatStationName(name)), width / 2, height / 2 - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

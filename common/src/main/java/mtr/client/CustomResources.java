@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.MTR;
+import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderTrains;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -114,14 +116,14 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 
 	private static void readResource(ResourceManager manager, String path, Consumer<JsonObject> callback) {
 		try {
-			manager.getResources(new ResourceLocation(path)).forEach(resource -> {
-				try (final InputStream stream = resource.getInputStream()) {
+			UtilitiesClient.getResources(manager, new ResourceLocation(path)).forEach(resource -> {
+				try (final InputStream stream = Utilities.getInputStream(resource)) {
 					callback.accept(new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				try {
-					resource.close();
+					Utilities.closeResource(resource);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

@@ -7,6 +7,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.text2speech.Narrator;
 import mtr.MTR;
 import mtr.data.IGui;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -55,7 +55,7 @@ public interface IDrawing {
 			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
 			isCJKList.add(isCJK);
 
-			final FormattedCharSequence orderedText = new TextComponent(stringSplitPart).setStyle(style).getVisualOrderText();
+			final FormattedCharSequence orderedText = Text.literal(stringSplitPart).setStyle(style).getVisualOrderText();
 			orderedTexts.add(orderedText);
 
 			totalHeight += IGui.LINE_HEIGHT * (isCJK ? 2 : 1);
@@ -189,7 +189,7 @@ public interface IDrawing {
 			if (Config.showAnnouncementMessages()) {
 				final Player player = Minecraft.getInstance().player;
 				if (player != null) {
-					player.displayClientMessage(new TextComponent(newMessage), false);
+					player.displayClientMessage(Text.literal(newMessage), false);
 				}
 			}
 		}

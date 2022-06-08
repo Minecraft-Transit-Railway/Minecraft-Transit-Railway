@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.mappings.BlockEntityMapper;
+import mtr.mappings.BlockMapper;
 import mtr.mappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +16,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockClock extends Block implements EntityBlockMapper {
+public class BlockClock extends BlockMapper implements EntityBlockMapper {
 
 	public static final BooleanProperty FACING = BooleanProperty.create("facing");
 

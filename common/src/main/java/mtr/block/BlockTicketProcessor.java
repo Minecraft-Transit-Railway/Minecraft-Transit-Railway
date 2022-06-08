@@ -24,8 +24,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Random;
-
 public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 
 	public boolean hasLight;
@@ -52,7 +50,7 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
 		if (hasLight) {
 			world.setBlockAndUpdate(pos, state.setValue(LIGHTS, EnumTicketProcessorLights.NONE));
 		}

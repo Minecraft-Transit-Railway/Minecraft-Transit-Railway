@@ -3,6 +3,7 @@ package mtr.mixin;
 import mtr.EntityTypes;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -56,11 +57,11 @@ public abstract class EntitySpawnMixin {
 
 		if (entity != null) {
 			final int id = packet.getId();
-			entity.setPacketCoordinates(x, y, z);
+			UtilitiesClient.setPacketCoordinates(entity, x, y, z);
 			entity.moveTo(x, y, z);
 			entity.setId(id);
 			entity.setUUID(packet.getUUID());
-			Utilities.setYaw(entity, packet.getyRot() * 360F / 256);
+			Utilities.setYaw(entity, UtilitiesClient.getPacketYaw(packet));
 			level.putNonPlayerEntity(id, entity);
 		}
 	}

@@ -7,11 +7,10 @@ import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class ConfigScreen extends ScreenMapper implements IGui {
 
@@ -37,36 +36,36 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
 
 	public ConfigScreen() {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 
-		buttonUseMTRFont = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonUseMTRFont = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
 			setButtonText(button, useMTRFont);
 		});
-		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			showAnnouncementMessages = Config.setShowAnnouncementMessages(!showAnnouncementMessages);
 			setButtonText(button, showAnnouncementMessages);
 		});
-		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useTTSAnnouncements = Config.setUseTTSAnnouncements(!useTTSAnnouncements);
 			setButtonText(button, useTTSAnnouncements);
 		});
-		buttonHideSpecialRailColors = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonHideSpecialRailColors = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideSpecialRailColors = Config.setHideSpecialRailColors(!hideSpecialRailColors);
 			setButtonText(button, hideSpecialRailColors);
 		});
-		buttonHideTranslucentParts = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonHideTranslucentParts = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			hideTranslucentParts = Config.setHideTranslucentParts(!hideTranslucentParts);
 			setButtonText(button, hideTranslucentParts);
 		});
-		buttonUseDynamicFPS = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> {
+		buttonUseDynamicFPS = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useDynamicFPS = Config.setUseDynamicFPS(!useDynamicFPS);
 			setButtonText(button, useDynamicFPS);
 		});
 		sliderTrackTextureOffset = new WidgetShorterSlider(0, 0, Config.TRACK_OFFSET_COUNT - 1, Object::toString, null);
 		sliderDynamicTextureResolution = new WidgetShorterSlider(0, 0, Config.DYNAMIC_RESOLUTION_COUNT - 1, Object::toString, null);
 		sliderTrainRenderDistanceRatio = new WidgetShorterSlider(0, 0, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT - 1, num -> String.format("%d%%", (num + 1) * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT), null);
-		buttonSupportPatreon = new Button(0, 0, 0, BUTTON_HEIGHT, new TextComponent(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
+		buttonSupportPatreon = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> Util.getPlatform().openUri("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
 	@Override
@@ -103,7 +102,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		sliderDynamicTextureResolution.setValue(Config.dynamicTextureResolution());
 		sliderTrainRenderDistanceRatio.setHeight(BUTTON_HEIGHT);
 		sliderTrainRenderDistanceRatio.setValue(Config.trainRenderDistanceRatio());
-		buttonSupportPatreon.setMessage(new TranslatableComponent("gui.mtr.support"));
+		buttonSupportPatreon.setMessage(Text.translatable("gui.mtr.support"));
 
 		addDrawableChild(buttonUseMTRFont);
 		addDrawableChild(buttonShowAnnouncementMessages);
@@ -121,20 +120,20 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.mtr_options"), width / 2, TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, Text.translatable("gui.mtr.mtr_options"), width / 2, TEXT_PADDING, ARGB_WHITE);
 
 			final int yStart1 = SQUARE_SIZE + TEXT_PADDING / 2;
 			int i = 1;
-			drawString(matrices, font, new TranslatableComponent("options.mtr.use_mtr_font"), SQUARE_SIZE, yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.show_announcement_messages"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.use_tts_announcements"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_special_rail_colors"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.hide_translucent_parts"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.use_dynamic_fps"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.vehicle_render_distance_ratio"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
-			drawString(matrices, font, new TranslatableComponent("options.mtr.support_patreon"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.use_mtr_font"), SQUARE_SIZE, yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.show_announcement_messages"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.use_tts_announcements"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.hide_special_rail_colors"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.hide_translucent_parts"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.use_dynamic_fps"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.track_texture_offset"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.dynamic_texture_resolution"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.vehicle_render_distance_ratio"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
+			drawString(matrices, font, Text.translatable("options.mtr.support_patreon"), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE);
 
 			final int yStart2 = BUTTON_HEIGHT * (i + 1) + yStart1;
 			String tierTitle = "";
@@ -145,7 +144,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				if (!patreon.tierTitle.equals(tierTitle)) {
 					x += maxWidth + TEXT_PADDING;
 					y = 0;
-					final Component text = new TextComponent(patreon.tierTitle);
+					final Component text = Text.literal(patreon.tierTitle);
 					maxWidth = font.width(text);
 					drawString(matrices, font, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2, patreon.tierColor);
 				} else if (y + yStart2 + TEXT_HEIGHT + SQUARE_SIZE > height) {
@@ -155,7 +154,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 				}
 
 				tierTitle = patreon.tierTitle;
-				final Component text = patreon.tierAmount < 1000 ? new TranslatableComponent("options.mtr.anonymous") : new TextComponent(patreon.name);
+				final Component text = patreon.tierAmount < 1000 ? Text.translatable("options.mtr.anonymous") : Text.literal(patreon.name);
 				maxWidth = Math.max(maxWidth, font.width(text));
 				drawString(matrices, font, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY);
 				y += TEXT_HEIGHT;
@@ -178,6 +177,6 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	}
 
 	private static void setButtonText(Button button, boolean state) {
-		button.setMessage(new TranslatableComponent(state ? "options.mtr.on" : "options.mtr.off"));
+		button.setMessage(Text.translatable(state ? "options.mtr.on" : "options.mtr.off"));
 	}
 }

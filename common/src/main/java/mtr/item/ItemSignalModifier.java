@@ -3,10 +3,10 @@ package mtr.item;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.data.TransportMode;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiServer;
 import mtr.path.PathData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ public class ItemSignalModifier extends ItemNodeModifierBase {
 		if (railwayData.containsRail(posStart, posEnd)) {
 			PacketTrainDataGuiServer.createSignalS2C(world, railwayData.addSignal(color, posStart, posEnd), color, PathData.getRailProduct(posStart, posEnd));
 		} else if (player != null) {
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.rail_not_found"), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.rail_not_found"), true);
 		}
 	}
 

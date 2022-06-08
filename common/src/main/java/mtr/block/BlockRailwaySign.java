@@ -1,9 +1,7 @@
 package mtr.block;
 
 import mtr.BlockEntityTypes;
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
+import mtr.mappings.*;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -11,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -26,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
-public class BlockRailwaySign extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock {
+public class BlockRailwaySign extends BlockDirectionalMapper implements EntityBlockMapper, IBlock {
 
 	public final int length;
 	public final boolean isOdd;
@@ -128,8 +124,8 @@ public class BlockRailwaySign extends HorizontalDirectionalBlock implements Enti
 
 	@Override
 	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(new TranslatableComponent("tooltip.mtr.railway_sign_length", length).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-		tooltip.add(new TranslatableComponent(isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable("tooltip.mtr.railway_sign_length", length).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable(isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 
 	@Override
@@ -369,7 +365,7 @@ public class BlockRailwaySign extends HorizontalDirectionalBlock implements Enti
 
 		SignType(String texture, String translation, boolean small, boolean flipTexture, boolean flipCustomText, boolean hasCustomText, int backgroundColor) {
 			textureId = new ResourceLocation("mtr:textures/sign/" + texture + ".png");
-			customText = hasCustomText ? new TranslatableComponent("sign.mtr." + translation + "_cjk").append("|").append(new TranslatableComponent("sign.mtr." + translation)).getString() : "";
+			customText = hasCustomText ? Text.translatable("sign.mtr." + translation + "_cjk").append("|").append(Text.translatable("sign.mtr." + translation)).getString() : "";
 			this.small = small;
 			this.flipTexture = flipTexture;
 			this.flipCustomText = flipCustomText;

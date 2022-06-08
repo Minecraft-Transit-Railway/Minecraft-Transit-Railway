@@ -1,10 +1,10 @@
 package mtr.data;
 
 import mtr.block.BlockNode;
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -608,7 +608,7 @@ public class Rail extends SerializedDataBase {
 		private void showProgressMessage(float percentage) {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr." + railActionType.progressTranslation, percentage), true);
+				player.displayClientMessage(Text.translatable("gui.mtr." + railActionType.progressTranslation, percentage), true);
 			}
 		}
 

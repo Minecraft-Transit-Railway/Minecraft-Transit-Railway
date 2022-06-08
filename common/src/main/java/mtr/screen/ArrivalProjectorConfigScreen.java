@@ -6,14 +6,13 @@ import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -28,7 +27,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 	private final Button filterButton;
 
 	public ArrivalProjectorConfigScreen(BlockPos pos) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.pos = pos;
 
 		final Level world = Minecraft.getInstance().level;
@@ -43,10 +42,10 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 			}
 		}
 
-		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.select_all_platforms"), checked -> {
+		selectAllCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.select_all_platforms"), checked -> {
 		});
 
-		filterButton = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> {
+		filterButton = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
 			if (minecraft != null) {
 				final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
 				if (station != null) {
@@ -75,7 +74,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 		addDrawableChild(selectAllCheckbox);
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, SQUARE_SIZE * 3, PANEL_WIDTH / 2);
-		filterButton.setMessage(new TranslatableComponent("selectWorld.edit"));
+		filterButton.setMessage(Text.translatable("selectWorld.edit"));
 		addDrawableChild(filterButton);
 	}
 
@@ -83,7 +82,7 @@ public class ArrivalProjectorConfigScreen extends ScreenMapper implements IGui, 
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			font.draw(matrices, new TranslatableComponent("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable("gui.mtr.filtered_platforms", selectAllCheckbox.selected() ? 0 : filterPlatformIds.size()), SQUARE_SIZE, SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -3,9 +3,9 @@ package mtr;
 import mtr.data.RailType;
 import mtr.data.TransportMode;
 import mtr.item.*;
+import mtr.mappings.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.WaterLilyBlockItem;
 
 public interface Items {
 
@@ -16,7 +16,7 @@ public interface Items {
 	RegistryObject<Item> RAILWAY_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.TRAIN));
 	RegistryObject<Item> BOAT_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.BOAT));
 	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
-	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new WaterLilyBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
+	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new PlaceOnWaterBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
 	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES)));
 	RegistryObject<Item> LIFT_2_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2));
 	RegistryObject<Item> LIFT_2_2_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED));

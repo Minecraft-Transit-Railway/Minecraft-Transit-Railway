@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
 	id "architectury-plugin" version "3.4-SNAPSHOT"
-	id "dev.architectury.loom" version "0.10.0-SNAPSHOT" apply false
+	id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
 	id "de.undercouch.download" version "4.1.2"
 	id "com.github.johnrengelman.shadow" version "7.1.0"
 }
@@ -12,13 +12,14 @@ def minecraft_version = rootProject.properties.containsKey("buildVersion") ? roo
 def is_1_16 = (minecraft_version as String).startsWith("1.16")
 def is_1_17 = (minecraft_version as String).startsWith("1.17")
 def is_1_18 = (minecraft_version as String) == "1.18"
+def is_1_18_2 = (minecraft_version as String) == "1.18.2"
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
 
-rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : is_1_18 ? rootProject.architectury_version_1_18 : rootProject.architectury_version_1_18_2
+rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : is_1_18 ? rootProject.architectury_version_1_18 : is_1_18_2 ? rootProject.architectury_version_1_18_2 : rootProject.architectury_version_1_19
 rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
-rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : is_1_18 ? rootProject.fabric_version_1_18 : rootProject.fabric_version_1_18_2
-rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : is_1_18 ? rootProject.forge_version_1_18 : rootProject.forge_version_1_18_2
-rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : is_1_18 ? rootProject.mod_menu_version_1_18 : rootProject.mod_menu_version_1_18_2
+rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : is_1_18 ? rootProject.fabric_version_1_18 : is_1_18_2 ? rootProject.fabric_version_1_18_2 : rootProject.fabric_version_1_19
+rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : is_1_18 ? rootProject.forge_version_1_18 : is_1_18_2 ? rootProject.forge_version_1_18_2 : rootProject.forge_version_1_19
+rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : is_1_18 ? rootProject.mod_menu_version_1_18 : is_1_18_2 ? rootProject.mod_menu_version_1_18_2 : rootProject.mod_menu_version_1_19
 
 architectury {
 	minecraft = minecraft_version
@@ -64,7 +65,7 @@ subprojects {
 
 task setupFiles() {
 	download {
-		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : "1.18"}.zip"
+		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : is_1_18 || is_1_18_2 ? "1.18" : "1.19"}.zip"
 		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 	}
@@ -133,12 +134,23 @@ task setupFiles() {
 			rename "(.+)Template.java", "\$1.java"
 		}
 	}
+	if (is_1_16 || is_1_17 || is_1_18 || is_1_18_2) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "common/src/main/RandomSourceTemplate.java"
+			into "common/src/main/java/net/minecraft/util"
+			rename "(.+)Template.java", "\$1.java"
+		}
+	}
 
 	if (!is_1_16) {
 		ant.delete(dir: "fabric/src/main/java/me")
 	}
 	if (!is_1_17) {
 		ant.delete(dir: "fabric/src/main/java/dev")
+	}
+	if (!is_1_16 && !is_1_17 && !is_1_18 && !is_1_18_2) {
+		ant.delete(dir: "common/src/main/java/net")
 	}
 }
 

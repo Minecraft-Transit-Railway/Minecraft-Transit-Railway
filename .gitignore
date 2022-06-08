@@ -36,6 +36,7 @@ Keys.java
 mappings
 gestures
 BlockEntityExtension.java
+RandomSource.java
 UnknownPacketMixin.java
 version.js
 **/lang/*.json

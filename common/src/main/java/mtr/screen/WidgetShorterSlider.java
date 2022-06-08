@@ -2,11 +2,11 @@ package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.IGui;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,7 +20,7 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 	private static final int SLIDER_WIDTH = 6;
 
 	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
-		super(x, 0, width, 0, new TextComponent(""), 0);
+		super(x, 0, width, 0, Text.literal(""), 0);
 		this.maxValue = maxValue;
 		this.setMessage = setMessage;
 		this.shiftClickAction = shiftClickAction;
@@ -54,7 +54,7 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	@Override
 	protected void updateMessage() {
-		setMessage(new TextComponent(setMessage.apply(getIntValue())));
+		setMessage(Text.literal(setMessage.apply(getIntValue())));
 	}
 
 	@Override

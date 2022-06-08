@@ -8,6 +8,7 @@ import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Route;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -15,8 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,7 +41,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 
 	@SafeVarargs
 	public TrainSensorScreenBase(BlockPos pos, boolean hasSpeedCheckboxes, Tuple<WidgetBetterTextField, Component>... textFieldsAndLabels) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.pos = pos;
 
 		textFieldCount = textFieldsAndLabels.length;
@@ -68,10 +67,10 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			}
 		}
 
-		stoppedOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stopped_only"), checked -> setChecked(checked, movingOnly));
-		movingOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.moving_only"), checked -> setChecked(stoppedOnly, checked));
+		stoppedOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stopped_only"), checked -> setChecked(checked, movingOnly));
+		movingOnlyCheckbox = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.moving_only"), checked -> setChecked(stoppedOnly, checked));
 
-		filterButton = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> {
+		filterButton = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
 			if (minecraft != null) {
 				final List<NameColorDataBase> routes = new ArrayList<>(ClientData.ROUTES);
 				Collections.sort(routes);
@@ -102,7 +101,7 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 		}
 
 		IDrawing.setPositionAndWidth(filterButton, SQUARE_SIZE, yStart + SQUARE_SIZE * 2, PANEL_WIDTH / 2);
-		filterButton.setMessage(new TranslatableComponent("selectWorld.edit"));
+		filterButton.setMessage(Text.translatable("selectWorld.edit"));
 		addDrawableChild(filterButton);
 	}
 
@@ -120,13 +119,13 @@ public abstract class TrainSensorScreenBase extends ScreenMapper implements IGui
 			for (int i = 0; i < textFieldCount; i++) {
 				font.draw(matrices, textFieldLabels[i], SQUARE_SIZE + (float) (width / 2 - SQUARE_SIZE) * i, SQUARE_SIZE, ARGB_WHITE);
 			}
-			font.draw(matrices, new TranslatableComponent("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
-			font.draw(matrices, new TranslatableComponent(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable("gui.mtr.filtered_routes", filterRouteIds.size()), SQUARE_SIZE, yStart + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, Text.translatable(filterRouteIds.isEmpty() ? "gui.mtr.filtered_routes_empty" : "gui.mtr.filtered_routes_condition"), SQUARE_SIZE, yStart + SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			int i = 0;
 			for (final long routeId : filterRouteIds) {
 				final Route route = ClientData.DATA_CACHE.routeIdMap.get(routeId);
 				if (route != null) {
-					font.draw(matrices, new TextComponent(IGui.formatStationName(route.name)), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE);
+					font.draw(matrices, Text.literal(IGui.formatStationName(route.name)), SQUARE_SIZE, yStart + SQUARE_SIZE * 3 + TEXT_PADDING + i, ARGB_WHITE);
 				}
 				i += TEXT_HEIGHT;
 			}

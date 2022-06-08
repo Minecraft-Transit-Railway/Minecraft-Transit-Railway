@@ -2,12 +2,12 @@ package mtr.item;
 
 import mtr.block.BlockNode;
 import mtr.data.*;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -37,7 +37,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	@Override
 	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
 		if (isConnector && railType != null && railType.canAccelerate) {
-			tooltip.add(new TranslatableComponent("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(Text.translatable("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
 		super.appendHoverText(itemStack, level, tooltip, tooltipFlag);
 	}
@@ -46,7 +46,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	protected void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (railType.hasSavedRail && (railwayData.hasSavedRail(posStart) || railwayData.hasSavedRail(posEnd))) {
 			if (player != null) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.platform_or_siding_exists"), true);
+				player.displayClientMessage(Text.translatable("gui.mtr.platform_or_siding_exists"), true);
 			}
 		} else {
 			final boolean isValidContinuousMovement;
@@ -91,7 +91,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
 				PacketTrainDataGuiServer.createRailS2C(world, transportMode, posStart, posEnd, rail1, rail2, newId);
 			} else if (player != null) {
-				player.displayClientMessage(new TranslatableComponent(isValidContinuousMovement ? goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small" : "gui.mtr.cable_car_invalid_orientation"), true);
+				player.displayClientMessage(Text.translatable(isValidContinuousMovement ? goodRadius ? "gui.mtr.invalid_orientation" : "gui.mtr.radius_too_small" : "gui.mtr.cable_car_invalid_orientation"), true);
 			}
 		}
 	}

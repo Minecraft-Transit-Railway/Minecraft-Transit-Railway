@@ -8,6 +8,7 @@ import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
 import mtr.mappings.SelectableMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -18,7 +19,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -139,9 +139,9 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 		UtilitiesClient.finishDrawingRectangle();
 
 		if (mapState == MapState.EDITING_AREA) {
-			Gui.drawString(matrices, textRenderer, new TranslatableComponent("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+			Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		} else if (mapState == MapState.EDITING_ROUTE) {
-			Gui.drawString(matrices, textRenderer, new TranslatableComponent("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+			Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
 		}
 
 		if (scale >= 8) {
@@ -161,7 +161,7 @@ public class WidgetMap implements Widget, SelectableMapper, GuiEventListener, IG
 			for (final Station station : ClientData.STATIONS) {
 				if (canDrawAreaText(station)) {
 					final BlockPos pos = station.getCenter();
-					final String stationString = String.format("%s|(%s)", station.name, new TranslatableComponent("gui.mtr.zone_number", station.zone).getString());
+					final String stationString = String.format("%s|(%s)", station.name, Text.translatable("gui.mtr.zone_number", station.zone).getString());
 					drawFromWorldCoords(pos.getX(), pos.getZ(), (x1, y1) -> IDrawing.drawStringWithFont(matrices, textRenderer, immediate, stationString, x + (float) x1, y + (float) y1, MAX_LIGHT_GLOWING));
 				}
 			}

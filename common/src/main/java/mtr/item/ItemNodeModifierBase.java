@@ -5,12 +5,12 @@ import mtr.block.BlockNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.data.TransportMode;
+import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +43,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 		final CompoundTag compoundTag = stack.getOrCreateTag();
 		final long posLong = compoundTag.getLong(TAG_POS);
 		if (posLong != 0) {
-			tooltip.add(new TranslatableComponent("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+			tooltip.add(Text.translatable("tooltip.mtr.selected_block", BlockPos.of(posLong).toShortString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 		}
 	}
 

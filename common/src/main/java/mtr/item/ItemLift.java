@@ -4,12 +4,12 @@ import mtr.EntityTypes;
 import mtr.ItemGroups;
 import mtr.block.BlockLiftTrack;
 import mtr.entity.EntityLift;
+import mtr.mappings.Text;
 import mtr.mappings.Utilities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +44,7 @@ public class ItemLift extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_width", liftType.width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_depth", liftType.depth).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable("tooltip.mtr.rail_action_width", liftType.width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable("tooltip.mtr.rail_action_depth", liftType.depth).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 }

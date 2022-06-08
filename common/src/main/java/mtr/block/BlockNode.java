@@ -4,16 +4,16 @@ import mtr.BlockEntityTypes;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.data.TransportMode;
+import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -24,7 +24,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,7 +38,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
 
-public class BlockNode extends HorizontalDirectionalBlock {
+public class BlockNode extends BlockDirectionalMapper {
 
 	public final TransportMode transportMode;
 
@@ -160,9 +159,9 @@ public class BlockNode extends HorizontalDirectionalBlock {
 
 		@Override
 		public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-			final String[] strings = new TranslatableComponent("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
+			final String[] strings = Text.translatable("tooltip.mtr.cable_car_node" + (isStation ? "_station" : "")).getString().split("\n");
 			for (final String string : strings) {
-				tooltip.add(new TextComponent(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+				tooltip.add(Text.literal(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 			}
 		}
 	}

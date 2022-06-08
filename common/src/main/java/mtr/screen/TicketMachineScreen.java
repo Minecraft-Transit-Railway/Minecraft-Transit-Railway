@@ -4,14 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
 public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
@@ -24,11 +23,11 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 	private static final int BUTTON_WIDTH = 80;
 
 	public TicketMachineScreen(int balance) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 
 		for (int i = 0; i < BUTTON_COUNT; i++) {
 			final int index = i;
-			buttons[i] = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> {
+			buttons[i] = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_value"), button -> {
 				PacketTrainDataGuiClient.addBalanceC2S(getAddAmount(index), (int) Math.pow(2, index));
 				if (minecraft != null) {
 					UtilitiesClient.setScreen(minecraft, null);
@@ -36,7 +35,7 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 			});
 		}
 
-		balanceText = new TranslatableComponent("gui.mtr.balance", balance);
+		balanceText = Text.translatable("gui.mtr.balance", balance);
 	}
 
 	@Override
@@ -64,12 +63,12 @@ public class TicketMachineScreen extends ScreenMapper implements IGui, IPacket {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		try {
 			renderBackground(matrices);
-			final Component emeraldsText = new TranslatableComponent("gui.mtr.emeralds", getEmeraldCount());
+			final Component emeraldsText = Text.translatable("gui.mtr.emeralds", getEmeraldCount());
 			font.draw(matrices, balanceText, TEXT_PADDING, TEXT_PADDING, ARGB_WHITE);
 			font.draw(matrices, emeraldsText, width - TEXT_PADDING - font.width(emeraldsText), TEXT_PADDING, ARGB_WHITE);
 
 			for (int i = 0; i < BUTTON_COUNT; i++) {
-				font.draw(matrices, new TranslatableComponent("gui.mtr.add_balance_for_emeralds", getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+				font.draw(matrices, Text.translatable("gui.mtr.add_balance_for_emeralds", getAddAmount(i), (int) Math.pow(2, i)), TEXT_PADDING, (i + 1) * SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			}
 
 			super.render(matrices, mouseX, mouseY, delta);
