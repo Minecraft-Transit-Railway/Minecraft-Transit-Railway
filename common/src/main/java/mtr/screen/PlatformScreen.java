@@ -3,14 +3,14 @@ package mtr.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.Platform;
 import mtr.data.TransportMode;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class PlatformScreen extends SavedRailScreenBase<Platform> {
 
-	private static final Component DWELL_TIME_TEXT = new TranslatableComponent("gui.mtr.dwell_time");
+	private static final Component DWELL_TIME_TEXT = Text.translatable("gui.mtr.dwell_time");
 	private final WidgetShorterSlider sliderDwellTime;
 
 	public PlatformScreen(Platform savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen) {

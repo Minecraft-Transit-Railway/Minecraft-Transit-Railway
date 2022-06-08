@@ -5,12 +5,12 @@ import mtr.block.BlockLiftTrackFloor;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -25,17 +25,17 @@ public class LiftTrackFloorScreen extends ScreenMapper implements IGui, IPacket 
 	private final String initialFloorDescription;
 	private final boolean initialShouldDing;
 	private final int textWidth;
-	private static final TranslatableComponent TEXT_FLOOR_NUMBER = new TranslatableComponent("gui.mtr.lift_floor_number");
-	private static final TranslatableComponent TEXT_FLOOR_DESCRIPTION = new TranslatableComponent("gui.mtr.lift_floor_description");
+	private static final Component TEXT_FLOOR_NUMBER = Text.translatable("gui.mtr.lift_floor_number");
+	private static final Component TEXT_FLOOR_DESCRIPTION = Text.translatable("gui.mtr.lift_floor_description");
 	private static final int TEXT_FIELD_WIDTH = 240;
 
 	public LiftTrackFloorScreen(BlockPos pos) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.pos = pos;
 
 		textFieldFloorNumber = new WidgetBetterTextField("1", 8);
 		textFieldFloorDescription = new WidgetBetterTextField("Concourse");
-		checkboxShouldDing = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.lift_should_ding"), checked -> {
+		checkboxShouldDing = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.lift_should_ding"), checked -> {
 		});
 
 		final Level world = Minecraft.getInstance().level;

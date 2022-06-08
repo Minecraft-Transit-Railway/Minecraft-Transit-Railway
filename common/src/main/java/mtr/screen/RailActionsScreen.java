@@ -7,17 +7,16 @@ import mtr.client.ClientData;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class RailActionsScreen extends ScreenMapper implements IGui, IPacket {
 
 	final DashboardList railActionsList;
 
 	public RailActionsScreen() {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		railActionsList = new DashboardList(null, null, null, null, null, this::onDelete, null, () -> "", text -> {
 		});
 
@@ -38,7 +37,7 @@ public class RailActionsScreen extends ScreenMapper implements IGui, IPacket {
 		try {
 			renderBackground(matrices);
 			railActionsList.render(matrices, font);
-			drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.rail_actions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
+			drawCenteredString(matrices, font, Text.translatable("gui.mtr.rail_actions"), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 			super.render(matrices, mouseX, mouseY, delta);
 		} catch (Exception e) {
 			e.printStackTrace();

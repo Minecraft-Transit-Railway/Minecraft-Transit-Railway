@@ -6,9 +6,9 @@ import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.entity.EntityLift;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.RenderLift;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class LiftSelectionScreen extends ScreenMapper implements IGui {
 	private final EntityLift entityLift;
 
 	public LiftSelectionScreen(EntityLift entityLift) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.entityLift = entityLift;
 		final Map<Integer, String> floors = entityLift == null ? new HashMap<>() : entityLift.floors;
 		floorLevels = new ArrayList<>(floors.keySet());

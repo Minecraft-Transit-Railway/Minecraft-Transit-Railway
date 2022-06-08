@@ -11,11 +11,11 @@ import mtr.data.IGui;
 import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.Text;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -65,7 +65,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			matrices.pushPose();
 			matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-			drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? new TranslatableComponent("gui.mtr.untitled").getString() : station.name, color, light);
+			drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, color, light);
 			matrices.popPose();
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 		}

@@ -2,9 +2,9 @@ package mtr.screen;
 
 import mtr.data.IGui;
 import mtr.data.RailwayData;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 
@@ -29,7 +29,7 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 	}
 
 	public WidgetBetterTextField(String filter, String suggestion, int maxLength) {
-		super(Minecraft.getInstance().font, 0, 0, 0, SQUARE_SIZE, new TextComponent(""));
+		super(Minecraft.getInstance().font, 0, 0, 0, SQUARE_SIZE, Text.literal(""));
 		this.filter = filter;
 		this.suggestion = suggestion;
 		newMaxLength = maxLength;

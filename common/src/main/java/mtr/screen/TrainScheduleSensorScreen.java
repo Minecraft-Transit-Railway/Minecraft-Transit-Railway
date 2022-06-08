@@ -1,9 +1,9 @@
 package mtr.screen;
 
 import mtr.block.BlockTrainScheduleSensor;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,7 +16,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {
-		super(pos, false, new Tuple<>(new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), new TranslatableComponent("gui.mtr.train_schedule_sensor")));
+		super(pos, false, new Tuple<>(new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", MAX_SECONDS_LENGTH), Text.translatable("gui.mtr.train_schedule_sensor")));
 
 		final Level world = Minecraft.getInstance().level;
 		if (world == null) {

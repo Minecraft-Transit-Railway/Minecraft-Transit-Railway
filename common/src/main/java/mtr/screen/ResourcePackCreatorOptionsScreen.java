@@ -8,11 +8,11 @@ import mtr.client.IDrawing;
 import mtr.client.IResourcePackCreatorProperties;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderTrains;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -35,27 +35,27 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 	private final Button buttonDone;
 	private final Button buttonExport;
 
-	private static final TranslatableComponent FILE_MODEL_TEXT = new TranslatableComponent("gui.mtr.file_model");
-	private static final TranslatableComponent FILE_PROPERTIES_TEXT = new TranslatableComponent("gui.mtr.file_properties");
-	private static final TranslatableComponent FILE_TEXTURE_TEXT = new TranslatableComponent("gui.mtr.file_texture");
-	private static final TranslatableComponent NAME_TEXT = new TranslatableComponent("gui.mtr.custom_resources_name");
-	private static final TranslatableComponent ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_id");
-	private static final TranslatableComponent GANGWAY_CONNECTION_ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_gangway_connection_id");
-	private static final TranslatableComponent TRAIN_BARRIER_ID_TEXT = new TranslatableComponent("gui.mtr.custom_resources_train_barrier_id");
+	private static final Component FILE_MODEL_TEXT = Text.translatable("gui.mtr.file_model");
+	private static final Component FILE_PROPERTIES_TEXT = Text.translatable("gui.mtr.file_properties");
+	private static final Component FILE_TEXTURE_TEXT = Text.translatable("gui.mtr.file_texture");
+	private static final Component NAME_TEXT = Text.translatable("gui.mtr.custom_resources_name");
+	private static final Component ID_TEXT = Text.translatable("gui.mtr.custom_resources_id");
+	private static final Component GANGWAY_CONNECTION_ID_TEXT = Text.translatable("gui.mtr.custom_resources_gangway_connection_id");
+	private static final Component TRAIN_BARRIER_ID_TEXT = Text.translatable("gui.mtr.custom_resources_train_barrier_id");
 
 	public ResourcePackCreatorOptionsScreen(ResourcePackCreatorScreen resourcePackCreatorScreen) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.resourcePackCreatorScreen = resourcePackCreatorScreen;
 
-		buttonChooseModelFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+		buttonChooseModelFile = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> buttonCallback(path -> {
 			RenderTrains.creatorProperties.loadModelFile(path);
 			updateControls(false);
 		}));
-		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+		buttonChoosePropertiesFile = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> buttonCallback(path -> {
 			RenderTrains.creatorProperties.loadPropertiesFile(path);
 			updateControls(false);
 		}));
-		buttonChooseTextureFile = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> buttonCallback(path -> {
+		buttonChooseTextureFile = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> buttonCallback(path -> {
 			RenderTrains.creatorProperties.loadTextureFile(path);
 			updateControls(false);
 		}));
@@ -68,11 +68,11 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 		sliderRiderOffset = new WidgetShorterSlider(0, PANEL_WIDTH, 18, value -> {
 			RenderTrains.creatorProperties.editCustomResourcesRiderOffset((value - 2) / 4F);
 			updateControls(true);
-			return new TranslatableComponent("gui.mtr.custom_resources_rider_offset", (value - 2) / 4F).getString();
+			return Text.translatable("gui.mtr.custom_resources_rider_offset", (value - 2) / 4F).getString();
 		}, null);
 
-		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onClose());
-		buttonExport = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.custom_resources_export_resource_pack"), button -> RenderTrains.creatorProperties.export());
+		buttonDone = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onClose());
+		buttonExport = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.custom_resources_export_resource_pack"), button -> RenderTrains.creatorProperties.export());
 	}
 
 	@Override
@@ -166,11 +166,11 @@ public class ResourcePackCreatorOptionsScreen extends ScreenMapper implements IR
 
 	private void updateControls(boolean formatTextFields) {
 		final String modelFileName = RenderTrains.creatorProperties.getModelFileName();
-		buttonChooseModelFile.setMessage(modelFileName.isEmpty() ? new TranslatableComponent("gui.mtr.file_upload") : new TextComponent(modelFileName));
+		buttonChooseModelFile.setMessage(modelFileName.isEmpty() ? Text.translatable("gui.mtr.file_upload") : Text.literal(modelFileName));
 		final String propertiesFileName = RenderTrains.creatorProperties.getPropertiesFileName();
-		buttonChoosePropertiesFile.setMessage(propertiesFileName.isEmpty() ? new TranslatableComponent("gui.mtr.file_upload") : new TextComponent(propertiesFileName));
+		buttonChoosePropertiesFile.setMessage(propertiesFileName.isEmpty() ? Text.translatable("gui.mtr.file_upload") : Text.literal(propertiesFileName));
 		final String textureFileName = RenderTrains.creatorProperties.getTextureFileName();
-		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? new TranslatableComponent("gui.mtr.file_upload") : new TextComponent(textureFileName));
+		buttonChooseTextureFile.setMessage(textureFileName.isEmpty() ? Text.translatable("gui.mtr.file_upload") : Text.literal(textureFileName));
 
 		final JsonObject customTrainObject = RenderTrains.creatorProperties.getCustomTrainObject();
 		final int sliderRiderOffsetValue = Math.round(customTrainObject.get(CUSTOM_TRAINS_RIDER_OFFSET).getAsFloat() * 4 + 2);

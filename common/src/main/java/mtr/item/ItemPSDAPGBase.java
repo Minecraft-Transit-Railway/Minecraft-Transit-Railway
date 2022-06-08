@@ -6,12 +6,12 @@ import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPSDAPGDoorBase;
 import mtr.block.BlockPSDTop;
 import mtr.block.IBlock;
+import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -74,7 +74,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 
 	@Override
 	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(new TranslatableComponent(type.isLift ? type.isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even" : "tooltip.mtr." + item.getSerializedName()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable(type.isLift ? type.isOdd ? "tooltip.mtr.railway_sign_odd" : "tooltip.mtr.railway_sign_even" : "tooltip.mtr." + item.getSerializedName()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 
 	private BlockState getBlockStateFromItem() {

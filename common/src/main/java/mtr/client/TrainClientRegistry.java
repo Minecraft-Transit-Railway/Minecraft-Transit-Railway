@@ -5,10 +5,11 @@ import mtr.MTRClient;
 import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
+import mtr.mappings.Text;
 import mtr.model.*;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -42,7 +43,7 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
 
 	public static void reset() {
@@ -169,7 +170,7 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties() {
-		return new TrainProperties("", null, null, null, null, new TranslatableComponent(""), 0, "", "", 0, 0, 0.5F, false);
+		return new TrainProperties("", null, null, null, null, Text.translatable(""), 0, "", "", 0, 0, 0.5F, false);
 	}
 
 	public static class TrainProperties {
@@ -179,7 +180,7 @@ public class TrainClientRegistry {
 		public final String textureId;
 		public final String speedSoundBaseId;
 		public final String doorSoundBaseId;
-		public final TranslatableComponent name;
+		public final Component name;
 		public final int color;
 		public final String gangwayConnectionId;
 		public final String trainBarrierId;
@@ -192,7 +193,7 @@ public class TrainClientRegistry {
 		private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
 		private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
 
-		private TrainProperties(String baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, TranslatableComponent name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+		private TrainProperties(String baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, Component name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.baseTrainType = baseTrainType;
 			this.model = model;
 			this.textureId = resolvePath(textureId);

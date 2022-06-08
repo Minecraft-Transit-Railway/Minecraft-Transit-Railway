@@ -5,10 +5,7 @@ import mtr.Items;
 import mtr.MTR;
 import mtr.data.LiftInstructions;
 import mtr.entity.EntityLift;
-import mtr.mappings.BlockEntityClientSerializableMapper;
-import mtr.mappings.BlockEntityMapper;
-import mtr.mappings.EntityBlockMapper;
-import mtr.mappings.TickableMapper;
+import mtr.mappings.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +16,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -35,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class BlockLiftButtons extends HorizontalDirectionalBlock implements EntityBlockMapper {
+public class BlockLiftButtons extends BlockDirectionalMapper implements EntityBlockMapper {
 
 	public BlockLiftButtons() {
 		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2));

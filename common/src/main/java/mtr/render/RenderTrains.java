@@ -13,6 +13,7 @@ import mtr.data.*;
 import mtr.entity.EntitySeat;
 import mtr.item.ItemNodeModifierBase;
 import mtr.mappings.EntityRendererMapper;
+import mtr.mappings.Text;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelCableCarGrip;
@@ -28,8 +29,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -106,7 +105,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			renderedUuid = entity.getUUID();
 		}
 
-		final int renderDistanceChunks = client.options.renderDistance;
+		final int renderDistanceChunks = UtilitiesClient.getRenderDistance();
 		final float lastFrameDuration = MTRClient.getLastFrameDuration();
 		final boolean useAnnouncements = Config.useTTSAnnouncements() || Config.showAnnouncementMessages();
 
@@ -281,7 +280,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				}
 				player.displayClientMessage(text, true);
 			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
+				player.displayClientMessage(Text.translatable("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
@@ -442,7 +441,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	}
 
 	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, float yOffset, boolean renderColors, float railWidth, String texture, float u1, float v1, float u2, float v2) {
-		final int maxRailDistance = Minecraft.getInstance().options.renderDistance * 16;
+		final int maxRailDistance = UtilitiesClient.getRenderDistance() * 16;
 
 		rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 			final BlockPos pos2 = new BlockPos(x1, y1, z1);
@@ -468,7 +467,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	}
 
 	private static void renderSignalsStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, BlockPos startPos, BlockPos endPos) {
-		final int maxRailDistance = Minecraft.getInstance().options.renderDistance * 16;
+		final int maxRailDistance = UtilitiesClient.getRenderDistance() * 16;
 		final List<SignalBlocks.SignalBlock> signalBlocks = ClientData.SIGNAL_BLOCKS.getSignalBlocksAtTrack(PathData.getRailProduct(startPos, endPos));
 		final float width = 1F / DyeColor.values().length;
 
@@ -498,16 +497,16 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
 
-		if (!shouldNotRender(cameraPos, posAverage, Minecraft.getInstance().options.renderDistance * (Config.trainRenderDistanceRatio() + 1), null)) {
+		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}
 
 	private static Component getStationText(Station station, String textKey) {
 		if (station != null) {
-			return new TextComponent(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
+			return Text.literal(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
 		} else {
-			return new TextComponent("");
+			return Text.literal("");
 		}
 	}
 
@@ -521,7 +520,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final boolean available;
 
 		if (!AVAILABLE_TEXTURES.contains(textureString) && !UNAVAILABLE_TEXTURES.contains(textureString)) {
-			available = Minecraft.getInstance().getResourceManager().hasResource(id);
+			available = UtilitiesClient.hasResource(id);
 			(available ? AVAILABLE_TEXTURES : UNAVAILABLE_TEXTURES).add(textureString);
 			if (!available) {
 				System.out.println("Texture " + textureString + " not found, using default");

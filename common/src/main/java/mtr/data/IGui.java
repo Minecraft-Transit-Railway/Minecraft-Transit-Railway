@@ -1,6 +1,6 @@
 package mtr.data;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import mtr.mappings.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public interface IGui {
 	}
 
 	static String textOrUntitled(String text) {
-		return text.isEmpty() ? new TranslatableComponent("gui.mtr.untitled").getString() : text;
+		return text.isEmpty() ? Text.translatable("gui.mtr.untitled").getString() : text;
 	}
 
 	static String formatVerticalChinese(String text) {
@@ -100,12 +100,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(new TranslatableComponent(keyCJK, (Object[]) combinedArguments).getString());
+					result.append(Text.translatable(keyCJK, (Object[]) combinedArguments).getString());
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(new TranslatableComponent(keyCJK, (Object[]) newCombinedArguments).getString());
+					result.append(Text.translatable(keyCJK, (Object[]) newCombinedArguments).getString());
 				}
 			}
 		});
@@ -113,12 +113,12 @@ public interface IGui {
 			if (Arrays.stream(combinedArguments).allMatch(Objects::nonNull)) {
 				result.append("|");
 				if (overrideFirst == null) {
-					result.append(new TranslatableComponent(key, (Object[]) combinedArguments).getString());
+					result.append(Text.translatable(key, (Object[]) combinedArguments).getString());
 				} else {
 					final String[] newCombinedArguments = new String[expectedArguments + 1];
 					System.arraycopy(combinedArguments, 0, newCombinedArguments, 1, expectedArguments);
 					newCombinedArguments[0] = overrideFirst;
-					result.append(new TranslatableComponent(key, (Object[]) newCombinedArguments).getString());
+					result.append(Text.translatable(key, (Object[]) newCombinedArguments).getString());
 				}
 			}
 		});
@@ -178,8 +178,8 @@ public interface IGui {
 			}
 		}
 
-		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? new TranslatableComponent("gui.mtr.separator_cjk").getString() : separator) + b).orElse("")).collect(Collectors.toList());
-		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? new TranslatableComponent("gui.mtr.separator").getString() : separator) + b).orElse("")).collect(Collectors.toList()));
+		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator_cjk").getString() : separator) + b).orElse("")).collect(Collectors.toList());
+		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator").getString() : separator) + b).orElse("")).collect(Collectors.toList()));
 		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
 	}
 

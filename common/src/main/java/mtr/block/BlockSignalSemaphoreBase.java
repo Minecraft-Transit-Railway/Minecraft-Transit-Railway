@@ -1,12 +1,12 @@
 package mtr.block;
 
+import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class BlockSignalSemaphoreBase extends HorizontalDirectionalBlock implements EntityBlockMapper {
+public abstract class BlockSignalSemaphoreBase extends BlockDirectionalMapper implements EntityBlockMapper {
 
 	public BlockSignalSemaphoreBase(Properties settings) {
 		super(settings);

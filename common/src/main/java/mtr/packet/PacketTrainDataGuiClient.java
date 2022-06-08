@@ -10,6 +10,7 @@ import mtr.block.BlockTrainSensorBase;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.screen.*;
 import net.minecraft.client.Minecraft;
@@ -18,8 +19,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -41,7 +40,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 			if (!Keys.MOD_VERSION.split("-hotfix-")[0].equals(version)) {
 				final ClientPacketListener connection = minecraftClient.getConnection();
 				if (connection != null) {
-					final int widthDifference1 = minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_your_version")) - minecraftClient.font.width(new TranslatableComponent("gui.mtr.mismatched_versions_server_version"));
+					final int widthDifference1 = minecraftClient.font.width(Text.translatable("gui.mtr.mismatched_versions_your_version")) - minecraftClient.font.width(Text.translatable("gui.mtr.mismatched_versions_server_version"));
 					final int widthDifference2 = minecraftClient.font.width(Keys.MOD_VERSION) - minecraftClient.font.width(version);
 					final int spaceWidth = minecraftClient.font.width(" ");
 
@@ -49,7 +48,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 					for (int i = 0; i < -widthDifference1 / spaceWidth; i++) {
 						text.append(" ");
 					}
-					text.append(new TranslatableComponent("gui.mtr.mismatched_versions_your_version", Keys.MOD_VERSION).getString());
+					text.append(Text.translatable("gui.mtr.mismatched_versions_your_version", Keys.MOD_VERSION).getString());
 					for (int i = 0; i < -widthDifference2 / spaceWidth; i++) {
 						text.append(" ");
 					}
@@ -57,13 +56,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 					for (int i = 0; i < widthDifference1 / spaceWidth; i++) {
 						text.append(" ");
 					}
-					text.append(new TranslatableComponent("gui.mtr.mismatched_versions_server_version", version).getString());
+					text.append(Text.translatable("gui.mtr.mismatched_versions_server_version", version).getString());
 					for (int i = 0; i < widthDifference2 / spaceWidth; i++) {
 						text.append(" ");
 					}
 					text.append("\n\n");
 
-					connection.getConnection().disconnect(new TextComponent(text.toString()).append(new TranslatableComponent("gui.mtr.mismatched_versions")));
+					connection.getConnection().disconnect(Text.literal(text.toString()).append(Text.translatable("gui.mtr.mismatched_versions")));
 				}
 			}
 		});
