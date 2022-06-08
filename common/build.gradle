@@ -13,7 +13,7 @@ task moveCommonBuilds() {
 			include "**/MTR-common*"
 		}
 		copy {
-			from "build/libs"
+			from "build/devlibs"
 			include "*dev.jar"
 			into "../build/libs"
 			rename "(.+)", "MTR-\$1"
