@@ -238,30 +238,34 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	}
 
 	public static void migrateOldSchema(JsonObject jsonObject) {
-		final JsonArray partsArray = jsonObject.has("parts") ? jsonObject.getAsJsonArray("parts") : new JsonArray();
-		addParts(jsonObject, partsArray, "parts_normal", ResourcePackCreatorProperties.RenderCondition.ALL, "", "");
-		addParts(jsonObject, partsArray, "parts_head_1", ResourcePackCreatorProperties.RenderCondition.ALL, "1", "%1");
-		addParts(jsonObject, partsArray, "parts_head_2", ResourcePackCreatorProperties.RenderCondition.ALL, "-1", "%1");
-		addParts(jsonObject, partsArray, "parts_head_1_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "1", "%1");
-		addParts(jsonObject, partsArray, "parts_head_1_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "1", "%1");
-		addParts(jsonObject, partsArray, "parts_head_2_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "-1", "%1");
-		addParts(jsonObject, partsArray, "parts_head_2_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "-1", "%1");
-		addParts(jsonObject, partsArray, "parts_end_1", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "1");
-		addParts(jsonObject, partsArray, "parts_end_2", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "-1");
-		addParts(jsonObject, partsArray, "parts_door_opened", ResourcePackCreatorProperties.RenderCondition.DOORS_OPEN, "", "");
-		addParts(jsonObject, partsArray, "parts_door_closed", ResourcePackCreatorProperties.RenderCondition.DOORS_CLOSED, "", "");
-		jsonObject.add("parts", partsArray);
-		jsonObject.remove("parts_normal");
-		jsonObject.remove("parts_head_1");
-		jsonObject.remove("parts_head_2");
-		jsonObject.remove("parts_head_1_headlights");
-		jsonObject.remove("parts_head_1_tail_lights");
-		jsonObject.remove("parts_head_2_headlights");
-		jsonObject.remove("parts_head_2_tail_lights");
-		jsonObject.remove("parts_end_1");
-		jsonObject.remove("parts_end_2");
-		jsonObject.remove("parts_door_opened");
-		jsonObject.remove("parts_door_closed");
+		try {
+			final JsonArray partsArray = jsonObject.has("parts") ? jsonObject.getAsJsonArray("parts") : new JsonArray();
+			addParts(jsonObject, partsArray, "parts_normal", ResourcePackCreatorProperties.RenderCondition.ALL, "", "");
+			addParts(jsonObject, partsArray, "parts_head_1", ResourcePackCreatorProperties.RenderCondition.ALL, "1", "%1");
+			addParts(jsonObject, partsArray, "parts_head_2", ResourcePackCreatorProperties.RenderCondition.ALL, "-1", "%1");
+			addParts(jsonObject, partsArray, "parts_head_1_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "1", "%1");
+			addParts(jsonObject, partsArray, "parts_head_1_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "1", "%1");
+			addParts(jsonObject, partsArray, "parts_head_2_headlights", ResourcePackCreatorProperties.RenderCondition.MOVING_BACKWARDS, "-1", "%1");
+			addParts(jsonObject, partsArray, "parts_head_2_tail_lights", ResourcePackCreatorProperties.RenderCondition.MOVING_FORWARDS, "-1", "%1");
+			addParts(jsonObject, partsArray, "parts_end_1", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "1");
+			addParts(jsonObject, partsArray, "parts_end_2", ResourcePackCreatorProperties.RenderCondition.ALL, "%1", "-1");
+			addParts(jsonObject, partsArray, "parts_door_opened", ResourcePackCreatorProperties.RenderCondition.DOORS_OPEN, "", "");
+			addParts(jsonObject, partsArray, "parts_door_closed", ResourcePackCreatorProperties.RenderCondition.DOORS_CLOSED, "", "");
+			jsonObject.add("parts", partsArray);
+			jsonObject.remove("parts_normal");
+			jsonObject.remove("parts_head_1");
+			jsonObject.remove("parts_head_2");
+			jsonObject.remove("parts_head_1_headlights");
+			jsonObject.remove("parts_head_1_tail_lights");
+			jsonObject.remove("parts_head_2_headlights");
+			jsonObject.remove("parts_head_2_tail_lights");
+			jsonObject.remove("parts_end_1");
+			jsonObject.remove("parts_end_2");
+			jsonObject.remove("parts_door_opened");
+			jsonObject.remove("parts_door_closed");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void addParts(JsonObject jsonObject, JsonArray partsArray, String key, ResourcePackCreatorProperties.RenderCondition renderCondition, String whitelistedCars, String blacklistedCars) {
