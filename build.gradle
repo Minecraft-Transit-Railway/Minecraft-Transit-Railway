@@ -134,23 +134,12 @@ task setupFiles() {
 			rename "(.+)Template.java", "\$1.java"
 		}
 	}
-	if (is_1_16 || is_1_17 || is_1_18 || is_1_18_2) {
-		copy {
-			outputs.upToDateWhen { false }
-			from "common/src/main/RandomSourceTemplate.java"
-			into "common/src/main/java/net/minecraft/util"
-			rename "(.+)Template.java", "\$1.java"
-		}
-	}
 
 	if (!is_1_16) {
 		ant.delete(dir: "fabric/src/main/java/me")
 	}
 	if (!is_1_17) {
 		ant.delete(dir: "fabric/src/main/java/dev")
-	}
-	if (!is_1_16 && !is_1_17 && !is_1_18 && !is_1_18_2) {
-		ant.delete(dir: "common/src/main/java/net")
 	}
 }
 
