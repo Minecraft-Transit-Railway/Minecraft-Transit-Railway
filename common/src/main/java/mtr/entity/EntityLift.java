@@ -38,6 +38,7 @@ public abstract class EntityLift extends EntityBase {
 	private boolean doorOpen = true;
 	private int doorValue = DOOR_MAX;
 	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
+	private int mountCoolDown;
 
 	public final LiftInstructions liftInstructions = new LiftInstructions(instructionsString -> entityData.set(STOPPING_FLOORS, instructionsString));
 	public final Map<Integer, String> floors = new HashMap<>();
@@ -158,10 +159,19 @@ public abstract class EntityLift extends EntityBase {
 	@Override
 	public void playerTouch(Player player) {
 		if (!level.isClientSide) {
+			final boolean hasPassenger = hasPassenger(player);
 			if (playerInBounds(player)) {
-				player.startRiding(this);
+				if (!hasPassenger) {
+					player.startRiding(this);
+					mountCoolDown = TRACK_COOL_DOWN_DEFAULT;
+				}
 			} else {
-				player.stopRiding();
+				if (mountCoolDown == 0 && hasPassenger) {
+					player.stopRiding();
+				}
+			}
+			if (mountCoolDown > 0) {
+				mountCoolDown--;
 			}
 		}
 	}
@@ -238,7 +248,10 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	public String[] getCurrentFloorDisplay() {
-		return floors.keySet().stream().min(Comparator.comparingInt(a -> (int) Math.abs(getY() - a))).map(floors::get).orElse("").split("\\|\\|");
+		final String[] result = {"", ""};
+		final String[] resultTemp = floors.keySet().stream().min(Comparator.comparingInt(a -> (int) Math.abs(getY() - a))).map(floors::get).orElse("").split("\\|\\|");
+		System.arraycopy(resultTemp, 0, result, 0, Math.min(resultTemp.length, 2));
+		return result;
 	}
 
 	private double getNegativeXBound(boolean includeDoorCheck) {
@@ -316,8 +329,7 @@ public abstract class EntityLift extends EntityBase {
 	}
 
 	private boolean playerInBounds(Entity entity) {
-		final double offset = hasPassenger(entity) ? 0.5 : 0;
-		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false) - offset, getPositiveXBound(false) + offset) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false) - offset, getPositiveZBound(false) + offset);
+		return RailwayData.isBetween(entity.getX() - getX(), getNegativeXBound(false), getPositiveXBound(false)) && RailwayData.isBetween(entity.getZ() - getZ(), getNegativeZBound(false), getPositiveZBound(false));
 	}
 
 	public static boolean playerVerticallyNearby(Level world, int x, int z) {
