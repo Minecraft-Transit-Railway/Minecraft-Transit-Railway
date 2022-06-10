@@ -32,6 +32,10 @@ jobs:
         with:
           name: Libraries
           path: build/libs/
+      - name: Compile uploader
+        run: javac UploadSFTP.java
+      - name: Upload files to SFTP
+        run: java UploadSFTP ${{ secrets.FTP_HOST }} ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }} ${{ matrix.loader }}-${{ matrix.minecraft }} ${{ secrets.FTP_PATH }}
   crowdin:
     runs-on: ubuntu-latest
     steps:
