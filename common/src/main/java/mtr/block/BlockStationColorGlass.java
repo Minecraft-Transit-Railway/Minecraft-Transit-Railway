@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.mappings.BlockMapper;
 import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -8,12 +7,13 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.GlassBlock;
 
 import java.util.List;
 
-public class BlockStationColor extends GlassBlock {
+public class BlockStationColorGlass extends GlassBlock {
 
-	public BlockStationColor(Properties settings) {
+	public BlockStationColorGlass(Properties settings) {
 		super(settings);
 	}
 
