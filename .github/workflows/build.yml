@@ -32,7 +32,7 @@ jobs:
         with:
           name: Libraries
           path: build/libs/
-      - name: Upload Fabric and Forge files to SFTP
+      - name: Upload release files to SFTP
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true

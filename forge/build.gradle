@@ -77,11 +77,6 @@ task moveForgeBuilds() {
 			include "*dev-shadow.jar"
 			into "../build/libs"
 		}
-		copy {
-			from "../build/release"
-			include "*dev-shadow.jar"
-			rename { fileName -> fileName.replace(rootProject.mod_version, "latest") }
-		}
 		delete fileTree("../build/release").matching {
 			include "*dev-shadow.jar"
 		}
