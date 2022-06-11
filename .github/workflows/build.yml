@@ -32,7 +32,7 @@ jobs:
         with:
           name: Libraries
           path: build/libs/
-      - name: Upload release files to SFTP
+      - name: Upload files to SFTP
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
@@ -41,19 +41,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           remote_folder: ${{ secrets.FTP_PATH }}
-          local_folder: build/release
-          include: ${{ format('["MTR-{0}-{1}-latest.jar"]', matrix.loader, matrix.minecraft) }}
-      - name: Upload lib files to SFTP
-        uses: sand4rt/ftp-deployer@v1.4
-        with:
-          sftp: true
-          host: ${{ secrets.FTP_HOST }}
-          port: 22
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          remote_folder: ${{ secrets.FTP_PATH }}
-          local_folder: build/libs
-          include: ${{ format('["MTR-{0}-{1}-latest-dev.jar","MTR-{0}-{1}-latest-dev-shadow.jar"]', matrix.loader, matrix.minecraft) }}
+          local_folder: build/latest
+          include: ${{ format('["MTR-{0}-{1}-latest.jar","MTR-{0}-{1}-latest-dev.jar","MTR-{0}-{1}-latest-dev-shadow.jar"]', matrix.loader, matrix.minecraft) }}
   crowdin:
     runs-on: ubuntu-latest
     steps:

@@ -62,15 +62,18 @@ task moveForgeBuilds() {
 		delete fileTree("../build/libs").matching {
 			include "**/MTR-forge*"
 		}
+		delete fileTree("../build/latest").matching {
+			include "**/MTR-fabric*"
+		}
 		copy {
 			from "build/libs"
 			into "../build/release"
 			rename "(.+)", "MTR-\$1"
 		}
 		copy {
-			from "build/libs"
-			into "../build/release"
-			rename { fileName -> "MTR-" + fileName.replace(rootProject.mod_version, "latest") }
+			from "../build/release"
+			into "../build/latest"
+			rename { fileName -> fileName.replace(rootProject.mod_version, "latest") }
 		}
 		copy {
 			from "../build/release"
