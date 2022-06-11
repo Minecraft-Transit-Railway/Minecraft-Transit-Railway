@@ -18,6 +18,12 @@ task moveCommonBuilds() {
 			into "../build/libs"
 			rename "(.+)", "MTR-\$1"
 		}
+		copy {
+			from "build/devlibs"
+			include "*dev.jar"
+			into "../build/libs"
+			rename { fileName -> "MTR-" + fileName.replace(rootProject.mod_version, "latest") }
+		}
 	}
 }
 
