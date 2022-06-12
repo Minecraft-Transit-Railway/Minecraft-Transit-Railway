@@ -399,11 +399,11 @@ public class Rail extends SerializedDataBase {
 			final double offsetValue;
 
 			if (value < intercept) {
-				yChange = (yEnd - yStart) / 2D;
+				yChange = (yEnd - yStart) / 2F;
 				yInitial = yStart;
 				offsetValue = value;
 			} else {
-				yChange = (yStart - yEnd) / 2D;
+				yChange = (yStart - yEnd) / 2F;
 				yInitial = yEnd;
 				offsetValue = length - value;
 			}
