@@ -14,6 +14,7 @@ def is_1_17 = (minecraft_version as String).startsWith("1.17")
 def is_1_18 = (minecraft_version as String) == "1.18"
 def is_1_18_2 = (minecraft_version as String) == "1.18.2"
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
+def lifts_only = rootProject.properties.containsKey("liftsOnly") ? rootProject.getProperties().get("liftsOnly") : ""
 
 rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : is_1_18 ? rootProject.architectury_version_1_18 : is_1_18_2 ? rootProject.architectury_version_1_18_2 : rootProject.architectury_version_1_19
 rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
@@ -110,7 +111,7 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "common/src/main/KeysTemplate.java"
 		into "common/src/main/java/mtr"
-		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version])
+		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": lifts_only])
 		rename "(.+)Template.java", "\$1.java"
 	}
 	copy {

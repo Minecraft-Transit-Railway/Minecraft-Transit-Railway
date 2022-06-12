@@ -16,7 +16,7 @@ public class ItemLiftButtonsLinkModifier extends ItemBlockClickingBase {
 	private final boolean isConnector;
 
 	public ItemLiftButtonsLinkModifier(boolean isConnector) {
-		super(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES).stacksTo(1));
+		super(new Item.Properties().tab(ItemGroups.ESCALATORS_LIFTS).stacksTo(1));
 		this.isConnector = isConnector;
 	}
 

@@ -12,12 +12,12 @@ public interface Items {
 	RegistryObject<Item> APG_DOOR = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_DOOR, ItemPSDAPGBase.EnumPSDAPGType.APG));
 	RegistryObject<Item> APG_GLASS = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS, ItemPSDAPGBase.EnumPSDAPGType.APG));
 	RegistryObject<Item> APG_GLASS_END = new RegistryObject<>(() -> new ItemPSDAPGBase(ItemPSDAPGBase.EnumPSDAPGItem.PSD_APG_GLASS_END, ItemPSDAPGBase.EnumPSDAPGType.APG));
-	RegistryObject<Item> BRUSH = new RegistryObject<>(() -> new Item(new Item.Properties().tab(ItemGroups.CORE).stacksTo(1)));
+	RegistryObject<Item> BRUSH = new RegistryObject<>(() -> new Item(new Item.Properties().tab(Keys.LIFTS_ONLY ? ItemGroups.ESCALATORS_LIFTS : ItemGroups.CORE).stacksTo(1)));
 	RegistryObject<Item> RAILWAY_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.TRAIN));
 	RegistryObject<Item> BOAT_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.BOAT));
 	RegistryObject<Item> CABLE_CAR_DASHBOARD = new RegistryObject<>(() -> new ItemDashboard(TransportMode.CABLE_CAR));
 	RegistryObject<Item> BOAT_NODE = new RegistryObject<>(() -> new PlaceOnWaterBlockItem(Blocks.BOAT_NODE.get(), new Item.Properties().tab(ItemGroups.CORE)));
-	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES)));
+	RegistryObject<Item> ESCALATOR = new RegistryObject<>(() -> new ItemEscalator(new Item.Properties().tab(ItemGroups.ESCALATORS_LIFTS)));
 	RegistryObject<Item> LIFT_2_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2));
 	RegistryObject<Item> LIFT_2_2_DOUBLE_SIDED = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED));
 	RegistryObject<Item> LIFT_3_2 = new RegistryObject<>(() -> new ItemLift(EntityTypes.LiftType.SIZE_3_2));
