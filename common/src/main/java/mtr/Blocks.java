@@ -157,7 +157,7 @@ public interface Blocks {
 	RegistryObject<Block> STATION_COLOR_SMOOTH_QUARTZ_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ)));
 	RegistryObject<Block> STATION_COLOR_SMOOTH_STONE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_STONE)));
 	RegistryObject<Block> STATION_COLOR_SNOW_BLOCK_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));
-	RegistryObject<Block> STATION_COLOR_STAINED_GLASS_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS).noOcclusion()));
+	RegistryObject<Block> STATION_COLOR_STAINED_GLASS_SLAB = new RegistryObject<>(() -> new BlockStationColorGlassSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS).noOcclusion()));
 	RegistryObject<Block> STATION_COLOR_STONE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE)));
 	RegistryObject<Block> STATION_COLOR_STONE_BRICKS_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE_BRICKS)));
 	RegistryObject<Block> STATION_COLOR_WOOL_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));

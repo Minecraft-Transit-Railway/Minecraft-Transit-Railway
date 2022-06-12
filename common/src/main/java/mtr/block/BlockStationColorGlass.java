@@ -1,29 +1,30 @@
 package mtr.block;
 
-import mtr.mappings.Text;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
-import java.util.List;
-
-public class BlockStationColorGlass extends GlassBlock {
+public class BlockStationColorGlass extends BlockStationColor {
 
 	public BlockStationColorGlass(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public String getDescriptionId() {
-		return super.getDescriptionId().replace("block.mtr.station_color_", "block.minecraft.");
+	public boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {
+		return neighborState.getBlock() instanceof BlockStationColorGlass || (neighborState.getBlock() instanceof BlockStationColorGlassSlab && IBlock.getStatePropertySafe(neighborState, SlabBlock.TYPE) == SlabType.DOUBLE) || super.skipRendering(state, neighborState, direction);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(Text.translatable("tooltip.mtr.station_color").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
+		return 1;
+	}
+
+	@Override
+	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+		return true;
 	}
 }
