@@ -42,6 +42,19 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           remote_folder: ${{ secrets.FTP_PATH }}
           local_folder: build/latest
+          exclude: '["latest.json"]'
+      - name: Upload version file to SFTP
+        if: matrix.loader == 'common' && matrix.minecraft == '1.16.5'
+        uses: sand4rt/ftp-deployer@v1.4
+        with:
+          sftp: true
+          host: ${{ secrets.FTP_HOST }}
+          port: 22
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          remote_folder: ${{ secrets.FTP_PATH }}
+          local_folder: build/latest
+          include: '["latest.json"]'
   crowdin:
     runs-on: ubuntu-latest
     steps:
