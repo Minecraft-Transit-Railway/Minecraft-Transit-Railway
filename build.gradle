@@ -85,15 +85,47 @@ task setupFiles() {
 		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
 	}
 
-	download {
-		src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
-		dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
-		overwrite true
+	delete fileTree("common/src/main/resources/assets/mtr/sounds")
+	delete fileTree("common/src/main/resources/assets/mtr/textures")
+	delete fileTree("common/src/main/resources/assets/mtr/website")
+	delete fileTree("common/src/main/resources/assets/mtr/sounds.json")
+	delete fileTree("common/src/main/resources/data/mtr/loot_tables")
+	delete fileTree("common/src/main/resources/data/mtr/recipes")
+	delete fileTree("fabric/src/main/resources")
+	delete fileTree("forge/src/main/resources")
+	copy {
+		outputs.upToDateWhen { false }
+		from "resources/common/lifts"
+		into "common/src/main/resources"
+	}
+	if (!lifts_only) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "resources/common/all"
+			into "common/src/main/resources"
+		}
+
+		download {
+			src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
+			dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
+			overwrite true
+		}
+		copy {
+			outputs.upToDateWhen { false }
+			from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+			into "common/src/main/resources/assets/mtr/website/gestures"
+		}
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "resources/fabric/" + (lifts_only ? "lifts" : "all")
+		into "fabric/src/main/resources"
 	}
 	copy {
 		outputs.upToDateWhen { false }
-		from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
-		into "common/src/main/resources/assets/mtr/website/gestures"
+		from "resources/forge/" + (lifts_only ? "lifts" : "all")
+		into "forge/src/main/resources"
 	}
 
 	download {
@@ -134,6 +166,7 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 || is_1_18 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 || is_1_18 ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
+
 	if (is_1_16 || is_1_17) {
 		copy {
 			outputs.upToDateWhen { false }
@@ -143,7 +176,6 @@ task setupFiles() {
 			rename "(.+)Template.java", "\$1.java"
 		}
 	}
-
 	if (!is_1_16) {
 		ant.delete(dir: "fabric/src/main/java/me")
 	}

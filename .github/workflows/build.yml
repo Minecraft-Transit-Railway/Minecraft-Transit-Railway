@@ -7,6 +7,17 @@ jobs:
       matrix:
         minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19 ]
         loader: [ fabric, forge, common ]
+        include:
+          - lifts-only: false
+            loader: fabric
+          - lifts-only: true
+            loader: fabric
+          - lifts-only: false
+            loader: forge
+          - lifts-only: true
+            loader: forge
+          - lifts-only: false
+            loader: common
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,7 +31,7 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
-        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PliftsOnly="${{ matrix.lifts-only }}"
       - name: Capture release artifacts
         if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
