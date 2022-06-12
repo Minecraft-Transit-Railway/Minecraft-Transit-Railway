@@ -52,6 +52,7 @@ subprojects {
 		implementation "org.eclipse.jetty:jetty-util-ajax:${rootProject.jetty_version}"
 		implementation "javax.servlet:javax.servlet-api:${rootProject.servlet_api_version}"
 		implementation "org.msgpack:msgpack-core:${rootProject.messagepack_version}"
+		implementation "com.hierynomus:sshj:${rootProject.sshj_version}"
 		shadowCommon "org.eclipse.jetty:jetty-http:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-io:${rootProject.jetty_version}"
 		shadowCommon "org.eclipse.jetty:jetty-security:${rootProject.jetty_version}"
