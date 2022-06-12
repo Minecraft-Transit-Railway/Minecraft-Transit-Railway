@@ -42,7 +42,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           remote_folder: ${{ secrets.FTP_PATH }}
           local_folder: build/latest
-          include: ${{ format('["MTR-{0}-{1}-latest.jar","MTR-{0}-{1}-latest-dev.jar","MTR-{0}-{1}-latest-dev-shadow.jar"]', matrix.loader, matrix.minecraft) }}
   crowdin:
     runs-on: ubuntu-latest
     steps:
