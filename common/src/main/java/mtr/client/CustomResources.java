@@ -45,6 +45,8 @@ public class CustomResources {
 	private static final String CUSTOM_TRAINS_SPEED_SOUND_BASE_ID = "speed_sound_base_id";
 	private static final String CUSTOM_TRAINS_DOOR_SOUND_BASE_ID = "door_sound_base_id";
 	private static final String CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME = "door_close_sound_time";
+	private static final String CUSTOM_TRAINS_USE_ACCELERATION_SOUNDS_WHEN_COASTING = "use_acceleration_sounds_when_coasting";
+	private static final String CUSTOM_TRAINS_PLAYBACK_SPEED_DOES_NOT_DEPEND_ON_CUSTOM_ACCELERATION = "playback_speed_does_not_depend_on_custom_acceleration";
 
 	private static final String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
 	private static final String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
@@ -79,14 +81,16 @@ public class CustomResources {
 						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, null, JsonElement::getAsString);
 						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, baseTrainProperties.color, jsonElement -> colorStringToInt(jsonElement.getAsString()));
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRenderer.textureId, JsonElement::getAsString);
-						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.speedSoundCount, JsonElement::getAsInt);
-						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.speedSoundBaseId, JsonElement::getAsString);
-						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.doorSoundBaseId, JsonElement::getAsString);
-						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.doorCloseSoundTime, JsonElement::getAsFloat);
+						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.config.speedSoundCount, JsonElement::getAsInt);
+						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.config.speedSoundBaseId, JsonElement::getAsString);
+						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.config.doorSoundBaseId, JsonElement::getAsString);
+						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.config.doorCloseSoundTime, JsonElement::getAsFloat);
+						final boolean useAccelerationSoundsWhenCoasting =  getOrDefault(jsonObject, CUSTOM_TRAINS_USE_ACCELERATION_SOUNDS_WHEN_COASTING, jonSound.config.useAccelerationSoundsWhenCoasting, JsonElement::getAsBoolean);
+						final boolean playbackSpeedDoesNotDependOnCustomAcceleration = getOrDefault(jsonObject, CUSTOM_TRAINS_PLAYBACK_SPEED_DOES_NOT_DEPEND_ON_CUSTOM_ACCELERATION, jonSound.config.playbackSpeedDoesNotDependOnCustomAcceleration, JsonElement::getAsBoolean);
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
+								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedDoesNotDependOnCustomAcceleration);
 								customTrains.add(trainId);
 							}));
 						} else {

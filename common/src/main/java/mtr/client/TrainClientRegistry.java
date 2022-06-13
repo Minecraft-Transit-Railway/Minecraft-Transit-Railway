@@ -26,7 +26,7 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+	public static void register(String key, TrainType baseTrainType, String name, int color, TrainRendererBase renderer, TrainSoundBase sound) {
 		final String keyLower = key.toLowerCase();
 		if (!KEY_ORDERS.containsKey(baseTrainType.transportMode)) {
 			KEY_ORDERS.put(baseTrainType.transportMode, new ArrayList<>());
@@ -34,9 +34,19 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
 		}
-		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId));
-		TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting);
 		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, renderer, sound));
+	}
+
+	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime,
+								boolean useAccelerationSoundsWhenCoasting, boolean playbackSpeedRegardlessOfAcceleration) {
+		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId));
+		TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
+		register(key, baseTrainType, name, color, renderer, sound);
+	}
+
+	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime,
+								boolean useAccelerationSoundsWhenCoasting) {
+		register(key, baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, false);
 	}
 
 	public static void reset() {

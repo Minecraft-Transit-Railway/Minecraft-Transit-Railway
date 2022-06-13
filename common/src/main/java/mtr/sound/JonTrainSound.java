@@ -14,12 +14,16 @@ import java.util.Random;
 
 public class JonTrainSound extends TrainSoundBase {
 
-    public String speedSoundBaseId;
-    public String doorSoundBaseId;
-    public int speedSoundCount;
-    public float doorCloseSoundTime;
-    private boolean useAccelerationSoundsWhenCoasting;
+    public static class JonTrainSoundConfig {
+        public String speedSoundBaseId;
+        public String doorSoundBaseId;
+        public int speedSoundCount;
+        public float doorCloseSoundTime;
+        public boolean useAccelerationSoundsWhenCoasting;
+        public boolean playbackSpeedDoesNotDependOnCustomAcceleration;
+    }
 
+    public JonTrainSoundConfig config;
     private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
     private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
 
@@ -34,40 +38,40 @@ public class JonTrainSound extends TrainSoundBase {
         // A constructor without arguments is used by createTrainInstance via reflection.
     }
 
-    public JonTrainSound(String speedSoundBaseId, String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
-        this.speedSoundBaseId = speedSoundBaseId;
-        this.doorSoundBaseId = doorSoundBaseId;
-        this.speedSoundCount = speedSoundCount;
-        this.doorCloseSoundTime = doorCloseSoundTime;
-        this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
+    public JonTrainSound(String speedSoundBaseId, String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime,
+                         boolean useAccelerationSoundsWhenCoasting, boolean playbackSpeedDoesNotDependOnCustomAcceleration) {
+        this.config = new JonTrainSoundConfig();
+        this.config.speedSoundBaseId = speedSoundBaseId;
+        this.config.doorSoundBaseId = doorSoundBaseId;
+        this.config.speedSoundCount = speedSoundCount;
+        this.config.doorCloseSoundTime = doorCloseSoundTime;
+        this.config.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
+        this.config.playbackSpeedDoesNotDependOnCustomAcceleration = playbackSpeedDoesNotDependOnCustomAcceleration;
     }
 
     @Override
     protected void copyFrom(TrainSoundBase srcBase) {
         JonTrainSound src = (JonTrainSound)srcBase;
-        this.speedSoundBaseId = src.speedSoundBaseId;
-        this.doorSoundBaseId = src.doorSoundBaseId;
-        this.speedSoundCount = src.speedSoundCount;
-        this.doorCloseSoundTime = src.doorCloseSoundTime;
-        this.useAccelerationSoundsWhenCoasting = src.useAccelerationSoundsWhenCoasting;
+        this.config = src.config;
     }
 
     @Override
     public void playElapseSound(Level world, BlockPos pos) {
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
-        if (speedSoundCount > 0 && speedSoundBaseId != null) {
+        if (config.speedSoundCount > 0 && config.speedSoundBaseId != null) {
             // TODO: Better sound system to adapt to different acceleration
-            final int floorSpeed = (int) Math.floor(train.speed / Train.ACCELERATION_DEFAULT / MTRClient.TICKS_PER_SPEED_SOUND);
+            final float referenceAcceleration = config.playbackSpeedDoesNotDependOnCustomAcceleration ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
+            final int floorSpeed = (int) Math.floor(train.speed / referenceAcceleration / MTRClient.TICKS_PER_SPEED_SOUND);
             if (floorSpeed > 0) {
                 final Random random = new Random();
 
                 if (floorSpeed >= 30 && random.nextInt(RANDOM_SOUND_CHANCE) == 0) {
-                    ((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundBaseId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
+                    ((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, config.speedSoundBaseId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
                 }
 
-                final int index = Math.min(floorSpeed, speedSoundCount) - 1;
-                final boolean isAccelerating = train.speed == train.speedLastElapse ? useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speed > train.speedLastElapse;
-                final String soundId = speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
+                final int index = Math.min(floorSpeed, config.speedSoundCount) - 1;
+                final boolean isAccelerating = train.speed == train.speedLastElapse ? config.useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speed > train.speedLastElapse;
+                final String soundId = config.speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
                 ((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
             }
         }
@@ -78,12 +82,12 @@ public class JonTrainSound extends TrainSoundBase {
         // TODO Check why door sounds are not playing
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         final float doorValue = Math.abs(train.rawDoorValue);
-        if (doorSoundBaseId != null) {
+        if (config.doorSoundBaseId != null) {
             final String soundId;
             if (train.doorValueLastElapse <= 0 && doorValue > 0) {
-                soundId = doorSoundBaseId + SOUND_DOOR_OPEN;
-            } else if (train.doorValueLastElapse >= doorCloseSoundTime && doorValue < doorCloseSoundTime) {
-                soundId = doorSoundBaseId + SOUND_DOOR_CLOSE;
+                soundId = config.doorSoundBaseId + SOUND_DOOR_OPEN;
+            } else if (train.doorValueLastElapse >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime) {
+                soundId = config.doorSoundBaseId + SOUND_DOOR_CLOSE;
             } else {
                 soundId = null;
             }
