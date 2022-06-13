@@ -274,8 +274,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 						text = getStationText(thisStation, "this");
 						break;
 					case 1:
-						if (nextStation == null) {
+						if (nextStation == null && !Config.hideTrainWhenRiding()) {
 							text = getStationText(thisStation, "this");
+						} else if (Config.hideTrainWhenRiding()) {
+							text = Component.nullToEmpty("Go to the middle of the train car and spectate");
 						} else {
 							text = getStationText(nextStation, "next");
 						}
@@ -386,7 +388,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 							IDrawing.drawLine(matrices, vertexConsumers, (float) x1, (float) y1 + 0.5F, (float) z1, (float) x3, (float) y2 + 0.5F, (float) z3, r, g, b);
 						}, 0, 0);
 					}
-
 					break;
 			}
 		}));
@@ -502,12 +503,10 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		final Entity camera = Minecraft.getInstance().cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		final BlockPos posAverage = new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
-		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains()) {
+		if (!shouldNotRender(cameraPos, posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null) && !Config.hideAllTrains() && !Config.hideTrainWhenRiding()) {
 			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
-		} else if (Config.hideTrainWhenRiding()) {
-			if (!posAverage.closerThan(cameraPos, 2)) {
-				renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
-			}
+		} else if (Config.hideTrainWhenRiding() && !posAverage.closerThan(cameraPos, 2)) {
+			renderCallback.renderCallback(LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage)), posAverage);
 		}
 	}
 

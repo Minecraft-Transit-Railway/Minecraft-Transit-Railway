@@ -333,6 +333,10 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
 
 		RegistryClient.registerKeyBinding(KeyMappings.LIFT_MENU);
+		RegistryClient.registerKeyBinding(KeyMappings.HIDE_RIDING_TRAIN_MODE);
+		RegistryClient.registerKeyBinding(KeyMappings.HIDE_ALL_TRAIN_TRACK_MODE);
+		RegistryClient.registerKeyBinding(KeyMappings.HIDE_ALL_TRAIN_MODE);
+		RegistryClient.registerKeyBinding(KeyMappings.HIDE_ALL_TRACK_MODE);
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {

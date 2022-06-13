@@ -39,7 +39,9 @@ public final class ClientData {
 	public static final Map<Long, Set<ScheduleEntry>> SCHEDULES_FOR_PLATFORM = new HashMap<>();
 
 	public static final ClientCache DATA_CACHE = new ClientCache(STATIONS, PLATFORMS, SIDINGS, ROUTES, DEPOTS);
-
+	private static boolean hideAllTrains;
+	private static boolean hideAllTracks;
+	private static boolean hideTrainWhenRiding;
 	private static final Map<UUID, Integer> PLAYER_RIDING_COOL_DOWN = new HashMap<>();
 
 	public static void tick() {
@@ -62,6 +64,19 @@ public final class ClientData {
 				}
 				player.displayClientMessage(Text.translatable("gui.mtr.press_to_select_floor", KeyMappings.LIFT_MENU.getTranslatedKeyMessage()), true);
 			}
+		}
+		if (KeyMappings.HIDE_RIDING_TRAIN_MODE.consumeClick()) {
+			hideTrainWhenRiding = Config.hideTrainWhenRiding(!hideTrainWhenRiding);
+		}
+		if (KeyMappings.HIDE_ALL_TRAIN_TRACK_MODE.consumeClick()) {
+			hideAllTrains = Config.hideAllTrains(!hideAllTrains);
+			hideAllTracks = Config.hideAllTracks(!hideAllTracks);
+		}
+		if (KeyMappings.HIDE_ALL_TRAIN_MODE.consumeClick()) {
+			hideAllTrains = Config.hideAllTrains(!hideAllTrains);
+		}
+		if (KeyMappings.HIDE_ALL_TRACK_MODE.consumeClick()) {
+			hideAllTracks = Config.hideAllTracks(!hideAllTracks);
 		}
 	}
 
