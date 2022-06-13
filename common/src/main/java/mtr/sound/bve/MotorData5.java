@@ -1,6 +1,7 @@
 package mtr.sound.bve;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.io.IOUtils;
 
@@ -17,10 +18,10 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
     private final int soundCount;
 
     public MotorData5(ResourceManager manager, String baseName) {
-        powerVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/PowerVol.csv")));
-        powerFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/PowerFreq.csv")));
-        brakeVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/BrakeVol.csv")));
-        brakeFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/BrakeFreq.csv")));
+        powerVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/powervol.csv")));
+        powerFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/powerfreq.csv")));
+        brakeVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/brakevol.csv")));
+        brakeFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/brakefreq.csv")));
         soundCount = Math.max(
                 Math.max(powerVolume.data.size(), powerFrequency.data.size()),
                 Math.max(brakeVolume.data.size(), brakeFrequency.data.size())
@@ -29,7 +30,7 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
 
     private String readResource(ResourceManager manager, ResourceLocation location) {
         try {
-            var resources = manager.getResources(location);
+            List<Resource> resources = manager.getResources(location);
             if (resources.size() < 1) return "";
             InputStream iStream = resources.get(0).getInputStream();
             return IOUtils.toString(iStream, StandardCharsets.UTF_8);
@@ -77,8 +78,8 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
         public float getValue(int index, float key) {
             TreeMap<Float, Float> spline = data.get(index);
             if (spline.size() < 1) return 0F;
-            var floorEntry = spline.floorEntry(key);
-            var ceilingEntry = spline.ceilingEntry(key);
+            Map.Entry<Float, Float> floorEntry = spline.floorEntry(key);
+            Map.Entry<Float, Float> ceilingEntry = spline.ceilingEntry(key);
             if (floorEntry == null) {
                 return ceilingEntry.getValue();
             } else if (ceilingEntry == null) {

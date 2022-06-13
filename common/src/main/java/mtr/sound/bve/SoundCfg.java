@@ -59,31 +59,63 @@ public class SoundCfg {
                         break;
                     case "brake":
                         switch (key) {
-                            case "bcrelease" -> this.brakeBcRelease = value;
-                            case "bcreleasefull" -> this.brakeBcReleaseFull = value;
-                            case "bcreleasehigh" -> this.brakeBcReleaseHigh = value;
-                            case "emergency" -> this.brakeEmergency = value;
+                            case "bcrelease":
+                                this.brakeBcRelease = value;
+                                break;
+                            case "bcreleasefull":
+                                this.brakeBcReleaseFull = value;
+                                break;
+                            case "bcreleasehigh":
+                                this.brakeBcReleaseHigh = value;
+                                break;
+                            case "emergency":
+                                this.brakeEmergency = value;
+                                break;
                         }
                         break;
                     case "door":
                         switch (key) {
-                            case "open", "openleft", "openright" -> this.doorOpen = value;
-                            case "close", "closeleft", "closeright" -> this.doorClose = value;
+                            case "open":
+                            case "openleft":
+                            case "openright":
+                                this.doorOpen = value;
+                                break;
+                            case "close":
+                            case "closeleft":
+                            case "closeright":
+                                this.doorClose = value;
+                                break;
                         }
                     case "brakehandle":
                         switch (key) {
-                            case "apply" -> this.brakeHandleApply = value;
-                            case "applyfast" -> this.brakeHandleApplyFast = value;
-                            case "release" -> this.brakeHandleRelease = value;
-                            case "releasefast" -> this.brakeHandleReleaseFast = value;
-                            case "min" -> this.brakeHandleMin = value;
-                            case "max" -> this.brakeHandleMax = value;
+                            case "apply":
+                                this.brakeHandleApply = value;
+                                break;
+                            case "applyfast":
+                                this.brakeHandleApplyFast = value;
+                                break;
+                            case "release":
+                                this.brakeHandleRelease = value;
+                                break;
+                            case "releasefast":
+                                this.brakeHandleReleaseFast = value;
+                                break;
+                            case "min":
+                                this.brakeHandleMin = value;
+                                break;
+                            case "max":
+                                this.brakeHandleMax = value;
+                                break;
                         }
                         break;
                     case "others":
                         switch (key) {
-                            case "noise" -> this.noise = value;
-                            case "shoe" -> this.shoe = value;
+                            case "noise":
+                                this.noise = value;
+                                break;
+                            case "shoe":
+                                this.shoe = value;
+                                break;
                         }
                 }
             } else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {

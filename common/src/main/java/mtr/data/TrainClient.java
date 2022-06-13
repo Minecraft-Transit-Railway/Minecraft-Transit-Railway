@@ -74,11 +74,10 @@ public class TrainClient extends Train {
 			return;
 		}
 
-		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-		trainSound.playElapseSound(world, soundPos);
+		BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		if (doorLeftOpen || doorRightOpen) {
-			trainSound.playDoorSound(world, soundPos);
+			trainSound.playDoorSound(world, soundPos, ridingCar);
 		}
 
 		final boolean noOffset = offset.isEmpty();
@@ -247,6 +246,21 @@ public class TrainClient extends Train {
 
 		previousInterval = interval;
 		justMounted = false;
+
+		Vec3 cameraPos = Minecraft.getInstance().cameraEntity.position();
+		double nearestDistance = Double.POSITIVE_INFINITY;
+		int nearestCar = 0;
+		for (int i = 0; i < trainCars; ++i) {
+			double dist = cameraPos.distanceToSqr(positions[i]);
+			if (dist < nearestDistance) {
+				nearestCar = i;
+				nearestDistance = dist;
+			}
+		}
+		final BlockPos soundPos = new BlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
+		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		trainSound.playElapseSound(world, soundPos, nearestCar, 0); // TODO Obtain radius
+
 		return true;
 	}
 

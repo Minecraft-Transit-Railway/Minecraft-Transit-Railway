@@ -201,7 +201,8 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
             return id;
         } else {
             final TrainRendererBase renderer = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).renderer;
-            if (renderer instanceof JonModelTrainRenderer jonModelTrainRenderer) {
+            if (renderer instanceof JonModelTrainRenderer) {
+                JonModelTrainRenderer jonModelTrainRenderer = (JonModelTrainRenderer) renderer;
                 final String textureId = jonModelTrainRenderer.textureId;
                 return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
             } else {

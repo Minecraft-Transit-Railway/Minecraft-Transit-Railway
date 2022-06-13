@@ -56,7 +56,7 @@ public class JonTrainSound extends TrainSoundBase {
     }
 
     @Override
-    public void playElapseSound(Level world, BlockPos pos) {
+    public void playElapseSound(Level world, BlockPos pos, int carIndex, float radius) {
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         if (config.speedSoundCount > 0 && config.speedSoundBaseId != null) {
             // TODO: Better sound system to adapt to different acceleration
@@ -78,7 +78,7 @@ public class JonTrainSound extends TrainSoundBase {
     }
 
     @Override
-    public void playDoorSound(Level world, BlockPos pos) {
+    public void playDoorSound(Level world, BlockPos pos, int carIndex) {
         // TODO Check why door sounds are not playing
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         final float doorValue = Math.abs(train.rawDoorValue);

@@ -270,7 +270,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return !isOnRoute || railProgress < trainDistance + railLength;
 	}
 
-	protected final void simulateTrain(Level world, float ticksElapsed, Depot depot) {
+	protected void simulateTrain(Level world, float ticksElapsed, Depot depot) {
 		if (world == null) {
 			return;
 		}

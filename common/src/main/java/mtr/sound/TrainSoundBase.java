@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 
 public abstract class TrainSoundBase {
 
-    TrainClient train;
+    public TrainClient train;
 
     public final TrainSoundBase createTrainInstance(TrainClient train) {
         try {
@@ -23,7 +23,7 @@ public abstract class TrainSoundBase {
 
     protected abstract void copyFrom(TrainSoundBase src);
 
-    public abstract void playElapseSound(Level world, BlockPos pos);
+    public abstract void playElapseSound(Level world, BlockPos pos, int carIndex, float radius);
 
-    public abstract void playDoorSound(Level world, BlockPos pos);
+    public abstract void playDoorSound(Level world, BlockPos pos, int carIndex);
 }
