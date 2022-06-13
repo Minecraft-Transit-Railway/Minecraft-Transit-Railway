@@ -30,7 +30,7 @@ public class SoundCfg {
     public String shoe;
 
     public SoundCfg(String textContent) {
-        final String[] lines = textContent.lines().toArray(String[]::new);
+        final String[] lines = textContent.split("[\\r\\n]+");
         String section = "";
         for (final String line : lines) {
             final String trimLine = line.trim();

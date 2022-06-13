@@ -59,7 +59,7 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
         public List<TreeMap<Float, Float>> data = new ArrayList<>();
 
         public FloatSplines(String textContent) {
-            String[] lines = textContent.lines().toArray(String[]::new);
+            String[] lines = textContent.split("[\\r\\n]+");
             for (final String line : lines) {
                 final String lineTrim = line.trim().toLowerCase(Locale.ROOT);
                 if (lineTrim.startsWith("#") || lineTrim.startsWith("//") || lineTrim.startsWith("bvets")) continue;
