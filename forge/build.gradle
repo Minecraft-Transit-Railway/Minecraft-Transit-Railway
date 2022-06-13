@@ -56,7 +56,7 @@ components.java {
 
 task moveForgeBuilds() {
 	doLast {
-		def variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Elevators-Lifts"
+		def variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Modern-Elevators-Escalators"
 		delete fileTree("../build/release").matching {
 			include "**/${variation}-forge*"
 		}

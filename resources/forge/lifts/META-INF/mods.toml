@@ -5,9 +5,9 @@ license = "MIT"
 [[mods]]
 modId = "mtr"
 version = "${version}"
-displayName = "Modern Escalators and Lifts"
+displayName = "Modern Elevators and Escalators"
 authors = "Jonathan Ho"
-description = "Modern escalators and lifts in Minecraft!"
+description = "Fully functional, realistic, and advanced elevators and escalators in Minecraft!"
 logoFile = "icon.png"
 
 [[dependencies.mtr]]
