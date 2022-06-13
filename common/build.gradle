@@ -9,18 +9,17 @@ architectury {
 
 task moveCommonBuilds() {
 	doLast {
-		variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Elevators-Lifts"
 		delete fileTree("../build/libs").matching {
-			include "**/${variation}-common*"
+			include "**/MTR-common*"
 		}
 		delete fileTree("../build/latest").matching {
-			include "**/${variation}-common*"
+			include "**/MTR-common*"
 		}
 		copy {
 			from "build/devlibs"
 			include "*dev.jar"
 			into "../build/libs"
-			rename "(.+)", "${variation}-\$1"
+			rename "(.+)", "MTR-\$1"
 		}
 		copy {
 			from "../build/libs"

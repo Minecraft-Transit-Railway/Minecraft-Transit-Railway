@@ -10,7 +10,7 @@ jobs:
         variation: [ normal, server, lifts ]
         exclude:
           - loader: common
-            variation: server
+            variation: normal
           - loader: common
             variation: lifts
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
           name: Libraries ${{ matrix.variation }}
           path: build/libs/
       - name: Upload files to SFTP
-        if: matrix.variation == 'normal'
+        if: matrix.variation == 'normal' || matrix.loader == 'common'
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
@@ -51,7 +51,7 @@ jobs:
           local_folder: build/latest
           exclude: '["latest.json"]'
       - name: Upload version file to SFTP
-        if: matrix.loader == 'common' && matrix.minecraft == '1.16.5' && matrix.variation == 'normal'
+        if: matrix.loader == 'common' && matrix.minecraft == '1.16.5'
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
