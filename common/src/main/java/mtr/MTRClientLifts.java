@@ -1,5 +1,6 @@
 package mtr;
 
+import mtr.client.Config;
 import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -33,5 +34,8 @@ public class MTRClientLifts implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_OPEN_LIFT_TRACK_FLOOR_SCREEN, packet -> PacketTrainDataGuiClient.openLiftTrackFloorS2C(Minecraft.getInstance(), packet));
 
 		RegistryClient.registerKeyBinding(KeyMappings.LIFT_MENU);
+
+		Config.getPatreonList();
+		Config.refreshProperties();
 	}
 }

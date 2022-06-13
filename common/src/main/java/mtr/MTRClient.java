@@ -326,9 +326,6 @@ public class MTRClient implements IPacket {
 			}
 		};
 
-		Config.getPatreonList();
-		Config.refreshProperties();
-
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
