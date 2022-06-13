@@ -1,5 +1,6 @@
-package mtr.sound;
+package mtr.sound.bve;
 
+import mtr.sound.TrainSoundBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
