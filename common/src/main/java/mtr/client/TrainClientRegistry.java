@@ -6,6 +6,8 @@ import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
 import mtr.model.*;
+import mtr.render.JonModelTrainRenderer;
+import mtr.render.TrainRendererBase;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -37,7 +39,8 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.get(baseTrainType.transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, model, textureId, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
+		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId));
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, renderer, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
 	}
 
 	public static void reset() {
@@ -166,14 +169,13 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {
-		return new TrainProperties(baseTrainType, null, null, null, null, new TranslatableComponent(""), 0, 0, 0.5F, false);
+		return new TrainProperties(baseTrainType, null, null, null, new TranslatableComponent(""), 0, 0, 0.5F, false);
 	}
 
 	public static class TrainProperties {
 
 		public final TrainType baseTrainType;
-		public final ModelTrainBase model;
-		public final String textureId;
+		public final TrainRendererBase renderer;
 		public final String speedSoundBaseId;
 		public final String doorSoundBaseId;
 		public final TranslatableComponent name;
@@ -185,10 +187,9 @@ public class TrainClientRegistry {
 		private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
 		private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
 
-		private TrainProperties(TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, TranslatableComponent name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+		private TrainProperties(TrainType baseTrainType, TrainRendererBase renderer, String speedSoundBaseId, String doorSoundBaseId, TranslatableComponent name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.baseTrainType = baseTrainType;
-			this.model = model;
-			this.textureId = resolvePath(textureId);
+			this.renderer = renderer;
 			this.speedSoundBaseId = resolvePath(speedSoundBaseId);
 			this.doorSoundBaseId = resolvePath(doorSoundBaseId);
 			this.name = name;

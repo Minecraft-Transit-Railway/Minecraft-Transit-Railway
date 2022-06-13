@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
 import mtr.block.BlockPlatform;
@@ -17,18 +16,12 @@ import mtr.entity.EntitySeat;
 import mtr.item.ItemNodeModifierBase;
 import mtr.mappings.EntityRendererMapper;
 import mtr.mappings.Utilities;
-import mtr.mappings.UtilitiesClient;
-import mtr.model.ModelCableCarGrip;
 import mtr.path.PathData;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -37,10 +30,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -48,7 +38,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IGui {
@@ -68,18 +57,13 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 	public static final int PLAYER_RENDER_OFFSET = 1000;
 
-	private static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
-	private static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
+	public static final int DETAIL_RADIUS = 32;
+	public static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
+	public static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
+	public static final int TICKS_PER_SECOND = 20;
 
-	private static final int DETAIL_RADIUS = 32;
-	private static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
-	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
-	private static final int TICKS_PER_SECOND = 20;
-
-	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
-	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
-	private static final Map<Long, FakeBoat> BOATS = new HashMap<>();
-	private static final ModelCableCarGrip MODEL_CABLE_CAR_GRIP = new ModelCableCarGrip();
+	public static final Set<String> AVAILABLE_TEXTURES = new HashSet<>();
+	public static final Set<String> UNAVAILABLE_TEXTURES = new HashSet<>();
 
 	public RenderTrains(Object parameter) {
 		super(parameter);
@@ -137,177 +121,88 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.translate(-entityX, -entityY, -entityZ);
 		}
 
-		final Camera camera = client.gameRenderer.getMainCamera();
-		final float cameraYaw = camera.getYRot();
-		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
-		final boolean secondF5 = Math.abs(Utilities.getYaw(player) - cameraYaw) > 90;
-
-		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (x, y, z, yaw, pitch, trainId, baseTrainType, isEnd1Head, isEnd2Head, head1IsFront, doorLeftValue, doorRightValue, opening, lightsOn, isTranslucent, playerOffset, ridingPositions) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-			if (trainProperties.model == null && isTranslucent) {
-				return;
-			}
-
-			matrices.pushPose();
-			if (playerOffset != null) {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
-				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
-			}
-
-			matrices.pushPose();
-			matrices.translate(x, y, z);
-			matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
-			matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (baseTrainType.transportMode.hasPitch ? pitch : 0)));
-
-			if (trainProperties.model == null || trainProperties.textureId == null) {
-				final boolean isBoat = baseTrainType.transportMode == TransportMode.BOAT;
-
-				matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(90));
-
-				final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties, textureId -> textureId + ".png")));
-
-				if (isBoat) {
-					if (!BOATS.containsKey(train.id)) {
-						BOATS.put(train.id, new FakeBoat());
-					}
-					MODEL_BOAT.setupAnim(BOATS.get(train.id), (train.getSpeed() + Train.ACCELERATION_DEFAULT) * (doorLeftValue == 0 && doorRightValue == 0 ? lastFrameDuration : 0), 0, -0.1F, 0, 0);
-				} else {
-					model.setupAnim(null, 0, 0, -0.1F, 0, 0);
-				}
-
-				model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-			} else {
-				final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= DETAIL_RADIUS_SQUARED;
-				trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucent, renderDetails);
-			}
-
-			if (baseTrainType.transportMode == TransportMode.CABLE_CAR) {
-				matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
-				if (!baseTrainType.transportMode.hasPitch) {
-					matrices.mulPose(Vector3f.XP.rotation(pitch));
-				}
-				if (baseTrainType.toString().endsWith("_RHT")) {
-					matrices.mulPose(Vector3f.YP.rotationDegrees(180));
-				}
-				MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
-			}
-
-			matrices.popPose();
-
-			final EntityRenderDispatcher entityRenderDispatcher = client.getEntityRenderDispatcher();
-			matrices.pushPose();
-			matrices.translate(0, PLAYER_RENDER_OFFSET, 0);
-			ridingPositions.forEach((uuid, offset) -> {
-				final Player renderPlayer = world.getPlayerByUUID(uuid);
-				if (renderPlayer != null && (!uuid.equals(player.getUUID()) || camera.isDetached())) {
-					entityRenderDispatcher.render(renderPlayer, offset.x, offset.y, offset.z, 0, 1, matrices, vertexConsumers, 0xF000F0);
-				}
-			});
-			matrices.popPose();
-
-			matrices.popPose();
-		}), (prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, x, y, z, yaw, trainId, baseTrainType, lightsOn, playerOffset) -> renderWithLight(world, x, y, z, playerOffset == null, (light, posAverage) -> {
-			final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-			if (trainProperties.textureId == null) {
-				return;
-			}
-
-			matrices.pushPose();
-			if (playerOffset != null) {
-				matrices.translate(cameraOffset.x, cameraOffset.y, cameraOffset.z);
-				matrices.mulPose(Vector3f.YP.rotationDegrees(Utilities.getYaw(player) - cameraYaw + (secondF5 ? 180 : 0)));
-				matrices.translate(-playerOffset.x, -playerOffset.y, -playerOffset.z);
-			}
-
-			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
-			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
-			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
-			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
-			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
-
-			final int lightOnLevel = lightsOn ? MAX_LIGHT_INTERIOR : light;
-			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
-			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
-
-			matrices.popPose();
-		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-				final Component text;
-				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
-					default:
-						text = getStationText(thisStation, "this");
-						break;
-					case 1:
-						if (nextStation == null) {
+		TrainRendererBase.setupStaticInfo();
+		ClientData.TRAINS.forEach(train -> {
+			train.trainRenderer.setupRender(matrices, vertexConsumers);
+			train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration,
+			(speed, stopIndex, routeIds) -> {
+				if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					final Component text;
+					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
+						default:
 							text = getStationText(thisStation, "this");
-						} else {
-							text = getStationText(nextStation, "next");
-						}
-						break;
-					case 2:
-						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
-						break;
-				}
-				player.displayClientMessage(text, true);
-			}))) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
-			}
-		}, (stopIndex, routeIds) -> {
-			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-					final List<String> messages = new ArrayList<>();
-					final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
-					final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
-
-					if (nextStation != null) {
-						final boolean isLightRailRoute = thisRoute.isLightRailRoute;
-						messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
-
-						final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(nextStation.id);
-						if (routesInStation != null) {
-							final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
-								final String routeName = interchangeRoute.name.split("\\|\\|")[0];
-								return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
-							}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
-							final String mergedStations = IGui.mergeStations(interchangeRoutes, ", ");
-							if (!mergedStations.isEmpty()) {
-								messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedStations));
+							break;
+						case 1:
+							if (nextStation == null) {
+								text = getStationText(thisStation, "this");
+							} else {
+								text = getStationText(nextStation, "next");
 							}
-						}
+							break;
+						case 2:
+							text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
+							break;
+					}
+					player.displayClientMessage(text, true);
+				}))) {
+					player.displayClientMessage(new TranslatableComponent("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
+				}
+			}, (stopIndex, routeIds) -> {
+				if (useAnnouncements) {
+					RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+						final List<String> messages = new ArrayList<>();
+						final String thisRouteSplit = thisRoute.name.split("\\|\\|")[0];
+						final String nextRouteSplit = nextRoute == null ? null : nextRoute.name.split("\\|\\|")[0];
 
-						if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
-							final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
-							if (nextFinalStation != null) {
-								final String modeString = thisRoute.transportMode.toString().toLowerCase();
-								if (nextRoute.isLightRailRoute) {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_light_rail_announcement_cjk", "gui.mtr.next_route_" + modeString + "_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
-								} else {
-									messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_announcement_cjk", "gui.mtr.next_route_" + modeString + "_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+						if (nextStation != null) {
+							final boolean isLightRailRoute = thisRoute.isLightRailRoute;
+							messages.add(IGui.insertTranslation(isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement_cjk" : "gui.mtr.next_station_announcement_cjk", isLightRailRoute ? "gui.mtr.next_station_light_rail_announcement" : "gui.mtr.next_station_announcement", 1, nextStation.name));
+
+							final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(nextStation.id);
+							if (routesInStation != null) {
+								final List<String> interchangeRoutes = routesInStation.values().stream().filter(interchangeRoute -> {
+									final String routeName = interchangeRoute.name.split("\\|\\|")[0];
+									return !routeName.equals(thisRouteSplit) && (nextRoute == null || !routeName.equals(nextRouteSplit));
+								}).map(interchangeRoute -> interchangeRoute.name).collect(Collectors.toList());
+								final String mergedStations = IGui.mergeStations(interchangeRoutes, ", ");
+								if (!mergedStations.isEmpty()) {
+									messages.add(IGui.insertTranslation("gui.mtr.interchange_announcement_cjk", "gui.mtr.interchange_announcement", 1, mergedStations));
+								}
+							}
+
+							if (lastStation != null && nextStation.id == lastStation.id && nextRoute != null && !nextRoute.platformIds.isEmpty() && !nextRouteSplit.equals(thisRouteSplit)) {
+								final Station nextFinalStation = ClientData.DATA_CACHE.platformIdToStation.get(nextRoute.platformIds.get(nextRoute.platformIds.size() - 1));
+								if (nextFinalStation != null) {
+									final String modeString = thisRoute.transportMode.toString().toLowerCase();
+									if (nextRoute.isLightRailRoute) {
+										messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_light_rail_announcement_cjk", "gui.mtr.next_route_" + modeString + "_light_rail_announcement", nextRoute.lightRailRouteNumber, 1, nextFinalStation.name.split("\\|\\|")[0]));
+									} else {
+										messages.add(IGui.insertTranslation("gui.mtr.next_route_" + modeString + "_announcement_cjk", "gui.mtr.next_route_" + modeString + "_announcement", 2, nextRouteSplit, nextFinalStation.name.split("\\|\\|")[0]));
+									}
 								}
 							}
 						}
-					}
 
-					IDrawing.narrateOrAnnounce(IGui.mergeStations(messages, " "));
-				});
-			}
-		}, (stopIndex, routeIds) -> {
-			if (useAnnouncements) {
-				RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-					if (thisRoute.isLightRailRoute && lastStation != null) {
-						IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
-					}
-				});
-			}
-		}));
+						IDrawing.narrateOrAnnounce(IGui.mergeStations(messages, " "));
+					});
+				}
+			}, (stopIndex, routeIds) -> {
+				if (useAnnouncements) {
+					RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+						if (thisRoute.isLightRailRoute && lastStation != null) {
+							IDrawing.narrateOrAnnounce(IGui.insertTranslation("gui.mtr.light_rail_route_announcement_cjk", "gui.mtr.light_rail_route_announcement", thisRoute.lightRailRouteNumber, 1, lastStation.name));
+						}
+					});
+				}
+			});
+			train.trainRenderer.finishRender();
+		});
 		if (!Config.hideTranslucentParts()) {
-			ClientData.TRAINS.forEach(TrainClient::renderTranslucent);
+			ClientData.TRAINS.forEach((train) -> {
+				train.trainRenderer.setupRender(matrices, vertexConsumers);
+				train.renderTranslucent();
+				train.trainRenderer.finishRender();
+			});
 		}
 
 		final boolean renderColors = isHoldingRailRelated(player);
@@ -487,52 +382,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			return new TextComponent(IGui.formatStationName(IGui.insertTranslation("gui.mtr." + textKey + "_station_cjk", "gui.mtr." + textKey + "_station", 1, IGui.textOrUntitled(station.name))));
 		} else {
 			return new TextComponent("");
-		}
-	}
-
-	private static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, Vec3 pos1, Vec3 pos2, Vec3 pos3, Vec3 pos4, int light) {
-		IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
-	}
-
-	private static ResourceLocation resolveTexture(TrainClientRegistry.TrainProperties trainProperties, Function<String, String> formatter) {
-		final String textureString = formatter.apply(trainProperties.textureId);
-		final ResourceLocation id = new ResourceLocation(textureString);
-		final boolean available;
-
-		if (!AVAILABLE_TEXTURES.contains(textureString) && !UNAVAILABLE_TEXTURES.contains(textureString)) {
-			available = Minecraft.getInstance().getResourceManager().hasResource(id);
-			(available ? AVAILABLE_TEXTURES : UNAVAILABLE_TEXTURES).add(textureString);
-			if (!available) {
-				System.out.println("Texture " + textureString + " not found, using default");
-			}
-		} else {
-			available = AVAILABLE_TEXTURES.contains(textureString);
-		}
-
-		if (available) {
-			return id;
-		} else {
-			final String textureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType.toString(), trainProperties.baseTrainType).textureId;
-			return new ResourceLocation(textureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
-		}
-	}
-
-	private static ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, String connectorPart) {
-		return resolveTexture(trainProperties, textureId -> textureId + "_connector_" + connectorPart + ".png");
-	}
-
-	private static class FakeBoat extends Boat {
-
-		private float progress;
-
-		public FakeBoat() {
-			super(EntityType.BOAT, null);
-		}
-
-		@Override
-		public float getRowingTime(int paddle, float newProgress) {
-			progress += newProgress;
-			return progress;
 		}
 	}
 

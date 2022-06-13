@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.MTR;
 import mtr.data.TrainType;
+import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -68,7 +69,9 @@ public class CustomResources {
 						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType.toString(), baseTrainType);
 						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, null, JsonElement::getAsString);
 						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, baseTrainProperties.color, jsonElement -> colorStringToInt(jsonElement.getAsString()));
-						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, baseTrainProperties.textureId, JsonElement::getAsString);
+						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID,
+								baseTrainProperties.renderer instanceof JonModelTrainRenderer ? ((JonModelTrainRenderer) baseTrainProperties.renderer).textureId : null,
+								JsonElement::getAsString);
 						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.speedSoundCount, JsonElement::getAsInt);
 						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.speedSoundBaseId, JsonElement::getAsString);
 						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
@@ -80,7 +83,9 @@ public class CustomResources {
 								customTrains.add(trainId);
 							}));
 						} else {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
+							TrainClientRegistry.register(trainId, baseTrainType,
+									baseTrainProperties.renderer instanceof JonModelTrainRenderer ? ((JonModelTrainRenderer) baseTrainProperties.renderer).model : null,
+									textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
 							customTrains.add(trainId);
 						}
 					} catch (Exception e) {
