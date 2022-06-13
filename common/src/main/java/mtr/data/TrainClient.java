@@ -7,6 +7,7 @@ import mtr.client.ClientData;
 import mtr.client.TrainClientRegistry;
 import mtr.mappings.Utilities;
 import mtr.render.TrainRendererBase;
+import mtr.sound.TrainSoundBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -31,6 +32,7 @@ public class TrainClient extends Train {
 	private AnnouncementCallback lightRailAnnouncementCallback;
 
 	public final TrainRendererBase trainRenderer;
+	public final TrainSoundBase trainSound;
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
 	private final List<Long> routeIds;
@@ -56,6 +58,7 @@ public class TrainClient extends Train {
 
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 		trainRenderer = trainProperties.renderer.createTrainInstance(this);
+		trainSound = trainProperties.sound.createTrainInstance(this);
 	}
 
 	@Override
@@ -70,13 +73,12 @@ public class TrainClient extends Train {
 		if (clientPlayer == null) {
 			return;
 		}
-		final float doorValue = Math.abs(rawDoorValue);
 
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-		trainProperties.playSpeedSoundEffect(world, soundPos, speedLastElapse, speed);
+		trainSound.playElapseSound(world, soundPos);
 		if (doorLeftOpen || doorRightOpen) {
-			trainProperties.playDoorSoundEffect(world, soundPos, rawDoorValueLastElapse, doorValue);
+			trainSound.playDoorSound(world, soundPos);
 		}
 
 		final boolean noOffset = offset.isEmpty();
@@ -151,7 +153,7 @@ public class TrainClient extends Train {
 					}
 				}
 
-				if (lightRailAnnouncementCallback != null && (rawDoorValueLastElapse <= 0 && rawDoorValue != 0 || justMounted)) {
+				if (lightRailAnnouncementCallback != null && (doorValueLastElapse <= 0 && rawDoorValue != 0 || justMounted)) {
 					lightRailAnnouncementCallback.announcementCallback(stopIndex, routeIds);
 				}
 			}
@@ -331,16 +333,6 @@ public class TrainClient extends Train {
 			}
 		}
 		return 0;
-	}
-
-	@FunctionalInterface
-	public interface RenderTrainCallback {
-		void renderTrainCallback(double x, double y, double z, float yaw, float pitch, String customId, TrainType baseTrainType, boolean isEnd1Head, boolean isEnd2Head, boolean head1IsFront, float doorLeftValue, float doorRightValue, boolean opening, boolean lightsOn, boolean isTranslucent, Vec3 playerOffset, Map<UUID, Vec3> riderPositions);
-	}
-
-	@FunctionalInterface
-	public interface RenderConnectionCallback {
-		void renderConnectionCallback(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, String trainId, TrainType baseTrainType, boolean lightsOn, Vec3 playerOffset);
 	}
 
 	@FunctionalInterface

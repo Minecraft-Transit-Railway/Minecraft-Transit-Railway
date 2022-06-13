@@ -7,6 +7,7 @@ import mtr.MTR;
 import mtr.data.TrainType;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
+import mtr.sound.JonTrainSound;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
@@ -67,15 +68,21 @@ public class CustomResources {
 
 						final TrainType baseTrainType = TrainType.getOrDefault(jsonObject.get(CUSTOM_TRAINS_BASE_TRAIN_TYPE).getAsString());
 						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType.toString(), baseTrainType);
+
+						// TODO Better ways around this?
+						final JonModelTrainRenderer jonRenderer = baseTrainProperties.renderer instanceof  JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : null;
+						final JonTrainSound jonSound = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : null;
+						if (jonRenderer == null || jonSound == null) {
+							throw new Exception("Custom resources currently cannot apply to trains with customized sound or renderer class.");
+						}
+
 						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, null, JsonElement::getAsString);
 						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, baseTrainProperties.color, jsonElement -> colorStringToInt(jsonElement.getAsString()));
-						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID,
-								baseTrainProperties.renderer instanceof JonModelTrainRenderer ? ((JonModelTrainRenderer) baseTrainProperties.renderer).textureId : null,
-								JsonElement::getAsString);
-						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.speedSoundCount, JsonElement::getAsInt);
-						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.speedSoundBaseId, JsonElement::getAsString);
-						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
-						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, baseTrainProperties.doorCloseSoundTime, JsonElement::getAsFloat);
+						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRenderer.textureId, JsonElement::getAsString);
+						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.speedSoundCount, JsonElement::getAsInt);
+						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.speedSoundBaseId, JsonElement::getAsString);
+						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.doorSoundBaseId, JsonElement::getAsString);
+						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.doorCloseSoundTime, JsonElement::getAsFloat);
 
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
@@ -83,9 +90,7 @@ public class CustomResources {
 								customTrains.add(trainId);
 							}));
 						} else {
-							TrainClientRegistry.register(trainId, baseTrainType,
-									baseTrainProperties.renderer instanceof JonModelTrainRenderer ? ((JonModelTrainRenderer) baseTrainProperties.renderer).model : null,
-									textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
+							TrainClientRegistry.register(trainId, baseTrainType, jonRenderer.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
 							customTrains.add(trainId);
 						}
 					} catch (Exception e) {

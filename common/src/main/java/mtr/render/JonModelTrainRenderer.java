@@ -36,7 +36,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
     public String textureId;
 
     public JonModelTrainRenderer() {
-
+        // A constructor without arguments is used by createTrainInstance via reflection.
     }
 
     public JonModelTrainRenderer(ModelTrainBase model, String textureId) {

@@ -8,6 +8,8 @@ import mtr.data.TransportMode;
 import mtr.model.*;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.TrainRendererBase;
+import mtr.sound.JonTrainSound;
+import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -24,13 +26,6 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	private static final String SOUND_ACCELERATION = "_acceleration_";
-	private static final String SOUND_DECELERATION = "_deceleration_";
-	private static final String SOUND_DOOR_OPEN = "_door_open";
-	private static final String SOUND_DOOR_CLOSE = "_door_close";
-	private static final String SOUND_RANDOM = "_random";
-	private static final int RANDOM_SOUND_CHANCE = 300;
-
 	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 		final String keyLower = key.toLowerCase();
 		if (!KEY_ORDERS.containsKey(baseTrainType.transportMode)) {
@@ -40,7 +35,8 @@ public class TrainClientRegistry {
 			KEY_ORDERS.get(baseTrainType.transportMode).add(keyLower);
 		}
 		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId));
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, renderer, speedSoundBaseId, doorSoundBaseId, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting));
+		TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting);
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, new TranslatableComponent(name == null ? "train.mtr." + keyLower : name), color, renderer, sound));
 	}
 
 	public static void reset() {
@@ -169,69 +165,23 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties(TrainType baseTrainType) {
-		return new TrainProperties(baseTrainType, null, null, null, new TranslatableComponent(""), 0, 0, 0.5F, false);
+		return new TrainProperties(baseTrainType, new TranslatableComponent(""), 0, null, null); // 0.5F
 	}
 
 	public static class TrainProperties {
 
 		public final TrainType baseTrainType;
-		public final TrainRendererBase renderer;
-		public final String speedSoundBaseId;
-		public final String doorSoundBaseId;
 		public final TranslatableComponent name;
 		public final int color;
-		public final int speedSoundCount;
-		public final float doorCloseSoundTime;
-		private final boolean useAccelerationSoundsWhenCoasting;
+		public final TrainRendererBase renderer;
+		public final TrainSoundBase sound;
 
-		private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
-		private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
-
-		private TrainProperties(TrainType baseTrainType, TrainRendererBase renderer, String speedSoundBaseId, String doorSoundBaseId, TranslatableComponent name, int color, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
+		private TrainProperties(TrainType baseTrainType, TranslatableComponent name, int color, TrainRendererBase renderer, TrainSoundBase sound) {
 			this.baseTrainType = baseTrainType;
-			this.renderer = renderer;
-			this.speedSoundBaseId = resolvePath(speedSoundBaseId);
-			this.doorSoundBaseId = resolvePath(doorSoundBaseId);
 			this.name = name;
 			this.color = color;
-			this.speedSoundCount = speedSoundCount;
-			this.doorCloseSoundTime = doorCloseSoundTime;
-			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
-		}
-
-		public void playSpeedSoundEffect(Level world, BlockPos pos, float oldSpeed, float speed) {
-			if (world instanceof ClientLevel && MTRClient.canPlaySound() && speedSoundCount > 0 && speedSoundBaseId != null) {
-				// TODO: Better sound system to adapt to different acceleration
-				final int floorSpeed = (int) Math.floor(speed / Train.ACCELERATION_DEFAULT / MTRClient.TICKS_PER_SPEED_SOUND);
-				if (floorSpeed > 0) {
-					final Random random = new Random();
-
-					if (floorSpeed >= 30 && random.nextInt(RANDOM_SOUND_CHANCE) == 0) {
-						((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundBaseId + SOUND_RANDOM)), SoundSource.BLOCKS, 10, 1, true);
-					}
-
-					final int index = Math.min(floorSpeed, speedSoundCount) - 1;
-					final boolean isAccelerating = speed == oldSpeed ? useAccelerationSoundsWhenCoasting || random.nextBoolean() : speed > oldSpeed;
-					final String soundId = speedSoundBaseId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
-				}
-			}
-		}
-
-		public void playDoorSoundEffect(Level world, BlockPos pos, float oldDoorValue, float doorValue) {
-			if (world instanceof ClientLevel && doorSoundBaseId != null) {
-				final String soundId;
-				if (oldDoorValue <= 0 && doorValue > 0) {
-					soundId = doorSoundBaseId + SOUND_DOOR_OPEN;
-				} else if (oldDoorValue >= doorCloseSoundTime && doorValue < doorCloseSoundTime) {
-					soundId = doorSoundBaseId + SOUND_DOOR_CLOSE;
-				} else {
-					soundId = null;
-				}
-				if (soundId != null) {
-					((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, soundId)), SoundSource.BLOCKS, 1, 1, true);
-				}
-			}
+			this.renderer = renderer;
+			this.sound = sound;
 		}
 
 		private static String resolvePath(String path) {

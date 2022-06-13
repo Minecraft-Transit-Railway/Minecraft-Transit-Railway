@@ -44,7 +44,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private final float railLength;
 
 	public float rawDoorValue;
-	public float rawDoorValueLastElapse;
+	public float doorValueLastElapse;
 
 	public static final float ACCELERATION_DEFAULT = 0.01F; // m/tick^2
 	public static final float MAX_ACCELERATION = 0.05F; // m/tick^2
@@ -286,7 +286,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * trainSpacing) / 2;
-				rawDoorValueLastElapse = 0;
+				doorValueLastElapse = 0;
 				rawDoorValue = 0;
 				speed = 0;
 				nextStoppingIndex = 0;
@@ -295,7 +295,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					startUp(world, trainCars, trainSpacing, isOppositeRail());
 				}
 			} else {
-				rawDoorValueLastElapse = Math.abs(baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
+				doorValueLastElapse = Math.abs(baseTrainType.transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
 				final float newAcceleration = accelerationConstant * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * trainSpacing) / 2) {
