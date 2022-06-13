@@ -116,6 +116,11 @@ task setupFiles() {
 			from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
 			into "common/src/main/resources/assets/mtr/website/gestures"
 		}
+		copy {
+			outputs.upToDateWhen { false }
+			from "resources/common/normal/data/minecraft"
+			into "common/src/main/resources/data/minecraft"
+		}
 	}
 	copy {
 		outputs.upToDateWhen { false }

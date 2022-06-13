@@ -1,0 +1,10 @@
+{
+	"replace": false,
+	"values": [
+		"mtr:lift_buttons_1",
+		"mtr:lift_door_1",
+		"mtr:lift_door_odd_1",
+		"mtr:lift_track_1",
+		"mtr:lift_track_floor_1"
+	]
+}
