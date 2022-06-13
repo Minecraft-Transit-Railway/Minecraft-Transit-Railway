@@ -57,7 +57,9 @@ public class MTRForge {
 		eventBus.register(MTRModEventBus.class);
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
 			ForgeUtilities.renderTickAction(MTRClient::incrementGameTick);
-			ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
+			if (!Keys.LIFTS_ONLY) {
+				ForgeUtilities.registerEntityRenderer(EntityTypes.SEAT::get, RenderTrains::new);
+			}
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2_DOUBLE_SIDED.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_3_2.registryObject::get, RenderLift::new);
