@@ -7,17 +7,12 @@ jobs:
       matrix:
         minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19 ]
         loader: [ fabric, forge, common ]
-        include:
-          - lifts-only: false
-            loader: fabric
-          - lifts-only: true
-            loader: fabric
-          - lifts-only: false
-            loader: forge
-          - lifts-only: true
-            loader: forge
-          - lifts-only: false
-            loader: common
+        variation: [ normal, server, lifts ]
+        exclude:
+          - loader: common
+            variation: server
+          - loader: common
+            variation: lifts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,19 +26,20 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
-        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -PliftsOnly="${{ matrix.lifts-only }}"
+        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}"
       - name: Capture release artifacts
         if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
         with:
-          name: Fabric and Forge
+          name: Fabric and Forge ${{ matrix.variation }}
           path: build/release/
       - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Libraries
+          name: Libraries ${{ matrix.variation }}
           path: build/libs/
       - name: Upload files to SFTP
+        if: matrix.variation == 'normal'
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
@@ -55,7 +51,7 @@ jobs:
           local_folder: build/latest
           exclude: '["latest.json"]'
       - name: Upload version file to SFTP
-        if: matrix.loader == 'common' && matrix.minecraft == '1.16.5'
+        if: matrix.loader == 'common' && matrix.minecraft == '1.16.5' && matrix.variation == 'normal'
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true

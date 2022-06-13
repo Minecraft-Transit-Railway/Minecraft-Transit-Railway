@@ -49,19 +49,20 @@ components.java {
 
 task moveFabricBuilds() {
 	doLast {
+		variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Elevators-Lifts"
 		delete fileTree("../build/release").matching {
-			include "**/MTR-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		delete fileTree("../build/libs").matching {
-			include "**/MTR-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		delete fileTree("../build/latest").matching {
-			include "**/MTR-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		copy {
 			from "build/libs"
 			into "../build/release"
-			rename "(.+)", "MTR-\$1"
+			rename "(.+)", "${variation}-\$1"
 		}
 		copy {
 			from "../build/release"
