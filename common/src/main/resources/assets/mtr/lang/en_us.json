@@ -451,6 +451,7 @@
 	"item.mtr.tunnel_wall_creator_6_7": "Tunnel Wall Creator",
 	"item.mtr.tunnel_wall_creator_6_9": "Tunnel Wall Creator",
 	"itemGroup.mtr.core": "Minecraft Transit Railway Core",
+	"itemGroup.mtr.escalators_lifts": "Escalators and Lifts / Elevators",
 	"itemGroup.mtr.railway_facilities": "Railway Facilities",
 	"itemGroup.mtr.station_building_blocks": "Station Building Blocks",
 	"key.mtr.lift_menu": "Open Lift / Elevator Floor Selection",

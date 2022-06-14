@@ -25,7 +25,7 @@ public class ItemLift extends Item {
 	final EntityTypes.LiftType liftType;
 
 	public ItemLift(EntityTypes.LiftType liftType) {
-		super(new Properties().tab(ItemGroups.RAILWAY_FACILITIES).stacksTo(1));
+		super(new Properties().tab(ItemGroups.ESCALATORS_LIFTS).stacksTo(1));
 		this.liftType = liftType;
 	}
 

@@ -20,6 +20,7 @@ rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
 rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : is_1_18 ? rootProject.fabric_version_1_18 : is_1_18_2 ? rootProject.fabric_version_1_18_2 : rootProject.fabric_version_1_19
 rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : is_1_18 ? rootProject.forge_version_1_18 : is_1_18_2 ? rootProject.forge_version_1_18_2 : rootProject.forge_version_1_19
 rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : is_1_18 ? rootProject.mod_menu_version_1_18 : is_1_18_2 ? rootProject.mod_menu_version_1_18_2 : rootProject.mod_menu_version_1_19
+rootProject.ext.variation = rootProject.properties.containsKey("variation") ? rootProject.getProperties().get("variation") : "normal"
 
 architectury {
 	minecraft = minecraft_version
@@ -84,15 +85,52 @@ task setupFiles() {
 		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
 	}
 
-	download {
-		src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
-		dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
-		overwrite true
+	delete fileTree("common/src/main/resources/assets/mtr/sounds")
+	delete fileTree("common/src/main/resources/assets/mtr/textures")
+	delete fileTree("common/src/main/resources/assets/mtr/website")
+	delete fileTree("common/src/main/resources/assets/mtr/sounds.json")
+	delete fileTree("common/src/main/resources/data/mtr/loot_tables")
+	delete fileTree("common/src/main/resources/data/mtr/recipes")
+	delete fileTree("fabric/src/main/resources")
+	delete fileTree("forge/src/main/resources")
+	copy {
+		outputs.upToDateWhen { false }
+		from "resources/common/lifts"
+		into "common/src/main/resources"
+	}
+	if (variation == "normal") {
+		copy {
+			outputs.upToDateWhen { false }
+			from "resources/common/normal"
+			into "common/src/main/resources"
+		}
+	}
+	if (variation == "normal" || variation == "server") {
+		download {
+			src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
+			dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
+			overwrite true
+		}
+		copy {
+			outputs.upToDateWhen { false }
+			from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+			into "common/src/main/resources/assets/mtr/website/gestures"
+		}
+		copy {
+			outputs.upToDateWhen { false }
+			from "resources/common/normal/data/minecraft"
+			into "common/src/main/resources/data/minecraft"
+		}
 	}
 	copy {
 		outputs.upToDateWhen { false }
-		from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
-		into "common/src/main/resources/assets/mtr/website/gestures"
+		from "resources/fabric/" + (variation == "lifts" ? "lifts" : "normal")
+		into "fabric/src/main/resources"
+	}
+	copy {
+		outputs.upToDateWhen { false }
+		from "resources/forge/" + (variation == "lifts" ? "lifts" : "normal")
+		into "forge/src/main/resources"
 	}
 
 	download {
@@ -110,7 +148,7 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "common/src/main/KeysTemplate.java"
 		into "common/src/main/java/mtr"
-		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version])
+		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": minecraft_version + "-" + rootProject.mod_version, "lifts": variation])
 		rename "(.+)Template.java", "\$1.java"
 	}
 	copy {
@@ -133,6 +171,7 @@ task setupFiles() {
 		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 || is_1_18 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 || is_1_18 ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
+
 	if (is_1_16 || is_1_17) {
 		copy {
 			outputs.upToDateWhen { false }
@@ -142,7 +181,6 @@ task setupFiles() {
 			rename "(.+)Template.java", "\$1.java"
 		}
 	}
-
 	if (!is_1_16) {
 		ant.delete(dir: "fabric/src/main/java/me")
 	}

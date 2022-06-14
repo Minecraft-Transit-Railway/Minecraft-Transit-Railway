@@ -56,19 +56,20 @@ components.java {
 
 task moveForgeBuilds() {
 	doLast {
+		def variation = rootProject.variation == "normal" ? "MTR" : rootProject.variation == "server" ? "MTR-server" : "Modern-Elevators-Escalators"
 		delete fileTree("../build/release").matching {
-			include "**/MTR-forge*"
+			include "**/${variation}-forge*"
 		}
 		delete fileTree("../build/libs").matching {
-			include "**/MTR-forge*"
+			include "**/${variation}-forge*"
 		}
 		delete fileTree("../build/latest").matching {
-			include "**/MTR-fabric*"
+			include "**/${variation}-fabric*"
 		}
 		copy {
 			from "build/libs"
 			into "../build/release"
-			rename "(.+)", "MTR-\$1"
+			rename "(.+)", "${variation}-\$1"
 		}
 		copy {
 			from "../build/release"

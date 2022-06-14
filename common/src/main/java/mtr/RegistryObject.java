@@ -8,16 +8,11 @@ public class RegistryObject<T> {
 	private final Supplier<T> supplier;
 
 	public RegistryObject(Supplier<T> supplier) {
-		if (Registry.isFabric()) {
-			object = supplier.get();
-		}
 		this.supplier = supplier;
 	}
 
 	public T register() {
-		if (!Registry.isFabric()) {
-			object = supplier.get();
-		}
+		object = supplier.get();
 		return object;
 	}
 

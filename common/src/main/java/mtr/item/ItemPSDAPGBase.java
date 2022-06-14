@@ -31,7 +31,7 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	private final EnumPSDAPGType type;
 
 	public ItemPSDAPGBase(EnumPSDAPGItem item, EnumPSDAPGType type) {
-		super(new Item.Properties().tab(ItemGroups.RAILWAY_FACILITIES));
+		super(new Item.Properties().tab(type.isLift ? ItemGroups.ESCALATORS_LIFTS : ItemGroups.RAILWAY_FACILITIES));
 		this.item = item;
 		this.type = type;
 	}
