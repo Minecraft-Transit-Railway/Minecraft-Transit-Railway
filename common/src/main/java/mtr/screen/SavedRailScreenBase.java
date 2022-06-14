@@ -50,12 +50,12 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected void init() {
 		super.init();
 
+		startX = (width - textWidth - SLIDER_WIDTH) / 2;
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
 		textFieldSavedRailNumber.setValue(savedRailBase.name);
 		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
 
 		addDrawableChild(textFieldSavedRailNumber);
-		startX = (width - textWidth - SLIDER_WIDTH) / 2;
 	}
 
 	@Override
