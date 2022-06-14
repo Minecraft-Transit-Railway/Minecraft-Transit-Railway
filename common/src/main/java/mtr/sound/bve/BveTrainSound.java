@@ -24,10 +24,6 @@ public class BveTrainSound extends TrainSoundBase {
         this.config = config;
     }
 
-    private int[][] bogieRailId;
-    private float accelLastElapse;
-    private boolean onRouteLastElapse = false;
-
     private TrainLoopingSoundInstance soundLoopRun;
     private TrainLoopingSoundInstance soundLoopFlange;
     private TrainLoopingSoundInstance soundLoopNoise;
@@ -40,6 +36,13 @@ public class BveTrainSound extends TrainSoundBase {
     private SoundEvent soundEventBrakeHandleApply;
     private SoundEvent soundEventBrakeHandleRelease;
     private SoundEvent soundEventBrakeHandleEmergency;
+
+    private int[][] bogieRailId;
+    private float accelLastElapse;
+    private boolean onRouteLastElapse = false;
+
+    private int motorCurrentMode = 0;
+    private float motorSwitchTimer = -1;
 
     @Override
     protected void createTrainInstance(TrainSoundBase srcBase) {
@@ -71,26 +74,54 @@ public class BveTrainSound extends TrainSoundBase {
 
     @Override
     public void playNearestCar(Level world, BlockPos pos, int carIndex) {
-        float accel = (train.speed - train.speedLastElapse) * 20F / MTRClient.getLastFrameDuration();
+        float accel = (train.speed - train.speedLastElapse) * 20F / (MTRClient.getLastFrameDuration() / 20F);
         float speed = train.speed * 20F;
         float speedKmph = speed * 3.6F;
 
-        // TODO Run sound too loud?
+        // Rolling noise
         float runPitch = speed * 0.04F;
         float runBaseGain = speed < 2.78F ? 0.36F * speed : 1.0F;
-        soundLoopRun.setVolumePitch(runBaseGain / 2, runPitch);
+        soundLoopRun.setVolumePitch(runBaseGain, runPitch);
         soundLoopRun.setPos(pos);
 
+        // Simulation of circuit breaker in traction controller
+        int motorTargetMode = (int)Math.signum(accel);
+        if (motorCurrentMode < 0 && speed < config.regenerationLimit) {
+            motorCurrentMode = 0; // Regeneration brake cut off below limit speed
+            motorTargetMode = 0;
+            motorSwitchTimer = -1;
+        }
+        if (motorTargetMode > 0 && speed < 0.3F) {
+            motorCurrentMode = motorTargetMode; // Disable delay at startup
+            motorSwitchTimer = -1;
+        }
+        if (motorTargetMode != motorCurrentMode && motorSwitchTimer < 0) {
+            motorSwitchTimer = 0;
+            if (motorTargetMode != 0 && motorCurrentMode != 0) {
+                motorCurrentMode = 0; // No delay for breaker cut
+            }
+        }
+        if (motorSwitchTimer >= 0) {
+            motorSwitchTimer += MTRClient.getLastFrameDuration() / 20F;
+            if (motorSwitchTimer > config.breakerDelay) {
+                motorSwitchTimer = -1;
+                motorCurrentMode = motorTargetMode;
+            }
+        }
+
+        // Motor noise
         for (int i = 0; i < config.motorData.getSoundCount(); ++i) {
             if (soundLoopMotor[i] == null) continue;
-            soundLoopMotor[i].setVolumePitch(config.motorData.getVolume(i, speedKmph, accel), config.motorData.getPitch(i, speedKmph, accel));
+            soundLoopMotor[i].setVolumePitch(config.motorData.getVolume(i, speedKmph, motorCurrentMode), config.motorData.getPitch(i, speedKmph, motorCurrentMode));
             soundLoopMotor[i].setPos(pos);
         }
 
         // TODO Play flange sounds
+        // Flange noise
         soundLoopFlange.setVolumePitch(0, 1);
         soundLoopFlange.setPos(pos);
 
+        // Brake shoe rubbing noise (below regeneration brake cutoff limit)
         float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
         float shoeGain = (speed < config.regenerationLimit && accel < 0) ? 0.8F : 0F;
         if (speed < 1.39) {
@@ -103,22 +134,27 @@ public class BveTrainSound extends TrainSoundBase {
         soundLoopShoe.setVolumePitch(shoeGain, shoePitch);
         soundLoopShoe.setPos(pos);
 
+        // Constant loop noise
         soundLoopNoise.setVolumePitch(train.isOnRoute ? 1 : 0, 1);
         soundLoopNoise.setPos(pos);
 
+        // Air brake application and release noise
         if (accelLastElapse < 0 && accel >= 0) {
             if (soundEventBrakeHandleRelease != null)
                 ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleRelease, SoundSource.BLOCKS, 1, 1, true);
-            if (speed < 0.3) {
-                if (soundEventAirZero != null) ((ClientLevel) world).playLocalSound(pos, soundEventAirZero, SoundSource.BLOCKS, 1, 1, true);
-            } else {
-                if (soundEventAirHigh != null) ((ClientLevel) world).playLocalSound(pos, soundEventAirHigh, SoundSource.BLOCKS, 1, 1, true);
+            if (speed < config.regenerationLimit) {
+                if (soundEventAirZero != null)
+                    ((ClientLevel) world).playLocalSound(pos, soundEventAirZero, SoundSource.BLOCKS, 1, 1, true);
             }
+        } else if (accelLastElapse <= 0 && accel > 0 && speed < 0.3) {
+            if (soundEventAirHigh != null)
+                ((ClientLevel) world).playLocalSound(pos, soundEventAirHigh, SoundSource.BLOCKS, 1, 1, true);
         } else if (accelLastElapse >= 0 && accel < 0) {
             if (soundEventBrakeHandleApply != null)
                 ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleApply, SoundSource.BLOCKS, 1, 1, true);
         }
 
+        // Emergency brake application after returning to depot
         if (onRouteLastElapse && !train.isOnRoute) {
             ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleEmergency, SoundSource.BLOCKS, 1, 1, true);
         }

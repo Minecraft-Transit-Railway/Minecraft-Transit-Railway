@@ -16,8 +16,9 @@ public class BveTrainSoundConfig {
     public SoundCfg soundCfg;
     public MotorDataBase motorData;
 
-    public float doorCloseSoundTime = 5;
-    public float regenerationLimit = 10F / 3.6F;
+    public float doorCloseSoundTime = 0.5F;
+    public float breakerDelay = 1F;
+    public float regenerationLimit = 8F / 3.6F;
 
     public BveTrainSoundConfig(ResourceManager manager, String configBaseName, String audioBaseName) {
         this.audioBaseName = audioBaseName;
