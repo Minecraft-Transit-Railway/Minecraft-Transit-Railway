@@ -11,12 +11,10 @@ public class RegistryObject<T> {
 		this.supplier = supplier;
 	}
 
-	public T register() {
-		object = supplier.get();
-		return object;
-	}
-
 	public T get() {
+		if (object == null) {
+			object = supplier.get();
+		}
 		return object;
 	}
 }

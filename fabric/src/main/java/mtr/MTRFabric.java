@@ -26,11 +26,11 @@ public class MTRFabric implements ModInitializer {
 	}
 
 	private static void registerItem(String path, RegistryObject<Item> item) {
-		Registry.register(Registry.ITEM, new ResourceLocation(MTR.MOD_ID, path), item.register());
+		Registry.register(Registry.ITEM, new ResourceLocation(MTR.MOD_ID, path), item.get());
 	}
 
 	private static void registerBlock(String path, RegistryObject<Block> block) {
-		Registry.register(Registry.BLOCK, new ResourceLocation(MTR.MOD_ID, path), block.register());
+		Registry.register(Registry.BLOCK, new ResourceLocation(MTR.MOD_ID, path), block.get());
 	}
 
 	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
@@ -44,11 +44,11 @@ public class MTRFabric implements ModInitializer {
 	}
 
 	private static void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>> blockEntityType) {
-		Registry.register(Registry.BLOCK_ENTITY_TYPE, new ResourceLocation(MTR.MOD_ID, path), blockEntityType.register());
+		Registry.register(Registry.BLOCK_ENTITY_TYPE, new ResourceLocation(MTR.MOD_ID, path), blockEntityType.get());
 	}
 
 	private static void registerEntityType(String path, RegistryObject<? extends EntityType<? extends Entity>> entityType) {
-		Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(MTR.MOD_ID, path), entityType.register());
+		Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(MTR.MOD_ID, path), entityType.get());
 	}
 
 	private static void registerSoundEvent(String path, SoundEvent soundEvent) {

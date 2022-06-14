@@ -76,11 +76,11 @@ public class MTRForge {
 	}
 
 	private static void registerItem(String path, RegistryObject<Item> item) {
-		ITEMS.register(path, item::register);
+		ITEMS.register(path, item::get);
 	}
 
 	private static void registerBlock(String path, RegistryObject<Block> block) {
-		BLOCKS.register(path, block::register);
+		BLOCKS.register(path, block::get);
 	}
 
 	private static void registerBlock(String path, RegistryObject<Block> block, CreativeModeTab itemGroup) {
@@ -94,11 +94,11 @@ public class MTRForge {
 	}
 
 	private static void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntityMapper>> blockEntityType) {
-		BLOCK_ENTITY_TYPES.register(path, blockEntityType::register);
+		BLOCK_ENTITY_TYPES.register(path, blockEntityType::get);
 	}
 
 	private static void registerEntityType(String path, RegistryObject<? extends EntityType<? extends Entity>> entityType) {
-		ENTITY_TYPES.register(path, entityType::register);
+		ENTITY_TYPES.register(path, entityType::get);
 	}
 
 	private static void registerSoundEvent(String path, SoundEvent soundEvent) {
