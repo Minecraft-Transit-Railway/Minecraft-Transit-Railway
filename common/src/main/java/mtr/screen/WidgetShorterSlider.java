@@ -7,6 +7,7 @@ import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -14,16 +15,24 @@ import java.util.function.Function;
 public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	private final int maxValue;
+	private final int markerFrequency;
+	private final int markerDisplayedRatio;
 	private final Function<Integer, String> setMessage;
 	private final Consumer<Integer> shiftClickAction;
 
 	private static final int SLIDER_WIDTH = 6;
 
-	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
+	public WidgetShorterSlider(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
 		super(x, 0, width, 0, Text.literal(""), 0);
 		this.maxValue = maxValue;
 		this.setMessage = setMessage;
 		this.shiftClickAction = shiftClickAction;
+		this.markerFrequency = markerFrequency;
+		this.markerDisplayedRatio = markerDisplayedRatio;
+	}
+
+	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
+		this(x, width, maxValue, 0, 0, setMessage, shiftClickAction);
 	}
 
 	@Override
@@ -44,6 +53,19 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 		blit(matrices, x + xOffset + SLIDER_WIDTH / 2, y + height / 2, 200 - SLIDER_WIDTH / 2, v + 20 - height / 2, SLIDER_WIDTH / 2, height / 2);
 
 		drawString(matrices, client.font, getMessage().getString(), x + width + TEXT_PADDING, y + (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
+
+		if(markerFrequency == 0) return;
+		for(int i = 1; i <= maxValue / markerFrequency; i++) {
+			final int xOffset1 = (width - SLIDER_WIDTH) * (i * markerFrequency) / maxValue;
+			matrices.pushPose();
+			UtilitiesClient.beginDrawingTexture(new ResourceLocation("mtr:textures/block/white.png"));
+			blit(matrices, x + xOffset1 + SLIDER_WIDTH / 3, y + SQUARE_SIZE, 0, v, SLIDER_WIDTH / 4, height / 4);
+			blit(matrices, x + xOffset1 + SLIDER_WIDTH / 3, y + SQUARE_SIZE + height / 4, 0, v + 20 - height / 4, SLIDER_WIDTH / 4, height / 4);
+			blit(matrices, x + xOffset1 + SLIDER_WIDTH / 2, y + SQUARE_SIZE, 200 - SLIDER_WIDTH / 2, v, SLIDER_WIDTH / 4, height / 4);
+			blit(matrices, x + xOffset1 + SLIDER_WIDTH / 2, y + SQUARE_SIZE + height / 4, 200 - SLIDER_WIDTH / 2, v + 20 - height / 4, SLIDER_WIDTH / 4, height / 4);
+			drawCenteredString(matrices, client.font, String.valueOf((i * markerFrequency) / markerDisplayedRatio), x + xOffset1 + (SLIDER_WIDTH / 2), y + SQUARE_SIZE + TEXT_PADDING + (height / 4) * 2, ARGB_WHITE);
+			matrices.popPose();
+		}
 	}
 
 	@Override
