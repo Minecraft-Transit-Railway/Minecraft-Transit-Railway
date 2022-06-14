@@ -412,11 +412,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
+	public final int getIndex(int car, int trainSpacing, boolean roundDown) {
 		return getIndex(getRailProgress(car, trainSpacing), roundDown);
 	}
 
-	protected final int getIndex(double tempRailProgress, boolean roundDown) {
+	public final int getIndex(double tempRailProgress, boolean roundDown) {
 		for (int i = 0; i < path.size(); i++) {
 			final double tempDistance = distances.get(i);
 			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
@@ -426,7 +426,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return path.size() - 1;
 	}
 
-	protected final float getRailSpeed(int railIndex) {
+	public final float getRailSpeed(int railIndex) {
 		final RailType thisRail = path.get(railIndex).rail.railType;
 		final float railSpeed;
 		if (thisRail.canAccelerate) {

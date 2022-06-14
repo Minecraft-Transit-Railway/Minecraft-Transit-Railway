@@ -3,6 +3,7 @@ package mtr.sound;
 import mtr.MTR;
 import mtr.MTRClient;
 import mtr.data.Train;
+import mtr.data.TrainClient;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -50,13 +51,13 @@ public class JonTrainSound extends TrainSoundBase {
     }
 
     @Override
-    protected void copyFrom(TrainSoundBase srcBase) {
+    protected void createTrainInstance(TrainSoundBase srcBase) {
         JonTrainSound src = (JonTrainSound)srcBase;
         this.config = src.config;
     }
 
     @Override
-    public void playElapseSound(Level world, BlockPos pos, int carIndex, float radius) {
+    public void playNearestCar(Level world, BlockPos pos, int carIndex) {
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         if (config.speedSoundCount > 0 && config.speedSoundBaseId != null) {
             // TODO: Better sound system to adapt to different acceleration
@@ -78,7 +79,12 @@ public class JonTrainSound extends TrainSoundBase {
     }
 
     @Override
-    public void playDoorSound(Level world, BlockPos pos, int carIndex) {
+    public void playAllCars(Level world, BlockPos pos, int carIndex) {
+
+    }
+
+    @Override
+    public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
         // TODO Check why door sounds are not playing
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         final float doorValue = Math.abs(train.rawDoorValue);

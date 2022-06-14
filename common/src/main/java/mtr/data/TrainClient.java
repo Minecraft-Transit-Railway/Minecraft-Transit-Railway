@@ -21,6 +21,8 @@ import java.util.*;
 
 public class TrainClient extends Train {
 
+	public boolean isRemoved = false;
+
 	private float clientPrevYaw;
 	private boolean justMounted;
 	private int previousInterval;
@@ -76,8 +78,9 @@ public class TrainClient extends Train {
 
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
 		BlockPos soundPos = new BlockPos(carX, carY, carZ);
+		trainSound.playAllCars(world, soundPos, ridingCar);
 		if (doorLeftOpen || doorRightOpen) {
-			trainSound.playDoorSound(world, soundPos, ridingCar);
+			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
 		}
 
 		final boolean noOffset = offset.isEmpty();
@@ -258,8 +261,7 @@ public class TrainClient extends Train {
 			}
 		}
 		final BlockPos soundPos = new BlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
-		trainSound.playElapseSound(world, soundPos, nearestCar, 0); // TODO Obtain radius
+		trainSound.playNearestCar(world, soundPos, nearestCar);
 
 		return true;
 	}

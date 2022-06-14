@@ -7,12 +7,12 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
     }
 
     @Override
-    public float getPitch(int index, float speed, int accel) {
+    public float getPitch(int index, float speed, float accel) {
         return 0;
     }
 
     @Override
-    public float getVolume(int index, float speed, int accel) {
+    public float getVolume(int index, float speed, float accel) {
         return 0;
     }
 }

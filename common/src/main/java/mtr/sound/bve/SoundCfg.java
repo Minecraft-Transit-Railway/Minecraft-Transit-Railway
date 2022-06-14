@@ -8,23 +8,19 @@ public class SoundCfg {
 
     public String[] run = new String[1];
     public String[] flange = new String[1];
-    public String[] motor = new String[32];
+    public String[] motor = new String[40];
     public String[] joint = new String[1];
 
-    public String brakeBcRelease;
-    public String brakeBcReleaseFull;
-    public String brakeBcReleaseHigh;
+    public String air;
+    public String airZero;
+    public String airHigh;
     public String brakeEmergency;
 
     public String doorOpen;
     public String doorClose;
 
     public String brakeHandleApply;
-    public String brakeHandleApplyFast;
     public String brakeHandleRelease;
-    public String brakeHandleReleaseFast;
-    public String brakeHandleMin;
-    public String brakeHandleMax;
 
     public String noise;
     public String shoe;
@@ -37,8 +33,8 @@ public class SoundCfg {
             if (trimLine.contains("=")) {
                 final String[] tokens = trimLine.split("=");
                 final String key = tokens[0].trim().replace(" ", "").toLowerCase(Locale.ROOT);
-                final String value = tokens[1].trim();
-                switch (section.toLowerCase(Locale.ROOT)) {
+                final String value = tokens[1].trim().toLowerCase(Locale.ROOT).replace(".wav", "");
+                switch (section) {
                     case "run":
                     case "rolling":
                         if (Integer.parseInt(key) >= this.run.length) break;
@@ -60,13 +56,13 @@ public class SoundCfg {
                     case "brake":
                         switch (key) {
                             case "bcrelease":
-                                this.brakeBcRelease = value;
+                                this.air = value;
                                 break;
                             case "bcreleasefull":
-                                this.brakeBcReleaseFull = value;
+                                this.airZero = value;
                                 break;
                             case "bcreleasehigh":
-                                this.brakeBcReleaseHigh = value;
+                                this.airHigh = value;
                                 break;
                             case "emergency":
                                 this.brakeEmergency = value;
@@ -91,20 +87,8 @@ public class SoundCfg {
                             case "apply":
                                 this.brakeHandleApply = value;
                                 break;
-                            case "applyfast":
-                                this.brakeHandleApplyFast = value;
-                                break;
                             case "release":
                                 this.brakeHandleRelease = value;
-                                break;
-                            case "releasefast":
-                                this.brakeHandleReleaseFast = value;
-                                break;
-                            case "min":
-                                this.brakeHandleMin = value;
-                                break;
-                            case "max":
-                                this.brakeHandleMax = value;
                                 break;
                         }
                         break;
@@ -119,12 +103,10 @@ public class SoundCfg {
                         }
                 }
             } else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
-                section = trimLine.substring(1, trimLine.length() - 2).trim().toLowerCase(Locale.ROOT);
+                section = trimLine.substring(1, trimLine.length() - 1).trim().toLowerCase(Locale.ROOT);
             }
         }
-        if (StringUtils.isEmpty(brakeBcReleaseFull)) brakeBcReleaseFull = brakeBcRelease;
-        if (StringUtils.isEmpty(brakeBcReleaseHigh)) brakeBcReleaseHigh = brakeBcRelease;
-        if (StringUtils.isEmpty(brakeHandleApplyFast)) brakeHandleApplyFast = brakeHandleApply;
-        if (StringUtils.isEmpty(brakeHandleReleaseFast)) brakeHandleReleaseFast = brakeHandleRelease;
+        if (StringUtils.isEmpty(airZero)) airZero = air;
+        if (StringUtils.isEmpty(airHigh)) airHigh = air;
     }
 }

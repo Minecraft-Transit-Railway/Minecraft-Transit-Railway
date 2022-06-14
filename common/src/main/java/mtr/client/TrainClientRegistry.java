@@ -10,6 +10,9 @@ import mtr.render.JonModelTrainRenderer;
 import mtr.render.TrainRendererBase;
 import mtr.sound.JonTrainSound;
 import mtr.sound.TrainSoundBase;
+import mtr.sound.bve.BveTrainSound;
+import mtr.sound.bve.BveTrainSoundConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -40,7 +43,8 @@ public class TrainClientRegistry {
 	public static void register(String key, TrainType baseTrainType, ModelTrainBase model, String textureId, String speedSoundBaseId, String doorSoundBaseId, String name, int color, int speedSoundCount, float doorCloseSoundTime,
 								boolean useAccelerationSoundsWhenCoasting, boolean playbackSpeedRegardlessOfAcceleration) {
 		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId));
-		TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
+		//TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
+		TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "mtr:sounds/hrd3950", "mtr:hrd3950_"));
 		register(key, baseTrainType, name, color, renderer, sound);
 	}
 

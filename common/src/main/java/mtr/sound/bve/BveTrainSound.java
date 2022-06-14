@@ -1,9 +1,11 @@
 package mtr.sound.bve;
 
-import mtr.MTR;
 import mtr.MTRClient;
+import mtr.data.TrainClient;
+import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -22,19 +24,131 @@ public class BveTrainSound extends TrainSoundBase {
         this.config = config;
     }
 
+    private int[][] bogieRailId;
+    private float accelLastElapse;
+    private boolean onRouteLastElapse = false;
+
+    private TrainLoopingSoundInstance soundLoopRun;
+    private TrainLoopingSoundInstance soundLoopFlange;
+    private TrainLoopingSoundInstance soundLoopNoise;
+    private TrainLoopingSoundInstance soundLoopShoe;
+    private TrainLoopingSoundInstance[] soundLoopMotor;
+
+    private SoundEvent soundEventJoint;
+    private SoundEvent soundEventAirZero;
+    private SoundEvent soundEventAirHigh;
+    private SoundEvent soundEventBrakeHandleApply;
+    private SoundEvent soundEventBrakeHandleRelease;
+    private SoundEvent soundEventBrakeHandleEmergency;
+
     @Override
-    protected void copyFrom(TrainSoundBase srcBase) {
+    protected void createTrainInstance(TrainSoundBase srcBase) {
         BveTrainSound src = (BveTrainSound) srcBase;
+        bogieRailId = new int[train.trainCars][2];
         this.config = src.config;
+
+        if (config.soundCfg.run[0] != null) soundLoopRun = new TrainLoopingSoundInstance(config.audioBaseName + config.soundCfg.run[0], train);
+        if (config.soundCfg.flange[0] != null) soundLoopFlange = new TrainLoopingSoundInstance(config.audioBaseName + config.soundCfg.flange[0], train);
+        if (config.soundCfg.noise != null) soundLoopNoise = new TrainLoopingSoundInstance(config.audioBaseName + config.soundCfg.noise, train);
+        if (config.soundCfg.shoe != null) soundLoopShoe = new TrainLoopingSoundInstance(config.audioBaseName + config.soundCfg.shoe, train);
+        soundLoopMotor = new TrainLoopingSoundInstance[config.soundCfg.motor.length];
+        for (int i = 0; i < Math.min(config.soundCfg.motor.length, config.motorData.getSoundCount()); ++i) {
+            if (config.soundCfg.motor[i] != null) {
+                soundLoopMotor[i] = new TrainLoopingSoundInstance(config.audioBaseName + config.soundCfg.motor[i], train);
+            }
+        }
+
+        if (config.soundCfg.joint[0] != null) soundEventJoint = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.joint[0]));
+        if (config.soundCfg.airZero != null) soundEventAirZero = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.airZero));
+        if (config.soundCfg.airHigh != null) soundEventAirHigh = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.airHigh));
+        if (config.soundCfg.brakeHandleApply != null)
+            soundEventBrakeHandleApply = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.brakeHandleApply));
+        if (config.soundCfg.brakeHandleRelease != null)
+            soundEventBrakeHandleRelease = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.brakeHandleRelease));
+        if (config.soundCfg.brakeEmergency != null)
+            soundEventBrakeHandleEmergency = new SoundEvent(new ResourceLocation(config.audioBaseName + config.soundCfg.brakeEmergency));
     }
 
     @Override
-    public void playElapseSound(Level world, BlockPos pos, int carIndex, float radius) {
+    public void playNearestCar(Level world, BlockPos pos, int carIndex) {
+        float accel = (train.speed - train.speedLastElapse) * 20F / MTRClient.getLastFrameDuration();
+        float speed = train.speed * 20F;
+        float speedKmph = speed * 3.6F;
 
+        // TODO Run sound too loud?
+        float runPitch = speed * 0.04F;
+        float runBaseGain = speed < 2.78F ? 0.36F * speed : 1.0F;
+        soundLoopRun.setVolumePitch(runBaseGain / 2, runPitch);
+        soundLoopRun.setPos(pos);
+
+        for (int i = 0; i < config.motorData.getSoundCount(); ++i) {
+            if (soundLoopMotor[i] == null) continue;
+            soundLoopMotor[i].setVolumePitch(config.motorData.getVolume(i, speedKmph, accel), config.motorData.getPitch(i, speedKmph, accel));
+            soundLoopMotor[i].setPos(pos);
+        }
+
+        // TODO Play flange sounds
+        soundLoopFlange.setVolumePitch(0, 1);
+        soundLoopFlange.setPos(pos);
+
+        float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
+        float shoeGain = (speed < config.regenerationLimit && accel < 0) ? 0.8F : 0F;
+        if (speed < 1.39) {
+            double t = speed * speed;
+            shoeGain *= 1.5552 * t - 0.746496 * speed * t;
+        } else if (speed > 12.5) {
+            double t = speed - 12.5;
+            shoeGain *= 1.0 / (0.1 * t * t + 1.0);
+        }
+        soundLoopShoe.setVolumePitch(shoeGain, shoePitch);
+        soundLoopShoe.setPos(pos);
+
+        soundLoopNoise.setVolumePitch(train.isOnRoute ? 1 : 0, 1);
+        soundLoopNoise.setPos(pos);
+
+        if (accelLastElapse < 0 && accel >= 0) {
+            if (soundEventBrakeHandleRelease != null)
+                ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleRelease, SoundSource.BLOCKS, 1, 1, true);
+            if (speed < 0.3) {
+                if (soundEventAirZero != null) ((ClientLevel) world).playLocalSound(pos, soundEventAirZero, SoundSource.BLOCKS, 1, 1, true);
+            } else {
+                if (soundEventAirHigh != null) ((ClientLevel) world).playLocalSound(pos, soundEventAirHigh, SoundSource.BLOCKS, 1, 1, true);
+            }
+        } else if (accelLastElapse >= 0 && accel < 0) {
+            if (soundEventBrakeHandleApply != null)
+                ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleApply, SoundSource.BLOCKS, 1, 1, true);
+        }
+
+        if (onRouteLastElapse && !train.isOnRoute) {
+            ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleEmergency, SoundSource.BLOCKS, 1, 1, true);
+        }
+
+        accelLastElapse = accel;
+        onRouteLastElapse = train.isOnRoute;
     }
 
     @Override
-    public void playDoorSound(Level world, BlockPos pos, int carIndex) {
+    public void playAllCars(Level world, BlockPos pos, int carIndex) {
+        if (soundEventJoint == null) return;
+        // TODO: Move bogie position into TrainType
+        int bogieOffsetFront = train.baseTrainType.getSpacing() / 2 - 6;
+        int bogieOffsetRear = train.baseTrainType.getSpacing() / 2 + 6;
+        int indexFront = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetFront, false);
+        int indexRear = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetRear, false);
+        float pitch = train.speed * 20F / 12.5F;
+        float gain = pitch < 0.5F ? 2.0F * pitch : 1.0F;
+        if (indexFront != bogieRailId[carIndex][0]) {
+            bogieRailId[carIndex][0] = indexFront;
+            ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+        }
+        if (indexRear != bogieRailId[carIndex][1]) {
+            bogieRailId[carIndex][1] = indexRear;
+            ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+        }
+    }
+
+    @Override
+    public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
         // TODO Check why door sounds are not playing
         if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
         final float doorValue = Math.abs(train.rawDoorValue);
@@ -42,7 +156,7 @@ public class BveTrainSound extends TrainSoundBase {
         final String soundId;
         if (train.doorValueLastElapse <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
             soundId = config.audioBaseName + config.soundCfg.doorOpen;
-        } else if (train.doorValueLastElapse >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime) {
+        } else if (train.doorValueLastElapse >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime && config.soundCfg.doorClose != null) {
             soundId = config.audioBaseName + config.soundCfg.doorClose;
         } else {
             soundId = null;

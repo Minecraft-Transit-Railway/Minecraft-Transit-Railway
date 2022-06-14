@@ -11,8 +11,8 @@ public abstract class TrainSoundBase {
     public final TrainSoundBase createTrainInstance(TrainClient train) {
         try {
             TrainSoundBase newInstance = this.getClass().getDeclaredConstructor().newInstance();
-            newInstance.copyFrom(this);
             newInstance.train = train;
+            newInstance.createTrainInstance(this);
             return newInstance;
         } catch (Exception ex) {
             // This should not happen
@@ -21,9 +21,11 @@ public abstract class TrainSoundBase {
         }
     }
 
-    protected abstract void copyFrom(TrainSoundBase src);
+    protected abstract void createTrainInstance(TrainSoundBase src);
 
-    public abstract void playElapseSound(Level world, BlockPos pos, int carIndex, float radius);
+    public abstract void playNearestCar(Level world, BlockPos pos, int carIndex);
 
-    public abstract void playDoorSound(Level world, BlockPos pos, int carIndex);
+    public abstract void playAllCars(Level world, BlockPos pos, int carIndex);
+
+    public abstract void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex);
 }

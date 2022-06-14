@@ -1,12 +1,7 @@
 package mtr.sound.bve;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.apache.commons.io.IOUtils;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
@@ -18,25 +13,14 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
     private final int soundCount;
 
     public MotorData5(ResourceManager manager, String baseName) {
-        powerVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/powervol.csv")));
-        powerFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/powerfreq.csv")));
-        brakeVolume = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/brakevol.csv")));
-        brakeFrequency = new FloatSplines(readResource(manager, new ResourceLocation(baseName + "/brakefreq.csv")));
+        powerVolume = new FloatSplines(BveTrainSoundConfig.readResource(manager, new ResourceLocation(baseName + "/powervol.csv")));
+        powerFrequency = new FloatSplines(BveTrainSoundConfig.readResource(manager, new ResourceLocation(baseName + "/powerfreq.csv")));
+        brakeVolume = new FloatSplines(BveTrainSoundConfig.readResource(manager, new ResourceLocation(baseName + "/brakevol.csv")));
+        brakeFrequency = new FloatSplines(BveTrainSoundConfig.readResource(manager, new ResourceLocation(baseName + "/brakefreq.csv")));
         soundCount = Math.max(
                 Math.max(powerVolume.data.size(), powerFrequency.data.size()),
                 Math.max(brakeVolume.data.size(), brakeFrequency.data.size())
         );
-    }
-
-    private String readResource(ResourceManager manager, ResourceLocation location) {
-        try {
-            List<Resource> resources = manager.getResources(location);
-            if (resources.size() < 1) return "";
-            InputStream iStream = resources.get(0).getInputStream();
-            return IOUtils.toString(iStream, StandardCharsets.UTF_8);
-        } catch (Exception ex) {
-            return "";
-        }
     }
 
     @Override
@@ -45,12 +29,14 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
     }
 
     @Override
-    public float getPitch(int index, float speed, int accel) {
+    public float getPitch(int index, float speed, float accel) {
+        if (accel == 0) return 0;
         return accel > 0 ? powerFrequency.getValue(index, speed) : brakeFrequency.getValue(index, speed);
     }
 
     @Override
-    public float getVolume(int index, float speed, int accel) {
+    public float getVolume(int index, float speed, float accel) {
+        if (accel == 0) return 0;
         return accel > 0 ? powerVolume.getValue(index, speed) : brakeVolume.getValue(index, speed);
     }
 
@@ -83,6 +69,8 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
             if (floorEntry == null) {
                 return ceilingEntry.getValue();
             } else if (ceilingEntry == null) {
+                return floorEntry.getValue();
+            } else if (Objects.equals(floorEntry.getKey(), ceilingEntry.getKey())) {
                 return floorEntry.getValue();
             } else {
                 return floorEntry.getValue() + (ceilingEntry.getValue() - floorEntry.getValue()) *
