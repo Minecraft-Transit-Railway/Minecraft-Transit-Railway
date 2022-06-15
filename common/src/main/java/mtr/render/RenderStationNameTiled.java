@@ -35,17 +35,19 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 			return;
 		}
 
+		String displayContent = IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName);
+		displayContent = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.SHOW_NAME) ? displayContent : stationName.replaceFirst(" Station", "").replaceFirst("站", "");
 		final int length = getLength(world, pos);
 		if (showLogo) {
 			final Direction facing = IBlock.getStatePropertySafe(world, pos, BlockStationNameBase.FACING);
 			final int propagateProperty = IBlock.getStatePropertySafe(world, pos, BlockStationNameEntrance.STYLE);
 			final float logoSize = propagateProperty % 2 == 0 ? 0.5F : 1;
-			IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, stationName), HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
+			IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, displayContent, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, (length + logoSize) / 2 - 0.5F, 0, length - logoSize, logoSize - 0.125F, 40 / logoSize, propagateProperty < 2 || propagateProperty >= 4 ? ARGB_WHITE : ARGB_BLACK, false, MAX_LIGHT_GLOWING, ((x1, y1, x2, y2) -> {
 				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(new ResourceLocation("mtr:textures/sign/logo.png")));
 				IDrawing.drawTexture(matrices, vertexConsumer, x1 - logoSize, -logoSize / 2, logoSize, logoSize, facing, MAX_LIGHT_GLOWING);
 			}));
 		} else if (entity instanceof BlockStationNameWallBase.TileEntityStationNameWallBase) {
-			IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, stationName, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, length / 2F - 0.5F, 0, length, 0.875F, 60, ((BlockStationNameWallBase.TileEntityStationNameWallBase) entity).color, false, light, null);
+			IDrawing.drawStringWithFont(matrices, Minecraft.getInstance().font, immediate, displayContent, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, HorizontalAlignment.CENTER, length / 2F - 0.5F, 0, length, 0.875F, 60, ((BlockStationNameWallBase.TileEntityStationNameWallBase) entity).color, false, light, null);
 		}
 	}
 
