@@ -9,6 +9,7 @@ import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
 import mtr.data.*;
 import mtr.mappings.UtilitiesClient;
+import mtr.model.ModelBogie;
 import mtr.model.ModelCableCarGrip;
 import mtr.model.ModelTrainBase;
 import net.minecraft.client.Minecraft;
@@ -54,6 +55,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
     private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
     private static final Map<Long, FakeBoat> BOATS = new HashMap<>();
     private static final ModelCableCarGrip MODEL_CABLE_CAR_GRIP = new ModelCableCarGrip();
+    private static final ModelBogie MODEL_BOGIE = new ModelBogie();
 
     private static class FakeBoat extends Boat {
 
@@ -123,6 +125,23 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
         } else {
             final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
             model.render(matrices, vertexConsumers, resolveTexture(trainProperties, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, isEnd1Head, isEnd2Head, head1IsFront, lightsOn, isTranslucentBatch, renderDetails);
+
+            if (train.baseTrainType.bogiePosition != 0) {
+                if (train.baseTrainType.isJacobsBogie) {
+                    if (carIndex == 0) {
+                        MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int)(train.baseTrainType.bogiePosition * 16F));
+                    } else {
+                        // TODO: Move bogie rendering into connector rendering, figure out how to obtain correct position and yaw
+                        MODEL_BOGIE.render(matrices, vertexConsumers, light, -train.baseTrainType.getSpacing() * 8);
+                        if (carIndex == train.trainCars - 1) {
+                            MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
+                        }
+                    }
+                } else {
+                    MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
+                    MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int)(train.baseTrainType.bogiePosition * 16F));
+                }
+            }
         }
 
         if (baseTrainType.transportMode == TransportMode.CABLE_CAR) {

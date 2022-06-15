@@ -17,8 +17,4 @@ public class ModelMLRSmall extends ModelMLR {
 		return new int[]{-128, 128};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-96, 96};
-	}
 }

@@ -86,16 +86,13 @@ public class BveTrainSound extends TrainSoundBase {
 
         // Simulation of circuit breaker in traction controller
         int motorTargetMode = (int)Math.signum(accel);
-        if (motorCurrentMode < 0 && speed < config.regenerationLimit) {
+        if (motorTargetMode < 0 && speed < config.regenerationLimit) {
             motorCurrentMode = 0; // Regeneration brake cut off below limit speed
-            motorTargetMode = 0;
             motorSwitchTimer = -1;
-        }
-        if (motorTargetMode > 0 && speed < 0.3F) {
+        } else if (motorTargetMode > 0 && speed < 1F) {
             motorCurrentMode = motorTargetMode; // Disable delay at startup
             motorSwitchTimer = -1;
-        }
-        if (motorTargetMode != motorCurrentMode && motorSwitchTimer < 0) {
+        } else if (motorTargetMode != motorCurrentMode && motorSwitchTimer < 0) {
             motorSwitchTimer = 0;
             if (motorTargetMode != 0 && motorCurrentMode != 0) {
                 motorCurrentMode = 0; // No delay for breaker cut
@@ -123,7 +120,7 @@ public class BveTrainSound extends TrainSoundBase {
 
         // Brake shoe rubbing noise (below regeneration brake cutoff limit)
         float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
-        float shoeGain = (speed < config.regenerationLimit && accel < 0) ? 0.8F : 0F;
+        float shoeGain = (speed < config.regenerationLimit && accel < 0) ? 1F : 0F;
         if (speed < 1.39) {
             double t = speed * speed;
             shoeGain *= 1.5552 * t - 0.746496 * speed * t;

@@ -17,8 +17,4 @@ public class ModelCMStockSmall extends ModelCMStock {
 		return new int[]{-144, 144};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-96, 96};
-	}
 }

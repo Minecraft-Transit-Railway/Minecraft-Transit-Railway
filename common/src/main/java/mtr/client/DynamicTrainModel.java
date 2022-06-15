@@ -146,7 +146,6 @@ public class DynamicTrainModel extends ModelTrainBase {
 		return new int[]{0, 0};
 	}
 
-	@Override
 	protected int[] getBogiePositions() {
 		return new int[]{}; // TODO
 	}

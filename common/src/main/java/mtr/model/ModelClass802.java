@@ -1926,7 +1926,6 @@ public class ModelClass802 extends ModelTrainBase {
 		return new int[]{-150, 150};
 	}
 
-	@Override
 	protected int[] getBogiePositions() {
 		return new int[]{-124, 124};
 	}
