@@ -162,21 +162,36 @@ public class BveTrainSound extends TrainSoundBase {
 
     @Override
     public void playAllCars(Level world, BlockPos pos, int carIndex) {
-        if (soundEventJoint == null) return;
-        // TODO: Move bogie position into TrainType
-        int bogieOffsetFront = train.baseTrainType.getSpacing() / 2 - 6;
-        int bogieOffsetRear = train.baseTrainType.getSpacing() / 2 + 6;
-        int indexFront = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetFront, false);
-        int indexRear = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetRear, false);
+        if (soundEventJoint == null || train.baseTrainType.bogiePosition == 0) return;
+        float bogieOffsetFront = -1, bogieOffsetRear = -1;
+        if (train.baseTrainType.isJacobsBogie) {
+            if (carIndex == 0) {
+                bogieOffsetFront = train.baseTrainType.getSpacing() / 2F - train.baseTrainType.bogiePosition;
+            } else if (carIndex == train.trainCars - 1) {
+                bogieOffsetFront = 0;
+                bogieOffsetRear = train.baseTrainType.getSpacing() / 2F + train.baseTrainType.bogiePosition;
+            } else {
+                bogieOffsetFront = 0;
+            }
+        } else {
+            bogieOffsetFront = train.baseTrainType.getSpacing() / 2F - train.baseTrainType.bogiePosition;
+            bogieOffsetRear = train.baseTrainType.getSpacing() / 2F + train.baseTrainType.bogiePosition;
+        }
         float pitch = train.speed * 20F / 12.5F;
         float gain = pitch < 0.5F ? 2.0F * pitch : 1.0F;
-        if (indexFront != bogieRailId[carIndex][0]) {
-            bogieRailId[carIndex][0] = indexFront;
-            ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+        if (bogieOffsetFront >= 0) {
+            int indexFront = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetFront, false);
+            if (indexFront != bogieRailId[carIndex][0]) {
+                bogieRailId[carIndex][0] = indexFront;
+                ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+            }
         }
-        if (indexRear != bogieRailId[carIndex][1]) {
-            bogieRailId[carIndex][1] = indexRear;
-            ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+        if (bogieOffsetRear >= 0) {
+            int indexRear = train.getIndex(train.getRailProgress() - train.baseTrainType.getSpacing() * carIndex - bogieOffsetRear, false);
+            if (indexRear != bogieRailId[carIndex][1]) {
+                bogieRailId[carIndex][1] = indexRear;
+                ((ClientLevel) world).playLocalSound(pos, soundEventJoint, SoundSource.BLOCKS, gain, pitch, true);
+            }
         }
     }
 

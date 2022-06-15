@@ -132,7 +132,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
                         MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int)(train.baseTrainType.bogiePosition * 16F));
                     } else {
                         // TODO: Move bogie rendering into connector rendering, figure out how to obtain correct position and yaw
-                        MODEL_BOGIE.render(matrices, vertexConsumers, light, -train.baseTrainType.getSpacing() * 8);
+                        // MODEL_BOGIE.render(matrices, vertexConsumers, light, -train.baseTrainType.getSpacing() * 8);
                         if (carIndex == train.trainCars - 1) {
                             MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
                         }
@@ -159,7 +159,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
     }
 
     @Override
-    public void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw) {
+    public void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
         final BlockPos posAverage = getPosAverage(x, y, z);
         if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null))
             return;
@@ -183,6 +183,15 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
         drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
         drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
         drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+
+        if (train.baseTrainType.isJacobsBogie) {
+            matrices.pushPose();
+            matrices.translate(x, y, z);
+            matrices.mulPose(Vector3f.YP.rotation((float) Math.PI + yaw));
+            matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (baseTrainType.transportMode.hasPitch ? pitch : 0)));
+            MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
+            matrices.popPose();
+        }
     }
 
     @Override

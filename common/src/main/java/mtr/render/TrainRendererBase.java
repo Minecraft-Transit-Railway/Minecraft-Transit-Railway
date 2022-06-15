@@ -80,7 +80,7 @@ public abstract class TrainRendererBase {
                                  boolean doorLeftOpen, boolean doorRightOpen);
 
     public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4,
-                                 double x, double y, double z, float yaw);
+                                 double x, double y, double z, float yaw, float pitch);
 
     public abstract void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset);
 
