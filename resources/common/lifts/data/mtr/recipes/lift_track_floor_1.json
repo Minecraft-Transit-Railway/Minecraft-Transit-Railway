@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"ILI",
+		"ISI"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"L": {
+			"item": "minecraft:ladder"
+		},
+		"S": {
+			"item": "minecraft:smooth_stone_slab"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_track_floor_1",
+		"count": 8
+	}
+}

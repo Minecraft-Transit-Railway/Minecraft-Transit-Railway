@@ -118,8 +118,13 @@ task setupFiles() {
 		}
 		copy {
 			outputs.upToDateWhen { false }
-			from "resources/common/normal/data/minecraft"
-			into "common/src/main/resources/data/minecraft"
+			from "resources/common/normal/data"
+			into "common/src/main/resources/data"
+		}
+		copy {
+			outputs.upToDateWhen { false }
+			from "resources/common/normal/assets/mtr/website"
+			into "common/src/main/resources/assets/mtr/website"
 		}
 	}
 	copy {

@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"LL"
+	],
+	"key": {
+		"L": {
+			"item": "mtr:lift_2_2"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_3_2",
+		"count": 2
+	}
+}

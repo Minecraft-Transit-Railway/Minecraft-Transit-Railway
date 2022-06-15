@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:lift_4_3"
+		}
+	],
+	"result": {
+		"item": "mtr:lift_4_3_double_sided"
+	}
+}
