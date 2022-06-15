@@ -101,7 +101,7 @@ public class TrainClient extends Train {
 			trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen, doorRightOpen);
 		});
 
-		if (ridingCar > 0 && trainProperties.baseTrainType.hasGangwayConnection) {
+		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - (noOffset ? 0 : offset.get(0));
 			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));

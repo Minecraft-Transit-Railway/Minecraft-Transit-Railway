@@ -130,12 +130,8 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
                 if (train.baseTrainType.isJacobsBogie) {
                     if (carIndex == 0) {
                         MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int)(train.baseTrainType.bogiePosition * 16F));
-                    } else {
-                        // TODO: Move bogie rendering into connector rendering, figure out how to obtain correct position and yaw
-                        // MODEL_BOGIE.render(matrices, vertexConsumers, light, -train.baseTrainType.getSpacing() * 8);
-                        if (carIndex == train.trainCars - 1) {
-                            MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
-                        }
+                    } else if (carIndex == train.trainCars - 1) {
+                        MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
                     }
                 } else {
                     MODEL_BOGIE.render(matrices, vertexConsumers, light, (int)(train.baseTrainType.bogiePosition * 16F));
@@ -170,19 +166,21 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
         final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
-        final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
-        drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
-        drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
-        drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
-        drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
+        if (train.baseTrainType.hasGangwayConnection) {
+            final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, "exterior")));
+            drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
+            drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
+            drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
+            drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
-        final boolean lightsOn = train.isOnRoute;
-        final int lightOnLevel = lightsOn ? RenderTrains.MAX_LIGHT_INTERIOR : light;
-        final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
-        drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
-        drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-        drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-        drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+            final boolean lightsOn = train.isOnRoute;
+            final int lightOnLevel = lightsOn ? RenderTrains.MAX_LIGHT_INTERIOR : light;
+            final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "side")));
+            drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
+            drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
+            drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+            drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+        }
 
         if (train.baseTrainType.isJacobsBogie) {
             matrices.pushPose();
