@@ -6,7 +6,9 @@ import com.google.gson.JsonParser;
 import mtr.MTR;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
+import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
+import mtr.sound.JonTrainSound;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -44,17 +46,23 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final String baseTrainType = getOrDefault(jsonObject, CUSTOM_TRAINS_BASE_TRAIN_TYPE, "", JsonElement::getAsString);
 						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
 
-						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, baseTrainProperties.textureId, JsonElement::getAsString);
-						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, baseTrainProperties.gangwayConnectionId, JsonElement::getAsString);
-						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, baseTrainProperties.trainBarrierId, JsonElement::getAsString);
+						// TODO Better ways around this?
+						JonModelTrainRenderer jonRenderer = baseTrainProperties.renderer instanceof  JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : null;
+						JonTrainSound jonSound = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : null;
+						if (jonRenderer == null) jonRenderer = new JonModelTrainRenderer(null, "", "", "");
+						if (jonSound == null) jonSound = new JonTrainSound("", "", 0, 0, false, false);
+
+						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRenderer.textureId, JsonElement::getAsString);
+						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, jonRenderer.gangwayConnectionId, JsonElement::getAsString);
+						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, jonRenderer.trainBarrierId, JsonElement::getAsString);
 						final float riderOffset = getOrDefault(jsonObject, CUSTOM_TRAINS_RIDER_OFFSET, baseTrainProperties.riderOffset, JsonElement::getAsFloat);
-						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.speedSoundCount, JsonElement::getAsInt);
-						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.speedSoundBaseId, JsonElement::getAsString);
-						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
-						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, baseTrainProperties.doorCloseSoundTime, JsonElement::getAsFloat);
+						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.config.speedSoundCount, JsonElement::getAsInt);
+						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.config.speedSoundBaseId, JsonElement::getAsString);
+						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.config.doorSoundBaseId, JsonElement::getAsString);
+						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.config.doorCloseSoundTime, JsonElement::getAsFloat);
 
 						if (!baseTrainProperties.baseTrainType.isEmpty()) {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
+							TrainClientRegistry.register(trainId, baseTrainType, jonRenderer.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie);
 							customTrains.add(trainId);
 						}
 
@@ -69,7 +77,7 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 								final boolean useLegacy = jsonProperties.has("parts_normal");
 								// TODO temporary code end
 
-								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
+								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie);
 								customTrains.add(trainId);
 							}));
 						}

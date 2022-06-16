@@ -35,9 +35,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	public final long sidingId;
 	public final String trainId;
 	public final String baseTrainType;
-	protected final TransportMode transportMode;
-	protected final int spacing;
-	protected final int width;
+	public final TransportMode transportMode;
+	public final int spacing;
+	public final int width;
 	public final int trainCars;
 	protected final List<PathData> path;
 	protected final List<Double> distances;

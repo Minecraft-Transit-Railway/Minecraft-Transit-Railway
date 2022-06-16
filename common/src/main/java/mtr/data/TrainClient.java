@@ -64,7 +64,7 @@ public class TrainClient extends Train {
 		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
 		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId, baseTrainType);
+		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 		trainRenderer = trainProperties.renderer.createTrainInstance(this);
 		trainSound = trainProperties.sound.createTrainInstance(this);
 	}
@@ -112,11 +112,13 @@ public class TrainClient extends Train {
 			final double newPrevCarY = prevCarY - (noOffset ? 0 : offset.get(1));
 			final double newPrevCarZ = prevCarZ - (noOffset ? 0 : offset.get(2));
 
-			for (int i = 0; i < 2; i++) {
-				if (i == 0 && trainProperties.gangwayConnectionId.isEmpty() || i == 1 && trainProperties.trainBarrierId.isEmpty()) {
-					continue;
-				}
+			final Vec3 prevPos0 = new Vec3(0, 0, spacing / 2D - 1).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
+			final Vec3 thisPos0 = new Vec3(0, 0, -(spacing / 2D - 1)).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
+			final Vec3 connectPos = prevPos0.add(thisPos0).scale(0.5);
+			final float connectYaw = (float) Mth.atan2(thisPos0.x - prevPos0.x, thisPos0.z - prevPos0.z);
+			final float connectPitch = realSpacing == 0 ? 0 : (float) asin((thisPos0.y - prevPos0.y) / thisPos0.distanceTo(prevPos0));
 
+			for (int i = 0; i < 2; i++) {
 				final double xStart = width / 2D + (i == 0 ? -1 : 0.5) * CONNECTION_X_OFFSET;
 				final double zStart = spacing / 2D - (i == 0 ? 1 : 2) * CONNECTION_Z_OFFSET;
 
@@ -130,16 +132,11 @@ public class TrainClient extends Train {
 				final Vec3 thisPos3 = new Vec3(xStart, CONNECTION_HEIGHT + SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
 				final Vec3 thisPos4 = new Vec3(xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
 
-				final Vec3 prevPos0 = new Vec3(0, 0, zStart).xRot(prevCarPitch).yRot(prevCarYaw).add(newPrevCarX, newPrevCarY, newPrevCarZ);
-				final Vec3 thisPos0 = new Vec3(0, 0, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
-				final Vec3 connectPos = prevPos0.add(thisPos0).scale(0.5);
-				final float connectYaw = (float) Mth.atan2(thisPos0.x - prevPos0.x, thisPos0.z - prevPos0.z);
-				final float connectPitch = realSpacing == 0 ? 0 : (float) asin((thisPos0.y - prevPos0.y) / thisPos0.distanceTo(prevPos0));
-
-				trainRenderer.renderConnection(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
-
-				// Check barrier
-				// renderConnectionCallback.renderConnectionCallback(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, newX, newY, newZ, carYaw, trainId, isOnRoute, i == 0, playerOffset);
+				if (i == 0) {
+					trainRenderer.renderConnection(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+				} else {
+					trainRenderer.renderBarrier(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+				}
 			}
 		}
 	}
@@ -253,7 +250,7 @@ public class TrainClient extends Train {
 				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
 				final float doorValue = Math.abs(rawDoorValue);
 				calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					final boolean noGangwayConnection = trainProperties.gangwayConnectionId.isEmpty();
+					final boolean noGangwayConnection = !trainProperties.hasGangwayConnection;
 					final float speedMultiplier = ticksElapsed * TRAIN_WALKING_SPEED_MULTIPLIER;
 					final float newPercentageX;
 					final float newPercentageZ;
