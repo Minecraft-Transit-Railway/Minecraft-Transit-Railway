@@ -34,7 +34,7 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 	public static class TileEntityStationNameTallWall extends TileEntityStationNameTallBase {
 
 		public TileEntityStationNameTallWall(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY.get(), pos, state, 0.03125F);
+			super(BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY.get(), pos, state, 0.03125F, false);
 		}
 	}
 }

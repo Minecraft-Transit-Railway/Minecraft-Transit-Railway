@@ -1,8 +1,7 @@
 package mtr.data;
 
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
@@ -60,11 +59,11 @@ public class TicketSystem {
 
 	public static void addObjectivesIfMissing(Level world) {
 		try {
-			world.getScoreboard().addObjective(BALANCE_OBJECTIVE, ObjectiveCriteria.DUMMY, new TextComponent("Balance"), ObjectiveCriteria.RenderType.INTEGER);
+			world.getScoreboard().addObjective(BALANCE_OBJECTIVE, ObjectiveCriteria.DUMMY, Text.literal("Balance"), ObjectiveCriteria.RenderType.INTEGER);
 		} catch (Exception ignored) {
 		}
 		try {
-			world.getScoreboard().addObjective(ENTRY_ZONE_OBJECTIVE, ObjectiveCriteria.DUMMY, new TextComponent("Entry Zone"), ObjectiveCriteria.RenderType.INTEGER);
+			world.getScoreboard().addObjective(ENTRY_ZONE_OBJECTIVE, ObjectiveCriteria.DUMMY, Text.literal("Entry Zone"), ObjectiveCriteria.RenderType.INTEGER);
 		} catch (Exception ignored) {
 		}
 	}
@@ -78,7 +77,7 @@ public class TicketSystem {
 
 		if (entryZone != 0) {
 			if (remindIfNoRecord) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr.already_entered"), true);
+				player.displayClientMessage(Text.translatable("gui.mtr.already_entered"), true);
 				return false;
 			} else {
 				entryZoneScore.setScore(0);
@@ -88,10 +87,10 @@ public class TicketSystem {
 
 		if (balanceScore.getScore() >= 0) {
 			entryZoneScore.setScore(encodeZone(station.zone));
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.enter_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), balanceScore.getScore()), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.enter_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), balanceScore.getScore()), true);
 			return true;
 		} else {
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.insufficient_balance", balanceScore.getScore()), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.insufficient_balance", balanceScore.getScore()), true);
 			return false;
 		}
 	}
@@ -102,12 +101,12 @@ public class TicketSystem {
 		final int finalFare = entryZone != 0 ? isConcessionary(player) ? (int) Math.ceil(fare / 2F) : fare : EVASION_FINE;
 
 		if (entryZone == 0 && remindIfNoRecord) {
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.already_exited"), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.already_exited"), true);
 			return false;
 		} else {
 			entryZoneScore.setScore(0);
 			balanceScore.add(-finalFare);
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.exit_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), finalFare, balanceScore.getScore()), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.exit_barrier", String.format("%s (%s)", station.name.replace('|', ' '), station.zone), finalFare, balanceScore.getScore()), true);
 			return true;
 		}
 	}

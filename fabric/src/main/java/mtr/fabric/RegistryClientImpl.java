@@ -8,8 +8,10 @@ import mtr.mappings.FabricRegistryUtilities;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -41,6 +43,10 @@ public class RegistryClientImpl {
 
 	public static <T extends Entity> void registerEntityRenderer(EntityType<T> type, Function<Object, EntityRendererMapper<T>> function) {
 		FabricRegistryUtilities.registerEntityRenderer(type, function::apply);
+	}
+
+	public static void registerKeyBinding(KeyMapping keyMapping) {
+		KeyBindingHelper.registerKeyBinding(keyMapping);
 	}
 
 	public static void registerBlockColors(Block block) {

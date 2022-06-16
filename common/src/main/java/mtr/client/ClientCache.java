@@ -2,6 +2,7 @@ package mtr.client;
 
 import mtr.MTR;
 import mtr.data.*;
+import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -274,8 +275,8 @@ public class ClientCache extends DataCache {
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
 			try {
-				font = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-sans-semibold.ttf")).getInputStream());
-				fontCjk = Font.createFont(Font.TRUETYPE_FONT, resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf")).getInputStream());
+				font = Font.createFont(Font.TRUETYPE_FONT, Utilities.getInputStream(resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-sans-semibold.ttf"))));
+				fontCjk = Font.createFont(Font.TRUETYPE_FONT, Utilities.getInputStream(resourceManager.getResource(new ResourceLocation(MTR.MOD_ID, "font/noto-serif-cjk-tc-semibold.ttf"))));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -5,12 +5,11 @@ import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.client.TrainClientRegistry;
 import mtr.data.*;
+import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -29,9 +28,9 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final WidgetBetterTextField textFieldMaxTrains;
 	private final WidgetShorterSlider sliderAccelerationConstant;
 
-	private static final Component SELECTED_TRAIN_TEXT = new TranslatableComponent("gui.mtr.selected_vehicle");
-	private static final Component MAX_TRAINS_TEXT = new TranslatableComponent("gui.mtr.max_vehicles");
-	private static final Component ACCELERATION_CONSTANT_TEXT = new TranslatableComponent("gui.mtr.acceleration");
+	private static final Component SELECTED_TRAIN_TEXT = Text.translatable("gui.mtr.selected_vehicle");
+	private static final Component MAX_TRAINS_TEXT = Text.translatable("gui.mtr.max_vehicles");
+	private static final Component ACCELERATION_CONSTANT_TEXT = Text.translatable("gui.mtr.acceleration");
 	private static final int MAX_TRAINS_TEXT_LENGTH = 3;
 	private static final int MAX_TRAINS_WIDTH = 80;
 	private static final int SLIDER_SCALE = 1000;
@@ -41,11 +40,11 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	public SidingScreen(Siding siding, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(siding, transportMode, dashboardScreen, SELECTED_TRAIN_TEXT, MAX_TRAINS_TEXT, ACCELERATION_CONSTANT_TEXT);
 		this.transportMode = transportMode;
-		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> onSelectingTrain());
+		buttonSelectTrain = new Button(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> onSelectingTrain());
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((Train.MAX_ACCELERATION - Train.MIN_ACCELERATION) * SLIDER_SCALE), this::sliderFormatter, null);
-		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.unlimited_vehicles"), checked -> {
+		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.unlimited_vehicles"), checked -> {
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
 			} else if (!checked && textFieldMaxTrains.getValue().isEmpty()) {
@@ -173,7 +172,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
 		sliderAccelerationConstant.visible = !isSelectingTrain;
-		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId(), savedRailBase.getBaseTrainType()).name);
+		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId()).name);
 		availableTrainsList.x = isSelectingTrain ? width / 2 - SLIDER_WIDTH / 2 : width;
 	}
 

@@ -7,16 +7,17 @@ import com.mojang.math.Matrix4f;
 import com.mojang.text2speech.Narrator;
 import mtr.MTR;
 import mtr.data.IGui;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -54,7 +55,7 @@ public interface IDrawing {
 			final boolean isCJK = stringSplitPart.codePoints().anyMatch(Character::isIdeographic);
 			isCJKList.add(isCJK);
 
-			final FormattedCharSequence orderedText = new TextComponent(stringSplitPart).setStyle(style).getVisualOrderText();
+			final FormattedCharSequence orderedText = Text.literal(stringSplitPart).setStyle(style).getVisualOrderText();
 			orderedTexts.add(orderedText);
 
 			totalHeight += IGui.LINE_HEIGHT * (isCJK ? 2 : 1);
@@ -116,6 +117,14 @@ public interface IDrawing {
 			final float y1 = verticalAlignment.getOffset(y, totalHeight / scale);
 			drawingCallback.drawingCallback(x1, y1, x1 + totalWidthScaled / scale, y1 + totalHeight / scale);
 		}
+	}
+
+	static void drawLine(PoseStack matrices, MultiBufferSource vertexConsumers, float x1, float y1, float z1, float x2, float y2, float z2, int r, int g, int b) {
+		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderType.lines());
+		final Matrix4f matrix4f = matrices.last().pose();
+		final Matrix3f matrix3f = matrices.last().normal();
+		vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
+		vertexConsumer.vertex(matrix4f, x2, y2, z2).color(r, g, b, 0xFF).normal(matrix3f, 0, 1, 0).endVertex();
 	}
 
 	static void drawRectangle(VertexConsumer vertexConsumer, double x1, double y1, double x2, double y2, int color) {
@@ -180,7 +189,7 @@ public interface IDrawing {
 			if (Config.showAnnouncementMessages()) {
 				final Player player = Minecraft.getInstance().player;
 				if (player != null) {
-					player.displayClientMessage(new TextComponent(newMessage), false);
+					player.displayClientMessage(Text.literal(newMessage), false);
 				}
 			}
 		}

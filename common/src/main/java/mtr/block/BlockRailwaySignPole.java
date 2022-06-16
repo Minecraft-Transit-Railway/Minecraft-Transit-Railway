@@ -1,9 +1,9 @@
 package mtr.block;
 
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,7 +57,7 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
 	@Override
 	protected Component getTooltipBlockText() {
-		return new TranslatableComponent("block.mtr.railway_sign");
+		return Text.translatable("block.mtr.railway_sign");
 	}
 
 	@Override

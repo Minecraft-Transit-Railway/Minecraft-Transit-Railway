@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelMTrain extends ModelTrainBase {
+public class ModelMTrain extends ModelSimpleTrainBase {
 
 	private final ModelMapper window;
 	private final ModelMapper upper_wall_r1;

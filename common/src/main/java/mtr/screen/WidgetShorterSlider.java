@@ -2,11 +2,11 @@ package mtr.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.IGui;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -14,16 +14,25 @@ import java.util.function.Function;
 public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	private final int maxValue;
+	private final int markerFrequency;
+	private final int markerDisplayedRatio;
 	private final Function<Integer, String> setMessage;
 	private final Consumer<Integer> shiftClickAction;
 
 	private static final int SLIDER_WIDTH = 6;
+	private static final int TICK_HEIGHT = SQUARE_SIZE / 2;
 
-	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
-		super(x, 0, width, 0, new TextComponent(""), 0);
+	public WidgetShorterSlider(int x, int width, int maxValue, int markerFrequency, int markerDisplayedRatio, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
+		super(x, 0, width, 0, Text.literal(""), 0);
 		this.maxValue = maxValue;
 		this.setMessage = setMessage;
 		this.shiftClickAction = shiftClickAction;
+		this.markerFrequency = markerFrequency;
+		this.markerDisplayedRatio = markerDisplayedRatio;
+	}
+
+	public WidgetShorterSlider(int x, int width, int maxValue, Function<Integer, String> setMessage, Consumer<Integer> shiftClickAction) {
+		this(x, width, maxValue, 0, 0, setMessage, shiftClickAction);
 	}
 
 	@Override
@@ -44,6 +53,15 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 		blit(matrices, x + xOffset + SLIDER_WIDTH / 2, y + height / 2, 200 - SLIDER_WIDTH / 2, v + 20 - height / 2, SLIDER_WIDTH / 2, height / 2);
 
 		drawString(matrices, client.font, getMessage().getString(), x + width + TEXT_PADDING, y + (height - TEXT_HEIGHT) / 2, ARGB_WHITE);
+
+		if (markerFrequency > 0) {
+			for (int i = 1; i <= maxValue / markerFrequency; i++) {
+				UtilitiesClient.beginDrawingTexture(WIDGETS_LOCATION);
+				final int xOffset1 = (width - SLIDER_WIDTH) * i * markerFrequency / maxValue;
+				blit(matrices, x + xOffset1 + SLIDER_WIDTH / 3, y + height, 10, 68, 2, TICK_HEIGHT);
+				drawCenteredString(matrices, client.font, String.valueOf(i * markerFrequency / markerDisplayedRatio), x + xOffset1 + SLIDER_WIDTH / 2, y + height + TICK_HEIGHT + 2, ARGB_WHITE);
+			}
+		}
 	}
 
 	@Override
@@ -54,7 +72,7 @@ public class WidgetShorterSlider extends AbstractSliderButton implements IGui {
 
 	@Override
 	protected void updateMessage() {
-		setMessage(new TextComponent(setMessage.apply(getIntValue())));
+		setMessage(Text.literal(setMessage.apply(getIntValue())));
 	}
 
 	@Override

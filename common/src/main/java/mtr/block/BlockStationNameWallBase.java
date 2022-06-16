@@ -67,7 +67,7 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase {
 		public final int color;
 
 		public TileEntityStationNameWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, int color) {
-			super(type, pos, state, 0, 0);
+			super(type, pos, state, 0, 0, false);
 			this.color = color;
 		}
 	}

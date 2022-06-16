@@ -1,8 +1,8 @@
 package mtr.block;
 
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +28,7 @@ public class BlockPIDSPole extends BlockPoleCheckBase {
 
 	@Override
 	protected Component getTooltipBlockText() {
-		return new TranslatableComponent("block.mtr.pids_1");
+		return Text.translatable("block.mtr.pids_1");
 	}
 
 	@Override

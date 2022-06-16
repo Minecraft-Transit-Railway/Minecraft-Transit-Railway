@@ -1,10 +1,10 @@
 package mtr.data;
 
 import mtr.block.BlockNode;
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -398,11 +398,11 @@ public class Rail extends SerializedDataBase {
 			final double offsetValue;
 
 			if (value < intercept) {
-				yChange = (yEnd - yStart) / 2F;
+				yChange = (yEnd - yStart) / 2D;
 				yInitial = yStart;
 				offsetValue = value;
 			} else {
-				yChange = (yStart - yEnd) / 2F;
+				yChange = (yStart - yEnd) / 2D;
 				yInitial = yEnd;
 				offsetValue = length - value;
 			}
@@ -413,9 +413,9 @@ public class Rail extends SerializedDataBase {
 
 	private static Vec3 getPositionXZ(double h, double k, double r, double t, double radiusOffset, boolean isStraight) {
 		if (isStraight) {
-			return new Vec3(h * t + k * ((Math.abs(h) >= 0.5 && Math.abs(k) >= 0.5 ? 0 : r) + radiusOffset) + 0.5F, 0, k * t + h * (r - radiusOffset) + 0.5F);
+			return new Vec3(h * t + k * ((Math.abs(h) >= 0.5 && Math.abs(k) >= 0.5 ? 0 : r) + radiusOffset) + 0.5, 0, k * t + h * (r - radiusOffset) + 0.5);
 		} else {
-			return new Vec3(h + (r + radiusOffset) * Math.cos(t / r) + 0.5F, 0, k + (r + radiusOffset) * Math.sin(t / r) + 0.5F);
+			return new Vec3(h + (r + radiusOffset) * Math.cos(t / r) + 0.5, 0, k + (r + radiusOffset) * Math.sin(t / r) + 0.5);
 		}
 	}
 
@@ -608,7 +608,7 @@ public class Rail extends SerializedDataBase {
 		private void showProgressMessage(float percentage) {
 			final Player player = world.getPlayerByUUID(uuid);
 			if (player != null) {
-				player.displayClientMessage(new TranslatableComponent("gui.mtr." + railActionType.progressTranslation, percentage), true);
+				player.displayClientMessage(Text.translatable("gui.mtr." + railActionType.progressTranslation, percentage), true);
 			}
 		}
 

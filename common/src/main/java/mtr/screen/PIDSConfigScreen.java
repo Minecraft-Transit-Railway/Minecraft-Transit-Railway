@@ -5,13 +5,12 @@ import mtr.block.BlockPIDSBase;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -23,13 +22,13 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 	private final boolean[] hideArrival;
 	private final WidgetBetterTextField[] textFieldMessages;
 	private final WidgetBetterCheckbox[] buttonsHideArrival;
-	private final Component messageText = new TranslatableComponent("gui.mtr.pids_message");
-	private final Component hideArrivalText = new TranslatableComponent("gui.mtr.hide_arrival");
+	private final Component messageText = Text.translatable("gui.mtr.pids_message");
+	private final Component hideArrivalText = Text.translatable("gui.mtr.hide_arrival");
 
 	private static final int MAX_MESSAGE_LENGTH = 2048;
 
 	public PIDSConfigScreen(BlockPos pos1, BlockPos pos2, int maxArrivals) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		messages = new String[maxArrivals];
@@ -40,7 +39,7 @@ public class PIDSConfigScreen extends ScreenMapper implements IGui, IPacket {
 
 		textFieldMessages = new WidgetBetterTextField[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			textFieldMessages[i] = new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH);
+			textFieldMessages[i] = new WidgetBetterTextField("", MAX_MESSAGE_LENGTH);
 		}
 
 		buttonsHideArrival = new WidgetBetterCheckbox[maxArrivals];

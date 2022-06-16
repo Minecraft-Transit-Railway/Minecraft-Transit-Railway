@@ -1,6 +1,7 @@
 package mtr.block;
 
 import mtr.mappings.BlockEntityClientSerializableMapper;
+import mtr.mappings.BlockMapper;
 import mtr.mappings.EntityBlockMapper;
 import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.core.BlockPos;
@@ -10,7 +11,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class BlockTrainSensorBase extends Block implements EntityBlockMapper {
+public abstract class BlockTrainSensorBase extends BlockMapper implements EntityBlockMapper {
 
 	public BlockTrainSensorBase() {
 		super(BlockBehaviour.Properties.copy(Blocks.SMOOTH_STONE));

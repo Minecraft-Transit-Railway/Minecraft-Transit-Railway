@@ -4,14 +4,13 @@ import mtr.block.BlockNode;
 import mtr.data.RailAngle;
 import mtr.data.RailwayData;
 import mtr.data.TransportMode;
+import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +54,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 					} else {
 						newState = state;
 					}
-					player.displayClientMessage(new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(newState.getBlock().getDescriptionId())), true);
+					player.displayClientMessage(Text.translatable("tooltip.mtr.selected_material", Text.translatable(newState.getBlock().getDescriptionId())), true);
 					final CompoundTag compoundTag = context.getItemInHand().getOrCreateTag();
 					compoundTag.putInt(TAG_BLOCK_ID, Block.getId(newState));
 					return InteractionResult.SUCCESS;
@@ -69,17 +68,17 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
 		if (height > 0) {
-			tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_height", height).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(Text.translatable("tooltip.mtr.rail_action_height", height).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
-		tooltip.add(new TranslatableComponent("tooltip.mtr.rail_action_width", width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+		tooltip.add(Text.translatable("tooltip.mtr.rail_action_width", width).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 
 		if (canSaveBlock) {
 			final BlockState state = getSavedState(stack);
-			final String[] textSplit = new TranslatableComponent(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), new TranslatableComponent(mtr.Blocks.RAIL_NODE.get().getDescriptionId())).getString().split("\\|");
+			final String[] textSplit = Text.translatable(state.isAir() ? "tooltip.mtr.shift_right_click_to_select_material" : "tooltip.mtr.shift_right_click_to_clear", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), Text.translatable(mtr.Blocks.RAIL_NODE.get().getDescriptionId())).getString().split("\\|");
 			for (String text : textSplit) {
-				tooltip.add(new TextComponent(text).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).applyFormat(ChatFormatting.ITALIC)));
+				tooltip.add(Text.literal(text).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).applyFormat(ChatFormatting.ITALIC)));
 			}
-			tooltip.add(new TranslatableComponent("tooltip.mtr.selected_material", new TranslatableComponent(state.getBlock().getDescriptionId())).setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
+			tooltip.add(Text.translatable("tooltip.mtr.selected_material", Text.translatable(state.getBlock().getDescriptionId())).setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
 		}
 
 		super.appendHoverText(stack, level, tooltip, tooltipFlag);
@@ -88,7 +87,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	protected final void onConnect(Level world, ItemStack stack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, RailAngle facingStart, RailAngle facingEnd, Player player, RailwayData railwayData) {
 		if (player != null && !onConnect(player, stack, railwayData, posStart, posEnd, radius, height)) {
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.rail_not_found_action"), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.rail_not_found_action"), true);
 		}
 	}
 

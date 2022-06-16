@@ -5,14 +5,13 @@ import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Tuple;
 
 import java.util.ArrayList;
@@ -54,31 +53,31 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	private static final int COLOR_WIDTH = 48;
 
 	public DashboardScreen(TransportMode transportMode) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.transportMode = transportMode;
 
-		textFieldName = new WidgetBetterTextField(null, new TranslatableComponent("gui.mtr.name").getString());
+		textFieldName = new WidgetBetterTextField(Text.translatable("gui.mtr.name").getString());
 		colorSelector = new WidgetColorSelector(this, this::toggleButtons);
 		widgetMap = new WidgetMap(transportMode, this::onDrawCorners, this::onDrawCornersMouseRelease, this::onClickAddPlatformToRoute, this::onClickEditSavedRail, colorSelector::isMouseOver);
 
-		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
-		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
-		buttonTabDepots = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
+		buttonTabStations = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.stations"), button -> onSelectTab(SelectedTab.STATIONS));
+		buttonTabRoutes = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.routes"), button -> onSelectTab(SelectedTab.ROUTES));
+		buttonTabDepots = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.depots"), button -> onSelectTab(SelectedTab.DEPOTS));
 
-		buttonAddStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
-		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode), true));
-		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode), true));
-		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(true));
-		buttonDoneEditingRoute = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingRoute());
-		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneEditingArea(false));
-		buttonZoomIn = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("+"), button -> widgetMap.scale(1));
-		buttonZoomOut = new Button(0, 0, 0, SQUARE_SIZE, new TextComponent("-"), button -> widgetMap.scale(-1));
-		buttonRailActions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.rail_actions_button"), button -> {
+		buttonAddStation = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_station"), button -> startEditingArea(new Station(), true));
+		buttonAddRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_route"), button -> startEditingRoute(new Route(transportMode), true));
+		buttonAddDepot = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_depot"), button -> startEditingArea(new Depot(transportMode), true));
+		buttonDoneEditingStation = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingArea(true));
+		buttonDoneEditingRoute = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingRoute());
+		buttonDoneEditingDepot = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneEditingArea(false));
+		buttonZoomIn = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> widgetMap.scale(1));
+		buttonZoomOut = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("-"), button -> widgetMap.scale(-1));
+		buttonRailActions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.rail_actions_button"), button -> {
 			if (minecraft != null) {
 				UtilitiesClient.setScreen(minecraft, new RailActionsScreen());
 			}
 		});
-		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("menu.options"), button -> {
+		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("menu.options"), button -> {
 			if (minecraft != null) {
 				UtilitiesClient.setScreen(minecraft, new ConfigScreen());
 			}

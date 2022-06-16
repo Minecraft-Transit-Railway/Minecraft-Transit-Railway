@@ -49,14 +49,14 @@ public class MTR implements IPacket {
 			BiConsumer<String, RegistryObject<? extends EntityType<? extends Entity>>> registerEntityType,
 			BiConsumer<String, SoundEvent> registerSoundEvent
 	) {
+		MTRLifts.init(registerItem, registerBlock, registerBlockItem, registerBlockEntityType, registerEntityType);
+
 		registerItem.accept("apg_door", Items.APG_DOOR);
 		registerItem.accept("apg_glass", Items.APG_GLASS);
 		registerItem.accept("apg_glass_end", Items.APG_GLASS_END);
-		registerItem.accept("brush", Items.BRUSH);
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
-		registerItem.accept("escalator", Items.ESCALATOR);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -163,8 +163,6 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("ceiling_no_light", Blocks.CEILING_NO_LIGHT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("clock", Blocks.CLOCK, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("clock_pole", Blocks.CLOCK_POLE, ItemGroups.RAILWAY_FACILITIES);
-		registerBlock.accept("escalator_side", Blocks.ESCALATOR_SIDE);
-		registerBlock.accept("escalator_step", Blocks.ESCALATOR_STEP);
 		registerBlockItem.accept("glass_fence_cio", Blocks.GLASS_FENCE_CIO, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("glass_fence_ckt", Blocks.GLASS_FENCE_CKT, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("glass_fence_heo", Blocks.GLASS_FENCE_HEO, ItemGroups.RAILWAY_FACILITIES);
@@ -294,6 +292,7 @@ public class MTR implements IPacket {
 
 		registerBlockItem.accept("station_name_entrance", Blocks.STATION_NAME_ENTRANCE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_block", Blocks.STATION_NAME_TALL_BLOCK, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_tall_block_double_sided", Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_tall_wall", Blocks.STATION_NAME_TALL_WALL, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_wall", Blocks.STATION_NAME_WALL_WHITE, ItemGroups.RAILWAY_FACILITIES);
 		registerEnchantedBlockItem.accept("station_name_wall_gray", Blocks.STATION_NAME_WALL_GRAY, ItemGroups.RAILWAY_FACILITIES);
@@ -350,6 +349,7 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("station_name_wall_gray", BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_wall_black", BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_block", BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_tall_block_double_sided", BlockEntityTypes.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED_TILE_ENTITY);
 		registerBlockEntityType.accept("station_name_tall_wall", BlockEntityTypes.STATION_NAME_TALL_WALL_TILE_ENTITY);
 		registerBlockEntityType.accept("tactile_map", BlockEntityTypes.TACTILE_MAP_TILE_ENTITY);
 		registerBlockEntityType.accept("train_announcer", BlockEntityTypes.TRAIN_ANNOUNCER_TILE_ENTITY);
@@ -387,6 +387,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_SENSOR, PacketTrainDataGuiServer::receiveTrainSensorC2S);
 		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
+		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);
@@ -420,6 +421,7 @@ public class MTR implements IPacket {
 			gameTick++;
 		});
 		Registry.registerPlayerJoinEvent(player -> {
+			PacketTrainDataGuiServer.versionCheckS2C(player);
 			final RailwayData railwayData = RailwayData.getInstance(player.getLevel());
 			if (railwayData != null) {
 				railwayData.onPlayerJoin(player);
@@ -435,7 +437,7 @@ public class MTR implements IPacket {
 			int port = 8888;
 			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
 			try {
-				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("[^0-9]", "")), 1025, 65535);
+				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("\\D", "")), 1025, 65535);
 			} catch (Exception ignored) {
 				try {
 					Files.write(path, Collections.singleton(String.valueOf(port)));
@@ -465,6 +467,10 @@ public class MTR implements IPacket {
 
 	public static boolean isGameTickInterval(int interval) {
 		return gameTick % interval == 0;
+	}
+
+	public static boolean isGameTickInterval(int interval, int offset) {
+		return (gameTick + offset) % interval == 0;
 	}
 
 	@FunctionalInterface

@@ -4,17 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
+import mtr.mappings.Text;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class EditRouteScreen extends EditNameColorScreenBase<Route> implements IGui, IPacket {
 
 	private RouteType routeType;
 
-	private final Component lightRailRouteNumberText = new TranslatableComponent("gui.mtr.light_rail_route_number");
+	private final Component lightRailRouteNumberText = Text.translatable("gui.mtr.light_rail_route_number");
 
 	private final WidgetBetterTextField textFieldLightRailRouteNumber;
 	private final Button buttonRouteType;
@@ -30,12 +30,12 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 	public EditRouteScreen(Route route, DashboardScreen dashboardScreen) {
 		super(route, dashboardScreen, "gui.mtr.route_name", "gui.mtr.route_color");
 
-		textFieldLightRailRouteNumber = new WidgetBetterTextField(null, "");
-		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
-		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
-		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_route_hidden"), this::setIsRouteHidden);
-		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_clockwise_route"), this::setIsClockwise);
-		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
+		textFieldLightRailRouteNumber = new WidgetBetterTextField("");
+		buttonRouteType = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_value"), button -> setRouteTypeText(data.transportMode, routeType.next()));
+		buttonIsLightRailRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_light_rail_route"), this::setIsLightRailRoute);
+		buttonIsRouteHidden = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_route_hidden"), this::setIsRouteHidden);
+		buttonIsClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_clockwise_route"), this::setIsClockwise);
+		buttonIsAntiClockwiseRoute = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_anticlockwise_route"), this::setIsAntiClockwise);
 
 		if (route.platformIds.size() > 0) {
 			final Station firstStation = ClientData.DATA_CACHE.platformIdToStation.get(route.platformIds.get(0));
@@ -114,7 +114,7 @@ public class EditRouteScreen extends EditNameColorScreenBase<Route> implements I
 
 	private void setRouteTypeText(TransportMode transportMode, RouteType newRouteType) {
 		routeType = newRouteType;
-		buttonRouteType.setMessage(new TranslatableComponent(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase()));
+		buttonRouteType.setMessage(Text.translatable(String.format("gui.mtr.route_type_%s_%s", transportMode, routeType).toLowerCase()));
 	}
 
 	private void setIsLightRailRoute(boolean isLightRailRoute) {

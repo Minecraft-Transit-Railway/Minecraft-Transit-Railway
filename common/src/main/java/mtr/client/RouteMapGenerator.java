@@ -3,6 +3,7 @@ package mtr.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
 import mtr.data.*;
+import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -532,7 +533,7 @@ public class RouteMapGenerator implements IGui {
 	}
 
 	private static void drawResource(NativeImage nativeImage, String resource, int x, int y, int width, int height, boolean flipX, float v1, float v2, int color) throws IOException {
-		final NativeImage nativeImageResource = NativeImage.read(NativeImage.Format.RGBA, Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(MTR.MOD_ID, resource)).getInputStream());
+		final NativeImage nativeImageResource = NativeImage.read(NativeImage.Format.RGBA, Utilities.getInputStream(Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(MTR.MOD_ID, resource))));
 		final int resourceWidth = nativeImageResource.getWidth();
 		final int resourceHeight = nativeImageResource.getHeight();
 		for (int drawX = 0; drawX < width; drawX++) {

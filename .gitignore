@@ -34,11 +34,19 @@ run/
 latest.log
 Keys.java
 mappings
-gestures
 BlockEntityExtension.java
+RandomSource.java
 UnknownPacketMixin.java
-version.js
 **/lang/*.json
 !en_us.json
+
+common/src/main/resources/assets/mtr/sounds/
+common/src/main/resources/assets/mtr/textures/
+common/src/main/resources/assets/mtr/website/
+common/src/main/resources/assets/mtr/sounds.json
+common/src/main/resources/data/minecraft/
+common/src/main/resources/data/mtr/
+fabric/src/main/
+forge/src/main/
 
 .architectury-transformer/

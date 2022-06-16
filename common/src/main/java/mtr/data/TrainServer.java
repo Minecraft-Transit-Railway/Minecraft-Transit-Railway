@@ -43,7 +43,7 @@ public class TrainServer extends Train {
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, TrainType baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments) {
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments) {
 		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant);
 		this.timeSegments = timeSegments;
 	}
@@ -85,8 +85,8 @@ public class TrainServer extends Train {
 			return;
 		}
 
-		final float halfSpacing = baseTrainType.getSpacing() / 2F;
-		final float halfWidth = baseTrainType.width / 2F;
+		final float halfSpacing = spacing / 2F;
+		final float halfWidth = width / 2F;
 
 		if (doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
@@ -94,7 +94,7 @@ public class TrainServer extends Train {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					ridingEntities.add(player.getUUID());
-					final float percentageX = (float) (positionRotated.x / baseTrainType.width + 0.5);
+					final float percentageX = (float) (positionRotated.x / width + 0.5);
 					final float percentageZ = (float) (realSpacing == 0 ? 0 : positionRotated.z / realSpacing + 0.5) + ridingCar;
 					final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 					packet.writeLong(id);
@@ -193,7 +193,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected boolean isRailBlocked(int checkIndex) {
-		if (!baseTrainType.transportMode.continuousMovement && trainPositions != null && checkIndex < path.size()) {
+		if (!transportMode.continuousMovement && trainPositions != null && checkIndex < path.size()) {
 			final PathData pathData = path.get(checkIndex);
 			final UUID railProduct = pathData.getRailProduct();
 			for (final Map<UUID, Long> trainPositionsMap : trainPositions) {
@@ -310,9 +310,8 @@ public class TrainServer extends Train {
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {
 		if (!path.isEmpty()) {
-			final int trainSpacing = baseTrainType.getSpacing();
-			final int headIndex = getIndex(0, trainSpacing, true);
-			final int tailIndex = getIndex(trainCars, trainSpacing, false);
+			final int headIndex = getIndex(0, spacing, true);
+			final int tailIndex = getIndex(trainCars, spacing, false);
 			for (int i = tailIndex; i <= headIndex; i++) {
 				if (i > 0 && path.get(i).savedRailBaseId != sidingId) {
 					signalBlocks.occupy(path.get(i).getRailProduct(), trainPositions, id);

@@ -2,6 +2,7 @@ package mtr.forge;
 
 import mtr.client.ClientData;
 import mtr.mappings.*;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,6 +38,10 @@ public class RegistryClientImpl {
 
 	public static <T extends Entity> void registerEntityRenderer(EntityType<T> type, Function<Object, EntityRendererMapper<T>> function) {
 		RegistryUtilitiesClient.registerEntityRenderer(type, function::apply);
+	}
+
+	public static void registerKeyBinding(KeyMapping keyMapping) {
+		ForgeUtilities.registerKeyBinding(keyMapping);
 	}
 
 	public static void registerBlockColors(Block block) {

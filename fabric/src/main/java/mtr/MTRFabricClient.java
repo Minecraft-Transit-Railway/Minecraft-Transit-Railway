@@ -2,6 +2,7 @@ package mtr;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.CustomResources;
+import mtr.client.ICustomResources;
 import mtr.render.RenderTrains;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -12,11 +13,15 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.phys.Vec3;
 
-public class MTRFabricClient implements ClientModInitializer {
+public class MTRFabricClient implements ClientModInitializer, ICustomResources {
 
 	@Override
 	public void onInitializeClient() {
-		MTRClient.init();
+		if (Keys.LIFTS_ONLY) {
+			MTRClientLifts.init();
+		} else {
+			MTRClient.init();
+		}
 		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 			final PoseStack matrices = context.matrixStack();
 			matrices.pushPose();
@@ -33,7 +38,7 @@ public class MTRFabricClient implements ClientModInitializer {
 
 		@Override
 		public ResourceLocation getFabricId() {
-			return new ResourceLocation(MTR.MOD_ID, CustomResources.CUSTOM_RESOURCES_ID);
+			return new ResourceLocation(MTR.MOD_ID, CUSTOM_RESOURCES_ID);
 		}
 
 		@Override

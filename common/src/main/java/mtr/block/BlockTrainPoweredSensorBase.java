@@ -9,8 +9,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
-import java.util.Random;
-
 public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 
 	public static final IntegerProperty POWERED = IntegerProperty.create("powered", 0, 2);
@@ -22,7 +20,7 @@ public abstract class BlockTrainPoweredSensorBase extends BlockTrainSensorBase {
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
 		final int oldPowered = IBlock.getStatePropertySafe(state, POWERED);
 		if (oldPowered > 0) {
 			world.setBlockAndUpdate(pos, state.setValue(POWERED, oldPowered - 1));

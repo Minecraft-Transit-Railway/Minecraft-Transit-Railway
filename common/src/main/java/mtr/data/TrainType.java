@@ -2,193 +2,162 @@ package mtr.data;
 
 public enum TrainType {
 
-	SP1900(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	SP1900_SMALL(TransportMode.TRAIN, 20, 2, true, 6F, false),
-	SP1900_MINI(TransportMode.TRAIN, 12, 2, true, 3F, true),
-	C1141A(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	C1141A_SMALL(TransportMode.TRAIN, 20, 2, true, 6F, false),
-	C1141A_MINI(TransportMode.TRAIN, 12, 2, true, 3F, true),
-	M_TRAIN(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	M_TRAIN_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	M_TRAIN_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	CM_STOCK(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	CM_STOCK_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	CM_STOCK_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	MLR(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	MLR_SMALL(TransportMode.TRAIN, 20, 2, true, 6F, false),
-	MLR_MINI(TransportMode.TRAIN, 12, 2, true, 3F, true),
-	E44(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	E44_MINI(TransportMode.TRAIN, 12, 2, true, 3F, true),
-	DRL(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	K_TRAIN(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	K_TRAIN_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	K_TRAIN_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	K_TRAIN_TCL(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	K_TRAIN_TCL_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	K_TRAIN_TCL_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	K_TRAIN_AEL(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	K_TRAIN_AEL_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	K_TRAIN_AEL_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	C_TRAIN(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	C_TRAIN_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	C_TRAIN_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	S_TRAIN(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	S_TRAIN_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	S_TRAIN_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	A_TRAIN_TCL(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	A_TRAIN_TCL_SMALL(TransportMode.TRAIN, 19, 2, true, 6F, false),
-	A_TRAIN_TCL_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	A_TRAIN_AEL(TransportMode.TRAIN, 24, 2, true, 8.5F, false),
-	A_TRAIN_AEL_MINI(TransportMode.TRAIN, 14, 2, true, 5F, true),
-	LIGHT_RAIL_1(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_2(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_2_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_3(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_3_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R_OLD(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R_OLD_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4_OLD(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4_OLD_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5_OLD(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5_OLD_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_1R_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_2_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_2_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_3_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_3_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_4_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5_ORANGE(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LIGHT_RAIL_5_ORANGE_RHT(TransportMode.TRAIN, 22, 2, false, 6.25F, false),
-	LONDON_UNDERGROUND_D78(TransportMode.TRAIN, 18, 2, false, 5.75F, false),
-	LONDON_UNDERGROUND_D78_MINI(TransportMode.TRAIN, 10, 2, false, 2F, true),
-	LONDON_UNDERGROUND_1995(TransportMode.TRAIN, 19, 2, false, 0, 0.5F, 6F, false),
-	LONDON_UNDERGROUND_1996(TransportMode.TRAIN, 19, 2, false, 0, 0.5F, 6F, false),
-	R179(TransportMode.TRAIN, 19, 2, false, 7.5F, false),
-	R179_MINI(TransportMode.TRAIN, 9, 2, false, 2.5F, true),
-	R211(TransportMode.TRAIN, 19, 2, false, 7.5F, false),
-	R211_MINI(TransportMode.TRAIN, 9, 2, false, 2.5F, true),
-	R211T(TransportMode.TRAIN, 19, 2, true, 7.5F, false),
-	R211T_MINI(TransportMode.TRAIN, 9, 2, true, 2.5F, true),
-	CLASS_802_GWR(TransportMode.TRAIN, 24, 2, true, 7.75F, false),
-	CLASS_802_GWR_MINI(TransportMode.TRAIN, 18, 2, true, 4.94F, false),
-	CLASS_802_TPE(TransportMode.TRAIN, 24, 2, true, 7.75F, false),
-	CLASS_802_TPE_MINI(TransportMode.TRAIN, 18, 2, true, 4.94F, false),
-	MINECART(TransportMode.TRAIN, 1, 1, false, -0.5F, 0),
-	OAK_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	SPRUCE_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	BIRCH_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	JUNGLE_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	ACACIA_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	DARK_OAK_BOAT(TransportMode.BOAT, 1, 1, false, -0.5F, 0),
-	NGONG_PING_360_CRYSTAL(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_CRYSTAL_RHT(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_RED(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_RED_RHT(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_ORANGE(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_ORANGE_RHT(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_LIGHT_BLUE(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT(TransportMode.CABLE_CAR, 1, 1, false, 0, 0),
-	BASE_2_2(TransportMode.TRAIN, 2, 2, true),
-	BASE_3_2(TransportMode.TRAIN, 3, 2, true),
-	BASE_4_2(TransportMode.TRAIN, 4, 2, true),
-	BASE_5_2(TransportMode.TRAIN, 5, 2, true),
-	BASE_6_2(TransportMode.TRAIN, 6, 2, true),
-	BASE_7_2(TransportMode.TRAIN, 7, 2, true),
-	BASE_8_2(TransportMode.TRAIN, 8, 2, true),
-	BASE_9_2(TransportMode.TRAIN, 9, 2, true),
-	BASE_10_2(TransportMode.TRAIN, 10, 2, true),
-	BASE_11_2(TransportMode.TRAIN, 11, 2, true),
-	BASE_12_2(TransportMode.TRAIN, 12, 2, true),
-	BASE_13_2(TransportMode.TRAIN, 13, 2, true),
-	BASE_14_2(TransportMode.TRAIN, 14, 2, true),
-	BASE_15_2(TransportMode.TRAIN, 15, 2, true),
-	BASE_16_2(TransportMode.TRAIN, 16, 2, true),
-	BASE_17_2(TransportMode.TRAIN, 17, 2, true),
-	BASE_18_2(TransportMode.TRAIN, 18, 2, true),
-	BASE_19_2(TransportMode.TRAIN, 19, 2, true),
-	BASE_20_2(TransportMode.TRAIN, 20, 2, true),
-	BASE_21_2(TransportMode.TRAIN, 21, 2, true),
-	BASE_22_2(TransportMode.TRAIN, 22, 2, true),
-	BASE_23_2(TransportMode.TRAIN, 23, 2, true),
-	BASE_24_2(TransportMode.TRAIN, 24, 2, true),
-	BASE_25_2(TransportMode.TRAIN, 25, 2, true),
-	BASE_26_2(TransportMode.TRAIN, 26, 2, true),
-	BASE_27_2(TransportMode.TRAIN, 27, 2, true),
-	BASE_28_2(TransportMode.TRAIN, 28, 2, true),
-	BASE_29_2(TransportMode.TRAIN, 29, 2, true),
-	BASE_30_2(TransportMode.TRAIN, 30, 2, true);
+	SP1900("train_24_2"),
+	SP1900_SMALL("train_20_2"),
+	SP1900_MINI("train_12_2"),
+	C1141A("train_24_2"),
+	C1141A_SMALL("train_20_2"),
+	C1141A_MINI("train_12_2"),
+	M_TRAIN("train_24_2"),
+	M_TRAIN_SMALL("train_19_2"),
+	M_TRAIN_MINI("train_9_2"),
+	CM_STOCK("train_24_2"),
+	CM_STOCK_SMALL("train_19_2"),
+	CM_STOCK_MINI("train_9_2"),
+	MLR("train_24_2"),
+	MLR_SMALL("train_20_2"),
+	MLR_MINI("train_12_2"),
+	E44("train_24_2"),
+	E44_MINI("train_12_2"),
+	R_TRAIN("train_24_2"),
+	R_TRAIN_SMALL("train_19_2"),
+	R_TRAIN_MINI("train_9_2"),
+	DRL("train_24_2"),
+	K_TRAIN("train_24_2"),
+	K_TRAIN_SMALL("train_19_2"),
+	K_TRAIN_MINI("train_9_2"),
+	K_TRAIN_TCL("train_24_2"),
+	K_TRAIN_TCL_SMALL("train_19_2"),
+	K_TRAIN_TCL_MINI("train_9_2"),
+	K_TRAIN_AEL("train_24_2"),
+	K_TRAIN_AEL_SMALL("train_19_2"),
+	K_TRAIN_AEL_MINI("train_9_2"),
+	C_TRAIN("train_24_2"),
+	C_TRAIN_SMALL("train_19_2"),
+	C_TRAIN_MINI("train_9_2"),
+	S_TRAIN("train_24_2"),
+	S_TRAIN_SMALL("train_19_2"),
+	S_TRAIN_MINI("train_9_2"),
+	A_TRAIN_TCL("train_24_2"),
+	A_TRAIN_TCL_SMALL("train_19_2"),
+	A_TRAIN_TCL_MINI("train_9_2"),
+	A_TRAIN_AEL("train_24_2"),
+	A_TRAIN_AEL_MINI("train_14_2"),
+	LIGHT_RAIL_1("train_22_2"),
+	LIGHT_RAIL_1_RHT("train_22_2"),
+	LIGHT_RAIL_1R("train_22_2"),
+	LIGHT_RAIL_1R_RHT("train_22_2"),
+	LIGHT_RAIL_2("train_22_2"),
+	LIGHT_RAIL_2_RHT("train_22_2"),
+	LIGHT_RAIL_3("train_22_2"),
+	LIGHT_RAIL_3_RHT("train_22_2"),
+	LIGHT_RAIL_4("train_22_2"),
+	LIGHT_RAIL_4_RHT("train_22_2"),
+	LIGHT_RAIL_5("train_22_2"),
+	LIGHT_RAIL_5_RHT("train_22_2"),
+	LIGHT_RAIL_1R_OLD("train_22_2"),
+	LIGHT_RAIL_1R_OLD_RHT("train_22_2"),
+	LIGHT_RAIL_4_OLD("train_22_2"),
+	LIGHT_RAIL_4_OLD_RHT("train_22_2"),
+	LIGHT_RAIL_5_OLD("train_22_2"),
+	LIGHT_RAIL_5_OLD_RHT("train_22_2"),
+	LIGHT_RAIL_1_ORANGE("train_22_2"),
+	LIGHT_RAIL_1_ORANGE_RHT("train_22_2"),
+	LIGHT_RAIL_1R_ORANGE("train_22_2"),
+	LIGHT_RAIL_1R_ORANGE_RHT("train_22_2"),
+	LIGHT_RAIL_2_ORANGE("train_22_2"),
+	LIGHT_RAIL_2_ORANGE_RHT("train_22_2"),
+	LIGHT_RAIL_3_ORANGE("train_22_2"),
+	LIGHT_RAIL_3_ORANGE_RHT("train_22_2"),
+	LIGHT_RAIL_4_ORANGE("train_22_2"),
+	LIGHT_RAIL_4_ORANGE_RHT("train_22_2"),
+	LIGHT_RAIL_5_ORANGE("train_22_2"),
+	LIGHT_RAIL_5_ORANGE_RHT("train_22_2"),
+	LONDON_UNDERGROUND_D78("train_18_2"),
+	LONDON_UNDERGROUND_D78_MINI("train_10_2"),
+	LONDON_UNDERGROUND_1995("train_19_2"),
+	LONDON_UNDERGROUND_1996("train_19_2"),
+	R179("train_19_2"),
+	R179_MINI("train_9_2"),
+	R211("train_19_2"),
+	R211_MINI("train_9_2"),
+	R211T("train_19_2"),
+	R211T_MINI("train_9_2"),
+	CLASS_802_GWR("train_24_2"),
+	CLASS_802_GWR_MINI("train_18_2"),
+	CLASS_802_TPE("train_24_2"),
+	CLASS_802_TPE_MINI("train_18_2"),
+	MINECART("train_1_1"),
+	OAK_BOAT("boat_1_1"),
+	SPRUCE_BOAT("boat_1_1"),
+	BIRCH_BOAT("boat_1_1"),
+	JUNGLE_BOAT("boat_1_1"),
+	ACACIA_BOAT("boat_1_1"),
+	DARK_OAK_BOAT("boat_1_1"),
+	NGONG_PING_360_CRYSTAL("cable_car_1_1"),
+	NGONG_PING_360_CRYSTAL_RHT("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_RED("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_RED_RHT("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_ORANGE("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_ORANGE_RHT("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_LIGHT_BLUE("cable_car_1_1"),
+	NGONG_PING_360_NORMAL_LIGHT_BLUE_RHT("cable_car_1_1");
 
-	public final TransportMode transportMode;
-	public final int width;
-	public final boolean hasGangwayConnection;
-	public final float riderOffset;
-	public final float modelZOffset;
-	private final int length;
+	public final String baseTrainType;
 
-	public final float bogiePosition;
-	public final boolean isJacobsBogie;
-
-	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection, float riderOffset, float modelZOffset, float bogiePosition, boolean isJacobsBogie) {
-		this.transportMode = transportMode;
-		this.length = length;
-		this.width = width;
-		this.hasGangwayConnection = hasGangwayConnection;
-		this.riderOffset = riderOffset;
-		this.modelZOffset = modelZOffset;
-		this.bogiePosition = bogiePosition;
-		this.isJacobsBogie = isJacobsBogie;
+	TrainType(String baseTrainType) {
+		this.baseTrainType = baseTrainType;
 	}
 
-	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection, float riderOffset, float modelZOffset) {
-		this.transportMode = transportMode;
-		this.length = length;
-		this.width = width;
-		this.hasGangwayConnection = hasGangwayConnection;
-		this.riderOffset = riderOffset;
-		this.modelZOffset = modelZOffset;
-		this.bogiePosition = 0;
-		this.isJacobsBogie = false;
+	public static TransportMode getTransportMode(String trainType) {
+		final TransportMode[] returnTransportMode = {TransportMode.TRAIN};
+		splitTrainType(trainType, ((transportMode, length, width) -> returnTransportMode[0] = transportMode));
+		return returnTransportMode[0];
 	}
 
-	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection, float bogiePosition, boolean isJacobsBogie) {
-		this.transportMode = transportMode;
-		this.length = length;
-		this.width = width;
-		this.hasGangwayConnection = hasGangwayConnection;
-		this.riderOffset = 0;
-		this.modelZOffset = 0;
-		this.bogiePosition = bogiePosition;
-		this.isJacobsBogie = isJacobsBogie;
+	public static int getSpacing(String trainType) {
+		final int[] returnLength = {1};
+		splitTrainType(trainType, ((transportMode, length, width) -> returnLength[0] = length));
+		return returnLength[0] + 1;
 	}
 
-	TrainType(TransportMode transportMode, int length, int width, boolean hasGangwayConnection) {
-		this(transportMode, length, width, hasGangwayConnection, 0, 0);
+	public static int getWidth(String trainType) {
+		final int[] returnWidth = {1};
+		splitTrainType(trainType, ((transportMode, length, width) -> returnWidth[0] = width));
+		return returnWidth[0];
 	}
 
-	public int getSpacing() {
-		return length + 1;
-	}
+	private static void splitTrainType(String trainType, TrainTypeCallback trainTypeCallback) {
+		for (final TransportMode transportMode : TransportMode.values()) {
+			final String checkString = transportMode.toString().toLowerCase() + "_";
 
-	public boolean hasBogie() {
-		return bogiePosition != 0;
-	}
+			if (trainType.toLowerCase().startsWith(checkString)) {
+				final String[] remainingSplit = trainType.substring(checkString.length()).split("_");
+				int length = 1;
+				int width = 1;
 
-	public static TrainType getOrDefault(String name) {
-		try {
-			return TrainType.valueOf(name.toUpperCase());
-		} catch (Exception ignored) {
-			return SP1900;
+				try {
+					length = Integer.parseInt(remainingSplit[0]);
+					width = Integer.parseInt(remainingSplit[1]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				trainTypeCallback.trainTypeCallback(transportMode, Math.max(length, 1), Math.max(width, 1));
+				return;
+			}
 		}
+
+		for (final TrainType defaultTrainType : values()) {
+			if (trainType.equalsIgnoreCase(defaultTrainType.toString())) {
+				splitTrainType(defaultTrainType.baseTrainType, trainTypeCallback);
+				return;
+			}
+		}
+	}
+
+	@FunctionalInterface
+	private interface TrainTypeCallback {
+		void trainTypeCallback(TransportMode transportMode, int length, int width);
 	}
 }

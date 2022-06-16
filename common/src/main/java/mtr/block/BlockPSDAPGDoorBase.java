@@ -18,13 +18,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Random;
-
 public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 
 	public static final int MAX_OPEN_VALUE = 32;
 
 	public static final BooleanProperty END = BooleanProperty.create("end");
+	public static final BooleanProperty ODD = BooleanProperty.create("odd");
 	public static final IntegerProperty OPEN = IntegerProperty.create("open", 0, MAX_OPEN_VALUE);
 
 	@Override
@@ -56,7 +55,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
 		world.setBlockAndUpdate(pos, state.setValue(OPEN, 0));
 	}
 

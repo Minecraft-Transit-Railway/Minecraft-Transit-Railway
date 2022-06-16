@@ -15,7 +15,7 @@ public final class Platform extends SavedRailBase {
 
 	private int dwellTime;
 
-	public static final int MAX_DWELL_TIME = 120;
+	public static final int MAX_DWELL_TIME = 1200;
 	private static final int DEFAULT_DWELL_TIME = 20;
 	private static final String KEY_DWELL_TIME = "dwell_time";
 

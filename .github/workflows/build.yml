@@ -5,8 +5,14 @@ jobs:
   build:
     strategy:
       matrix:
-        minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2 ]
+        minecraft: [ 1.16.5, 1.17.1, 1.18, 1.18.2, 1.19 ]
         loader: [ fabric, forge, common ]
+        variation: [ normal, server, lifts ]
+        exclude:
+          - loader: common
+            variation: normal
+          - loader: common
+            variation: lifts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,18 +26,46 @@ jobs:
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Build ${{ matrix.minecraft }} ${{ matrix.loader }}
-        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+        run: ./gradlew ${{ matrix.loader }}:build -PbuildVersion="${{ matrix.minecraft }}" -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}" -Pvariation="${{ matrix.variation }}"
       - name: Capture release artifacts
         if: matrix.loader != 'common'
         uses: actions/upload-artifact@v2
         with:
-          name: Fabric and Forge
+          name: Fabric and Forge ${{ matrix.variation }}
           path: build/release/
       - name: Capture lib artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Libraries
+          name: Libraries ${{ matrix.variation }}
           path: build/libs/
+      - name: Upload files to SFTP
+        env:
+          MY_KEY: ${{ secrets.FTP_HOST }}
+        if: ${{ env.MY_KEY != '' && matrix.variation == 'normal' || matrix.loader == 'common' }}
+        uses: sand4rt/ftp-deployer@v1.4
+        with:
+          sftp: true
+          host: ${{ secrets.FTP_HOST }}
+          port: 22
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          remote_folder: ${{ secrets.FTP_PATH }}
+          local_folder: build/latest
+          exclude: '["latest.json"]'
+      - name: Upload version file to SFTP
+        env:
+          MY_KEY: ${{ secrets.FTP_HOST }}
+        if: ${{ env.MY_KEY != '' && matrix.loader == 'common' && matrix.minecraft == '1.16.5' }}
+        uses: sand4rt/ftp-deployer@v1.4
+        with:
+          sftp: true
+          host: ${{ secrets.FTP_HOST }}
+          port: 22
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          remote_folder: ${{ secrets.FTP_PATH }}
+          local_folder: build/latest
+          include: '["latest.json"]'
   crowdin:
     runs-on: ubuntu-latest
     steps:

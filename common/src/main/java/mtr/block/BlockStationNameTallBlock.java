@@ -33,7 +33,7 @@ public class BlockStationNameTallBlock extends BlockStationNameTallBase {
 	public static class TileEntityStationNameTallBlock extends TileEntityStationNameTallBase {
 
 		public TileEntityStationNameTallBlock(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY.get(), pos, state, 0.6875F);
+			super(BlockEntityTypes.STATION_NAME_TALL_BLOCK_TILE_ENTITY.get(), pos, state, 0.6875F, false);
 		}
 	}
 }

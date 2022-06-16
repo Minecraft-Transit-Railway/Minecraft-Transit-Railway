@@ -10,8 +10,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-import java.util.Random;
-
 public class BlockCeilingAuto extends BlockCeiling {
 
 	public static final BooleanProperty LIGHT = BooleanProperty.create("light");
@@ -32,7 +30,7 @@ public class BlockCeilingAuto extends BlockCeiling {
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void randomTick(BlockState state, ServerLevel world, BlockPos pos) {
 		final boolean light = hasLight(IBlock.getStatePropertySafe(state, FACING), pos);
 		if (IBlock.getStatePropertySafe(state, LIGHT) != light) {
 			world.setBlockAndUpdate(pos, state.setValue(LIGHT, light));
