@@ -51,7 +51,7 @@ public class TrainClientRegistry {
 								float bogiePosition, boolean isJacobsBogie) {
 		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId), TrainProperties.resolvePath(gangwayConnectionId), TrainProperties.resolvePath(trainBarrierId));
 		//TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
-		TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "mtr:sounds/hrd3950", "mtr:hrd3950_"));
+		TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "mtr:sounds/keikyu_n1000", "mtr:keikyu_n1000_"));
 		register(key, baseTrainType, name, color, renderer, sound, riderOffset, gangwayConnectionId != null, bogiePosition, isJacobsBogie);
 	}
 

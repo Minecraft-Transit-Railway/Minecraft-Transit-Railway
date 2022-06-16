@@ -118,7 +118,6 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		}
 
 		final Camera camera = client.gameRenderer.getMainCamera();
-		final Vec3 cameraOffset = camera.isDetached() ? player.getEyePosition(client.getFrameTime()) : camera.getPosition();
 
 		if (!backupRendering) {
 			matrices.popPose();
@@ -127,6 +126,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 			matrices.translate(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z);
 		}
 		matrices.pushPose();
+
+		TrainRendererBase.setupStaticInfo();
 
 		ClientData.TRAINS.forEach(train -> {
 			train.trainRenderer.setupRender(matrices, vertexConsumers, entity, tickDelta);
