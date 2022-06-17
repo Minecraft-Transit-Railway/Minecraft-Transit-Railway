@@ -25,16 +25,36 @@ public class SoundCfg {
     public String noise;
     public String shoe;
 
+    public float doorCloseSoundLength = 2F;
+    public float breakerDelay = 0.5F;
+    public float regenerationLimit = 8F / 3.6F;
+
     public SoundCfg(String textContent) {
         final String[] lines = textContent.split("[\\r\\n]+");
         String section = "";
         for (final String line : lines) {
             final String trimLine = line.trim();
+            if (StringUtils.isEmpty(trimLine)) continue;
+            if (trimLine.startsWith("#") || trimLine.startsWith("//") || trimLine.startsWith("bvets")) continue;
+
             if (trimLine.contains("=")) {
                 final String[] tokens = trimLine.split("=");
                 final String key = tokens[0].trim().replace(" ", "").toLowerCase(Locale.ROOT);
                 final String value = tokens[1].trim().toLowerCase(Locale.ROOT).replace(".wav", "");
                 switch (section) {
+                    case "mtr":
+                        switch (key) {
+                            case "doorclosesoundlength":
+                                doorCloseSoundLength = Float.parseFloat(value);
+                                break;
+                            case "breakerdelay":
+                                breakerDelay = Float.parseFloat(value);
+                                break;
+                            case "regenerationlimit":
+                                regenerationLimit = Float.parseFloat(value) / 3.6F;
+                                break;
+                        }
+                        break;
                     case "run":
                     case "rolling":
                         if (Integer.parseInt(key) >= this.run.length) break;

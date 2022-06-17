@@ -82,13 +82,13 @@ public class BveTrainSound extends TrainSoundBase {
 
         // Rolling noise
         float runPitch = speed * 0.04F;
-        float runBaseGain = speed < 2.78F ? 0.36F * speed : 1.0F;
+        float runBaseGain = Math.min(1.0F, speed * 0.04F);
         soundLoopRun.setVolumePitch(runBaseGain, runPitch);
         soundLoopRun.setPos(pos);
 
         // Simulation of circuit breaker in traction controller
         int motorTargetMode = (int)Math.signum(accel);
-        if (motorTargetMode < 0 && speed < config.regenerationLimit) {
+        if (motorTargetMode < 0 && speed < config.soundCfg.regenerationLimit) {
             motorCurrentMode = 0; // Regeneration brake cut off below limit speed
             motorSwitchTimer = -1;
         } else if (motorTargetMode > 0 && speed < 1F) {
@@ -102,7 +102,7 @@ public class BveTrainSound extends TrainSoundBase {
         }
         if (motorSwitchTimer >= 0) {
             motorSwitchTimer += MTRClient.getLastFrameDuration() / 20F;
-            if (motorSwitchTimer > config.breakerDelay) {
+            if (motorSwitchTimer > config.soundCfg.breakerDelay) {
                 motorSwitchTimer = -1;
                 motorCurrentMode = motorTargetMode;
             }
@@ -122,7 +122,7 @@ public class BveTrainSound extends TrainSoundBase {
 
         // Brake shoe rubbing noise (below regeneration brake cutoff limit)
         float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
-        float shoeGain = (speed < config.regenerationLimit && accel < 0) ? 1F : 0F;
+        float shoeGain = (speed < config.soundCfg.regenerationLimit && accel < 0) ? 1F : 0F;
         if (speed < 1.39) {
             double t = speed * speed;
             shoeGain *= 1.5552 * t - 0.746496 * speed * t;
@@ -141,7 +141,7 @@ public class BveTrainSound extends TrainSoundBase {
         if (accelLastElapse < 0 && accel >= 0) {
             if (soundEventBrakeHandleRelease != null)
                 ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleRelease, SoundSource.BLOCKS, 1, 1, true);
-            if (speed < config.regenerationLimit) {
+            if (speed < config.soundCfg.regenerationLimit) {
                 if (soundEventAirZero != null)
                     ((ClientLevel) world).playLocalSound(pos, soundEventAirZero, SoundSource.BLOCKS, 1, 1, true);
             }
@@ -202,13 +202,14 @@ public class BveTrainSound extends TrainSoundBase {
     @Override
     public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
         // TODO Check why door sounds are not playing
-        if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) return;
+        if (!(world instanceof ClientLevel)) return;
         final float doorValue = Math.abs(train.rawDoorValue);
 
         final String soundId;
         if (train.doorValueLastElapse <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
             soundId = config.audioBaseName + config.soundCfg.doorOpen;
-        } else if (train.doorValueLastElapse >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime && config.soundCfg.doorClose != null) {
+        } else if (train.doorValueLastElapse >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength
+                && config.soundCfg.doorClose != null) {
             soundId = config.audioBaseName + config.soundCfg.doorClose;
         } else {
             soundId = null;

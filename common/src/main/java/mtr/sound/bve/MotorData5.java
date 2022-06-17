@@ -2,6 +2,8 @@ package mtr.sound.bve;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.*;
 
 public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
@@ -46,8 +48,10 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
 
         public FloatSplines(String textContent) {
             String[] lines = textContent.split("[\\r\\n]+");
+
             for (final String line : lines) {
                 final String lineTrim = line.trim().toLowerCase(Locale.ROOT);
+                if (StringUtils.isEmpty(lineTrim)) continue;
                 if (lineTrim.startsWith("#") || lineTrim.startsWith("//") || lineTrim.startsWith("bvets")) continue;
                 String[] tokens = lineTrim.split(","); // Trailing entries automatically removed
 
