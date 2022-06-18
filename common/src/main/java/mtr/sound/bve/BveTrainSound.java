@@ -2,12 +2,9 @@ package mtr.sound.bve;
 
 import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
-import mtr.data.TrainClient;
-import mtr.data.TrainType;
 import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -81,10 +78,12 @@ public class BveTrainSound extends TrainSoundBase {
         float speedKmph = speed * 3.6F;
 
         // Rolling noise
-        float runPitch = speed * 0.04F;
-        float runBaseGain = Math.min(1.0F, speed * 0.04F);
-        soundLoopRun.setVolumePitch(runBaseGain, runPitch);
-        soundLoopRun.setPos(pos);
+        if (soundLoopRun != null) {
+            float runPitch = speed * 0.04F;
+            float runBaseGain = Math.min(1.0F, speed * 0.04F);
+            soundLoopRun.setVolumePitch(runBaseGain, runPitch);
+            soundLoopRun.setPos(pos);
+        }
 
         // Simulation of circuit breaker in traction controller
         int motorTargetMode = (int)Math.signum(accel);
@@ -111,31 +110,40 @@ public class BveTrainSound extends TrainSoundBase {
         // Motor noise
         for (int i = 0; i < config.motorData.getSoundCount(); ++i) {
             if (soundLoopMotor[i] == null) continue;
-            soundLoopMotor[i].setVolumePitch(config.motorData.getVolume(i, speedKmph, motorCurrentMode), config.motorData.getPitch(i, speedKmph, motorCurrentMode));
+            soundLoopMotor[i].setVolumePitch(
+                    config.motorData.getVolume(i, speedKmph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply,
+                    config.motorData.getPitch(i, speedKmph, motorCurrentMode)
+            );
             soundLoopMotor[i].setPos(pos);
         }
 
         // TODO Play flange sounds
         // Flange noise
-        soundLoopFlange.setVolumePitch(0, 1);
-        soundLoopFlange.setPos(pos);
+        if (soundLoopFlange != null) {
+            soundLoopFlange.setVolumePitch(0, 1);
+            soundLoopFlange.setPos(pos);
+        }
 
         // Brake shoe rubbing noise (below regeneration brake cutoff limit)
-        float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
-        float shoeGain = (speed < config.soundCfg.regenerationLimit && accel < 0) ? 1F : 0F;
-        if (speed < 1.39) {
-            double t = speed * speed;
-            shoeGain *= 1.5552 * t - 0.746496 * speed * t;
-        } else if (speed > 12.5) {
-            double t = speed - 12.5;
-            shoeGain *= 1.0 / (0.1 * t * t + 1.0);
+        if (soundLoopShoe != null) {
+            float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
+            float shoeGain = (speed < config.soundCfg.regenerationLimit && accel < 0) ? 1F : 0F;
+            if (speed < 1.39) {
+                double t = speed * speed;
+                shoeGain *= 1.5552 * t - 0.746496 * speed * t;
+            } else if (speed > 12.5) {
+                double t = speed - 12.5;
+                shoeGain *= 1.0 / (0.1 * t * t + 1.0);
+            }
+            soundLoopShoe.setVolumePitch(shoeGain, shoePitch);
+            soundLoopShoe.setPos(pos);
         }
-        soundLoopShoe.setVolumePitch(shoeGain, shoePitch);
-        soundLoopShoe.setPos(pos);
 
         // Constant loop noise
-        soundLoopNoise.setVolumePitch(train.isOnRoute ? 1 : 0, 1);
-        soundLoopNoise.setPos(pos);
+        if (soundLoopNoise != null) {
+            soundLoopNoise.setVolumePitch(train.isOnRoute ? 1 : 0, 1);
+            soundLoopNoise.setPos(pos);
+        }
 
         // Air brake application and release noise
         if (accelLastElapse < 0 && accel >= 0) {
@@ -154,7 +162,7 @@ public class BveTrainSound extends TrainSoundBase {
         }
 
         // Emergency brake application after returning to depot
-        if (onRouteLastElapse && !train.isOnRoute) {
+        if (onRouteLastElapse && !train.isOnRoute && soundEventBrakeHandleEmergency != null) {
             ((ClientLevel) world).playLocalSound(pos, soundEventBrakeHandleEmergency, SoundSource.BLOCKS, 1, 1, true);
         }
 

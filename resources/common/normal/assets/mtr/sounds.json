@@ -63,20 +63,6 @@
 			}
 		]
 	},
-
-    "dkz9_melco_airhigh":{ "sounds": [{ "name": "mtr:dkz9_melco/airhigh", "attenuation_distance": 32 }] },
-    "dkz9_melco_airzero":{ "sounds": [{ "name": "mtr:dkz9_melco/airzero", "attenuation_distance": 32 }] },
-    "dkz9_melco_doorcls":{ "sounds": [{ "name": "mtr:dkz9_melco/doorcls", "attenuation_distance": 32 }] },
-    "dkz9_melco_dooropn":{ "sounds": [{ "name": "mtr:dkz9_melco/dooropn", "attenuation_distance": 32 }] },
-    "dkz9_melco_flange":{ "sounds": [{ "name": "mtr:dkz9_melco/flange", "attenuation_distance": 32 }] },
-    "dkz9_melco_loop":{ "sounds": [{ "name": "mtr:dkz9_melco/loop", "attenuation_distance": 32 }] },
-    "dkz9_melco_motor0":{ "sounds": [{ "name": "mtr:dkz9_melco/motor0", "attenuation_distance": 32 }] },
-    "dkz9_melco_motor1":{ "sounds": [{ "name": "mtr:dkz9_melco/motor1", "attenuation_distance": 32 }] },
-    "dkz9_melco_motor3":{ "sounds": [{ "name": "mtr:dkz9_melco/motor3", "attenuation_distance": 32 }] },
-    "dkz9_melco_motor4":{ "sounds": [{ "name": "mtr:dkz9_melco/motor4", "attenuation_distance": 32 }] },
-    "dkz9_melco_point":{ "sounds": [{ "name": "mtr:dkz9_melco/point", "attenuation_distance": 32 }] },
-    "dkz9_melco_rub":{ "sounds": [{ "name": "mtr:dkz9_melco/rub", "attenuation_distance": 32 }] },
-    "dkz9_melco_run":{ "sounds": [{ "name": "mtr:dkz9_melco/run", "attenuation_distance": 32 }] },
     
 	"sp1900_door_open": {
 		"sounds": [

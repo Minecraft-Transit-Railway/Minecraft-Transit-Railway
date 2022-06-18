@@ -25,6 +25,8 @@ public class SoundCfg {
     public String noise;
     public String shoe;
 
+    public int motorNoiseDataType = 5;
+    public float motorVolumeMultiply = 1F;
     public float doorCloseSoundLength = 2F;
     public float breakerDelay = 0.5F;
     public float regenerationLimit = 8F / 3.6F;
@@ -39,11 +41,18 @@ public class SoundCfg {
 
             if (trimLine.contains("=")) {
                 final String[] tokens = trimLine.split("=");
+                if (tokens.length != 2) continue;
                 final String key = tokens[0].trim().replace(" ", "").toLowerCase(Locale.ROOT);
                 final String value = tokens[1].trim().toLowerCase(Locale.ROOT).replace(".wav", "");
                 switch (section) {
                     case "mtr":
                         switch (key) {
+                            case "motornoisedatatype":
+                                motorNoiseDataType = Integer.parseInt(value);
+                                break;
+                            case "motorvolumemultiply":
+                                motorVolumeMultiply = Float.parseFloat(value);
+                                break;
                             case "doorclosesoundlength":
                                 doorCloseSoundLength = Float.parseFloat(value);
                                 break;
@@ -123,7 +132,7 @@ public class SoundCfg {
                         }
                 }
             } else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
-                section = trimLine.substring(1, trimLine.length() - 1).trim().toLowerCase(Locale.ROOT);
+                section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ROOT);
             }
         }
         if (StringUtils.isEmpty(airZero)) airZero = air;

@@ -16,10 +16,15 @@ public class BveTrainSoundConfig {
     public SoundCfg soundCfg;
     public MotorDataBase motorData;
 
-    public BveTrainSoundConfig(ResourceManager manager, String configBaseName, String audioBaseName) {
-        this.audioBaseName = audioBaseName;
+    public BveTrainSoundConfig(ResourceManager manager, String baseName) {
+        String configBaseName = "mtr:sounds/" + baseName;
+        this.audioBaseName = "mtr:" + baseName + "_";
         soundCfg = new SoundCfg(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")));
-        motorData = new MotorData5(manager, configBaseName);
+        if (soundCfg.motorNoiseDataType == 4) {
+            motorData = new MotorData4(manager, configBaseName);
+        } else {
+            motorData = new MotorData5(manager, configBaseName);
+        }
     }
 
     public static String readResource(ResourceManager manager, ResourceLocation location) {
