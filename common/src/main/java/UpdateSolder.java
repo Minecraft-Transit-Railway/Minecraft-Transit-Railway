@@ -6,20 +6,21 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.spongepowered.include.com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -28,9 +29,19 @@ public class UpdateSolder {
 	private static final Path OUTPUT_PATH = Paths.get("temp");
 	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18", "1.18.2", "1.19"};
 	private static final Set<Thread> THREADS = new HashSet<>();
+	private static final Map<String, String> MOD_ID_MAP = new HashMap<>();
+
+	static {
+		MOD_ID_MAP.put("mtr", "1");
+		MOD_ID_MAP.put("fabric-loader", "2");
+		MOD_ID_MAP.put("fabric-api", "3");
+		MOD_ID_MAP.put("forge-loader", "5");
+		MOD_ID_MAP.put("forge-architectury", "6");
+		MOD_ID_MAP.put("modmenu", "7");
+	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length < 4) {
+		if (args.length < 5) {
 			return;
 		}
 
@@ -38,6 +49,7 @@ public class UpdateSolder {
 		final String sftpUsername = args[1];
 		final String sftpPassword = args[2];
 		final String sftpPath = args[3];
+		final String apiToken = args[4];
 
 		final SSHClient sshClient = new SSHClient();
 		sshClient.addHostKeyVerifier(new PromiscuousVerifier());
@@ -46,17 +58,18 @@ public class UpdateSolder {
 		final SFTPClient sftpClient = sshClient.newSFTPClient();
 
 		THREADS.clear();
+		FileUtils.deleteQuietly(OUTPUT_PATH.toFile());
 
 		final String mtrVersion = readUrl("https://www.minecrafttransitrailway.com/libs/latest/latest.json", new JsonObject()).getAsJsonObject().get("version").getAsString();
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
 			for (final Loader loader : Loader.values()) {
 				final String modVersion = loader.loader + "-" + minecraftVersion + "-" + mtrVersion;
-				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", "mtr", "mods/MTR-" + modVersion + ".jar", modVersion, sftpClient, sftpPath);
+				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", "mtr", "mods/MTR-" + modVersion + ".jar", modVersion, sftpClient, sftpPath, apiToken);
 			}
 
 			try {
 				final String fabricLoaderVersion = readUrl("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion, new JsonArray()).getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
-				uploadZip("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion + "/" + fabricLoaderVersion + "/profile/json", "fabric-loader", "bin/version.json", minecraftVersion + "-" + fabricLoaderVersion, sftpClient, sftpPath);
+				uploadZip("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion + "/" + fabricLoaderVersion + "/profile/json", "fabric-loader", "bin/version.json", minecraftVersion + "-" + fabricLoaderVersion, sftpClient, sftpPath, apiToken);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -69,15 +82,15 @@ public class UpdateSolder {
 				} else {
 					forgeVersion = minecraftVersion + "-" + forgeVersionsObject.get(minecraftVersion + "-latest").getAsString();
 				}
-				uploadZip("https://maven.minecraftforge.net/net/minecraftforge/forge/" + forgeVersion + "/forge-" + forgeVersion + "-installer.jar", "forge-loader", "bin/installer.jar", forgeVersion, sftpClient, sftpPath);
+				uploadZip("https://maven.minecraftforge.net/net/minecraftforge/forge/" + forgeVersion + "/forge-" + forgeVersion + "-installer.jar", "forge-loader", "bin/modpack.jar", forgeVersion, sftpClient, sftpPath, apiToken);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
-		uploadModrinthMod(Loader.FABRIC, "P7dR8mSH", "fabric-api", sftpClient, sftpPath);
-		uploadModrinthMod(Loader.FABRIC, "mOgUt4GM", "modmenu", sftpClient, sftpPath);
-		uploadModrinthMod(Loader.FORGE, "lhGA9TYQ", "forge-architectury", sftpClient, sftpPath);
+		uploadModrinthMod(Loader.FABRIC, "P7dR8mSH", "fabric-api", sftpClient, sftpPath, apiToken);
+		uploadModrinthMod(Loader.FABRIC, "mOgUt4GM", "modmenu", sftpClient, sftpPath, apiToken);
+		uploadModrinthMod(Loader.FORGE, "lhGA9TYQ", "forge-architectury", sftpClient, sftpPath, apiToken);
 
 		THREADS.forEach(thread -> {
 			try {
@@ -92,7 +105,11 @@ public class UpdateSolder {
 		sshClient.disconnect();
 	}
 
-	private static void uploadZip(String url, String modId, String zipPath, String modVersion, SFTPClient sftpClient, String sftpPath) {
+	private static void uploadZip(String url, String modId, String zipPath, String modVersion, SFTPClient sftpClient, String sftpPath, String apiToken) {
+		if (!MOD_ID_MAP.containsKey(modId)) {
+			return;
+		}
+
 		final Thread thread = new Thread(() -> {
 			try {
 				Files.createDirectories(OUTPUT_PATH.resolve(modId));
@@ -105,7 +122,16 @@ public class UpdateSolder {
 				zipOutputStream.close();
 				outputStream.close();
 				inputStream.close();
+				System.out.println("Uploading to SFTP: " + modId + "-" + modVersion);
 				sftpClient.put(OUTPUT_PATH.toString(), sftpPath + "/mods");
+
+				final HttpURLConnection http = (HttpURLConnection) new URL(String.format("https://minecrafttransitrailway.com/api/mtr/add-version?mod-id=%s&add-version=%s", URLEncoder.encode(MOD_ID_MAP.get(modId), "UTF-8"), URLEncoder.encode(modVersion, "UTF-8"))).openConnection();
+				http.setRequestMethod("POST");
+				http.setDoOutput(true);
+				http.setRequestProperty("Authorization", "Bearer " + apiToken);
+				System.out.println("Updating Solder: " + modId + "-" + modVersion);
+				System.out.println(IOUtils.toString(http.getInputStream(), StandardCharsets.UTF_8));
+				http.disconnect();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -123,7 +149,7 @@ public class UpdateSolder {
 		return defaultValue;
 	}
 
-	private static void uploadModrinthMod(Loader loader, String projectId, String modId, SFTPClient sftpClient, String sftpPath) {
+	private static void uploadModrinthMod(Loader loader, String projectId, String modId, SFTPClient sftpClient, String sftpPath, String apiToken) {
 		try {
 			final Set<String> minecraftVersions = new HashSet<>();
 			Collections.addAll(minecraftVersions, MINECRAFT_VERSIONS);
@@ -135,7 +161,7 @@ public class UpdateSolder {
 					for (final String minecraftVersion : minecraftVersions) {
 						if (stringJsonArrayContains(versionObject.getAsJsonArray("game_versions"), minecraftVersion)) {
 							final JsonObject fileObject = versionObject.getAsJsonArray("files").get(0).getAsJsonObject();
-							uploadZip(fileObject.get("url").getAsString(), modId, "mods/" + fileObject.get("filename").getAsString(), appendMinecraftVersion(versionObject.get("version_number").getAsString(), minecraftVersion), sftpClient, sftpPath);
+							uploadZip(fileObject.get("url").getAsString(), modId, "mods/" + fileObject.get("filename").getAsString(), appendMinecraftVersion(versionObject.get("version_number").getAsString(), minecraftVersion), sftpClient, sftpPath, apiToken);
 							minecraftVersionsToRemove.add(minecraftVersion);
 						}
 					}
