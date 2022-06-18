@@ -5,11 +5,10 @@ import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends ScreenMapper implements IGui, IPacket {
 
@@ -26,13 +25,13 @@ public abstract class EditNameColorScreenBase<T extends NameColorDataBase> exten
 	private final WidgetColorSelector colorSelector;
 
 	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
-		super(new TextComponent(""));
+		super(Text.literal(""));
 		this.data = data;
 		this.dashboardScreen = dashboardScreen;
-		nameText = new TranslatableComponent(nameKey);
-		colorText = new TranslatableComponent(colorKey);
+		nameText = Text.translatable(nameKey);
+		colorText = Text.translatable(colorKey);
 
-		textFieldName = new WidgetBetterTextField(null, "");
+		textFieldName = new WidgetBetterTextField("");
 		colorSelector = new WidgetColorSelector(this, () -> {
 		});
 	}

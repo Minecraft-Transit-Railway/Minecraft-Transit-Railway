@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "mtr",
+	"version": "${version}",
+	"name": "Modern Elevators and Escalators",
+	"description": "Fully functional, realistic, and advanced elevators and escalators in Minecraft!",
+	"authors": [
+		"Jonathan Ho"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/modern-elevators-and-escalators",
+		"sources": "https://github.com/jonafanho/Minecraft-Transit-Railway"
+	},
+	"license": "MIT",
+	"icon": "icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"mtr.MTRFabric"
+		],
+		"client": [
+			"mtr.MTRFabricClient"
+		],
+		"modmenu": [
+			"mtr.ModMenuConfig"
+		]
+	},
+	"mixins": [
+		"mtr.mixins.json"
+	],
+	"depends": {
+		"fabric": "*",
+		"minecraft": "*"
+	}
+}

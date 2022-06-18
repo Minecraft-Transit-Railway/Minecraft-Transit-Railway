@@ -2,6 +2,7 @@ package mtr.block;
 
 import mtr.BlockEntityTypes;
 import mtr.Items;
+import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
 import net.minecraft.core.BlockPos;
@@ -17,7 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -31,7 +31,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockPSDTop extends HorizontalDirectionalBlock implements EntityBlockMapper, IBlock {
+public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMapper, IBlock {
 
 	private static final float PERSISTENT_OFFSET = 7.5F;
 	public static final float PERSISTENT_OFFSET_SMALL = PERSISTENT_OFFSET / 16;

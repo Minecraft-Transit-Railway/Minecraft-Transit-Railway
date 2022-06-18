@@ -6,10 +6,10 @@ import mtr.client.IDrawing;
 import mtr.data.DataConverter;
 import mtr.data.NameColorDataBase;
 import mtr.data.Station;
+import mtr.mappings.Text;
 import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	String editingExit;
 	int editingDestinationIndex;
 
-	private final Component stationZoneText = new TranslatableComponent("gui.mtr.zone");
-	private final Component exitParentsText = new TranslatableComponent("gui.mtr.exit_parents");
-	private final Component exitDestinationsText = new TranslatableComponent("gui.mtr.exit_destinations");
+	private final Component stationZoneText = Text.translatable("gui.mtr.zone");
+	private final Component exitParentsText = Text.translatable("gui.mtr.exit_parents");
+	private final Component exitDestinationsText = Text.translatable("gui.mtr.exit_destinations");
 
 	private final WidgetBetterTextField textFieldZone;
 	private final WidgetBetterTextField textFieldExitParentLetter;
@@ -44,12 +44,12 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		textFieldZone = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.INTEGER, "", DashboardScreen.MAX_COLOR_ZONE_LENGTH);
 		textFieldExitParentLetter = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.LETTER, "A", 1);
 		textFieldExitParentNumber = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "1", 2);
-		textFieldExitDestination = new WidgetBetterTextField(null, "");
+		textFieldExitDestination = new WidgetBetterTextField("");
 
-		buttonAddExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
-		buttonDoneExitParent = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitParent());
-		buttonAddExitDestination = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
-		buttonDoneExitDestination = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.done"), button -> onDoneExitDestination());
+		buttonAddExitParent = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_exit"), button -> changeEditingExit("", -1));
+		buttonDoneExitParent = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneExitParent());
+		buttonAddExitDestination = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.add_exit_destination"), button -> changeEditingExit(editingExit, station.exits.containsKey(editingExit) ? station.exits.get(editingExit).size() : -1));
+		buttonDoneExitDestination = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.done"), button -> onDoneExitDestination());
 
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> ClientData.EXIT_PARENTS_SEARCH, text -> ClientData.EXIT_PARENTS_SEARCH = text);
 		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> ClientData.EXIT_DESTINATIONS_SEARCH, text -> ClientData.EXIT_DESTINATIONS_SEARCH = text);
@@ -173,7 +173,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 
 		if (editingExit != null) {
 			textFieldExitParentLetter.setValue(editingExit.toUpperCase().replaceAll("[^A-Z]", ""));
-			textFieldExitParentNumber.setValue(editingExit.replaceAll("[^0-9]", ""));
+			textFieldExitParentNumber.setValue(editingExit.replaceAll("\\D", ""));
 		}
 		if (editingDestinationIndex >= 0 && editingDestinationIndex < data.exits.get(editingExit).size()) {
 			textFieldExitDestination.setValue(data.exits.get(editingExit).get(editingDestinationIndex));

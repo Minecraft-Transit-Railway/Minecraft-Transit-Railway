@@ -37,6 +37,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	public static final int MILLIS_PER_TICK = 50;
 	private static final int TICKS_PER_DAY = HOURS_IN_DAY * TICKS_PER_HOUR;
 	private static final int MAX_DEPLOYED_MILLIS = 3600000;
+	private static final int CONTINUOUS_MOVEMENT_FREQUENCY = 8000;
 
 	private static final String KEY_ROUTE_IDS = "route_ids";
 	private static final String KEY_FREQUENCIES = "frequencies";
@@ -105,6 +106,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 	@Override
 	public void toMessagePack(MessagePacker messagePacker) throws IOException {
 		toReducedMessagePack(messagePacker);
+		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
 		messagePacker.packString(KEY_LAST_DEPLOYED).packLong(System.currentTimeMillis() - lastDeployedMillis);
 	}
 
@@ -121,8 +123,6 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		for (int i = 0; i < HOURS_IN_DAY; i++) {
 			messagePacker.packInt(frequencies[i]);
 		}
-
-		messagePacker.packString(KEY_DEPLOY_INDEX).packInt(deployIndex);
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 	private int getMillisUntilDeploy(int hour, int offset) {
 		for (int i = hour; i < hour + HOURS_IN_DAY; i++) {
-			final int frequency = frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
+			final int frequency = transportMode.continuousMovement ? CONTINUOUS_MOVEMENT_FREQUENCY : frequencies[i % HOURS_IN_DAY] > 0 ? TICKS_PER_HOUR * MILLIS_PER_TICK * TRAIN_FREQUENCY_MULTIPLIER / frequencies[i % HOURS_IN_DAY] : 0;
 			if (frequency > 0) {
 				return Math.max(frequency * offset - (int) Math.min(System.currentTimeMillis() - lastDeployedMillis, MAX_DEPLOYED_MILLIS), 0) + (i - hour) * TICKS_PER_HOUR * MILLIS_PER_TICK;
 			}

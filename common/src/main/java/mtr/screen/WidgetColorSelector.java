@@ -6,12 +6,11 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,7 +25,7 @@ public class WidgetColorSelector extends Button implements IGui {
 	private final Runnable callback;
 
 	public WidgetColorSelector(ScreenMapper screen, Runnable callback) {
-		super(0, 0, 0, SQUARE_SIZE, new TextComponent(""), button -> {
+		super(0, 0, 0, SQUARE_SIZE, Text.literal(""), button -> {
 		});
 		this.screen = screen;
 		this.callback = callback;
@@ -79,14 +78,14 @@ public class WidgetColorSelector extends Button implements IGui {
 		private static final int RIGHT_WIDTH = 60;
 
 		private ColorSelectorScreen(int oldColor, Consumer<Integer> colorCallback) {
-			super(new TextComponent(""));
+			super(Text.literal(""));
 			this.oldColor = oldColor;
 			this.colorCallback = colorCallback;
-			textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, new TextComponent(Integer.toHexString(oldColor).toUpperCase()).getString(), 6);
-			textFieldRed = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, new TextComponent(String.valueOf((oldColor >> 16) & 0xFF)).getString(), 3);
-			textFieldGreen = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, new TextComponent(String.valueOf((oldColor >> 8) & 0xFF)).getString(), 3);
-			textFieldBlue = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, new TextComponent(String.valueOf(oldColor & 0xFF)).getString(), 3);
-			buttonReset = new Button(0, 0, 0, SQUARE_SIZE, new TranslatableComponent("gui.mtr.reset_sign"), button -> {
+			textFieldColor = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.HEX, Text.literal(Integer.toHexString(oldColor).toUpperCase()).getString(), 6);
+			textFieldRed = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 16) & 0xFF)).getString(), 3);
+			textFieldGreen = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf((oldColor >> 8) & 0xFF)).getString(), 3);
+			textFieldBlue = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, Text.literal(String.valueOf(oldColor & 0xFF)).getString(), 3);
+			buttonReset = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> {
 				setHsb(oldColor, true);
 				button.active = false;
 			});
@@ -127,7 +126,7 @@ public class WidgetColorSelector extends Button implements IGui {
 				final int mainWidth = getMainWidth();
 				final int mainHeight = getMainHeight();
 
-				drawCenteredString(matrices, font, new TranslatableComponent("gui.mtr.color"), SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
+				drawCenteredString(matrices, font, Text.translatable("gui.mtr.color"), SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE, ARGB_WHITE);
 				drawCenteredString(matrices, font, "RGB", SQUARE_SIZE * 4 + mainWidth + RIGHT_WIDTH / 2, SQUARE_SIZE * 3 + TEXT_FIELD_PADDING, ARGB_WHITE);
 
 				final Tesselator tesselator = Tesselator.getInstance();

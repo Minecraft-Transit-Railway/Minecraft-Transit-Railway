@@ -1,0 +1,15 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "mtr:item/lift_buttons_link",
+		"layer1": "mtr:item/rail_remover"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"mtr:selected": 1
+			},
+			"model": "mtr:item/lift_buttons_link_remover_selected"
+		}
+	]
+}

@@ -1,0 +1,26 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"SRS",
+		"GGG",
+		"III"
+	],
+	"key": {
+		"S": {
+			"item": "minecraft:stone_bricks"
+		},
+		"R": {
+			"tag": "c:redstone_dusts"
+		},
+		"G": {
+			"item": "minecraft:glass_pane"
+		},
+		"I": {
+			"tag": "c:iron_blocks"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_2_2",
+		"count": 8
+	}
+}

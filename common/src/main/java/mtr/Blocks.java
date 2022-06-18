@@ -35,6 +35,11 @@ public interface Blocks {
 	RegistryObject<Block> GLASS_FENCE_TSH = new RegistryObject<>(BlockGlassFence::new);
 	RegistryObject<Block> GLASS_FENCE_WKS = new RegistryObject<>(BlockGlassFence::new);
 	RegistryObject<Block> LOGO = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).lightLevel(state -> 10)));
+	RegistryObject<Block> LIFT_BUTTONS_1 = new RegistryObject<>(BlockLiftButtons::new);
+	RegistryObject<Block> LIFT_TRACK_1 = new RegistryObject<>(BlockLiftTrack::new);
+	RegistryObject<Block> LIFT_TRACK_FLOOR_1 = new RegistryObject<>(BlockLiftTrackFloor::new);
+	RegistryObject<Block> LIFT_DOOR_1 = new RegistryObject<>(BlockLiftDoor::new);
+	RegistryObject<Block> LIFT_DOOR_ODD_1 = new RegistryObject<>(BlockLiftDoorOdd::new);
 	RegistryObject<Block> MARBLE_BLUE = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1)));
 	RegistryObject<Block> MARBLE_BLUE_SLAB = new RegistryObject<>(() -> new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_BLUE).requiresCorrectToolForDrops().strength(1)));
 	RegistryObject<Block> MARBLE_SANDY = new RegistryObject<>(() -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_YELLOW).requiresCorrectToolForDrops().strength(1)));
@@ -60,6 +65,9 @@ public interface Blocks {
 	RegistryObject<Block> PSD_TOP = new RegistryObject<>(BlockPSDTop::new);
 	RegistryObject<Block> RAIL_NODE = new RegistryObject<>(() -> new BlockNode(TransportMode.TRAIN));
 	RegistryObject<Block> BOAT_NODE = new RegistryObject<>(BlockNode.BlockBoatNode::new);
+	RegistryObject<Block> CABLE_CAR_NODE_LOWER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, false));
+	RegistryObject<Block> CABLE_CAR_NODE_UPPER = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(true, false));
+	RegistryObject<Block> CABLE_CAR_NODE_STATION = new RegistryObject<>(() -> new BlockNode.BlockContinuousMovementNode(false, true));
 	RegistryObject<Block> RAILWAY_SIGN_2_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(2, false));
 	RegistryObject<Block> RAILWAY_SIGN_2_ODD = new RegistryObject<>(() -> new BlockRailwaySign(2, true));
 	RegistryObject<Block> RAILWAY_SIGN_3_EVEN = new RegistryObject<>(() -> new BlockRailwaySign(3, false));
@@ -116,7 +124,7 @@ public interface Blocks {
 	RegistryObject<Block> STATION_COLOR_SMOOTH_QUARTZ = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ)));
 	RegistryObject<Block> STATION_COLOR_SMOOTH_STONE = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_STONE)));
 	RegistryObject<Block> STATION_COLOR_SNOW_BLOCK = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));
-	RegistryObject<Block> STATION_COLOR_STAINED_GLASS = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS)));
+	RegistryObject<Block> STATION_COLOR_STAINED_GLASS = new RegistryObject<>(() -> new BlockStationColorGlass(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS)));
 	RegistryObject<Block> STATION_COLOR_STONE = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE)));
 	RegistryObject<Block> STATION_COLOR_STONE_BRICKS = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE_BRICKS)));
 	RegistryObject<Block> STATION_COLOR_WOOL = new RegistryObject<>(() -> new BlockStationColor(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));
@@ -149,15 +157,18 @@ public interface Blocks {
 	RegistryObject<Block> STATION_COLOR_SMOOTH_QUARTZ_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_QUARTZ)));
 	RegistryObject<Block> STATION_COLOR_SMOOTH_STONE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.SMOOTH_STONE)));
 	RegistryObject<Block> STATION_COLOR_SNOW_BLOCK_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));
-	RegistryObject<Block> STATION_COLOR_STAINED_GLASS_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS).noOcclusion()));
+	RegistryObject<Block> STATION_COLOR_STAINED_GLASS_SLAB = new RegistryObject<>(() -> new BlockStationColorGlassSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS).noOcclusion()));
 	RegistryObject<Block> STATION_COLOR_STONE_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE)));
 	RegistryObject<Block> STATION_COLOR_STONE_BRICKS_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.STONE_BRICKS)));
 	RegistryObject<Block> STATION_COLOR_WOOL_SLAB = new RegistryObject<>(() -> new BlockStationColorSlab(BlockBehaviour.Properties.copy(net.minecraft.world.level.block.Blocks.WHITE_WOOL)));
 
 	RegistryObject<Block> STATION_NAME_ENTRANCE = new RegistryObject<>(() -> new BlockStationNameEntrance(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> STATION_NAME_TALL_BLOCK = new RegistryObject<>(BlockStationNameTallBlock::new);
+	RegistryObject<Block> STATION_NAME_TALL_BLOCK_DOUBLE_SIDED = new RegistryObject<>(BlockStationNameTallBlockDoubleSided::new);
 	RegistryObject<Block> STATION_NAME_TALL_WALL = new RegistryObject<>(BlockStationNameTallWall::new);
-	RegistryObject<Block> STATION_NAME_WALL = new RegistryObject<>(() -> new BlockStationNameWall(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_WHITE = new RegistryObject<>(() -> new BlockStationNameWallWhite(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_GRAY = new RegistryObject<>(() -> new BlockStationNameWallGray(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
+	RegistryObject<Block> STATION_NAME_WALL_BLACK = new RegistryObject<>(() -> new BlockStationNameWallBlack(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> TACTILE_MAP = new RegistryObject<>(() -> new BlockTactileMap(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.QUARTZ).requiresCorrectToolForDrops().strength(2).noOcclusion()));
 	RegistryObject<Block> TICKET_BARRIER_ENTRANCE_1 = new RegistryObject<>(() -> new BlockTicketBarrier(true));
 	RegistryObject<Block> TICKET_BARRIER_EXIT_1 = new RegistryObject<>(() -> new BlockTicketBarrier(false));

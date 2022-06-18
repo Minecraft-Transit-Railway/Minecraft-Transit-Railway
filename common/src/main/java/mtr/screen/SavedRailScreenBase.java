@@ -4,13 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.data.SavedRailBase;
+import mtr.data.TransportMode;
 import mtr.mappings.ScreenMapper;
+import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.packet.IPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class SavedRailScreenBase<T extends SavedRailBase> extends ScreenMapper implements IGui, IPacket {
@@ -19,6 +19,7 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 
 	protected final T savedRailBase;
 	protected final int textWidth;
+	protected final boolean showScheduleControls;
 
 	private final DashboardScreen dashboardScreen;
 	private final WidgetBetterTextField textFieldSavedRailNumber;
@@ -28,14 +29,15 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected static final int SLIDER_WIDTH = 240;
 	private static final int MAX_SAVED_RAIL_NUMBER_LENGTH = 10;
 
-	public SavedRailScreenBase(T savedRailBase, DashboardScreen dashboardScreen, Component... additionalTexts) {
-		super(new TextComponent(""));
+	public SavedRailScreenBase(T savedRailBase, TransportMode transportMode, DashboardScreen dashboardScreen, Component... additionalTexts) {
+		super(Text.literal(""));
 		this.savedRailBase = savedRailBase;
+		showScheduleControls = !transportMode.continuousMovement;
 		this.dashboardScreen = dashboardScreen;
-		savedRailNumberText = new TranslatableComponent(getNumberStringKey());
+		savedRailNumberText = Text.translatable(getNumberStringKey());
 
 		font = Minecraft.getInstance().font;
-		textFieldSavedRailNumber = new WidgetBetterTextField(null, "1", MAX_SAVED_RAIL_NUMBER_LENGTH);
+		textFieldSavedRailNumber = new WidgetBetterTextField("1", MAX_SAVED_RAIL_NUMBER_LENGTH);
 
 		int additionalTextWidths = 0;
 		for (final Component additionalText : additionalTexts) {
@@ -48,12 +50,12 @@ public abstract class SavedRailScreenBase<T extends SavedRailBase> extends Scree
 	protected void init() {
 		super.init();
 
+		startX = (width - textWidth - SLIDER_WIDTH) / 2;
 		IDrawing.setPositionAndWidth(textFieldSavedRailNumber, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 - SQUARE_SIZE - TEXT_FIELD_PADDING / 2, SLIDER_WIDTH - TEXT_FIELD_PADDING);
 		textFieldSavedRailNumber.setValue(savedRailBase.name);
 		textFieldSavedRailNumber.setResponder(text -> savedRailBase.name = textFieldSavedRailNumber.getValue());
 
 		addDrawableChild(textFieldSavedRailNumber);
-		startX = (width - textWidth - SLIDER_WIDTH) / 2;
 	}
 
 	@Override

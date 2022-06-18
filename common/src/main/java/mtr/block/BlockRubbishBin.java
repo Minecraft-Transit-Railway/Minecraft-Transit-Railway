@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.mappings.BlockDirectionalMapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -9,7 +10,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -17,9 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Random;
-
-public class BlockRubbishBin extends HorizontalDirectionalBlock {
+public class BlockRubbishBin extends BlockDirectionalMapper {
 
 	public static final int MAX_LEVEL = 15;
 	public static final IntegerProperty FILLED = IntegerProperty.create("filled", 0, MAX_LEVEL);
@@ -53,7 +51,7 @@ public class BlockRubbishBin extends HorizontalDirectionalBlock {
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void randomTick(BlockState state, ServerLevel world, BlockPos pos) {
 		final int newLevel = IBlock.getStatePropertySafe(state, FILLED) - 1;
 		if (newLevel >= 0) {
 			world.setBlockAndUpdate(pos, state.setValue(FILLED, newLevel));

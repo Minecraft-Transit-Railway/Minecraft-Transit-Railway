@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mtr.mappings.ModelDataWrapper;
 import mtr.mappings.ModelMapper;
 
-public class ModelLondonUndergroundD78 extends ModelTrainBase {
+public class ModelLondonUndergroundD78 extends ModelSimpleTrainBase {
 
 	private final ModelMapper window;
 	private final ModelMapper window_1;

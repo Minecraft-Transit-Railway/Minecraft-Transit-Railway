@@ -14,13 +14,11 @@ import java.util.*;
 public class ArrivalsServletHandler extends HttpServlet {
 
 	public static MinecraftServer SERVER;
-	private static final int DEFAULT_MAX_ARRIVALS = 10;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		long stationId = 0;
 		long worldIndex = 0;
-		int maxArrivals = DEFAULT_MAX_ARRIVALS;
 		try {
 			stationId = Long.parseLong(request.getParameter("stationId"));
 		} catch (Exception ignored) {

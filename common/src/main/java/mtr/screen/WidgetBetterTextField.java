@@ -2,27 +2,35 @@ package mtr.screen;
 
 import mtr.data.IGui;
 import mtr.data.RailwayData;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 
 public class WidgetBetterTextField extends EditBox implements IGui {
 
-	private final TextFieldFilter textFieldFilter;
+	private final String filter;
 	private final String suggestion;
 	private final int newMaxLength;
 
 	private static final int DEFAULT_MAX_LENGTH = 128;
 
-	public WidgetBetterTextField(TextFieldFilter textFieldFilter, String suggestion) {
-		this(textFieldFilter, suggestion, DEFAULT_MAX_LENGTH);
+	public WidgetBetterTextField(String suggestion) {
+		this("", suggestion, DEFAULT_MAX_LENGTH);
+	}
+
+	public WidgetBetterTextField(String suggestion, int maxLength) {
+		this("", suggestion, maxLength);
 	}
 
 	public WidgetBetterTextField(TextFieldFilter textFieldFilter, String suggestion, int maxLength) {
-		super(Minecraft.getInstance().font, 0, 0, 0, SQUARE_SIZE, new TextComponent(""));
-		this.textFieldFilter = textFieldFilter;
+		this(textFieldFilter.filter, suggestion, maxLength);
+	}
+
+	public WidgetBetterTextField(String filter, String suggestion, int maxLength) {
+		super(Minecraft.getInstance().font, 0, 0, 0, SQUARE_SIZE, Text.literal(""));
+		this.filter = filter;
 		this.suggestion = suggestion;
 		newMaxLength = maxLength;
 		setResponder(text -> {
@@ -34,10 +42,10 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 	public void setResponder(Consumer<String> changedListener) {
 		super.setResponder(text -> {
 			final String newText;
-			if (textFieldFilter == null) {
+			if (filter.isEmpty()) {
 				newText = trySetLength(text);
 			} else {
-				newText = trySetLength(text.toUpperCase().replaceAll(textFieldFilter.filter, ""));
+				newText = trySetLength(text.toUpperCase().replaceAll(filter, ""));
 				if (!newText.equals(text)) {
 					setValue(newText);
 				}
@@ -70,7 +78,7 @@ public class WidgetBetterTextField extends EditBox implements IGui {
 	}
 
 	public enum TextFieldFilter {
-		POSITIVE_INTEGER("[^0-9]"), INTEGER("[^-0-9]"), HEX("[^0-9A-F]"), LETTER("[^A-Z]");
+		POSITIVE_INTEGER("\\D"), INTEGER("[^-\\d]"), HEX("[^\\dA-F]"), LETTER("[^A-Z]");
 
 		private final String filter;
 

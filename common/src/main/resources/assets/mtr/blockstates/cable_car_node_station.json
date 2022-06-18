@@ -1,0 +1,42 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "false",
+				"is_45": "false"
+			},
+			"apply": {
+				"model": "mtr:block/cable_car_node_station"
+			}
+		},
+		{
+			"when": {
+				"facing": "false",
+				"is_45": "true"
+			},
+			"apply": {
+				"model": "mtr:block/cable_car_node_station_45"
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_45": "false"
+			},
+			"apply": {
+				"model": "mtr:block/cable_car_node_station",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "true",
+				"is_45": "true"
+			},
+			"apply": {
+				"model": "mtr:block/cable_car_node_station_45",
+				"y": 90
+			}
+		}
+	]
+}

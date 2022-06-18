@@ -2,8 +2,8 @@ package mtr.block;
 
 import mtr.SoundEvents;
 import mtr.data.TicketSystem;
+import mtr.mappings.Text;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,7 +22,7 @@ public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
 		if (!world.isClientSide) {
 			final int playerScore = TicketSystem.getPlayerScore(world, player, TicketSystem.BALANCE_OBJECTIVE).getScore();
-			player.displayClientMessage(new TranslatableComponent("gui.mtr.balance", String.valueOf(playerScore)), true);
+			player.displayClientMessage(Text.translatable("gui.mtr.balance", String.valueOf(playerScore)), true);
 			world.playSound(null, pos, SoundEvents.TICKET_PROCESSOR_ENTRY, SoundSource.BLOCKS, 1, 1);
 		}
 		return InteractionResult.SUCCESS;

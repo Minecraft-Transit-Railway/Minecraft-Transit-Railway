@@ -21,7 +21,7 @@ public class PathData extends SerializedDataBase {
 	public final int dwellTime;
 	public final int stopIndex;
 
-	private final BlockPos startingPos;
+	public final BlockPos startingPos;
 	private final BlockPos endingPos;
 
 	private static final String KEY_RAIL = "rail";

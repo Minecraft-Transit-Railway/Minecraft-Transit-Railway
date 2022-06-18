@@ -4,11 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.data.DataConverter;
 import mtr.data.RailwayData;
+import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -27,8 +27,8 @@ public class TrainAnnouncerScreen extends TrainSensorScreenBase {
 
 	public TrainAnnouncerScreen(BlockPos pos) {
 		super(pos, true,
-				new Tuple<>(new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.announcement_message")),
-				new Tuple<>(new WidgetBetterTextField(null, "", MAX_MESSAGE_LENGTH), new TranslatableComponent("gui.mtr.sound_file"))
+				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), Text.translatable("gui.mtr.announcement_message")),
+				new Tuple<>(new WidgetBetterTextField("", MAX_MESSAGE_LENGTH), Text.translatable("gui.mtr.sound_file"))
 		);
 
 		minecraft = Minecraft.getInstance();

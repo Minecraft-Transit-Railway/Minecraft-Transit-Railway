@@ -4,11 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mtr.MTR;
-import mtr.data.TrainType;
+import mtr.mappings.Utilities;
+import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderTrains;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.sounds.SoundEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,36 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
-public class CustomResources {
+public class CustomResources implements IResourcePackCreatorProperties, ICustomResources {
 
 	public static final Map<String, CustomSign> CUSTOM_SIGNS = new HashMap<>();
 
-	public static final String CUSTOM_RESOURCES_ID = "mtr_custom_resources";
-	private static final String CUSTOM_TRAIN_ID_PREFIX = "mtr_custom_train_";
-	private static final String CUSTOM_SIGN_ID_PREFIX = "mtr_custom_sign_";
-
-	private static final String CUSTOM_TRAINS_KEY = "custom_trains";
-	private static final String CUSTOM_SIGNS_KEY = "custom_signs";
-
-	private static final String CUSTOM_TRAINS_BASE_TRAIN_TYPE = "base_train_type";
-	private static final String CUSTOM_TRAINS_NAME = "name";
-	private static final String CUSTOM_TRAINS_COLOR = "color";
-	private static final String CUSTOM_TRAINS_MODEL = "model";
-	private static final String CUSTOM_TRAINS_MODEL_PROPERTIES = "model_properties";
-	private static final String CUSTOM_TRAINS_TEXTURE_ID = "texture_id";
-	private static final String CUSTOM_TRAINS_SPEED_SOUND_COUNT = "speed_sound_count";
-	private static final String CUSTOM_TRAINS_SPEED_SOUND_BASE_ID = "speed_sound_base_id";
-	private static final String CUSTOM_TRAINS_DOOR_SOUND_BASE_ID = "door_sound_base_id";
-	private static final String CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME = "door_close_sound_time";
-
-	private static final String CUSTOM_SIGNS_TEXTURE_ID = "texture_id";
-	private static final String CUSTOM_SIGNS_FLIP_TEXTURE = "flip_texture";
-	private static final String CUSTOM_SIGNS_CUSTOM_TEXT = "custom_text";
-	private static final String CUSTOM_SIGNS_FLIP_CUSTOM_TEXT = "flip_custom_text";
-	private static final String CUSTOM_SIGNS_SMALL = "small";
-	private static final String CUSTOM_SIGNS_BACKGROUND_COLOR = "background_color";
 
 	public static void reload(ResourceManager manager) {
 		TrainClientRegistry.reset();
@@ -62,26 +37,41 @@ public class CustomResources {
 				jsonConfig.get(CUSTOM_TRAINS_KEY).getAsJsonObject().entrySet().forEach(entry -> {
 					try {
 						final JsonObject jsonObject = entry.getValue().getAsJsonObject();
+						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, entry.getKey(), JsonElement::getAsString);
+						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, 0, jsonElement -> colorStringToInt(jsonElement.getAsString()));
 						final String trainId = CUSTOM_TRAIN_ID_PREFIX + entry.getKey();
 
-						final TrainType baseTrainType = TrainType.getOrDefault(jsonObject.get(CUSTOM_TRAINS_BASE_TRAIN_TYPE).getAsString());
-						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType.toString(), baseTrainType);
-						final String name = getOrDefault(jsonObject, CUSTOM_TRAINS_NAME, null, JsonElement::getAsString);
-						final int color = getOrDefault(jsonObject, CUSTOM_TRAINS_COLOR, baseTrainProperties.color, jsonElement -> colorStringToInt(jsonElement.getAsString()));
+						final String baseTrainType = getOrDefault(jsonObject, CUSTOM_TRAINS_BASE_TRAIN_TYPE, "", JsonElement::getAsString);
+						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
+
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, baseTrainProperties.textureId, JsonElement::getAsString);
+						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, baseTrainProperties.gangwayConnectionId, JsonElement::getAsString);
+						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, baseTrainProperties.trainBarrierId, JsonElement::getAsString);
+						final float riderOffset = getOrDefault(jsonObject, CUSTOM_TRAINS_RIDER_OFFSET, baseTrainProperties.riderOffset, JsonElement::getAsFloat);
 						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.speedSoundCount, JsonElement::getAsInt);
 						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.speedSoundBaseId, JsonElement::getAsString);
 						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.doorSoundBaseId, JsonElement::getAsString);
 						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, baseTrainProperties.doorCloseSoundTime, JsonElement::getAsFloat);
 
+						if (!baseTrainProperties.baseTrainType.isEmpty()) {
+							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
+							customTrains.add(trainId);
+						}
+
 						if (jsonObject.has(CUSTOM_TRAINS_MODEL) && jsonObject.has(CUSTOM_TRAINS_MODEL_PROPERTIES)) {
 							readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL).getAsString(), jsonModel -> readResource(manager, jsonObject.get(CUSTOM_TRAINS_MODEL_PROPERTIES).getAsString(), jsonProperties -> {
-								TrainClientRegistry.register(trainId, baseTrainType, new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
+								IResourcePackCreatorProperties.checkSchema(jsonProperties);
+								final String newBaseTrainType = String.format("%s_%s_%s", jsonProperties.get(KEY_PROPERTIES_TRANSPORT_MODE).getAsString(), jsonProperties.get(KEY_PROPERTIES_LENGTH).getAsInt(), jsonProperties.get(KEY_PROPERTIES_WIDTH).getAsInt());
+
+								// TODO temporary code for backwards compatibility
+								final String gangwayConnectionId2 = gangwayConnectionId.isEmpty() ? getOrDefault(jsonObject, "has_gangway_connection", true, JsonElement::getAsBoolean) ? "mtr:textures/entity/sp1900" : "" : gangwayConnectionId;
+								final String newBaseTrainType2 = baseTrainType.startsWith("base_") ? baseTrainType.replace("base_", "train_") : newBaseTrainType;
+								final boolean useLegacy = jsonProperties.has("parts_normal");
+								// TODO temporary code end
+
+								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, speedSoundBaseId, doorSoundBaseId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, speedSoundCount, doorCloseSoundTime, false);
 								customTrains.add(trainId);
 							}));
-						} else {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, speedSoundBaseId, doorSoundBaseId, name, color, speedSoundCount, doorCloseSoundTime, false);
-							customTrains.add(trainId);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -116,51 +106,30 @@ public class CustomResources {
 		CUSTOM_SIGNS.keySet().forEach(System.out::println);
 	}
 
+	public static int colorStringToInt(String string) {
+		try {
+			return Integer.parseInt(string.toUpperCase().replaceAll("[^\\dA-F]", ""), 16);
+		} catch (Exception ignored) {
+			return 0;
+		}
+	}
+
 	private static void readResource(ResourceManager manager, String path, Consumer<JsonObject> callback) {
 		try {
-			manager.getResources(new ResourceLocation(path)).forEach(resource -> {
-				try (final InputStream stream = resource.getInputStream()) {
+			UtilitiesClient.getResources(manager, new ResourceLocation(path)).forEach(resource -> {
+				try (final InputStream stream = Utilities.getInputStream(resource)) {
 					callback.accept(new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				try {
-					resource.close();
+					Utilities.closeResource(resource);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			});
 		} catch (Exception ignored) {
 		}
-	}
-
-	private static int colorStringToInt(String string) {
-		try {
-			return Integer.parseInt(string.toUpperCase().replaceAll("[^0-9A-F]", ""), 16);
-		} catch (Exception ignored) {
-			return 0;
-		}
-	}
-
-	private static SoundEvent[] registerSoundEvents(int size, int groupSize, String path) {
-		return IntStream.range(0, size).mapToObj(i -> {
-			String group;
-			switch (i % groupSize) {
-				case 0:
-					group = "a";
-					break;
-				case 1:
-					group = "b";
-					break;
-				case 2:
-					group = "c";
-					break;
-				default:
-					group = "";
-					break;
-			}
-			return new SoundEvent(new ResourceLocation(path + (i / 3) + group));
-		}).toArray(SoundEvent[]::new);
 	}
 
 	private static <T> T getOrDefault(JsonObject jsonObject, String key, T defaultValue, Function<JsonElement, T> function) {

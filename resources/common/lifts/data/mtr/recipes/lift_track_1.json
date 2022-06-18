@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"ILI",
+		"ILI"
+	],
+	"key": {
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"L": {
+			"item": "minecraft:ladder"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_track_1",
+		"count": 8
+	}
+}

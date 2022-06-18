@@ -1,21 +1,20 @@
 package mtr.block;
 
+import mtr.mappings.BlockDirectionalMapper;
+import mtr.mappings.Text;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public abstract class BlockPoleCheckBase extends HorizontalDirectionalBlock {
+public abstract class BlockPoleCheckBase extends BlockDirectionalMapper {
 
 	public BlockPoleCheckBase(Properties settings) {
 		super(settings);
@@ -33,9 +32,9 @@ public abstract class BlockPoleCheckBase extends HorizontalDirectionalBlock {
 
 	@Override
 	public void appendHoverText(ItemStack itemStack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		final String[] strings = new TranslatableComponent("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
+		final String[] strings = Text.translatable("tooltip.mtr.pole_placement", getTooltipBlockText()).getString().split("\n");
 		for (final String string : strings) {
-			tooltip.add(new TextComponent(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(Text.literal(string).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
 	}
 

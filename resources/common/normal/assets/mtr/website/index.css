@@ -1,0 +1,338 @@
+* {
+    font-family: "Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", sans-serif;
+    margin: 0;
+    user-select: none;
+}
+
+:root {
+    --backgroundColor: #FFFFFF;
+    --backgroundHover: #EEEEEE;
+    --boxBorder: #DDDDDD;
+    --textColorDisabled: #BBBBBB;
+    --textColorGray: #666666;
+    --textColor: #000000;
+}
+
+.dark_theme {
+    --backgroundColor: #000000;
+    --backgroundHover: #333333;
+    --boxBorder: #555555;
+    --textColorDisabled: #666666;
+    --textColorGray: #BBBBBB;
+    --textColor: #FFFFFF;
+}
+
+canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+label {
+    display: none;
+}
+
+input {
+    background-color: transparent;
+    border: none;
+    font-size: 1em;
+    margin: 0;
+    outline-width: 0;
+    padding: 0;
+    text-align: left;
+}
+
+h1, h2, h3, h4 {
+    line-height: 1.2em;
+    text-align: center;
+    white-space: break-spaces;
+    width: 100%;
+}
+
+h1 {
+    font-size: 3em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1em;
+}
+
+h4 {
+    color: var(--textColorGray);
+    font-size: 0.8em;
+}
+
+img {
+    width: 3em;
+    height: 3em;
+}
+
+#legend {
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+#search {
+    top: 0;
+    right: 0;
+    width: 24em;
+}
+
+#station_arrivals {
+    padding: 0.4em 0.2em 0 0.2em;
+}
+
+#loading.material-icons {
+    color: var(--textColorDisabled);
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.box {
+    background: var(--backgroundColor);
+    border: 0.2em solid var(--boxBorder);
+    border-radius: 0.6em;
+    box-sizing: border-box;
+    margin: 1em;
+    padding: 0.4em;
+    position: fixed;
+    white-space: nowrap;
+}
+
+.text {
+    color: var(--textColor);
+}
+
+.text_disabled {
+    color: var(--textColorDisabled);
+}
+
+.text_box {
+    width: 100%;
+}
+
+.player {
+    align-items: center;
+    display: flex;
+    overflow: hidden;
+}
+
+.player_route {
+    display: flex;
+    flex-direction: column;
+    height: 3em;
+    margin-left: 0.5em;
+}
+
+.version {
+    color: var(--textColorGray);
+    font-size: 0.6em;
+}
+
+.search_top {
+    align-items: center;
+    display: flex;
+    height: 2em;
+    overflow: hidden;
+}
+
+.search_results {
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.search_results_directions {
+    padding: 0 0 0 2em;
+}
+
+.info_top {
+    display: flex;
+}
+
+.info_middle {
+    align-content: center;
+    align-self: center;
+    display: flex;
+    padding: 0.5em 0 0 0;
+}
+
+.info_center {
+    display: flex;
+    flex-direction: column;
+}
+
+.info_name {
+    width: 100%;
+}
+
+.info_line {
+    border-radius: 0.2em;
+    min-height: 0.4em;
+    margin: 0.6em 0.2em;
+}
+
+.arrival {
+    align-items: center;
+    display: flex;
+    height: 1em;
+    margin: 0.2em;
+}
+
+.arrival_text {
+    color: var(--textColorGray);
+    font-size: 0.8em;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.arrival_text.tight {
+    font-size: 1em;
+}
+
+.route_station_name {
+    align-items: center;
+    display: flex;
+    padding: 0 0 0 2.4em;
+    position: relative;
+}
+
+.route_duration {
+    align-items: center;
+    color: var(--textColorDisabled);
+    display: flex;
+    padding: 0 0 0 2.4em;
+    position: relative;
+}
+
+.route_duration > .material-icons {
+    color: var(--textColorDisabled);
+}
+
+.station_list {
+    overflow: hidden;
+    padding: 0.5em 0;
+    position: relative;
+}
+
+.route_segment {
+    background-clip: content-box;
+    padding: 0 1em;
+    left: 1.2em;
+    top: 0.75em;
+    position: absolute;
+    width: 0.4em;
+    height: 1.5em;
+    transform: translate(-50%, -50%);
+}
+
+.route_segment.top {
+    height: 0.75em;
+    padding: 0.75em 1em 0 1em;
+}
+
+.route_segment.bottom {
+    height: 0.75em;
+    padding: 0 1em 0.75em 1em;
+}
+
+.route_segment.walk {
+    background-color: var(--boxBorder);
+    width: 0.2em;
+}
+
+.station_circle {
+    background-color: var(--backgroundColor);
+    border: 0.15em solid;
+    border-color: var(--textColor);
+    border-radius: 1em;
+    box-sizing: border-box;
+    left: 1.2em;
+    top: 0.75em;
+    position: absolute;
+    width: 0.8em;
+    height: 0.8em;
+    transform: translate(-50%, -50%);
+}
+
+.clickable {
+    cursor: pointer;
+    padding: 0 0.2em;
+}
+
+.clickable:hover {
+    color: var(--textColor);
+    background: var(--backgroundHover);
+}
+
+.clickable.selected {
+    background: var(--boxBorder);
+}
+
+.left_align {
+    float: left;
+}
+
+.right_align {
+    float: right;
+}
+
+.station {
+    display: inline-block;
+    border-radius: 0.2em;
+    height: 0.4em;
+    width: 0.4em;
+    margin: 0.2em 0.4em 0.2em 0.2em;
+}
+
+.line {
+    display: inline-block;
+    border-radius: 0.2em;
+    height: 0.4em;
+    width: 3em;
+    margin: 0.2em 0.4em 0.2em 0;
+}
+
+.spacer {
+    background-color: var(--boxBorder);
+    border-radius: 0.1em;
+    height: 1px;
+    margin: 0.2em 0;
+}
+
+.spacer.padded {
+    background-clip: content-box;
+    padding: 0 0 0.5em 0;
+}
+
+.material-icons {
+    color: var(--textColorGray);
+    margin: 0;
+    max-height: 1em;
+    padding: 0.2em;
+    vertical-align: middle;
+}
+
+.material-icons.tight {
+    padding: 0;
+}
+
+.material-icons.large {
+    font-size: 4em;
+    text-align: center;
+}
+
+.material-icons.small {
+    font-size: 1em;
+}

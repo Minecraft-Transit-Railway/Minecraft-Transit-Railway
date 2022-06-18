@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"L",
+		"L"
+	],
+	"key": {
+		"L": {
+			"item": "mtr:lift_3_3_double_sided"
+		}
+	},
+	"result": {
+		"item": "mtr:lift_3_2_double_sided",
+		"count": 2
+	}
+}
