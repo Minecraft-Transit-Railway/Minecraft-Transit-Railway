@@ -56,6 +56,7 @@ public class BveTrainSound extends TrainSoundBase {
         if (config.soundCfg.flange[0] != null) soundLoopFlange = new TrainLoopingSoundInstance(config.soundCfg.flange[0], train);
         if (config.soundCfg.noise != null) soundLoopNoise = new TrainLoopingSoundInstance(config.soundCfg.noise, train);
         if (config.soundCfg.shoe != null) soundLoopShoe = new TrainLoopingSoundInstance(config.soundCfg.shoe, train);
+        if (config.soundCfg.compressorLoop != null) soundLoopCompressor = new TrainLoopingSoundInstance(config.soundCfg.compressorLoop, train);
         soundLoopMotor = new TrainLoopingSoundInstance[config.soundCfg.motor.length];
         for (int i = 0; i < Math.min(config.soundCfg.motor.length, config.motorData.getSoundCount()); ++i) {
             if (config.soundCfg.motor[i] != null) {
