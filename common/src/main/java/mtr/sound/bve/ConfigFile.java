@@ -1,37 +1,50 @@
 package mtr.sound.bve;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Locale;
 
-public class SoundCfg {
+public class ConfigFile {
 
-    public String[] run = new String[1];
-    public String[] flange = new String[1];
-    public String[] motor = new String[40];
-    public String[] joint = new String[1];
+    public SoundEvent[] run = new SoundEvent[1];
+    public SoundEvent[] flange = new SoundEvent[1];
+    public SoundEvent[] motor = new SoundEvent[40];
+    public SoundEvent[] joint = new SoundEvent[1];
 
-    public String air;
-    public String airZero;
-    public String airHigh;
-    public String brakeEmergency;
+    public SoundEvent air;
+    public SoundEvent airZero;
+    public SoundEvent airHigh;
+    public SoundEvent brakeEmergency;
 
-    public String doorOpen;
-    public String doorClose;
+    public SoundEvent doorOpen;
+    public SoundEvent doorClose;
 
-    public String brakeHandleApply;
-    public String brakeHandleRelease;
+    public SoundEvent brakeHandleApply;
+    public SoundEvent brakeHandleRelease;
 
-    public String noise;
-    public String shoe;
+    public SoundEvent compressorAttack;
+    public SoundEvent compressorLoop;
+    public SoundEvent compressorRelease;
 
-    public int motorNoiseDataType = 5;
+    public SoundEvent noise;
+    public SoundEvent shoe;
+
+    public int motorNoiseDataType = 5; // 4 or 5
+
     public float motorVolumeMultiply = 1F;
-    public float doorCloseSoundLength = 2F;
-    public float breakerDelay = 0.5F;
-    public float regenerationLimit = 8F / 3.6F;
+    public float breakerDelay = 0.5F; // sec
+    public float regenerationLimit = 8F / 3.6F; // m/s
 
-    public SoundCfg(String textContent) {
+    public int mrPressMin = 700; // kPa
+    public int mrPressMax = 800; // kPa
+    public float mrCompressorSpeed = 5; // kPa/s
+    public float mrServiceBrakeReduce = 5; // kPa each time
+
+    public float doorCloseSoundLength = 2F;
+
+    public ConfigFile(String textContent, BveTrainSoundConfig config) {
         final String[] lines = textContent.split("[\\r\\n]+");
         String section = "";
         for (final String line : lines) {
@@ -44,6 +57,8 @@ public class SoundCfg {
                 if (tokens.length != 2) continue;
                 final String key = tokens[0].trim().replace(" ", "").toLowerCase(Locale.ROOT);
                 final String value = tokens[1].trim().toLowerCase(Locale.ROOT).replace(".wav", "");
+                if (StringUtils.isEmpty(value)) continue;
+                final SoundEvent valueAsSoundEvent = new SoundEvent(new ResourceLocation(config.audioBaseName + value));
                 switch (section) {
                     case "mtr":
                         switch (key) {
@@ -67,34 +82,34 @@ public class SoundCfg {
                     case "run":
                     case "rolling":
                         if (Integer.parseInt(key) >= this.run.length) break;
-                        this.run[Integer.parseInt(key)] = value;
+                        this.run[Integer.parseInt(key)] = valueAsSoundEvent;
                         break;
                     case "flange":
                         if (Integer.parseInt(key) >= this.flange.length) break;
-                        this.flange[Integer.parseInt(key)] = value;
+                        this.flange[Integer.parseInt(key)] = valueAsSoundEvent;
                         break;
                     case "motor":
                         if (Integer.parseInt(key) >= this.motor.length) break;
-                        this.motor[Integer.parseInt(key)] = value;
+                        this.motor[Integer.parseInt(key)] = valueAsSoundEvent;
                         break;
                     case "joint":
                     case "switch":
                         if (Integer.parseInt(key) >= this.joint.length) break;
-                        this.joint[Integer.parseInt(key)] = value;
+                        this.joint[Integer.parseInt(key)] = valueAsSoundEvent;
                         break;
                     case "brake":
                         switch (key) {
                             case "bcrelease":
-                                this.air = value;
+                                this.air = valueAsSoundEvent;
                                 break;
                             case "bcreleasefull":
-                                this.airZero = value;
+                                this.airZero = valueAsSoundEvent;
                                 break;
                             case "bcreleasehigh":
-                                this.airHigh = value;
+                                this.airHigh = valueAsSoundEvent;
                                 break;
                             case "emergency":
-                                this.brakeEmergency = value;
+                                this.brakeEmergency = valueAsSoundEvent;
                                 break;
                         }
                         break;
@@ -103,31 +118,43 @@ public class SoundCfg {
                             case "open":
                             case "openleft":
                             case "openright":
-                                this.doorOpen = value;
+                                this.doorOpen = valueAsSoundEvent;
                                 break;
                             case "close":
                             case "closeleft":
                             case "closeright":
-                                this.doorClose = value;
+                                this.doorClose = valueAsSoundEvent;
                                 break;
                         }
                     case "brakehandle":
                         switch (key) {
                             case "apply":
-                                this.brakeHandleApply = value;
+                                this.brakeHandleApply = valueAsSoundEvent;
                                 break;
                             case "release":
-                                this.brakeHandleRelease = value;
+                                this.brakeHandleRelease = valueAsSoundEvent;
                                 break;
                         }
                         break;
+                    case "compressor":
+                        switch (key) {
+                            case "attack":
+                                this.compressorAttack = valueAsSoundEvent;
+                                break;
+                            case "loop":
+                                this.compressorLoop = valueAsSoundEvent;
+                                break;
+                            case "release":
+                                this.compressorRelease = valueAsSoundEvent;
+                                break;
+                        }
                     case "others":
                         switch (key) {
                             case "noise":
-                                this.noise = value;
+                                this.noise = valueAsSoundEvent;
                                 break;
                             case "shoe":
-                                this.shoe = value;
+                                this.shoe = valueAsSoundEvent;
                                 break;
                         }
                 }
@@ -135,7 +162,7 @@ public class SoundCfg {
                 section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ROOT);
             }
         }
-        if (StringUtils.isEmpty(airZero)) airZero = air;
-        if (StringUtils.isEmpty(airHigh)) airHigh = air;
+        if (airZero == null) airZero = air;
+        if (airHigh == null) airHigh = air;
     }
 }

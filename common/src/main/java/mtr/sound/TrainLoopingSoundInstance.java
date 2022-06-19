@@ -15,8 +15,8 @@ public class TrainLoopingSoundInstance extends AbstractTickableSoundInstance {
 
     TrainClient binding;
 
-    public TrainLoopingSoundInstance(String soundId, TrainClient binding) {
-        super(new SoundEvent(new ResourceLocation(soundId)), SoundSource.BLOCKS);
+    public TrainLoopingSoundInstance(SoundEvent event, TrainClient binding) {
+        super(event, SoundSource.BLOCKS);
         this.looping = true;
         this.binding = binding;
         this.delay = 0;

@@ -9,19 +9,11 @@ import mtr.mappings.Text;
 import mtr.model.*;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.TrainRendererBase;
-import mtr.sound.JonTrainSound;
 import mtr.sound.TrainSoundBase;
 import mtr.sound.bve.BveTrainSound;
 import mtr.sound.bve.BveTrainSoundConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -51,7 +43,7 @@ public class TrainClientRegistry {
 								float bogiePosition, boolean isJacobsBogie) {
 		TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId), TrainProperties.resolvePath(gangwayConnectionId), TrainProperties.resolvePath(trainBarrierId));
 		//TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
-		TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "keikyu_n1000"));
+		TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "lt1995"));
 		register(key, baseTrainType, name, color, renderer, sound, riderOffset, gangwayConnectionId != null, bogiePosition, isJacobsBogie);
 	}
 

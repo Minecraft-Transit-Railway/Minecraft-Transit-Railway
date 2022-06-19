@@ -13,13 +13,13 @@ public class BveTrainSoundConfig {
 
     public String audioBaseName;
 
-    public SoundCfg soundCfg;
+    public ConfigFile soundCfg;
     public MotorDataBase motorData;
 
     public BveTrainSoundConfig(ResourceManager manager, String baseName) {
         String configBaseName = "mtr:sounds/" + baseName;
         this.audioBaseName = "mtr:" + baseName + "_";
-        soundCfg = new SoundCfg(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")));
+        soundCfg = new ConfigFile(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")), this);
         if (soundCfg.motorNoiseDataType == 4) {
             motorData = new MotorData4(manager, configBaseName);
         } else {
