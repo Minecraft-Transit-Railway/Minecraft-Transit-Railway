@@ -7,6 +7,7 @@ import mtr.RegistryClient;
 import mtr.block.BlockTrainAnnouncer;
 import mtr.block.BlockTrainScheduleSensor;
 import mtr.block.BlockTrainSensorBase;
+import mtr.block.CustomContentBlockEntity;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.*;
@@ -363,5 +364,23 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		packet.writeInt(filterPlatformIds.size());
 		filterPlatformIds.forEach(packet::writeLong);
 		RegistryClient.sendToServer(PACKET_ARRIVAL_PROJECTOR_UPDATE, packet);
+	}
+
+	public static void openCustomContentScreenS2C(Minecraft minecraftClient, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		minecraftClient.execute(() -> {
+			if (minecraftClient.level != null && !(minecraftClient.screen instanceof CustomContentScreen)) {
+				final BlockEntity entity = minecraftClient.level.getBlockEntity(pos);
+				if (entity instanceof CustomContentBlockEntity) {
+					UtilitiesClient.setScreen(minecraftClient, new CustomContentScreen(pos));
+				}
+			}
+		});
+	}
+	public static void sendCustomContentC2S(BlockPos pos, String content) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(pos);
+		packet.writeUtf(content);
+		RegistryClient.sendToServer(PACKET_UPDATE_CUSTOM_CONTENT, packet);
 	}
 }

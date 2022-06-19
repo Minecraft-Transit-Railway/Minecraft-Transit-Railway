@@ -182,4 +182,6 @@ public interface Blocks {
 	RegistryObject<Block> TRAIN_CARGO_UNLOADER = new RegistryObject<>(BlockTrainCargoUnloader::new);
 	RegistryObject<Block> TRAIN_REDSTONE_SENSOR = new RegistryObject<>(BlockTrainRedstoneSensor::new);
 	RegistryObject<Block> TRAIN_SCHEDULE_SENSOR = new RegistryObject<>(BlockTrainScheduleSensor::new);
+	RegistryObject<Block> STATION_NAME_SIGN_1 = new RegistryObject<>(BlockStationNameSign1::new);
+	RegistryObject<Block> STATION_NAME_SIGN_2 = new RegistryObject<>(BlockStationNameSign2::new);
 }

@@ -244,6 +244,8 @@ public class MTR implements IPacket {
 		registerBlockItem.accept("signal_semaphore_1", Blocks.SIGNAL_SEMAPHORE_1, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_semaphore_2", Blocks.SIGNAL_SEMAPHORE_2, ItemGroups.RAILWAY_FACILITIES);
 		registerBlockItem.accept("signal_pole", Blocks.SIGNAL_POLE, ItemGroups.RAILWAY_FACILITIES);
+		registerEnchantedBlockItem.accept("station_name_sign_1", Blocks.STATION_NAME_SIGN_1, ItemGroups.RAILWAY_FACILITIES);
+		registerBlockItem.accept("station_name_sign_2", Blocks.STATION_NAME_SIGN_2, ItemGroups.RAILWAY_FACILITIES);
 
 		registerEnchantedBlockItem.accept("station_color_andesite", Blocks.STATION_COLOR_ANDESITE, ItemGroups.STATION_BUILDING_BLOCKS);
 		registerEnchantedBlockItem.accept("station_color_bedrock", Blocks.STATION_COLOR_BEDROCK, ItemGroups.STATION_BUILDING_BLOCKS);
@@ -380,6 +382,8 @@ public class MTR implements IPacket {
 		registerBlockEntityType.accept("train_cargo_unloader", BlockEntityTypes.TRAIN_CARGO_UNLOADER_TILE_ENTITY);
 		registerBlockEntityType.accept("train_redstone_sensor", BlockEntityTypes.TRAIN_REDSTONE_SENSOR_TILE_ENTITY);
 		registerBlockEntityType.accept("train_schedule_sensor", BlockEntityTypes.TRAIN_SCHEDULE_SENSOR_TILE_ENTITY);
+		registerBlockEntityType.accept("station_name_sign_2", BlockEntityTypes.STATION_NAME_SIGN_ENTITY_2);
+		registerBlockEntityType.accept("station_name_sign_1", BlockEntityTypes.STATION_NAME_SIGN_ENTITY_1);
 
 		registerEntityType.accept("seat", EntityTypes.SEAT);
 		registerEntityType.accept(EntityTypes.LiftType.SIZE_2_2.key, EntityTypes.LiftType.SIZE_2_2.registryObject);
@@ -423,6 +427,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
+		Registry.registerNetworkReceiver(PACKET_UPDATE_CUSTOM_CONTENT, PacketTrainDataGuiServer::receiveCustomContentC2S);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);

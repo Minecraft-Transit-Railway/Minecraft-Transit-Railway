@@ -57,5 +57,8 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_TRAIN_SENSOR = new ResourceLocation(MTR.MOD_ID, "packet_update_train_announcer");
 	ResourceLocation PACKET_UPDATE_LIFT_TRACK_FLOOR = new ResourceLocation(MTR.MOD_ID, "packet_update_lift_track_floor");
 
+	ResourceLocation PACKET_OPEN_CUSTOM_CONTENT_SCREEN = new ResourceLocation(MTR.MOD_ID, "packet_open_custom_content_screen");
+	ResourceLocation PACKET_UPDATE_CUSTOM_CONTENT = new ResourceLocation(MTR.MOD_ID, "packet_update_custom_screen");
+
 	int MAX_PACKET_BYTES = 1048576;
 }

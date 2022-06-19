@@ -428,4 +428,21 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 		return success;
 	}
+
+	public static void openCustomContentScreenS2C(ServerPlayer player, BlockPos blockPos) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeBlockPos(blockPos);
+		Registry.sendToPlayer(player, PACKET_OPEN_CUSTOM_CONTENT_SCREEN, packet);
+	}
+
+	public static void receiveCustomContentC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final BlockPos pos = packet.readBlockPos();
+		final String content = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
+		minecraftServer.execute(() -> {
+			final BlockEntity entity = player.level.getBlockEntity(pos);
+			if (entity instanceof CustomContentBlockEntity) {
+				((CustomContentBlockEntity)entity).setData(content);
+			}
+		});
+	}
 }

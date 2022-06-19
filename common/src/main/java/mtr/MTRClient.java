@@ -88,6 +88,8 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_CARGO_UNLOADER.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_REDSTONE_SENSOR.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_SCHEDULE_SENSOR.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_SIGN_1.get());
+		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_SIGN_2.get());
 
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20_ONE_WAY.get(), ItemBlockClickingBase.TAG_POS);
@@ -213,6 +215,8 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_WHITE_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_GRAY_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
 		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), dispatcher -> new RenderStationNameTiled<>(dispatcher, false));
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_SIGN_ENTITY_1.get(), RenderStationNameSign::new);
+		RegistryClient.registerTileEntityRenderer(BlockEntityTypes.STATION_NAME_SIGN_ENTITY_2.get(), RenderStationNameSign::new);
 
 		RegistryClient.registerEntityRenderer(EntityTypes.SEAT.get(), RenderTrains::new);
 		RegistryClient.registerEntityRenderer(EntityTypes.LiftType.SIZE_2_2.registryObject.get(), RenderLift::new);
@@ -258,6 +262,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_STONE_BRICKS.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_WOOL.get());
+		RegistryClient.registerBlockColors(Blocks.STATION_NAME_SIGN_1.get());
 
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_ANDESITE_SLAB.get());
 		RegistryClient.registerBlockColors(Blocks.STATION_COLOR_BEDROCK_SLAB.get());
@@ -331,6 +336,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, packet -> ClientData.updateTrainPassengerPosition(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_RAIL_ACTIONS, packet -> ClientData.updateRailActions(Minecraft.getInstance(), packet));
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
+		RegistryClient.registerNetworkReceiver(IPacket.PACKET_OPEN_CUSTOM_CONTENT_SCREEN, packet -> PacketTrainDataGuiClient.openCustomContentScreenS2C(Minecraft.getInstance(), packet));
 
 		RegistryClient.registerKeyBinding(KeyMappings.LIFT_MENU);
 
