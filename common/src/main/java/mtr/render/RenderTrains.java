@@ -189,8 +189,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 				try {
 					final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= DETAIL_RADIUS_SQUARED;
 					trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties.baseTrainType, trainProperties.textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, currentCar, trainCars, head1IsFront, lightsOn, isTranslucent, renderDetails);
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Exception ignored) {
 				}
 			}
 
