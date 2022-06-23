@@ -223,7 +223,8 @@ public class ClientCache extends DataCache {
 		}
 
 		int textOffset = 0;
-		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), height + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
+		final int maxHeight = (int) Math.min(height, (fontSizeCjk + fontSize) * LINE_HEIGHT_MULTIPLIER);
+		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), maxHeight + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
 		final Graphics2D graphics2D = image.createGraphics();
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -232,18 +233,19 @@ public class ClientCache extends DataCache {
 				graphics2D.drawString(attributedStrings[index].getIterator(), textOffset, height / LINE_HEIGHT_MULTIPLIER);
 				textOffset += textWidths[index] + padding;
 			} else {
-				final int textWidth = Math.min(maxWidth, textWidths[index]);
+				final float scaleY = (float) maxHeight / height;
+				final float textWidth = Math.min(maxWidth, textWidths[index] * scaleY);
+				final float scaleX = textWidth / textWidths[index];
 				final AffineTransform stretch = new AffineTransform();
-				final float scale = (float) textWidth / textWidths[index];
-				stretch.concatenate(AffineTransform.getScaleInstance(scale, 1));
+				stretch.concatenate(AffineTransform.getScaleInstance(scaleX, scaleY));
 				graphics2D.setTransform(stretch);
-				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) + padding / scale, textOffset + fontSizes[index] + padding);
+				graphics2D.drawString(attributedStrings[index].getIterator(), horizontalAlignment.getOffset(0, textWidth - width) / scaleY + padding / scaleX, textOffset + fontSizes[index] + padding / scaleY);
 				textOffset += fontSizes[index] * LINE_HEIGHT_MULTIPLIER;
 			}
 		}
 
 		dimensions[0] = width + (oneRow ? 0 : padding * 2);
-		dimensions[1] = height + (oneRow ? 0 : padding * 2);
+		dimensions[1] = maxHeight + (oneRow ? 0 : padding * 2);
 		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 		graphics2D.dispose();
 		image.flush();
