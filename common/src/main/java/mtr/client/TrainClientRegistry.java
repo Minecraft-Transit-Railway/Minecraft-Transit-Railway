@@ -1,8 +1,5 @@
 package mtr.client;
 
-import mtr.MTR;
-import mtr.MTRClient;
-import mtr.data.Train;
 import mtr.data.TrainType;
 import mtr.data.TransportMode;
 import mtr.mappings.Text;
@@ -15,7 +12,10 @@ import mtr.sound.bve.BveTrainSoundConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class TrainClientRegistry {
@@ -179,7 +179,7 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties() {
-		return new TrainProperties("", Text.translatable(""), 0,  0, null, null, false, 0, false);
+		return new TrainProperties("", Text.translatable(""), 0, 0, null, null, false, 0, false);
 	}
 
 	public static class TrainProperties {

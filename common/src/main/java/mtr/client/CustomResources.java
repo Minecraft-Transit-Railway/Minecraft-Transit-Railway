@@ -47,10 +47,14 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
 
 						// TODO Better ways around this?
-						JonModelTrainRenderer jonRenderer = baseTrainProperties.renderer instanceof  JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : null;
+						JonModelTrainRenderer jonRenderer = baseTrainProperties.renderer instanceof JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : null;
 						JonTrainSound jonSound = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : null;
-						if (jonRenderer == null) jonRenderer = new JonModelTrainRenderer(null, "", "", "");
-						if (jonSound == null) jonSound = new JonTrainSound("", "", 0, 0, false, false);
+						if (jonRenderer == null) {
+							jonRenderer = new JonModelTrainRenderer(null, "", "", "");
+						}
+						if (jonSound == null) {
+							jonSound = new JonTrainSound("", "", 0, 0, false, false);
+						}
 
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRenderer.textureId, JsonElement::getAsString);
 						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, jonRenderer.gangwayConnectionId, JsonElement::getAsString);
