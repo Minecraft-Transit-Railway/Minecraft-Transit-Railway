@@ -148,13 +148,15 @@ public class TrainServer extends Train {
 				}
 
 				if ((block instanceof BlockTrainCargoLoader || block instanceof BlockTrainCargoUnloader) && BlockTrainSensorBase.matchesFilter(world, checkPos, routeId, speed)) {
-					for (final Direction direction : Direction.values()) {
-						final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
-						if (nearbyInventory != null) {
-							if (block instanceof BlockTrainCargoLoader) {
-								transferItems(nearbyInventory, inventory);
-							} else {
-								transferItems(inventory, nearbyInventory);
+					if (stopCounter == 0.0D) {
+						for (final Direction direction : Direction.values()) {
+							final Container nearbyInventory = HopperBlockEntity.getContainerAt(world, checkPos.relative(direction));
+							if (nearbyInventory != null) {
+								if (block instanceof BlockTrainCargoLoader) {
+									transferItems(nearbyInventory, inventory);
+								} else {
+									transferItems(inventory, nearbyInventory);
+								}
 							}
 						}
 					}
