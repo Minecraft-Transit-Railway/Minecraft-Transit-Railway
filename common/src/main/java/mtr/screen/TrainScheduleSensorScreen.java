@@ -12,7 +12,7 @@ public class TrainScheduleSensorScreen extends TrainSensorScreenBase {
 
 	private final int seconds;
 
-	private static final int MAX_SECONDS_LENGTH = 3;
+	private static final int MAX_SECONDS_LENGTH = 5;
 	private static final int DEFAULT_SECONDS = 10;
 
 	public TrainScheduleSensorScreen(BlockPos pos) {

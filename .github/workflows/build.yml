@@ -41,7 +41,7 @@ jobs:
       - name: Upload files to SFTP
         env:
           MY_KEY: ${{ secrets.FTP_HOST }}
-        if: ${{ env.MY_KEY != '' && matrix.variation == 'normal' || matrix.loader == 'common' }}
+        if: ${{ env.MY_KEY != '' && (matrix.variation == 'normal' || matrix.loader == 'common') }}
         uses: sand4rt/ftp-deployer@v1.4
         with:
           sftp: true
