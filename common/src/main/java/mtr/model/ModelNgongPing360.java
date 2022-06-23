@@ -241,11 +241,6 @@ public class ModelNgongPing360 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{};
-	}
-
-	@Override
 	protected int[] getDoorPositions() {
 		return new int[]{0};
 	}

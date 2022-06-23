@@ -1249,11 +1249,6 @@ public class ModelLondonUnderground1995 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-96, 96};
-	}
-
-	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

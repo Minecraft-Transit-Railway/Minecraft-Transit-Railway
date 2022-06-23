@@ -24,26 +24,30 @@ import java.util.*;
 
 public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
-	protected float speed;
+	public float speed;
+	public float speedLastElapse;
 	protected double railProgress;
 	protected float stopCounter;
 	protected int nextStoppingIndex;
-	protected boolean reversed;
-	protected boolean isOnRoute = false;
+	public boolean reversed;
+	public boolean isOnRoute = false;
 
 	public final long sidingId;
-	protected final String trainId;
-	protected final String baseTrainType;
-	protected final TransportMode transportMode;
-	protected final int spacing;
-	protected final int width;
-	protected final int trainCars;
+	public final String trainId;
+	public final String baseTrainType;
+	public final TransportMode transportMode;
+	public final int spacing;
+	public final int width;
+	public final int trainCars;
 	protected final List<PathData> path;
 	protected final List<Double> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 	protected final SimpleContainer inventory;
-	protected final float accelerationConstant;
+	public final float accelerationConstant;
 	private final float railLength;
+
+	public float rawDoorValue;
+	public float doorValueLastElapse;
 
 	public static final float ACCELERATION_DEFAULT = 0.01F; // m/tick^2
 	public static final float MAX_ACCELERATION = 0.05F; // m/tick^2
@@ -295,9 +299,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 		try {
 			final double oldRailProgress = railProgress;
-			final float oldSpeed = speed;
-			final float oldDoorValue;
-			final float doorValueRaw;
+			speedLastElapse = speed;
 			if (nextStoppingIndex >= path.size()) {
 				return;
 			}
@@ -305,8 +307,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * spacing) / 2;
-				oldDoorValue = 0;
-				doorValueRaw = 0;
+				doorValueLastElapse = 0;
+				rawDoorValue = 0;
 				speed = 0;
 				nextStoppingIndex = 0;
 
@@ -314,13 +316,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					startUp(world, trainCars, spacing, isOppositeRail());
 				}
 			} else {
-				oldDoorValue = Math.abs(transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
+				doorValueLastElapse = Math.abs(transportMode.continuousMovement ? getDoorValueContinuous() : getDoorValue());
 				final float newAcceleration = accelerationConstant * ticksElapsed;
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * spacing) / 2) {
 					isOnRoute = false;
 					ridingEntities.clear();
-					doorValueRaw = 0;
+					rawDoorValue = 0;
 				} else {
 					final float tempDoorValueRaw;
 
@@ -369,7 +371,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						speed = 0;
 					}
 
-					doorValueRaw = tempDoorValueRaw + (transportMode.continuousMovement ? getDoorValueContinuous() : 0);
+					rawDoorValue = tempDoorValueRaw + (transportMode.continuousMovement ? getDoorValueContinuous() : 0);
 				}
 			}
 
@@ -379,7 +381,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					positions[i] = getRoutePosition(reversed ? trainCars - i : i, spacing);
 				}
 
-				if (handlePositions(world, positions, ticksElapsed, doorValueRaw, oldDoorValue, oldRailProgress)) {
+				if (handlePositions(world, positions, ticksElapsed, oldRailProgress)) {
 					final double[] prevX = {0};
 					final double[] prevY = {0};
 					final double[] prevZ = {0};
@@ -388,7 +390,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 					for (int i = 0; i < trainCars; i++) {
 						final int ridingCar = i;
-						calculateCar(world, positions, i, Math.abs(doorValueRaw), dwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
+						calculateCar(world, positions, i, Math.abs(rawDoorValue), dwellTicks, (x, y, z, yaw, pitch, realSpacing, doorLeftOpen, doorRightOpen) -> {
 							simulateCar(
 									world, ridingCar, ticksElapsed,
 									x, y, z,
@@ -396,7 +398,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 									prevX[0], prevY[0], prevZ[0],
 									prevYaw[0], prevPitch[0],
 									doorLeftOpen, doorRightOpen, realSpacing,
-									doorValueRaw, oldSpeed, oldDoorValue, oldRailProgress
+									oldRailProgress
 							);
 							prevX[0] = x;
 							prevY[0] = y;
@@ -431,11 +433,11 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 	}
 
-	protected final int getIndex(int car, int trainSpacing, boolean roundDown) {
+	public final int getIndex(int car, int trainSpacing, boolean roundDown) {
 		return getIndex(getRailProgress(car, trainSpacing), roundDown);
 	}
 
-	protected final int getIndex(double tempRailProgress, boolean roundDown) {
+	public final int getIndex(double tempRailProgress, boolean roundDown) {
 		for (int i = 0; i < path.size(); i++) {
 			final double tempDistance = distances.get(i);
 			if (tempRailProgress < tempDistance || roundDown && tempRailProgress == tempDistance) {
@@ -445,7 +447,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return path.size() - 1;
 	}
 
-	protected final float getRailSpeed(int railIndex) {
+	public final float getRailSpeed(int railIndex) {
 		final RailType thisRail = path.get(railIndex).rail.railType;
 		final float railSpeed;
 		if (thisRail.canAccelerate) {
@@ -469,10 +471,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
 			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, double oldRailProgress
+			double oldRailProgress
 	);
 
-	protected abstract boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress);
+	protected abstract boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, double oldRailProgress);
 
 	protected abstract boolean canDeploy(Depot depot);
 
