@@ -77,6 +77,25 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	public static DynamicTexture generateRouteSquare(int color, String routeName, HorizontalAlignment horizontalAlignment) {
+		try {
+			final int padding = scale / 32;
+			final int[] dimensions = new int[2];
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(routeName, dimensions, Integer.MAX_VALUE, fontSizeBig, fontSizeSmall, padding, horizontalAlignment);
+
+			final int width = dimensions[0] + padding * 2;
+			final int height = dimensions[1] + padding * 2;
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, invertColor(ARGB_BLACK | color));
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
+			return new DynamicTexture(nativeImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public static DynamicTexture generateDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -578,8 +597,12 @@ public class RouteMapGenerator implements IGui {
 
 	private static void drawPixelSafe(NativeImage nativeImage, int x, int y, int color) {
 		if (RailwayData.isBetween(x, 0, nativeImage.getWidth() - 1) && RailwayData.isBetween(y, 0, nativeImage.getHeight() - 1)) {
-			nativeImage.setPixelRGBA(x, y, ((color & ARGB_BLACK) != 0 ? ARGB_BLACK : 0) + ((color & 0xFF) << 16) + (color & 0xFF00) + ((color & 0xFF0000) >> 16));
+			nativeImage.setPixelRGBA(x, y, invertColor(color));
 		}
+	}
+
+	private static int invertColor(int color) {
+		return ((color & ARGB_BLACK) != 0 ? ARGB_BLACK : 0) + ((color & 0xFF) << 16) + (color & 0xFF00) + ((color & 0xFF0000) >> 16);
 	}
 
 	private static void clearWhite(NativeImage nativeImage) {

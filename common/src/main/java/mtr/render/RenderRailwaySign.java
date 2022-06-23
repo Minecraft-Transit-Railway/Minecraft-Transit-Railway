@@ -167,29 +167,32 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 			final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.stationIdToRoutes.get(station.id);
 			if (routesInStation != null) {
 				final List<ClientCache.ColorNameTuple> selectedIdsSorted = selectedIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).collect(Collectors.toList());
-				final int selectedCount = selectedIdsSorted.size();
 
-				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 1.5F);
-				final List<Float> textWidths = new ArrayList<>();
+				final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2);
+				final float height = size - margin * 2;
+				final List<ClientCache.DynamicResource> resourceLocationDataList = new ArrayList<>();
+				float totalTextWidth = 0;
 				for (final ClientCache.ColorNameTuple route : selectedIdsSorted) {
-					IDrawing.drawStringWithFont(matrices, textRenderer, null, route.name, HorizontalAlignment.LEFT, VerticalAlignment.CENTER, 0, 10000, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), 0, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> textWidths.add(x2));
+					final ClientCache.DynamicResource resourceLocationData = ClientData.DATA_CACHE.getRouteSquare(route.color, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
+					resourceLocationDataList.add(resourceLocationData);
+					totalTextWidth += height * resourceLocationData.width / resourceLocationData.height + margin / 2F;
 				}
 
 				matrices.pushPose();
 				matrices.translate(flipCustomText ? x + size - margin : x + margin, 0, 0);
 
-				final float totalTextWidth = textWidths.stream().reduce(Float::sum).orElse(0F) + 1.5F * margin * selectedCount;
+				if (totalTextWidth > margin / 2F) {
+					totalTextWidth -= margin / 2F;
+				}
 				if (totalTextWidth > maxWidth) {
-					matrices.scale((maxWidth - margin / 2) / (totalTextWidth - margin / 2), 1, 1);
+					matrices.scale(maxWidth / totalTextWidth, 1, 1);
 				}
 
-				final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation("mtr:textures/block/white.png"), false));
-
-				float xOffset = margin * 0.5F;
-				for (int i = 0; i < selectedIdsSorted.size(); i++) {
-					final ClientCache.ColorNameTuple route = selectedIdsSorted.get(i);
-					IDrawing.drawStringWithFont(matrices, textRenderer, immediate, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.CENTER, flipCustomText ? -xOffset : xOffset, y + size / 2, -1, size - margin * 3, HEIGHT_TO_SCALE / (size - margin * 3), ARGB_WHITE, false, MAX_LIGHT_GLOWING, (x1, y1, x2, y2) -> IDrawing.drawTexture(matrices, vertexConsumer, x1 - margin / 2, y + margin, SMALL_OFFSET, x2 + margin / 2, y + size - margin, SMALL_OFFSET, facing, route.color | ARGB_BLACK, MAX_LIGHT_GLOWING));
-					xOffset += textWidths.get(i) + margin * 1.5F;
+				float xOffset = 0;
+				for (final ClientCache.DynamicResource resourceLocationData : resourceLocationDataList) {
+					final float width = height * resourceLocationData.width / resourceLocationData.height;
+					IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(resourceLocationData.resourceLocation, false)), flipCustomText ? -xOffset - width : xOffset, margin, width, height, Direction.UP, MAX_LIGHT_GLOWING);
+					xOffset += width + margin / 2F;
 				}
 
 				matrices.popPose();
@@ -212,7 +215,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 					final float bottomOffset = (i + 1) * height + extraMargin;
 					final float left = flipCustomText ? x - maxWidthLeft * size : x + margin;
 					final float right = flipCustomText ? x + size - margin : x + (maxWidthRight + 1) * size;
-					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), false), false));
+					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), true, false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), false).resourceLocation, false));
 					IDrawing.drawTexture(matrices, vertexConsumer, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				}
 			}

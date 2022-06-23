@@ -1,5 +1,6 @@
 package mtr.client;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import mtr.MTR;
 import mtr.data.*;
 import mtr.mappings.Utilities;
@@ -163,19 +164,23 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	public ResourceLocation getColorStrip(long platformId) {
+	public DynamicResource getColorStrip(long platformId) {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public ResourceLocation getStationName(long platformId, float aspectRatio) {
+	public DynamicResource getStationName(long platformId, float aspectRatio) {
 		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
 	}
 
-	public ResourceLocation getDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
+	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
+		return getResource(String.format("route_%s_%s_%s", color, routeName, horizontalAlignment), () -> RouteMapGenerator.generateRouteSquare(color, routeName, horizontalAlignment), DefaultRenderingColor.BLACK);
+	}
+
+	public DynamicResource getDirectionArrow(long platformId, boolean invert, boolean hasLeft, boolean hasRight, IGui.HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, boolean transparentWhite) {
 		return getResource(String.format("map_%s_%s_%s_%s_%s_%s_%s_%s_%s", platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateDirectionArrow(platformId, invert, hasLeft, hasRight, horizontalAlignment, showToString, paddingScale, aspectRatio, transparentWhite), invert ? DefaultRenderingColor.BLACK : transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
-	public ResourceLocation getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
+	public DynamicResource getRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
 		return getResource(String.format("map_%s_%s_%s_%s_%s", platformId, vertical, flip, aspectRatio, transparentWhite), () -> RouteMapGenerator.generateRouteMap(platformId, vertical, flip, aspectRatio, transparentWhite), transparentWhite ? DefaultRenderingColor.TRANSPARENT : DefaultRenderingColor.WHITE);
 	}
 
@@ -184,6 +189,12 @@ public class ClientCache extends DataCache {
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
+		if (maxWidth <= 0) {
+			dimensions[0] = 0;
+			dimensions[1] = 0;
+			return new byte[0];
+		}
+
 		final boolean oneRow = horizontalAlignment == null;
 		final String[] textSplit = IGui.textOrUntitled(text).split("\\|");
 		final AttributedString[] attributedStrings = new AttributedString[textSplit.length];
@@ -272,7 +283,7 @@ public class ClientCache extends DataCache {
 		return posToSidings.get(transportMode);
 	}
 
-	private ResourceLocation getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
+	private DynamicResource getResource(String key, Supplier<DynamicTexture> supplier, DefaultRenderingColor defaultRenderingColor) {
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		if (font == null || fontCjk == null) {
 			final ResourceManager resourceManager = minecraftClient.getResourceManager();
@@ -296,7 +307,9 @@ public class ClientCache extends DataCache {
 
 		final boolean hasKey = dynamicResources.containsKey(key);
 		if (hasKey) {
-			return dynamicResources.get(key).getResourceLocation();
+			final DynamicResource dynamicResource = dynamicResources.get(key);
+			dynamicResource.age = 0;
+			return dynamicResource;
 		} else {
 			final ResourceLocation defaultLocation = defaultRenderingColor.resourceLocation;
 
@@ -307,13 +320,13 @@ public class ClientCache extends DataCache {
 				new Thread(() -> {
 					final DynamicTexture dynamicTexture = supplier.get();
 					minecraftClient.execute(() -> {
-						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture)));
+						dynamicResources.put(key, new DynamicResource(dynamicTexture == null ? defaultLocation : minecraftClient.getTextureManager().register(MTR.MOD_ID, dynamicTexture), dynamicTexture));
 						canGenerateResource = true;
 					});
 				}).start();
 			}
 
-			return defaultLocation;
+			return new DynamicResource(defaultLocation, null);
 		}
 	}
 
@@ -380,20 +393,30 @@ public class ClientCache extends DataCache {
 		}
 	}
 
-	private static class DynamicResource {
+	public static class DynamicResource {
 
 		private int age;
-		private final ResourceLocation resourceLocation;
+		public final int width;
+		public final int height;
+		public final ResourceLocation resourceLocation;
 		private static final int MAX_AGE = 10000;
 
-		private DynamicResource(ResourceLocation resourceLocation) {
+		private DynamicResource(ResourceLocation resourceLocation, DynamicTexture dynamicTexture) {
 			age = 0;
 			this.resourceLocation = resourceLocation;
-		}
-
-		private ResourceLocation getResourceLocation() {
-			age = 0;
-			return resourceLocation;
+			if (dynamicTexture != null) {
+				final NativeImage nativeImage = dynamicTexture.getPixels();
+				if (nativeImage != null) {
+					width = nativeImage.getWidth();
+					height = nativeImage.getHeight();
+				} else {
+					width = 16;
+					height = 16;
+				}
+			} else {
+				width = 16;
+				height = 16;
+			}
 		}
 
 		private void remove() {
