@@ -102,7 +102,7 @@ task setupFiles() {
 
 	copy {
 		outputs.upToDateWhen { false }
-		from(zipTree("common/src/main/java/mtr/mappings/lang.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+		from(zipTree("common/src/main/java/mtr/mappings/lang.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments as String[]) } }
 		into "common/src/main/resources/assets/mtr/lang"
 	}
 
