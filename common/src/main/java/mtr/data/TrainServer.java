@@ -347,13 +347,10 @@ public class TrainServer extends Train {
 
 	private static void transferItems(Container inventoryFrom, Container inventoryTo) {
 		for (int i = 0; i < inventoryFrom.getContainerSize(); i++) {
-			if (!inventoryFrom.getItem(i).isEmpty()) {
-				final ItemStack insertItem = new ItemStack(inventoryFrom.getItem(i).getItem(), 1);
+			final ItemStack insertItem = inventoryFrom.getItem(i);
+			if (!insertItem.isEmpty()) {
 				final ItemStack remainingStack = HopperBlockEntity.addItem(null, inventoryTo, insertItem, null);
-				if (remainingStack.isEmpty()) {
-					inventoryFrom.removeItem(i, 1);
-					return;
-				}
+				inventoryFrom.setItem(i, remainingStack);
 			}
 		}
 	}
