@@ -44,7 +44,7 @@ public class ClientCache extends DataCache {
 	private final Map<String, DynamicResource> dynamicResources = new HashMap<>();
 	private boolean canGenerateResource = true;
 
-	private static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
+	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final ResourceLocation DEFAULT_BLACK_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/black.png");
 	private static final ResourceLocation DEFAULT_WHITE_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/white.png");
 	private static final ResourceLocation DEFAULT_TRANSPARENT_RESOURCE = new ResourceLocation(MTR.MOD_ID, "textures/block/transparent.png");
@@ -168,8 +168,12 @@ public class ClientCache extends DataCache {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public DynamicResource getStationName(long platformId, float aspectRatio) {
-		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
+	public DynamicResource getTallStationName(BlockPos pos, float aspectRatio, int color) {
+		return getResource(String.format("name_%s_%s_%s", pos, aspectRatio, color), () -> RouteMapGenerator.generateTallStationName(pos, aspectRatio, color), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getSingleRowStationName(long platformId, float aspectRatio) {
+		return getResource(String.format("name_%s_%s", platformId, aspectRatio), () -> RouteMapGenerator.generateSingleRowStationName(platformId, aspectRatio), DefaultRenderingColor.WHITE);
 	}
 
 	public DynamicResource getRouteSquare(int color, String routeName, IGui.HorizontalAlignment horizontalAlignment) {
@@ -185,10 +189,10 @@ public class ClientCache extends DataCache {
 	}
 
 	public byte[] getTextPixels(String text, int[] dimensions, int fontSizeCjk, int fontSize) {
-		return getTextPixels(text, dimensions, Integer.MAX_VALUE, fontSizeCjk, fontSize, 0, null);
+		return getTextPixels(text, dimensions, Integer.MAX_VALUE, (int) (Math.max(fontSizeCjk, fontSize) * LINE_HEIGHT_MULTIPLIER), fontSizeCjk, fontSize, 0, null);
 	}
 
-	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
+	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int maxHeight, int fontSizeCjk, int fontSize, int padding, IGui.HorizontalAlignment horizontalAlignment) {
 		if (maxWidth <= 0) {
 			dimensions[0] = 0;
 			dimensions[1] = 0;
@@ -234,8 +238,8 @@ public class ClientCache extends DataCache {
 		}
 
 		int textOffset = 0;
-		final int maxHeight = (int) Math.min(height, (fontSizeCjk + fontSize) * LINE_HEIGHT_MULTIPLIER);
-		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), maxHeight + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
+		final int imageHeight = Math.min(height, maxHeight);
+		final BufferedImage image = new BufferedImage(width + (oneRow ? 0 : padding * 2), imageHeight + (oneRow ? 0 : padding * 2), BufferedImage.TYPE_BYTE_GRAY);
 		final Graphics2D graphics2D = image.createGraphics();
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -244,7 +248,7 @@ public class ClientCache extends DataCache {
 				graphics2D.drawString(attributedStrings[index].getIterator(), textOffset, height / LINE_HEIGHT_MULTIPLIER);
 				textOffset += textWidths[index] + padding;
 			} else {
-				final float scaleY = (float) maxHeight / height;
+				final float scaleY = (float) imageHeight / height;
 				final float textWidth = Math.min(maxWidth, textWidths[index] * scaleY);
 				final float scaleX = textWidth / textWidths[index];
 				final AffineTransform stretch = new AffineTransform();
@@ -256,7 +260,7 @@ public class ClientCache extends DataCache {
 		}
 
 		dimensions[0] = width + (oneRow ? 0 : padding * 2);
-		dimensions[1] = maxHeight + (oneRow ? 0 : padding * 2);
+		dimensions[1] = imageHeight + (oneRow ? 0 : padding * 2);
 		final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 		graphics2D.dispose();
 		image.flush();

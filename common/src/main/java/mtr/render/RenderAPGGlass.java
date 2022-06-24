@@ -47,7 +47,7 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.TileEntityAPGG
 
 			final float width = leftBlocks + rightBlocks + 1 - sidePadding * 2;
 			final float height = 1 - topPadding - bottomPadding;
-			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getStationName(platformId, width / height).resourceLocation));
+			final VertexConsumer vertexConsumer2 = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getSingleRowStationName(platformId, width / height).resourceLocation));
 			IDrawing.drawTexture(matrices, vertexConsumer2, 1 - (rightBlocks == 0 ? sidePadding : 0), topPadding, 0.125F, leftBlocks == 0 ? sidePadding : 0, 1 - bottomPadding, 0.125F, (rightBlocks - (rightBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - leftBlocks + (leftBlocks == 0 ? 0 : sidePadding)) / width, 1, facing, color, light);
 		}
 	}

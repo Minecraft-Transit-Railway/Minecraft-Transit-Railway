@@ -59,6 +59,13 @@ public interface IGui {
 			newText = newText.replace("||", "|");
 		}
 
+		if (newText.startsWith("|")) {
+			newText = newText.substring(1);
+		}
+		if (newText.endsWith("|")) {
+			newText = newText.substring(0, newText.length() - 1);
+		}
+
 		return newText;
 	}
 
