@@ -1,6 +1,5 @@
 package mtr.block;
 
-import mtr.data.IGui;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -62,13 +61,10 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase {
 		builder.add(FACING);
 	}
 
-	public abstract static class TileEntityStationNameWallBase extends TileEntityStationNameBase implements IGui {
+	public abstract static class TileEntityStationNameWallBase extends TileEntityStationNameBase {
 
-		public final int color;
-
-		public TileEntityStationNameWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state, int color) {
+		public TileEntityStationNameWallBase(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 			super(type, pos, state, 0, 0, false);
-			this.color = color;
 		}
 	}
 }

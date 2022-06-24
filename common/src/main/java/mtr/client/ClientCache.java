@@ -168,8 +168,12 @@ public class ClientCache extends DataCache {
 		return getResource(String.format("color_%s", platformId), () -> RouteMapGenerator.generateColorStrip(platformId), DefaultRenderingColor.TRANSPARENT);
 	}
 
-	public DynamicResource getTallStationName(BlockPos pos, float aspectRatio, int color) {
-		return getResource(String.format("name_%s_%s_%s", pos, aspectRatio, color), () -> RouteMapGenerator.generateTallStationName(pos, aspectRatio, color), DefaultRenderingColor.TRANSPARENT);
+	public DynamicResource getStationName(String stationName, float aspectRatio) {
+		return getResource(String.format("name_%s_%s", stationName, aspectRatio), () -> RouteMapGenerator.generateStationName(stationName, aspectRatio), DefaultRenderingColor.TRANSPARENT);
+	}
+
+	public DynamicResource getTallStationName(String stationName, int stationColor, float aspectRatio) {
+		return getResource(String.format("name_%s_%s_%s", stationName, stationColor, aspectRatio), () -> RouteMapGenerator.generateTallStationName(stationName, stationColor, aspectRatio), DefaultRenderingColor.TRANSPARENT);
 	}
 
 	public DynamicResource getSingleRowStationName(long platformId, float aspectRatio) {

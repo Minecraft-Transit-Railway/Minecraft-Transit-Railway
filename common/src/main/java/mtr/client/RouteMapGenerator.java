@@ -6,7 +6,6 @@ import mtr.data.*;
 import mtr.mappings.Utilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
@@ -55,13 +54,30 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateTallStationName(BlockPos pos, float aspectRatio, int color) {
+	public static DynamicTexture generateStationName(String stationName, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
 		}
 
-		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
-		if (station == null) {
+		try {
+			final int height = scale * 2;
+			final int width = Math.round(height * aspectRatio);
+			final int padding = scale / 16;
+			final int[] dimensions = new int[2];
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(stationName, dimensions, width - padding * 2, height - padding * 2, fontSizeBig * 2, fontSizeSmall * 2, padding, HorizontalAlignment.CENTER);
+
+			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
+			return new DynamicTexture(nativeImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static DynamicTexture generateTallStationName(String stationName, int stationColor, float aspectRatio) {
+		if (aspectRatio <= 0) {
 			return null;
 		}
 
@@ -69,11 +85,11 @@ public class RouteMapGenerator implements IGui {
 			final int height = (int) (scale * 1.75);
 			final int width = Math.round(height * aspectRatio);
 			final int[] dimensions = new int[2];
-			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(IGui.formatVerticalChinese(station.name), dimensions, width, height, fontSizeBig, fontSizeSmall, 0, HorizontalAlignment.CENTER);
+			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(IGui.formatVerticalChinese(stationName), dimensions, width, height, fontSizeBig, fontSizeSmall, 0, HorizontalAlignment.CENTER);
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK | station.color, color, false);
-			clearColor(nativeImage, invertColor(ARGB_BLACK | station.color));
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK | stationColor, ARGB_WHITE, false);
+			clearColor(nativeImage, invertColor(ARGB_BLACK | stationColor));
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
 			e.printStackTrace();

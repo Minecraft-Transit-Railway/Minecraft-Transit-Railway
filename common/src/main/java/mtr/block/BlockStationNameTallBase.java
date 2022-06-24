@@ -122,11 +122,15 @@ public abstract class BlockStationNameTallBase extends BlockStationNameBase impl
 		}
 
 		@Override
-		public boolean shouldRender() {
-			if (level == null) {
-				return false;
+		public int getColor(BlockState state) {
+			switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
+				case 1:
+					return ARGB_LIGHT_GRAY;
+				case 2:
+					return ARGB_BLACK;
+				default:
+					return ARGB_WHITE;
 			}
-			return IBlock.getStatePropertySafe(level, worldPosition, THIRD) == EnumThird.MIDDLE;
 		}
 	}
 }

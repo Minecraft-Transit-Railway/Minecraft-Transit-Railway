@@ -19,12 +19,12 @@ public class BlockStationNameWallBlack extends BlockStationNameWallBase {
 	public static class TileEntityStationNameWallBlack extends TileEntityStationNameWallBase {
 
 		public TileEntityStationNameWallBlack(BlockPos pos, BlockState state) {
-			super(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), pos, state, ARGB_BLACK);
+			super(BlockEntityTypes.STATION_NAME_WALL_BLACK_TILE_ENTITY.get(), pos, state);
 		}
 
 		@Override
-		public boolean shouldRender() {
-			return level != null && !(level.getBlockState(worldPosition.relative(IBlock.getStatePropertySafe(level, worldPosition, FACING).getCounterClockWise())).getBlock() instanceof BlockStationNameWallBlack);
+		public int getColor(BlockState state) {
+			return ARGB_BLACK;
 		}
 	}
 }

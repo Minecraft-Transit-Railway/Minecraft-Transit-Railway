@@ -27,10 +27,6 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 
 	@Override
 	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		if (!entity.shouldRender()) {
-			return;
-		}
-
 		final BlockGetter world = entity.getLevel();
 		if (world == null) {
 			return;
@@ -39,22 +35,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		final BlockPos pos = entity.getBlockPos();
 		final BlockState state = world.getBlockState(pos);
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
-		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, entity.isDoubleSided ? null : facing)) {
-			return;
-		}
-
-		final int color;
-		switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
-			case 1:
-				color = ARGB_LIGHT_GRAY;
-				break;
-			case 2:
-				color = ARGB_BLACK;
-				break;
-			default:
-				color = ARGB_WHITE;
-				break;
-		}
+		final int color = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
 		matrices.pushPose();
 		matrices.translate(0.5, 0.5 + entity.yOffset, 0.5);
@@ -65,7 +46,7 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		for (int i = 0; i < (entity.isDoubleSided ? 2 : 1); i++) {
 			matrices.pushPose();
 			matrices.translate(0, 0, 0.5 - entity.zOffset - SMALL_OFFSET);
-			drawStationName(entity, matrices, vertexConsumers, immediate, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, color, light);
+			drawStationName(world, pos, state, facing, matrices, vertexConsumers, immediate, station == null ? Text.translatable("gui.mtr.untitled").getString() : station.name, station == null ? 0 : station.color, color, light);
 			matrices.popPose();
 			matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 		}
@@ -73,5 +54,5 @@ public abstract class RenderStationNameBase<T extends BlockStationNameBase.TileE
 		matrices.popPose();
 	}
 
-	protected abstract void drawStationName(BlockStationNameBase.TileEntityStationNameBase entity, PoseStack matrices, MultiBufferSource vertexConsumers, MultiBufferSource.BufferSource immediate, String stationName, int color, int light);
+	protected abstract void drawStationName(BlockGetter world, BlockPos pos, BlockState state, Direction facing, PoseStack matrices, MultiBufferSource vertexConsumers, MultiBufferSource.BufferSource immediate, String stationName, int stationColor, int color, int light);
 }
