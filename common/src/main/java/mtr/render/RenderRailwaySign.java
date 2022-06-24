@@ -83,7 +83,7 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		}
 		for (int i = 0; i < signIds.length; i++) {
 			if (signIds[i] != null) {
-				drawSign(matrices, vertexConsumers, Minecraft.getInstance().font, pos, signIds[i], 0.5F * i, 0, 0.5F, i, signIds.length - i - 1, entity.getSelectedIds(), facing, backgroundColor | ARGB_BLACK, (textureId, x, y, size, flipTexture) -> {
+				drawSign(matrices, vertexConsumers, Minecraft.getInstance().font, pos, signIds[i], 0.5F * i, 0, 0.5F, getMaxWidth(signIds, i, false), getMaxWidth(signIds, i, true), entity.getSelectedIds(), facing, backgroundColor | ARGB_BLACK, (textureId, x, y, size, flipTexture) -> {
 					final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getLight(new ResourceLocation(textureId.toString()), true));
 					IDrawing.drawTexture(matrices, vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, facing, -1, MAX_LIGHT_GLOWING);
 				});
@@ -250,6 +250,22 @@ public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign>
 		} catch (Exception ignored) {
 			return signId == null ? null : CustomResources.CUSTOM_SIGNS.get(signId);
 		}
+	}
+
+	public static float getMaxWidth(String[] signIds, int index, boolean right) {
+		float maxWidthLeft = 0;
+		for (int i = index + (right ? 1 : -1); right ? i < signIds.length : i >= 0; i += (right ? 1 : -1)) {
+			if (signIds[i] != null) {
+				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
+				if (sign != null && sign.hasCustomText() && right == sign.flipCustomText) {
+					maxWidthLeft /= 2;
+				}
+				return maxWidthLeft;
+			}
+			maxWidthLeft++;
+		}
+
+		return maxWidthLeft;
 	}
 
 	@FunctionalInterface
