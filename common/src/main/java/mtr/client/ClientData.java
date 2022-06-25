@@ -5,6 +5,7 @@ import mtr.data.*;
 import mtr.entity.EntityLift;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
+import mtr.packet.PacketTrainDataGuiClient;
 import mtr.screen.LiftSelectionScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -26,6 +27,10 @@ public final class ClientData {
 	public static String TRAINS_SEARCH = "";
 	public static String EXIT_PARENTS_SEARCH = "";
 	public static String EXIT_DESTINATIONS_SEARCH = "";
+
+	private static boolean pressingAccelerate = false;
+	private static boolean pressingBrake = false;
+	private static boolean pressingDoors = false;
 
 	public static final Set<Station> STATIONS = new HashSet<>();
 	public static final Set<Platform> PLATFORMS = new HashSet<>();
@@ -51,6 +56,19 @@ public final class ClientData {
 			PLAYER_RIDING_COOL_DOWN.put(uuid, coolDown - 1);
 		});
 		playersToRemove.forEach(PLAYER_RIDING_COOL_DOWN::remove);
+
+
+		final boolean tempPressingAccelerate = KeyMappings.TRAIN_ACCELERATE.isDown();
+		final boolean tempPressingBrake = KeyMappings.TRAIN_BRAKE.isDown();
+		final boolean tempPressingDoors = KeyMappings.TRAIN_TOGGLE_DOORS.isDown();
+		PacketTrainDataGuiClient.sendDriveTrainC2S(
+				tempPressingAccelerate && !pressingAccelerate,
+				tempPressingBrake && !pressingBrake,
+				tempPressingDoors && !pressingDoors
+		);
+		pressingAccelerate = tempPressingAccelerate;
+		pressingBrake = tempPressingBrake;
+		pressingDoors = tempPressingDoors;
 
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Player player = minecraftClient.player;

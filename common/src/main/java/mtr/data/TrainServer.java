@@ -43,8 +43,8 @@ public class TrainServer extends Train {
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual);
 		this.timeSegments = timeSegments;
 	}
 
@@ -61,6 +61,7 @@ public class TrainServer extends Train {
 
 	@Override
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+		super.startUp(world, trainCars, trainSpacing, isOppositeRail);
 		canDeploy = false;
 		isOnRoute = true;
 		stopCounter = 0;
@@ -88,7 +89,7 @@ public class TrainServer extends Train {
 		final float halfSpacing = spacing / 2F;
 		final float halfWidth = width / 2F;
 
-		if (doorLeftOpen || doorRightOpen) {
+		if (isManual || doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
 			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player)).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);

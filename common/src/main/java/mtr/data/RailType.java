@@ -13,6 +13,7 @@ public enum RailType implements IGui {
 	DIAMOND(300, MaterialColor.DIAMOND, false, true, false, RailSlopeStyle.CURVE),
 	PLATFORM(80, MaterialColor.COLOR_RED, true, false, true, RailSlopeStyle.CURVE),
 	SIDING(40, MaterialColor.COLOR_YELLOW, true, false, true, RailSlopeStyle.CURVE),
+	SIDING_MANUAL(40, MaterialColor.COLOR_YELLOW, true, false, true, RailSlopeStyle.CURVE),
 	TURN_BACK(80, MaterialColor.COLOR_BLUE, false, false, false, RailSlopeStyle.CURVE),
 	CABLE_CAR(30, MaterialColor.SNOW, false, true, true, RailSlopeStyle.CABLE),
 	CABLE_CAR_STATION(2, MaterialColor.SNOW, false, true, true, RailSlopeStyle.CURVE),

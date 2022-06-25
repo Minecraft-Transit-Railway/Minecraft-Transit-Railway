@@ -20,6 +20,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 
 	private boolean isSelectingTrain;
 	private final float oldAcceleration;
+	private final boolean oldIsManual;
 
 	private final TransportMode transportMode;
 	private final Button buttonSelectTrain;
@@ -27,6 +28,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 	private final WidgetBetterCheckbox buttonUnlimitedTrains;
 	private final WidgetBetterTextField textFieldMaxTrains;
 	private final WidgetShorterSlider sliderAccelerationConstant;
+	private final WidgetBetterCheckbox buttonIsManual;
 
 	private static final Component SELECTED_TRAIN_TEXT = Text.translatable("gui.mtr.selected_vehicle");
 	private static final Component MAX_TRAINS_TEXT = Text.translatable("gui.mtr.max_vehicles");
@@ -44,7 +46,15 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		availableTrainsList = new DashboardList(null, null, null, null, this::onAdd, null, null, () -> ClientData.TRAINS_SEARCH, text -> ClientData.TRAINS_SEARCH = text);
 		textFieldMaxTrains = new WidgetBetterTextField(WidgetBetterTextField.TextFieldFilter.POSITIVE_INTEGER, "", MAX_TRAINS_TEXT_LENGTH);
 		sliderAccelerationConstant = new WidgetShorterSlider(0, MAX_TRAINS_WIDTH, Math.round((Train.MAX_ACCELERATION - Train.MIN_ACCELERATION) * SLIDER_SCALE), this::sliderFormatter, null);
+		buttonIsManual = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.is_manual"), checked -> {
+			if (checked && !textFieldMaxTrains.getValue().equals("1")) {
+				textFieldMaxTrains.setValue("1");
+			}
+		});
 		buttonUnlimitedTrains = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.unlimited_vehicles"), checked -> {
+			if (checked) {
+				buttonIsManual.setChecked(false);
+			}
 			if (checked && !textFieldMaxTrains.getValue().isEmpty()) {
 				textFieldMaxTrains.setValue("");
 			} else if (!checked && textFieldMaxTrains.getValue().isEmpty()) {
@@ -52,6 +62,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 			}
 		});
 		oldAcceleration = savedRailBase.getAccelerationConstant();
+		oldIsManual = savedRailBase.getIsManual();
 	}
 
 	@Override
@@ -63,31 +74,36 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		IDrawing.setPositionAndWidth(buttonUnlimitedTrains, startX + textWidth + MAX_TRAINS_WIDTH + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, SLIDER_WIDTH);
 
 		addDrawableChild(buttonSelectTrain);
-		if (showScheduleControls) {
-			addDrawableChild(buttonUnlimitedTrains);
-		}
 
 		availableTrainsList.y = SQUARE_SIZE * 2;
 		availableTrainsList.height = height - SQUARE_SIZE * 5;
 		availableTrainsList.width = SLIDER_WIDTH;
 		availableTrainsList.init(this::addDrawableChild);
 
+		buttonIsManual.setChecked(savedRailBase.getIsManual());
 		buttonUnlimitedTrains.setChecked(savedRailBase.getUnlimitedTrains());
 
 		IDrawing.setPositionAndWidth(textFieldMaxTrains, startX + textWidth + TEXT_FIELD_PADDING / 2, height / 2 + TEXT_FIELD_PADDING + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE, MAX_TRAINS_WIDTH - TEXT_FIELD_PADDING);
 		textFieldMaxTrains.setValue(savedRailBase.getUnlimitedTrains() ? "" : String.valueOf(savedRailBase.getMaxTrains() + 1));
-		textFieldMaxTrains.setResponder(text -> buttonUnlimitedTrains.setChecked(text.isEmpty()));
+		textFieldMaxTrains.setResponder(text -> {
+			buttonUnlimitedTrains.setChecked(text.isEmpty());
+			if (!text.equals("1")) {
+				buttonIsManual.setChecked(false);
+			}
+		});
 
 		sliderAccelerationConstant.x = startX + textWidth;
 		sliderAccelerationConstant.y = height / 2 + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 2;
 		sliderAccelerationConstant.setHeight(SQUARE_SIZE);
 		sliderAccelerationConstant.setValue(Math.round((savedRailBase.getAccelerationConstant() - Train.MIN_ACCELERATION) * SLIDER_SCALE));
 
+		IDrawing.setPositionAndWidth(buttonIsManual, startX + textWidth, height / 2 + TEXT_FIELD_PADDING * 2 + TEXT_FIELD_PADDING / 2 + SQUARE_SIZE * 3, SLIDER_WIDTH);
+
 		if (showScheduleControls) {
+			addDrawableChild(buttonUnlimitedTrains);
 			addDrawableChild(textFieldMaxTrains);
-		}
-		if (showScheduleControls) {
 			addDrawableChild(sliderAccelerationConstant);
+			addDrawableChild(buttonIsManual);
 		}
 	}
 
@@ -124,7 +140,8 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		} catch (Exception ignored) {
 			accelerationConstant = Train.ACCELERATION_DEFAULT;
 		}
-		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, oldAcceleration == accelerationConstant ? 0 : accelerationConstant, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
+		final boolean isManual = buttonIsManual.selected();
+		savedRailBase.setUnlimitedTrains(buttonUnlimitedTrains.selected(), maxTrains, isManual, oldAcceleration == accelerationConstant && oldIsManual == isManual ? 0 : accelerationConstant, packet -> PacketTrainDataGuiClient.sendUpdate(getPacketIdentifier(), packet));
 		super.onClose();
 	}
 
@@ -172,6 +189,7 @@ public class SidingScreen extends SavedRailScreenBase<Siding> {
 		buttonUnlimitedTrains.visible = !isSelectingTrain;
 		textFieldMaxTrains.visible = !isSelectingTrain;
 		sliderAccelerationConstant.visible = !isSelectingTrain;
+		buttonIsManual.visible = !isSelectingTrain;
 		buttonSelectTrain.setMessage(TrainClientRegistry.getTrainProperties(savedRailBase.getTrainId()).name);
 		availableTrainsList.x = isSelectingTrain ? width / 2 - SLIDER_WIDTH / 2 : width;
 	}

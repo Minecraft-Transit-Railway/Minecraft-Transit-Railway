@@ -369,6 +369,9 @@ public class TrainClient extends Train {
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
 		isOnRoute = train.isOnRoute;
+		isManual = train.isManual;
+		manualAccelerationSign = train.manualAccelerationSign;
+		manualDoorOpen = train.manualDoorOpen;
 	}
 
 	public float getSpeed() {
