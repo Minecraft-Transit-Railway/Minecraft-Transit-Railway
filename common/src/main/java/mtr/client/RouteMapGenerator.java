@@ -67,6 +67,7 @@ public class RouteMapGenerator implements IGui {
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(stationName, dimensions, width - padding * 2, height - padding * 2, fontSizeBig * 2, fontSizeSmall * 2, padding, HorizontalAlignment.CENTER);
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
@@ -82,12 +83,13 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final int height = (int) (scale * 1.75);
+			final int height = Math.round(scale * 1.75F);
 			final int width = Math.round(height * aspectRatio);
 			final int[] dimensions = new int[2];
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(IGui.formatVerticalChinese(stationName), dimensions, width, height, fontSizeBig, fontSizeSmall, 0, HorizontalAlignment.CENTER);
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+			nativeImage.fillRect(0, 0, width, height, 0);
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK | stationColor, ARGB_WHITE, false);
 			clearColor(nativeImage, invertColor(ARGB_BLACK | stationColor));
 			return new DynamicTexture(nativeImage);

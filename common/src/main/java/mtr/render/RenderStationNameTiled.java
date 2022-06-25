@@ -43,7 +43,7 @@ public class RenderStationNameTiled<T extends BlockStationNameBase.TileEntitySta
 			}
 		} else {
 			final int totalLength = lengthLeft + lengthRight - 1;
-			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(ClientData.DATA_CACHE.getStationName(stationName, totalLength).resourceLocation)), -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
+			IDrawing.drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getStationName(stationName, totalLength).resourceLocation)), -0.5F, -0.5F, 1, 1, (float) (lengthLeft - 1) / totalLength, 0, (float) lengthLeft / totalLength, 1, facing, color, light);
 		}
 	}
 
