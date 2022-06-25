@@ -102,7 +102,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
 
 			final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties.baseTrainType, textureId, textureId -> textureId + ".png")));
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(textureId, textureId -> textureId + ".png")));
 
 			if (isBoat) {
 				if (!BOATS.containsKey(train.id)) {
@@ -116,7 +116,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(trainProperties.baseTrainType, textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, lightsOn, isTranslucentBatch, renderDetails);
+			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, lightsOn, isTranslucentBatch, renderDetails);
 
 			if (trainProperties.bogiePosition != 0) {
 				if (trainProperties.isJacobsBogie) {
@@ -159,7 +159,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
 		if (trainProperties.hasGangwayConnection) {
-			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, true, "exterior")));
+			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(true, "exterior")));
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
@@ -167,11 +167,11 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 			final boolean lightsOn = train.isOnRoute;
 			final int lightOnLevel = lightsOn ? RenderTrains.MAX_LIGHT_INTERIOR : light;
-			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "side")));
+			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(true, "side")));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
-			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(trainProperties, true, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(true, "roof"))), prevPos2, thisPos3, thisPos2, prevPos3, lightOnLevel);
+			drawTexture(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(true, "floor"))), prevPos4, thisPos1, thisPos4, prevPos1, lightOnLevel);
 		}
 
 		if (trainProperties.isJacobsBogie) {
@@ -195,12 +195,9 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			return;
 		}
 
-		String trainId = train.trainId;
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
-
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
-		final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(trainProperties, false, "exterior")));
+		final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(false, "exterior")));
 		drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 		drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 		drawTexture(matrices, vertexConsumerExterior, thisPos3, prevPos2, prevPos1, thisPos4, light);
@@ -219,11 +216,11 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		matrices.popPose();
 	}
 
-	private ResourceLocation getConnectorTextureString(TrainClientRegistry.TrainProperties trainProperties, boolean isConnector, String partName) {
-		return resolveTexture(trainProperties.baseTrainType, isConnector ? gangwayConnectionId : trainBarrierId, textureId -> String.format("%s_%s_%s.png", textureId, isConnector ? "connector" : "barrier", partName));
+	private ResourceLocation getConnectorTextureString(boolean isConnector, String partName) {
+		return resolveTexture(isConnector ? gangwayConnectionId : trainBarrierId, textureId -> String.format("%s_%s_%s.png", textureId, isConnector ? "connector" : "barrier", partName));
 	}
 
-	public ResourceLocation resolveTexture(String baseTrainType, String textureId, Function<String, String> formatter) {
+	public ResourceLocation resolveTexture(String textureId, Function<String, String> formatter) {
 		final String textureString = formatter.apply(textureId);
 		final ResourceLocation id = new ResourceLocation(textureString);
 		final boolean available;

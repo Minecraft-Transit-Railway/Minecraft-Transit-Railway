@@ -65,8 +65,8 @@ public class TrainClient extends Train {
 		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
-		trainRenderer = trainProperties.renderer.createTrainInstance(this);
-		trainSound = trainProperties.sound.createTrainInstance(this);
+		trainRenderer = trainProperties.renderer == null ? null : trainProperties.renderer.createTrainInstance(this);
+		trainSound = trainProperties.sound == null ? null : trainProperties.sound.createTrainInstance(this);
 	}
 
 	@Override
@@ -78,12 +78,11 @@ public class TrainClient extends Train {
 			double oldRailProgress
 	) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
-		if (clientPlayer == null) {
+		if (clientPlayer == null || trainRenderer == null || trainSound == null) {
 			return;
 		}
 
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
-		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 		trainSound.playAllCars(world, soundPos, ridingCar);
 		if (doorLeftOpen || doorRightOpen) {
 			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
@@ -301,18 +300,21 @@ public class TrainClient extends Train {
 		previousInterval = interval;
 		justMounted = false;
 
-		Vec3 cameraPos = Minecraft.getInstance().cameraEntity.position();
-		double nearestDistance = Double.POSITIVE_INFINITY;
-		int nearestCar = 0;
-		for (int i = 0; i < trainCars; ++i) {
-			double dist = cameraPos.distanceToSqr(positions[i]);
-			if (dist < nearestDistance) {
-				nearestCar = i;
-				nearestDistance = dist;
+		if (trainSound != null) {
+			final Entity camera = Minecraft.getInstance().cameraEntity;
+			final Vec3 cameraPos = camera == null ? Vec3.ZERO : camera.position();
+			double nearestDistance = Double.POSITIVE_INFINITY;
+			int nearestCar = 0;
+			for (int i = 0; i < trainCars; ++i) {
+				double dist = cameraPos.distanceToSqr(positions[i]);
+				if (dist < nearestDistance) {
+					nearestCar = i;
+					nearestDistance = dist;
+				}
 			}
+			final BlockPos soundPos = new BlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
+			trainSound.playNearestCar(world, soundPos, nearestCar);
 		}
-		final BlockPos soundPos = new BlockPos(positions[nearestCar].x, positions[nearestCar].y, positions[nearestCar].z);
-		trainSound.playNearestCar(world, soundPos, nearestCar);
 
 		return true;
 	}

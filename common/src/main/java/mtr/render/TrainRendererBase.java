@@ -20,11 +20,10 @@ import java.util.UUID;
 
 public abstract class TrainRendererBase {
 
-	TrainClient train;
-
-	PoseStack matrices;
-	MultiBufferSource vertexConsumers;
-	Vec3 viewOffset;
+	protected TrainClient train;
+	protected PoseStack matrices;
+	protected MultiBufferSource vertexConsumers;
+	private Vec3 viewOffset;
 
 	protected static Minecraft client;
 	protected static Camera camera;
@@ -35,7 +34,7 @@ public abstract class TrainRendererBase {
 
 	public final TrainRendererBase createTrainInstance(TrainClient train) {
 		try {
-			TrainRendererBase newInstance = getClass().getDeclaredConstructor().newInstance();
+			final TrainRendererBase newInstance = getClass().getDeclaredConstructor().newInstance();
 			newInstance.copyFrom(this);
 			newInstance.train = train;
 			return newInstance;
@@ -44,17 +43,6 @@ public abstract class TrainRendererBase {
 			e.printStackTrace();
 			return null;
 		}
-	}
-
-	protected abstract void copyFrom(TrainRendererBase src);
-
-	public static void setupStaticInfo() {
-		client = Minecraft.getInstance();
-		camera = client.gameRenderer.getMainCamera();
-		cameraEntity = client.cameraEntity;
-		world = client.level;
-		player = client.player;
-		lastFrameDuration = MTRClient.getLastFrameDuration();
 	}
 
 	public void setupRender(PoseStack matrices, MultiBufferSource vertexConsumers, EntitySeat entity, float tickDelta) {
@@ -94,21 +82,29 @@ public abstract class TrainRendererBase {
 		matrices.popPose();
 	}
 
-	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch,
-								   boolean doorLeftOpen, boolean doorRightOpen);
-
-	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4,
-										  double x, double y, double z, float yaw, float pitch);
-
-	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4,
-									   double x, double y, double z, float yaw, float pitch);
-
-	public abstract void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset);
-
 	protected BlockPos getPosAverage(double x, double y, double z) {
 		final boolean noOffset = viewOffset == null;
 		final Entity camera = cameraEntity;
 		final Vec3 cameraPos = camera == null ? null : camera.position();
 		return new BlockPos(x + (noOffset || cameraPos == null ? 0 : cameraPos.x), y + (noOffset || cameraPos == null ? 0 : cameraPos.y), z + (noOffset || cameraPos == null ? 0 : cameraPos.z));
+	}
+
+	public abstract void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, boolean doorLeftOpen, boolean doorRightOpen);
+
+	public abstract void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
+
+	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
+
+	public abstract void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset);
+
+	protected abstract void copyFrom(TrainRendererBase src);
+
+	public static void setupStaticInfo() {
+		client = Minecraft.getInstance();
+		camera = client.gameRenderer.getMainCamera();
+		cameraEntity = client.cameraEntity;
+		world = client.level;
+		player = client.player;
+		lastFrameDuration = MTRClient.getLastFrameDuration();
 	}
 }
