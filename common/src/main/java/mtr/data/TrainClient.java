@@ -8,6 +8,7 @@ import mtr.client.TrainClientRegistry;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataGuiClient;
+import mtr.render.RenderDrivingOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -329,7 +330,13 @@ public class TrainClient extends Train {
 		this.speedCallback = speedCallback;
 		this.announcementCallback = announcementCallback;
 		this.lightRailAnnouncementCallback = lightRailAnnouncementCallback;
+
 		simulateTrain(world, ticksElapsed, null);
+
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (player != null && ridingEntities.contains(player.getUUID())) {
+			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue);
+		}
 	}
 
 	public void renderTranslucent() {
