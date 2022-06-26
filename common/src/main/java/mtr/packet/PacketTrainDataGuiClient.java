@@ -332,11 +332,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void sendDriveTrainC2S(boolean pressingAccelerate, boolean pressingBrake, boolean pressingDoors) {
-		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
-		packet.writeBoolean(pressingAccelerate);
-		packet.writeBoolean(pressingBrake);
-		packet.writeBoolean(pressingDoors);
-		RegistryClient.sendToServer(PACKET_DRIVE_TRAIN, packet);
+		if (pressingAccelerate || pressingBrake || pressingDoors) {
+			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+			packet.writeBoolean(pressingAccelerate);
+			packet.writeBoolean(pressingBrake);
+			packet.writeBoolean(pressingDoors);
+			RegistryClient.sendToServer(PACKET_DRIVE_TRAIN, packet);
+		}
 	}
 
 	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {

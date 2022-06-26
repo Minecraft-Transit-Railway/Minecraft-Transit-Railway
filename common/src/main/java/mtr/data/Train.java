@@ -308,10 +308,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	public boolean changeManualSpeed(boolean isAccelerate) {
-		if (manualDoorValue == 0 && isAccelerate && manualAccelerationSign < 1) {
+		if (manualDoorValue == 0 && isAccelerate && manualAccelerationSign < 2) {
 			manualAccelerationSign++;
 			return true;
-		} else if (!isAccelerate && manualAccelerationSign > -1) {
+		} else if (!isAccelerate && manualAccelerationSign > -2) {
 			manualAccelerationSign--;
 			return true;
 		} else {
@@ -322,7 +322,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	public boolean toggleDoors() {
 		if (speed == 0) {
 			manualDoorOpen = !manualDoorOpen;
-			manualAccelerationSign = -1;
+			manualAccelerationSign = -2;
 			return true;
 		} else {
 			manualDoorOpen = false;
@@ -396,10 +396,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress + (isManual ? 0.5 : 0);
 						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
 							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
-							manualAccelerationSign = -1;
+							manualAccelerationSign = -2;
 						} else {
 							if (isManual) {
-								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration, 0, RailType.DIAMOND.maxBlocksPerTick);
+								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, RailType.DIAMOND.maxBlocksPerTick);
 							} else {
 								final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
 								if (speed < railSpeed) {
