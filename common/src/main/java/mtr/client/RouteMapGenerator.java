@@ -77,7 +77,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
-	public static DynamicTexture generateTallStationName(String stationName, int stationColor, float aspectRatio) {
+	public static DynamicTexture generateTallStationName(int textColor, String stationName, int stationColor, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
 		}
@@ -90,7 +90,7 @@ public class RouteMapGenerator implements IGui {
 
 			final NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
 			nativeImage.fillRect(0, 0, width, height, 0);
-			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK | stationColor, ARGB_WHITE, false);
+			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, ARGB_BLACK | stationColor, textColor, false);
 			clearColor(nativeImage, invertColor(ARGB_BLACK | stationColor));
 			return new DynamicTexture(nativeImage);
 		} catch (Exception e) {
