@@ -21,12 +21,12 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 		String[] lines = textContent.split("[\\r\\n]+");
 		String section = "";
 		for (final String line : lines) {
-			final String lineTrim = line.trim().toLowerCase(Locale.ROOT);
+			final String lineTrim = line.trim().toLowerCase();
 			if (StringUtils.isEmpty(lineTrim)) {
 				continue;
 			}
 			if (lineTrim.startsWith("#")) {
-				section = lineTrim.substring(1).trim().toLowerCase(Locale.ROOT);
+				section = lineTrim.substring(1).trim().toLowerCase();
 				continue;
 			}
 			switch (section) {

@@ -35,8 +35,7 @@ public class JonTrainSound extends TrainSoundBase {
 
 	@Override
 	protected void createTrainInstance(TrainSoundBase srcBase) {
-		JonTrainSound src = (JonTrainSound) srcBase;
-		config = src.config;
+		config = ((JonTrainSound) srcBase).config;
 	}
 
 	@Override
@@ -44,6 +43,7 @@ public class JonTrainSound extends TrainSoundBase {
 		if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) {
 			return;
 		}
+
 		if (config.speedSoundCount > 0 && config.speedSoundBaseId != null) {
 			// TODO: Better sound system to adapt to different acceleration
 			final float referenceAcceleration = config.playbackSpeedDoesNotDependOnCustomAcceleration ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
@@ -65,7 +65,6 @@ public class JonTrainSound extends TrainSoundBase {
 
 	@Override
 	public void playAllCars(Level world, BlockPos pos, int carIndex) {
-
 	}
 
 	@Override
@@ -74,6 +73,7 @@ public class JonTrainSound extends TrainSoundBase {
 		if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) {
 			return;
 		}
+
 		final float doorValue = Math.abs(train.rawDoorValue);
 		if (config.doorSoundBaseId != null) {
 			final String soundId;

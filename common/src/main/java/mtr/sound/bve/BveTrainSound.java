@@ -6,7 +6,6 @@ import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
@@ -16,14 +15,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BveTrainSound extends TrainSoundBase {
 
 	public BveTrainSoundConfig config;
-
-	public BveTrainSound() {
-		// A constructor without arguments is used by createTrainInstance via reflection.
-	}
-
-	public BveTrainSound(BveTrainSoundConfig config) {
-		this.config = config;
-	}
 
 	private TrainLoopingSoundInstance[] soundLoopMotor;
 	private TrainLoopingSoundInstance soundLoopRun;
@@ -43,9 +34,17 @@ public class BveTrainSound extends TrainSoundBase {
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapse;
 
+	public BveTrainSound() {
+		// A constructor without arguments is used by createTrainInstance via reflection.
+	}
+
+	public BveTrainSound(BveTrainSoundConfig config) {
+		this.config = config;
+	}
+
 	@Override
 	protected void createTrainInstance(TrainSoundBase srcBase) {
-		BveTrainSound src = (BveTrainSound) srcBase;
+		final BveTrainSound src = (BveTrainSound) srcBase;
 		bogieRailId = new int[train.trainCars][2];
 		config = src.config;
 		mrPress = ThreadLocalRandom.current().nextInt(config.soundCfg.mrPressMin, config.soundCfg.mrPressMax + 1);
@@ -67,6 +66,7 @@ public class BveTrainSound extends TrainSoundBase {
 		if (config.soundCfg.compressorLoop != null) {
 			soundLoopCompressor = new TrainLoopingSoundInstance(config.soundCfg.compressorLoop, train);
 		}
+
 		soundLoopMotor = new TrainLoopingSoundInstance[config.soundCfg.motor.length];
 		for (int i = 0; i < Math.min(config.soundCfg.motor.length, config.motorData.getSoundCount()); ++i) {
 			if (config.soundCfg.motor[i] != null) {
@@ -77,15 +77,15 @@ public class BveTrainSound extends TrainSoundBase {
 
 	@Override
 	public void playNearestCar(Level world, BlockPos pos, int carIndex) {
-		float deltaT = MTRClient.getLastFrameDuration() / 20F;
-		float accel = (train.speed - train.speedLastElapse) * 20F / deltaT;
-		float speed = train.speed * 20F;
-		float speedKmph = speed * 3.6F;
+		final float deltaT = MTRClient.getLastFrameDuration() / 20F;
+		final float accel = (train.speed - train.speedLastElapse) * 20F / deltaT;
+		final float speed = train.speed * 20F;
+		final float speedKph = speed * 3.6F;
 
 		// Rolling noise
 		if (soundLoopRun != null) {
-			float runPitch = speed * 0.04F;
-			float runBaseGain = Math.min(1.0F, speed * 0.04F);
+			final float runPitch = speed * 0.04F;
+			final float runBaseGain = Math.min(1.0F, speed * 0.04F);
 			soundLoopRun.setVolumePitch(runBaseGain, runPitch);
 			soundLoopRun.setPos(pos);
 		}
@@ -144,8 +144,8 @@ public class BveTrainSound extends TrainSoundBase {
 				continue;
 			}
 			soundLoopMotor[i].setVolumePitch(
-					config.motorData.getVolume(i, speedKmph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply,
-					config.motorData.getPitch(i, speedKmph, motorCurrentMode)
+					config.motorData.getVolume(i, speedKph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply,
+					config.motorData.getPitch(i, speedKph, motorCurrentMode)
 			);
 			soundLoopMotor[i].setPos(pos);
 		}
@@ -208,6 +208,7 @@ public class BveTrainSound extends TrainSoundBase {
 		if (config.soundCfg.joint[0] == null || trainProperties.bogiePosition == 0) {
 			return;
 		}
+
 		float bogieOffsetFront = -1, bogieOffsetRear = -1;
 		if (trainProperties.isJacobsBogie) {
 			if (carIndex == 0) {
@@ -222,8 +223,9 @@ public class BveTrainSound extends TrainSoundBase {
 			bogieOffsetFront = train.spacing / 2F - trainProperties.bogiePosition;
 			bogieOffsetRear = train.spacing / 2F + trainProperties.bogiePosition;
 		}
-		float pitch = train.speed * 20F / 12.5F;
-		float gain = pitch < 0.5F ? 2.0F * pitch : 1.0F;
+
+		final float pitch = train.speed * 20F / 12.5F;
+		final float gain = pitch < 0.5F ? 2.0F * pitch : 1.0F;
 		if (bogieOffsetFront >= 0) {
 			int indexFront = train.getIndex(train.getRailProgress() - train.spacing * carIndex - bogieOffsetFront, false);
 			if (indexFront != bogieRailId[carIndex][0]) {
@@ -232,7 +234,7 @@ public class BveTrainSound extends TrainSoundBase {
 			}
 		}
 		if (bogieOffsetRear >= 0) {
-			int indexRear = train.getIndex(train.getRailProgress() - train.spacing * carIndex - bogieOffsetRear, false);
+			final int indexRear = train.getIndex(train.getRailProgress() - train.spacing * carIndex - bogieOffsetRear, false);
 			if (indexRear != bogieRailId[carIndex][1]) {
 				bogieRailId[carIndex][1] = indexRear;
 				playLocalSound(world, config.soundCfg.joint[0], pos, gain, pitch);
@@ -246,20 +248,18 @@ public class BveTrainSound extends TrainSoundBase {
 		if (!(world instanceof ClientLevel)) {
 			return;
 		}
-		final float doorValue = Math.abs(train.rawDoorValue);
 
-		final String soundId;
+		final float doorValue = Math.abs(train.rawDoorValue);
+		final SoundEvent soundEvent;
 		if (train.doorValueLastElapse <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
-			soundId = config.audioBaseName + config.soundCfg.doorOpen;
-		} else if (train.doorValueLastElapse >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength
-				&& config.soundCfg.doorClose != null) {
-			soundId = config.audioBaseName + config.soundCfg.doorClose;
+			soundEvent = config.soundCfg.doorOpen;
+		} else if (train.doorValueLastElapse >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength && config.soundCfg.doorClose != null) {
+			soundEvent = config.soundCfg.doorClose;
 		} else {
-			soundId = null;
+			soundEvent = null;
 		}
-		if (soundId != null) {
-			((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(soundId)), SoundSource.BLOCKS, 1, 1, true);
-		}
+
+		playLocalSound(world, soundEvent, pos);
 	}
 
 	private static void playLocalSound(Level world, SoundEvent event, BlockPos pos, float gain, float pitch) {

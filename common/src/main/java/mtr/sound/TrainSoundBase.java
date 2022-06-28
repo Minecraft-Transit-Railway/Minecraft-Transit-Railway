@@ -10,13 +10,13 @@ public abstract class TrainSoundBase {
 
 	public final TrainSoundBase createTrainInstance(TrainClient train) {
 		try {
-			TrainSoundBase newInstance = getClass().getDeclaredConstructor().newInstance();
+			final TrainSoundBase newInstance = getClass().getDeclaredConstructor().newInstance();
 			newInstance.train = train;
 			newInstance.createTrainInstance(this);
 			return newInstance;
-		} catch (Exception ex) {
+		} catch (Exception e) {
 			// This should not happen
-			ex.printStackTrace();
+			e.printStackTrace();
 			return null;
 		}
 	}

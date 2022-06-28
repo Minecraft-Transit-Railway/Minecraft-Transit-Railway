@@ -10,15 +10,15 @@ import net.minecraft.sounds.SoundSource;
 
 public class TrainLoopingSoundInstance extends TickableSoundInstanceMapper {
 
-	TrainClient binding;
+	private final TrainClient binding;
 
 	public TrainLoopingSoundInstance(SoundEvent event, TrainClient binding) {
 		super(event, SoundSource.BLOCKS);
 		looping = true;
 		this.binding = binding;
 		delay = 0;
-		volume = 0.0f;
-		pitch = 1.0f;
+		volume = 0;
+		pitch = 1;
 	}
 
 	public void setVolumePitch(float volume, float pitch) {

@@ -7,19 +7,17 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.io.IOUtils;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class BveTrainSoundConfig {
 
-	public String audioBaseName;
-
-	public ConfigFile soundCfg;
-	public MotorDataBase motorData;
+	public final String audioBaseName;
+	public final ConfigFile soundCfg;
+	public final MotorDataBase motorData;
 
 	public BveTrainSoundConfig(ResourceManager manager, String baseName) {
-		String configBaseName = "mtr:sounds/" + baseName;
+		final String configBaseName = "mtr:sounds/" + baseName;
 		audioBaseName = "mtr:" + baseName + "_";
 		soundCfg = new ConfigFile(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")), this);
 		if (soundCfg.motorNoiseDataType == 4) {
@@ -31,13 +29,12 @@ public class BveTrainSoundConfig {
 
 	public static String readResource(ResourceManager manager, ResourceLocation location) {
 		try {
-			List<Resource> resources = UtilitiesClient.getResources(manager, location);
+			final List<Resource> resources = UtilitiesClient.getResources(manager, location);
 			if (resources.size() < 1) {
 				return "";
 			}
-			InputStream iStream = Utilities.getInputStream(resources.get(0));
-			return IOUtils.toString(iStream, StandardCharsets.UTF_8);
-		} catch (Exception ex) {
+			return IOUtils.toString(Utilities.getInputStream(resources.get(0)), StandardCharsets.UTF_8);
+		} catch (Exception e) {
 			return "";
 		}
 	}

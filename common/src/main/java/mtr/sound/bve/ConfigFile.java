@@ -8,50 +8,78 @@ import java.util.Locale;
 
 public class ConfigFile {
 
-	public SoundEvent[] run = new SoundEvent[1];
-	public SoundEvent[] flange = new SoundEvent[1];
-	public SoundEvent[] motor = new SoundEvent[40];
-	public SoundEvent[] joint = new SoundEvent[1];
+	public final SoundEvent[] run = new SoundEvent[1];
+	public final SoundEvent[] flange = new SoundEvent[1];
+	public final SoundEvent[] motor = new SoundEvent[40];
+	public final SoundEvent[] joint = new SoundEvent[1];
 
-	public SoundEvent air;
-	public SoundEvent airZero;
-	public SoundEvent airHigh;
-	public SoundEvent brakeEmergency;
+	public final SoundEvent air;
+	public final SoundEvent airZero;
+	public final SoundEvent airHigh;
+	public final SoundEvent brakeEmergency;
 
-	public SoundEvent doorOpen;
-	public SoundEvent doorClose;
+	public final SoundEvent doorOpen;
+	public final SoundEvent doorClose;
 
-	public SoundEvent brakeHandleApply;
-	public SoundEvent brakeHandleRelease;
+	public final SoundEvent brakeHandleApply;
+	public final SoundEvent brakeHandleRelease;
 
-	public SoundEvent compressorAttack;
-	public SoundEvent compressorLoop;
-	public SoundEvent compressorRelease;
+	public final SoundEvent compressorAttack;
+	public final SoundEvent compressorLoop;
+	public final SoundEvent compressorRelease;
 
-	public SoundEvent noise;
-	public SoundEvent shoe;
+	public final SoundEvent noise;
+	public final SoundEvent shoe;
 
-	public int motorNoiseDataType = 5; // 4 or 5
+	public final int motorNoiseDataType;
 
-	public float motorVolumeMultiply = 1F;
-	public float breakerDelay = 0.5F; // sec
-	public float regenerationLimit = 8F / 3.6F; // m/s
+	public final float motorVolumeMultiply;
+	public final float breakerDelay;
+	public final float regenerationLimit;
 
-	public int mrPressMin = 700; // kPa
-	public int mrPressMax = 800; // kPa
-	public float mrCompressorSpeed = 5; // kPa/s
-	public float mrServiceBrakeReduce = 5; // kPa each time
+	public final int mrPressMin = 700; // kPa
+	public final int mrPressMax = 800; // kPa
+	public final float mrCompressorSpeed = 5; // kPa/s
+	public final float mrServiceBrakeReduce = 5; // kPa each time
 
-	public float doorCloseSoundLength = 2F;
+	public final float doorCloseSoundLength;
 
 	public ConfigFile(String textContent, BveTrainSoundConfig config) {
 		final String[] lines = textContent.split("[\\r\\n]+");
 		String section = "";
+
+		SoundEvent air = null;
+		SoundEvent airZero = null;
+		SoundEvent airHigh = null;
+		SoundEvent brakeEmergency = null;
+
+		SoundEvent doorOpen = null;
+		SoundEvent doorClose = null;
+
+		SoundEvent brakeHandleApply = null;
+		SoundEvent brakeHandleRelease = null;
+
+		SoundEvent compressorAttack = null;
+		SoundEvent compressorLoop = null;
+		SoundEvent compressorRelease = null;
+
+		SoundEvent noise = null;
+		SoundEvent shoe = null;
+
+		int motorNoiseDataType = 5; // 4 or 5
+
+		float motorVolumeMultiply = 1F;
+		float breakerDelay = 0.5F; // sec
+		float regenerationLimit = 8F / 3.6F; // m/s
+
+		float doorCloseSoundLength = 2F;
+
 		for (final String line : lines) {
 			final String trimLine = line.trim();
 			if (StringUtils.isEmpty(trimLine)) {
 				continue;
 			}
+
 			if (trimLine.startsWith("#") || trimLine.startsWith("//") || trimLine.startsWith("bvets")) {
 				continue;
 			}
@@ -61,11 +89,13 @@ public class ConfigFile {
 				if (tokens.length != 2) {
 					continue;
 				}
-				final String key = tokens[0].trim().replace(" ", "").toLowerCase(Locale.ROOT);
-				final String value = tokens[1].trim().toLowerCase(Locale.ROOT).replace(".wav", "");
+
+				final String key = tokens[0].trim().replace(" ", "").toLowerCase();
+				final String value = tokens[1].trim().toLowerCase().replace(".wav", "");
 				if (StringUtils.isEmpty(value)) {
 					continue;
 				}
+
 				final SoundEvent valueAsSoundEvent = new SoundEvent(new ResourceLocation(config.audioBaseName + value));
 				switch (section) {
 					case "mtr":
@@ -175,14 +205,35 @@ public class ConfigFile {
 						}
 				}
 			} else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
-				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ROOT);
+				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase();
 			}
 		}
+
 		if (airZero == null) {
 			airZero = air;
 		}
+
 		if (airHigh == null) {
 			airHigh = air;
 		}
+
+		this.air = air;
+		this.airZero = airZero;
+		this.airHigh = airHigh;
+		this.brakeEmergency = brakeEmergency;
+		this.doorOpen = doorOpen;
+		this.doorClose = doorClose;
+		this.brakeHandleApply = brakeHandleApply;
+		this.brakeHandleRelease = brakeHandleRelease;
+		this.compressorAttack = compressorAttack;
+		this.compressorLoop = compressorLoop;
+		this.compressorRelease = compressorRelease;
+		this.noise = noise;
+		this.shoe = shoe;
+		this.motorNoiseDataType = motorNoiseDataType;
+		this.motorVolumeMultiply = motorVolumeMultiply;
+		this.breakerDelay = breakerDelay;
+		this.regenerationLimit = regenerationLimit;
+		this.doorCloseSoundLength = doorCloseSoundLength;
 	}
 }
