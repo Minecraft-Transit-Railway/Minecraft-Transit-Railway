@@ -6,10 +6,6 @@ import mtr.mappings.Text;
 import mtr.model.*;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.TrainRendererBase;
-import mtr.sound.TrainSoundBase;
-import mtr.sound.bve.BveTrainSound;
-import mtr.sound.bve.BveTrainSoundConfig;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -23,9 +19,7 @@ public class TrainClientRegistry {
 	private static final Map<String, TrainProperties> REGISTRY = new HashMap<>();
 	private static final Map<TransportMode, List<String>> KEY_ORDERS = new HashMap<>();
 
-	public static void register(String key, String baseTrainType, String name, int color,
-								TrainRendererBase renderer, TrainSoundBase sound,
-								float riderOffset, boolean hasGangwayConnection, float bogiePosition, boolean isJacobsBogie) {
+	public static void register(String key, String baseTrainType, String name, int color, TrainRendererBase renderer, float riderOffset, boolean hasGangwayConnection, float bogiePosition, boolean isJacobsBogie) {
 		final String keyLower = key.toLowerCase();
 		final TransportMode transportMode = TrainType.getTransportMode(baseTrainType);
 		if (!KEY_ORDERS.containsKey(transportMode)) {
@@ -34,14 +28,12 @@ public class TrainClientRegistry {
 		if (!KEY_ORDERS.get(transportMode).contains(keyLower)) {
 			KEY_ORDERS.get(transportMode).add(keyLower);
 		}
-		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, renderer, sound, hasGangwayConnection, bogiePosition, isJacobsBogie));
+		REGISTRY.put(keyLower, new TrainProperties(baseTrainType, Text.translatable(name == null ? "train.mtr." + keyLower : name), color, riderOffset, renderer, hasGangwayConnection, bogiePosition, isJacobsBogie));
 	}
 
 	public static void register(String key, String baseTrainType, ModelTrainBase model, String textureId, String name, int color, String gangwayConnectionId, String trainBarrierId, float riderOffset, float bogiePosition, boolean isJacobsBogie) {
 		final TrainRendererBase renderer = new JonModelTrainRenderer(model, TrainProperties.resolvePath(textureId), TrainProperties.resolvePath(gangwayConnectionId), TrainProperties.resolvePath(trainBarrierId));
-		//TrainSoundBase sound = new JonTrainSound(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedRegardlessOfAcceleration);
-		final TrainSoundBase sound = new BveTrainSound(new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "lt1995"));
-		register(key, baseTrainType, name, color, renderer, sound, riderOffset, gangwayConnectionId != null, bogiePosition, isJacobsBogie);
+		register(key, baseTrainType, name, color, renderer, riderOffset, gangwayConnectionId != null, bogiePosition, isJacobsBogie);
 	}
 
 	private static void register(TrainType defaultTrainType, ModelTrainBase model, String textureId, int color, String gangwayConnectionId, String trainBarrierId, float bogiePosition, boolean isJacobsBogie) {
@@ -176,7 +168,7 @@ public class TrainClientRegistry {
 	}
 
 	private static TrainProperties getBlankProperties() {
-		return new TrainProperties("", Text.translatable(""), 0, 0, null, null, false, 0, false);
+		return new TrainProperties("", Text.translatable(""), 0, 0, null, false, 0, false);
 	}
 
 	public static class TrainProperties {
@@ -186,18 +178,16 @@ public class TrainClientRegistry {
 		public final int color;
 		public final float riderOffset;
 		public final TrainRendererBase renderer;
-		public final TrainSoundBase sound;
 		public final boolean hasGangwayConnection;
 		public final float bogiePosition;
 		public final boolean isJacobsBogie;
 
-		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, TrainRendererBase renderer, TrainSoundBase sound, boolean hasGangwayConnection, float bogiePosition, boolean isJacobsBogie) {
+		private TrainProperties(String baseTrainType, Component name, int color, float riderOffset, TrainRendererBase renderer, boolean hasGangwayConnection, float bogiePosition, boolean isJacobsBogie) {
 			this.baseTrainType = baseTrainType;
 			this.name = name;
 			this.color = color;
 			this.riderOffset = riderOffset;
 			this.renderer = renderer;
-			this.sound = sound;
 			this.hasGangwayConnection = hasGangwayConnection;
 			this.bogiePosition = bogiePosition;
 			this.isJacobsBogie = isJacobsBogie;

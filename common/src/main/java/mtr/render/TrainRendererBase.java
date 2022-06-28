@@ -32,20 +32,8 @@ public abstract class TrainRendererBase {
 	protected static LocalPlayer player;
 	protected static float lastFrameDuration;
 
-	public final TrainRendererBase createTrainInstance(TrainClient train) {
-		try {
-			final TrainRendererBase newInstance = getClass().getDeclaredConstructor().newInstance();
-			newInstance.copyFrom(this);
-			newInstance.train = train;
-			return newInstance;
-		} catch (Exception e) {
-			// This should not happen
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public void setupRender(PoseStack matrices, MultiBufferSource vertexConsumers, EntitySeat entity, float tickDelta) {
+	public void setupRender(TrainClient train, PoseStack matrices, MultiBufferSource vertexConsumers, EntitySeat entity, float tickDelta) {
+		this.train = train;
 		this.matrices = matrices;
 		this.vertexConsumers = vertexConsumers;
 
@@ -96,8 +84,6 @@ public abstract class TrainRendererBase {
 	public abstract void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch);
 
 	public abstract void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset);
-
-	protected abstract void copyFrom(TrainRendererBase src);
 
 	public static void setupStaticInfo() {
 		client = Minecraft.getInstance();

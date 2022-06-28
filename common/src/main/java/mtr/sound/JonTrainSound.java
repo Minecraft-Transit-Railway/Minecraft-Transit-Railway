@@ -3,6 +3,7 @@ package mtr.sound;
 import mtr.MTR;
 import mtr.MTRClient;
 import mtr.data.Train;
+import mtr.data.TrainClient;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,7 @@ import java.util.Random;
 
 public class JonTrainSound extends TrainSoundBase {
 
-	public JonTrainSoundConfig config;
+	public final JonTrainSoundConfig config;
 	private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
 	private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
 
@@ -25,17 +26,9 @@ public class JonTrainSound extends TrainSoundBase {
 	private static final String SOUND_RANDOM = "_random";
 	private static final int RANDOM_SOUND_CHANCE = 300;
 
-	public JonTrainSound() {
-		// A constructor without arguments is used by createTrainInstance via reflection.
-	}
-
-	public JonTrainSound(String speedSoundBaseId, String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean playbackSpeedDoesNotDependOnCustomAcceleration) {
+	public JonTrainSound(TrainClient train, String speedSoundBaseId, String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean playbackSpeedDoesNotDependOnCustomAcceleration) {
+		super(train);
 		config = new JonTrainSoundConfig(speedSoundBaseId, doorSoundBaseId, speedSoundCount, doorCloseSoundTime, useAccelerationSoundsWhenCoasting, playbackSpeedDoesNotDependOnCustomAcceleration);
-	}
-
-	@Override
-	protected void createTrainInstance(TrainSoundBase srcBase) {
-		config = ((JonTrainSound) srcBase).config;
 	}
 
 	@Override
@@ -90,7 +83,7 @@ public class JonTrainSound extends TrainSoundBase {
 		}
 	}
 
-	public static class JonTrainSoundConfig {
+	private static class JonTrainSoundConfig {
 
 		public final String speedSoundBaseId;
 		public final String doorSoundBaseId;

@@ -118,7 +118,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		ClientData.TRAINS.forEach(train -> {
 			if (train.trainRenderer != null) {
-				train.trainRenderer.setupRender(matrices, vertexConsumers, entity, tickDelta);
+				train.trainRenderer.setupRender(train, matrices, vertexConsumers, entity, tickDelta);
 			}
 			train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (speed, stopIndex, routeIds) -> {
 				if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
@@ -197,7 +197,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		if (!Config.hideTranslucentParts()) {
 			ClientData.TRAINS.forEach((train) -> {
 				if (train.trainRenderer != null) {
-					train.trainRenderer.setupRender(matrices, vertexConsumers, entity, tickDelta);
+					train.trainRenderer.setupRender(train, matrices, vertexConsumers, entity, tickDelta);
 					train.renderTranslucent();
 					train.trainRenderer.finishRender();
 				}

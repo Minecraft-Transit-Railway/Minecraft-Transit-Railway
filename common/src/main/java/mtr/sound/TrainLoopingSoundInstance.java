@@ -10,32 +10,30 @@ import net.minecraft.sounds.SoundSource;
 
 public class TrainLoopingSoundInstance extends TickableSoundInstanceMapper {
 
-	private final TrainClient binding;
+	private final TrainClient train;
 
-	public TrainLoopingSoundInstance(SoundEvent event, TrainClient binding) {
+	public TrainLoopingSoundInstance(SoundEvent event, TrainClient train) {
 		super(event, SoundSource.BLOCKS);
+		this.train = train;
 		looping = true;
-		this.binding = binding;
 		delay = 0;
 		volume = 0;
 		pitch = 1;
 	}
 
-	public void setVolumePitch(float volume, float pitch) {
+	public void setData(float volume, float pitch, BlockPos pos) {
 		this.pitch = pitch;
 		if (this.pitch == 0) {
 			this.pitch = 1;
 		}
 		this.volume = volume;
-	}
 
-	public void setPos(BlockPos pos) {
 		x = pos.getX();
 		y = pos.getY();
 		z = pos.getZ();
 
 		final SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-		if (soundManager != null && !binding.isRemoved && volume > 0 && !soundManager.isActive(this)) {
+		if (soundManager != null && !train.isRemoved && volume > 0 && !soundManager.isActive(this)) {
 			looping = true;
 			soundManager.play(this);
 		}
@@ -43,7 +41,7 @@ public class TrainLoopingSoundInstance extends TickableSoundInstanceMapper {
 
 	@Override
 	public void tick() {
-		if (binding.isRemoved) {
+		if (train.isRemoved) {
 			stop();
 		}
 	}

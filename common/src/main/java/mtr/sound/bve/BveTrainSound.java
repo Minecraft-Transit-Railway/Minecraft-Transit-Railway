@@ -2,6 +2,7 @@ package mtr.sound.bve;
 
 import mtr.MTRClient;
 import mtr.client.TrainClientRegistry;
+import mtr.data.TrainClient;
 import mtr.sound.TrainLoopingSoundInstance;
 import mtr.sound.TrainSoundBase;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -14,58 +15,40 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BveTrainSound extends TrainSoundBase {
 
-	public BveTrainSoundConfig config;
-
-	private TrainLoopingSoundInstance[] soundLoopMotor;
-	private TrainLoopingSoundInstance soundLoopRun;
-	private TrainLoopingSoundInstance soundLoopFlange;
-	private TrainLoopingSoundInstance soundLoopNoise;
-	private TrainLoopingSoundInstance soundLoopShoe;
-	private TrainLoopingSoundInstance soundLoopCompressor;
-
-	private int[][] bogieRailId;
-	private float accelLastElapse;
-	private boolean onRouteLastElapse = false;
+	private float accelLastElapsed;
+	private boolean onRouteLastElapsed = false;
 
 	private int motorCurrentMode = 0;
 	private float motorSwitchTimer = -1;
 
 	private int mrPress;
 	private boolean isCompressorActive;
-	private boolean isCompressorActiveLastElapse;
+	private boolean isCompressorActiveLastElapsed;
 
-	public BveTrainSound() {
-		// A constructor without arguments is used by createTrainInstance via reflection.
-	}
+	public final BveTrainSoundConfig config;
 
-	public BveTrainSound(BveTrainSoundConfig config) {
+	private final TrainLoopingSoundInstance[] soundLoopMotor;
+	private final TrainLoopingSoundInstance soundLoopRun;
+	private final TrainLoopingSoundInstance soundLoopFlange;
+	private final TrainLoopingSoundInstance soundLoopNoise;
+	private final TrainLoopingSoundInstance soundLoopShoe;
+	private final TrainLoopingSoundInstance soundLoopCompressor;
+	private final int[][] bogieRailId;
+
+	public BveTrainSound(TrainClient train, BveTrainSoundConfig config) {
+		super(train);
 		this.config = config;
-	}
-
-	@Override
-	protected void createTrainInstance(TrainSoundBase srcBase) {
-		final BveTrainSound src = (BveTrainSound) srcBase;
 		bogieRailId = new int[train.trainCars][2];
-		config = src.config;
+
 		mrPress = ThreadLocalRandom.current().nextInt(config.soundCfg.mrPressMin, config.soundCfg.mrPressMax + 1);
 		isCompressorActive = ThreadLocalRandom.current().nextInt(0, 20) == 0; // Currently, set to 1/20 at client-side load
-		isCompressorActiveLastElapse = isCompressorActive;
+		isCompressorActiveLastElapsed = isCompressorActive;
 
-		if (config.soundCfg.run[0] != null) {
-			soundLoopRun = new TrainLoopingSoundInstance(config.soundCfg.run[0], train);
-		}
-		if (config.soundCfg.flange[0] != null) {
-			soundLoopFlange = new TrainLoopingSoundInstance(config.soundCfg.flange[0], train);
-		}
-		if (config.soundCfg.noise != null) {
-			soundLoopNoise = new TrainLoopingSoundInstance(config.soundCfg.noise, train);
-		}
-		if (config.soundCfg.shoe != null) {
-			soundLoopShoe = new TrainLoopingSoundInstance(config.soundCfg.shoe, train);
-		}
-		if (config.soundCfg.compressorLoop != null) {
-			soundLoopCompressor = new TrainLoopingSoundInstance(config.soundCfg.compressorLoop, train);
-		}
+		soundLoopRun = config.soundCfg.run[0] == null ? null : new TrainLoopingSoundInstance(config.soundCfg.run[0], train);
+		soundLoopFlange = config.soundCfg.flange[0] == null ? null : new TrainLoopingSoundInstance(config.soundCfg.flange[0], train);
+		soundLoopNoise = config.soundCfg.noise == null ? null : new TrainLoopingSoundInstance(config.soundCfg.noise, train);
+		soundLoopShoe = config.soundCfg.shoe == null ? null : new TrainLoopingSoundInstance(config.soundCfg.shoe, train);
+		soundLoopCompressor = config.soundCfg.compressorLoop == null ? null : new TrainLoopingSoundInstance(config.soundCfg.compressorLoop, train);
 
 		soundLoopMotor = new TrainLoopingSoundInstance[config.soundCfg.motor.length];
 		for (int i = 0; i < Math.min(config.soundCfg.motor.length, config.motorData.getSoundCount()); ++i) {
@@ -77,25 +60,22 @@ public class BveTrainSound extends TrainSoundBase {
 
 	@Override
 	public void playNearestCar(Level world, BlockPos pos, int carIndex) {
-		final float deltaT = MTRClient.getLastFrameDuration() / 20F;
-		final float accel = (train.speed - train.speedLastElapse) * 20F / deltaT;
-		final float speed = train.speed * 20F;
+		final float deltaT = MTRClient.getLastFrameDuration() / 20;
+		final float accel = (train.speed - train.speedLastElapse) * 20 / deltaT;
+		final float speed = train.speed * 20;
 		final float speedKph = speed * 3.6F;
 
 		// Rolling noise
 		if (soundLoopRun != null) {
-			final float runPitch = speed * 0.04F;
-			final float runBaseGain = Math.min(1.0F, speed * 0.04F);
-			soundLoopRun.setVolumePitch(runBaseGain, runPitch);
-			soundLoopRun.setPos(pos);
+			soundLoopRun.setData(Math.min(1, speed * 0.04F), speed * 0.04F, pos);
 		}
 
 		// Simulation of circuit breaker in traction controller
-		int motorTargetMode = (int) Math.signum(accel);
+		final int motorTargetMode = (int) Math.signum(accel);
 		if (motorTargetMode < 0 && speed < config.soundCfg.regenerationLimit) {
 			motorCurrentMode = 0; // Regeneration brake cut off below limit speed
 			motorSwitchTimer = -1;
-		} else if (motorTargetMode > 0 && speed < 1F) {
+		} else if (motorTargetMode > 0 && speed < 1) {
 			motorCurrentMode = motorTargetMode; // Disable delay at startup
 			motorSwitchTimer = -1;
 		} else if (motorTargetMode != motorCurrentMode && motorSwitchTimer < 0) {
@@ -129,12 +109,11 @@ public class BveTrainSound extends TrainSoundBase {
 			// This is not done, since the playLocalSound is only called once at the nearest car
 			// at the time when the attack sound is triggered, and player movement after that might
 			// cause unwanted effect.
-			soundLoopCompressor.setVolumePitch(isCompressorActive ? 1 : 0, 1);
-			soundLoopCompressor.setPos(pos);
+			soundLoopCompressor.setData(isCompressorActive ? 1 : 0, 1, pos);
 		}
-		if (isCompressorActive && !isCompressorActiveLastElapse) {
+		if (isCompressorActive && !isCompressorActiveLastElapsed) {
 			playLocalSound(world, config.soundCfg.compressorAttack, pos);
-		} else if (!isCompressorActive && isCompressorActiveLastElapse) {
+		} else if (!isCompressorActive && isCompressorActiveLastElapsed) {
 			playLocalSound(world, config.soundCfg.compressorRelease, pos);
 		}
 
@@ -143,62 +122,55 @@ public class BveTrainSound extends TrainSoundBase {
 			if (soundLoopMotor[i] == null) {
 				continue;
 			}
-			soundLoopMotor[i].setVolumePitch(
-					config.motorData.getVolume(i, speedKph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply,
-					config.motorData.getPitch(i, speedKph, motorCurrentMode)
-			);
-			soundLoopMotor[i].setPos(pos);
+			soundLoopMotor[i].setData(config.motorData.getVolume(i, speedKph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply, config.motorData.getPitch(i, speedKph, motorCurrentMode), pos);
 		}
 
 		// TODO Play flange sounds
 		// Flange noise
 		if (soundLoopFlange != null) {
-			soundLoopFlange.setVolumePitch(0, 1);
-			soundLoopFlange.setPos(pos);
+			soundLoopFlange.setData(0, 1, pos);
 		}
 
 		// Brake shoe rubbing noise (below regeneration brake cutoff limit)
 		if (soundLoopShoe != null) {
-			float shoePitch = 1.0F / (speed + 1.0F) + 1.0F;
-			float shoeGain = (speed < config.soundCfg.regenerationLimit && accel < 0) ? 1F : 0F;
+			final float shoePitch = 1 / (speed + 1) + 1;
+			float shoeGain = speed < config.soundCfg.regenerationLimit && accel < 0 ? 1 : 0;
 			if (speed < 1.39) {
 				double t = speed * speed;
 				shoeGain *= 1.5552 * t - 0.746496 * speed * t;
 			} else if (speed > 12.5) {
 				double t = speed - 12.5;
-				shoeGain *= 1.0 / (0.1 * t * t + 1.0);
+				shoeGain *= 1 / (0.1 * t * t + 1);
 			}
-			soundLoopShoe.setVolumePitch(shoeGain, shoePitch);
-			soundLoopShoe.setPos(pos);
+			soundLoopShoe.setData(shoeGain, shoePitch, pos);
 		}
 
 		// Constant loop noise
 		if (soundLoopNoise != null) {
-			soundLoopNoise.setVolumePitch(train.isOnRoute ? 1 : 0, 1);
-			soundLoopNoise.setPos(pos);
+			soundLoopNoise.setData(train.isOnRoute ? 1 : 0, 1, pos);
 		}
 
 		// Air brake application and release noise
-		if (accelLastElapse < 0 && accel >= 0) {
+		if (accelLastElapsed < 0 && accel >= 0) {
 			playLocalSound(world, config.soundCfg.brakeHandleRelease, pos);
 			if (speed < config.soundCfg.regenerationLimit) {
 				playLocalSound(world, config.soundCfg.airZero, pos);
 			}
-		} else if (accelLastElapse <= 0 && accel > 0 && speed < 0.3) {
+		} else if (accelLastElapsed <= 0 && accel > 0 && speed < 0.3) {
 			playLocalSound(world, config.soundCfg.airHigh, pos);
-		} else if (accelLastElapse >= 0 && accel < 0) {
+		} else if (accelLastElapsed >= 0 && accel < 0) {
 			mrPress -= config.soundCfg.mrServiceBrakeReduce;
 			playLocalSound(world, config.soundCfg.brakeHandleApply, pos);
 		}
 
 		// Emergency brake application after returning to depot
-		if (onRouteLastElapse && !train.isOnRoute) {
+		if (onRouteLastElapsed && !train.isOnRoute) {
 			playLocalSound(world, config.soundCfg.brakeEmergency, pos);
 		}
 
-		accelLastElapse = accel;
-		onRouteLastElapse = train.isOnRoute;
-		isCompressorActiveLastElapse = isCompressorActive;
+		accelLastElapsed = accel;
+		onRouteLastElapsed = train.isOnRoute;
+		isCompressorActiveLastElapsed = isCompressorActive;
 	}
 
 	@Override
@@ -209,23 +181,26 @@ public class BveTrainSound extends TrainSoundBase {
 			return;
 		}
 
-		float bogieOffsetFront = -1, bogieOffsetRear = -1;
+		final float bogieOffsetFront;
+		final float bogieOffsetRear;
 		if (trainProperties.isJacobsBogie) {
 			if (carIndex == 0) {
 				bogieOffsetFront = train.spacing / 2F - trainProperties.bogiePosition;
+				bogieOffsetRear = -1;
 			} else if (carIndex == train.trainCars - 1) {
 				bogieOffsetFront = 0;
 				bogieOffsetRear = train.spacing / 2F + trainProperties.bogiePosition;
 			} else {
 				bogieOffsetFront = 0;
+				bogieOffsetRear = -1;
 			}
 		} else {
 			bogieOffsetFront = train.spacing / 2F - trainProperties.bogiePosition;
 			bogieOffsetRear = train.spacing / 2F + trainProperties.bogiePosition;
 		}
 
-		final float pitch = train.speed * 20F / 12.5F;
-		final float gain = pitch < 0.5F ? 2.0F * pitch : 1.0F;
+		final float pitch = train.speed * 20 / 12.5F;
+		final float gain = pitch < 0.5F ? 2 * pitch : 1;
 		if (bogieOffsetFront >= 0) {
 			int indexFront = train.getIndex(train.getRailProgress() - train.spacing * carIndex - bogieOffsetFront, false);
 			if (indexFront != bogieRailId[carIndex][0]) {

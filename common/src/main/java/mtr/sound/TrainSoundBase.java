@@ -6,22 +6,11 @@ import net.minecraft.world.level.Level;
 
 public abstract class TrainSoundBase {
 
-	public TrainClient train;
+	protected final TrainClient train;
 
-	public final TrainSoundBase createTrainInstance(TrainClient train) {
-		try {
-			final TrainSoundBase newInstance = getClass().getDeclaredConstructor().newInstance();
-			newInstance.train = train;
-			newInstance.createTrainInstance(this);
-			return newInstance;
-		} catch (Exception e) {
-			// This should not happen
-			e.printStackTrace();
-			return null;
-		}
+	protected TrainSoundBase(TrainClient train) {
+		this.train = train;
 	}
-
-	protected abstract void createTrainInstance(TrainSoundBase src);
 
 	public abstract void playNearestCar(Level world, BlockPos pos, int carIndex);
 

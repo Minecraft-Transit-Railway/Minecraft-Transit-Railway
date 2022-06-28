@@ -29,11 +29,6 @@ public class LoopingSoundInstance extends SoundInstanceMapper implements Tickabl
 	public void tick() {
 	}
 
-	public void setVolumePitch(float volume, float pitch) {
-		this.pitch = pitch;
-		this.volume = volume;
-	}
-
 	public void setPos(BlockPos pos, boolean isRemoved) {
 		if (isRemoved) {
 			if (x == pos.getX() && y == pos.getY() && z == pos.getZ()) {

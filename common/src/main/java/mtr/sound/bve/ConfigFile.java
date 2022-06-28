@@ -4,8 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Locale;
-
 public class ConfigFile {
 
 	public final SoundEvent[] run = new SoundEvent[1];

@@ -5,7 +5,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 
@@ -46,8 +45,8 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 		}
 
 		int maxSoundId = -1;
-		for (int i = 0; i < channels.length; ++i) {
-			maxSoundId = Math.max(maxSoundId, channels[i].maxSoundId);
+		for (final Channel channel : channels) {
+			maxSoundId = Math.max(maxSoundId, channel.maxSoundId);
 		}
 		soundCount = maxSoundId + 1;
 	}

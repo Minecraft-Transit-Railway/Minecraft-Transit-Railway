@@ -37,20 +37,16 @@ import java.util.function.Function;
 
 public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
-	public ModelTrainBase model;
-	public String textureId;
-	public String gangwayConnectionId;
-	public String trainBarrierId;
+	public final ModelTrainBase model;
+	public final String textureId;
+	public final String gangwayConnectionId;
+	public final String trainBarrierId;
 
 	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
 	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
 	private static final Map<Long, FakeBoat> BOATS = new HashMap<>();
 	private static final ModelCableCarGrip MODEL_CABLE_CAR_GRIP = new ModelCableCarGrip();
 	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
-
-	public JonModelTrainRenderer() {
-		// A constructor without arguments is used by createTrainInstance via reflection.
-	}
 
 	public JonModelTrainRenderer(ModelTrainBase model, String textureId, String gangwayConnectionId, String trainBarrierId) {
 		this.model = model;
@@ -60,22 +56,13 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	}
 
 	@Override
-	protected void copyFrom(TrainRendererBase srcBase) {
-		JonModelTrainRenderer src = (JonModelTrainRenderer) srcBase;
-		model = src.model;
-		textureId = src.textureId;
-		gangwayConnectionId = src.gangwayConnectionId;
-		trainBarrierId = src.trainBarrierId;
-	}
-
-	@Override
 	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, boolean doorLeftOpen, boolean doorRightOpen) {
 		final BlockPos posAverage = getPosAverage(x, y, z);
 		if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
 			return;
 		}
 
-		String trainId = train.trainId;
+		final String trainId = train.trainId;
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
 		if (model == null && isTranslucentBatch) {
@@ -153,7 +140,7 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			return;
 		}
 
-		String trainId = train.trainId;
+		final String trainId = train.trainId;
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));

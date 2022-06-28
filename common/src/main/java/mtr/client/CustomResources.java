@@ -8,7 +8,6 @@ import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
-import mtr.sound.JonTrainSound;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -48,16 +47,16 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 
 						// TODO Better ways around this?
 						final JonModelTrainRenderer jonRenderer = baseTrainProperties.renderer instanceof JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : new JonModelTrainRenderer(null, "", "", "");
-						final JonTrainSound jonSound = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : new JonTrainSound("", "", 0, 0, false, false);
+//						final JonTrainSound jonSound = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : new JonTrainSound("", "", 0, 0, false, false);
 
 						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRenderer.textureId, JsonElement::getAsString);
 						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, jonRenderer.gangwayConnectionId, JsonElement::getAsString);
 						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, jonRenderer.trainBarrierId, JsonElement::getAsString);
 						final float riderOffset = getOrDefault(jsonObject, CUSTOM_TRAINS_RIDER_OFFSET, baseTrainProperties.riderOffset, JsonElement::getAsFloat);
-						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.config.speedSoundCount, JsonElement::getAsInt);
-						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.config.speedSoundBaseId, JsonElement::getAsString);
-						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.config.doorSoundBaseId, JsonElement::getAsString);
-						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.config.doorCloseSoundTime, JsonElement::getAsFloat);
+//						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSound.config.speedSoundCount, JsonElement::getAsInt);
+//						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSound.config.speedSoundBaseId, JsonElement::getAsString);
+//						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSound.config.doorSoundBaseId, JsonElement::getAsString);
+//						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSound.config.doorCloseSoundTime, JsonElement::getAsFloat);
 
 						if (!baseTrainProperties.baseTrainType.isEmpty()) {
 							TrainClientRegistry.register(trainId, baseTrainType, jonRenderer.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie);
