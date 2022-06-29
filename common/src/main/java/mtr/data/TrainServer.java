@@ -43,10 +43,9 @@ public class TrainServer extends Train {
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
-	private static final int TICKS_MANUAL_TO_AUTOMATIC = 3600;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
 		this.timeSegments = timeSegments;
 	}
 
@@ -315,7 +314,7 @@ public class TrainServer extends Train {
 
 		if (isManual) {
 			if (isOnRoute) {
-				if (manualCoolDown >= TICKS_MANUAL_TO_AUTOMATIC) {
+				if (manualCoolDown >= manualToAutomaticTime * 10) {
 					if (isCurrentlyManual) {
 						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 						stopCounter = manualDoorOpen ? dwellTicks / 2F : 0;
@@ -333,7 +332,7 @@ public class TrainServer extends Train {
 			isCurrentlyManual = false;
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped != (speed == 0);
+		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped && speed != 0;
 	}
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {

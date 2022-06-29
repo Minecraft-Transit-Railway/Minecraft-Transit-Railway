@@ -27,6 +27,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private boolean unlimitedTrains;
 	private int maxTrains;
 	private boolean isManual;
+	private int maxManualSpeed;
 
 	private float accelerationConstant;
 
@@ -43,6 +44,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	private static final String KEY_UNLIMITED_TRAINS = "unlimited_trains";
 	private static final String KEY_MAX_TRAINS = "max_trains";
 	private static final String KEY_IS_MANUAL = "is_manual";
+	private static final String KEY_MAX_MANUAL_SPEED = "max_manual_speed";
 	private static final String KEY_PATH = "path";
 	private static final String KEY_TRAINS = "trains";
 	private static final String KEY_ACCELERATION_CONSTANT = "acceleration_constant";
@@ -71,6 +73,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		unlimitedTrains = transportMode.continuousMovement || messagePackHelper.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = messagePackHelper.getInt(KEY_MAX_TRAINS);
 		isManual = messagePackHelper.getBoolean(KEY_IS_MANUAL);
+		maxManualSpeed = messagePackHelper.getInt(KEY_MAX_MANUAL_SPEED);
 		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, Train.ACCELERATION_DEFAULT), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 
@@ -91,6 +94,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		unlimitedTrains = transportMode.continuousMovement || compoundTag.getBoolean(KEY_UNLIMITED_TRAINS);
 		maxTrains = compoundTag.getInt(KEY_MAX_TRAINS);
 		isManual = compoundTag.getBoolean(KEY_IS_MANUAL);
+		maxManualSpeed = compoundTag.getInt(KEY_MAX_MANUAL_SPEED);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : Train.ACCELERATION_DEFAULT;
 
 		final CompoundTag tagPath = compoundTag.getCompound(KEY_PATH);
@@ -113,6 +117,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
 		maxTrains = packet.readInt();
 		isManual = packet.readBoolean();
+		maxManualSpeed = packet.readInt();
 		final float tempAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
 		accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant <= 0 ? Train.ACCELERATION_DEFAULT : tempAccelerationConstant;
 	}
@@ -133,13 +138,14 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		messagePacker.packString(KEY_UNLIMITED_TRAINS).packBoolean(unlimitedTrains);
 		messagePacker.packString(KEY_MAX_TRAINS).packInt(maxTrains);
 		messagePacker.packString(KEY_IS_MANUAL).packBoolean(isManual);
+		messagePacker.packString(KEY_MAX_MANUAL_SPEED).packInt(maxManualSpeed);
 		messagePacker.packString(KEY_ACCELERATION_CONSTANT).packFloat(accelerationConstant);
 		RailwayData.writeMessagePackDataset(messagePacker, path, KEY_PATH);
 	}
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 9;
+		return super.messagePackLength() + 10;
 	}
 
 	@Override
@@ -156,6 +162,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
 		packet.writeBoolean(isManual);
+		packet.writeInt(maxManualSpeed);
 		packet.writeFloat(accelerationConstant);
 	}
 
@@ -169,13 +176,16 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			case KEY_UNLIMITED_TRAINS:
 				name = packet.readUtf(PACKET_STRING_READ_LENGTH);
 				color = packet.readInt();
+				dwellTime = packet.readInt();
+				dwellTime = transportMode.continuousMovement ? 1 : dwellTime;
 				unlimitedTrains = packet.readBoolean() || transportMode.continuousMovement;
 				maxTrains = packet.readInt();
 				isManual = packet.readBoolean();
+				maxManualSpeed = packet.readInt();
 				final float newAccelerationConstant = RailwayData.round(packet.readFloat(), 3);
-				if (newAccelerationConstant > 0) {
+				accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
+				if (packet.readBoolean()) {
 					trains.clear();
-					accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : newAccelerationConstant;
 				}
 				break;
 			default:
@@ -195,25 +205,29 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		setTrainDetails(customId, trainType);
 	}
 
-	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, boolean isManual, float accelerationConstant, Consumer<FriendlyByteBuf> sendPacket) {
+	public void setUnlimitedTrains(boolean unlimitedTrains, int maxTrains, boolean isManual, int maxManualSpeed, float accelerationConstant, int newDwellTime, boolean clearTrains, Consumer<FriendlyByteBuf> sendPacket) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeLong(id);
 		packet.writeUtf(transportMode.toString());
 		packet.writeUtf(KEY_UNLIMITED_TRAINS);
 		packet.writeUtf(name);
 		packet.writeInt(color);
+		writeDwellTimePacket(packet, newDwellTime);
 		packet.writeBoolean(unlimitedTrains);
 		packet.writeInt(maxTrains);
 		packet.writeBoolean(isManual);
+		packet.writeInt(maxManualSpeed);
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 		packet.writeFloat(tempAccelerationConstant);
+		packet.writeBoolean(clearTrains);
 		sendPacket.accept(packet);
 		this.unlimitedTrains = transportMode.continuousMovement || unlimitedTrains;
 		this.maxTrains = maxTrains;
 		this.isManual = isManual;
-		if (tempAccelerationConstant > 0) {
+		this.maxManualSpeed = maxManualSpeed;
+		this.accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant;
+		if (clearTrains) {
 			trains.clear();
-			this.accelerationConstant = transportMode.continuousMovement ? Train.MAX_ACCELERATION : tempAccelerationConstant;
 		}
 	}
 
@@ -345,7 +359,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		}
 
 		if (trainCars > 0 && (trains.isEmpty() || spawnTrain && (unlimitedTrains || trains.size() <= maxTrains))) {
-			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, timeSegments, isManual);
+			final TrainServer train = new TrainServer(unlimitedTrains || maxTrains > 0 ? new Random().nextLong() : id, id, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, timeSegments, isManual, maxManualSpeed, dwellTime);
 			trains.add(train);
 		}
 
@@ -360,6 +374,10 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 	public boolean getIsManual() {
 		return isManual;
+	}
+
+	public int getMaxManualSpeed() {
+		return maxManualSpeed;
 	}
 
 	public boolean getUnlimitedTrains() {
@@ -399,7 +417,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 			path.add(new PathData(rails.get(pos1).get(pos2), id, 0, pos1, pos2, -1));
 		}
 
-		trains.add(new TrainServer(id, id, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, timeSegments, isManual));
+		trains.add(new TrainServer(id, id, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, timeSegments, isManual, maxManualSpeed, dwellTime));
 	}
 
 	private void generateDistances() {
