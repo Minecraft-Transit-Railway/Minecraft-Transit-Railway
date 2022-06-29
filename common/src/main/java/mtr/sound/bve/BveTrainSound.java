@@ -147,7 +147,7 @@ public class BveTrainSound extends TrainSoundBase {
 
 		// Constant loop noise
 		if (soundLoopNoise != null) {
-			soundLoopNoise.setData(train.isOnRoute ? 1 : 0, 1, pos);
+			soundLoopNoise.setData(train.getIsOnRoute() ? 1 : 0, 1, pos);
 		}
 
 		// Air brake application and release noise
@@ -164,12 +164,12 @@ public class BveTrainSound extends TrainSoundBase {
 		}
 
 		// Emergency brake application after returning to depot
-		if (onRouteLastElapsed && !train.isOnRoute) {
+		if (onRouteLastElapsed && !train.getIsOnRoute()) {
 			playLocalSound(world, config.soundCfg.brakeEmergency, pos);
 		}
 
 		accelLastElapsed = accel;
-		onRouteLastElapsed = train.isOnRoute;
+		onRouteLastElapsed = train.getIsOnRoute();
 		isCompressorActiveLastElapsed = isCompressorActive;
 	}
 
@@ -218,17 +218,17 @@ public class BveTrainSound extends TrainSoundBase {
 	}
 
 	@Override
-	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
+	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex, float doorValueRaw, float oldDoorValue) {
 		// TODO Check why door sounds are not playing
 		if (!(world instanceof ClientLevel)) {
 			return;
 		}
 
-		final float doorValue = Math.abs(train.rawDoorValue);
+		final float doorValue = Math.abs(doorValueRaw);
 		final SoundEvent soundEvent;
-		if (train.doorValueLastElapse <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
+		if (oldDoorValue <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
 			soundEvent = config.soundCfg.doorOpen;
-		} else if (train.doorValueLastElapse >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength && config.soundCfg.doorClose != null) {
+		} else if (oldDoorValue >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength && config.soundCfg.doorClose != null) {
 			soundEvent = config.soundCfg.doorClose;
 		} else {
 			soundEvent = null;

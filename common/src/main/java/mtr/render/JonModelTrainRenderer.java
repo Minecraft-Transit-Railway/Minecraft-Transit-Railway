@@ -4,19 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import mtr.MTRClient;
-import mtr.client.Config;
 import mtr.client.TrainClientRegistry;
 import mtr.data.IGui;
 import mtr.data.Train;
+import mtr.data.TrainClient;
 import mtr.data.TransportMode;
 import mtr.mappings.UtilitiesClient;
 import mtr.model.ModelBogie;
 import mtr.model.ModelCableCarGrip;
-import mtr.model.ModelTrainBase;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,10 +34,7 @@ import java.util.function.Function;
 
 public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
-	public final ModelTrainBase model;
-	public final String textureId;
-	public final String gangwayConnectionId;
-	public final String trainBarrierId;
+	private final TrainClientRegistry.TrainProperties trainProperties;
 
 	private static final EntityModel<Minecart> MODEL_MINECART = UtilitiesClient.getMinecartModel();
 	private static final EntityModel<Boat> MODEL_BOAT = UtilitiesClient.getBoatModel();
@@ -48,24 +42,21 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 	private static final ModelCableCarGrip MODEL_CABLE_CAR_GRIP = new ModelCableCarGrip();
 	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
 
-	public JonModelTrainRenderer(ModelTrainBase model, String textureId, String gangwayConnectionId, String trainBarrierId) {
-		this.model = model;
-		this.textureId = textureId;
-		this.gangwayConnectionId = gangwayConnectionId;
-		this.trainBarrierId = trainBarrierId;
+	public JonModelTrainRenderer(TrainClientRegistry.TrainProperties trainProperties) {
+		this.trainProperties = trainProperties;
 	}
 
 	@Override
-	public void renderCar(int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, boolean doorLeftOpen, boolean doorRightOpen) {
-		final BlockPos posAverage = getPosAverage(x, y, z);
-		if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
-			return;
-		}
-
+	public void renderCar(TrainClient train, int carIndex, double x, double y, double z, float yaw, float pitch, boolean isTranslucentBatch, float doorLeftValue, float doorRightValue, boolean opening, boolean head1IsFront) {
 		final String trainId = train.trainId;
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 
-		if (model == null && isTranslucentBatch) {
+		if (trainProperties.model == null && isTranslucentBatch) {
+			return;
+		}
+
+		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		if (posAverage == null) {
 			return;
 		}
 
@@ -75,21 +66,15 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		matrices.mulPose(Vector3f.XP.rotation((float) Math.PI + (train.transportMode.hasPitch ? pitch : 0)));
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
-		final boolean head1IsFront = !train.reversed;
-		final float doorValue = Math.abs(train.rawDoorValue);
-		final float doorLeftValue = doorLeftOpen ? doorValue : 0;
-		final float doorRightValue = doorRightOpen ? doorValue : 0;
-		final boolean opening = train.rawDoorValue > 0;
-		final boolean lightsOn = train.isOnRoute;
 
-		if (model == null || textureId == null) {
+		if (trainProperties.model == null || trainProperties.textureId == null) {
 			final boolean isBoat = train.transportMode == TransportMode.BOAT;
 
 			matrices.translate(0, isBoat ? 0.875 : 0.5, 0);
 			matrices.mulPose(Vector3f.YP.rotationDegrees(90));
 
 			final EntityModel<? extends Entity> model = isBoat ? MODEL_BOAT : MODEL_MINECART;
-			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(textureId, textureId -> textureId + ".png")));
+			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(model.renderType(resolveTexture(trainProperties.textureId, textureId -> textureId + ".png")));
 
 			if (isBoat) {
 				if (!BOATS.containsKey(train.id)) {
@@ -103,40 +88,41 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 		} else {
 			final boolean renderDetails = MTRClient.isReplayMod() || posAverage.distSqr(camera.getBlockPosition()) <= RenderTrains.DETAIL_RADIUS_SQUARED;
-			model.render(matrices, vertexConsumers, resolveTexture(textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, lightsOn, isTranslucentBatch, renderDetails);
+			trainProperties.model.render(matrices, vertexConsumers, resolveTexture(trainProperties.textureId, textureId -> textureId + ".png"), light, doorLeftValue, doorRightValue, opening, carIndex, train.trainCars, head1IsFront, train.getIsOnRoute(), isTranslucentBatch, renderDetails);
 
-			if (trainProperties.bogiePosition != 0) {
+			if (trainProperties.bogiePosition != 0 && !isTranslucentBatch) {
 				if (trainProperties.isJacobsBogie) {
 					if (carIndex == 0) {
-						MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16F));
+						MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16));
 					} else if (carIndex == train.trainCars - 1) {
-						MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16F));
+						MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16));
 					}
 				} else {
-					MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16F));
-					MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16F));
+					MODEL_BOGIE.render(matrices, vertexConsumers, light, (int) (trainProperties.bogiePosition * 16));
+					MODEL_BOGIE.render(matrices, vertexConsumers, light, -(int) (trainProperties.bogiePosition * 16));
 				}
 			}
 		}
 
-		if (train.transportMode == TransportMode.CABLE_CAR) {
+		if (train.transportMode == TransportMode.CABLE_CAR && !isTranslucentBatch) {
 			matrices.translate(0, TransportMode.CABLE_CAR.railOffset + 0.5, 0);
 			if (!train.transportMode.hasPitch) {
 				matrices.mulPose(Vector3f.XP.rotation(pitch));
 			}
-			if (trainId.endsWith("_RHT")) {
+			if (trainId.endsWith("_rht")) {
 				matrices.mulPose(Vector3f.YP.rotationDegrees(180));
 			}
 			MODEL_CABLE_CAR_GRIP.render(matrices, vertexConsumers, light);
 		}
 
 		matrices.popPose();
+		matrices.popPose();
 	}
 
 	@Override
-	public void renderConnection(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
-		final BlockPos posAverage = getPosAverage(x, y, z);
-		if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
+	public void renderConnection(TrainClient train, Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
+		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		if (posAverage == null) {
 			return;
 		}
 
@@ -145,15 +131,14 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 		final int light = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, posAverage), world.getBrightness(LightLayer.SKY, posAverage));
 
-		if (trainProperties.hasGangwayConnection) {
+		if (!trainProperties.gangwayConnectionId.isEmpty()) {
 			final VertexConsumer vertexConsumerExterior = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(getConnectorTextureString(true, "exterior")));
 			drawTexture(matrices, vertexConsumerExterior, thisPos2, prevPos3, prevPos4, thisPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos3, prevPos2, light);
 			drawTexture(matrices, vertexConsumerExterior, prevPos1, thisPos4, thisPos1, prevPos4, light);
 
-			final boolean lightsOn = train.isOnRoute;
-			final int lightOnLevel = lightsOn ? RenderTrains.MAX_LIGHT_INTERIOR : light;
+			final int lightOnLevel = train.getIsOnRoute() ? RenderTrains.MAX_LIGHT_INTERIOR : light;
 			final VertexConsumer vertexConsumerSide = vertexConsumers.getBuffer(MoreRenderLayers.getInterior(getConnectorTextureString(true, "side")));
 			drawTexture(matrices, vertexConsumerSide, thisPos3, prevPos2, prevPos1, thisPos4, lightOnLevel);
 			drawTexture(matrices, vertexConsumerSide, prevPos3, thisPos2, thisPos1, prevPos4, lightOnLevel);
@@ -169,16 +154,18 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 			MODEL_BOGIE.render(matrices, vertexConsumers, light, 0);
 			matrices.popPose();
 		}
+
+		matrices.popPose();
 	}
 
 	@Override
-	public void renderBarrier(Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
-		if (StringUtils.isEmpty(trainBarrierId)) {
+	public void renderBarrier(TrainClient train, Vec3 prevPos1, Vec3 prevPos2, Vec3 prevPos3, Vec3 prevPos4, Vec3 thisPos1, Vec3 thisPos2, Vec3 thisPos3, Vec3 thisPos4, double x, double y, double z, float yaw, float pitch) {
+		if (StringUtils.isEmpty(trainProperties.trainBarrierId)) {
 			return;
 		}
 
-		final BlockPos posAverage = getPosAverage(x, y, z);
-		if (RenderTrains.shouldNotRender(posAverage, UtilitiesClient.getRenderDistance() * (Config.trainRenderDistanceRatio() + 1), null)) {
+		final BlockPos posAverage = getPosAverage(train, x, y, z);
+		if (posAverage == null) {
 			return;
 		}
 
@@ -189,22 +176,22 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		drawTexture(matrices, vertexConsumerExterior, prevPos2, thisPos3, thisPos4, prevPos1, light);
 		drawTexture(matrices, vertexConsumerExterior, thisPos3, prevPos2, prevPos1, thisPos4, light);
 		drawTexture(matrices, vertexConsumerExterior, prevPos3, thisPos2, thisPos1, prevPos4, light);
+
+		matrices.popPose();
 	}
 
 	@Override
-	public void renderRidingPlayer(UUID playerId, Vec3 playerPositionOffset) {
-		final EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-		matrices.pushPose();
+	public void renderRidingPlayer(TrainClient train, UUID playerId, Vec3 playerPositionOffset) {
+		final BlockPos posAverage = getPosAverage(train, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z);
+		if (posAverage == null) {
+			return;
+		}
 		matrices.translate(0, RenderTrains.PLAYER_RENDER_OFFSET, 0);
 		final Player renderPlayer = world.getPlayerByUUID(playerId);
 		if (renderPlayer != null && (!playerId.equals(player.getUUID()) || camera.isDetached())) {
 			entityRenderDispatcher.render(renderPlayer, playerPositionOffset.x, playerPositionOffset.y, playerPositionOffset.z, 0, 1, matrices, vertexConsumers, 0xF000F0);
 		}
 		matrices.popPose();
-	}
-
-	private ResourceLocation getConnectorTextureString(boolean isConnector, String partName) {
-		return resolveTexture(isConnector ? gangwayConnectionId : trainBarrierId, textureId -> String.format("%s_%s_%s.png", textureId, isConnector ? "connector" : "barrier", partName));
 	}
 
 	public ResourceLocation resolveTexture(String textureId, Function<String, String> formatter) {
@@ -225,15 +212,13 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 		if (available) {
 			return id;
 		} else {
-			final TrainRendererBase renderer = TrainClientRegistry.getTrainProperties(train.trainId).renderer;
-			if (renderer instanceof JonModelTrainRenderer) {
-				JonModelTrainRenderer jonModelTrainRenderer = (JonModelTrainRenderer) renderer;
-				final String baseTextureId = jonModelTrainRenderer.textureId;
-				return new ResourceLocation(baseTextureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(textureId));
-			} else {
-				return new ResourceLocation("mtr:textures/block/transparent.png");
-			}
+			final String newTextureId = TrainClientRegistry.getTrainProperties(trainProperties.baseTrainType).textureId;
+			return new ResourceLocation(newTextureId == null ? "mtr:textures/block/transparent.png" : formatter.apply(newTextureId));
 		}
+	}
+
+	private ResourceLocation getConnectorTextureString(boolean isConnector, String partName) {
+		return resolveTexture(isConnector ? trainProperties.gangwayConnectionId : trainProperties.trainBarrierId, textureId -> String.format("%s_%s_%s.png", textureId, isConnector ? "connector" : "barrier", partName));
 	}
 
 	private static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, Vec3 pos1, Vec3 pos2, Vec3 pos3, Vec3 pos4, int light) {

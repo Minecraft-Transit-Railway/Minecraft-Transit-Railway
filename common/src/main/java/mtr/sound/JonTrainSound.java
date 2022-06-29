@@ -61,18 +61,18 @@ public class JonTrainSound extends TrainSoundBase {
 	}
 
 	@Override
-	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
+	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex, float doorValueRaw, float oldDoorValue) {
 		// TODO Check why door sounds are not playing
 		if (!(world instanceof ClientLevel && MTRClient.canPlaySound())) {
 			return;
 		}
 
-		final float doorValue = Math.abs(train.rawDoorValue);
+		final float doorValue = Math.abs(doorValueRaw);
 		if (config.doorSoundBaseId != null) {
 			final String soundId;
-			if (train.doorValueLastElapse <= 0 && doorValue > 0) {
+			if (oldDoorValue <= 0 && doorValue > 0) {
 				soundId = config.doorSoundBaseId + SOUND_DOOR_OPEN;
-			} else if (train.doorValueLastElapse >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime) {
+			} else if (oldDoorValue >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime) {
 				soundId = config.doorSoundBaseId + SOUND_DOOR_CLOSE;
 			} else {
 				soundId = null;
