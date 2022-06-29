@@ -38,9 +38,10 @@ public class TrainClient extends Train {
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
+	private Depot depot;
+	private List<Long> routeIds = new ArrayList<>();
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-	private final List<Long> routeIds;
 	private final List<Double> offset = new ArrayList<>();
 	private final Map<UUID, Float> percentagesX = new HashMap<>();
 	private final Map<UUID, Float> percentagesZ = new HashMap<>();
@@ -56,9 +57,6 @@ public class TrainClient extends Train {
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
-		final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
-		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
-		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 	}
 
 	@Override
@@ -333,9 +331,16 @@ public class TrainClient extends Train {
 
 		simulateTrain(world, ticksElapsed, null);
 
+		if (depot == null || routeIds.isEmpty()) {
+			final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
+			depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
+			routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
+		}
+
 		final LocalPlayer player = Minecraft.getInstance().player;
-		if (player != null && ridingEntities.contains(player.getUUID())) {
-			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue);
+		if (Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
+			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
+			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue, speed * 20, stopIndex, routeIds);
 		}
 	}
 

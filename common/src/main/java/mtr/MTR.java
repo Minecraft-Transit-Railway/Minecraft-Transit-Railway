@@ -57,6 +57,7 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
+		registerItem.accept("driver_key", Items.DRIVER_KEY);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);

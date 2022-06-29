@@ -1,5 +1,6 @@
 package mtr.data;
 
+import mtr.Items;
 import mtr.block.BlockPSDAPGBase;
 import mtr.block.BlockPlatform;
 import mtr.packet.IPacket;
@@ -12,6 +13,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -610,6 +612,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		}
 
 		return hasPlatform;
+	}
+
+	public static boolean isHoldingKey(Player player) {
+		return player != null && player.isHolding(Items.DRIVER_KEY.get());
 	}
 
 	public static double getAverage(double a, double b) {

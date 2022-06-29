@@ -264,7 +264,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 			matrices.popPose();
 		}), (speed, stopIndex, routeIds) -> {
-			if (!(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			if (!Train.isHoldingKey(player) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
 				final Component text;
 				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
 					default:

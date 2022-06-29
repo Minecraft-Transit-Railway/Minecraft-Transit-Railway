@@ -3,17 +3,26 @@ package mtr.render;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.client.ClientData;
 import mtr.data.IGui;
+import mtr.data.RailwayData;
 import mtr.mappings.UtilitiesClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public class RenderDrivingOverlay implements IGui {
 
 	private static int accelerationSign;
 	private static float doorValue;
+	private static float speed;
+	private static String thisStation;
+	private static String nextStation;
+	private static String thisRoute;
+	private static String lastStation;
 	private static int coolDown;
 
 	private static final int HOT_BAR_WIDTH = 182;
@@ -57,13 +66,35 @@ public class RenderDrivingOverlay implements IGui {
 		client.font.drawShadow(matrices, String.valueOf(Math.round(doorValue * 10) / 10F), startX + 144.5F, startY + 7.5F, doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
 		client.font.drawShadow(matrices, "DO", startX + 165.5F, startY + 7.5F, doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
 
+		final String speedText = RailwayData.round(speed * 3.6F, 1) + " km/h";
+		client.font.drawShadow(matrices, speedText, startX - client.font.width(speedText) - TEXT_PADDING, window.getGuiScaledHeight() - 14.5F, ARGB_WHITE);
+		if (thisStation != null) {
+			client.font.drawShadow(matrices, thisStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 44.5F, ARGB_WHITE);
+		}
+		if (nextStation != null) {
+			client.font.drawShadow(matrices, "> " + nextStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 34.5F, ARGB_WHITE);
+		}
+		if (thisRoute != null) {
+			client.font.drawShadow(matrices, thisRoute, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 19.5F, ARGB_WHITE);
+		}
+		if (lastStation != null) {
+			client.font.drawShadow(matrices, "> " + lastStation, startX + HOT_BAR_WIDTH + TEXT_PADDING, window.getGuiScaledHeight() - 9.5F, ARGB_WHITE);
+		}
+
 		RenderSystem.disableBlend();
 		matrices.popPose();
 	}
 
-	public static void setData(int accelerationSign, float doorValue) {
+	public static void setData(int accelerationSign, float doorValue, float speed, int stopIndex, List<Long> routeIds) {
 		RenderDrivingOverlay.accelerationSign = accelerationSign;
 		RenderDrivingOverlay.doorValue = doorValue;
 		coolDown = 2;
+		RenderDrivingOverlay.speed = speed;
+		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+			RenderDrivingOverlay.thisStation = IGui.formatStationName(thisStation.name);
+			RenderDrivingOverlay.nextStation = nextStation == null ? nextRoute == null ? null : IGui.formatStationName(nextRoute.name) : IGui.formatStationName(nextStation.name);
+			RenderDrivingOverlay.thisRoute = IGui.formatStationName(thisRoute.name);
+			RenderDrivingOverlay.lastStation = lastStation == null ? null : IGui.formatStationName(lastStation.name);
+		});
 	}
 }

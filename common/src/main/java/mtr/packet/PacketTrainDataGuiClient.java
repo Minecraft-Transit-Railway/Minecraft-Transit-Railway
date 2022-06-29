@@ -332,7 +332,7 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 	}
 
 	public static void sendDriveTrainC2S(boolean pressingAccelerate, boolean pressingBrake, boolean pressingDoors) {
-		if (pressingAccelerate || pressingBrake || pressingDoors) {
+		if (Train.isHoldingKey(Minecraft.getInstance().player) && (pressingAccelerate || pressingBrake || pressingDoors)) {
 			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 			packet.writeBoolean(pressingAccelerate);
 			packet.writeBoolean(pressingBrake);
