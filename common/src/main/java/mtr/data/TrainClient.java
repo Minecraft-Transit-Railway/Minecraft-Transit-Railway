@@ -380,8 +380,8 @@ public class TrainClient extends Train {
 		stopCounter = train.stopCounter;
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
+		isCurrentlyManual = train.isCurrentlyManual;
 		isOnRoute = train.isOnRoute;
-		isManual = train.isManual;
 		manualAccelerationSign = train.manualAccelerationSign;
 		manualDoorOpen = train.manualDoorOpen;
 	}

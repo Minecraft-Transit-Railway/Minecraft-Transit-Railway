@@ -35,6 +35,7 @@ public class TrainServer extends Train {
 	private Map<Long, Map<BlockPos, TrainDelay>> trainDelays = new HashMap<>();
 	private long routeId;
 	private int updateRailProgressCounter;
+	private int manualCoolDown;
 
 	private final List<Siding.TimeSegment> timeSegments;
 
@@ -42,6 +43,7 @@ public class TrainServer extends Train {
 	private static final float INNER_PADDING = 0.5F;
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
+	private static final int TICKS_MANUAL_TO_AUTOMATIC = 3600;
 
 	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual) {
 		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual);
@@ -91,7 +93,7 @@ public class TrainServer extends Train {
 
 		if (isManual || doorLeftOpen || doorRightOpen) {
 			final float margin = halfSpacing + BOX_PADDING;
-			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player) && (!isManual || Train.isHoldingKey(player))).forEach(player -> {
+			world.getEntitiesOfClass(Player.class, new AABB(carX + margin, carY + margin, carZ + margin, carX - margin, carY - margin, carZ - margin), player -> !player.isSpectator() && !ridingEntities.contains(player.getUUID()) && railwayData.railwayDataCoolDownModule.canRide(player) && (!isManual || doorLeftOpen || doorRightOpen || Train.isHoldingKey(player))).forEach(player -> {
 				final Vec3 positionRotated = player.position().subtract(carX, carY, carZ).yRot(-carYaw).xRot(-carPitch);
 				if (Math.abs(positionRotated.x) < halfWidth + INNER_PADDING && Math.abs(positionRotated.y) < 2.5 && Math.abs(positionRotated.z) <= halfSpacing) {
 					ridingEntities.add(player.getUUID());
@@ -124,6 +126,9 @@ public class TrainServer extends Train {
 					ridersToRemove.add(uuid);
 				}
 				railwayData.railwayDataCoolDownModule.updatePlayerRiding(player, routeId);
+				if (isHoldingKey(player)) {
+					manualCoolDown = 0;
+				}
 			}
 		});
 		if (!ridersToRemove.isEmpty()) {
@@ -253,6 +258,8 @@ public class TrainServer extends Train {
 		this.trainDelays = trainDelays;
 		final int oldStoppingIndex = nextStoppingIndex;
 		final int oldPassengerCount = ridingEntities.size();
+		final boolean oldIsCurrentlyManual = isCurrentlyManual;
+		final boolean oldStopped = speed == 0;
 
 		simulateTrain(world, ticksElapsed, depot);
 
@@ -306,7 +313,27 @@ public class TrainServer extends Train {
 			updateRailProgressCounter = 0;
 		}
 
-		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex;
+		if (isManual) {
+			if (isOnRoute) {
+				if (manualCoolDown >= TICKS_MANUAL_TO_AUTOMATIC) {
+					if (isCurrentlyManual) {
+						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+						stopCounter = manualDoorOpen ? dwellTicks / 2F : 0;
+					}
+					isCurrentlyManual = false;
+				} else {
+					manualCoolDown++;
+					isCurrentlyManual = true;
+				}
+			} else {
+				manualCoolDown = 0;
+				isCurrentlyManual = true;
+			}
+		} else {
+			isCurrentlyManual = false;
+		}
+
+		return oldPassengerCount > ridingEntities.size() || oldStoppingIndex != nextStoppingIndex || oldIsCurrentlyManual != isCurrentlyManual || oldStopped != (speed == 0);
 	}
 
 	public void writeTrainPositions(List<Map<UUID, Long>> trainPositions, SignalBlocks signalBlocks) {

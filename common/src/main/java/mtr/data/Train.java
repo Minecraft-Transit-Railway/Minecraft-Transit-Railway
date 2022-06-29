@@ -32,7 +32,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected int nextStoppingIndex;
 	protected boolean reversed;
 	protected boolean isOnRoute = false;
-	protected boolean isManual;
+	protected boolean isCurrentlyManual;
 	protected int manualAccelerationSign;
 	protected boolean manualDoorOpen;
 	protected float manualDoorValue;
@@ -44,6 +44,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final int spacing;
 	protected final int width;
 	protected final int trainCars;
+	protected final boolean isManual;
 	protected final List<PathData> path;
 	protected final List<Double> distances;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
@@ -64,8 +65,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_STOP_COUNTER = "stop_counter";
 	private static final String KEY_NEXT_STOPPING_INDEX = "next_stopping_index";
 	private static final String KEY_REVERSED = "reversed";
-	private static final String KEY_IS_ON_ROUTE = "is_on_route";
 	private static final String KEY_IS_MANUAL = "is_manual";
+	private static final String KEY_IS_CURRENTLY_MANUAL = "is_currently_manual";
+	private static final String KEY_IS_ON_ROUTE = "is_on_route";
 	private static final String KEY_TRAIN_TYPE = "train_type";
 	private static final String KEY_TRAIN_CUSTOM_ID = "train_custom_id";
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
@@ -84,12 +86,13 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
 		this.trainCars = trainCars;
+		this.isManual = isManual;
+		isCurrentlyManual = isManual;
 		this.path = path;
 		this.distances = distances;
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 		this.accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		inventory = new SimpleContainer(trainCars);
-		this.isManual = isManual;
 	}
 
 	public Train(long sidingId, float railLength, List<PathData> path, List<Double> distances, Map<String, Value> map) {
@@ -119,9 +122,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
 		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
+		isManual = messagePackHelper.getBoolean(KEY_IS_MANUAL);
+		isCurrentlyManual = messagePackHelper.getBoolean(KEY_IS_CURRENTLY_MANUAL);
 
 		isOnRoute = messagePackHelper.getBoolean(KEY_IS_ON_ROUTE);
-		isManual = messagePackHelper.getBoolean(KEY_IS_MANUAL);
 		messagePackHelper.iterateArrayValue(KEY_RIDING_ENTITIES, value -> ridingEntities.add(UUID.fromString(value.asStringValue().asString())));
 
 		SimpleContainer inventory1 = new SimpleContainer(trainCars);
@@ -162,9 +166,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
 		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
+		isManual = compoundTag.getBoolean(KEY_IS_MANUAL);
+		isCurrentlyManual = compoundTag.getBoolean(KEY_IS_CURRENTLY_MANUAL);
 
 		isOnRoute = compoundTag.getBoolean(KEY_IS_ON_ROUTE);
-		isManual = compoundTag.getBoolean(KEY_IS_MANUAL);
 		final CompoundTag tagRidingEntities = compoundTag.getCompound(KEY_RIDING_ENTITIES);
 		tagRidingEntities.getAllKeys().forEach(key -> ridingEntities.add(tagRidingEntities.getUUID(key)));
 
@@ -199,8 +204,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		spacing = TrainType.getSpacing(baseTrainType);
 		width = TrainType.getWidth(baseTrainType);
 		trainCars = Math.min(transportMode.maxLength, (int) Math.floor(railLength / spacing + 0.01F));
-		isOnRoute = packet.readBoolean();
 		isManual = packet.readBoolean();
+		isCurrentlyManual = packet.readBoolean();
+		isOnRoute = packet.readBoolean();
 		manualAccelerationSign = packet.readInt();
 		manualDoorOpen = packet.readBoolean();
 
@@ -224,8 +230,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		messagePacker.packString(KEY_REVERSED).packBoolean(reversed);
 		messagePacker.packString(KEY_TRAIN_CUSTOM_ID).packString(trainId);
 		messagePacker.packString(KEY_TRAIN_TYPE).packString(baseTrainType);
-		messagePacker.packString(KEY_IS_ON_ROUTE).packBoolean(isOnRoute);
 		messagePacker.packString(KEY_IS_MANUAL).packBoolean(isManual);
+		messagePacker.packString(KEY_IS_CURRENTLY_MANUAL).packBoolean(isCurrentlyManual);
+		messagePacker.packString(KEY_IS_ON_ROUTE).packBoolean(isOnRoute);
 
 		messagePacker.packString(KEY_RIDING_ENTITIES).packArrayHeader(ridingEntities.size());
 		for (final UUID uuid : ridingEntities) {
@@ -256,7 +263,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	@Override
 	public int messagePackLength() {
-		return super.messagePackLength() + 12;
+		return super.messagePackLength() + 13;
 	}
 
 	@Override
@@ -280,8 +287,9 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		packet.writeBoolean(reversed);
 		packet.writeUtf(trainId);
 		packet.writeUtf(baseTrainType);
-		packet.writeBoolean(isOnRoute);
 		packet.writeBoolean(isManual);
+		packet.writeBoolean(isCurrentlyManual);
+		packet.writeBoolean(isOnRoute);
 		packet.writeInt(manualAccelerationSign);
 		packet.writeBoolean(manualDoorOpen);
 		packet.writeInt(ridingEntities.size());
@@ -305,8 +313,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		return !isOnRoute || railProgress < trainDistance + railLength;
 	}
 
-	public final boolean isManual() {
-		return isManual;
+	public final boolean isCurrentlyManual() {
+		return isCurrentlyManual;
 	}
 
 	public boolean changeManualSpeed(boolean isAccelerate) {
@@ -354,7 +362,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 				speed = 0;
 				nextStoppingIndex = 0;
 
-				if (!isManual && canDeploy(depot) || isManual && manualAccelerationSign > 0) {
+				if (!isCurrentlyManual && canDeploy(depot) || isCurrentlyManual && manualAccelerationSign > 0) {
 					startUp(world, trainCars, spacing, isOppositeRail());
 				}
 			} else {
@@ -375,15 +383,15 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							tempDoorValueRaw = 0;
 						} else {
 							stopCounter += ticksElapsed;
-							if (isManual) {
+							if (isCurrentlyManual) {
 								manualDoorValue = Mth.clamp(manualDoorValue + ticksElapsed * (manualDoorOpen ? 1 : -1) / DOOR_MOVE_TIME, 0, 1);
 							}
 							tempDoorValueRaw = getDoorValue();
 						}
 
-						if (!world.isClientSide() && (isManual || stopCounter >= dwellTicks)) {
+						if (!world.isClientSide() && (isCurrentlyManual || stopCounter >= dwellTicks)) {
 							final boolean isOppositeRail = isOppositeRail();
-							if (!isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1)) && (!isManual || manualAccelerationSign > 0)) {
+							if (!isRailBlocked(getIndex(0, spacing, true) + (isOppositeRail ? 2 : 1)) && (!isCurrentlyManual || manualAccelerationSign > 0)) {
 								startUp(world, trainCars, spacing, isOppositeRail);
 							}
 						}
@@ -395,24 +403,30 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							}
 						}
 
-						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress + (isManual ? 0.5 : 0);
+						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress + (isCurrentlyManual ? 0.5 : 0);
 						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
 							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
 							manualAccelerationSign = -2;
 						} else {
-							if (isManual) {
+							if (isCurrentlyManual) {
 								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, RailType.DIAMOND.maxBlocksPerTick);
 							} else {
 								final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
 								if (speed < railSpeed) {
 									speed = Math.min(speed + newAcceleration, railSpeed);
+									manualAccelerationSign = 2;
 								} else if (speed > railSpeed) {
 									speed = Math.max(speed - newAcceleration, railSpeed);
+									manualAccelerationSign = -2;
+								} else {
+									manualAccelerationSign = 0;
 								}
 							}
 						}
 
 						tempDoorValueRaw = 0;
+						manualDoorOpen = false;
+						manualDoorValue = 0;
 					}
 
 					railProgress += speed * ticksElapsed;
@@ -510,6 +524,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	protected void startUp(Level world, int trainCars, int trainSpacing, boolean isOppositeRail) {
+		manualDoorOpen = false;
 		manualDoorValue = 0;
 	}
 
@@ -552,9 +567,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	private float getDoorValue() {
-		if (isManual) {
-			return manualDoorValue * (manualDoorOpen ? 1 : -1);
-		} else {
+		if (!isCurrentlyManual) {
 			final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
 			final float maxDoorMoveTime = Math.min(DOOR_MOVE_TIME, dwellTicks / 2 - DOOR_DELAY);
 			final float stage1 = DOOR_DELAY;
@@ -562,17 +575,26 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			final float stage3 = dwellTicks - DOOR_DELAY - maxDoorMoveTime;
 			final float stage4 = dwellTicks - DOOR_DELAY;
 			if (stopCounter < stage1 || stopCounter >= stage4) {
-				return 0;
+				manualDoorOpen = false;
+				manualDoorValue = 0;
 			} else if (stopCounter >= stage2 && stopCounter < stage3) {
-				return 1;
+				manualDoorOpen = true;
+				manualDoorValue = 1;
 			} else if (stopCounter < stage2) {
-				return (stopCounter - stage1) / DOOR_MOVE_TIME;
+				manualDoorOpen = true;
+				manualDoorValue = (stopCounter - stage1) / DOOR_MOVE_TIME;
 			} else if (stopCounter >= stage3) {
-				return -(stage4 - stopCounter) / DOOR_MOVE_TIME;
+				manualDoorOpen = false;
+				manualDoorValue = (stage4 - stopCounter) / DOOR_MOVE_TIME;
 			} else {
-				return 0;
+				manualDoorOpen = false;
+				manualDoorValue = 0;
 			}
 		}
+		if (manualDoorOpen || manualDoorValue != 0) {
+			manualAccelerationSign = -2;
+		}
+		return manualDoorValue * (manualDoorOpen ? 1 : -1);
 	}
 
 	private float getDoorValueContinuous() {

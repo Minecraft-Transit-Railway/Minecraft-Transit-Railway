@@ -314,7 +314,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		final Set<Long> railProgressSet = new HashSet<>();
 		final Set<TrainServer> trainsToRemove = new HashSet<>();
 		for (final TrainServer train : trains) {
-			if (train.isManual() && railwayDataDriveTrainModule.drive(train)) {
+			if (train.isCurrentlyManual() && railwayDataDriveTrainModule.drive(train)) {
 				trainsToSync.add(train);
 			}
 
