@@ -85,7 +85,7 @@ public class ConfigFile {
 				}
 
 				final String key = tokens[0].trim().toLowerCase().replaceAll("\\s", "");
-				final String value = tokens[1].trim().toLowerCase().replaceAll("\\.wav|\\s", "").replace("\\", "/");
+				final String value = tokens[1].trim().toLowerCase().replace("\\", "/").replaceAll("\\.wav|\\s|.+/", "");
 				if (StringUtils.isEmpty(value)) {
 					continue;
 				}

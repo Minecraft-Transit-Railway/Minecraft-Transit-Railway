@@ -63,7 +63,263 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/air": {
+	"london_underground_1995_air": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/air",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_airzero": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/airzero",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_ats": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/ats",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_atscnt": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/atscnt",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_cpend": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/cpend",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_cploop": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/cploop",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_cpstart": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/cpstart",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_ding": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/ding",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_doorcls": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/doorcls",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_dooropn": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/dooropn",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_flange0": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/flange0",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_klaxon0": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/klaxon0",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_klaxon1": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/klaxon1",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_loop": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/loop",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor0": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor0",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor1": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor1",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor2": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor2",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor3": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor3",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor5": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor5",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor6": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor6",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_motor7": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/motor7",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_point": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/point",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run0": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run0",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run1": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run1",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run2": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run2",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run3": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run3",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run4": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run4",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run5": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run5",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_run6": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run6",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_tbcmax": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/tbcmax",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_tbcmin": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/tbcmin",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1995_tbcunlock": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/tbcunlock",
+				"attenuation_distance": 32
+			}
+		]
+	},
+	"london_underground_1996_air": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/air",
@@ -71,7 +327,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/airzero": {
+	"london_underground_1996_airzero": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/airzero",
@@ -79,7 +335,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/alarm1": {
+	"london_underground_1996_alarm1": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/alarm1",
@@ -87,7 +343,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/alarm2": {
+	"london_underground_1996_alarm2": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/alarm2",
@@ -95,7 +351,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/confidence": {
+	"london_underground_1996_confidence": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/confidence",
@@ -103,7 +359,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/cpend": {
+	"london_underground_1996_cpend": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/cpend",
@@ -111,7 +367,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/cploop": {
+	"london_underground_1996_cploop": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/cploop",
@@ -119,7 +375,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/cpstart": {
+	"london_underground_1996_cpstart": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/cpstart",
@@ -127,7 +383,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/dooralarm": {
+	"london_underground_1996_dooralarm": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/dooralarm",
@@ -135,7 +391,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/doorbuttonpress": {
+	"london_underground_1996_doorbuttonpress": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/doorbuttonpress",
@@ -143,7 +399,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/doorbuttonrelease": {
+	"london_underground_1996_doorbuttonrelease": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/doorbuttonrelease",
@@ -151,7 +407,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/doorcls": {
+	"london_underground_1996_doorcls": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/doorcls",
@@ -159,7 +415,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/dooropn": {
+	"london_underground_1996_dooropn": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/dooropn",
@@ -167,7 +423,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/doorson": {
+	"london_underground_1996_doorson": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/doorson",
@@ -175,7 +431,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/handset_clickoff": {
+	"london_underground_1996_handset_clickoff": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/handset_clickoff",
@@ -183,7 +439,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/handset_clickon": {
+	"london_underground_1996_handset_clickon": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/handset_clickon",
@@ -191,7 +447,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/handset_lift": {
+	"london_underground_1996_handset_lift": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/handset_lift",
@@ -199,7 +455,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/handset_replace": {
+	"london_underground_1996_handset_replace": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/handset_replace",
@@ -207,7 +463,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/insertrklkey": {
+	"london_underground_1996_insertrklkey": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/insertrklkey",
@@ -215,7 +471,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/loopalt2": {
+	"london_underground_1996_loopalt2": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/loopalt2",
@@ -223,7 +479,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor0": {
+	"london_underground_1996_motor0": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor0",
@@ -231,7 +487,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor1": {
+	"london_underground_1996_motor1": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor1",
@@ -239,7 +495,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor10": {
+	"london_underground_1996_motor10": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor10",
@@ -247,7 +503,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor11": {
+	"london_underground_1996_motor11": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor11",
@@ -255,7 +511,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor12": {
+	"london_underground_1996_motor12": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor12",
@@ -263,7 +519,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor13": {
+	"london_underground_1996_motor13": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor13",
@@ -271,7 +527,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor14": {
+	"london_underground_1996_motor14": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor14",
@@ -279,7 +535,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor15": {
+	"london_underground_1996_motor15": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor15",
@@ -287,7 +543,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor2": {
+	"london_underground_1996_motor2": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor2",
@@ -295,7 +551,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor3": {
+	"london_underground_1996_motor3": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor3",
@@ -303,7 +559,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor4": {
+	"london_underground_1996_motor4": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor4",
@@ -311,7 +567,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor5": {
+	"london_underground_1996_motor5": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor5",
@@ -319,7 +575,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor6": {
+	"london_underground_1996_motor6": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor6",
@@ -327,7 +583,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor7": {
+	"london_underground_1996_motor7": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor7",
@@ -335,7 +591,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor8": {
+	"london_underground_1996_motor8": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor8",
@@ -343,7 +599,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/motor9": {
+	"london_underground_1996_motor9": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/motor9",
@@ -351,7 +607,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/offandrelease": {
+	"london_underground_1996_offandrelease": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/offandrelease",
@@ -359,7 +615,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/rotatemaster1": {
+	"london_underground_1996_rotatemaster1": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/rotatemaster1",
@@ -367,7 +623,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/rotatemaster2": {
+	"london_underground_1996_rotatemaster2": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/rotatemaster2",
@@ -375,7 +631,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run0": {
+	"london_underground_1996_run0": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run0",
@@ -383,7 +639,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run2": {
+	"london_underground_1996_run2": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run2",
@@ -391,7 +647,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run3": {
+	"london_underground_1996_run3": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run3",
@@ -399,7 +655,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run4": {
+	"london_underground_1996_run4": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run4",
@@ -407,7 +663,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run5": {
+	"london_underground_1996_run5": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run5",
@@ -415,7 +671,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run6": {
+	"london_underground_1996_run6": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run6",
@@ -423,7 +679,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run7": {
+	"london_underground_1996_run7": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run7",
@@ -431,7 +687,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run8": {
+	"london_underground_1996_run8": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run8",
@@ -439,7 +695,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/run9": {
+	"london_underground_1996_run9": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run9",
@@ -447,7 +703,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/switch": {
+	"london_underground_1996_switch": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/switch",
@@ -455,7 +711,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/tbcbrake": {
+	"london_underground_1996_tbcbrake": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/tbcbrake",
@@ -463,7 +719,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/tbcforward": {
+	"london_underground_1996_tbcforward": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/tbcforward",
@@ -471,7 +727,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/tbcmax": {
+	"london_underground_1996_tbcmax": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/tbcmax",
@@ -479,7 +735,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/tbcoffandrelease": {
+	"london_underground_1996_tbcoffandrelease": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/tbcoffandrelease",
@@ -487,7 +743,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/tbcuntwist": {
+	"london_underground_1996_tbcuntwist": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/tbcuntwist",
@@ -495,7 +751,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/twist": {
+	"london_underground_1996_twist": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/twist",
@@ -503,7 +759,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/whistle-high": {
+	"london_underground_1996_whistle-high": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/whistle-high",
@@ -511,7 +767,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/whistle-highrev": {
+	"london_underground_1996_whistle-highrev": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/whistle-highrev",
@@ -519,7 +775,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/whistle-low": {
+	"london_underground_1996_whistle-low": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/whistle-low",
@@ -527,7 +783,7 @@
 			}
 		]
 	},
-	"london_underground_1996_sound/whistle-lowrev": {
+	"london_underground_1996_whistle-lowrev": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/whistle-lowrev",
@@ -12399,1334 +12655,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_d78/door_close",
-				"pitch": 1
-			}
-		]
-	},
-	"london_underground_1995_door_open": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/door_open",
-				"pitch": 1
-			}
-		]
-	},
-	"london_underground_1995_door_close": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/door_close",
-				"pitch": 1
-			}
-		]
-	},
-	"london_underground_1995_acceleration_0a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_1a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_2a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_3a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_4a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_5a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_6a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_7a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_8a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_9a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_10a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_11a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_12a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_13a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_14a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_15a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_15a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_16a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_16a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_17a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_17a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_18a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_18a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_19a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_19a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_20a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_20a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_21a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_21a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_22a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_22a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_23a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_23a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_0b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_1b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_2b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_3b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_4b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_5b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_6b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_7b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_8b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_9b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_10b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_11b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_12b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_13b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_14b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_15b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_15b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_16b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_16b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_17b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_17b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_18b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_18b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_19b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_19b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_20b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_20b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_21b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_21b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_22b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_22b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_23b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_23b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_0c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_1c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_15c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_15c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_16c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_16c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_17c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_17c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_18c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_18c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_19c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_19c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_20c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_20c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_21c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_21c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_22c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_22c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_acceleration_23c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/acceleration/speed_23c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_0a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_0a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_1a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_1a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_2a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_2a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_3a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_3a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_4a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_4a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_5a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_5a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_6a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_6a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_7a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_7a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_8a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_8a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_9a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_9a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_10a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_10a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_11a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_11a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_12a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_12a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_13a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_13a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_14a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_14a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_15a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_15a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_16a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_16a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_17a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_17a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_18a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_18a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_19a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_19a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_20a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_20a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_21a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_21a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_22a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_22a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_23a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_23a",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_0b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_0b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_1b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_1b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_2b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_2b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_3b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_3b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_4b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_4b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_5b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_5b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_6b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_6b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_7b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_7b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_8b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_8b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_9b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_9b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_10b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_10b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_11b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_11b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_12b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_12b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_13b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_13b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_14b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_14b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_15b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_15b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_16b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_16b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_17b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_17b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_18b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_18b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_19b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_19b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_20b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_20b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_21b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_21b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_22b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_22b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_23b": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_23b",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_0c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_0c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_1c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_1c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_2c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_2c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_3c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_3c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_4c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_4c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_5c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_5c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_6c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_6c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_7c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_7c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_8c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_8c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_9c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_9c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_10c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_10c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_11c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_11c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_12c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_12c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_13c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_13c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_14c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_14c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_15c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_15c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_16c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_16c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_17c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_17c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_18c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_18c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_19c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_19c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_20c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_20c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_21c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_21c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_22c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_22c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_deceleration_23c": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/deceleration/speed_23c",
-				"pitch": 1,
-				"attenuation_distance": 32
-			}
-		]
-	},
-	"london_underground_1995_random": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/random/random_1",
-				"pitch": 1
-			},
-			{
-				"name": "mtr:london_underground_1995/random/random_2",
-				"pitch": 1
-			},
-			{
-				"name": "mtr:london_underground_1995/random/random_3",
 				"pitch": 1
 			}
 		]
