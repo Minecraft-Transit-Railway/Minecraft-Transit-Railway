@@ -241,7 +241,7 @@ public class BveTrainSound extends TrainSoundBase {
 		if (event == null) {
 			return;
 		}
-		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, gain, pitch, true);
+		((ClientLevel) world).playLocalSound(pos, event, SoundSource.BLOCKS, Math.min(1, gain), pitch, true);
 	}
 
 	private static void playLocalSound(Level world, SoundEvent event, BlockPos pos) {
