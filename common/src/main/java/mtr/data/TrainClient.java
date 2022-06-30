@@ -10,6 +10,7 @@ import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.JonModelTrainRenderer;
 import mtr.render.TrainRendererBase;
+import mtr.sound.JonTrainSound;
 import mtr.sound.TrainSoundBase;
 import mtr.sound.bve.BveTrainSound;
 import mtr.sound.bve.BveTrainSoundConfig;
@@ -69,7 +70,7 @@ public class TrainClient extends Train {
 
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 		trainRenderer = new JonModelTrainRenderer(trainProperties);
-		trainSound = new BveTrainSound(this, new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), "lt1995"));
+		trainSound = trainProperties.legacySoundConfig == null ? new BveTrainSound(this, new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), trainProperties.soundId == null ? "" : trainProperties.soundId)) : new JonTrainSound(this, trainProperties.soundId, trainProperties.legacySoundConfig);
 	}
 
 	@Override
