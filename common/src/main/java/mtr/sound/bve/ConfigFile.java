@@ -66,19 +66,15 @@ public class ConfigFile {
 
 		int motorNoiseDataType = 5; // 4 or 5
 
-		float motorVolumeMultiply = 1F;
+		float motorVolumeMultiply = 2;
 		float breakerDelay = 0.5F; // sec
 		float regenerationLimit = 8F / 3.6F; // m/s
 
-		float doorCloseSoundLength = 2F;
+		float doorCloseSoundLength = 1;
 
 		for (final String line : lines) {
-			final String trimLine = line.trim();
+			final String trimLine = line.trim().replaceAll("\\s*(;|#|//).+", "");
 			if (StringUtils.isEmpty(trimLine)) {
-				continue;
-			}
-
-			if (trimLine.startsWith("#") || trimLine.startsWith("//") || trimLine.startsWith("bvets")) {
 				continue;
 			}
 
@@ -88,8 +84,8 @@ public class ConfigFile {
 					continue;
 				}
 
-				final String key = tokens[0].trim().replace(" ", "").toLowerCase();
-				final String value = tokens[1].trim().toLowerCase().replace(".wav", "");
+				final String key = tokens[0].trim().toLowerCase().replaceAll("\\s", "");
+				final String value = tokens[1].trim().toLowerCase().replaceAll("\\.wav|\\s", "").replace("\\", "/");
 				if (StringUtils.isEmpty(value)) {
 					continue;
 				}

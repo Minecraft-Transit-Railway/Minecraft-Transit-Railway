@@ -2,6 +2,7 @@ package mtr.sound.bve;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -63,11 +64,11 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 		}
 		int offset = accel > 0 ? 0 : 2;
 		int entryIndex = (int) (speed / 0.2F);
-		if (index == channels[offset].soundIds.get(Math.min(channels[offset].maxEntryId, entryIndex))) {
-			return channels[offset].pitches.get(entryIndex);
+		if (index == getSafe(channels[offset].soundIds, Math.min(channels[offset].maxEntryId, entryIndex))) {
+			return getSafe(channels[offset].pitches, entryIndex);
 		}
-		if (index == channels[offset + 1].soundIds.get(Math.min(channels[offset + 1].maxEntryId, entryIndex))) {
-			return channels[offset + 1].pitches.get(entryIndex);
+		if (index == getSafe(channels[offset + 1].soundIds, Math.min(channels[offset + 1].maxEntryId, entryIndex))) {
+			return getSafe(channels[offset + 1].pitches, entryIndex);
 		}
 		return 0;
 	}
@@ -79,13 +80,17 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 		}
 		int offset = accel > 0 ? 0 : 2;
 		int entryIndex = (int) (speed / 0.2F);
-		if (index == channels[offset].soundIds.get(Math.min(channels[offset].maxEntryId, entryIndex))) {
-			return channels[offset].volumes.get(entryIndex);
+		if (index == getSafe(channels[offset].soundIds, Math.min(channels[offset].maxEntryId, entryIndex))) {
+			return getSafe(channels[offset].volumes, entryIndex);
 		}
-		if (index == channels[offset + 1].soundIds.get(Math.min(channels[offset + 1].maxEntryId, entryIndex))) {
-			return channels[offset + 1].volumes.get(entryIndex);
+		if (index == getSafe(channels[offset + 1].soundIds, Math.min(channels[offset + 1].maxEntryId, entryIndex))) {
+			return getSafe(channels[offset + 1].volumes, entryIndex);
 		}
 		return 0;
+	}
+
+	private static <T> T getSafe(ArrayList<T> list, int index) {
+		return list.get(Mth.clamp(index, 0, list.size() - 1));
 	}
 
 	public static class Channel {
