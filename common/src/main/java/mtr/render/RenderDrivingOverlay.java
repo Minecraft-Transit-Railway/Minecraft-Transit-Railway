@@ -28,6 +28,10 @@ public class RenderDrivingOverlay implements IGui {
 	private static final int HOT_BAR_WIDTH = 182;
 	private static final int HOT_BAR_HEIGHT = 22;
 
+	public static void render(Object matrices) {
+		render((PoseStack) matrices);
+	}
+
 	public static void render(PoseStack matrices) {
 		if (coolDown > 0) {
 			coolDown--;

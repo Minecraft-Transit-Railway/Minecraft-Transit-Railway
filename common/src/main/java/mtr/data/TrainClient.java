@@ -31,6 +31,7 @@ public class TrainClient extends Train {
 	private double lastSentX;
 	private double lastSentY;
 	private double lastSentZ;
+	private double railProgressDifference;
 	private float lastSentTicks;
 
 	private RenderTrainCallback renderTrainCallback;
@@ -342,6 +343,17 @@ public class TrainClient extends Train {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
 			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue, speed * 20, stopIndex, routeIds);
 		}
+
+		if (Math.abs(railProgressDifference) > 0) {
+			final double adjustment = Train.ACCELERATION_DEFAULT * ticksElapsed;
+			if (Math.abs(railProgressDifference) < adjustment) {
+				railProgress += railProgressDifference;
+				railProgressDifference = 0;
+			} else {
+				railProgress += Math.copySign(adjustment, railProgressDifference);
+				railProgressDifference -= Math.copySign(adjustment, railProgressDifference);
+			}
+		}
 	}
 
 	public void renderTranslucent() {
@@ -376,7 +388,11 @@ public class TrainClient extends Train {
 		ridingEntities.addAll(train.ridingEntities);
 
 		speed = train.speed;
-		railProgress = train.railProgress;
+		railProgressDifference = train.railProgress - railProgress;
+		if (Math.abs(railProgressDifference) > 0.5) {
+			railProgress = train.railProgress;
+		}
+
 		stopCounter = train.stopCounter;
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
