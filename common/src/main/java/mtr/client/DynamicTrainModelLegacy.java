@@ -152,11 +152,6 @@ public class DynamicTrainModelLegacy extends ModelSimpleTrainBase implements IRe
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{}; // TODO
-	}
-
-	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

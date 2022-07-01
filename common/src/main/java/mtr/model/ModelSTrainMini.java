@@ -17,8 +17,4 @@ public class ModelSTrainMini extends ModelSTrain {
 		return new int[]{-64, 64};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{0};
-	}
 }

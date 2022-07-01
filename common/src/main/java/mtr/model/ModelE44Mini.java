@@ -17,8 +17,4 @@ public class ModelE44Mini extends ModelE44 {
 		return new int[]{-62, 62};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{0};
-	}
 }

@@ -79,8 +79,7 @@ public class TrainServer extends Train {
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
-			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldSpeed, float oldDoorValue, double oldRailProgress
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
 	) {
 		final RailwayData railwayData = RailwayData.getInstance(world);
 		if (railwayData == null) {
@@ -136,7 +135,7 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed) {
 		final AABB trainAABB = new AABB(positions[0], positions[positions.length - 1]).inflate(TRAIN_UPDATE_DISTANCE);
 		final boolean[] playerNearby = {false};
 		world.players().forEach(player -> {
@@ -225,7 +224,7 @@ public class TrainServer extends Train {
 	}
 
 	@Override
-	protected boolean openDoors(Level world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
+	protected boolean openDoors(Level world, Block block, BlockPos checkPos, int dwellTicks) {
 		if (block instanceof BlockPSDAPGDoorBase) {
 			for (int i = -1; i <= 1; i++) {
 				final BlockPos doorPos = checkPos.above(i);
@@ -317,7 +316,7 @@ public class TrainServer extends Train {
 				if (manualCoolDown >= manualToAutomaticTime * 10) {
 					if (isCurrentlyManual) {
 						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
-						stopCounter = manualDoorOpen ? dwellTicks / 2F : 0;
+						stopCounter = doorOpen ? dwellTicks / 2F : dwellTicks;
 					}
 					isCurrentlyManual = false;
 				} else {

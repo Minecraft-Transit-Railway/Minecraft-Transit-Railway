@@ -1526,11 +1526,6 @@ public class ModelR211 extends ModelSimpleTrainBase {
 	}
 
 	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-120, 120};
-	}
-
-	@Override
 	protected float getDoorAnimationX(float value, boolean opening) {
 		return 0;
 	}

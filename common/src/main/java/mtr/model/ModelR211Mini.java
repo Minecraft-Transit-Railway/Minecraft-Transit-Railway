@@ -21,8 +21,4 @@ public class ModelR211Mini extends ModelR211 {
 		return new int[]{-64, 64};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{0};
-	}
 }

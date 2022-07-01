@@ -16,9 +16,4 @@ public class ModelRTrainMini extends ModelRTrain {
 	protected int[] getEndPositions() {
 		return new int[]{-64, 64};
 	}
-
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{0};
-	}
 }

@@ -21,8 +21,4 @@ public class ModelKTrainSmall extends ModelKTrain {
 		return new int[]{-144, 144};
 	}
 
-	@Override
-	protected int[] getBogiePositions() {
-		return new int[]{-96, 96};
-	}
 }

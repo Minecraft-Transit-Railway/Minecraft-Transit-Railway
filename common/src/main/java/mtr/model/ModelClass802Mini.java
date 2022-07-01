@@ -14,7 +14,6 @@ public class ModelClass802Mini extends ModelClass802 {
 		return new int[]{-105, 105};
 	}
 
-	@Override
 	protected int[] getBogiePositions() {
 		return new int[]{-79, 79};
 	}

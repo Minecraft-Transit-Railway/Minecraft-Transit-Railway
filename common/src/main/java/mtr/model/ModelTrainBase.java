@@ -14,8 +14,6 @@ import net.minecraft.world.entity.Entity;
 
 public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui {
 
-	private static final ModelBogie MODEL_BOGIE = new ModelBogie();
-
 	@Override
 	public void setupAnim(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}
@@ -48,10 +46,6 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 				renderExtraDetails(matrices, vertexConsumers, light, lightOnInteriorLevel, lightsOn, doorLeftX, doorRightX, doorLeftZ, doorRightZ);
 			}
 
-			for (final int position : getBogiePositions()) {
-				MODEL_BOGIE.render(matrices, vertexConsumers, light, position);
-			}
-
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(texture)), RenderStage.EXTERIOR, light, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 			render(matrices, vertexConsumers.getBuffer(MoreRenderLayers.getLight(texture, true)), RenderStage.ALWAYS_ON_LIGHTS, MAX_LIGHT_GLOWING, doorLeftX, doorRightX, doorLeftZ, doorRightZ, currentCar, trainCars, head1IsFront, renderDetails);
 		}
@@ -61,8 +55,6 @@ public abstract class ModelTrainBase extends EntityModel<Entity> implements IGui
 	}
 
 	protected abstract void render(PoseStack matrices, VertexConsumer vertices, RenderStage renderStage, int light, float doorLeftX, float doorRightX, float doorLeftZ, float doorRightZ, int currentCar, int trainCars, boolean head1IsFront, boolean renderDetails);
-
-	protected abstract int[] getBogiePositions();
 
 	protected abstract float getDoorAnimationX(float value, boolean opening);
 

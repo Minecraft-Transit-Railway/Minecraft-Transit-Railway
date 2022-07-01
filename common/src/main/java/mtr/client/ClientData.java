@@ -125,7 +125,14 @@ public final class ClientData {
 			trainIdsToKeep.add(packet.readLong());
 		}
 
-		client.execute(() -> TRAINS.removeIf(train -> !trainIdsToKeep.contains(train.id)));
+		client.execute(() -> {
+			TRAINS.forEach(trainClient -> {
+				if (!trainIdsToKeep.contains(trainClient.id)) {
+					trainClient.isRemoved = true;
+				}
+			});
+			TRAINS.removeIf(trainClient -> trainClient.isRemoved);
+		});
 	}
 
 	public static void updateTrainPassengers(Minecraft client, FriendlyByteBuf packet) {

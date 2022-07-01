@@ -85,7 +85,7 @@ public class PathFinder {
 
 						final BlockPos endPos = savedRailBaseEnd.getOtherPosition(newPos);
 						if (RailwayData.containsRail(rails, newPos, endPos)) {
-							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd.id, savedRailBaseEnd instanceof Platform ? ((Platform) savedRailBaseEnd).getDwellTime() : 0, newPos, endPos, stopIndex + 1));
+							railPath.add(new PathData(rails.get(newPos).get(endPos), savedRailBaseEnd.id, savedRailBaseEnd instanceof Platform ? savedRailBaseEnd.getDwellTime() : 0, newPos, endPos, stopIndex + 1));
 							return railPath;
 						} else {
 							return new ArrayList<>();
