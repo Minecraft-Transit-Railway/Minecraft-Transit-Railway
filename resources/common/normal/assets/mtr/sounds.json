@@ -77,41 +77,6 @@
 			}
 		]
 	},
-	"london_underground_d78_allchange": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/allchange"
-			}
-		]
-	},
-	"london_underground_d78_atscnt": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/atscnt"
-			}
-		]
-	},
-	"london_underground_d78_cat-a": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/cat-a"
-			}
-		]
-	},
-	"london_underground_d78_circledelays": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/circledelays"
-			}
-		]
-	},
-	"london_underground_d78_cleardoors": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/cleardoors"
-			}
-		]
-	},
 	"london_underground_d78_cpend": {
 		"sounds": [
 			{
@@ -144,27 +109,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_d78/dooropen"
-			}
-		]
-	},
-	"london_underground_d78_emg-brake": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/emg-brake"
-			}
-		]
-	},
-	"london_underground_d78_emrbrake": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/emrbrake"
-			}
-		]
-	},
-	"london_underground_d78_evacuate": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/evacuate"
 			}
 		]
 	},
@@ -203,66 +147,10 @@
 			}
 		]
 	},
-	"london_underground_d78_openup": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/openup"
-			}
-		]
-	},
-	"london_underground_d78_pbc": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/pbc"
-			}
-		]
-	},
-	"london_underground_d78_pbc7": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/pbc7"
-			}
-		]
-	},
-	"london_underground_d78_pea": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/pea"
-			}
-		]
-	},
 	"london_underground_d78_point": {
 		"sounds": [
 			{
 				"name": "mtr:london_underground_d78/point"
-			}
-		]
-	},
-	"london_underground_d78_readydepart": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/readydepart"
-			}
-		]
-	},
-	"london_underground_d78_resumeservice": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/resumeservice"
-			}
-		]
-	},
-	"london_underground_d78_rev-fw": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/rev-fw"
-			}
-		]
-	},
-	"london_underground_d78_revn": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/revn"
 			}
 		]
 	},
@@ -329,62 +217,6 @@
 			}
 		]
 	},
-	"london_underground_d78_shutdown": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/shutdown"
-			}
-		]
-	},
-	"london_underground_d78_spad": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/spad"
-			}
-		]
-	},
-	"london_underground_d78_tbc": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/tbc"
-			}
-		]
-	},
-	"london_underground_d78_whistle": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/whistle"
-			}
-		]
-	},
-	"london_underground_d78_wiper": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/wiper"
-			}
-		]
-	},
-	"london_underground_d78_wiper1": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/wiper1"
-			}
-		]
-	},
-	"london_underground_d78_wiper2": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/wiper2"
-			}
-		]
-	},
-	"london_underground_d78_withdrawn": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_d78/withdrawn"
-			}
-		]
-	},
 	"london_underground_1995_air": {
 		"sounds": [
 			{
@@ -396,20 +228,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1995/airzero"
-			}
-		]
-	},
-	"london_underground_1995_ats": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/ats"
-			}
-		]
-	},
-	"london_underground_1995_atscnt": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/atscnt"
 			}
 		]
 	},
@@ -434,13 +252,6 @@
 			}
 		]
 	},
-	"london_underground_1995_ding": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/ding"
-			}
-		]
-	},
 	"london_underground_1995_doorcls": {
 		"sounds": [
 			{
@@ -459,20 +270,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1995/flange0"
-			}
-		]
-	},
-	"london_underground_1995_klaxon0": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/klaxon0"
-			}
-		]
-	},
-	"london_underground_1995_klaxon1": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/klaxon1"
 			}
 		]
 	},
@@ -595,27 +392,6 @@
 			}
 		]
 	},
-	"london_underground_1995_tbcmax": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/tbcmax"
-			}
-		]
-	},
-	"london_underground_1995_tbcmin": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/tbcmin"
-			}
-		]
-	},
-	"london_underground_1995_tbcunlock": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/tbcunlock"
-			}
-		]
-	},
 	"london_underground_1996_air": {
 		"sounds": [
 			{
@@ -627,27 +403,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/airzero"
-			}
-		]
-	},
-	"london_underground_1996_alarm1": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/alarm1"
-			}
-		]
-	},
-	"london_underground_1996_alarm2": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/alarm2"
-			}
-		]
-	},
-	"london_underground_1996_confidence": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/confidence"
 			}
 		]
 	},
@@ -672,27 +427,6 @@
 			}
 		]
 	},
-	"london_underground_1996_dooralarm": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/dooralarm"
-			}
-		]
-	},
-	"london_underground_1996_doorbuttonpress": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/doorbuttonpress"
-			}
-		]
-	},
-	"london_underground_1996_doorbuttonrelease": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/doorbuttonrelease"
-			}
-		]
-	},
 	"london_underground_1996_doorcls": {
 		"sounds": [
 			{
@@ -704,55 +438,6 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/dooropn"
-			}
-		]
-	},
-	"london_underground_1996_doorson": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/doorson"
-			}
-		]
-	},
-	"london_underground_1996_handset_clickoff": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/handset_clickoff"
-			}
-		]
-	},
-	"london_underground_1996_handset_clickon": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/handset_clickon"
-			}
-		]
-	},
-	"london_underground_1996_handset_lift": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/handset_lift"
-			}
-		]
-	},
-	"london_underground_1996_handset_replace": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/handset_replace"
-			}
-		]
-	},
-	"london_underground_1996_insertrklkey": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/insertrklkey"
-			}
-		]
-	},
-	"london_underground_1996_loopalt2": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/loopalt2"
 			}
 		]
 	},
@@ -868,27 +553,6 @@
 			}
 		]
 	},
-	"london_underground_1996_offandrelease": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/offandrelease"
-			}
-		]
-	},
-	"london_underground_1996_rotatemaster1": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/rotatemaster1"
-			}
-		]
-	},
-	"london_underground_1996_rotatemaster2": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/rotatemaster2"
-			}
-		]
-	},
 	"london_underground_1996_run0": {
 		"sounds": [
 			{
@@ -959,76 +623,6 @@
 			}
 		]
 	},
-	"london_underground_1996_tbcbrake": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/tbcbrake"
-			}
-		]
-	},
-	"london_underground_1996_tbcforward": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/tbcforward"
-			}
-		]
-	},
-	"london_underground_1996_tbcmax": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/tbcmax"
-			}
-		]
-	},
-	"london_underground_1996_tbcoffandrelease": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/tbcoffandrelease"
-			}
-		]
-	},
-	"london_underground_1996_tbcuntwist": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/tbcuntwist"
-			}
-		]
-	},
-	"london_underground_1996_twist": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/twist"
-			}
-		]
-	},
-	"london_underground_1996_whistle-high": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/whistle-high"
-			}
-		]
-	},
-	"london_underground_1996_whistle-highrev": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/whistle-highrev"
-			}
-		]
-	},
-	"london_underground_1996_whistle-low": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/whistle-low"
-			}
-		]
-	},
-	"london_underground_1996_whistle-lowrev": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1996/whistle-lowrev"
-			}
-		]
-	},
 	"r179_air": {
 		"sounds": [
 			{
@@ -1057,13 +651,6 @@
 			}
 		]
 	},
-	"r179_emrbrake": {
-		"sounds": [
-			{
-				"name": "mtr:r179/emrbrake"
-			}
-		]
-	},
 	"r179_flange0": {
 		"sounds": [
 			{
@@ -1082,27 +669,6 @@
 		"sounds": [
 			{
 				"name": "mtr:r179/flange2"
-			}
-		]
-	},
-	"r179_klaxon": {
-		"sounds": [
-			{
-				"name": "mtr:r179/klaxon"
-			}
-		]
-	},
-	"r179_klaxon1": {
-		"sounds": [
-			{
-				"name": "mtr:r179/klaxon1"
-			}
-		]
-	},
-	"r179_klaxon2": {
-		"sounds": [
-			{
-				"name": "mtr:r179/klaxon2"
 			}
 		]
 	},
