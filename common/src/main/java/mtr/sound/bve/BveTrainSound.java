@@ -61,8 +61,8 @@ public class BveTrainSound extends TrainSoundBase {
 	@Override
 	public void playNearestCar(Level world, BlockPos pos, int carIndex) {
 		final float deltaT = MTRClient.getLastFrameDuration() / 20;
-		final float accel = (train.speed - train.speedLastElapse) * 20 / deltaT;
-		final float speed = train.speed * 20;
+		final float accel = train.speedChange() * 20 / deltaT;
+		final float speed = train.getSpeed() * 20;
 		final float speedKph = speed * 3.6F;
 
 		// Rolling noise
@@ -199,7 +199,7 @@ public class BveTrainSound extends TrainSoundBase {
 			bogieOffsetRear = train.spacing / 2F + trainProperties.bogiePosition;
 		}
 
-		final float pitch = train.speed * 20 / 12.5F;
+		final float pitch = train.getSpeed() * 20 / 12.5F;
 		final float gain = pitch < 0.5F ? 2 * pitch : 1;
 		if (bogieOffsetFront >= 0) {
 			int indexFront = train.getIndex(train.getRailProgress() - train.spacing * carIndex - bogieOffsetFront, false);
@@ -218,17 +218,16 @@ public class BveTrainSound extends TrainSoundBase {
 	}
 
 	@Override
-	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex, float doorValueRaw, float oldDoorValue) {
+	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
 		// TODO Check why door sounds are not playing
 		if (!(world instanceof ClientLevel)) {
 			return;
 		}
 
-		final float doorValue = Math.abs(doorValueRaw);
 		final SoundEvent soundEvent;
-		if (oldDoorValue <= 0 && doorValue > 0 && config.soundCfg.doorOpen != null) {
+		if (train.justOpening() && config.soundCfg.doorOpen != null) {
 			soundEvent = config.soundCfg.doorOpen;
-		} else if (oldDoorValue >= config.soundCfg.doorCloseSoundLength && doorValue < config.soundCfg.doorCloseSoundLength && config.soundCfg.doorClose != null) {
+		} else if (train.justClosing(config.soundCfg.doorCloseSoundLength) && config.soundCfg.doorClose != null) {
 			soundEvent = config.soundCfg.doorClose;
 		} else {
 			soundEvent = null;

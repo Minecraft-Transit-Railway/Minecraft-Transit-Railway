@@ -42,7 +42,7 @@ public class JonTrainSound extends TrainSoundBase {
 		if (config.speedSoundCount > 0 && soundId != null) {
 			// TODO: Better sound system to adapt to different acceleration
 			final float referenceAcceleration = config.playbackSpeedDoesNotDependOnCustomAcceleration ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
-			final int floorSpeed = (int) Math.floor(train.speed / referenceAcceleration / MTRClient.TICKS_PER_SPEED_SOUND);
+			final int floorSpeed = (int) Math.floor(train.getSpeed() / referenceAcceleration / MTRClient.TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final Random random = new Random();
 
@@ -51,7 +51,7 @@ public class JonTrainSound extends TrainSoundBase {
 				}
 
 				final int index = Math.min(floorSpeed, config.speedSoundCount) - 1;
-				final boolean isAccelerating = train.speed == train.speedLastElapse ? config.useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speed > train.speedLastElapse;
+				final boolean isAccelerating = train.speedChange() == 0 ? config.useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speedChange() > 0;
 				final String speedSoundId = soundId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
 				((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundId)), SoundSource.BLOCKS, 1, 1, true);
 			}
@@ -63,13 +63,12 @@ public class JonTrainSound extends TrainSoundBase {
 	}
 
 	@Override
-	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex, float doorValueRaw, float oldDoorValue) {
+	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
 		if (world instanceof ClientLevel && config.doorSoundBaseId != null) {
-			final float doorValue = Math.abs(doorValueRaw);
 			final String soundId;
-			if (oldDoorValue <= 0 && doorValue > 0) {
+			if (train.justOpening()) {
 				soundId = config.doorSoundBaseId + SOUND_DOOR_OPEN;
-			} else if (oldDoorValue >= config.doorCloseSoundTime && doorValue < config.doorCloseSoundTime) {
+			} else if (train.justClosing(config.doorCloseSoundTime)) {
 				soundId = config.doorSoundBaseId + SOUND_DOOR_CLOSE;
 			} else {
 				soundId = null;

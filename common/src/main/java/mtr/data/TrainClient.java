@@ -9,12 +9,12 @@ import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.JonModelTrainRenderer;
+import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
 import mtr.sound.JonTrainSound;
 import mtr.sound.TrainSoundBase;
 import mtr.sound.bve.BveTrainSound;
 import mtr.sound.bve.BveTrainSoundConfig;
-import mtr.render.RenderDrivingOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -34,6 +34,9 @@ public class TrainClient extends Train {
 	private float clientPrevYaw;
 	private boolean justMounted;
 	private int previousInterval;
+	private float oldSpeed;
+	private double oldRailProgress;
+	private float oldDoorValue;
 	private float oldPercentageX;
 	private float oldPercentageZ;
 	private double lastSentX;
@@ -67,10 +70,6 @@ public class TrainClient extends Train {
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
-		final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
-		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
-		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
-
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
 		trainRenderer = new JonModelTrainRenderer(trainProperties);
 		trainSound = trainProperties.legacySoundConfig == null ? new BveTrainSound(this, new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), trainProperties.soundId == null ? "" : trainProperties.soundId)) : new JonTrainSound(this, trainProperties.soundId, trainProperties.legacySoundConfig);
@@ -81,8 +80,7 @@ public class TrainClient extends Train {
 			Level world, int ridingCar, float ticksElapsed,
 			double carX, double carY, double carZ, float carYaw, float carPitch,
 			double prevCarX, double prevCarY, double prevCarZ, float prevCarYaw, float prevCarPitch,
-			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing,
-			float doorValueRaw, float oldDoorValue, double oldRailProgress
+			boolean doorLeftOpen, boolean doorRightOpen, double realSpacing
 	) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
@@ -92,7 +90,7 @@ public class TrainClient extends Train {
 		final BlockPos soundPos = new BlockPos(carX, carY, carZ);
 		trainSound.playAllCars(world, soundPos, ridingCar);
 		if (doorLeftOpen || doorRightOpen) {
-			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar, doorValueRaw, oldDoorValue);
+			trainSound.playAllCarsDoorOpening(world, soundPos, ridingCar);
 		}
 
 		final boolean noOffset = offset.isEmpty();
@@ -107,8 +105,7 @@ public class TrainClient extends Train {
 			}
 		});
 
-		final float doorValue = Math.abs(doorValueRaw);
-		final boolean opening = doorValueRaw > 0;
+		final boolean opening = doorValue > oldDoorValue;
 		trainRenderer.renderCar(this, ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed);
 		trainTranslucentRenders.add(() -> trainRenderer.renderCar(this, ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed));
 
@@ -121,7 +118,7 @@ public class TrainClient extends Train {
 			final Vec3 thisPos0 = new Vec3(0, 0, -(spacing / 2D - 1)).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
 			final Vec3 connectPos = prevPos0.add(thisPos0).scale(0.5);
 			final float connectYaw = (float) Mth.atan2(thisPos0.x - prevPos0.x, thisPos0.z - prevPos0.z);
-			final float connectPitch = realSpacing == 0 ? 0 : (float) asin((thisPos0.y - prevPos0.y) / thisPos0.distanceTo(prevPos0));
+			final float connectPitch = realSpacing == 0 ? 0 : (float) asin((thisPos0.y - prevPos0.y) / realSpacing);
 
 			for (int i = 0; i < 2; i++) {
 				final double xStart = width / 2D + (i == 0 ? -1 : 0.5) * CONNECTION_X_OFFSET;
@@ -147,7 +144,7 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed, float doorValueRaw, float oldDoorValue, double oldRailProgress) {
+	protected boolean handlePositions(Level world, Vec3[] positions, float ticksElapsed) {
 		final LocalPlayer clientPlayer = Minecraft.getInstance().player;
 		if (clientPlayer == null) {
 			return false;
@@ -178,7 +175,7 @@ public class TrainClient extends Train {
 					}
 				}
 
-				if (lightRailAnnouncementCallback != null && (oldDoorValue <= 0 && doorValueRaw != 0 || justMounted)) {
+				if (lightRailAnnouncementCallback != null && (justOpening() || justMounted)) {
 					lightRailAnnouncementCallback.announcementCallback(stopIndex, routeIds);
 				}
 			}
@@ -238,7 +235,7 @@ public class TrainClient extends Train {
 						}
 
 						if (speed > 0) {
-							if (doorValueRaw == 0) {
+							if (doorValue == 0) {
 								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
 							}
 							offset.add(x);
@@ -253,8 +250,7 @@ public class TrainClient extends Train {
 				};
 
 				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
-				final float doorValue = Math.abs(doorValueRaw);
-				calculateCar(world, positions, currentRidingCar, doorValue, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
+				calculateCar(world, positions, currentRidingCar, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
 					final boolean noGangwayConnection = trainProperties.gangwayConnectionId.isEmpty();
 					final float speedMultiplier = ticksElapsed * TRAIN_WALKING_SPEED_MULTIPLIER;
 					final float newPercentageX;
@@ -297,7 +293,7 @@ public class TrainClient extends Train {
 					if (currentRidingCar == newRidingCar) {
 						calculateCarCallback.calculateCarCallback(x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender);
 					} else {
-						calculateCar(world, positions, newRidingCar, Math.abs(doorValueRaw), 0, calculateCarCallback);
+						calculateCar(world, positions, newRidingCar, 0, calculateCarCallback);
 					}
 				});
 			});
@@ -339,7 +335,7 @@ public class TrainClient extends Train {
 	}
 
 	@Override
-	protected boolean openDoors(Level world, Block block, BlockPos checkPos, float doorValue, int dwellTicks) {
+	protected boolean openDoors(Level world, Block block, BlockPos checkPos, int dwellTicks) {
 		return true;
 	}
 
@@ -358,6 +354,9 @@ public class TrainClient extends Train {
 		this.speedCallback = speedCallback;
 		this.announcementCallback = announcementCallback;
 		this.lightRailAnnouncementCallback = lightRailAnnouncementCallback;
+		oldSpeed = speed;
+		oldRailProgress = railProgress;
+		oldDoorValue = doorValue;
 
 		simulateTrain(world, ticksElapsed, null);
 
@@ -370,10 +369,10 @@ public class TrainClient extends Train {
 		final LocalPlayer player = Minecraft.getInstance().player;
 		if (Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
-			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue, speed * 20, stopIndex, routeIds);
+			RenderDrivingOverlay.setData(manualAccelerationSign, doorValue, speed * 20, stopIndex, routeIds);
 		}
 
-		if (Math.abs(railProgressDifference) > 0) {
+		if (Math.abs(railProgressDifference) > 0 && speed > 0) {
 			final double adjustment = Train.ACCELERATION_DEFAULT * ticksElapsed;
 			if (Math.abs(railProgressDifference) < adjustment) {
 				railProgress += railProgressDifference;
@@ -432,11 +431,23 @@ public class TrainClient extends Train {
 		isCurrentlyManual = train.isCurrentlyManual;
 		isOnRoute = train.isOnRoute;
 		manualAccelerationSign = train.manualAccelerationSign;
-		manualDoorOpen = train.manualDoorOpen;
+		doorOpen = train.doorOpen;
 	}
 
 	public float getSpeed() {
 		return speed;
+	}
+
+	public final float speedChange() {
+		return speed - oldSpeed;
+	}
+
+	public boolean justOpening() {
+		return oldDoorValue == 0 && doorValue > 0;
+	}
+
+	public boolean justClosing(float doorCloseTime) {
+		return oldDoorValue >= doorCloseTime && doorValue < doorCloseTime;
 	}
 
 	private int getPreviousStoppingIndex(int headIndex) {
