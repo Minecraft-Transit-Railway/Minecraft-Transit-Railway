@@ -85,7 +85,7 @@ public class JonTrainSound extends TrainSoundBase {
 		public final int speedSoundCount;
 		public final float doorCloseSoundTime;
 		public final boolean useAccelerationSoundsWhenCoasting;
-		public final boolean playbackSpeedDoesNotDependOnCustomAcceleration = true;
+		public final boolean playbackSpeedDoesNotDependOnCustomAcceleration = false;
 
 		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.doorSoundBaseId = doorSoundBaseId;

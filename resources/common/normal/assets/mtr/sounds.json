@@ -266,6 +266,13 @@
 			}
 		]
 	},
+	"london_underground_d78_rub": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_d78/rub"
+			}
+		]
+	},
 	"london_underground_d78_run0": {
 		"sounds": [
 			{
@@ -529,6 +536,13 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1995/point"
+			}
+		]
+	},
+	"london_underground_1995_rub": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/rub"
 			}
 		]
 	},

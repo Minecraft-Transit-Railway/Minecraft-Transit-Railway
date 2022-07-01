@@ -42,7 +42,6 @@ public class TrainClient extends Train {
 	private double lastSentX;
 	private double lastSentY;
 	private double lastSentZ;
-	private double railProgressDifference;
 	private float lastSentTicks;
 
 	private SpeedCallback speedCallback;
@@ -236,7 +235,13 @@ public class TrainClient extends Train {
 
 						if (speed > 0) {
 							if (doorValue == 0) {
-								Utilities.incrementYaw(clientPlayer, -(float) Math.toDegrees(yaw - clientPrevYaw));
+								float angleDifference = (float) Math.toDegrees(clientPrevYaw - yaw);
+								if (angleDifference > 180) {
+									angleDifference -= 360;
+								} else if (angleDifference < -180) {
+									angleDifference += 360;
+								}
+								Utilities.incrementYaw(clientPlayer, angleDifference);
 							}
 							offset.add(x);
 							offset.add(y);
@@ -371,17 +376,6 @@ public class TrainClient extends Train {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
 			RenderDrivingOverlay.setData(manualAccelerationSign, doorValue, speed * 20, stopIndex, routeIds);
 		}
-
-		if (Math.abs(railProgressDifference) > 0 && speed > 0) {
-			final double adjustment = Train.ACCELERATION_DEFAULT * ticksElapsed;
-			if (Math.abs(railProgressDifference) < adjustment) {
-				railProgress += railProgressDifference;
-				railProgressDifference = 0;
-			} else {
-				railProgress += Math.copySign(adjustment, railProgressDifference);
-				railProgressDifference -= Math.copySign(adjustment, railProgressDifference);
-			}
-		}
 	}
 
 	public void renderTranslucent() {
@@ -420,10 +414,7 @@ public class TrainClient extends Train {
 		ridingEntities.addAll(train.ridingEntities);
 
 		speed = train.speed;
-		railProgressDifference = train.railProgress - railProgress;
-		if (Math.abs(railProgressDifference) > 0.5) {
-			railProgress = train.railProgress;
-		}
+		railProgress = train.railProgress;
 
 		stopCounter = train.stopCounter;
 		nextStoppingIndex = train.nextStoppingIndex;

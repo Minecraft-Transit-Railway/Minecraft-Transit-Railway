@@ -421,7 +421,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						} else {
 							if (isCurrentlyManual) {
 								final RailType railType = convertMaxManualSpeed(maxManualSpeed);
-								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, railType == null ? Integer.MAX_VALUE : railType.maxBlocksPerTick);
+								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
 							} else {
 								final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
 								if (speed < railSpeed) {

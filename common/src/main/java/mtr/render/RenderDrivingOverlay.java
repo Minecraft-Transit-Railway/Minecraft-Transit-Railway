@@ -95,9 +95,9 @@ public class RenderDrivingOverlay implements IGui {
 		coolDown = 2;
 		RenderDrivingOverlay.speed = speed;
 		RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-			RenderDrivingOverlay.thisStation = IGui.formatStationName(thisStation.name);
+			RenderDrivingOverlay.thisStation = thisStation == null ? null : IGui.formatStationName(thisStation.name);
 			RenderDrivingOverlay.nextStation = nextStation == null ? nextRoute == null ? null : IGui.formatStationName(nextRoute.name) : IGui.formatStationName(nextStation.name);
-			RenderDrivingOverlay.thisRoute = IGui.formatStationName(thisRoute.name);
+			RenderDrivingOverlay.thisRoute = thisRoute == null ? null : IGui.formatStationName(thisRoute.name);
 			RenderDrivingOverlay.lastStation = lastStation == null ? null : IGui.formatStationName(lastStation.name);
 		});
 	}
