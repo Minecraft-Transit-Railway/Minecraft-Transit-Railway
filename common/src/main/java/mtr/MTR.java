@@ -57,6 +57,7 @@ public class MTR implements IPacket {
 		registerItem.accept("dashboard", Items.RAILWAY_DASHBOARD);
 		registerItem.accept("dashboard_2", Items.BOAT_DASHBOARD);
 		registerItem.accept("dashboard_3", Items.CABLE_CAR_DASHBOARD);
+		registerItem.accept("driver_key", Items.DRIVER_KEY);
 		registerItem.accept("psd_door", Items.PSD_DOOR_1);
 		registerItem.accept("psd_glass", Items.PSD_GLASS_1);
 		registerItem.accept("psd_glass_end", Items.PSD_GLASS_END_1);
@@ -388,6 +389,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_REMOVE_RAIL_ACTION, PacketTrainDataGuiServer::receiveRemoveRailAction);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_TRAIN_PASSENGER_POSITION, PacketTrainDataGuiServer::receiveUpdateTrainPassengerPosition);
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
+		Registry.registerNetworkReceiver(PACKET_DRIVE_TRAIN, PacketTrainDataGuiServer::receiveDriveTrainC2S);
 
 		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
 		final ServerConnector serverConnector = new ServerConnector(webServer);

@@ -1,5 +1,6 @@
 package mtr.block;
 
+import mtr.data.IGui;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.EntityBlockMapper;
@@ -30,7 +31,7 @@ public abstract class BlockStationNameBase extends BlockDirectionalMapper implem
 		tooltip.add(Text.translatable("tooltip.mtr.station_color_name").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 	}
 
-	public abstract static class TileEntityStationNameBase extends BlockEntityMapper {
+	public abstract static class TileEntityStationNameBase extends BlockEntityMapper implements IGui {
 
 		public final float yOffset;
 		public final float zOffset;
@@ -43,6 +44,6 @@ public abstract class BlockStationNameBase extends BlockDirectionalMapper implem
 			this.isDoubleSided = isDoubleSided;
 		}
 
-		public abstract boolean shouldRender();
+		public abstract int getColor(BlockState state);
 	}
 }

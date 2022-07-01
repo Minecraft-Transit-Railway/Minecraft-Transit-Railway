@@ -6,6 +6,7 @@ import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
 import mtr.mappings.RegistryUtilitiesClient;
+import mtr.render.RenderDrivingOverlay;
 import mtr.render.RenderLift;
 import mtr.render.RenderTrains;
 import net.minecraft.client.Minecraft;
@@ -70,7 +71,8 @@ public class MTRForge {
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_3_DOUBLE_SIDED.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4.registryObject::get, RenderLift::new);
 			ForgeUtilities.registerEntityRenderer(EntityTypes.LiftType.SIZE_4_4_DOUBLE_SIDED.registryObject::get, RenderLift::new);
-			MinecraftForge.EVENT_BUS.register(ForgeUtilities.RenderTick.class);
+			ForgeUtilities.renderGameOverlayAction(RenderDrivingOverlay::render);
+			MinecraftForge.EVENT_BUS.register(ForgeUtilities.Events.class);
 			eventBus.register(ForgeUtilities.RegisterEntityRenderer.class);
 		});
 	}

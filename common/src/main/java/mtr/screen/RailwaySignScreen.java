@@ -184,7 +184,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 			for (int i = 0; i < signIds.length; i++) {
 				if (signIds[i] != null) {
-					RenderRailwaySign.drawSign(matrices, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, i, signIds.length - i - 1, selectedIds, Direction.UP, (textureId, x, y, size, flipTexture) -> {
+					RenderRailwaySign.drawSign(matrices, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
 						UtilitiesClient.beginDrawingTexture(textureId);
 						blit(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 					});
@@ -201,7 +201,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 					if (sign != null) {
 						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 						UtilitiesClient.beginDrawingTexture(sign.textureId);
-						RenderRailwaySign.drawSign(matrices, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						RenderRailwaySign.drawSign(matrices, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					}
 				}, false);
 
@@ -306,29 +306,7 @@ public class RailwaySignScreen extends ScreenMapper implements IGui {
 
 	private void setNewSignId(String newSignId) {
 		if (editingIndex >= 0 && editingIndex < signIds.length) {
-			final CustomResources.CustomSign newSign = RenderRailwaySign.getSign(newSignId);
-
-			if (newSign != null && newSign.hasCustomText()) {
-				if (newSign.flipCustomText) {
-					for (int i = editingIndex - 1; i >= 0; i--) {
-						signIds[i] = null;
-					}
-				} else {
-					for (int i = editingIndex + 1; i < signIds.length; i++) {
-						signIds[i] = null;
-					}
-				}
-			}
-
-			for (int i = 0; i < signIds.length; i++) {
-				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
-				if (signIds[i] != null && sign != null && sign.hasCustomText() && (i < editingIndex && !sign.flipCustomText || i > editingIndex && sign.flipCustomText)) {
-					signIds[i] = null;
-				}
-			}
-
 			signIds[editingIndex] = newSignId;
-
 			final boolean isExitLetter = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || newSignId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString()));
 			final boolean isPlatform = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || newSignId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString()));
 			final boolean isLine = newSignId != null && (newSignId.equals(BlockRailwaySign.SignType.LINE.toString()) || newSignId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString()));

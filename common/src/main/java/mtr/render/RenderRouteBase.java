@@ -65,8 +65,7 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 				final int leftBlocks = getTextureNumber(world, pos, facing, true);
 				final int rightBlocks = getTextureNumber(world, pos, facing, false);
-				final int colorByte = transparentWhite && facing.getAxis() == Direction.Axis.X ? 0xFF * 3 / 4 : 0xFF;
-				final int color = ARGB_BLACK | ((colorByte << 16) + (colorByte << 8) + colorByte);
+				final int color = getShadingColor(facing, ARGB_WHITE);
 				final RenderType renderType = getRenderType(world, pos.relative(facing.getCounterClockWise(), leftBlocks), state);
 
 				if ((renderType == RenderType.ARROW || renderType == RenderType.ROUTE) && IBlock.getStatePropertySafe(state, SIDE_EXTENDED) != EnumSide.SINGLE) {
@@ -76,9 +75,9 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 
 					final VertexConsumer vertexConsumer;
 					if (renderType == RenderType.ARROW) {
-						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, false, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, transparentWhite)));
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getDirectionArrow(platformId, (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.25F, width / height, ARGB_WHITE, ARGB_BLACK, transparentWhite ? ARGB_WHITE : 0).resourceLocation));
 					} else {
-						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite)));
+						vertexConsumer = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(ClientData.DATA_CACHE.getRouteMap(platformId, false, arrowDirection == 2, width / height, transparentWhite).resourceLocation));
 					}
 
 					IDrawing.drawTexture(matrices, vertexConsumer, leftBlocks == 0 ? sidePadding : 0, topPadding, 0, 1 - (rightBlocks == 0 ? sidePadding : 0), 1 - bottomPadding, 0, (leftBlocks - (leftBlocks == 0 ? 0 : sidePadding)) / width, 0, (width - rightBlocks + (rightBlocks == 0 ? 0 : sidePadding)) / width, 1, facing.getOpposite(), color, light);
@@ -136,6 +135,11 @@ public abstract class RenderRouteBase<T extends BlockEntityMapper> extends Block
 		}
 
 		return number - 1;
+	}
+
+	public static int getShadingColor(Direction facing, int grayscaleColorByte) {
+		final int colorByte = Math.round((grayscaleColorByte & 0xFF) * (facing.getAxis() == Direction.Axis.X ? 0.75F : 1));
+		return ARGB_BLACK | ((colorByte << 16) + (colorByte << 8) + colorByte);
 	}
 
 	protected enum RenderType {ARROW, ROUTE, NONE}
