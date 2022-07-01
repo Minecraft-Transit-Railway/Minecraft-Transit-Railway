@@ -3,8 +3,10 @@ package mtr;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.client.CustomResources;
 import mtr.client.ICustomResources;
+import mtr.render.RenderDrivingOverlay;
 import mtr.render.RenderTrains;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -31,6 +33,7 @@ public class MTRFabricClient implements ClientModInitializer, ICustomResources {
 			matrices.popPose();
 		});
 		WorldRenderEvents.END.register(event -> MTRClient.incrementGameTick());
+		HudRenderCallback.EVENT.register((matrices, tickDelta) -> RenderDrivingOverlay.render(matrices));
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new CustomResourcesWrapper());
 	}
 

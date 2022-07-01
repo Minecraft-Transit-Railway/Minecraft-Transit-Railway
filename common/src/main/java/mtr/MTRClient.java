@@ -318,6 +318,10 @@ public class MTRClient implements IPacket {
 
 		MTRClientLifts.init();
 
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
+		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {
 			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);

@@ -331,6 +331,16 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_SIGN_TYPES, packet);
 	}
 
+	public static void sendDriveTrainC2S(boolean pressingAccelerate, boolean pressingBrake, boolean pressingDoors) {
+		if (Train.isHoldingKey(Minecraft.getInstance().player) && (pressingAccelerate || pressingBrake || pressingDoors)) {
+			final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+			packet.writeBoolean(pressingAccelerate);
+			packet.writeBoolean(pressingBrake);
+			packet.writeBoolean(pressingDoors);
+			RegistryClient.sendToServer(PACKET_DRIVE_TRAIN, packet);
+		}
+	}
+
 	public static void sendPressLiftButtonC2S(UUID uuid, int floor) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeUUID(uuid);

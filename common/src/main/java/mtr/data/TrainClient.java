@@ -8,6 +8,7 @@ import mtr.client.TrainClientRegistry;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataGuiClient;
+import mtr.render.RenderDrivingOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -30,6 +31,7 @@ public class TrainClient extends Train {
 	private double lastSentX;
 	private double lastSentY;
 	private double lastSentZ;
+	private double railProgressDifference;
 	private float lastSentTicks;
 
 	private RenderTrainCallback renderTrainCallback;
@@ -37,9 +39,10 @@ public class TrainClient extends Train {
 	private SpeedCallback speedCallback;
 	private AnnouncementCallback announcementCallback;
 	private AnnouncementCallback lightRailAnnouncementCallback;
+	private Depot depot;
+	private List<Long> routeIds = new ArrayList<>();
 
 	private final Set<Runnable> trainTranslucentRenders = new HashSet<>();
-	private final List<Long> routeIds;
 	private final List<Double> offset = new ArrayList<>();
 	private final Map<UUID, Float> percentagesX = new HashMap<>();
 	private final Map<UUID, Float> percentagesZ = new HashMap<>();
@@ -55,9 +58,6 @@ public class TrainClient extends Train {
 
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
-		final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
-		final Depot depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
-		routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
 	}
 
 	@Override
@@ -329,7 +329,31 @@ public class TrainClient extends Train {
 		this.speedCallback = speedCallback;
 		this.announcementCallback = announcementCallback;
 		this.lightRailAnnouncementCallback = lightRailAnnouncementCallback;
+
 		simulateTrain(world, ticksElapsed, null);
+
+		if (depot == null || routeIds.isEmpty()) {
+			final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
+			depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
+			routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
+		}
+
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
+			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
+			RenderDrivingOverlay.setData(manualAccelerationSign, manualDoorValue, speed * 20, stopIndex, routeIds);
+		}
+
+		if (Math.abs(railProgressDifference) > 0) {
+			final double adjustment = Train.ACCELERATION_DEFAULT * ticksElapsed;
+			if (Math.abs(railProgressDifference) < adjustment) {
+				railProgress += railProgressDifference;
+				railProgressDifference = 0;
+			} else {
+				railProgress += Math.copySign(adjustment, railProgressDifference);
+				railProgressDifference -= Math.copySign(adjustment, railProgressDifference);
+			}
+		}
 	}
 
 	public void renderTranslucent() {
@@ -364,11 +388,18 @@ public class TrainClient extends Train {
 		ridingEntities.addAll(train.ridingEntities);
 
 		speed = train.speed;
-		railProgress = train.railProgress;
+		railProgressDifference = train.railProgress - railProgress;
+		if (Math.abs(railProgressDifference) > 0.5) {
+			railProgress = train.railProgress;
+		}
+
 		stopCounter = train.stopCounter;
 		nextStoppingIndex = train.nextStoppingIndex;
 		reversed = train.reversed;
+		isCurrentlyManual = train.isCurrentlyManual;
 		isOnRoute = train.isOnRoute;
+		manualAccelerationSign = train.manualAccelerationSign;
+		manualDoorOpen = train.manualDoorOpen;
 	}
 
 	public float getSpeed() {

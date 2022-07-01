@@ -311,6 +311,16 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		});
 	}
 
+	public static void receiveDriveTrainC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final RailwayData railwayData = RailwayData.getInstance(player.level);
+		if (railwayData != null) {
+			final boolean pressingAccelerate = packet.readBoolean();
+			final boolean pressingBrake = packet.readBoolean();
+			final boolean pressingDoors = packet.readBoolean();
+			minecraftServer.execute(() -> railwayData.railwayDataDriveTrainModule.drive(player, pressingAccelerate, pressingBrake, pressingDoors));
+		}
+	}
+
 	public static void receivePressLiftButtonC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
 		final UUID uuid = packet.readUUID();
 		final int floor = packet.readInt();
