@@ -392,6 +392,13 @@
 			}
 		]
 	},
+	"london_underground_1995_run7": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1995/run7"
+			}
+		]
+	},
 	"london_underground_1996_air": {
 		"sounds": [
 			{
@@ -438,6 +445,13 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/dooropn"
+			}
+		]
+	},
+	"london_underground_1996_loop": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1996/loop"
 			}
 		]
 	},
@@ -557,6 +571,13 @@
 		"sounds": [
 			{
 				"name": "mtr:london_underground_1996/run0"
+			}
+		]
+	},
+	"london_underground_1996_run1": {
+		"sounds": [
+			{
+				"name": "mtr:london_underground_1996/run1"
 			}
 		]
 	},

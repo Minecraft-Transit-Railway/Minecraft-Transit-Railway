@@ -334,7 +334,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	public boolean changeManualSpeed(boolean isAccelerate) {
-		if (doorValue == 0 && isAccelerate && manualAccelerationSign < 2) {
+		if (doorValue == 0 && isAccelerate && manualAccelerationSign >= -2 && manualAccelerationSign < 2) {
 			manualAccelerationSign++;
 			return true;
 		} else if (!isAccelerate && manualAccelerationSign > -2) {
@@ -382,6 +382,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 				if (railProgress >= distances.get(distances.size() - 1) - (railLength - trainCars * spacing) / 2) {
 					isOnRoute = false;
+					manualAccelerationSign = -2;
 					ridingEntities.clear();
 					tempDoorValue1 = 0;
 				} else {
@@ -414,14 +415,16 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 							}
 						}
 
-						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress + (isCurrentlyManual ? 0.25 : 0);
+						final double stoppingDistance = distances.get(nextStoppingIndex) - railProgress;
 						if (!transportMode.continuousMovement && stoppingDistance < 0.5 * speed * speed / accelerationConstant) {
-							speed = stoppingDistance == 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
-							manualAccelerationSign = -2;
+							speed = stoppingDistance <= 0 ? Train.ACCELERATION_DEFAULT : (float) Math.max(speed - (0.5 * speed * speed / stoppingDistance) * ticksElapsed, Train.ACCELERATION_DEFAULT);
+							manualAccelerationSign = -3;
 						} else {
 							if (isCurrentlyManual) {
-								final RailType railType = convertMaxManualSpeed(maxManualSpeed);
-								speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
+								if (manualAccelerationSign >= -2) {
+									final RailType railType = convertMaxManualSpeed(maxManualSpeed);
+									speed = Mth.clamp(speed + manualAccelerationSign * newAcceleration / 2, 0, railType == null ? RailType.IRON.maxBlocksPerTick : railType.maxBlocksPerTick);
+								}
 							} else {
 								final float railSpeed = getRailSpeed(getIndex(0, spacing, false));
 								if (speed < railSpeed) {
@@ -445,6 +448,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 					if (!transportMode.continuousMovement && railProgress > distances.get(nextStoppingIndex)) {
 						railProgress = distances.get(nextStoppingIndex);
 						speed = 0;
+						manualAccelerationSign = -2;
 					}
 
 					tempDoorValue1 = tempDoorValue2 + (transportMode.continuousMovement ? getDoorValueContinuous() : 0);

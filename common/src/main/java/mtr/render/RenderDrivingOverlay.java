@@ -57,18 +57,18 @@ public class RenderDrivingOverlay implements IGui {
 		GuiComponent.blit(matrices, startX + 120, startY, 0, 0, 0, 21, HOT_BAR_HEIGHT, 256, 256);
 		GuiComponent.blit(matrices, startX + 141, startY, 0, 141, 0, 41, HOT_BAR_HEIGHT, 256, 256);
 
-		GuiComponent.blit(matrices, startX + 39 + accelerationSign * 20, startY - 1, 0, 0, 22, 24, 24, 256, 256);
+		GuiComponent.blit(matrices, startX + 39 + Math.max(accelerationSign, -2) * 20, startY - 1, 0, 0, 22, 24, 24, 256, 256);
 		GuiComponent.blit(matrices, startX + (doorValue > 0 ? doorValue < 1 ? 139 : 159 : 119), startY - 1, 0, 0, 22, 24, 24, 256, 256);
 
-		client.font.drawShadow(matrices, "B2", startX + 5.5F, startY + 7.5F, accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "B1", startX + 25.5F, startY + 7.5F, accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "N", startX + 48.5F, startY + 7.5F, accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P1", startX + 65.5F, startY + 7.5F, accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "P2", startX + 85.5F, startY + 7.5F, accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "B2", startX + 5.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -2 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "B1", startX + 25.5F, startY + 7.5F, doorValue == 0 && accelerationSign == -1 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "N", startX + 48.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 0 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "P1", startX + 65.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 1 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "P2", startX + 85.5F, startY + 7.5F, doorValue == 0 && accelerationSign == 2 ? ARGB_WHITE : ARGB_GRAY);
 
-		client.font.drawShadow(matrices, "DC", startX + 125.5F, startY + 7.5F, doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "DC", startX + 125.5F, startY + 7.5F, speed == 0 && doorValue == 0 ? ARGB_WHITE : ARGB_GRAY);
 		client.font.drawShadow(matrices, String.valueOf(Math.round(doorValue * 10) / 10F), startX + 144.5F, startY + 7.5F, doorValue > 0 && doorValue < 1 ? ARGB_WHITE : ARGB_GRAY);
-		client.font.drawShadow(matrices, "DO", startX + 165.5F, startY + 7.5F, doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
+		client.font.drawShadow(matrices, "DO", startX + 165.5F, startY + 7.5F, speed == 0 && doorValue == 1 ? ARGB_WHITE : ARGB_GRAY);
 
 		final String speedText = RailwayData.round(speed * 3.6F, 1) + " km/h";
 		client.font.drawShadow(matrices, speedText, startX - client.font.width(speedText) - TEXT_PADDING, window.getGuiScaledHeight() - 14.5F, ARGB_WHITE);
