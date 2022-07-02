@@ -336,13 +336,6 @@
 			}
 		]
 	},
-	"london_underground_1995_rub": {
-		"sounds": [
-			{
-				"name": "mtr:london_underground_1995/rub"
-			}
-		]
-	},
 	"london_underground_1995_run0": {
 		"sounds": [
 			{
