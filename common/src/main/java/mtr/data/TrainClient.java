@@ -372,7 +372,7 @@ public class TrainClient extends Train {
 		}
 
 		final LocalPlayer player = Minecraft.getInstance().player;
-		if (Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
+		if (isManual && Train.isHoldingKey(player) && ridingEntities.contains(player.getUUID())) {
 			final int stopIndex = path.get(getIndex(0, spacing, false)).stopIndex - 1;
 			RenderDrivingOverlay.setData(manualAccelerationSign, doorValue, speed * 20, stopIndex, routeIds);
 		}

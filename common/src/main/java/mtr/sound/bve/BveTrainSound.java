@@ -61,8 +61,8 @@ public class BveTrainSound extends TrainSoundBase {
 	@Override
 	public void playNearestCar(Level world, BlockPos pos, int carIndex) {
 		final float deltaT = MTRClient.getLastFrameDuration() / 20;
-		final float accel = 1; // TODO sounds weird when coasting or braking
 		final float speed = train.getSpeed() * 20;
+		final float accel = speed > 0 ? train.speedChange() < 0 ? -1 : 1 : 0; // TODO sounds weird when coasting or braking
 		final float speedKph = speed * 3.6F;
 
 		// Rolling noise

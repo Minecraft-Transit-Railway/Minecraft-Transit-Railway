@@ -307,11 +307,15 @@ public class ClientCache extends DataCache implements IGui {
 			}
 		}
 
+		final Set<String> keysToRemove = new HashSet<>();
 		dynamicResources.forEach((checkKey, dynamicResource) -> {
-			if (dynamicResource.isOld()) {
-				removedResources.add(checkKey);
+			if (dynamicResource.removeIfOld()) {
+				keysToRemove.add(checkKey);
 			}
 		});
+		if (!keysToRemove.isEmpty()) {
+			keysToRemove.forEach(dynamicResources::remove);
+		}
 
 		if (dynamicResources.containsKey(key) && !removedResources.contains(key)) {
 			final DynamicResource dynamicResource = dynamicResources.get(key);
@@ -337,7 +341,13 @@ public class ClientCache extends DataCache implements IGui {
 				}).start();
 			}
 
-			return dynamicResources.getOrDefault(key, new DynamicResource(defaultLocation, null));
+			if (dynamicResources.containsKey(key)) {
+				final DynamicResource dynamicResource = dynamicResources.get(key);
+				dynamicResource.age = 0;
+				return dynamicResource;
+			} else {
+				return new DynamicResource(defaultLocation, null);
+			}
 		}
 	}
 
@@ -441,9 +451,14 @@ public class ClientCache extends DataCache implements IGui {
 			}
 		}
 
-		private boolean isOld() {
+		private boolean removeIfOld() {
 			age++;
-			return age >= MAX_AGE;
+			if (age >= MAX_AGE) {
+				remove();
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
