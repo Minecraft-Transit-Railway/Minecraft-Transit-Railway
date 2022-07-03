@@ -83,8 +83,8 @@ public class RouteMapGenerator implements IGui {
 		}
 
 		try {
-			final int height = Math.round(scale * 1.75F);
-			final int width = Math.round(height * aspectRatio);
+			final int width = Math.round(scale * 0.8F);
+			final int height = Math.round(width / aspectRatio);
 			final int[] dimensions = new int[2];
 			final byte[] pixels = ClientData.DATA_CACHE.getTextPixels(IGui.formatVerticalChinese(stationName), dimensions, width, height, fontSizeBig, fontSizeSmall, 0, HorizontalAlignment.CENTER);
 
