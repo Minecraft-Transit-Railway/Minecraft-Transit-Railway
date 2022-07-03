@@ -569,7 +569,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected abstract double asin(double value);
 
 	private boolean isOppositeRail() {
-		return path.size() > nextStoppingIndex + 1 && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
+		return path.size() > nextStoppingIndex + 1 && railProgress == distances.get(nextStoppingIndex) && path.get(nextStoppingIndex).isOppositeRail(path.get(nextStoppingIndex + 1));
 	}
 
 	private double getRailProgress(int car, int trainSpacing) {
