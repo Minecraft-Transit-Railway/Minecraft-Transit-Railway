@@ -41,9 +41,9 @@ public class RailwayDataDriveTrainModule extends RailwayDataModuleBase {
 		boolean dirty = false;
 		for (final UUID ridingEntity : trainServer.ridingEntities) {
 			if (acceleratePlayers.contains(ridingEntity) && trainServer.changeManualSpeed(true)) {
-				dirty = true;
+				dirty = false;
 			} else if (brakePlayers.contains(ridingEntity) && trainServer.changeManualSpeed(false)) {
-				dirty = true;
+				dirty = false;
 			}
 			if (doorsPlayers.contains(ridingEntity) && trainServer.toggleDoors()) {
 				dirty = true;
