@@ -43,6 +43,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public final RailwayDataPathGenerationModule railwayDataPathGenerationModule;
 	public final RailwayDataRailActionsModule railwayDataRailActionsModule;
 	public final RailwayDataDriveTrainModule railwayDataDriveTrainModule;
+	public final RailwayDataRouteFinderModule railwayDataRouteFinderModule;
 
 	private int prevPlatformCount;
 	private int prevSidingCount;
@@ -89,6 +90,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataRailActionsModule = new RailwayDataRailActionsModule(this, world, rails);
 		railwayDataCoolDownModule = new RailwayDataCoolDownModule(this, world, rails);
 		railwayDataDriveTrainModule = new RailwayDataDriveTrainModule(this, world, rails);
+		railwayDataRouteFinderModule = new RailwayDataRouteFinderModule(this, world, rails);
 	}
 
 	@Override

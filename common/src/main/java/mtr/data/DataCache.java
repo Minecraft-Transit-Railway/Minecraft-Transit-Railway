@@ -19,6 +19,7 @@ public class DataCache {
 	public final Map<Long, Depot> routeIdToOneDepot = new HashMap<>();
 	public final Map<BlockPos, Station> blockPosToStation = new HashMap<>();
 	public final Map<BlockPos, Long> blockPosToPlatformId = new HashMap<>();
+	public final Map<BlockPos, Map<BlockPos, Integer>> platformConnections = new HashMap<>();
 
 	protected final Set<Station> stations;
 	protected final Set<Platform> platforms;
@@ -47,6 +48,31 @@ public class DataCache {
 			depots.forEach(depot -> {
 				depot.routeIds.removeIf(routeId -> routeIdMap.get(routeId) == null);
 				depot.routeIds.forEach(routeId -> routeIdToOneDepot.put(routeId, depot));
+			});
+
+			platformConnections.clear();
+			routes.forEach(route -> {
+				final Depot depot = routeIdToOneDepot.get(route.id);
+				if (depot != null) {
+					for (int i = 1; i < route.platformIds.size(); i++) {
+						final long prevPlatformId = route.platformIds.get(i - 1);
+						final long platformId = route.platformIds.get(i);
+						final Map<Long, Float> platformTimesMap = depot.platformTimes.get(prevPlatformId);
+						if (platformTimesMap != null && platformTimesMap.containsKey(platformId)) {
+							final Platform prevPlatform = platformIdMap.get(prevPlatformId);
+							final Platform platform = platformIdMap.get(platformId);
+							if (prevPlatform != null && platform != null) {
+								final BlockPos prevPlatformPos = prevPlatform.getMidPos();
+								final BlockPos platformPos = platform.getMidPos();
+								if (!platformConnections.containsKey(prevPlatformPos)) {
+									platformConnections.put(prevPlatformPos, new HashMap<>());
+								}
+								final Map<BlockPos, Integer> platformPosMap = platformConnections.get(prevPlatformPos);
+								platformPosMap.put(platformPos, Math.min(platformPosMap.getOrDefault(platformPos, Integer.MAX_VALUE), Math.round(platformTimesMap.get(platformId))));
+							}
+						}
+					}
+				}
 			});
 
 			mapSavedRailIdToStation(platformIdToStation, platforms, stations);
