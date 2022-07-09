@@ -618,7 +618,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		if (path.get(index).dwellTime > 0 && index > 0) {
 			final double distance1 = distances.get(index - 1);
 			final double distance2 = distances.get(index);
-			return (float) Mth.clamp(Math.min(railProgress - distance1, distance2 - railProgress) * 0.5, 0, 1) * (railProgress > (distance2 + distance1) / 2 ? -1 : 1);
+			return (float) Mth.clamp(Math.min(railProgress - distance1, distance2 - railProgress) * 0.5, 0, 1);
 		} else {
 			return 0;
 		}
