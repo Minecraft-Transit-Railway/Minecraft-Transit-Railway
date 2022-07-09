@@ -288,6 +288,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		railwayDataCoolDownModule.tick();
 		railwayDataDriveTrainModule.tick();
 		railwayDataRailActionsModule.tick();
+		railwayDataRouteFinderModule.tick();
 
 		trainsInPlayerRange.forEach((player, trains) -> {
 			for (final TrainServer train : trains) {
