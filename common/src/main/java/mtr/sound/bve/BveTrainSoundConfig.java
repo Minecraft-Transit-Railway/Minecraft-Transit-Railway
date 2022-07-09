@@ -12,11 +12,13 @@ import java.util.List;
 
 public class BveTrainSoundConfig {
 
+	public final String baseName;
 	public final String audioBaseName;
 	public final ConfigFile soundCfg;
 	public final MotorDataBase motorData;
 
 	public BveTrainSoundConfig(ResourceManager manager, String baseName) {
+		this.baseName = baseName;
 		final String configBaseName = "mtr:sounds/" + baseName;
 		audioBaseName = "mtr:" + baseName + "_";
 		soundCfg = new ConfigFile(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")), this);

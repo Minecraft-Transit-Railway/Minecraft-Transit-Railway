@@ -15,6 +15,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BveTrainSound extends TrainSoundBase {
 
+	private final TrainClient train;
+
 	private float accelLastElapsed;
 	private boolean onRouteLastElapsed = false;
 
@@ -27,17 +29,19 @@ public class BveTrainSound extends TrainSoundBase {
 
 	public final BveTrainSoundConfig config;
 
-	private final TrainLoopingSoundInstance[] soundLoopMotor;
-	private final TrainLoopingSoundInstance soundLoopRun;
-	private final TrainLoopingSoundInstance soundLoopFlange;
-	private final TrainLoopingSoundInstance soundLoopNoise;
-	private final TrainLoopingSoundInstance soundLoopShoe;
-	private final TrainLoopingSoundInstance soundLoopCompressor;
-	private final int[][] bogieRailId;
+	private TrainLoopingSoundInstance[] soundLoopMotor;
+	private TrainLoopingSoundInstance soundLoopRun;
+	private TrainLoopingSoundInstance soundLoopFlange;
+	private TrainLoopingSoundInstance soundLoopNoise;
+	private TrainLoopingSoundInstance soundLoopShoe;
+	private TrainLoopingSoundInstance soundLoopCompressor;
+	private int[][] bogieRailId;
 
-	public BveTrainSound(TrainClient train, BveTrainSoundConfig config) {
-		super(train);
+	private BveTrainSound(BveTrainSoundConfig config, TrainClient train) {
 		this.config = config;
+		this.train = train;
+		if (train == null) return;
+
 		bogieRailId = new int[train.trainCars][2];
 
 		mrPress = ThreadLocalRandom.current().nextInt(config.soundCfg.mrPressMin, config.soundCfg.mrPressMax + 1);
@@ -58,11 +62,20 @@ public class BveTrainSound extends TrainSoundBase {
 		}
 	}
 
+	public BveTrainSound(BveTrainSoundConfig config) {
+		this(config, null);
+	}
+
+	@Override
+	public TrainSoundBase createTrainInstance(TrainClient train) {
+		return new BveTrainSound(config, train);
+	}
+
 	@Override
 	public void playNearestCar(Level world, BlockPos pos, int carIndex) {
 		final float deltaT = MTRClient.getLastFrameDuration() / 20;
 		final float speed = train.getSpeed() * 20;
-		final float accel = speed > 0 ? train.speedChange() < 0 ? -1 : 1 : 0; // TODO sounds weird when coasting or braking
+		final float accel = train.speedChange() / deltaT; // TODO sounds weird when coasting or braking
 		final float speedKph = speed * 3.6F;
 
 		// Rolling noise
