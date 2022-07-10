@@ -24,6 +24,7 @@ const SETTINGS = {
 	},
 	lineSize: 6,
 	dimension: 0,
+	densityView: 0,
 	selectedRouteTypes: [],
 	selectedColor: -1,
 	selectedStation: 0,
@@ -87,6 +88,8 @@ const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, DATA_REFRESH_INTERVAL, 
 	for (const dimension of json) {
 		dimension["connections"] = {};
 		const {routes, positions, connections, stations} = dimension;
+		let maxDensity = 1;
+		const densities = {};
 
 		for (const stationId in stations) {
 			stations[stationId]["horizontal"] = [];
@@ -107,13 +110,25 @@ const FETCH_DATA = new FetchData(() => SETTINGS.dataUrl, DATA_REFRESH_INTERVAL, 
 			for (let i = 1; i < route["stations"].length; i++) {
 				if (i > 0) {
 					const prevStationId = route["stations"][i - 1].split("_")[0];
+					const thisStationId = route["stations"][i].split("_")[0];
 					if (!(prevStationId in connections)) {
 						connections[prevStationId] = [];
 					}
 					connections[prevStationId].push({route: route, station: route["stations"][i].split("_")[0], duration: route["durations"][i - 1]});
+
+					const densityKey = prevStationId < thisStationId ? prevStationId + "_" + thisStationId : thisStationId + "_" + prevStationId;
+					if (!(densityKey in densities)) {
+						densities[densityKey] = [];
+					}
+					const density = route["densities"][i - 1];
+					densities[densityKey].push(density);
+					maxDensity = Math.max(maxDensity, density);
 				}
 			}
 		}
+
+		dimension["densities"] = densities;
+		dimension["maxDensity"] = maxDensity;
 
 		for (const positionKey in positions) {
 			const {x, y, vertical} = positions[positionKey];
@@ -251,6 +266,14 @@ document.getElementById("clear_directions_2_icon").onclick = () => {
 	searchBox.value = "";
 	searchBox.focus();
 };
+document.getElementById("density_view_icon").onclick = event => {
+	SETTINGS.densityView++;
+	if (SETTINGS.densityView >= 3) {
+		SETTINGS.densityView = 0;
+	}
+	event.target.innerText = SETTINGS.densityView === 0 ? "person_off" : "person";
+	drawMap(container, json[SETTINGS.dimension]);
+}
 document.getElementById("toggle_text_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("off")) {

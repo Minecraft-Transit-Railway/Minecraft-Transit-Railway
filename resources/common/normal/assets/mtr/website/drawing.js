@@ -361,7 +361,7 @@ function drawMap(container, data) {
 	container.children = [];
 
 	data["blobs"] = {};
-	const {blobs, positions, stations, routes, types} = data;
+	const {blobs, positions, stations, routes, types, densities, maxDensity} = data;
 
 	for (const stationId in stations) {
 		const station = stations[stationId];
@@ -457,8 +457,6 @@ function drawMap(container, data) {
 		if (SETTINGS.selectedRouteTypes.includes(routeType)) {
 			createClickable(container, graphicsRoute => {
 				(shouldDraw ? graphicsRoutesLayer2 : graphicsRoutesLayer1).push(graphicsRoute);
-				graphicsRoute.beginFill(shouldDraw ? color : SETTINGS.getColorStyle("--textColorDisabled"));
-
 				let prevX = undefined;
 				let prevY = undefined;
 				let prevVertical = undefined;
@@ -467,15 +465,40 @@ function drawMap(container, data) {
 					const {x2, y2, vertical} = positions[id];
 
 					if (typeof prevX !== "undefined" && typeof prevY !== "undefined") {
+						const grayColor = SETTINGS.getColorStyle("--textColorDisabled");
+						if (shouldDraw) {
+							const prevStationId = route["stations"][stationIndex - 1].split("_")[0];
+							const thisStationId = id.split("_")[0];
+							const densityKey = prevStationId < thisStationId ? prevStationId + "_" + thisStationId : thisStationId + "_" + prevStationId;
+							const density = densityKey in densities ? densities[densityKey].reduce((a, b) => a + b, 0) / densities[densityKey].length / maxDensity : 0;
+							if (SETTINGS.densityView === 1) {
+								const grayByte = (grayColor & 0xFF) * (1 - density);
+								const r = Math.floor(((color >> 16) & 0xFF) * density) + grayByte;
+								const g = Math.floor(((color >> 8) & 0xFF) * density) + grayByte;
+								const b = Math.floor((color & 0xFF) * density) + grayByte;
+								const newColor = (r << 16) + (g << 8) + b;
+								graphicsRoute.beginFill(newColor);
+							} else if (SETTINGS.densityView === 2) {
+								if (density > 0) {
+									graphicsRoute.beginFill((Math.floor(0x66 * (1 - density)) << 16) + (Math.floor(0xCC * density) << 8) + 0x3300);
+								} else {
+									graphicsRoute.beginFill(grayColor);
+								}
+							} else {
+								graphicsRoute.beginFill(color);
+							}
+						} else {
+							graphicsRoute.beginFill(grayColor);
+						}
+
 						CANVAS.drawLine(graphicsRoute, prevX, prevY, prevVertical, x2, y2, vertical);
+						graphicsRoute.endFill();
 					}
 
 					prevX = x2;
 					prevY = y2;
 					prevVertical = vertical;
 				}
-
-				graphicsRoute.endFill();
 			}, () => onClickLine(color, false));
 
 			if (color in SETTINGS.selectedDirectionsSegments) {
