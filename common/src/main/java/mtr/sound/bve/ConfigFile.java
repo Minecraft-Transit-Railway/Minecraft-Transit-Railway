@@ -31,16 +31,17 @@ public class ConfigFile {
 
 	public final int motorNoiseDataType;
 
-	public final float motorVolumeMultiply;
-	public final float breakerDelay;
-	public final float regenerationLimit;
+	public float breakerDelay = 0.5F;
+	public float regenerationLimit = 8F / 3.6F; // m/s
 
-	public final int mrPressMin = 700; // kPa
-	public final int mrPressMax = 800; // kPa
-	public final float mrCompressorSpeed = 5; // kPa/s
-	public final float mrServiceBrakeReduce = 5; // kPa each time
+	public float motorOutputAtCoast = 0.4F;
 
-	public final float doorCloseSoundLength;
+	public int mrPressMin = 700; // kPa
+	public int mrPressMax = 800; // kPa
+	public float mrCompressorSpeed = 5; // kPa/s
+	public float mrServiceBrakeReduce = 5; // kPa each time
+
+	public float doorCloseSoundLength = 2;
 
 	public ConfigFile(String textContent, BveTrainSoundConfig config) {
 		final String[] lines = textContent.split("[\\r\\n]+");
@@ -65,12 +66,6 @@ public class ConfigFile {
 		SoundEvent shoe = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
-
-		float motorVolumeMultiply = 2;
-		float breakerDelay = 0.5F; // sec
-		float regenerationLimit = 8F / 3.6F; // m/s
-
-		float doorCloseSoundLength = 1;
 
 		for (final String line : lines) {
 			final String trimLine = line.trim().replaceAll("\\s*(;|#|//).+", "");
@@ -97,9 +92,6 @@ public class ConfigFile {
 							case "motornoisedatatype":
 								motorNoiseDataType = Integer.parseInt(value);
 								break;
-							case "motorvolumemultiply":
-								motorVolumeMultiply = Float.parseFloat(value);
-								break;
 							case "doorclosesoundlength":
 								doorCloseSoundLength = Float.parseFloat(value);
 								break;
@@ -108,6 +100,9 @@ public class ConfigFile {
 								break;
 							case "regenerationlimit":
 								regenerationLimit = Float.parseFloat(value) / 3.6F;
+								break;
+							case "motoroutputatcoast":
+								motorOutputAtCoast = Float.parseFloat(value);
 								break;
 						}
 						break;
@@ -225,9 +220,5 @@ public class ConfigFile {
 		this.noise = noise;
 		this.shoe = shoe;
 		this.motorNoiseDataType = motorNoiseDataType;
-		this.motorVolumeMultiply = motorVolumeMultiply;
-		this.breakerDelay = breakerDelay;
-		this.regenerationLimit = regenerationLimit;
-		this.doorCloseSoundLength = doorCloseSoundLength;
 	}
 }

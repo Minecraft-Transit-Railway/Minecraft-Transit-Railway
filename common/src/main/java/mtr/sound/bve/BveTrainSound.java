@@ -20,8 +20,8 @@ public class BveTrainSound extends TrainSoundBase {
 	private float accelLastElapsed;
 	private boolean onRouteLastElapsed = false;
 
-	private int motorCurrentMode = 0;
-	private float motorSwitchTimer = -1;
+	private float motorCurrentOutput = 0;
+	private float motorBreakerTimer = -1;
 
 	private int mrPress;
 	private boolean isCompressorActive;
@@ -84,24 +84,25 @@ public class BveTrainSound extends TrainSoundBase {
 		}
 
 		// Simulation of circuit breaker in traction controller
-		final int motorTargetMode = (int) Math.signum(accel);
-		if (motorTargetMode < 0 && speed < config.soundCfg.regenerationLimit) {
-			motorCurrentMode = 0; // Regeneration brake cut off below limit speed
-			motorSwitchTimer = -1;
-		} else if (motorTargetMode > 0 && speed < 1) {
-			motorCurrentMode = motorTargetMode; // Disable delay at startup
-			motorSwitchTimer = -1;
-		} else if (motorTargetMode != motorCurrentMode && motorSwitchTimer < 0) {
-			motorSwitchTimer = 0;
-			if (motorTargetMode != 0 && motorCurrentMode != 0) {
-				motorCurrentMode = 0; // Loose behavior but sounds OK
+		float motorTarget = Math.signum(accel);
+		if (motorTarget == 0) motorTarget = config.soundCfg.motorOutputAtCoast;
+		if (motorTarget < 0 && speed < config.soundCfg.regenerationLimit) {
+			motorCurrentOutput = 0; // Regeneration brake cut off below limit speed
+			motorBreakerTimer = -1;
+		} else if (motorTarget > 0 && speed < 1) {
+			motorCurrentOutput = 1; // Disable delay at startup
+			motorBreakerTimer = -1;
+		} else if (motorTarget != motorCurrentOutput && motorBreakerTimer < 0) {
+			motorBreakerTimer = 0;
+			if (motorTarget != 0 && motorCurrentOutput != 0) {
+				motorCurrentOutput = 0; // Loose behavior but sounds OK
 			}
 		}
-		if (motorSwitchTimer >= 0) {
-			motorSwitchTimer += deltaT;
-			if (motorSwitchTimer > config.soundCfg.breakerDelay) {
-				motorSwitchTimer = -1;
-				motorCurrentMode = motorTargetMode;
+		if (motorBreakerTimer >= 0) {
+			motorBreakerTimer += deltaT;
+			if (motorBreakerTimer > config.soundCfg.breakerDelay) {
+				motorBreakerTimer = -1;
+				motorCurrentOutput = motorTarget;
 			}
 		}
 
@@ -117,11 +118,7 @@ public class BveTrainSound extends TrainSoundBase {
 			mrPress += deltaT * config.soundCfg.mrCompressorSpeed;
 		}
 		if (soundLoopCompressor != null) {
-			// NOTE: In BVE specification the compressor loop sound should not be played for the
-			// first 5 secs of compressor activity, when the compressor attack sound is played.
-			// This is not done, since the playLocalSound is only called once at the nearest car
-			// at the time when the attack sound is triggered, and player movement after that might
-			// cause unwanted effect.
+			// NOTE: Attack sound playback is not to BVE specification.
 			soundLoopCompressor.setData(isCompressorActive ? 1 : 0, 1, pos);
 		}
 		if (isCompressorActive && !isCompressorActiveLastElapsed) {
@@ -135,7 +132,7 @@ public class BveTrainSound extends TrainSoundBase {
 			if (soundLoopMotor[i] == null) {
 				continue;
 			}
-			soundLoopMotor[i].setData(config.motorData.getVolume(i, speedKph, motorCurrentMode) * config.soundCfg.motorVolumeMultiply, config.motorData.getPitch(i, speedKph, motorCurrentMode), pos);
+			soundLoopMotor[i].setData(config.motorData.getVolume(i, speedKph, motorCurrentOutput), config.motorData.getPitch(i, speedKph, motorCurrentOutput), pos);
 		}
 
 		// TODO Play flange sounds
