@@ -6,11 +6,7 @@ import net.minecraft.world.level.Level;
 
 public abstract class TrainSoundBase {
 
-	protected final TrainClient train;
-
-	protected TrainSoundBase(TrainClient train) {
-		this.train = train;
-	}
+	public abstract TrainSoundBase createTrainInstance(TrainClient train);
 
 	public abstract void playNearestCar(Level world, BlockPos pos, int carIndex);
 
