@@ -13,7 +13,6 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 	private BlockPos endPos;
 	private int totalTime;
 	private int count;
-	private int attempts;
 	private TickStage tickStage = TickStage.GET_POS;
 
 	private final RailwayData railwayData;
@@ -103,17 +102,6 @@ public class RailwayDataRouteFinderModule extends RailwayDataModuleBase {
 					}
 					break;
 			}
-		}
-
-		if (tickStage == TickStage.FIND_ROUTE) {
-			attempts++;
-			if (attempts > 200) {
-				attempts = 0;
-				tempPositions.clear();
-				tickStage = positions.isEmpty() ? TickStage.GET_POS : TickStage.END_FIND_ROUTE;
-			}
-		} else {
-			attempts = 0;
 		}
 	}
 
