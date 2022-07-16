@@ -24,7 +24,7 @@ export default class FetchData {
 			fetch(this.#url(), {cache: "no-cache"}).then(response => response.json()).then(result => {
 				this.#fetchId = setTimeout(() => this.fetchData(args), this.#refreshInterval);
 				this.#refreshData(result, args);
-			});
+			}).catch(() => this.#fetchId = setTimeout(() => this.fetchData(args), this.#refreshInterval));
 		}
 	}
 
