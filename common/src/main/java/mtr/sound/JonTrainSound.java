@@ -62,7 +62,7 @@ public class JonTrainSound extends TrainSoundBase {
 				}
 
 				final int index = Math.min(floorSpeed, config.speedSoundCount) - 1;
-				final boolean isAccelerating = train.speedChange() == 0 ? config.accelSoundAtCoast || random.nextBoolean() : train.speedChange() > 0;
+				final boolean isAccelerating = train.speedChange() == 0 ? config.useAccelerationSoundsWhenCoasting || random.nextBoolean() : train.speedChange() > 0;
 				final String speedSoundId = soundId + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
 				((ClientLevel) world).playLocalSound(pos, new SoundEvent(new ResourceLocation(MTR.MOD_ID, speedSoundId)), SoundSource.BLOCKS, 1, 1, true);
 			}
@@ -71,7 +71,6 @@ public class JonTrainSound extends TrainSoundBase {
 
 	@Override
 	public void playAllCars(Level world, BlockPos pos, int carIndex) {
-
 	}
 
 	@Override
@@ -96,23 +95,23 @@ public class JonTrainSound extends TrainSoundBase {
 		public final String doorSoundBaseId;
 		public final int speedSoundCount;
 		public final float doorCloseSoundTime;
-		public final boolean accelSoundAtCoast;
+		public final boolean useAccelerationSoundsWhenCoasting;
 		public final boolean constPlaybackSpeed;
 
-		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean accelSoundAtCoast, boolean constPlaybackSpeed) {
+		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constPlaybackSpeed) {
 			this.doorSoundBaseId = doorSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
-			this.accelSoundAtCoast = accelSoundAtCoast;
+			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
 			this.constPlaybackSpeed = constPlaybackSpeed;
 		}
 
-		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean accelSoundAtCoast) {
+		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.doorSoundBaseId = doorSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
-			this.accelSoundAtCoast = accelSoundAtCoast;
-			this.constPlaybackSpeed = false;
+			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
+			constPlaybackSpeed = false;
 		}
 	}
 }

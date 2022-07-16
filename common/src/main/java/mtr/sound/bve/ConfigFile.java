@@ -31,17 +31,17 @@ public class ConfigFile {
 
 	public final int motorNoiseDataType;
 
-	public float breakerDelay = 0.5F;
-	public float regenerationLimit = 8F / 3.6F; // m/s
+	public final float breakerDelay;
+	public final float regenerationLimit;
 
-	public float motorOutputAtCoast = 0.4F;
+	public final float motorOutputAtCoast;
 
-	public int mrPressMin = 700; // kPa
-	public int mrPressMax = 800; // kPa
-	public float mrCompressorSpeed = 5; // kPa/s
-	public float mrServiceBrakeReduce = 5; // kPa each time
+	public final int mrPressMin = 700; // kPa
+	public final int mrPressMax = 800; // kPa
+	public final float mrCompressorSpeed = 5; // kPa/s
+	public final float mrServiceBrakeReduce = 5; // kPa each time
 
-	public float doorCloseSoundLength = 2;
+	public final float doorCloseSoundLength;
 
 	public ConfigFile(String textContent, BveTrainSoundConfig config) {
 		final String[] lines = textContent.split("[\\r\\n]+");
@@ -66,6 +66,10 @@ public class ConfigFile {
 		SoundEvent shoe = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
+		float breakerDelay = 0.5F;
+		float regenerationLimit = 8F / 3.6F; // m/s
+		float motorOutputAtCoast = 0.4F;
+		float doorCloseSoundLength = 2;
 
 		for (final String line : lines) {
 			final String trimLine = line.trim().replaceAll("\\s*(;|#|//).+", "");
@@ -220,5 +224,9 @@ public class ConfigFile {
 		this.noise = noise;
 		this.shoe = shoe;
 		this.motorNoiseDataType = motorNoiseDataType;
+		this.breakerDelay = breakerDelay;
+		this.regenerationLimit = regenerationLimit;
+		this.motorOutputAtCoast = motorOutputAtCoast;
+		this.doorCloseSoundLength = doorCloseSoundLength;
 	}
 }
