@@ -447,6 +447,7 @@ public class ClientCache extends DataCache implements IGui {
 				final AbstractTexture abstractTexture = textureManager.getTexture(resourceLocation);
 				if (abstractTexture != null) {
 					abstractTexture.releaseId();
+					abstractTexture.close();
 				}
 			}
 		}
