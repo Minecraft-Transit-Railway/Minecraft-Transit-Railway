@@ -50,9 +50,9 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 	private JonModelTrainRenderer(ModelTrainBase model, String textureId, String gangwayConnectionId, String trainBarrierId, TrainClient train) {
 		this.model = model;
-		this.textureId = textureId;
-		this.gangwayConnectionId = gangwayConnectionId;
-		this.trainBarrierId = trainBarrierId;
+		this.textureId = resolvePath(textureId);
+		this.gangwayConnectionId = resolvePath(gangwayConnectionId);
+		this.trainBarrierId = resolvePath(trainBarrierId);
 		this.train = train;
 	}
 
@@ -242,6 +242,10 @@ public class JonModelTrainRenderer extends TrainRendererBase implements IGui {
 
 	private static void drawTexture(PoseStack matrices, VertexConsumer vertexConsumer, Vec3 pos1, Vec3 pos2, Vec3 pos3, Vec3 pos4, int light) {
 		mtr.client.IDrawing.drawTexture(matrices, vertexConsumer, (float) pos1.x, (float) pos1.y, (float) pos1.z, (float) pos2.x, (float) pos2.y, (float) pos2.z, (float) pos3.x, (float) pos3.y, (float) pos3.z, (float) pos4.x, (float) pos4.y, (float) pos4.z, 0, 0, 1, 1, Direction.UP, -1, light);
+	}
+
+	private static String resolvePath(String path) {
+		return path == null ? null : path.toLowerCase().split("\\.png")[0];
 	}
 
 	private static class FakeBoat extends Boat {

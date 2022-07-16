@@ -52,7 +52,7 @@ public class JonTrainSound extends TrainSoundBase {
 
 		if (config.speedSoundCount > 0 && soundId != null) {
 			// TODO: Better sound system to adapt to different acceleration
-			final float referenceAcceleration = config.constPlaybackSpeed ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
+			final float referenceAcceleration = config.constantPlaybackSpeed ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
 			final int floorSpeed = (int) Math.floor(train.getSpeed() / referenceAcceleration / MTRClient.TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final Random random = new Random();
@@ -96,14 +96,14 @@ public class JonTrainSound extends TrainSoundBase {
 		public final int speedSoundCount;
 		public final float doorCloseSoundTime;
 		public final boolean useAccelerationSoundsWhenCoasting;
-		public final boolean constPlaybackSpeed;
+		public final boolean constantPlaybackSpeed;
 
-		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constPlaybackSpeed) {
+		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constantPlaybackSpeed) {
 			this.doorSoundBaseId = doorSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
-			this.constPlaybackSpeed = constPlaybackSpeed;
+			this.constantPlaybackSpeed = constantPlaybackSpeed;
 		}
 
 		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
@@ -111,7 +111,7 @@ public class JonTrainSound extends TrainSoundBase {
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
-			constPlaybackSpeed = false;
+			constantPlaybackSpeed = false;
 		}
 	}
 }

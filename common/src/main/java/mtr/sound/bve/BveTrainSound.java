@@ -248,7 +248,6 @@ public class BveTrainSound extends TrainSoundBase {
 
 	@Override
 	public void playAllCarsDoorOpening(Level world, BlockPos pos, int carIndex) {
-		// TODO Check why door sounds are not playing
 		if (!(world instanceof ClientLevel) || train == null) {
 			return;
 		}
