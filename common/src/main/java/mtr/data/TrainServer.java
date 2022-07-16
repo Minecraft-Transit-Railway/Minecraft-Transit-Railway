@@ -315,7 +315,7 @@ public class TrainServer extends Train {
 			if (isOnRoute) {
 				if (manualCoolDown >= manualToAutomaticTime * 10) {
 					if (isCurrentlyManual) {
-						final int dwellTicks = path.get(nextStoppingIndex).dwellTime * 10;
+						final int dwellTicks = nextStoppingIndex >= path.size() ? 0 : path.get(nextStoppingIndex).dwellTime * 10;
 						stopCounter = doorOpen ? dwellTicks / 2F : dwellTicks;
 					}
 					isCurrentlyManual = false;
