@@ -370,6 +370,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 			if (!isOnRoute) {
 				railProgress = (railLength + trainCars * spacing) / 2;
+				reversed = false;
 				tempDoorValue1 = 0;
 				speed = 0;
 				nextStoppingIndex = 0;
