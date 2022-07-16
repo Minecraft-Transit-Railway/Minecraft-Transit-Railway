@@ -217,9 +217,10 @@ public class ClientCache extends DataCache implements IGui {
 		int height = 0;
 
 		for (int index = 0; index < textSplit.length; index++) {
-			final boolean isCjk = textSplit[index].codePoints().anyMatch(character -> !font.canDisplay(character));
+			final boolean useCjkFont = textSplit[index].codePoints().anyMatch(character -> !font.canDisplay(character));
+			final boolean isCjk = IGui.isCjk(textSplit[index]);
 			final Font mainFont = font.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize);
-			final Font fallbackFont = isCjk ? fontCjk.deriveFont(Font.PLAIN, fontSizeCjk) : mainFont;
+			final Font fallbackFont = useCjkFont ? fontCjk.deriveFont(Font.PLAIN, isCjk ? fontSizeCjk : fontSize) : mainFont;
 
 			attributedStrings[index] = new AttributedString(textSplit[index]);
 			if (textSplit[index].length() > 0) {

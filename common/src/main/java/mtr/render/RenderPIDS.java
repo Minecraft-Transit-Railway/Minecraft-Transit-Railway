@@ -219,7 +219,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 				} else {
 					final Component arrivalText;
 					final int seconds = (int) ((currentSchedule.arrivalMillis - System.currentTimeMillis()) / 1000);
-					final boolean isCJK = destinationString.codePoints().anyMatch(Character::isIdeographic);
+					final boolean isCJK = IGui.isCjk(destinationString);
 					if (seconds >= 60) {
 						arrivalText = Text.translatable(isCJK ? "gui.mtr.arrival_min_cjk" : "gui.mtr.arrival_min", seconds / 60).append(appendDotAfterMin && !isCJK ? "." : "");
 					} else {

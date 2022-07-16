@@ -44,12 +44,12 @@ public interface IGui {
 		final StringBuilder textBuilder = new StringBuilder();
 
 		for (int i = 0; i < text.length(); i++) {
-			final boolean isChinese = Character.isIdeographic(text.codePointAt(i));
-			if (isChinese) {
+			final boolean isCjk = isCjk(text.substring(i, i + 1));
+			if (isCjk) {
 				textBuilder.append('|');
 			}
 			textBuilder.append(text, i, i + 1);
-			if (isChinese) {
+			if (isCjk) {
 				textBuilder.append('|');
 			}
 		}
@@ -86,7 +86,7 @@ public interface IGui {
 			int indexCJK = 0;
 			int index = 0;
 			for (final String text : argumentSplit) {
-				if (text.codePoints().anyMatch(Character::isIdeographic)) {
+				if (isCjk(text)) {
 					if (indexCJK == dataCJK.size()) {
 						dataCJK.add(new String[expectedArguments]);
 					}
@@ -151,7 +151,7 @@ public interface IGui {
 			final List<String> currentStation = new ArrayList<>();
 
 			for (final String stationSplitPart : stationSplit) {
-				if (stationSplitPart.codePoints().anyMatch(Character::isIdeographic)) {
+				if (isCjk(stationSplitPart)) {
 					currentStationCJK.add(stationSplitPart);
 				} else {
 					currentStation.add(stationSplitPart);
@@ -188,6 +188,41 @@ public interface IGui {
 		final List<String> flattened = combinedCJK.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator_cjk").getString() : separator) + b).orElse("")).collect(Collectors.toList());
 		flattened.addAll(combined.stream().map(subList -> subList.stream().reduce((a, b) -> a + (separator == null ? Text.translatable("gui.mtr.separator").getString() : separator) + b).orElse("")).collect(Collectors.toList()));
 		return flattened.stream().reduce((a, b) -> a + "|" + b).orElse("");
+	}
+
+	static boolean isCjk(String text) {
+		return text.codePoints().anyMatch(codePoint -> {
+			final Character.UnicodeBlock unicodeBlock = Character.UnicodeBlock.of(codePoint);
+			return Character.isIdeographic(codePoint) ||
+					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY ||
+					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS ||
+					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS ||
+					unicodeBlock == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT ||
+					unicodeBlock == Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT ||
+					unicodeBlock == Character.UnicodeBlock.CJK_STROKES ||
+					unicodeBlock == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
+					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
+					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
+					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B ||
+					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C ||
+					unicodeBlock == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D ||
+					unicodeBlock == Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS ||
+					unicodeBlock == Character.UnicodeBlock.BOPOMOFO ||
+					unicodeBlock == Character.UnicodeBlock.BOPOMOFO_EXTENDED ||
+					unicodeBlock == Character.UnicodeBlock.HIRAGANA ||
+					unicodeBlock == Character.UnicodeBlock.KATAKANA ||
+					unicodeBlock == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS ||
+					unicodeBlock == Character.UnicodeBlock.KANA_SUPPLEMENT ||
+					unicodeBlock == Character.UnicodeBlock.KANBUN ||
+					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO ||
+					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_A ||
+					unicodeBlock == Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_B ||
+					unicodeBlock == Character.UnicodeBlock.HANGUL_SYLLABLES ||
+					unicodeBlock == Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO ||
+					unicodeBlock == Character.UnicodeBlock.KANGXI_RADICALS ||
+					unicodeBlock == Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS ||
+					unicodeBlock == Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS;
+		});
 	}
 
 	enum HorizontalAlignment {
