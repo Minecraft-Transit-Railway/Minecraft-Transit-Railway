@@ -31,9 +31,10 @@ public class ConfigFile {
 
 	public final int motorNoiseDataType;
 
-	public final float motorVolumeMultiply;
 	public final float breakerDelay;
 	public final float regenerationLimit;
+
+	public final float motorOutputAtCoast;
 
 	public final int mrPressMin = 700; // kPa
 	public final int mrPressMax = 800; // kPa
@@ -65,12 +66,10 @@ public class ConfigFile {
 		SoundEvent shoe = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
-
-		float motorVolumeMultiply = 2;
-		float breakerDelay = 0.5F; // sec
+		float breakerDelay = 0.5F;
 		float regenerationLimit = 8F / 3.6F; // m/s
-
-		float doorCloseSoundLength = 1;
+		float motorOutputAtCoast = 0.4F;
+		float doorCloseSoundLength = 2;
 
 		for (final String line : lines) {
 			final String trimLine = line.trim().replaceAll("\\s*(;|#|//).+", "");
@@ -97,9 +96,6 @@ public class ConfigFile {
 							case "motornoisedatatype":
 								motorNoiseDataType = Integer.parseInt(value);
 								break;
-							case "motorvolumemultiply":
-								motorVolumeMultiply = Float.parseFloat(value);
-								break;
 							case "doorclosesoundlength":
 								doorCloseSoundLength = Float.parseFloat(value);
 								break;
@@ -108,6 +104,9 @@ public class ConfigFile {
 								break;
 							case "regenerationlimit":
 								regenerationLimit = Float.parseFloat(value) / 3.6F;
+								break;
+							case "motoroutputatcoast":
+								motorOutputAtCoast = Float.parseFloat(value);
 								break;
 						}
 						break;
@@ -225,9 +224,9 @@ public class ConfigFile {
 		this.noise = noise;
 		this.shoe = shoe;
 		this.motorNoiseDataType = motorNoiseDataType;
-		this.motorVolumeMultiply = motorVolumeMultiply;
 		this.breakerDelay = breakerDelay;
 		this.regenerationLimit = regenerationLimit;
+		this.motorOutputAtCoast = motorOutputAtCoast;
 		this.doorCloseSoundLength = doorCloseSoundLength;
 	}
 }

@@ -31,19 +31,19 @@ public class MotorData5 extends MotorDataBase { // 5 for BVE5 and BVE6
 	}
 
 	@Override
-	public float getPitch(int index, float speed, float accel) {
-		if (accel == 0) {
+	public float getPitch(int index, float speed, float power) {
+		if (power == 0) {
 			return 0;
 		}
-		return accel > 0 ? powerFrequency.getValue(index, speed) : brakeFrequency.getValue(index, speed);
+		return power > 0 ? powerFrequency.getValue(index, speed) : brakeFrequency.getValue(index, speed);
 	}
 
 	@Override
-	public float getVolume(int index, float speed, float accel) {
-		if (accel == 0) {
+	public float getVolume(int index, float speed, float power) {
+		if (power == 0) {
 			return 0;
 		}
-		return accel > 0 ? powerVolume.getValue(index, speed) : brakeVolume.getValue(index, speed);
+		return (power > 0 ? powerVolume.getValue(index, speed) : brakeVolume.getValue(index, speed)) * Math.abs(power);
 	}
 
 	public static class FloatSplines {

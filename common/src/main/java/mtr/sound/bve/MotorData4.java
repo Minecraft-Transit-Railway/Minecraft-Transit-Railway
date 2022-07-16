@@ -58,11 +58,11 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 	}
 
 	@Override
-	public float getPitch(int index, float speed, float accel) {
-		if (accel == 0) {
+	public float getPitch(int index, float speed, float power) {
+		if (power == 0) {
 			return 0;
 		}
-		int offset = accel > 0 ? 0 : 2;
+		int offset = power > 0 ? 0 : 2;
 		int entryIndex = (int) (speed / 0.2F);
 		if (index == getSafe(channels[offset].soundIds, Math.min(channels[offset].maxEntryId, entryIndex))) {
 			return getSafe(channels[offset].pitches, entryIndex);
@@ -74,17 +74,17 @@ public class MotorData4 extends MotorDataBase { // 4 for BVE4 and OpenBVE
 	}
 
 	@Override
-	public float getVolume(int index, float speed, float accel) {
-		if (accel == 0) {
+	public float getVolume(int index, float speed, float power) {
+		if (power == 0) {
 			return 0;
 		}
-		int offset = accel > 0 ? 0 : 2;
+		int offset = power > 0 ? 0 : 2;
 		int entryIndex = (int) (speed / 0.2F);
 		if (index == getSafe(channels[offset].soundIds, Math.min(channels[offset].maxEntryId, entryIndex))) {
-			return getSafe(channels[offset].volumes, entryIndex);
+			return getSafe(channels[offset].volumes, entryIndex) * Math.abs(power);
 		}
 		if (index == getSafe(channels[offset + 1].soundIds, Math.min(channels[offset + 1].maxEntryId, entryIndex))) {
-			return getSafe(channels[offset + 1].volumes, entryIndex);
+			return getSafe(channels[offset + 1].volumes, entryIndex) * Math.abs(power);
 		}
 		return 0;
 	}

@@ -15,6 +15,8 @@ import java.util.Random;
 
 public class JonTrainSound extends TrainSoundBase {
 
+	private final TrainClient train;
+
 	public final String soundId;
 	public final JonTrainSoundConfig config;
 	private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
@@ -27,10 +29,19 @@ public class JonTrainSound extends TrainSoundBase {
 	private static final String SOUND_RANDOM = "_random";
 	private static final int RANDOM_SOUND_CHANCE = 300;
 
-	public JonTrainSound(TrainClient train, String soundId, JonTrainSoundConfig config) {
-		super(train);
+	private JonTrainSound(String soundId, JonTrainSoundConfig config, TrainClient train) {
 		this.config = config;
 		this.soundId = soundId;
+		this.train = train;
+	}
+
+	public JonTrainSound(String soundId, JonTrainSoundConfig config) {
+		this(soundId, config, null);
+	}
+
+	@Override
+	public TrainSoundBase createTrainInstance(TrainClient train) {
+		return new JonTrainSound(soundId, config, train);
 	}
 
 	@Override
@@ -41,7 +52,7 @@ public class JonTrainSound extends TrainSoundBase {
 
 		if (config.speedSoundCount > 0 && soundId != null) {
 			// TODO: Better sound system to adapt to different acceleration
-			final float referenceAcceleration = config.playbackSpeedDoesNotDependOnCustomAcceleration ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
+			final float referenceAcceleration = config.constantPlaybackSpeed ? train.accelerationConstant : Train.ACCELERATION_DEFAULT;
 			final int floorSpeed = (int) Math.floor(train.getSpeed() / referenceAcceleration / MTRClient.TICKS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final Random random = new Random();
@@ -85,13 +96,22 @@ public class JonTrainSound extends TrainSoundBase {
 		public final int speedSoundCount;
 		public final float doorCloseSoundTime;
 		public final boolean useAccelerationSoundsWhenCoasting;
-		public final boolean playbackSpeedDoesNotDependOnCustomAcceleration = false;
+		public final boolean constantPlaybackSpeed;
+
+		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting, boolean constantPlaybackSpeed) {
+			this.doorSoundBaseId = doorSoundBaseId;
+			this.speedSoundCount = speedSoundCount;
+			this.doorCloseSoundTime = doorCloseSoundTime;
+			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
+			this.constantPlaybackSpeed = constantPlaybackSpeed;
+		}
 
 		public JonTrainSoundConfig(String doorSoundBaseId, int speedSoundCount, float doorCloseSoundTime, boolean useAccelerationSoundsWhenCoasting) {
 			this.doorSoundBaseId = doorSoundBaseId;
 			this.speedSoundCount = speedSoundCount;
 			this.doorCloseSoundTime = doorCloseSoundTime;
 			this.useAccelerationSoundsWhenCoasting = useAccelerationSoundsWhenCoasting;
+			constantPlaybackSpeed = false;
 		}
 	}
 }

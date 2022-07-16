@@ -8,13 +8,9 @@ import mtr.client.TrainClientRegistry;
 import mtr.entity.EntitySeat;
 import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataGuiClient;
-import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderDrivingOverlay;
 import mtr.render.TrainRendererBase;
-import mtr.sound.JonTrainSound;
 import mtr.sound.TrainSoundBase;
-import mtr.sound.bve.BveTrainSound;
-import mtr.sound.bve.BveTrainSoundConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -70,8 +66,8 @@ public class TrainClient extends Train {
 	public TrainClient(FriendlyByteBuf packet) {
 		super(packet);
 		final TrainClientRegistry.TrainProperties trainProperties = TrainClientRegistry.getTrainProperties(trainId);
-		trainRenderer = new JonModelTrainRenderer(trainProperties);
-		trainSound = trainProperties.legacySoundConfig == null ? new BveTrainSound(this, new BveTrainSoundConfig(Minecraft.getInstance().getResourceManager(), trainProperties.soundId == null ? "" : trainProperties.soundId)) : new JonTrainSound(this, trainProperties.soundId, trainProperties.legacySoundConfig);
+		trainRenderer = trainProperties.renderer.createTrainInstance(this);
+		trainSound = trainProperties.sound.createTrainInstance(this);
 	}
 
 	@Override
@@ -98,15 +94,15 @@ public class TrainClient extends Train {
 		final double newZ = carZ - (noOffset ? 0 : offset.get(2));
 		riderPositions.forEach((uuid, position) -> {
 			if (noOffset) {
-				trainRenderer.renderRidingPlayer(this, uuid, position);
+				trainRenderer.renderRidingPlayer(uuid, position);
 			} else {
-				trainRenderer.renderRidingPlayer(this, uuid, position.subtract(offset.get(0), offset.get(1), offset.get(2)));
+				trainRenderer.renderRidingPlayer(uuid, position.subtract(offset.get(0), offset.get(1), offset.get(2)));
 			}
 		});
 
 		final boolean opening = doorValue > oldDoorValue;
-		trainRenderer.renderCar(this, ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed);
-		trainTranslucentRenders.add(() -> trainRenderer.renderCar(this, ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed));
+		trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, false, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed);
+		trainTranslucentRenders.add(() -> trainRenderer.renderCar(ridingCar, newX, newY, newZ, carYaw, carPitch, true, doorLeftOpen ? doorValue : 0, doorRightOpen ? doorValue : 0, opening, !reversed));
 
 		if (ridingCar > 0) {
 			final double newPrevCarX = prevCarX - (noOffset ? 0 : offset.get(0));
@@ -134,9 +130,9 @@ public class TrainClient extends Train {
 				final Vec3 thisPos4 = new Vec3(xStart, SMALL_OFFSET, -zStart).xRot(carPitch).yRot(carYaw).add(newX, newY, newZ);
 
 				if (i == 0) {
-					trainRenderer.renderConnection(this, prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+					trainRenderer.renderConnection(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
 				} else {
-					trainRenderer.renderBarrier(this, prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
+					trainRenderer.renderBarrier(prevPos1, prevPos2, prevPos3, prevPos4, thisPos1, thisPos2, thisPos3, thisPos4, connectPos.x, connectPos.y, connectPos.z, connectYaw, connectPitch);
 				}
 			}
 		}
@@ -256,7 +252,7 @@ public class TrainClient extends Train {
 
 				final int currentRidingCar = Mth.clamp((int) Math.floor(percentagesZ.get(uuid)), 0, positions.length - 2);
 				calculateCar(world, positions, currentRidingCar, 0, (x, y, z, yaw, pitch, realSpacingRender, doorLeftOpenRender, doorRightOpenRender) -> {
-					final boolean noGangwayConnection = trainProperties.gangwayConnectionId.isEmpty();
+					final boolean noGangwayConnection = !trainProperties.hasGangwayConnection;
 					final float speedMultiplier = ticksElapsed * TRAIN_WALKING_SPEED_MULTIPLIER;
 					final float newPercentageX;
 					final float newPercentageZ;

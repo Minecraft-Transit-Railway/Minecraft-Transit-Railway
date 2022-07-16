@@ -6,10 +6,13 @@ import com.google.gson.JsonParser;
 import mtr.MTR;
 import mtr.mappings.Utilities;
 import mtr.mappings.UtilitiesClient;
+import mtr.render.JonModelTrainRenderer;
 import mtr.render.RenderTrains;
 import mtr.sound.JonTrainSound;
+import mtr.sound.bve.BveTrainSound;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,17 +49,41 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 						final TrainClientRegistry.TrainProperties baseTrainProperties = TrainClientRegistry.getTrainProperties(baseTrainType);
 
 						// TODO Better ways around this?
-						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, baseTrainProperties.textureId, JsonElement::getAsString);
-						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, baseTrainProperties.gangwayConnectionId, JsonElement::getAsString);
-						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, baseTrainProperties.trainBarrierId, JsonElement::getAsString);
+						final JonModelTrainRenderer jonRendererOrDefault = baseTrainProperties.renderer instanceof JonModelTrainRenderer ? (JonModelTrainRenderer) baseTrainProperties.renderer : new JonModelTrainRenderer(null, "", "", "");
+						final JonTrainSound jonSoundOrDefault = baseTrainProperties.sound instanceof JonTrainSound ? (JonTrainSound) baseTrainProperties.sound : new JonTrainSound("", new JonTrainSound.JonTrainSoundConfig(null, 0, 0.5F, false, false));
+						final String baseBveSoundBaseId = baseTrainProperties.sound instanceof BveTrainSound ? ((BveTrainSound) baseTrainProperties.sound).config.baseName : "";
+
+						final String textureId = getOrDefault(jsonObject, CUSTOM_TRAINS_TEXTURE_ID, jonRendererOrDefault.textureId, JsonElement::getAsString);
+						final String gangwayConnectionId = getOrDefault(jsonObject, CUSTOM_TRAINS_GANGWAY_CONNECTION_ID, jonRendererOrDefault.gangwayConnectionId, JsonElement::getAsString);
+						final String trainBarrierId = getOrDefault(jsonObject, CUSTOM_TRAINS_TRAIN_BARRIER_ID, jonRendererOrDefault.trainBarrierId, JsonElement::getAsString);
 						final float riderOffset = getOrDefault(jsonObject, CUSTOM_TRAINS_RIDER_OFFSET, baseTrainProperties.riderOffset, JsonElement::getAsFloat);
-						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, baseTrainProperties.legacySoundConfig == null ? 0 : baseTrainProperties.legacySoundConfig.speedSoundCount, JsonElement::getAsInt);
-						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, baseTrainProperties.soundId, JsonElement::getAsString);
-						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, baseTrainProperties.legacySoundConfig == null ? null : baseTrainProperties.legacySoundConfig.doorSoundBaseId, JsonElement::getAsString);
-						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, baseTrainProperties.legacySoundConfig == null ? 0.5F : baseTrainProperties.legacySoundConfig.doorCloseSoundTime, JsonElement::getAsFloat);
+						final String bveSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_BVE_SOUND_BASE_ID, baseBveSoundBaseId, JsonElement::getAsString);
+						final int speedSoundCount = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_COUNT, jonSoundOrDefault.config.speedSoundCount, JsonElement::getAsInt);
+						final String speedSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_SPEED_SOUND_BASE_ID, jonSoundOrDefault.soundId, JsonElement::getAsString);
+						final String doorSoundBaseId = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_SOUND_BASE_ID, jonSoundOrDefault.config.doorSoundBaseId, JsonElement::getAsString);
+						final float doorCloseSoundTime = getOrDefault(jsonObject, CUSTOM_TRAINS_DOOR_CLOSE_SOUND_TIME, jonSoundOrDefault.config.doorCloseSoundTime, JsonElement::getAsFloat);
+						final boolean accelSoundAtCoast = getOrDefault(jsonObject, CUSTOM_TRAINS_ACCEL_SOUND_AT_COAST, jonSoundOrDefault.config.useAccelerationSoundsWhenCoasting, JsonElement::getAsBoolean);
+						final boolean constPlaybackSpeed = getOrDefault(jsonObject, CUSTOM_TRAINS_CONST_PLAYBACK_SPEED, jonSoundOrDefault.config.constantPlaybackSpeed, JsonElement::getAsBoolean);
+
+						final boolean useBveSound;
+						if (StringUtils.isEmpty(bveSoundBaseId)) {
+							useBveSound = false;
+						} else {
+							if (jsonObject.has(CUSTOM_TRAINS_BVE_SOUND_BASE_ID)) {
+								useBveSound = true;
+							} else if (jsonObject.has(CUSTOM_TRAINS_SPEED_SOUND_BASE_ID)) {
+								useBveSound = false;
+							} else {
+								useBveSound = baseTrainProperties.sound instanceof BveTrainSound;
+							}
+						}
 
 						if (!baseTrainProperties.baseTrainType.isEmpty()) {
-							TrainClientRegistry.register(trainId, baseTrainType, baseTrainProperties.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, baseTrainProperties.legacySoundConfig);
+							if (useBveSound) {
+								TrainClientRegistry.register(trainId, baseTrainType, jonRendererOrDefault.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, bveSoundBaseId, null);
+							} else {
+								TrainClientRegistry.register(trainId, baseTrainType, jonRendererOrDefault.model, textureId, name, color, gangwayConnectionId, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed));
+							}
 							customTrains.add(trainId);
 						}
 
@@ -71,7 +98,11 @@ public class CustomResources implements IResourcePackCreatorProperties, ICustomR
 								final boolean useLegacy = jsonProperties.has("parts_normal");
 								// TODO temporary code end
 
-								TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, false));
+								if (useBveSound) {
+									TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, bveSoundBaseId, null);
+								} else {
+									TrainClientRegistry.register(trainId, newBaseTrainType2.toLowerCase(), useLegacy ? new DynamicTrainModelLegacy(jsonModel, jsonProperties) : new DynamicTrainModel(jsonModel, jsonProperties), textureId, name, color, gangwayConnectionId2, trainBarrierId, riderOffset, baseTrainProperties.bogiePosition, baseTrainProperties.isJacobsBogie, speedSoundBaseId, new JonTrainSound.JonTrainSoundConfig(doorSoundBaseId, speedSoundCount, doorCloseSoundTime, accelSoundAtCoast, constPlaybackSpeed));
+								}
 								customTrains.add(trainId);
 							}));
 						}
