@@ -226,7 +226,9 @@ public class TrainClient extends Train {
 							clientPlayer.fallDistance = 0;
 							clientPlayer.setDeltaMovement(0, 0, 0);
 							clientPlayer.setSpeed(0);
-							clientPlayer.absMoveTo(moveX, moveY, moveZ);
+							if (MTRClient.getGameTick() > 40) {
+								clientPlayer.absMoveTo(moveX, moveY, moveZ);
+							}
 						}
 
 						if (speed > 0) {
