@@ -98,7 +98,7 @@ public class BveTrainSound extends TrainSoundBase {
 
 		// Simulation of circuit breaker in traction controller
 		float motorTarget = Math.signum(accel);
-		if (motorTarget == 0) {
+		if (motorTarget == 0 && speed != 0) {
 			motorTarget = config.soundCfg.motorOutputAtCoast;
 		}
 		if (motorTarget < 0 && speed < config.soundCfg.regenerationLimit) {
