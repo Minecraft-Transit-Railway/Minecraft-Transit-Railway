@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -32,8 +33,12 @@ public class UpdateSolder {
 	private final SFTPClient sftpClient;
 
 	private static final Path OUTPUT_PATH = Paths.get("temp");
-	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18", "1.18.2", "1.19"};
+	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19"};
 	private static final Map<String, String> MOD_ID_MAP = new HashMap<>();
+	private static final Map<String, String> MODPACK_ID_MAP = new HashMap<>();
+	private static final Map<String, String> DUMMY_BUILD_ID_MAP = new HashMap<>();
+	private static final Map<String, String> DUMMY_MOD_MAP = new HashMap<>();
+	private static final Map<String, String> NEW_MOD_MAP = new HashMap<>();
 
 	static {
 		MOD_ID_MAP.put("mtr", "1");
@@ -42,6 +47,55 @@ public class UpdateSolder {
 		MOD_ID_MAP.put("forge-loader", "5");
 		MOD_ID_MAP.put("forge-architectury", "6");
 		MOD_ID_MAP.put("modmenu", "7");
+
+		MODPACK_ID_MAP.put("fabric-1.16.5", "2");
+		MODPACK_ID_MAP.put("forge-1.16.5", "4");
+		MODPACK_ID_MAP.put("fabric-1.17.1", "3");
+		MODPACK_ID_MAP.put("forge-1.17.1", "8");
+		MODPACK_ID_MAP.put("fabric-1.18.2", "5");
+		MODPACK_ID_MAP.put("forge-1.18.2", "9");
+		MODPACK_ID_MAP.put("fabric-1.19", "7");
+		MODPACK_ID_MAP.put("forge-1.19", "10");
+		MODPACK_ID_MAP.put("centown-classic", "6");
+
+		DUMMY_BUILD_ID_MAP.put("fabric-1.16.5", "143");
+		DUMMY_BUILD_ID_MAP.put("forge-1.16.5", "144");
+		DUMMY_BUILD_ID_MAP.put("fabric-1.17.1", "145");
+		DUMMY_BUILD_ID_MAP.put("forge-1.17.1", "146");
+		DUMMY_BUILD_ID_MAP.put("fabric-1.18.2", "147");
+		DUMMY_BUILD_ID_MAP.put("forge-1.18.2", "148");
+		DUMMY_BUILD_ID_MAP.put("fabric-1.19", "149");
+		DUMMY_BUILD_ID_MAP.put("forge-1.19", "150");
+		DUMMY_BUILD_ID_MAP.put("centown-classic", "142");
+
+		DUMMY_MOD_MAP.put("mtr-fabric-1.16.5", "fabric-1.16.5-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-fabric-1.17.1", "fabric-1.17.1-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-fabric-1.18.2", "fabric-1.18.2-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-fabric-1.19", "fabric-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-forge-1.16.5", "forge-1.16.5-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-forge-1.17.1", "forge-1.17.1-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-forge-1.18.2", "forge-1.18.2-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-forge-1.19", "forge-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("fabric-loader-1.16.5", "1.16.5-0.14.8");
+		DUMMY_MOD_MAP.put("fabric-loader-1.17.1", "1.17.1-0.14.8");
+		DUMMY_MOD_MAP.put("fabric-loader-1.18.2", "1.18.2-0.14.8");
+		DUMMY_MOD_MAP.put("fabric-loader-1.19", "1.19-0.14.8");
+		DUMMY_MOD_MAP.put("fabric-api-1.16.5", "0.42.0+1.16");
+		DUMMY_MOD_MAP.put("fabric-api-1.17.1", "0.46.1+1.17");
+		DUMMY_MOD_MAP.put("fabric-api-1.18.2", "0.57.0+1.18.2");
+		DUMMY_MOD_MAP.put("fabric-api-1.19", "0.57.0+1.19");
+		DUMMY_MOD_MAP.put("forge-loader-1.16.5", "1.16.5-36.2.34");
+		DUMMY_MOD_MAP.put("forge-loader-1.17.1", "1.17.1-37.1.1");
+		DUMMY_MOD_MAP.put("forge-loader-1.18.2", "1.18.2-40.1.0");
+		DUMMY_MOD_MAP.put("forge-loader-1.19", "1.19-41.0.63");
+		DUMMY_MOD_MAP.put("forge-architectury-1.16.5", "1.32.66+forge-1.16.5");
+		DUMMY_MOD_MAP.put("forge-architectury-1.17.1", "2.10.12+forge-1.17.1");
+		DUMMY_MOD_MAP.put("forge-architectury-1.18.2", "4.4.71+forge-1.18.2");
+		DUMMY_MOD_MAP.put("forge-architectury-1.19", "5.7.28+forge-1.19");
+		DUMMY_MOD_MAP.put("modmenu-1.16.5", "1.16.5-1.16.22");
+		DUMMY_MOD_MAP.put("modmenu-1.17.1", "2.0.15-1.17.1");
+		DUMMY_MOD_MAP.put("modmenu-1.18.2", "3.2.3-1.18.2");
+		DUMMY_MOD_MAP.put("modmenu-1.19", "4.0.0-1.19");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -66,25 +120,20 @@ public class UpdateSolder {
 		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
 			for (final Loader loader : Loader.values()) {
 				final String modVersion = loader.loader + "-" + minecraftVersion + "-" + mtrVersion;
-				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", "mtr", "mods/MTR-" + modVersion + ".jar", modVersion);
+				uploadZip("https://www.minecrafttransitrailway.com/libs/latest/MTR-" + loader.loader + "-" + minecraftVersion + "-latest.jar", minecraftVersion, "mtr", "mods/MTR-" + modVersion + ".jar", modVersion);
 			}
 
 			try {
 				final String fabricLoaderVersion = readUrl("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion, new JsonArray()).getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
-				uploadZip("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion + "/" + fabricLoaderVersion + "/profile/json", "fabric-loader", "bin/version.json", minecraftVersion + "-" + fabricLoaderVersion);
+				uploadZip("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion + "/" + fabricLoaderVersion + "/profile/json", minecraftVersion, "fabric-loader", "bin/version.json", minecraftVersion + "-" + fabricLoaderVersion);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
 				final JsonObject forgeVersionsObject = readUrl("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json", new JsonObject()).getAsJsonObject().getAsJsonObject("promos");
-				final String forgeVersion;
-				if (forgeVersionsObject.has(minecraftVersion + "-recommended")) {
-					forgeVersion = minecraftVersion + "-" + forgeVersionsObject.get(minecraftVersion + "-recommended").getAsString();
-				} else {
-					forgeVersion = minecraftVersion + "-" + forgeVersionsObject.get(minecraftVersion + "-latest").getAsString();
-				}
-				uploadZip("https://maven.minecraftforge.net/net/minecraftforge/forge/" + forgeVersion + "/forge-" + forgeVersion + "-installer.jar", "forge-loader", "bin/modpack.jar", forgeVersion);
+				final String forgeVersion = minecraftVersion + "-" + forgeVersionsObject.get(minecraftVersion + "-latest").getAsString();
+				uploadZip("https://maven.minecraftforge.net/net/minecraftforge/forge/" + forgeVersion + "/forge-" + forgeVersion + "-installer.jar", minecraftVersion, "forge-loader", "bin/modpack.jar", forgeVersion);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -97,12 +146,32 @@ public class UpdateSolder {
 		FileUtils.deleteQuietly(OUTPUT_PATH.toFile());
 		sftpClient.close();
 		sshClient.disconnect();
+
+		final String buildVersion = mtrVersion + "-" + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+		for (final String minecraftVersion : MINECRAFT_VERSIONS) {
+			for (final Loader loader : Loader.values()) {
+				final String combinedVersion = loader.loader + "-" + minecraftVersion;
+				final String buildId = sendRequest("create-build?modpack_id=%s&version=%s&minecraft=%s&clone=%s&memory-enabled=on&memory=2048", MODPACK_ID_MAP.get(combinedVersion), buildVersion, minecraftVersion, DUMMY_BUILD_ID_MAP.get(combinedVersion)).get("build_id").getAsString();
+				updateModInBuild(buildId, DUMMY_MOD_MAP.get("mtr-" + combinedVersion), combinedVersion + "-" + mtrVersion, loader.loader, minecraftVersion);
+
+				if (loader == Loader.FABRIC) {
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-loader-" + minecraftVersion), NEW_MOD_MAP.get("fabric-loader-" + minecraftVersion), loader.loader, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("fabric-api-" + minecraftVersion), NEW_MOD_MAP.get("fabric-api-" + minecraftVersion), loader.loader, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("modmenu-" + minecraftVersion), NEW_MOD_MAP.get("modmenu-" + minecraftVersion), loader.loader, minecraftVersion);
+				} else {
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-loader-" + minecraftVersion), NEW_MOD_MAP.get("forge-loader-" + minecraftVersion), loader.loader, minecraftVersion);
+					updateModInBuild(buildId, DUMMY_MOD_MAP.get("forge-architectury-" + minecraftVersion), NEW_MOD_MAP.get("forge-architectury-" + minecraftVersion), loader.loader, minecraftVersion);
+				}
+			}
+		}
 	}
 
-	private void uploadZip(String url, String modId, String zipPath, String modVersion) {
+	private void uploadZip(String url, String minecraftVersion, String modId, String zipPath, String modVersion) {
 		if (!MOD_ID_MAP.containsKey(modId)) {
 			return;
 		}
+
+		NEW_MOD_MAP.put(modId + "-" + minecraftVersion, modVersion);
 
 		try {
 			Files.createDirectories(OUTPUT_PATH.resolve(modId));
@@ -152,6 +221,13 @@ public class UpdateSolder {
 		}
 	}
 
+	private void updateModInBuild(String buildId, String oldModVersion, String newModVersion, String loaderVersion, String minecraftVersion) {
+		final JsonObject response = sendRequest("update-build?build_id=%s&modversion_id=%s&version=%s", buildId, oldModVersion, newModVersion);
+		if (response.has("status") && response.get("status").getAsString().equals("success")) {
+			printStatus("Updated mod in build:", loaderVersion, minecraftVersion, newModVersion);
+		}
+	}
+
 	private JsonObject sendRequest(String url, String... arguments) {
 		try {
 			final Object[] parameters = new Object[arguments.length];
@@ -181,7 +257,7 @@ public class UpdateSolder {
 					for (final String minecraftVersion : minecraftVersions) {
 						if (stringJsonArrayContains(versionObject.getAsJsonArray("game_versions"), minecraftVersion)) {
 							final JsonObject fileObject = versionObject.getAsJsonArray("files").get(0).getAsJsonObject();
-							uploadZip(fileObject.get("url").getAsString(), modId, "mods/" + fileObject.get("filename").getAsString(), appendMinecraftVersion(versionObject.get("version_number").getAsString(), minecraftVersion));
+							uploadZip(fileObject.get("url").getAsString(), minecraftVersion, modId, "mods/" + fileObject.get("filename").getAsString(), appendMinecraftVersion(versionObject.get("version_number").getAsString(), minecraftVersion));
 							minecraftVersionsToRemove.add(minecraftVersion);
 						}
 					}
