@@ -18,9 +18,11 @@ public class BveTrainSoundConfig {
 	public final MotorDataBase motorData;
 
 	public BveTrainSoundConfig(ResourceManager manager, String baseName) {
-		this.baseName = baseName;
-		final String configBaseName = "mtr:sounds/" + baseName;
-		audioBaseName = "mtr:" + baseName + "_";
+		ResourceLocation baseLocation = new ResourceLocation(baseName.contains(":") ? baseName : "mtr:" + baseName);
+
+		this.baseName = baseLocation.toString();
+		final String configBaseName = baseLocation.getNamespace() + ":sounds/" + baseLocation.getPath();
+		audioBaseName = baseLocation.getNamespace() + ":" + baseLocation.getPath() + "_";
 		soundCfg = new ConfigFile(readResource(manager, new ResourceLocation(configBaseName + "/sound.cfg")), this);
 		if (soundCfg.motorNoiseDataType == 4) {
 			motorData = new MotorData4(manager, configBaseName);
