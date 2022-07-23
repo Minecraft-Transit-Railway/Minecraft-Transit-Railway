@@ -64,7 +64,7 @@ task moveForgeBuilds() {
 			include "**/${variation}-forge*"
 		}
 		delete fileTree("../build/latest").matching {
-			include "**/${variation}-fabric*"
+			include "**/${variation}-forge*"
 		}
 		copy {
 			from "build/libs"
