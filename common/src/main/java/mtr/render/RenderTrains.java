@@ -448,11 +448,11 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	}
 
 	private static void renderRailStandard(Level world, PoseStack matrices, MultiBufferSource vertexConsumers, Rail rail, float yOffset, boolean renderColors, float railWidth, String texture, float u1, float v1, float u2, float v2) {
-		final int maxRailDistance = UtilitiesClient.getRenderDistance() * 16;
+		final int maxRailDistance = UtilitiesClient.getRenderDistance() * 4;
 
 		rail.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 			final BlockPos pos2 = new BlockPos(x1, y1, z1);
-			if (shouldNotRender(pos2, maxRailDistance, null)) {
+			if (shouldNotRender(pos2, maxRailDistance * (Config.trackRenderDistance()), null)) {
 				return;
 			}
 			final int light2 = LightTexture.pack(world.getBrightness(LightLayer.BLOCK, pos2), world.getBrightness(LightLayer.SKY, pos2));
