@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class BlockPIDSBase extends BlockDirectionalMapper implements EntityBlockMapper {
@@ -122,6 +123,10 @@ public abstract class BlockPIDSBase extends BlockDirectionalMapper implements En
 				compoundTag.putString(KEY_MESSAGE + i, messages[i] == null ? "" : messages[i]);
 				compoundTag.putBoolean(KEY_HIDE_ARRIVAL + i, hideArrival[i]);
 			}
+		}
+
+		public AABB getRenderBoundingBox() {
+			return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 
 		public void setData(String[] messages, boolean[] hideArrival) {
