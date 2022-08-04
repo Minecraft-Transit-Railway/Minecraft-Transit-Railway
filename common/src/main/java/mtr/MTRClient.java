@@ -12,10 +12,14 @@ import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
 import mtr.render.*;
+import mtr.servlet.Webserver;
 import mtr.sound.LoopingSoundInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class MTRClient implements IPacket {
 
@@ -330,8 +334,11 @@ public class MTRClient implements IPacket {
 			}
 		};
 
+		Webserver.init();
+
 		RegistryClient.registerPlayerJoinEvent(player -> {
 			Config.refreshProperties();
+
 			isReplayMod = player.getClass().toGenericString().toLowerCase().contains("replaymod");
 			try {
 				Class.forName("org.vivecraft.main.VivecraftMain");
@@ -339,9 +346,20 @@ public class MTRClient implements IPacket {
 			} catch (Exception ignored) {
 				isVivecraft = false;
 			}
+
 			System.out.println(isReplayMod ? "Running in Replay Mod mode" : "Not running in Replay Mod mode");
 			System.out.println(isVivecraft ? "Vivecraft detected" : "Vivecraft not detected");
+
+			final Minecraft minecraft = Minecraft.getInstance();
+			if (!minecraft.hasSingleplayerServer()) {
+				Webserver.callback = minecraft::execute;
+				Webserver.getWorlds = () -> minecraft.level == null ? new ArrayList<>() : Collections.singletonList(minecraft.level);
+				Webserver.getRoutes = railwayData -> ClientData.ROUTES;
+				Webserver.getDataCache = railwayData -> ClientData.DATA_CACHE;
+				Webserver.start(Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("mtr_webserver_port.txt"));
+			}
 		});
+		Registry.registerPlayerQuitEvent(player -> Webserver.stop());
 	}
 
 	public static boolean isReplayMod() {

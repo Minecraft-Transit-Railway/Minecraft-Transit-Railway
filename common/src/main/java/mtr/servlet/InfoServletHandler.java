@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
-import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
@@ -14,16 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 
 public class InfoServletHandler extends HttpServlet {
 
-	public static MinecraftServer SERVER;
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext asyncContext = request.startAsync();
 
-		SERVER.execute(() -> {
+		Webserver.callback.accept(() -> {
 			final JsonArray dataArray = new JsonArray();
 
-			SERVER.getAllLevels().forEach(world -> {
+			Webserver.getWorlds.get().forEach(world -> {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				final JsonArray playersArray = new JsonArray();
 

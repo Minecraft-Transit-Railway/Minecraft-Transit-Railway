@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import mtr.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
@@ -16,16 +15,14 @@ import java.util.Set;
 
 public class DataServletHandler extends HttpServlet {
 
-	public static MinecraftServer SERVER;
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext asyncContext = request.startAsync();
 
-		SERVER.execute(() -> {
+		Webserver.callback.accept(() -> {
 			final JsonArray dataArray = new JsonArray();
 
-			SERVER.getAllLevels().forEach(world -> {
+			Webserver.getWorlds.get().forEach(world -> {
 				final RailwayData railwayData = RailwayData.getInstance(world);
 				final JsonArray routesArray = new JsonArray();
 				final JsonObject stationPositionsObject = new JsonObject();
@@ -33,10 +30,10 @@ public class DataServletHandler extends HttpServlet {
 				final JsonArray typesObject = new JsonArray();
 				final Set<String> types = new HashSet<>();
 
-				if (railwayData != null) {
-					final DataCache dataCache = railwayData.dataCache;
+				final DataCache dataCache = Webserver.getDataCache.apply(railwayData);
 
-					railwayData.routes.forEach(route -> {
+				if (dataCache != null) {
+					Webserver.getRoutes.apply(railwayData).forEach(route -> {
 						if (route.isHidden) {
 							return;
 						}
@@ -112,7 +109,7 @@ public class DataServletHandler extends HttpServlet {
 								}
 							}
 
-							if (prevPlatformPos != null && thisPlatformPos != null) {
+							if (prevPlatformPos != null && thisPlatformPos != null && railwayData != null) {
 								routeDensityArray.add(railwayData.railwayDataRouteFinderModule.getConnectionDensity(prevPlatformPos, thisPlatformPos));
 							} else {
 								routeDensityArray.add(0);

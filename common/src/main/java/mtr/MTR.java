@@ -7,31 +7,19 @@ import mtr.data.Station;
 import mtr.mappings.BlockEntityMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;
-import mtr.servlet.ArrivalsServletHandler;
-import mtr.servlet.DataServletHandler;
-import mtr.servlet.DelaysServletHandler;
-import mtr.servlet.InfoServletHandler;
+import mtr.servlet.Webserver;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class MTR implements IPacket {
@@ -391,27 +379,7 @@ public class MTR implements IPacket {
 		Registry.registerNetworkReceiver(PACKET_UPDATE_ENTITY_SEAT_POSITION, PacketTrainDataGuiServer::receiveUpdateEntitySeatPassengerPosition);
 		Registry.registerNetworkReceiver(PACKET_DRIVE_TRAIN, PacketTrainDataGuiServer::receiveDriveTrainC2S);
 
-		final Server webServer = new Server(new QueuedThreadPool(100, 10, 120));
-		final ServerConnector serverConnector = new ServerConnector(webServer);
-		webServer.setConnectors(new Connector[]{serverConnector});
-		final ServletContextHandler context = new ServletContextHandler();
-		webServer.setHandler(context);
-		final URL url = MTR.class.getResource("/assets/mtr/website/");
-		if (url != null) {
-			try {
-				context.setBaseResource(Resource.newResource(url.toURI()));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
-		servletHolder.setInitParameter("dirAllowed", "true");
-		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
-		context.addServlet(servletHolder, "/");
-		context.addServlet(DataServletHandler.class, "/data");
-		context.addServlet(InfoServletHandler.class, "/info");
-		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
-		context.addServlet(DelaysServletHandler.class, "/delays");
+		Webserver.init();
 
 		Registry.registerTickEvent(minecraftServer -> {
 			minecraftServer.getAllLevels().forEach(serverWorld -> {
@@ -436,35 +404,17 @@ public class MTR implements IPacket {
 			}
 		});
 		Registry.registerServerStartingEvent(minecraftServer -> {
-			int port = 8888;
-			final Path path = minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt");
-			try {
-				port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("\\D", "")), 1025, 65535);
-			} catch (Exception ignored) {
-				try {
-					Files.write(path, Collections.singleton(String.valueOf(port)));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			serverConnector.setPort(port);
-			DataServletHandler.SERVER = minecraftServer;
-			InfoServletHandler.SERVER = minecraftServer;
-			ArrivalsServletHandler.SERVER = minecraftServer;
-			DelaysServletHandler.SERVER = minecraftServer;
-			try {
-				webServer.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Webserver.callback = minecraftServer::execute;
+			Webserver.getWorlds = () -> {
+				final List<Level> worlds = new ArrayList<>();
+				minecraftServer.getAllLevels().forEach(worlds::add);
+				return worlds;
+			};
+			Webserver.getRoutes = railwayData -> railwayData == null ? new HashSet<>() : railwayData.routes;
+			Webserver.getDataCache = railwayData -> railwayData == null ? null : railwayData.dataCache;
+			Webserver.start(minecraftServer.getServerDirectory().toPath().resolve("config").resolve("mtr_webserver_port.txt"));
 		});
-		Registry.registerServerStoppingEvent(minecraftServer -> {
-			try {
-				webServer.stop();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+		Registry.registerServerStoppingEvent(minecraftServer -> Webserver.stop());
 	}
 
 	public static boolean isGameTickInterval(int interval) {

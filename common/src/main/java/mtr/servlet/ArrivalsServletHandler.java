@@ -3,7 +3,6 @@ package mtr.servlet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mtr.data.*;
-import net.minecraft.server.MinecraftServer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
@@ -12,8 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 public class ArrivalsServletHandler extends HttpServlet {
-
-	public static MinecraftServer SERVER;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -32,11 +29,11 @@ public class ArrivalsServletHandler extends HttpServlet {
 		final long stationIdFinal = stationId;
 		final long worldIndexFinal = worldIndex;
 
-		SERVER.execute(() -> {
+		Webserver.callback.accept(() -> {
 			final JsonArray dataArray = new JsonArray();
 
 			final int[] worldIndexCounter = {0};
-			SERVER.getAllLevels().forEach(world -> {
+			Webserver.getWorlds.get().forEach(world -> {
 				if (worldIndexCounter[0] == worldIndexFinal) {
 					final RailwayData railwayData = RailwayData.getInstance(world);
 
