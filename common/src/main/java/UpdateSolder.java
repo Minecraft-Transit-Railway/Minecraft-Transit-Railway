@@ -33,7 +33,7 @@ public class UpdateSolder {
 	private final SFTPClient sftpClient;
 
 	private static final Path OUTPUT_PATH = Paths.get("temp");
-	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19"};
+	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19.1"};
 	private static final Map<String, String> MOD_ID_MAP = new HashMap<>();
 	private static final Map<String, String> MODPACK_ID_MAP = new HashMap<>();
 	private static final Map<String, String> DUMMY_BUILD_ID_MAP = new HashMap<>();

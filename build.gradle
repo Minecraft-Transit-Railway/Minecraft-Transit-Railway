@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
@@ -9,17 +10,16 @@ plugins {
 
 def default_minecraft_version = "1.16.5"
 def minecraft_version = rootProject.properties.containsKey("buildVersion") ? rootProject.getProperties().get("buildVersion") : default_minecraft_version
-def is_1_16 = (minecraft_version as String).startsWith("1.16")
-def is_1_17 = (minecraft_version as String).startsWith("1.17")
-def is_1_18 = (minecraft_version as String) == "1.18"
-def is_1_18_2 = (minecraft_version as String) == "1.18.2"
+def minecraft_main_version = minecraft_version.split("\\.")[1] as int
 def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey") : ""
 
-rootProject.ext.architectury_version = is_1_16 ? rootProject.architectury_version_1_16 : is_1_17 ? rootProject.architectury_version_1_17 : is_1_18 ? rootProject.architectury_version_1_18 : is_1_18_2 ? rootProject.architectury_version_1_18_2 : rootProject.architectury_version_1_19
-rootProject.ext.architectury_id = is_1_16 ? "me.shedaniel" : "dev.architectury"
-rootProject.ext.fabric_api_version = is_1_16 ? rootProject.fabric_version_1_16 : is_1_17 ? rootProject.fabric_version_1_17 : is_1_18 ? rootProject.fabric_version_1_18 : is_1_18_2 ? rootProject.fabric_version_1_18_2 : rootProject.fabric_version_1_19
-rootProject.ext.forge_version = is_1_16 ? rootProject.forge_version_1_16 : is_1_17 ? rootProject.forge_version_1_17 : is_1_18 ? rootProject.forge_version_1_18 : is_1_18_2 ? rootProject.forge_version_1_18_2 : rootProject.forge_version_1_19
-rootProject.ext.mod_menu_version = is_1_16 ? rootProject.mod_menu_version_1_16 : is_1_17 ? rootProject.mod_menu_version_1_17 : is_1_18 ? rootProject.mod_menu_version_1_18 : is_1_18_2 ? rootProject.mod_menu_version_1_18_2 : rootProject.mod_menu_version_1_19
+rootProject.ext.fabric_loader_version = new JsonSlurper().parse(("https://meta.fabricmc.net/v2/versions/loader/" + minecraft_version).toURL())[0]["loader"]["version"]
+rootProject.ext.forge_version = minecraft_version + "-" + new JsonSlurper().parse(("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").toURL())["promos"][minecraft_version + "-latest"]
+rootProject.ext.fabric_api_version = getModrinthVersion("fabric", minecraft_version, "fabric-api")
+rootProject.ext.mod_menu_version = getModrinthVersion("fabric", minecraft_version, "modmenu")
+rootProject.ext.architectury_version = getModrinthVersion("forge", minecraft_version, "architectury-api").split("\\+")[0]
+
+rootProject.ext.architectury_id = minecraft_main_version == 16 ? "me.shedaniel" : "dev.architectury"
 rootProject.ext.variation = rootProject.properties.containsKey("variation") ? rootProject.getProperties().get("variation") : "normal"
 
 architectury {
@@ -67,8 +67,14 @@ subprojects {
 }
 
 task setupFiles() {
+	System.out.println("Fabric Loader: " + rootProject.fabric_loader_version)
+	System.out.println("Forge: " + rootProject.forge_version)
+	System.out.println("Fabric API: " + rootProject.fabric_api_version)
+	System.out.println("Mod Menu: " + rootProject.mod_menu_version)
+	System.out.println("Architectury: " + rootProject.architectury_version)
+
 	download {
-		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/${is_1_16 ? "1.16" : is_1_17 ? "1.17" : is_1_18 || is_1_18_2 ? "1.18" : "1.19"}.zip"
+		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/1.${minecraft_main_version}.zip"
 		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
 	}
@@ -173,23 +179,23 @@ task setupFiles() {
 		outputs.upToDateWhen { false }
 		from "fabric/src/main/UnknownPacketMixinTemplate.java"
 		into "fabric/src/main/java/mtr/mixin"
-		filter(ReplaceTokens, tokens: ["path1": is_1_16 || is_1_17 || is_1_18 ? "apache/logging/log4j" : "slf4j", "path2": is_1_16 || is_1_17 || is_1_18 ? "apache.logging.log4j" : "slf4j"])
+		filter(ReplaceTokens, tokens: ["path1": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache/logging/log4j" : "slf4j", "path2": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache.logging.log4j" : "slf4j"])
 		rename "(.+)Template.java", "\$1.java"
 	}
 
-	if (is_1_16 || is_1_17) {
+	if (minecraft_main_version <= 17) {
 		copy {
 			outputs.upToDateWhen { false }
 			from "fabric/src/main/BlockEntityExtensionTemplate.java"
-			into "fabric/src/main/java/" + (is_1_16 ? "me/shedaniel" : "dev") + "/architectury/extensions"
-			filter(ReplaceTokens, tokens: ["package": is_1_16 ? "me.shedaniel" : "dev"])
+			into "fabric/src/main/java/" + (minecraft_main_version == 16 ? "me/shedaniel" : "dev") + "/architectury/extensions"
+			filter(ReplaceTokens, tokens: ["package": minecraft_main_version == 16 ? "me.shedaniel" : "dev"])
 			rename "(.+)Template.java", "\$1.java"
 		}
 	}
-	if (!is_1_16) {
+	if (minecraft_main_version != 16) {
 		ant.delete(dir: "fabric/src/main/java/me")
 	}
-	if (!is_1_17) {
+	if (minecraft_main_version != 17) {
 		ant.delete(dir: "fabric/src/main/java/dev")
 	}
 }
@@ -209,12 +215,12 @@ allprojects {
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
 
-		if (is_1_16) {
+		if (minecraft_main_version == 16) {
 			def targetVersion = 8
 			if (JavaVersion.current().isJava9Compatible()) {
 				options.release = targetVersion
 			}
-		} else if (is_1_17) {
+		} else if (minecraft_main_version == 17) {
 			options.release = 16
 		} else {
 			options.release = 17
@@ -228,4 +234,14 @@ allprojects {
 			}
 		}
 	}
+}
+
+static def getModrinthVersion(loader, minecraftVersion, projectId) {
+	def versionsArray = new JsonSlurper().parse(("https://api.modrinth.com/v2/project/" + projectId + "/version").toURL())
+	for (def versionElement : versionsArray) {
+		if (versionElement["loaders"].contains(loader) && versionElement["game_versions"].contains(minecraftVersion)) {
+			return versionElement["version_number"]
+		}
+	}
+	return ""
 }
