@@ -33,7 +33,7 @@ public class UpdateSolder {
 	private final SFTPClient sftpClient;
 
 	private static final Path OUTPUT_PATH = Paths.get("temp");
-	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19.1"};
+	private static final String[] MINECRAFT_VERSIONS = {"1.16.5", "1.17.1", "1.18.2", "1.19.2"};
 	private static final Map<String, String> MOD_ID_MAP = new HashMap<>();
 	private static final Map<String, String> MODPACK_ID_MAP = new HashMap<>();
 	private static final Map<String, String> DUMMY_BUILD_ID_MAP = new HashMap<>();
@@ -54,8 +54,8 @@ public class UpdateSolder {
 		MODPACK_ID_MAP.put("forge-1.17.1", "8");
 		MODPACK_ID_MAP.put("fabric-1.18.2", "5");
 		MODPACK_ID_MAP.put("forge-1.18.2", "9");
-		MODPACK_ID_MAP.put("fabric-1.19", "7");
-		MODPACK_ID_MAP.put("forge-1.19", "10");
+		MODPACK_ID_MAP.put("fabric-1.19.2", "7");
+		MODPACK_ID_MAP.put("forge-1.19.2", "10");
 		MODPACK_ID_MAP.put("centown-classic", "6");
 
 		DUMMY_BUILD_ID_MAP.put("fabric-1.16.5", "143");
@@ -64,38 +64,38 @@ public class UpdateSolder {
 		DUMMY_BUILD_ID_MAP.put("forge-1.17.1", "146");
 		DUMMY_BUILD_ID_MAP.put("fabric-1.18.2", "147");
 		DUMMY_BUILD_ID_MAP.put("forge-1.18.2", "148");
-		DUMMY_BUILD_ID_MAP.put("fabric-1.19", "149");
-		DUMMY_BUILD_ID_MAP.put("forge-1.19", "150");
+		DUMMY_BUILD_ID_MAP.put("fabric-1.19.2", "149");
+		DUMMY_BUILD_ID_MAP.put("forge-1.19.2", "150");
 		DUMMY_BUILD_ID_MAP.put("centown-classic", "142");
 
 		DUMMY_MOD_MAP.put("mtr-fabric-1.16.5", "fabric-1.16.5-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-fabric-1.17.1", "fabric-1.17.1-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-fabric-1.18.2", "fabric-1.18.2-3.0.1");
-		DUMMY_MOD_MAP.put("mtr-fabric-1.19", "fabric-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-fabric-1.19.2", "fabric-1.19-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.16.5", "forge-1.16.5-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.17.1", "forge-1.17.1-3.0.1");
 		DUMMY_MOD_MAP.put("mtr-forge-1.18.2", "forge-1.18.2-3.0.1");
-		DUMMY_MOD_MAP.put("mtr-forge-1.19", "forge-1.19-3.0.1");
+		DUMMY_MOD_MAP.put("mtr-forge-1.19.2", "forge-1.19-3.0.1");
 		DUMMY_MOD_MAP.put("fabric-loader-1.16.5", "1.16.5-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.17.1", "1.17.1-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-loader-1.18.2", "1.18.2-0.14.8");
-		DUMMY_MOD_MAP.put("fabric-loader-1.19", "1.19-0.14.8");
+		DUMMY_MOD_MAP.put("fabric-loader-1.19.2", "1.19-0.14.8");
 		DUMMY_MOD_MAP.put("fabric-api-1.16.5", "0.42.0+1.16");
 		DUMMY_MOD_MAP.put("fabric-api-1.17.1", "0.46.1+1.17");
 		DUMMY_MOD_MAP.put("fabric-api-1.18.2", "0.57.0+1.18.2");
-		DUMMY_MOD_MAP.put("fabric-api-1.19", "0.57.0+1.19");
+		DUMMY_MOD_MAP.put("fabric-api-1.19.2", "0.57.0+1.19");
 		DUMMY_MOD_MAP.put("forge-loader-1.16.5", "1.16.5-36.2.34");
 		DUMMY_MOD_MAP.put("forge-loader-1.17.1", "1.17.1-37.1.1");
 		DUMMY_MOD_MAP.put("forge-loader-1.18.2", "1.18.2-40.1.0");
-		DUMMY_MOD_MAP.put("forge-loader-1.19", "1.19-41.0.63");
+		DUMMY_MOD_MAP.put("forge-loader-1.19.2", "1.19-41.0.63");
 		DUMMY_MOD_MAP.put("forge-architectury-1.16.5", "1.32.66+forge-1.16.5");
 		DUMMY_MOD_MAP.put("forge-architectury-1.17.1", "2.10.12+forge-1.17.1");
 		DUMMY_MOD_MAP.put("forge-architectury-1.18.2", "4.4.71+forge-1.18.2");
-		DUMMY_MOD_MAP.put("forge-architectury-1.19", "5.7.28+forge-1.19");
+		DUMMY_MOD_MAP.put("forge-architectury-1.19.2", "5.7.28+forge-1.19");
 		DUMMY_MOD_MAP.put("modmenu-1.16.5", "1.16.5-1.16.22");
 		DUMMY_MOD_MAP.put("modmenu-1.17.1", "2.0.15-1.17.1");
 		DUMMY_MOD_MAP.put("modmenu-1.18.2", "3.2.3-1.18.2");
-		DUMMY_MOD_MAP.put("modmenu-1.19", "4.0.0-1.19");
+		DUMMY_MOD_MAP.put("modmenu-1.19.2", "4.0.0-1.19");
 	}
 
 	public static void main(String[] args) throws IOException {
