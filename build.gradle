@@ -113,14 +113,9 @@ task setupFiles() {
 	}
 	if (variation == "normal" || variation == "server") {
 		download {
-			src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
-			dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
+			src "http://unpkg.com/fabric/dist/fabric.min.js"
+			dest "common/src/main/resources/assets/mtr/website/fabric.js"
 			overwrite true
-		}
-		copy {
-			outputs.upToDateWhen { false }
-			from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
-			into "common/src/main/resources/assets/mtr/website/gestures"
 		}
 		copy {
 			outputs.upToDateWhen { false }
