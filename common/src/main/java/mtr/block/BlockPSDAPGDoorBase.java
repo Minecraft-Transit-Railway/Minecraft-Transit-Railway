@@ -61,7 +61,9 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase {
 
 	@Override
 	public void tick(BlockState state, ServerLevel world, BlockPos pos) {
-		world.setBlockAndUpdate(pos, state.setValue(OPEN, 0));
+		if(IBlock.getStatePropertySafe(state, UNLOCKED)) {
+			world.setBlockAndUpdate(pos, state.setValue(OPEN, 0));
+		}
 	}
 
 	@Override
