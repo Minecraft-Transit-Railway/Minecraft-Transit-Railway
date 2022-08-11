@@ -39,6 +39,6 @@ public class BlockAPGDoor extends BlockPSDAPGDoorBase {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(END, FACING, GLASS, HALF, OPEN, SIDE);
+		builder.add(END, FACING, GLASS, HALF, OPEN, SIDE, UNLOCKED);
 	}
 }
