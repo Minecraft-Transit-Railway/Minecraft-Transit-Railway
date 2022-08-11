@@ -52,10 +52,10 @@ const DRAWING = {
 		list.forEach(data => {
 			const {schedule, tripId} = data;
 			const {stopTimes} = schedule;
-			const segments = [];
 			const routeId = references["trips"].find(trip => trip["id"] === tripId)["routeId"];
-
-			for (let i = 0; i < stopTimes.length; i++) {
+			const colorString = references["routes"].find(route => route["id"] === routeId)["color"];
+			const color = colorString === "" ? (Math.round(routeId.replace(/[^0-9]/g, "") / 200 * 0xFFFFFF) % 0xFFFFFF).toString(16) : colorString;
+			const getSegmentDetails = stopId => {
 				const {
 					routes0,
 					routes45,
@@ -63,7 +63,7 @@ const DRAWING = {
 					routes135,
 					x,
 					y,
-				} = tempStations[stationIdMap[stopTimes[i]["stopId"]]];
+				} = tempStations[stationIdMap[stopId]];
 				let direction;
 				let offsetIndex;
 				let routeCount;
@@ -84,20 +84,28 @@ const DRAWING = {
 					offsetIndex = routes0.indexOf(routeId);
 					routeCount = routes0.length;
 				}
-				segments.push({
+				return {
 					"x": x,
 					"y": y,
 					"direction": direction,
 					"offsetIndex": offsetIndex,
 					"routeCount": routeCount,
-				});
+				};
 			}
 
-			const colorString = references["routes"].find(route => route["id"] === routeId)["color"];
-			lineQueue[tripId] = {
-				"color": "#" + (colorString === "" ? (Math.round(routeId.replace(/[^0-9]/g, "") / 200 * 0xFFFFFF) % 0xFFFFFF).toString(16) : colorString),
-				"segments": segments,
-			};
+			for (let i = 0; i < stopTimes.length - 1; i++) {
+				const stopId1 = stopTimes[i]["stopId"];
+				const stopId2 = stopTimes[i + 1]["stopId"];
+				if (stopId1 !== stopId2) {
+					const key = color + [stopId1, stopId2].sort().join(" ");
+					if (!(key in lineQueue)) {
+						lineQueue[key] = {
+							"color": `#${color}`,
+							"segments": [getSegmentDetails(stopId1), getSegmentDetails(stopId2)],
+						};
+					}
+				}
+			}
 		});
 
 		for (const name in tempStations) {
@@ -105,14 +113,12 @@ const DRAWING = {
 			const rotate = routes45.length + routes135.length > routes0.length + routes90.length;
 			const width = Math.max(1, Math.max(routes0.length, routes45.length)) * LINE_WIDTH + LINE_WIDTH;
 			const height = Math.max(1, Math.max(routes90.length, routes135.length)) * LINE_WIDTH + LINE_WIDTH;
-			const blobHeightOffset = (rotate ? (width + height - 1) / Math.SQRT2 : height) / 2;
 
 			stationQueue[stationNameMap[name]] = {
 				"width": width,
 				"height": height,
 				"left": x,
 				"top": y,
-				"blobHeightOffset": blobHeightOffset,
 				"angle": rotate ? 45 : 0,
 				"routes0": routes0,
 				"routes45": routes45,
@@ -120,9 +126,6 @@ const DRAWING = {
 				"routes135": routes135,
 			};
 		}
-
-		const inBounds = (x, y) => UTILITIES.isBetween(x * zoom, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y * zoom, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
-		const inWindow = (x1, y1, x2, y2) => UTILITIES.isBetween(-getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(window.innerWidth - getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(-getCanvasOffsetY(), y1, y2) || UTILITIES.isBetween(window.innerHeight - getCanvasOffsetY(), y1, y2);
 
 		for (const key in OBJECT_CACHE) {
 			if (!(key in lineQueue) && !(key in stationQueue)) {
@@ -133,54 +136,8 @@ const DRAWING = {
 
 		const addLineFromQueue = key => {
 			const {color, segments} = lineQueue[key];
+			addLine(key, color, segments);
 			delete lineQueue[key];
-
-			const line = new fabric.Polyline([], {
-				"fill": null,
-				"stroke": color,
-				"strokeWidth": LINE_WIDTH,
-				"cornerStyle": "circle",
-				"objectCaching": false,
-				"hoverCursor": "default",
-				"selectable": false,
-				"updateShape": () => {
-					const newSegments = [];
-					let visible = false;
-					for (let i = 0; i < segments.length; i++) {
-						const prevPoint = i === 0 ? null : segments[i - 1];
-						const {x, y, direction, offsetIndex, routeCount} = segments[i];
-						const thisX = x * zoom;
-						const thisY = y * zoom;
-
-						if (inBounds(x, y)) {
-							visible = true;
-						}
-
-						if (prevPoint != null) {
-							UTILITIES.connectLine(prevPoint["x"] * zoom, prevPoint["y"] * zoom, prevPoint["direction"], prevPoint["offsetIndex"], prevPoint["routeCount"], thisX, thisY, direction, offsetIndex, routeCount, LINE_WIDTH, newSegments);
-						}
-					}
-
-					line.points = newSegments;
-					return visible;
-				},
-				"checkVisibility": () => {
-					const shouldShow = line.updateShape();
-					if (CANVAS.getObjects().includes(line)) {
-						if (!shouldShow) {
-							CANVAS.remove(line);
-						}
-					} else {
-						if (shouldShow) {
-							CANVAS.sendToBack(line);
-						}
-					}
-				},
-			});
-
-			CANVAS.remove(OBJECT_CACHE[key]);
-			OBJECT_CACHE[key] = line;
-			line.checkVisibility();
 		};
 		const addStationFromQueue = key => {
 			const {
@@ -188,165 +145,53 @@ const DRAWING = {
 				height,
 				left,
 				top,
-				blobHeightOffset,
 				angle,
 				routes0,
 				routes45,
 				routes90,
 				routes135,
 			} = stationQueue[key];
+			addStation(key, width, height, left, top, angle, routes0, routes45, routes90, routes135);
 			delete stationQueue[key];
-
-			const blob = new fabric.Rect({
-				"originX": "center",
-				"originY": "center",
-				"width": width,
-				"height": height,
-				"rx": LINE_WIDTH,
-				"ry": LINE_WIDTH,
-				"angle": angle,
-				"fill": "white",
-				"stroke": "black",
-				"strokeWidth": 2,
-				"hoverCursor": "pointer",
-				"selectable": false,
-			});
-
-			const text = new fabric.Text(key, {
-				"top": blobHeightOffset + 2,
-				"fontFamily": "Noto Sans",
-				"fontSize": 16,
-				"fill": "black",
-				"originX": "center",
-				"originY": "top",
-				"hoverCursor": "pointer",
-				"selectable": false,
-			});
-
-			const group = new fabric.Group([blob, text], {
-				"left": left * zoom,
-				"top": top * zoom - blobHeightOffset - 1,
-				"topOffset": -blobHeightOffset - 1,
-				"originX": "center",
-				"originY": "top",
-				"subTargetCheck": true,
-				"hoverCursor": "default",
-				"selectable": false,
-				"checkVisibility": () => {
-					const shouldShow = inBounds(left, top);
-					if (CANVAS.getObjects().includes(group)) {
-						if (!shouldShow) {
-							CANVAS.remove(group);
-						}
-					} else {
-						if (shouldShow) {
-							CANVAS.add(group);
-						}
-					}
-				},
-			});
-
-			blob.on("mouseover", () => group.set("shadow", "black 0 0 8px"));
-			blob.on("mouseout", () => group.set("shadow", ""));
-			blob.on("mousedown", () => console.log(routes0, routes45, routes90, routes135));
-			text.on("mouseover", () => group.set("shadow", "black 0 0 8px"));
-			text.on("mouseout", () => group.set("shadow", ""));
-			text.on("mousedown", () => console.log(routes0, routes45, routes90, routes135));
-
-			CANVAS.remove(OBJECT_CACHE[key]);
-			OBJECT_CACHE[key] = group;
-			group.checkVisibility();
 		};
-
-		setTimeout(() => UTILITIES.runForTime(lineQueue, addLineFromQueue, setTimeout(() => UTILITIES.runForTime(stationQueue, addStationFromQueue, null))));
+		setTimeout(() => UTILITIES.runForTime(stationQueue, addStationFromQueue, setTimeout(() => UTILITIES.runForTime(lineQueue, addLineFromQueue, null))));
 	},
 	drawTestStations: (routes, middleAngle, outerAngles) => {
 		CANVAS.clear();
-		const getTestStation = (x, y, direction) => {
-			const testStation = new fabric.Rect({
-				"left": x,
-				"top": y,
-				"originX": "center",
-				"originY": "center",
-				"width": LINE_WIDTH * (routes + 1),
-				"height": LINE_WIDTH * 2,
-				"rx": LINE_WIDTH,
-				"ry": LINE_WIDTH,
-				"angle": direction,
-				"fill": null,
-				"stroke": "black",
-				"strokeWidth": 2,
-				"hoverCursor": "pointer",
-				"selectable": x !== 0 && y !== 0,
-				"checkVisibility": () => {
-					if (!CANVAS.getObjects().includes(testStation)) {
-						CANVAS.add(testStation);
-					}
-				},
-			});
-			testStation.setControlsVisibility({
-				"mt": false,
-				"mb": false,
-				"ml": false,
-				"mr": false,
-				"bl": false,
-				"br": false,
-				"tl": false,
-				"tr": false,
-				"mtr": false,
-			});
-			return testStation;
-		};
-		const getTestLine = (offset, lines, color, station) => {
-			const testLine = new fabric.Polyline([], {
-				"fill": null,
-				"stroke": color,
-				"strokeWidth": LINE_WIDTH,
-				"cornerStyle": "circle",
-				"objectCaching": false,
-				"hoverCursor": "default",
-				"selectable": false,
-				"updateShape": () => {
-					const newSegments = [];
-					UTILITIES.connectLine(0, 0, middleAngle, offset, lines, station["left"], station["top"], station["angle"], offset, lines, LINE_WIDTH, newSegments);
-					testLine.points = newSegments;
-					return true;
-				},
-				"checkVisibility": () => {
-					testLine.updateShape();
-					if (!CANVAS.getObjects().includes(testLine)) {
-						CANVAS.sendToBack(testLine);
-					}
-				},
-			});
-			return testLine;
-		};
-		OBJECT_CACHE["test_station"] = getTestStation(0, 0, middleAngle);
+		addStation("Middle", LINE_WIDTH * (routes + 1), LINE_WIDTH * 2, 0, 0, middleAngle, [], [], [], []);
 		for (let i = 0; i < 8; i++) {
-			const testStation = getTestStation(400 * Math.cos(2 * Math.PI * (i + 0.5) / 8), 400 * Math.sin(2 * Math.PI * (i + 0.5) / 8), outerAngles);
-			OBJECT_CACHE[`test_station_${i}`] = testStation;
+			const stationX = 400 * Math.cos(2 * Math.PI * (i + 0.5) / 8);
+			const stationY = 400 * Math.sin(2 * Math.PI * (i + 0.5) / 8);
+			addStation(`Outer ${i}`, LINE_WIDTH * (routes + 1), LINE_WIDTH * 2, stationX, stationY, outerAngles, [], [], [], []);
 			for (let j = 0; j < routes; j++) {
-				OBJECT_CACHE[`test_line_${i}_${j}`] = getTestLine(j, routes, `#${Math.round(Math.random() * 0xFFFFFF).toString(16).padStart(6, "0")}50`, testStation);
+				addLine(`test_line_${i}_${j}`, `#${Math.round(Math.random() * 0xFFFFFF).toString(16).padStart(6, "0")}50`, [
+					{
+						"x": 0,
+						"y": 0,
+						"direction": middleAngle,
+						"offsetIndex": j,
+						"routeCount": routes,
+					},
+					{
+						"x": stationX,
+						"y": stationY,
+						"direction": outerAngles,
+						"offsetIndex": j,
+						"routeCount": routes,
+					},
+				]);
 			}
 		}
 	},
 	getCenterLatLon: () => [(getCanvasOffsetY() - window.innerHeight / 2) / zoom, -(getCanvasOffsetX() - window.innerWidth / 2) / zoom, window.innerHeight / zoom, window.innerWidth / zoom],
-	viewChanged: () => {
-		if (viewChanged) {
-			viewChanged = false;
-			return true;
-		} else {
-			return false;
-		}
-	}
 };
 
 const OBJECT_CACHE = {};
+const MAX_OBJECTS = 500;
 let mouseDown = false;
 let touchX = 0;
 let touchY = 0;
 let zoom = 1;
-let viewChanged = true;
 
 const CANVAS = new fabric.Canvas("canvas", {renderOnAddRemove: false, selection: false});
 CANVAS.absolutePan(new fabric.Point(-window.innerWidth / 2, -window.innerHeight / 2));
@@ -355,7 +200,6 @@ const getCanvasOffsetY = () => CANVAS.viewportTransform[5];
 const resize = () => {
 	CANVAS.setWidth(window.innerWidth);
 	CANVAS.setHeight(window.innerHeight);
-	viewChanged = true;
 };
 window.onresize = resize;
 resize();
@@ -371,7 +215,7 @@ CANVAS.on("mouse:down", options => {
 CANVAS.on("mouse:up", () => mouseDown = false);
 CANVAS.on("mouse:move", options => {
 	const event = options.e;
-	if (mouseDown && !UTILITIES.testMode) {
+	if (mouseDown) {
 		if ("movementX" in event && "movementY" in event) {
 			CANVAS.relativePan(new fabric.Point(event.movementX, event.movementY));
 		} else if ("touches" in event && event.touches.length > 0) {
@@ -379,7 +223,6 @@ CANVAS.on("mouse:move", options => {
 			touchX = event.touches[0].pageX;
 			touchY = event.touches[0].pageY;
 		}
-		viewChanged = true;
 	}
 	event.stopPropagation();
 });
@@ -402,19 +245,129 @@ CANVAS.on("mouse:wheel", options => {
 	const offsetX = event.offsetX - getCanvasOffsetX();
 	const offsetY = event.offsetY - getCanvasOffsetY();
 	CANVAS.relativePan(new fabric.Point(offsetX - offsetX * zoomFactor, offsetY - offsetY * zoomFactor));
-	viewChanged = true;
 	event.preventDefault();
 	event.stopPropagation();
 });
 
-const checkAllVisibility = () => Object.values(OBJECT_CACHE).forEach(object => object.checkVisibility());
-setInterval(checkAllVisibility, UTILITIES.testMode ? 0 : 500);
+const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
+const inWindow = (x1, y1, x2, y2) => UTILITIES.isBetween(-getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(window.innerWidth - getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(-getCanvasOffsetY(), y1, y2) || UTILITIES.isBetween(window.innerHeight - getCanvasOffsetY(), y1, y2);
+const addStation = (key, width, height, left, top, angle, routes0, routes45, routes90, routes135) => {
+	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
+	const blob = new fabric.Rect({
+		"originX": "center",
+		"originY": "center",
+		"width": width,
+		"height": height,
+		"rx": LINE_WIDTH,
+		"ry": LINE_WIDTH,
+		"angle": angle,
+		"fill": "white",
+		"stroke": "black",
+		"strokeWidth": 2,
+		"hoverCursor": "pointer",
+		"selectable": false,
+	});
+	const text = new fabric.Text(key, {
+		"top": blobHeightOffset + 2,
+		"fontFamily": UTILITIES.fonts.join(","),
+		"fontSize": 16,
+		"fill": "black",
+		"stroke": "white",
+		"strokeWidth": 4,
+		"paintFirst": "stroke",
+		"originX": "center",
+		"originY": "top",
+		"hoverCursor": "pointer",
+		"selectable": false,
+	});
+	const group = new fabric.Group([blob, text], {
+		"left": left * zoom,
+		"top": top * zoom - blobHeightOffset - 1,
+		"topOffset": -blobHeightOffset - 1,
+		"originX": "center",
+		"originY": "top",
+		"subTargetCheck": true,
+		"hoverCursor": "default",
+		"selectable": false,
+		"checkVisibility": () => {
+			const shouldShow = inBounds(left * zoom, top * zoom);
+			const canvasObjects = CANVAS.getObjects().length;
+			if (CANVAS.getObjects().includes(group)) {
+				if (!shouldShow || canvasObjects > MAX_OBJECTS) {
+					CANVAS.remove(group);
+				}
+			} else {
+				if (shouldShow && canvasObjects < MAX_OBJECTS) {
+					CANVAS.add(group);
+				}
+			}
+		},
+	});
+	blob.on("mouseover", () => group.set("shadow", "black 0 0 8px"));
+	blob.on("mouseout", () => group.set("shadow", ""));
+	blob.on("mousedown", () => console.log(routes0, routes45, routes90, routes135));
+	text.on("mouseover", () => group.set("shadow", "black 0 0 8px"));
+	text.on("mouseout", () => group.set("shadow", ""));
+	text.on("mousedown", () => console.log(routes0, routes45, routes90, routes135));
+	CANVAS.remove(OBJECT_CACHE[key]);
+	OBJECT_CACHE[key] = group;
+	group.checkVisibility();
+}
+const addLine = (key, color, segments) => {
+	const line = new fabric.Polyline([], {
+		"fill": null,
+		"stroke": color,
+		"strokeWidth": LINE_WIDTH,
+		"cornerStyle": "circle",
+		"objectCaching": false,
+		"hoverCursor": "pointer",
+		"selectable": false,
+		"updateShape": () => {
+			const point1 = segments[0];
+			const point2 = segments[1];
+			const point1X = point1["x"] * zoom;
+			const point1Y = point1["y"] * zoom;
+			const point2X = point2["x"] * zoom;
+			const point2Y = point2["y"] * zoom;
+			const newSegments = [];
+			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], LINE_WIDTH, newSegments);
+			line.points = newSegments;
+			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
+		},
+		"checkVisibility": () => {
+			const shouldShow = line.updateShape();
+			const canvasObjects = CANVAS.getObjects().length;
+			if (CANVAS.getObjects().includes(line)) {
+				if (!shouldShow || canvasObjects > MAX_OBJECTS) {
+					CANVAS.remove(line);
+				}
+			} else {
+				if (shouldShow && canvasObjects < MAX_OBJECTS) {
+					CANVAS.sendToBack(line);
+				}
+			}
+		},
+	});
+	CANVAS.remove(OBJECT_CACHE[key]);
+	OBJECT_CACHE[key] = line;
+	line.checkVisibility();
+};
+
+const checkAllVisibility = () => {
+	const tempObjectCache = {...OBJECT_CACHE};
+	UTILITIES.runForTime(tempObjectCache, key => {
+		if (tempObjectCache[key] && key in OBJECT_CACHE) {
+			OBJECT_CACHE[key].checkVisibility();
+		}
+		tempObjectCache[key] = undefined;
+	}, () => setTimeout(checkAllVisibility));
+};
 checkAllVisibility();
 
 const update = () => {
 	requestAnimationFrame(update);
 	CANVAS.renderAll();
 };
-requestAnimationFrame(update);
+update();
 
 export default DRAWING;

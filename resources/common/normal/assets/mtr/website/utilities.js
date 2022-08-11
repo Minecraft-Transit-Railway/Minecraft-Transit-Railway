@@ -88,6 +88,7 @@ const UTILITIES = {
 		points.push(rotatePoint(x, y, direction1));
 		points.forEach(point => segments.push({"x": point["x"] + x1, "y": point["y"] + y1}));
 	},
+	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],
 	testMode: false,
 };
 
