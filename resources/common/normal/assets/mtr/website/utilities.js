@@ -88,6 +88,14 @@ const UTILITIES = {
 		points.push(rotatePoint(x, y, direction1));
 		points.forEach(point => segments.push({"x": point["x"] + x1, "y": point["y"] + y1}));
 	},
+	directionToAngle: direction => {
+		const directionIndex = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].indexOf(direction);
+		return UTILITIES.angles[(directionIndex >= 0 ? directionIndex : 0) % UTILITIES.angles.length];
+	},
+	convertColor: colorString => parseInt(colorString).toString(16).padStart(6, "0"),
+	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
+	lineWidth: 6,
+	angles: [0, 45, 90, 135],
 	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],
 	testMode: false,
 };
