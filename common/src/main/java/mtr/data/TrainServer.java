@@ -380,6 +380,8 @@ public class TrainServer extends Train {
 		for (int i = 0; i < inventoryFrom.getContainerSize(); i++) {
 			if (!inventoryFrom.getItem(i).isEmpty()) {
 				final ItemStack insertItem = new ItemStack(inventoryFrom.getItem(i).getItem(), 1);
+				insertItem.setTag(inventoryFrom.getItem(i).getOrCreateTag());
+
 				final ItemStack remainingStack = HopperBlockEntity.addItem(null, inventoryTo, insertItem, null);
 				if (remainingStack.isEmpty()) {
 					inventoryFrom.removeItem(i, 1);
