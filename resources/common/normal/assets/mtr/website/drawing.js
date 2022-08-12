@@ -1,8 +1,6 @@
 import UTILITIES from "./utilities.js";
 
 const OBJECT_CACHE = {};
-const MAX_OBJECTS = 500;
-const DEFAULT_FONT_SIZE = 8;
 const DRAWING = {
 	drawMap: (lineQueue, stationQueue) => {
 		for (const key in OBJECT_CACHE) {
@@ -28,8 +26,8 @@ const DRAWING = {
 	drawTest: (routes, middleAngle, outerAngles) => {
 		CANVAS.clear();
 		addStation("Middle", {
-			"width": UTILITIES.lineWidth * (routes + 1),
-			"height": UTILITIES.lineWidth * 2,
+			"width": UTILITIES.size * 6 * (routes + 1),
+			"height": UTILITIES.size * 12,
 			"left": 0,
 			"top": 0,
 			"angle": middleAngle,
@@ -38,8 +36,8 @@ const DRAWING = {
 			const stationX = 400 * Math.cos(2 * Math.PI * (i + 0.5) / 8);
 			const stationY = 400 * Math.sin(2 * Math.PI * (i + 0.5) / 8);
 			addStation(`Outer ${i}`, {
-				"width": UTILITIES.lineWidth * (routes + 1),
-				"height": UTILITIES.lineWidth * 2,
+				"width": UTILITIES.size * 6 * (routes + 1),
+				"height": UTILITIES.size * 12,
 				"left": stationX,
 				"top": stationY,
 				"angle": outerAngles,
@@ -138,12 +136,12 @@ const addStation = (key, station) => {
 		"originY": "center",
 		"width": width,
 		"height": height,
-		"rx": UTILITIES.lineWidth,
-		"ry": UTILITIES.lineWidth,
+		"rx": UTILITIES.size * 6,
+		"ry": UTILITIES.size * 6,
 		"angle": angle,
 		"fill": "white",
 		"stroke": "black",
-		"strokeWidth": 2,
+		"strokeWidth": UTILITIES.size * 2,
 		"hoverCursor": "pointer",
 		"selectable": false,
 	});
@@ -152,9 +150,9 @@ const addStation = (key, station) => {
 	let textYOffset = 0;
 	for (let i = 0; i < nameSplit.length; i++) {
 		const text = nameSplit[i];
-		const fontSize = DEFAULT_FONT_SIZE * (UTILITIES.isCJK(text) ? 2 : 1);
+		const fontSize = UTILITIES.size * (UTILITIES.isCJK(text) ? 18 : 9);
 		elements.push(new fabric.Text(text, {
-			"top": blobHeightOffset + 2 + textYOffset,
+			"top": blobHeightOffset + UTILITIES.size * 2 + textYOffset,
 			"fontFamily": UTILITIES.fonts.join(","),
 			"fontSize": fontSize,
 			"fill": "black",
@@ -170,8 +168,8 @@ const addStation = (key, station) => {
 	}
 	const group = new fabric.Group(elements, {
 		"left": left * zoom,
-		"top": top * zoom - blobHeightOffset - 1,
-		"topOffset": -blobHeightOffset - 1,
+		"top": top * zoom - blobHeightOffset - UTILITIES.size,
+		"topOffset": -blobHeightOffset - UTILITIES.size,
 		"originX": "center",
 		"originY": "top",
 		"subTargetCheck": true,
@@ -179,13 +177,12 @@ const addStation = (key, station) => {
 		"selectable": false,
 		"checkVisibility": () => {
 			const shouldShow = inBounds(left * zoom, top * zoom);
-			const canvasObjects = CANVAS.getObjects().length;
 			if (CANVAS.getObjects().includes(group)) {
-				if (!shouldShow || canvasObjects > MAX_OBJECTS) {
+				if (!shouldShow) {
 					CANVAS.remove(group);
 				}
 			} else {
-				if (shouldShow && canvasObjects < MAX_OBJECTS) {
+				if (shouldShow) {
 					CANVAS.add(group);
 				}
 			}
@@ -204,7 +201,7 @@ const addLine = (key, color, segments) => {
 	const line = new fabric.Polyline([], {
 		"fill": null,
 		"stroke": color,
-		"strokeWidth": UTILITIES.lineWidth,
+		"strokeWidth": UTILITIES.size * 6,
 		"cornerStyle": "circle",
 		"objectCaching": false,
 		"hoverCursor": "pointer",
@@ -217,19 +214,18 @@ const addLine = (key, color, segments) => {
 			const point2X = point2["x"] * zoom;
 			const point2Y = point2["y"] * zoom;
 			const newSegments = [];
-			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], UTILITIES.lineWidth, newSegments);
+			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], UTILITIES.size * 6, newSegments);
 			line.points = newSegments;
 			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
 		},
 		"checkVisibility": () => {
 			const shouldShow = line.updateShape();
-			const canvasObjects = CANVAS.getObjects().length;
 			if (CANVAS.getObjects().includes(line)) {
-				if (!shouldShow || canvasObjects > MAX_OBJECTS) {
+				if (!shouldShow) {
 					CANVAS.remove(line);
 				}
 			} else {
-				if (shouldShow && canvasObjects < MAX_OBJECTS) {
+				if (shouldShow) {
 					CANVAS.sendToBack(line);
 				}
 			}

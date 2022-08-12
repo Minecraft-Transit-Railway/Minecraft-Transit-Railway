@@ -94,9 +94,10 @@ const UTILITIES = {
 	},
 	convertColor: colorString => parseInt(colorString).toString(16).padStart(6, "0"),
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
-	lineWidth: 6,
+	size: 1,
 	angles: [0, 45, 90, 135],
 	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],
+	obaMode: false,
 	testMode: false,
 };
 

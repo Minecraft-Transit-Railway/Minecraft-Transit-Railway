@@ -70,7 +70,7 @@ const DATA = {
 			const {x, y, vertical} = positions[key];
 			tempStations[stationId]["lonValues"].push(x);
 			tempStations[stationId]["latValues"].push(-y);
-			tempStations[stationId][`routes${UTILITIES.angles[vertical ? 2 : 0]}`].push(nameSplit[1]);
+			tempStations[stationId][`routes${UTILITIES.angles[vertical ? 0 : 2]}`].push(nameSplit[1]);
 		});
 
 		processTempStations(tempStations);
@@ -113,8 +113,8 @@ const tempStationsToStationQueue = (tempStations, getStationName) => {
 	for (const name in tempStations) {
 		const routeCounts = UTILITIES.angles.map(angle => tempStations[name][`routes${angle}`].length);
 		stationQueue[getStationName(name)] = {
-			"width": Math.max(1, Math.max(routeCounts[0], routeCounts[1])) * UTILITIES.lineWidth + UTILITIES.lineWidth,
-			"height": Math.max(1, Math.max(routeCounts[2], routeCounts[3])) * UTILITIES.lineWidth + UTILITIES.lineWidth,
+			"width": (Math.max(1, Math.max(routeCounts[0], routeCounts[1])) + 1) * UTILITIES.size * 6,
+			"height": (Math.max(1, Math.max(routeCounts[2], routeCounts[3])) + 1) * UTILITIES.size * 6,
 			"left": tempStations[name]["x"],
 			"top": tempStations[name]["y"],
 			"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
