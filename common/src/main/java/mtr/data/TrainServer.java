@@ -154,7 +154,7 @@ public class TrainServer extends Train {
 		});
 
 		final BlockPos frontPos = new BlockPos(positions[reversed ? positions.length - 1 : 0]);
-		if (world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
+		if (world.getChunkSource().getChunkNow(frontPos.getX() / 16, frontPos.getZ() / 16) != null && world.hasChunk(frontPos.getX() / 16, frontPos.getZ() / 16)) {
 			checkBlock(frontPos, checkPos -> {
 				final BlockState state = world.getBlockState(checkPos);
 				final Block block = state.getBlock();

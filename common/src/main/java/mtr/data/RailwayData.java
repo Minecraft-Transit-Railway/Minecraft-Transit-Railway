@@ -699,7 +699,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		final Set<BlockPos> railsToRemove = new HashSet<>();
 		final Set<BlockPos> railsNodesToRemove = new HashSet<>();
 		rails.forEach((startPos, railMap) -> {
-			final boolean loadedChunk = world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
+			final boolean loadedChunk = world.getChunkSource().getChunkNow(startPos.getX() / 16, startPos.getZ() / 16) != null && world.hasChunk(startPos.getX() / 16, startPos.getZ() / 16);
 			if (loadedChunk && !(world.getBlockState(startPos).getBlock() instanceof BlockNode)) {
 				railsNodesToRemove.add(startPos);
 			}
