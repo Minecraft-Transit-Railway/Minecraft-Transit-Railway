@@ -166,7 +166,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 			final boolean showCarLength;
 			final float carLengthMaxWidth;
-			if (renderType == PIDSType.PIDS) {
+			if (renderType.showCarNumber) {
 				int maxCars = 0;
 				int minCars = Integer.MAX_VALUE;
 				for (final ScheduleEntry scheduleEntry : scheduleList) {
@@ -252,7 +252,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 
 					final float newDestinationMaxWidth = destinationMaxWidth - carLengthMaxWidth;
 
-					if (renderType == PIDSType.ARRIVAL_PROJECTOR) {
+					if (renderType.showPlatformNumber) {
 						final String platformName = platformIdToName.get(route.platformIds.get(currentSchedule.currentStationIndex));
 						if (platformName != null) {
 							textRenderer.draw(matrices, platformName, destinationStart + newDestinationMaxWidth, 0, seconds > 0 ? textColor : firstTrainColor);
