@@ -34,7 +34,8 @@ public abstract class EntityLift extends EntityBase {
 	private double speed;
 	private BlockPos trackPos = new BlockPos(0, 0, 0);
 	private int scanCoolDown;
-
+	private static final float MAX_SPEED = 1.00f;
+	private static final float LIFT_ACCELERATION = Train.ACCELERATION_DEFAULT;
 	private boolean doorOpen = true;
 	private int doorValue = DOOR_MAX;
 	private int trackCoolDown = TRACK_COOL_DOWN_DEFAULT;
@@ -106,7 +107,7 @@ public abstract class EntityLift extends EntityBase {
 			if (!doorOpen && doorValue == 0) {
 				liftInstructions.getTargetFloor(targetFloor -> {
 					final double stoppingDistance = Math.abs(targetFloor - getY());
-					liftDirection = stoppingDistance < Train.ACCELERATION_DEFAULT ? LiftDirection.NONE : targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN;
+					liftDirection = stoppingDistance < LIFT_ACCELERATION ? LiftDirection.NONE : targetFloor > getY() ? LiftDirection.UP : LiftDirection.DOWN;
 
 					if (liftDirection == LiftDirection.NONE) {
 						speed = 0;
@@ -119,10 +120,10 @@ public abstract class EntityLift extends EntityBase {
 							level.playSound(null, blockPosition(), SoundEvents.NOTE_BLOCK_PLING, SoundSource.BLOCKS, 16, 2);
 						}
 					} else {
-						if (stoppingDistance < 0.5 * speed * speed / Train.ACCELERATION_DEFAULT) {
-							speed = Math.max(speed - 0.5 * speed * speed / stoppingDistance, Train.ACCELERATION_DEFAULT);
+						if (stoppingDistance < 0.5 * speed * speed / LIFT_ACCELERATION) {
+							speed = Math.max(speed - 0.5 * speed * speed / stoppingDistance, LIFT_ACCELERATION);
 						} else {
-							speed = Math.min(speed + Train.ACCELERATION_DEFAULT, 1);
+							speed = Math.min(speed + LIFT_ACCELERATION, MAX_SPEED);
 						}
 
 						final double velocity = speed * liftDirection.speedMultiplier;

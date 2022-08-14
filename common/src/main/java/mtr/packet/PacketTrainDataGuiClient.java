@@ -355,11 +355,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_ADD_BALANCE, packet);
 	}
 
-	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival) {
+	public static void sendPIDSConfigC2S(BlockPos pos1, BlockPos pos2, String[] messages, boolean[] hideArrival, Set<Long> filterPlatformIds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos1);
 		packet.writeBlockPos(pos2);
 		packet.writeInt(messages.length);
+		packet.writeInt(filterPlatformIds.size());
+		filterPlatformIds.forEach(packet::writeLong);
 		for (int i = 0; i < messages.length; i++) {
 			packet.writeUtf(messages[i]);
 			packet.writeBoolean(hideArrival[i]);

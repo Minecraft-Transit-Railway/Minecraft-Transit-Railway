@@ -355,6 +355,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		final int maxArrivals = packet.readInt();
 		final String[] messages = new String[maxArrivals];
 		final boolean[] hideArrivals = new boolean[maxArrivals];
+		final int platformIdCount = packet.readInt();
+		final Set<Long> platformIds = new HashSet<>();
+		for (int i = 0; i < platformIdCount; i++) {
+			platformIds.add(packet.readLong());
+		}
 		for (int i = 0; i < maxArrivals; i++) {
 			messages[i] = packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH);
 			hideArrivals[i] = packet.readBoolean();
@@ -362,11 +367,11 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 		minecraftServer.execute(() -> {
 			final BlockEntity entity1 = player.level.getBlockEntity(pos1);
 			if (entity1 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals);
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity1).setData(messages, hideArrivals, platformIds);
 			}
 			final BlockEntity entity2 = player.level.getBlockEntity(pos2);
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
-				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
+				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals, platformIds);
 			}
 		});
 	}

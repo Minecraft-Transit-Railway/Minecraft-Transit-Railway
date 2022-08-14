@@ -299,6 +299,7 @@
 	"gui.mtr.s": "s",
 	"gui.mtr.search": "Search",
 	"gui.mtr.select_all_platforms": "Show arrivals from all platforms",
+	"gui.mtr.select_local_platform": "Show arrivals from local platform",
 	"gui.mtr.selected": "Selected",
 	"gui.mtr.selected_vehicle": "Selected Vehicle",
 	"gui.mtr.separator": "/",
