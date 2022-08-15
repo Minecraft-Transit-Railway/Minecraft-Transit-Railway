@@ -88,13 +88,69 @@ const UTILITIES = {
 		points.push(rotatePoint(x, y, direction1));
 		points.forEach(point => segments.push({"x": point["x"] + x1, "y": point["y"] + y1}));
 	},
+	onClearSearch: (data, focus) => {
+		const searchBox = document.getElementById("search_box");
+		searchBox.value = "";
+		if (focus) {
+			searchBox.focus();
+		}
+		document.getElementById("clear_search_icon").style.display = "none";
+		// const {stations, routes} = data;
+		// for (const stationId in stations) {
+		// 	document.getElementById(stationId).style.display = "none";
+		// }
+		// for (const index in routes) {
+		// 	document.getElementById(routes[index]["color"]).style.display = "none";
+		// }
+	},
+	clearPanes: () => {
+		UTILITIES.selectedStation = 0;
+		UTILITIES.selectedRoutes = [];
+		UTILITIES.selectedDirectionsStations = [];
+		UTILITIES.selectedDirectionsSegments = {};
+		showSettings = false;
+		document.getElementById("station_info").style.display = "none";
+		document.getElementById("route_info").style.display = "none";
+		document.getElementById("directions").style.display = "none";
+		document.getElementById("settings").style.display = "none";
+	},
+	convertGtfsRouteType: routeType => {
+		switch (routeType) {
+			case 0:
+			case 5:
+			case 12:
+				return UTILITIES.routeTypes[1];
+			case 2:
+				return UTILITIES.routeTypes[2];
+			case 3:
+			case 11:
+				return UTILITIES.routeTypes[7];
+			case 4:
+				return UTILITIES.routeTypes[4];
+			case 6:
+				return UTILITIES.routeTypes[6];
+			default:
+				return UTILITIES.routeTypes[0];
+		}
+	},
 	directionToAngle: direction => {
 		const directionIndex = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].indexOf(direction);
 		return UTILITIES.angles[(directionIndex >= 0 ? directionIndex : 0) % UTILITIES.angles.length];
 	},
-	convertColor: colorString => parseInt(colorString).toString(16).padStart(6, "0"),
+	convertColor: colorInt => "#" + Number(colorInt).toString(16).padStart(6, "0"),
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
-	size: 1,
+	routeTypes: {
+		"train_normal": "directions_train",
+		"train_light_rail": "tram",
+		"train_high_speed": "train",
+		"boat_normal": "sailing",
+		"boat_light_rail": "directions_boat",
+		"boat_high_speed": "snowmobile",
+		"cable_car_normal": "airline_seat_recline_extra",
+		"bus_normal": "directions_bus",
+		"bus_light_rail": "local_taxi",
+		"bus_high_speed": "airport_shuttle",
+	},
 	angles: [0, 45, 90, 135],
 	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],
 	obaMode: false,
@@ -140,5 +196,14 @@ const rotatePoint = (x, y, direction) => {
 	};
 };
 const clamp = (x, bound) => Math.max(Math.min(x, bound), -bound);
+
+let showSettings = false;
+document.getElementById("settings_icon").onclick = () => {
+	const newShowSettings = !showSettings;
+	UTILITIES.onClearSearch(false);
+	UTILITIES.clearPanes();
+	document.getElementById("settings").style.display = newShowSettings ? "" : "none";
+	showSettings = newShowSettings;
+};
 
 export default UTILITIES;

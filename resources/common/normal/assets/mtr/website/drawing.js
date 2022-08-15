@@ -1,4 +1,5 @@
 import UTILITIES from "./utilities.js";
+import SETTINGS from "./settings.js";
 
 const OBJECT_CACHE = {};
 const DRAWING = {
@@ -26,8 +27,8 @@ const DRAWING = {
 	drawTest: (routes, middleAngle, outerAngles) => {
 		CANVAS.clear();
 		addStation("Middle", {
-			"width": UTILITIES.size * 6 * (routes + 1),
-			"height": UTILITIES.size * 12,
+			"width": SETTINGS.size * 6 * (routes + 1),
+			"height": SETTINGS.size * 12,
 			"left": 0,
 			"top": 0,
 			"angle": middleAngle,
@@ -36,14 +37,14 @@ const DRAWING = {
 			const stationX = 400 * Math.cos(2 * Math.PI * (i + 0.5) / 8);
 			const stationY = 400 * Math.sin(2 * Math.PI * (i + 0.5) / 8);
 			addStation(`Outer ${i}`, {
-				"width": UTILITIES.size * 6 * (routes + 1),
-				"height": UTILITIES.size * 12,
+				"width": SETTINGS.size * 6 * (routes + 1),
+				"height": SETTINGS.size * 12,
 				"left": stationX,
 				"top": stationY,
 				"angle": outerAngles,
 			});
 			for (let j = 0; j < routes; j++) {
-				addLine(`test_line_${i}_${j}`, `#${UTILITIES.convertColor(Math.round(Math.random() * 0xFFFFFF))}50`, [
+				addLine(`test_line_${i}_${j}`, `${UTILITIES.convertColor(Math.round(Math.random() * 0xFFFFFF))}50`, [
 					{
 						"x": 0,
 						"y": 0,
@@ -66,6 +67,7 @@ const DRAWING = {
 };
 
 let mouseDown = false;
+let mouseMoved = false;
 let touchX = 0;
 let touchY = 0;
 let zoom = 1;
@@ -83,13 +85,19 @@ resize();
 
 CANVAS.on("mouse:down", options => {
 	mouseDown = true;
+	mouseMoved = false;
 	const event = options.e;
 	if ("touches" in event && event.touches.length > 0) {
 		touchX = event.touches[0].pageX;
 		touchY = event.touches[0].pageY;
 	}
 });
-CANVAS.on("mouse:up", () => mouseDown = false);
+CANVAS.on("mouse:up", () => {
+	mouseDown = false;
+	if (!mouseMoved) {
+		UTILITIES.clearPanes();
+	}
+});
 CANVAS.on("mouse:move", options => {
 	const event = options.e;
 	if (mouseDown) {
@@ -100,6 +108,7 @@ CANVAS.on("mouse:move", options => {
 			touchX = event.touches[0].pageX;
 			touchY = event.touches[0].pageY;
 		}
+		mouseMoved = true;
 	}
 	event.stopPropagation();
 });
@@ -136,12 +145,12 @@ const addStation = (key, station) => {
 		"originY": "center",
 		"width": width,
 		"height": height,
-		"rx": UTILITIES.size * 6,
-		"ry": UTILITIES.size * 6,
+		"rx": SETTINGS.size * 6,
+		"ry": SETTINGS.size * 6,
 		"angle": angle,
 		"fill": "white",
 		"stroke": "black",
-		"strokeWidth": UTILITIES.size * 2,
+		"strokeWidth": SETTINGS.size * 2,
 		"hoverCursor": "pointer",
 		"selectable": false,
 	});
@@ -150,9 +159,9 @@ const addStation = (key, station) => {
 	let textYOffset = 0;
 	for (let i = 0; i < nameSplit.length; i++) {
 		const text = nameSplit[i];
-		const fontSize = UTILITIES.size * (UTILITIES.isCJK(text) ? 18 : 9);
+		const fontSize = SETTINGS.size * (UTILITIES.isCJK(text) ? 18 : 9);
 		elements.push(new fabric.Text(text, {
-			"top": blobHeightOffset + UTILITIES.size * 2 + textYOffset,
+			"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset,
 			"fontFamily": UTILITIES.fonts.join(","),
 			"fontSize": fontSize,
 			"fill": "black",
@@ -168,8 +177,8 @@ const addStation = (key, station) => {
 	}
 	const group = new fabric.Group(elements, {
 		"left": left * zoom,
-		"top": top * zoom - blobHeightOffset - UTILITIES.size,
-		"topOffset": -blobHeightOffset - UTILITIES.size,
+		"top": top * zoom - blobHeightOffset - SETTINGS.size,
+		"topOffset": -blobHeightOffset - SETTINGS.size,
 		"originX": "center",
 		"originY": "top",
 		"subTargetCheck": true,
@@ -201,7 +210,7 @@ const addLine = (key, color, segments) => {
 	const line = new fabric.Polyline([], {
 		"fill": null,
 		"stroke": color,
-		"strokeWidth": UTILITIES.size * 6,
+		"strokeWidth": SETTINGS.size * 6,
 		"cornerStyle": "circle",
 		"objectCaching": false,
 		"hoverCursor": "pointer",
@@ -214,7 +223,7 @@ const addLine = (key, color, segments) => {
 			const point2X = point2["x"] * zoom;
 			const point2Y = point2["y"] * zoom;
 			const newSegments = [];
-			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], UTILITIES.size * 6, newSegments);
+			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], SETTINGS.size * 6, newSegments);
 			line.points = newSegments;
 			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
 		},

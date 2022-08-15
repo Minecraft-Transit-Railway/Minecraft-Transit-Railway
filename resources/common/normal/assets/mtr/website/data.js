@@ -5,124 +5,145 @@ import SETTINGS from "./settings.js";
 const DATA = {
 	parseOBA: (result, latOffset, lonOffset, zoomOffset) => {
 		const {list, references} = result["data"];
+		const jsonPart = {"routes": [], "positions": {}, "stations": {}};
 		const tempStations = {};
-		const stationIdMap = {};
-		const stationNameMap = {};
+		const stationIdToName = {};
+		const stationNameToFirstId = {};
+		const formatId = id => id.replaceAll("_", ".");
+		const formatX = lon => (lon - lonOffset) * zoomOffset;
+		const formatY = lat => -(lat - latOffset) * zoomOffset;
 
 		references["stops"].forEach(data => {
-			const {name, id, direction, lat, lon, routeIds} = data;
+			const {name, id, lat, lon} = data;
 			const newName = name.split(" ").sort().join(" ");
 
 			if (!(newName in tempStations)) {
-				tempStations[newName] = {"latValues": [], "lonValues": []};
-				UTILITIES.angles.forEach(angle => tempStations[newName][`routes${angle}`] = []);
+				tempStations[newName] = {"xPositions": [], "yPositions": []};
+				stationNameToFirstId[newName] = id;
 			}
 
-			routeIds.forEach(routeId => {
-				if (UTILITIES.angles.every(angle => !tempStations[newName][`routes${angle}`].includes(routeId))) {
-					tempStations[newName][`routes${UTILITIES.directionToAngle(direction)}`].push(routeId);
-				}
-			});
-			tempStations[newName]["latValues"].push((lat - latOffset) * zoomOffset);
-			tempStations[newName]["lonValues"].push((lon - lonOffset) * zoomOffset);
-			stationIdMap[id] = newName;
-			stationNameMap[newName] = name;
+			stationIdToName[id] = newName;
+			tempStations[newName]["name"] = name;
+			tempStations[newName]["xPositions"].push(formatX(lon));
+			tempStations[newName]["yPositions"].push(formatY(lat));
 		});
 
-		processTempStations(tempStations);
-		const lineQueue = {};
+		Object.keys(tempStations).forEach(key => {
+			const {name, xPositions, yPositions} = tempStations[key];
+			jsonPart["stations"][formatId(stationNameToFirstId[key])] = {
+				"name": name,
+				"color": colorFromCode(key),
+				"zone": 0,
+				"x": listAverage(xPositions),
+				"z": listAverage(yPositions),
+			};
+		});
 
 		list.forEach(data => {
 			const {schedule, tripId} = data;
 			const {stopTimes} = schedule;
 			const routeId = references["trips"].find(trip => trip["id"] === tripId)["routeId"];
-			const colorString = references["routes"].find(route => route["id"] === routeId)["color"];
-			const color = colorString === "" ? UTILITIES.convertColor(Math.round(routeId.replace(/[^0-9]/g, "") / 200 * 0xFFFFFF) % 0xFFFFFF) : colorString;
+			const routeReference = references["routes"].find(route => route["id"] === routeId);
+			const {color, description, shortName, type} = routeReference;
+			const stations = [];
+			const durations = [];
+			const densities = [];
 
-			for (let i = 0; i < stopTimes.length - 1; i++) {
-				const stopId1 = stopTimes[i]["stopId"];
-				const stopId2 = stopTimes[i + 1]["stopId"];
-				if (stopId1 !== stopId2) {
-					const key = color + [stopId1, stopId2].sort().join(" ");
-					if (!(key in lineQueue)) {
-						lineQueue[key] = {
-							"color": `#${color}`,
-							"segments": [getSegmentDetails(stopId1, routeId, tempStations, name => stationIdMap[name]), getSegmentDetails(stopId2, routeId, tempStations, name => stationIdMap[name])],
-						};
-					}
+			for (let i = 0; i < stopTimes.length; i++) {
+				const stopId = stationNameToFirstId[stationIdToName[stopTimes[i]["stopId"]]];
+				const positionId = formatId(stopId) + "_" + formatId(routeId);
+				stations.push(positionId);
+				densities.push(0);
+				if (i > 0) {
+					durations.push((stopTimes[i]["arrivalTime"] - stopTimes[i - 1]["arrivalTime"]) * 20);
 				}
+				const stopReference = references["stops"].find(stop => stop["id"] === stopId);
+				jsonPart["positions"][positionId] = {
+					"x": formatX(stopReference["lon"]),
+					"y": formatY(stopReference["lat"]),
+					"angle": UTILITIES.directionToAngle(stopReference["direction"]),
+				};
 			}
+
+			jsonPart["routes"].push({
+				"color": color === "" ? colorFromCode(routeId) : parseInt(color, 16),
+				"name": description,
+				"number": shortName,
+				"type": UTILITIES.convertGtfsRouteType(type),
+				"stations": stations,
+				"durations": durations,
+				"densities": densities,
+				"circular": "",
+			});
 		});
 
-		DRAWING.drawMap(lineQueue, tempStationsToStationQueue(tempStations, name => stationNameMap[name]));
+		DATA.parseMTR([jsonPart]);
 	},
 	parseMTR: result => {
+		DATA.json = result;
 		const {routes, positions, stations, types} = result[SETTINGS.dimension];
 		const tempStations = {};
-
 		Object.keys(positions).forEach(key => {
 			const nameSplit = key.split("_");
 			const stationId = nameSplit[0];
+
 			if (!(stationId in tempStations)) {
-				tempStations[stationId] = {"lonValues": [], "latValues": []};
+				tempStations[stationId] = {"xPositions": [], "yPositions": []};
 				UTILITIES.angles.forEach(angle => tempStations[stationId][`routes${angle}`] = []);
 			}
+
 			const {x, y, vertical} = positions[key];
-			tempStations[stationId]["lonValues"].push(x);
-			tempStations[stationId]["latValues"].push(-y);
-			tempStations[stationId][`routes${UTILITIES.angles[vertical ? 0 : 2]}`].push(nameSplit[1]);
+			const angle = "angle" in positions[key] ? positions[key]["angle"] : UTILITIES.angles[vertical ? 0 : 2]; // TODO
+			tempStations[stationId]["xPositions"].push(x);
+			tempStations[stationId]["yPositions"].push(y);
+			tempStations[stationId][`routes${angle}`].push(nameSplit[1]);
 		});
 
-		processTempStations(tempStations);
-		const lineQueue = {};
+		Object.values(tempStations).forEach(tempStation => {
+			UTILITIES.angles.forEach(angle => tempStation[`routes${angle}`] = tempStation[`routes${angle}`].sort());
+			tempStation["x"] = listAverage(tempStation["xPositions"]);
+			tempStation["y"] = listAverage(tempStation["yPositions"]);
+			delete tempStation["xPositions"];
+			delete tempStation["yPositions"];
+		});
 
+		const lineQueue = {};
 		routes.forEach(route => {
 			const routeStations = route["stations"];
 			for (let i = 0; i < routeStations.length - 1; i++) {
 				const stopId1 = routeStations[i].split("_")[0];
 				const stopId2 = routeStations[i + 1].split("_")[0];
-				const color = routeStations[i].split("_")[1];
+				const routeId = routeStations[i].split("_")[1];
 				if (stopId1 !== stopId2) {
-					const key = color + [stopId1, stopId2].sort().join(" ");
+					const key = routeId + [stopId1, stopId2].sort().join(" ");
 					if (!(key in lineQueue)) {
 						lineQueue[key] = {
-							"color": `#${UTILITIES.convertColor(color)}`,
-							"segments": [getSegmentDetails(stopId1, color, tempStations, stopId => stopId), getSegmentDetails(stopId2, color, tempStations, stopId => stopId)],
+							"color": UTILITIES.convertColor(route["color"]),
+							"segments": [getSegmentDetails(stopId1, routeId, tempStations, stopId => stopId), getSegmentDetails(stopId2, routeId, tempStations, stopId => stopId)],
 						};
 					}
 				}
 			}
 		});
 
-		DRAWING.drawMap(lineQueue, tempStationsToStationQueue(tempStations, stationId => stations[stationId]["name"]));
+		const stationQueue = {};
+		for (const stationId in tempStations) {
+			const routeCounts = UTILITIES.angles.map(angle => tempStations[stationId][`routes${angle}`].length);
+			stationQueue[stations[stationId]["name"]] = {
+				"width": (Math.max(1, Math.max(routeCounts[0], routeCounts[1])) + 1) * SETTINGS.size * 6,
+				"height": (Math.max(1, Math.max(routeCounts[2], routeCounts[3])) + 1) * SETTINGS.size * 6,
+				"left": tempStations[stationId]["x"],
+				"top": tempStations[stationId]["y"],
+				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
+			};
+			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
+		}
+
+		DRAWING.drawMap(lineQueue, stationQueue);
 	},
+	json: [],
 };
 
-const processTempStations = tempStations => {
-	const listAverage = list => list.length === 0 ? 0 : list.reduce((a, b) => a + b, 0) / list.length;
-	Object.values(tempStations).forEach(tempStation => {
-		UTILITIES.angles.forEach(angle => tempStation[`routes${angle}`] = tempStation[`routes${angle}`].sort());
-		tempStation["x"] = listAverage(tempStation["lonValues"]);
-		tempStation["y"] = -listAverage(tempStation["latValues"]);
-		delete tempStation["lonValues"];
-		delete tempStation["latValues"];
-	});
-};
-const tempStationsToStationQueue = (tempStations, getStationName) => {
-	const stationQueue = {};
-	for (const name in tempStations) {
-		const routeCounts = UTILITIES.angles.map(angle => tempStations[name][`routes${angle}`].length);
-		stationQueue[getStationName(name)] = {
-			"width": (Math.max(1, Math.max(routeCounts[0], routeCounts[1])) + 1) * UTILITIES.size * 6,
-			"height": (Math.max(1, Math.max(routeCounts[2], routeCounts[3])) + 1) * UTILITIES.size * 6,
-			"left": tempStations[name]["x"],
-			"top": tempStations[name]["y"],
-			"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
-		};
-		UTILITIES.angles.forEach(angle => stationQueue[getStationName(name)] [`routes${angle}`] = tempStations[name][`routes${angle}`]);
-	}
-	return stationQueue;
-};
 const getSegmentDetails = (stopId, routeId, tempStations, getStationName) => {
 	const tempStation = tempStations[getStationName(stopId)];
 	const direction = UTILITIES.angles.find(angle => tempStation[`routes${angle}`].includes(routeId));
@@ -134,5 +155,7 @@ const getSegmentDetails = (stopId, routeId, tempStations, getStationName) => {
 		"routeCount": tempStation[`routes${direction}`].length,
 	};
 };
+const listAverage = list => list.length === 0 ? 0 : list.reduce((a, b) => a + b, 0) / list.length;
+const colorFromCode = code => Math.round(code.replace(/[^0-9]/g, "") / 200 * 0xFFFFFF) % 0xFFFFFF;
 
 export default DATA;
