@@ -53,7 +53,7 @@ public class RenderPIDS<T extends BlockEntityMapper> extends BlockEntityRenderer
 		totalScaledWidth = scale * maxWidth / 16;
 		destinationStart = renderArrivalNumber ? scale * 2 / 16 : 0;
 		destinationMaxWidth = totalScaledWidth * 0.7F;
-		platformMaxWidth = renderType.showAllPlatforms ? scale * 2 / 16 : 0;
+		platformMaxWidth = renderType.showPlatformNumber ? scale * 2 / 16 : 0;
 		arrivalMaxWidth = totalScaledWidth - destinationStart - destinationMaxWidth - platformMaxWidth;
 		this.maxArrivals = maxArrivals;
 		this.maxHeight = maxHeight;
