@@ -7,7 +7,9 @@ const SETTINGS = {
 	selectedDirectionsStations: [],
 	selectedDirectionsSegments: {},
 	selectedRouteTypes: [Object.keys(UTILITIES.routeTypes)[0]],
+	showText: true,
 	size: 1,
+	url: document.location.origin + document.location.pathname.replace("index.html", ""),
 };
 
 export default SETTINGS;

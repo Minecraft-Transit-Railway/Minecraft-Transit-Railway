@@ -1,13 +1,17 @@
-import UTILITIES from "./utilities.js";
 import VERSION from "./version.js";
 import DATA from "./data.js";
+import SETTINGS from "./settings.js";
+import DRAWING from "./drawing.js";
 
 const DOCUMENT = {
-	clearPanes: () => {
-		UTILITIES.selectedStation = 0;
-		UTILITIES.selectedRoutes = [];
-		UTILITIES.selectedDirectionsStations = [];
-		UTILITIES.selectedDirectionsSegments = {};
+	clearPanes: clearSelection => {
+		if (clearSelection) {
+			SETTINGS.selectedStation = 0;
+			SETTINGS.selectedRoutes = [];
+			SETTINGS.selectedDirectionsStations = [];
+			SETTINGS.selectedDirectionsSegments = {};
+			DATA.redraw();
+		}
 		showSettings = false;
 		document.getElementById("station_info").style.display = "none";
 		document.getElementById("route_info").style.display = "none";
@@ -55,6 +59,20 @@ if (getCookie("theme").includes("dark")) {
 	document.getElementById("toggle_theme_icon").innerText = "dark_mode";
 }
 
+document.getElementById("clear_search_icon").onclick = () => DOCUMENT.onClearSearch(true);
+document.getElementById("zoom_in_icon").onclick = () => DRAWING.zoom(-500, window.innerWidth / 2, window.innerHeight / 2);
+document.getElementById("zoom_out_icon").onclick = () => DRAWING.zoom(500, window.innerWidth / 2, window.innerHeight / 2);
+document.getElementById("toggle_text_icon").onclick = event => {
+	const buttonElement = event.target;
+	if (buttonElement.innerText.includes("off")) {
+		buttonElement.innerText = "font_download";
+		SETTINGS.showText = false;
+	} else {
+		buttonElement.innerText = "font_download_off";
+		SETTINGS.showText = true;
+	}
+	DATA.redraw();
+};
 document.getElementById("toggle_theme_icon").onclick = event => {
 	const buttonElement = event.target;
 	if (buttonElement.innerText.includes("dark")) {
@@ -66,12 +84,12 @@ document.getElementById("toggle_theme_icon").onclick = event => {
 		buttonElement.innerText = "dark_mode";
 		setCookie("theme", "light");
 	}
-	DATA.parseMTR(DATA.json);
+	DATA.redraw();
 };
 document.getElementById("settings_icon").onclick = () => {
 	const newShowSettings = !showSettings;
 	DOCUMENT.onClearSearch(false);
-	DOCUMENT.clearPanes();
+	DOCUMENT.clearPanes(false);
 	document.getElementById("settings").style.display = newShowSettings ? "" : "none";
 	showSettings = newShowSettings;
 };

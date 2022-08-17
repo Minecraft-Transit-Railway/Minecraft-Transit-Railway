@@ -107,7 +107,7 @@ const DATA = {
 
 			if (routesToShow.includes(routeId)) {
 				if (!(stationId in tempStations)) {
-					tempStations[stationId] = {"xPositions": [], "yPositions": []};
+					tempStations[stationId] = {"xPositions": [], "yPositions": [], "routeIds": [], "types": []};
 					UTILITIES.angles.forEach(angle => tempStations[stationId][`routes${angle}`] = []);
 				}
 
@@ -130,18 +130,25 @@ const DATA = {
 		const lineQueue = {};
 		routes.forEach(route => {
 			const routeStations = route["stations"];
-			for (let i = 0; i < routeStations.length - 1; i++) {
-				const stopId1 = routeStations[i].split("_")[0];
-				const stopId2 = routeStations[i + 1].split("_")[0];
+			for (let i = 0; i < routeStations.length; i++) {
 				const routeId = route["id"];
-				if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
-					const key = routeId + [stopId1, stopId2].sort().join(" ");
-					if (!(key in lineQueue)) {
-						lineQueue[key] = {
-							"color": UTILITIES.convertColor(route["color"]),
-							"segments": [getSegmentDetails(stopId1, routeId, tempStations, stopId => stopId), getSegmentDetails(stopId2, routeId, tempStations, stopId => stopId)],
-						};
+				const stopId2 = routeStations[i].split("_")[0];
+				if (i > 0) {
+					const stopId1 = routeStations[i - 1].split("_")[0];
+					if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
+						const key = routeId + [stopId1, stopId2].sort().join(" ");
+						if (!(key in lineQueue)) {
+							lineQueue[key] = {
+								"color": UTILITIES.convertColor(route["color"]),
+								"segments": [getSegmentDetails(stopId1, routeId, tempStations), getSegmentDetails(stopId2, routeId, tempStations)],
+								"selected": SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId),
+							};
+						}
 					}
+				}
+				if (stopId2 in tempStations) {
+					tempStations[stopId2]["routeIds"].push(routeId);
+					tempStations[stopId2]["types"].push(route["type"]);
 				}
 			}
 		});
@@ -156,17 +163,20 @@ const DATA = {
 				"left": tempStations[stationId]["x"],
 				"top": tempStations[stationId]["y"],
 				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
+				"selected": SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
+				"types": tempStations[stationId]["types"],
 			};
 			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
 		}
 
 		DRAWING.drawMap(lineQueue, stationQueue);
 	},
+	redraw: () => DATA.parseMTR(DATA.json),
 	json: [],
 };
 
-const getSegmentDetails = (stopId, routeId, tempStations, getStationName) => {
-	const tempStation = tempStations[getStationName(stopId)];
+const getSegmentDetails = (stopId, routeId, tempStations) => {
+	const tempStation = tempStations[stopId];
 	const direction = UTILITIES.angles.find(angle => tempStation[`routes${angle}`].includes(routeId));
 	return {
 		"x": tempStation["x"],

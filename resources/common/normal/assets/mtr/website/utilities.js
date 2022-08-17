@@ -142,6 +142,12 @@ const UTILITIES = {
 	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
 	convertColor: colorInt => "#" + Number(colorInt).toString(16).padStart(6, "0"),
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
+	removeFromArray: (array, element) => {
+		const index = array.indexOf(element);
+		if (index > -1) {
+			array.splice(index, 1);
+		}
+	},
 	routeTypes: {
 		"train_normal": "directions_train",
 		"train_light_rail": "tram",

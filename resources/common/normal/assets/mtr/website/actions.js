@@ -3,11 +3,12 @@ import DATA from "./data.js";
 import DOCUMENT from "./document.js";
 import SETTINGS from "./settings.js";
 import DRAWING from "./drawing.js";
+import FetchData from "./fetch.js";
 
 const ACTIONS = {
 	onClickStation: id => {
 		DOCUMENT.onClearSearch(false);
-		DOCUMENT.clearPanes();
+		DOCUMENT.clearPanes(false);
 		const {stations, routes} = DATA.json[SETTINGS.dimension];
 		const {name, color, zone, x, z} = stations[id];
 		const stationInfoElement = document.getElementById("station_info");
@@ -35,13 +36,13 @@ const ACTIONS = {
 			setTimeout(() => event.target.innerText = "content_copy", 1000);
 		};
 		document.getElementById("station_directions_1").onclick = () => {
-			DOCUMENT.clearPanes();
+			DOCUMENT.clearPanes(true);
 			document.getElementById("directions").style.display = "block";
 			// DIRECTIONS.onSelectStation(1, id, data);
 			document.getElementById("directions_box_2").focus();
 		};
 		document.getElementById("station_directions_2").onclick = () => {
-			DOCUMENT.clearPanes();
+			DOCUMENT.clearPanes(true);
 			document.getElementById("directions").style.display = "block";
 			// DIRECTIONS.onSelectStation(2, id, data);
 			document.getElementById("directions_box_1").focus();
@@ -79,7 +80,7 @@ const ACTIONS = {
 
 		stationInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
 		SETTINGS.selectedStation = id;
-		// FETCH_ARRIVAL_DATA.fetchData(data);
+		FETCH_ARRIVAL_DATA.fetchData();
 	},
 	setupRouteTypeAndDimensionButtons: () => {
 		const availableTypes = DATA.json[SETTINGS.dimension]["types"];
@@ -101,7 +102,7 @@ const ACTIONS = {
 				} else {
 					SETTINGS.selectedRouteTypes.push(routeType);
 				}
-				DATA.parseMTR(DATA.json);
+				DATA.redraw();
 			}
 		}
 
@@ -116,7 +117,7 @@ const ACTIONS = {
 				element.innerText = "public"
 				element.onclick = () => {
 					SETTINGS.dimension = parseInt(dimensionIndex);
-					DATA.parseMTR(DATA.json);
+					DATA.redraw();
 				}
 				settingsDimensionsButtons.appendChild(element);
 				settingsDimensionsButtons.appendChild(document.createTextNode("\n"));
@@ -127,6 +128,120 @@ const ACTIONS = {
 		document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
 	},
 };
+
+const REFRESH_INTERVAL = 5000;
+const BIG_DELAY_THRESHOLD = 15 * 20;
+const HUGE_DELAY_THRESHOLD = 30 * 20;
+const MAX_DELAY_THRESHOLD = 600 * 20;
+const MAX_ARRIVALS = 5;
+const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.url + "arrivals?worldIndex=" + SETTINGS.dimension + "&stationId=" + SETTINGS.selectedStation, REFRESH_INTERVAL, true, () => SETTINGS.selectedStation !== 0, result => {
+	const data = DATA.json[SETTINGS.dimension];
+	const arrivalsHtml = {};
+	for (const {arrival, name, destination, circular, platform, route, color} of result) {
+		const currentMillis = Date.now();
+		const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
+		const destinationSplit = circular === "" ? destination.split("|") : getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
+		const routeNumberSplit = route.split("|");
+		if (typeof arrivalsHtml[color] === "undefined") {
+			arrivalsHtml[color] = {html: "", count: 0};
+		}
+		if (arrivalsHtml[color]["count"] < MAX_ARRIVALS) {
+			arrivalsHtml[color]["html"] +=
+				`<div class="arrival">` +
+				`<span class="arrival_text left_align material-icons tight" style="width: ${circular === "" ? 0 : 5}%">${circular === "" ? "" : circular === "cw" ? "rotate_right" : "rotate_left"}</span>` +
+				`<span class="arrival_text left_align" style="width: ${circular === "" ? 70 : 65}%">` +
+				(route.length === 0 ? "" : routeNumberSplit[Math.floor(currentMillis / 3000) % routeNumberSplit.length] + " ") + destinationSplit[Math.floor(currentMillis / 3000) % destinationSplit.length] +
+				`</span>` +
+				`<span class="arrival_text" style="width: 10%">${platform}</span>` +
+				`<span class="arrival_text right_align" style="width: 20%; text-align: right">${arrivalDifference < 0 ? "" : UTILITIES.formatTime(arrivalDifference)}</span>` +
+				`</div>`;
+			arrivalsHtml[color]["count"]++;
+		}
+	}
+	for (const color in arrivalsHtml) {
+		const arrivalElement = document.getElementById("station_arrivals_" + color);
+		if (arrivalElement != null) {
+			arrivalElement.innerHTML = arrivalsHtml[color]["html"];
+		}
+	}
+});
+const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.url + "delays", REFRESH_INTERVAL, true, () => SETTINGS.selectedRoutes.length > 0, result => {
+	const delaysElement = document.getElementById("delays");
+	delaysElement.innerText = "";
+	const routeId = SETTINGS.selectedRoutes.length > 0 ? SETTINGS.selectedRoutes[SETTINGS.selectedRoutes.length - 1] : 0;
+	const routeColorRaw = DATA.json[SETTINGS.dimension]["routes"].find(route => route["id"] === routeId)["color"];
+	const routeColor = UTILITIES.convertColor(routeColorRaw ? routeColorRaw : 0);
+	const data = result[SETTINGS.dimension].filter(data => data["color"] === routeColorRaw).sort((a, b) => b["time"] - a["time"]);
+	const millis = Date.now();
+	const routeNameElementMap = {};
+
+	let hasDelay = false;
+	let hasBigDelay = false;
+	let hasHugeDelay = false;
+
+	for (const {name, number, destination, circular, delay, time, x, y, z} of data) {
+		const isRealtime = millis - time < REFRESH_INTERVAL * 2;
+		const copyButtonText = x + "_" + y + "_" + z;
+
+		const bigDelay = delay >= BIG_DELAY_THRESHOLD;
+		const hugeDelay = delay >= HUGE_DELAY_THRESHOLD;
+
+		const element = document.createElement("div");
+		element.className = "arrival clickable";
+		element.innerHTML =
+			`<span class="arrival_text material-icons small" style="width: 5%; ${hugeDelay ? "color: " + routeColor : ""}">${bigDelay ? "warning" : "warning_amber"}</span>` +
+			`<span class="arrival_text" style="width: 15%">${delay > MAX_DELAY_THRESHOLD ? "10:00+" : UTILITIES.formatTime(delay / 20)}</span>` +
+			`<span class="arrival_text material-icons tight delay_copy_${copyButtonText}" style="width: 5%">${delayCopyButton === copyButtonText ? "check" : "content_copy"}</span>` +
+			`<span class="arrival_text" style="width: 55%">(${x}, ${y}, ${z})</span>` +
+			`<span class="arrival_text right_align" style="width: 15%; text-align: right">${isRealtime ? "" : "-" + UTILITIES.formatTime((millis - time) / 1000)}</span>` +
+			`<span class="arrival_text right_align material-icons small" style="width: 5%; text-align: right">${isRealtime ? "" : "history"}</span>`;
+		element.onclick = () => {
+			navigator.clipboard.writeText(`/tp ${x} ${y} ${z}`).then();
+			Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "check");
+			delayCopyButton = copyButtonText;
+			setTimeout(() => {
+				Array.from(document.getElementsByClassName(`delay_copy_${copyButtonText}`)).forEach(copyButtonElement => copyButtonElement.innerText = "content_copy");
+				delayCopyButton = "";
+			}, 1000);
+		};
+
+		hasDelay = true;
+		if (bigDelay) {
+			hasBigDelay = true;
+		}
+		if (hugeDelay) {
+			hasHugeDelay = true;
+		}
+
+		if (!(name in routeNameElementMap)) {
+			routeNameElementMap[name] = document.createElement("div");
+			routeNameElementMap[name].className = "station_list";
+
+			addRouteHeader(delaysElement, number, destination, circular, name);
+
+			delaysElement.append(routeNameElementMap[name]);
+			const spacerElement = document.createElement("div");
+			spacerElement.className = "spacer padded";
+			delaysElement.append(spacerElement);
+		}
+		routeNameElementMap[name].appendChild(element);
+	}
+
+	if (delaysElement.lastChild != null) {
+		delaysElement.removeChild(delaysElement.lastChild);
+	}
+
+	const routeStationsTabElement = document.getElementById("route_stations_tab");
+	const routeDelaysTabElement = document.getElementById("route_delays_tab");
+	if (hasDelay) {
+		routeStationsTabElement.style.display = "";
+		routeDelaysTabElement.innerText = hasBigDelay ? "warning" : "warning_amber";
+		routeDelaysTabElement.style.color = hasHugeDelay ? routeColor : "";
+		routeDelaysTabElement.style.display = "";
+	}
+	onSelectDelaysTab(selectedDelaysTab);
+	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
+});
 
 const getRouteElement = (routeId, color, name, number, type, visible, showColor) => {
 	name = name.split("||")[0].replace(/\|/g, " ");
@@ -146,11 +261,11 @@ const getRouteElement = (routeId, color, name, number, type, visible, showColor)
 const onClickLine = (routeId, color, forceClick) => {
 	const shouldSelect = forceClick || !SETTINGS.selectedRoutes.includes(routeId);
 	DOCUMENT.onClearSearch(false);
-	DOCUMENT.clearPanes();
+	DOCUMENT.clearPanes(false);
 	document.getElementById("route_stations_tab").style.display = "none";
 	document.getElementById("route_delays_tab").style.display = "none";
 	const data = DATA.json[SETTINGS.dimension];
-	// onSelectDelaysTab(false);
+	onSelectDelaysTab(false);
 
 	if (shouldSelect) {
 		const selectedRoutes = data["routes"].filter(route => route["id"] === routeId);
@@ -175,7 +290,7 @@ const onClickLine = (routeId, color, forceClick) => {
 		routeDetailsElement.innerHTML = "";
 
 		selectedRoutes.forEach(route => {
-			const {stations, durations, name, number, circular} = route;
+			const {stations, durations, name, number, circular, type} = route;
 			addRouteHeader(routeDetailsElement, number, stations.length > 0 ? data["stations"][stations[stations.length - 1].split("_")[0]]["name"] : "", circular, name);
 
 			const routeStationsElement = document.createElement("div");
@@ -197,6 +312,10 @@ const onClickLine = (routeId, color, forceClick) => {
 			const spacerElement = document.createElement("div");
 			spacerElement.className = "spacer padded";
 			routeDetailsElement.append(spacerElement);
+
+			if (!SETTINGS.selectedRouteTypes.includes(type)) {
+				SETTINGS.selectedRouteTypes.push(type);
+			}
 		});
 
 		if (routeDetailsElement.lastChild != null) {
@@ -204,18 +323,15 @@ const onClickLine = (routeId, color, forceClick) => {
 		}
 
 		routeInfoElement.style.maxHeight = window.innerHeight - 80 + "px";
-		if (!SETTINGS.selectedRoutes.includes(routeId)) {
-			SETTINGS.selectedRoutes.push(routeId);
-		}
+		UTILITIES.removeFromArray(SETTINGS.selectedRoutes, routeId);
+		SETTINGS.selectedRoutes.push(routeId);
 	} else {
-		const index = SETTINGS.selectedRoutes.indexOf(routeId);
-		if (index > -1) {
-			SETTINGS.selectedRoutes.splice(index, 1);
-		}
+		UTILITIES.removeFromArray(SETTINGS.selectedRoutes, routeId);
 	}
 
 	// SETTINGS.drawDirectionsRoute([], []);
-	// FETCH_DELAYS_DATA.fetchData(data);
+	DATA.redraw();
+	FETCH_DELAYS_DATA.fetchData();
 };
 const addRouteHeader = (element, number, destination, circular, routeName) => {
 	const headerElement = document.createElement("h3");
@@ -239,5 +355,31 @@ const getStationElement = (color, name, id) => {
 		`<span class="text">${name.replace(/\|/g, " ")}</span>`;
 	return element;
 };
+const onSelectDelaysTab = selectDelaysTab => {
+	selectedDelaysTab = selectDelaysTab;
+	document.getElementById("route_stations_tab").className = "material-icons clickable" + (selectedDelaysTab ? "" : " selected");
+	document.getElementById("route_delays_tab").className = "material-icons clickable" + (selectedDelaysTab ? " selected" : "");
+	document.getElementById("route_details").style.display = selectedDelaysTab ? "none" : "";
+	document.getElementById("delays").style.display = selectedDelaysTab ? "" : "none";
+};
+const getClosestInterchangeOnRoute = (data, route, thisStation) => {
+	const {routes, stations} = data;
+	const routeStations = route["stations"];
+	let passed = false;
+	for (let i = 0; i < routeStations.length; i++) {
+		const checkStation = routeStations[i].split("_")[0];
+		if (passed && (routes.some(checkRoute => checkRoute["color"] !== route["color"] && checkRoute["stations"].some(checkRouteStation => checkRouteStation.split("_")[0] === checkStation)) || i === routeStations.length - 1)) {
+			return stations[checkStation]["name"];
+		}
+		if (checkStation === thisStation) {
+			passed = true;
+		}
+	}
+};
+
+let selectedDelaysTab = false;
+let delayCopyButton = "";
+document.getElementById("route_stations_tab").onclick = () => onSelectDelaysTab(false);
+document.getElementById("route_delays_tab").onclick = () => onSelectDelaysTab(true);
 
 export default ACTIONS;

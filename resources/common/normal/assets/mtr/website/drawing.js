@@ -14,8 +14,7 @@ const DRAWING = {
 		}
 
 		const addLineFromQueue = key => {
-			const {color, segments} = lineQueue[key];
-			addLine(key, color, segments);
+			addLine(key, lineQueue[key]);
 			delete lineQueue[key];
 		};
 		const addStationFromQueue = key => {
@@ -47,22 +46,25 @@ const DRAWING = {
 				"angle": outerAngles,
 			});
 			for (let j = 0; j < routes; j++) {
-				addLine(`test_line_${i}_${j}`, `${UTILITIES.convertColor(Math.round(Math.random() * 0xFFFFFF))}50`, [
-					{
-						"x": 0,
-						"y": 0,
-						"direction": middleAngle,
-						"offsetIndex": j,
-						"routeCount": routes,
-					},
-					{
-						"x": stationX,
-						"y": stationY,
-						"direction": outerAngles,
-						"offsetIndex": j,
-						"routeCount": routes,
-					},
-				]);
+				addLine(`test_line_${i}_${j}`, {
+					"color": `${UTILITIES.convertColor(Math.round(Math.random() * 0xFFFFFF))}50`,
+					"segments": [
+						{
+							"x": 0,
+							"y": 0,
+							"direction": middleAngle,
+							"offsetIndex": j,
+							"routeCount": routes,
+						},
+						{
+							"x": stationX,
+							"y": stationY,
+							"direction": outerAngles,
+							"offsetIndex": j,
+							"routeCount": routes,
+						},
+					],
+				});
 			}
 		}
 	},
@@ -71,6 +73,25 @@ const DRAWING = {
 		targetY = y * zoom - window.innerHeight / 2;
 		startX = -getCanvasOffsetX();
 		startY = -getCanvasOffsetY();
+	},
+	zoom: (amount, x, y) => {
+		const zoomFactor = 0.999 ** amount;
+		zoom *= zoomFactor;
+		Object.values(OBJECT_CACHE).forEach(object => {
+			if ("updateShape" in object) {
+				object.updateShape();
+			} else {
+				object.left *= zoomFactor;
+				if ("topOffset" in object) {
+					object.top = (object.top - object.topOffset) * zoomFactor + object.topOffset;
+				} else {
+					object.top *= zoomFactor;
+				}
+			}
+		});
+		const offsetX = x - getCanvasOffsetX();
+		const offsetY = y - getCanvasOffsetY();
+		CANVAS.relativePan(new fabric.Point(offsetX - offsetX * zoomFactor, offsetY - offsetY * zoomFactor));
 	},
 	getCenterLatLon: () => [(getCanvasOffsetY() - window.innerHeight / 2) / zoom, -(getCanvasOffsetX() - window.innerWidth / 2) / zoom, window.innerHeight / zoom, window.innerWidth / zoom],
 };
@@ -112,7 +133,7 @@ CANVAS.on("mouse:down", options => {
 CANVAS.on("mouse:up", () => {
 	mouseDown = false;
 	if (shouldClearPanes) {
-		DOCUMENT.clearPanes();
+		DOCUMENT.clearPanes(true);
 	}
 });
 CANVAS.on("mouse:move", options => {
@@ -131,23 +152,7 @@ CANVAS.on("mouse:move", options => {
 });
 CANVAS.on("mouse:wheel", options => {
 	const event = options.e;
-	const zoomFactor = 0.999 ** event.deltaY;
-	zoom *= zoomFactor;
-	Object.values(OBJECT_CACHE).forEach(object => {
-		if ("updateShape" in object) {
-			object.updateShape();
-		} else {
-			object.left *= zoomFactor;
-			if ("topOffset" in object) {
-				object.top = (object.top - object.topOffset) * zoomFactor + object.topOffset;
-			} else {
-				object.top *= zoomFactor;
-			}
-		}
-	});
-	const offsetX = event.offsetX - getCanvasOffsetX();
-	const offsetY = event.offsetY - getCanvasOffsetY();
-	CANVAS.relativePan(new fabric.Point(offsetX - offsetX * zoomFactor, offsetY - offsetY * zoomFactor));
+	DRAWING.zoom(event.deltaY, event.offsetX, event.offsetY);
 	event.preventDefault();
 	event.stopPropagation();
 });
@@ -155,7 +160,7 @@ CANVAS.on("mouse:wheel", options => {
 const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
 const inWindow = (x1, y1, x2, y2) => UTILITIES.isBetween(-getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(window.innerWidth - getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(-getCanvasOffsetY(), y1, y2) || UTILITIES.isBetween(window.innerHeight - getCanvasOffsetY(), y1, y2);
 const addStation = (key, station) => {
-	const {id, width, height, left, top, angle} = station;
+	const {id, width, height, left, top, angle, selected, types} = station;
 	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
 	const blob = new fabric.Rect({
 		"originX": "center",
@@ -166,31 +171,60 @@ const addStation = (key, station) => {
 		"ry": SETTINGS.size * 6,
 		"angle": angle,
 		"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
-		"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+		"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle(selected ? "--textColor" : "--textColorDisabled")),
 		"strokeWidth": SETTINGS.size * 2,
 		"hoverCursor": "pointer",
 		"selectable": false,
 	});
 	const elements = [blob];
-	const nameSplit = key.split("|");
-	let textYOffset = 0;
-	for (let i = 0; i < nameSplit.length; i++) {
-		const text = nameSplit[i];
-		const fontSize = SETTINGS.size * (UTILITIES.isCJK(text) ? 18 : 9);
-		elements.push(new fabric.Text(text, {
-			"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset,
-			"fontFamily": UTILITIES.fonts.join(","),
-			"fontSize": fontSize,
-			"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
-			"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
-			"strokeWidth": 4,
-			"paintFirst": "stroke",
-			"originX": "center",
-			"originY": "top",
-			"hoverCursor": "pointer",
-			"selectable": false,
-		}));
-		textYOffset += fontSize;
+	if (selected && SETTINGS.showText) {
+		const nameSplit = key.split("|");
+		let textYOffset = 0;
+		for (let i = 0; i < nameSplit.length; i++) {
+			const text = nameSplit[i];
+			const fontSize = SETTINGS.size * (UTILITIES.isCJK(text) ? 18 : 9);
+			elements.push(new fabric.Text(text, {
+				"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset,
+				"fontFamily": UTILITIES.fonts.join(","),
+				"fontSize": fontSize,
+				"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+				"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+				"strokeWidth": 4,
+				"paintFirst": "stroke",
+				"originX": "center",
+				"originY": "top",
+				"hoverCursor": "pointer",
+				"selectable": false,
+			}));
+			textYOffset += fontSize;
+		}
+		let routeTypeText = "";
+		let routeTypeCount = 0;
+		Object.keys(UTILITIES.routeTypes).forEach(routeType => {
+			if (!SETTINGS.selectedRouteTypes.includes(routeType) && types.includes(routeType)) {
+				routeTypeText += UTILITIES.routeTypes[routeType];
+				routeTypeCount++;
+			}
+		});
+		if (routeTypeText) {
+			const element = new fabric.Text(routeTypeText, {
+				"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset + 4,
+				"fontFamily": "Material Icons",
+				"fontSize": SETTINGS.size * 18,
+				"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+				"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+				"strokeWidth": 4,
+				"paintFirst": "stroke",
+				"originX": "center",
+				"originY": "top",
+				"hoverCursor": "pointer",
+				"selectable": false,
+			});
+			elements.push(element);
+			const context = document.createElement("canvas").getContext("2d");
+			context.font = `${SETTINGS.size * 18}px Material Icons`;
+			element.set({"width": context.measureText(routeTypeText).width});
+		}
 	}
 	const group = new fabric.Group(elements, {
 		"left": left * zoom,
@@ -213,6 +247,7 @@ const addStation = (key, station) => {
 				}
 			}
 		},
+		"z": selected ? 4 : 2,
 	});
 	elements.forEach(element => {
 		element.on("mouseover", () => group.set("shadow", `${UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor"))} 0 0 8px`));
@@ -226,10 +261,11 @@ const addStation = (key, station) => {
 	OBJECT_CACHE[key] = group;
 	group.checkVisibility();
 }
-const addLine = (key, color, segments) => {
-	const line = new fabric.Polyline([], {
+const addLine = (key, line) => {
+	const {color, segments, selected} = line;
+	const polyline = new fabric.Polyline([], {
 		"fill": null,
-		"stroke": color,
+		"stroke": selected ? color : UTILITIES.convertColor(UTILITIES.getColorStyle("--textColorDisabled")),
 		"strokeWidth": SETTINGS.size * 6,
 		"cornerStyle": "circle",
 		"objectCaching": false,
@@ -244,25 +280,26 @@ const addLine = (key, color, segments) => {
 			const point2Y = point2["y"] * zoom;
 			const newSegments = [];
 			UTILITIES.connectLine(point1X, point1Y, point1["direction"], point1["offsetIndex"], point1["routeCount"], point2X, point2Y, point2["direction"], point2["offsetIndex"], point2["routeCount"], SETTINGS.size * 6, newSegments);
-			line.points = newSegments;
+			polyline.points = newSegments;
 			return inBounds(point1X, point1Y) || inBounds(point2X, point2Y) || inWindow(point1X, point1Y, point2X, point2Y);
 		},
 		"checkVisibility": () => {
-			const shouldShow = line.updateShape();
-			if (CANVAS.getObjects().includes(line)) {
+			const shouldShow = polyline.updateShape();
+			if (CANVAS.getObjects().includes(polyline)) {
 				if (!shouldShow) {
-					CANVAS.remove(line);
+					CANVAS.remove(polyline);
 				}
 			} else {
 				if (shouldShow) {
-					CANVAS.sendToBack(line);
+					CANVAS.sendToBack(polyline);
 				}
 			}
 		},
+		"z": selected ? 3 : 1,
 	});
 	CANVAS.remove(OBJECT_CACHE[key]);
-	OBJECT_CACHE[key] = line;
-	line.checkVisibility();
+	OBJECT_CACHE[key] = polyline;
+	polyline.checkVisibility();
 };
 
 const checkAllVisibility = () => {
@@ -292,6 +329,9 @@ const update = () => {
 			targetX = undefined;
 			targetY = undefined;
 		}
+	}
+	if (SETTINGS.selectedRoutes.length > 0) {
+		CANVAS._objects.sort((a, b) => Math.sign(a["z"] - b["z"]));
 	}
 	CANVAS.renderAll();
 };
