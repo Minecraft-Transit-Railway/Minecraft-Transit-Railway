@@ -88,55 +88,58 @@ const UTILITIES = {
 		points.push(rotatePoint(x, y, direction1));
 		points.forEach(point => segments.push({"x": point["x"] + x1, "y": point["y"] + y1}));
 	},
-	onClearSearch: (data, focus) => {
-		const searchBox = document.getElementById("search_box");
-		searchBox.value = "";
-		if (focus) {
-			searchBox.focus();
+	getDrawStationElement: (stationElement, color1, color2) => {
+		const element = document.createElement("div");
+		element.className = "route_station_name";
+		if (color1 != null) {
+			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${UTILITIES.convertColor(color1)}">&nbsp</span>`;
 		}
-		document.getElementById("clear_search_icon").style.display = "none";
-		// const {stations, routes} = data;
-		// for (const stationId in stations) {
-		// 	document.getElementById(stationId).style.display = "none";
-		// }
-		// for (const index in routes) {
-		// 	document.getElementById(routes[index]["color"]).style.display = "none";
-		// }
+		if (color2 != null) {
+			element.innerHTML += `<span class="route_segment top" style="background-color: ${UTILITIES.convertColor(color2)}">&nbsp</span>`;
+		}
+		element.innerHTML += `<span class="station_circle"></span>`;
+		element.appendChild(stationElement);
+		return element;
 	},
-	clearPanes: () => {
-		UTILITIES.selectedStation = 0;
-		UTILITIES.selectedRoutes = [];
-		UTILITIES.selectedDirectionsStations = [];
-		UTILITIES.selectedDirectionsSegments = {};
-		showSettings = false;
-		document.getElementById("station_info").style.display = "none";
-		document.getElementById("route_info").style.display = "none";
-		document.getElementById("directions").style.display = "none";
-		document.getElementById("settings").style.display = "none";
+	getDrawLineElement: (icon, innerElement, color) => {
+		const element = document.createElement("div");
+		element.className = "route_duration";
+		element.innerHTML =
+			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : UTILITIES.convertColor(color)}">&nbsp</span>` +
+			`<span class="material-icons small">${icon}</span>`;
+		element.appendChild(innerElement);
+		return element;
 	},
 	convertGtfsRouteType: routeType => {
 		switch (routeType) {
 			case 0:
 			case 5:
 			case 12:
-				return UTILITIES.routeTypes[1];
+				return "train_light_rail";
 			case 2:
-				return UTILITIES.routeTypes[2];
+				return "train_high_speed";
 			case 3:
 			case 11:
-				return UTILITIES.routeTypes[7];
+				return "bus_normal";
 			case 4:
-				return UTILITIES.routeTypes[4];
+				return "boat_light_rail";
 			case 6:
-				return UTILITIES.routeTypes[6];
+				return "cable_car_normal";
 			default:
-				return UTILITIES.routeTypes[0];
+				return "train_normal";
 		}
 	},
 	directionToAngle: direction => {
 		const directionIndex = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].indexOf(direction);
 		return UTILITIES.angles[(directionIndex >= 0 ? directionIndex : 0) % UTILITIES.angles.length];
 	},
+	formatTime: time => {
+		const hour = Math.floor(time / 3600);
+		const minute = Math.floor(time / 60) % 60;
+		const second = Math.floor(time) % 60;
+		return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
+	},
+	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
 	convertColor: colorInt => "#" + Number(colorInt).toString(16).padStart(6, "0"),
 	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
 	routeTypes: {
@@ -196,14 +199,5 @@ const rotatePoint = (x, y, direction) => {
 	};
 };
 const clamp = (x, bound) => Math.max(Math.min(x, bound), -bound);
-
-let showSettings = false;
-document.getElementById("settings_icon").onclick = () => {
-	const newShowSettings = !showSettings;
-	UTILITIES.onClearSearch(false);
-	UTILITIES.clearPanes();
-	document.getElementById("settings").style.display = newShowSettings ? "" : "none";
-	showSettings = newShowSettings;
-};
 
 export default UTILITIES;

@@ -1,5 +1,7 @@
 import UTILITIES from "./utilities.js";
+import DOCUMENT from "./document.js";
 import SETTINGS from "./settings.js";
+import ACTIONS from "./actions.js";
 
 const OBJECT_CACHE = {};
 const DRAWING = {
@@ -23,6 +25,7 @@ const DRAWING = {
 
 		setTimeout(() => UTILITIES.runForTime(stationQueue, addStationFromQueue, setTimeout(() => UTILITIES.runForTime(lineQueue, addLineFromQueue, null))));
 		document.getElementById("loading").style.display = "none";
+		CANVAS.backgroundColor = UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor"));
 	},
 	drawTest: (routes, middleAngle, outerAngles) => {
 		CANVAS.clear();
@@ -63,16 +66,30 @@ const DRAWING = {
 			}
 		}
 	},
+	zoomToPoint: (x, y) => {
+		targetX = x * zoom - window.innerWidth / 2;
+		targetY = y * zoom - window.innerHeight / 2;
+		startX = -getCanvasOffsetX();
+		startY = -getCanvasOffsetY();
+	},
 	getCenterLatLon: () => [(getCanvasOffsetY() - window.innerHeight / 2) / zoom, -(getCanvasOffsetX() - window.innerWidth / 2) / zoom, window.innerHeight / zoom, window.innerWidth / zoom],
 };
 
 let mouseDown = false;
-let mouseMoved = false;
+let shouldClearPanes = false;
 let touchX = 0;
 let touchY = 0;
 let zoom = 1;
+let startX = 0;
+let startY = 0;
+let targetX = undefined;
+let targetY = undefined;
 
-const CANVAS = new fabric.Canvas("canvas", {renderOnAddRemove: false, selection: false});
+const CANVAS = new fabric.Canvas("canvas", {
+	renderOnAddRemove: false,
+	selection: false,
+	backgroundColor: UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+});
 CANVAS.absolutePan(new fabric.Point(-window.innerWidth / 2, -window.innerHeight / 2));
 const getCanvasOffsetX = () => CANVAS.viewportTransform[4];
 const getCanvasOffsetY = () => CANVAS.viewportTransform[5];
@@ -85,7 +102,7 @@ resize();
 
 CANVAS.on("mouse:down", options => {
 	mouseDown = true;
-	mouseMoved = false;
+	shouldClearPanes = true;
 	const event = options.e;
 	if ("touches" in event && event.touches.length > 0) {
 		touchX = event.touches[0].pageX;
@@ -94,8 +111,8 @@ CANVAS.on("mouse:down", options => {
 });
 CANVAS.on("mouse:up", () => {
 	mouseDown = false;
-	if (!mouseMoved) {
-		UTILITIES.clearPanes();
+	if (shouldClearPanes) {
+		DOCUMENT.clearPanes();
 	}
 });
 CANVAS.on("mouse:move", options => {
@@ -108,7 +125,7 @@ CANVAS.on("mouse:move", options => {
 			touchX = event.touches[0].pageX;
 			touchY = event.touches[0].pageY;
 		}
-		mouseMoved = true;
+		shouldClearPanes = false;
 	}
 	event.stopPropagation();
 });
@@ -138,7 +155,7 @@ CANVAS.on("mouse:wheel", options => {
 const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
 const inWindow = (x1, y1, x2, y2) => UTILITIES.isBetween(-getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(window.innerWidth - getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(-getCanvasOffsetY(), y1, y2) || UTILITIES.isBetween(window.innerHeight - getCanvasOffsetY(), y1, y2);
 const addStation = (key, station) => {
-	const {width, height, left, top, angle} = station;
+	const {id, width, height, left, top, angle} = station;
 	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
 	const blob = new fabric.Rect({
 		"originX": "center",
@@ -148,8 +165,8 @@ const addStation = (key, station) => {
 		"rx": SETTINGS.size * 6,
 		"ry": SETTINGS.size * 6,
 		"angle": angle,
-		"fill": "white",
-		"stroke": "black",
+		"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
+		"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
 		"strokeWidth": SETTINGS.size * 2,
 		"hoverCursor": "pointer",
 		"selectable": false,
@@ -164,8 +181,8 @@ const addStation = (key, station) => {
 			"top": blobHeightOffset + SETTINGS.size * 2 + textYOffset,
 			"fontFamily": UTILITIES.fonts.join(","),
 			"fontSize": fontSize,
-			"fill": "black",
-			"stroke": "white",
+			"fill": UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor")),
+			"stroke": UTILITIES.convertColor(UTILITIES.getColorStyle("--backgroundColor")),
 			"strokeWidth": 4,
 			"paintFirst": "stroke",
 			"originX": "center",
@@ -198,9 +215,12 @@ const addStation = (key, station) => {
 		},
 	});
 	elements.forEach(element => {
-		element.on("mouseover", () => group.set("shadow", "black 0 0 8px"));
+		element.on("mouseover", () => group.set("shadow", `${UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor"))} 0 0 8px`));
 		element.on("mouseout", () => group.set("shadow", ""));
-		element.on("mousedown", () => console.log(UTILITIES.angles.map(angle => station[`routes${angle}`])));
+		element.on("mousedown", () => {
+			ACTIONS.onClickStation(id);
+			shouldClearPanes = false;
+		});
 	});
 	CANVAS.remove(OBJECT_CACHE[key]);
 	OBJECT_CACHE[key] = group;
@@ -256,8 +276,23 @@ const checkAllVisibility = () => {
 };
 checkAllVisibility();
 
+const STEPS = 50;
+const MIN_SPEED = 0.0001;
+const SPEED_MULTIPLIER = 3;
+const delta = 1;
 const update = () => {
 	requestAnimationFrame(update);
+	if (typeof targetX !== "undefined" && typeof targetY !== "undefined") {
+		const distanceSquared = (targetX - startX) ** 2 + (targetY - startY) ** 2;
+		const percentage = distanceSquared === 0 ? 1 : Math.sqrt(((getCanvasOffsetX() + startX) ** 2 + (getCanvasOffsetY() + startY) ** 2) / distanceSquared);
+		const speed = delta * SPEED_MULTIPLIER * Math.sqrt(percentage < 0.5 ? Math.max(percentage, MIN_SPEED) : 1 - percentage);
+		CANVAS.relativePan(new fabric.Point(-speed * (targetX - startX) / STEPS, -speed * (targetY - startY) / STEPS));
+		if (percentage >= 1 || (-getCanvasOffsetX() - startX) / (targetX - startX) >= 1 || (-getCanvasOffsetY() - startY) / (targetY - startY) >= 1) {
+			CANVAS.absolutePan(new fabric.Point(targetX, targetY));
+			targetX = undefined;
+			targetY = undefined;
+		}
+	}
 	CANVAS.renderAll();
 };
 update();
