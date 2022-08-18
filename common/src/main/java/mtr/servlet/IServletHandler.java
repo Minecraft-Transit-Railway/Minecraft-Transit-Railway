@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public interface IServletHandler {
 
 	static void sendResponse(HttpServletResponse response, AsyncContext asyncContext, String content) {
-		final ByteBuffer contentBytes = ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_16));
+		final ByteBuffer contentBytes = ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8));
 		try {
 			response.addHeader("Access-Control-Allow-Origin", "*");
 			final ServletOutputStream servletOutputStream = response.getOutputStream();
