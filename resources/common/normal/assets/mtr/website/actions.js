@@ -3,6 +3,7 @@ import DATA from "./data.js";
 import DOCUMENT from "./document.js";
 import SETTINGS from "./settings.js";
 import DRAWING from "./drawing.js";
+import DIRECTIONS from "./directions.js";
 import FetchData from "./fetch.js";
 
 const ACTIONS = {
@@ -38,13 +39,13 @@ const ACTIONS = {
 		document.getElementById("station_directions_1").onclick = () => {
 			DOCUMENT.clearPanes(true);
 			document.getElementById("directions").style.display = "block";
-			// DIRECTIONS.onSelectStation(1, id, data);
+			DIRECTIONS.onSelectStation(1, id);
 			document.getElementById("directions_box_2").focus();
 		};
 		document.getElementById("station_directions_2").onclick = () => {
 			DOCUMENT.clearPanes(true);
 			document.getElementById("directions").style.display = "block";
-			// DIRECTIONS.onSelectStation(2, id, data);
+			DIRECTIONS.onSelectStation(2, id);
 			document.getElementById("directions_box_1").focus();
 		};
 
@@ -143,6 +144,7 @@ const ACTIONS = {
 		const element = document.createElement("div");
 		element.setAttribute("id", elementId);
 		element.setAttribute("class", "clickable");
+		element.setAttribute("style", "overflow-x: clip");
 		if (!visible) {
 			element.setAttribute("style", "display: none");
 		}
@@ -152,6 +154,20 @@ const ACTIONS = {
 			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${UTILITIES.routeTypes[type]}</span>` +
 			`<span class="${showColor ? "text" : "text_disabled"}">${number}${number ? " " : ""}${name}</span>`;
 		return element;
+	},
+	getClosestInterchangeOnRoute: (route, thisStation) => {
+		const {routes, stations} = DATA.json[SETTINGS.dimension];
+		const routeStations = route["stations"];
+		let passed = false;
+		for (let i = 0; i < routeStations.length; i++) {
+			const checkStation = routeStations[i].split("_")[0];
+			if (passed && (routes.some(checkRoute => checkRoute["color"] !== route["color"] && checkRoute["stations"].some(checkRouteStation => checkRouteStation.split("_")[0] === checkStation)) || i === routeStations.length - 1)) {
+				return stations[checkStation]["name"];
+			}
+			if (checkStation === thisStation) {
+				passed = true;
+			}
+		}
 	},
 };
 
@@ -166,7 +182,7 @@ const FETCH_ARRIVAL_DATA = new FetchData(() => SETTINGS.url + "arrivals?worldInd
 	for (const {arrival, name, destination, circular, platform, route, color} of result) {
 		const currentMillis = Date.now();
 		const arrivalDifference = Math.floor((arrival - currentMillis) / 1000);
-		const destinationSplit = circular === "" ? destination.split("|") : getClosestInterchangeOnRoute(data, data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
+		const destinationSplit = circular === "" ? destination.split("|") : ACTIONS.getClosestInterchangeOnRoute(data["routes"].find(checkRoute => checkRoute["name"] === name && checkRoute["color"] === color && checkRoute["circular"] === circular), SETTINGS.selectedStation).split("|");
 		const routeNumberSplit = route.split("|");
 		if (typeof arrivalsHtml[color] === "undefined") {
 			arrivalsHtml[color] = {html: "", count: 0};
@@ -340,7 +356,7 @@ const onClickLine = (routeId, color, forceClick) => {
 		UTILITIES.removeFromArray(SETTINGS.selectedRoutes, routeId);
 	}
 
-	// SETTINGS.drawDirectionsRoute([], []);
+	DIRECTIONS.drawDirectionsRoute([], []);
 	DATA.redraw();
 	FETCH_DELAYS_DATA.fetchData();
 };
@@ -362,20 +378,6 @@ const onSelectDelaysTab = selectDelaysTab => {
 	document.getElementById("route_delays_tab").className = "material-icons clickable" + (selectedDelaysTab ? " selected" : "");
 	document.getElementById("route_details").style.display = selectedDelaysTab ? "none" : "";
 	document.getElementById("delays").style.display = selectedDelaysTab ? "" : "none";
-};
-const getClosestInterchangeOnRoute = (data, route, thisStation) => {
-	const {routes, stations} = data;
-	const routeStations = route["stations"];
-	let passed = false;
-	for (let i = 0; i < routeStations.length; i++) {
-		const checkStation = routeStations[i].split("_")[0];
-		if (passed && (routes.some(checkRoute => checkRoute["color"] !== route["color"] && checkRoute["stations"].some(checkRouteStation => checkRouteStation.split("_")[0] === checkStation)) || i === routeStations.length - 1)) {
-			return stations[checkStation]["name"];
-		}
-		if (checkStation === thisStation) {
-			passed = true;
-		}
-	}
 };
 
 let selectedDelaysTab = false;

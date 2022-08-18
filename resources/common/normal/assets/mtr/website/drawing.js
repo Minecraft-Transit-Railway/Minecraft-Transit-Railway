@@ -54,7 +54,7 @@ const DRAWING = {
 			});
 			for (let j = 0; j < routes; j++) {
 				addLine(`test_line_${i}_${j}`, {
-					"color": `${UTILITIES.convertColor(Math.round(Math.random() * 0xFFFFFF))}50`,
+					"color": Math.round(Math.random() * 0xFFFFFF),
 					"segments": [
 						{
 							"x": 0,
@@ -150,6 +150,7 @@ CANVAS.on("mouse:up", () => {
 	mouseDown = false;
 	if (shouldClearPanes) {
 		DOCUMENT.clearPanes(true);
+		DATA.redraw();
 	}
 });
 CANVAS.on("mouse:move", options => {
@@ -284,10 +285,29 @@ const addStation = (key, station) => {
 	group.checkVisibility();
 }
 const addLine = (key, line) => {
-	const {color, segments, selected, id} = line;
+	const {color, segments, selected, density, id} = line;
+
+	const grayColor = UTILITIES.getColorStyle("--textColorDisabled");
+	let newColor;
+	if (SETTINGS.densityView === 1) {
+		const grayByte = (grayColor & 0xFF) * (1 - density);
+		const r = Math.floor(((color >> 16) & 0xFF) * density + grayByte);
+		const g = Math.floor(((color >> 8) & 0xFF) * density + grayByte);
+		const b = Math.floor((color & 0xFF) * density + grayByte);
+		newColor = (r << 16) + (g << 8) + b;
+	} else if (SETTINGS.densityView === 2) {
+		if (density > 0) {
+			newColor = (Math.floor(0x66 * (1 - density)) << 16) + (Math.floor(0xCC * density) << 8) + 0x3300;
+		} else {
+			newColor = grayColor;
+		}
+	} else {
+		newColor = color;
+	}
+
 	const polyline = new fabric.Polyline([], {
 		"fill": null,
-		"stroke": selected ? color : UTILITIES.convertColor(UTILITIES.getColorStyle("--textColorDisabled")),
+		"stroke": `${UTILITIES.convertColor(selected ? newColor : grayColor)}${UTILITIES.testMode ? "50" : ""}`,
 		"strokeWidth": SETTINGS.size * 6,
 		"cornerStyle": "circle",
 		"objectCaching": false,
@@ -337,14 +357,14 @@ const checkAllVisibility = () => {
 	}, () => setTimeout(checkAllVisibility));
 
 	legendVisibleLines.sort();
-	const legendString = legendVisibleLines.join(",") + SETTINGS.selectedRoutes.join(",");
+	const legendString = legendVisibleLines.join(",") + SETTINGS.selectedRoutes.join(",") + Object.keys(SETTINGS.selectedDirectionsSegments).join(",");
 	const legendElement = document.getElementById("legend");
 	if (legendString !== previousLegendString) {
 		legendElement.innerText = "";
 		legendVisibleLines.forEach(routeId => {
 			const route = DATA.json[SETTINGS.dimension]["routes"].find(route => route["id"] === routeId);
 			if (route) {
-				legendElement.appendChild(ACTIONS.getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId), "", false));
+				legendElement.appendChild(ACTIONS.getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, DATA.routeSelected(routeId), "", false));
 			}
 		});
 	}
@@ -371,7 +391,7 @@ const update = () => {
 			targetY = undefined;
 		}
 	}
-	if (SETTINGS.selectedRoutes.length > 0) {
+	if (SETTINGS.selectedRoutes.length > 0 || SETTINGS.selectedDirectionsStations.length > 0) {
 		CANVAS._objects.sort((a, b) => Math.sign(a["z"] - b["z"]));
 	}
 	CANVAS.renderAll();

@@ -2,7 +2,10 @@ import UTILITIES from "./utilities.js";
 import DRAWING from "./drawing.js";
 import SETTINGS from "./settings.js";
 import ACTIONS from "./actions.js";
+import DOCUMENT from "./document.js";
+import DIRECTIONS from "./directions.js";
 
+const WALKING_SPEED_METER_PER_SECOND = 4;
 const DATA = {
 	parseOBA: (result, latOffset, lonOffset, zoomOffset) => {
 		const {list, references} = result["data"];
@@ -88,7 +91,8 @@ const DATA = {
 	parseMTR: result => {
 		DATA.json = result;
 		ACTIONS.setupRouteTypeAndDimensionButtons();
-		const {routes, positions, stations} = result[SETTINGS.dimension];
+		result[SETTINGS.dimension]["connections"] = {};
+		const {routes, positions, stations, connections} = result[SETTINGS.dimension];
 		const elementRoutes = document.getElementById("search_results_routes");
 		elementRoutes.innerHTML = "";
 		const elementStations = document.getElementById("search_results_stations");
@@ -96,9 +100,11 @@ const DATA = {
 
 		const routesToShow = [];
 		routes.forEach(route => {
+			// TODO temp code
 			if (!("id" in route)) {
 				route["id"] = route["color"].toString();
 			}
+			// TODO temp code end
 			if (SETTINGS.selectedRouteTypes.includes(route["type"])) {
 				routesToShow.push(route["id"]);
 			}
@@ -118,7 +124,7 @@ const DATA = {
 				}
 
 				const {x, y, vertical} = positions[key];
-				const angle = "angle" in positions[key] ? positions[key]["angle"] : UTILITIES.angles[vertical ? 0 : 2]; // TODO
+				const angle = "angle" in positions[key] ? positions[key]["angle"] : UTILITIES.angles[vertical ? 0 : 2]; // TODO 45 degree angle increments
 				tempStations[stationId]["xPositions"].push(x);
 				tempStations[stationId]["yPositions"].push(y);
 				tempStations[stationId][`routes${angle}`].push(routeId);
@@ -133,7 +139,23 @@ const DATA = {
 			delete tempStation["yPositions"];
 		});
 
+		for (const stationId in stations) {
+			for (const stationId2 in stations) {
+				if (stationId !== stationId2) {
+					if (!(stationId in connections)) {
+						connections[stationId] = [];
+					}
+					connections[stationId].push({
+						route: null,
+						station: stationId2,
+						duration: DIRECTIONS.calculateDistance(stations, stationId, stationId2) * 20 / WALKING_SPEED_METER_PER_SECOND
+					});
+				}
+			}
+		}
+
 		const lineQueue = {};
+		let maxDensity = 1;
 		routes.forEach(route => {
 			const routeStations = route["stations"];
 			for (let i = 0; i < routeStations.length; i++) {
@@ -142,17 +164,34 @@ const DATA = {
 
 				if (i > 0) {
 					const stopId1 = routeStations[i - 1].split("_")[0];
+
 					if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
 						const key = routeId + [stopId1, stopId2].sort().join(" ");
-						if (!(key in lineQueue)) {
+						const density = route["densities"][i - 1];
+
+						if (key in lineQueue) {
+							lineQueue[key]["density"] += density;
+							maxDensity = Math.max(maxDensity, lineQueue[key]["density"]);
+						} else {
 							lineQueue[key] = {
-								"color": UTILITIES.convertColor(route["color"]),
+								"color": route["color"],
 								"segments": [getSegmentDetails(stopId1, routeId, tempStations), getSegmentDetails(stopId2, routeId, tempStations)],
-								"selected": SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId),
+								"selected": DATA.routeSelected(routeId, stopId1, stopId2),
 								"id": routeId,
+								"density": density,
 							};
+							maxDensity = Math.max(maxDensity, density);
 						}
 					}
+
+					if (!(stopId1 in connections)) {
+						connections[stopId1] = [];
+					}
+					connections[stopId1].push({
+						route: route,
+						station: stopId2,
+						duration: route["durations"][i - 1],
+					});
 				}
 
 				if (stopId2 in tempStations) {
@@ -172,7 +211,7 @@ const DATA = {
 				"left": tempStations[stationId]["x"],
 				"top": tempStations[stationId]["y"],
 				"angle": routeCounts[1] + routeCounts[3] > routeCounts[0] + routeCounts[2] ? 45 : 0,
-				"selected": SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
+				"selected": SETTINGS.selectedDirectionsStations.length > 0 ? SETTINGS.selectedDirectionsStations.includes(stationId) : SETTINGS.selectedRoutes.length === 0 || tempStations[stationId]["routeIds"].some(routeId => SETTINGS.selectedRoutes.includes(routeId)),
 				"types": tempStations[stationId]["types"],
 			};
 			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
@@ -184,7 +223,23 @@ const DATA = {
 			elementStations.append(element);
 		});
 
+		Object.values(lineQueue).forEach(line => {
+			const densityFunction = density => -((density - 1) ** 2) + 1;
+			line["density"] = densityFunction(line["density"] / maxDensity);
+		});
+
+		DIRECTIONS.writeStationsInResult(1);
+		DIRECTIONS.writeStationsInResult(2);
+		DOCUMENT.onSearch();
 		DRAWING.drawMap(lineQueue, stationQueue);
+	},
+	routeSelected: (routeId, stopId1, stopId2) => {
+		if (SETTINGS.selectedDirectionsStations.length > 0) {
+			const selectedSegments = SETTINGS.selectedDirectionsSegments[routeId];
+			return selectedSegments && ((!stopId1 || !stopId2) || selectedSegments.includes(`${stopId1}_${stopId2}`) || selectedSegments.includes(`${stopId2}_${stopId1}`));
+		} else {
+			return SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId);
+		}
 	},
 	redraw: () => DATA.parseMTR(DATA.json),
 	json: [],

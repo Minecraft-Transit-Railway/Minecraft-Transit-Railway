@@ -7,6 +7,7 @@ const SETTINGS = {
 	selectedDirectionsStations: [],
 	selectedDirectionsSegments: {},
 	selectedRouteTypes: [Object.keys(UTILITIES.routeTypes)[0]],
+	densityView: 0,
 	showText: true,
 	showLegend: true,
 	size: 1,

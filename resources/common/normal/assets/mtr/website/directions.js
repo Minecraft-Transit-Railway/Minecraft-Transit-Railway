@@ -1,5 +1,10 @@
-import CANVAS from "./utilities.js";
-import SETTINGS from "./index.js";
+import UTILITIES from "./utilities.js";
+import DOCUMENT from "./document.js";
+import ACTIONS from "./actions.js";
+import DATA from "./data.js";
+import SETTINGS from "./settings.js";
+
+// TODO get directions serverside
 
 let stationStart = 0;
 let stationEnd = 0;
@@ -7,7 +12,8 @@ let pathStations = [];
 let pathRoutes = [];
 
 const DIRECTIONS = {
-	onSearch: (index, data) => {
+	onSearch: index => {
+		const data = DATA.json[SETTINGS.dimension];
 		const searchBox = document.getElementById("directions_box_" + index);
 		const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
 		document.getElementById("clear_directions_" + index + "_icon").innerText = search === "" ? "" : "clear";
@@ -24,7 +30,8 @@ const DIRECTIONS = {
 		document.getElementById("search_results_stations_" + index).style.maxHeight = (Math.max(window.innerHeight - 320, 64)) / 4 + "px";
 		document.getElementById("directions").style.maxHeight = window.innerHeight - 80 + "px";
 	},
-	onSelectStation: (index, stationId, data) => {
+	onSelectStation: (index, stationId) => {
+		const data = DATA.json[SETTINGS.dimension];
 		document.getElementById("clear_directions_" + index + "_icon").innerText = "clear";
 		document.getElementById("directions_box_" + index).value = data["stations"][stationId]["name"].replace(/\|/g, " ");
 		for (const stationId in data["stations"]) {
@@ -38,10 +45,11 @@ const DIRECTIONS = {
 		if (stationStart !== 0 && stationEnd !== 0) {
 			document.getElementById("directions_result").style.display = "";
 			document.getElementById("directions_result_route").innerHTML = `<div class="info_center"><span class="material-icons large">refresh</span></div>`;
-			setTimeout(() => findRoute(data), 500);
+			setTimeout(findRoute, 500);
 		}
 	},
-	writeStationsInResult: (index, data) => {
+	writeStationsInResult: index => {
+		const data = DATA.json[SETTINGS.dimension];
 		const elementDirectionsStations = document.getElementById("search_results_stations_" + index);
 		elementDirectionsStations.innerHTML = "";
 		for (const stationId in data["stations"]) {
@@ -50,7 +58,7 @@ const DIRECTIONS = {
 			element.id = "directions_" + index + "_" + stationId;
 			element.className = "text clickable";
 			element.style.display = "none";
-			element.onclick = () => DIRECTIONS.onSelectStation(index, stationId, data);
+			element.onclick = () => DIRECTIONS.onSelectStation(index, stationId);
 			elementDirectionsStations.append(element);
 		}
 	},
@@ -59,10 +67,29 @@ const DIRECTIONS = {
 		const station2 = stations[stationId2];
 		return Math.abs(station2["x"] - station1["x"]) + Math.abs(station2["z"] - station1["z"]);
 	},
+	drawDirectionsRoute: (pathStations, pathRoutes) => {
+		if (pathStations.length > 0 || pathRoutes.length > 0) {
+			SETTINGS.selectedRoutes = [];
+		}
+		SETTINGS.selectedDirectionsStations = pathStations;
+		SETTINGS.selectedDirectionsSegments = {};
+		for (let i = 0; i < pathRoutes.length; i++) {
+			if (pathRoutes[i] != null) {
+				for (let j = 0; j < pathRoutes[i].length; j++) {
+					const routeId = pathRoutes[i][j]["id"];
+					if (!(routeId in SETTINGS.selectedDirectionsSegments)) {
+						SETTINGS.selectedDirectionsSegments[routeId] = [];
+					}
+					SETTINGS.selectedDirectionsSegments[routeId].push(pathStations[i] + "_" + pathStations[i + 1]);
+				}
+			}
+		}
+		DATA.redraw();
+	},
 };
 
-const findRoutePart = (data, globalBlacklist, maxTime) => {
-	const {stations, connections} = data;
+const findRoutePart = (globalBlacklist, maxTime) => {
+	const {stations, connections} = DATA.json[SETTINGS.dimension];
 	if (!(stationStart in stations) || !(stationEnd in stations)) {
 		return [[], [], []];
 	}
@@ -130,9 +157,9 @@ const findRoutePart = (data, globalBlacklist, maxTime) => {
 	}
 
 	return [tempPathStations, tempPathRoutes, times];
-}
+};
 
-const findRoute = data => {
+const findRoute = () => {
 	pathStations = [];
 	pathRoutes = [];
 
@@ -144,7 +171,7 @@ const findRoute = data => {
 	let times = [];
 
 	while (tries < 500) {
-		const path = findRoutePart(data, globalBlacklist, totalTime);
+		const path = findRoutePart(globalBlacklist, totalTime);
 		tries++;
 
 		if (path[0].length === 0) {
@@ -166,7 +193,7 @@ const findRoute = data => {
 
 	const hasRoute = pathStations.length > 0 && pathStations.length > pathRoutes.length && times.length === pathRoutes.length;
 	const resultElement = document.getElementById("directions_result_route");
-	const stations = data["stations"];
+	const stations = DATA.json[SETTINGS.dimension]["stations"];
 	resultElement.innerHTML = "";
 
 	if (hasRoute) {
@@ -204,7 +231,7 @@ const findRoute = data => {
 		let time = 0;
 		let stationCount = 0;
 
-		resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, routes.length === 0 ? null : routes[0]["color"]));
+		resultElement.append(UTILITIES.getDrawStationElement(createStationElement(stations[station]["name"].replace(/\|/g, " ")), null, routes.length === 0 ? null : routes[0]["color"]));
 
 		for (let i = 1; i <= pathRoutes.length; i++) {
 			const nextRoutes = i === pathRoutes.length ? [] : pathRoutes[i];
@@ -220,7 +247,7 @@ const findRoute = data => {
 				if (isWalking) {
 					const walkingElement = document.createElement("span");
 					walkingElement.innerHTML = Math.round(DIRECTIONS.calculateDistance(stations, station, nextStation) / 100) / 10 + " km";
-					resultElement.append(CANVAS.getDrawLineElement("directions_walk", walkingElement, null));
+					resultElement.append(UTILITIES.getDrawLineElement("directions_walk", walkingElement, null));
 					startZone = stations[nextStation]["zone"];
 				} else {
 					const routeIconsAndDestinations = {};
@@ -233,29 +260,32 @@ const findRoute = data => {
 						const routeStations = route["stations"];
 						const routeNumber = route["number"] + (route["number"] === "" ? "" : " ");
 						if (routeStations.length > 0) {
-							const iconAndDestination = route["circular"] === "" ? ["chevron_right", routeNumber + stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", routeNumber + CANVAS.getClosestInterchangeOnRoute(data, route, station)];
+							const iconAndDestination = route["circular"] === "" ? ["chevron_right", routeNumber + stations[routeStations[routeStations.length - 1].split("_")[0]]["name"]] : [route["circular"] === "cw" ? "rotate_right" : "rotate_left", routeNumber + ACTIONS.getClosestInterchangeOnRoute(route, station)];
 							if (!routeIconsAndDestinations[routeName].some(iconAndDestinationCheck => iconAndDestinationCheck[0] === iconAndDestination[0] && iconAndDestinationCheck[1] === iconAndDestination[1])) {
 								routeIconsAndDestinations[routeName].push(iconAndDestination);
 							}
 						}
 						routeTypes[routeName] = route["type"];
+						if (!(route["type"] in SETTINGS.selectedRouteTypes)) {
+							SETTINGS.selectedRouteTypes.push(route["type"]);
+						}
 					});
 
 					Object.keys(routeIconsAndDestinations).forEach(routeName => {
 						const routeNameElement = document.createElement("span");
 						routeNameElement.innerHTML = routeName;
-						resultElement.append(CANVAS.getDrawLineElement(SETTINGS.routeTypes[routeTypes[routeName]], routeNameElement, color));
+						resultElement.append(UTILITIES.getDrawLineElement(UTILITIES.routeTypes[routeTypes[routeName]], routeNameElement, color));
 
 						routeIconsAndDestinations[routeName].forEach(iconAndDestination => {
 							const routeDestinationElement = document.createElement("span");
 							routeDestinationElement.innerHTML = iconAndDestination[1].replace(/\|/g, " ");
-							resultElement.append(CANVAS.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;" + iconAndDestination[0], routeDestinationElement, color));
+							resultElement.append(UTILITIES.getDrawLineElement("&nbsp;&nbsp;&nbsp;&nbsp;" + iconAndDestination[0], routeDestinationElement, color));
 						})
 					})
 
 					const stationCountElement = document.createElement("span");
 					stationCountElement.innerHTML = stationCount.toString();
-					resultElement.append(CANVAS.getDrawLineElement("commit", stationCountElement, color));
+					resultElement.append(UTILITIES.getDrawLineElement("commit", stationCountElement, color));
 
 					if (isNextWalking) {
 						fare += Math.abs(startZone - stations[nextStation]["zone"]) + 2;
@@ -263,9 +293,9 @@ const findRoute = data => {
 				}
 
 				const durationElement = document.createElement("span");
-				durationElement.innerHTML = CANVAS.formatTime(time / 20);
-				resultElement.append(CANVAS.getDrawLineElement("schedule", durationElement, color));
-				resultElement.append(CANVAS.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoutes.length === 0 ? null : nextRoutes[0]["color"]));
+				durationElement.innerHTML = UTILITIES.formatTime(time / 20);
+				resultElement.append(UTILITIES.getDrawLineElement("schedule", durationElement, color));
+				resultElement.append(UTILITIES.getDrawStationElement(createStationElement(stations[nextStation]["name"].replace(/\|/g, " ")), color, nextRoutes.length === 0 ? null : nextRoutes[0]["color"]));
 
 				routes = nextRoutes;
 				station = nextStation;
@@ -281,7 +311,7 @@ const findRoute = data => {
 		infoElement.innerHTML +=
 			`<div class="info_middle">` +
 			`<span class="material-icons small">schedule</span>` +
-			`<span class="text">${CANVAS.formatTime(totalTime / 20)}</span>` +
+			`<span class="text">${UTILITIES.formatTime(totalTime / 20)}</span>` +
 			"&nbsp;&nbsp;&nbsp;" +
 			`<span class="material-icons small">confirmation_number</span>` +
 			`<span class="text">$${fare}</span>` +
@@ -298,7 +328,7 @@ const findRoute = data => {
 	}
 
 	document.getElementById("directions").style.maxHeight = window.innerHeight - 80 + "px";
-	SETTINGS.drawDirectionsRoute(pathStations, pathRoutes, true);
+	DIRECTIONS.drawDirectionsRoute(pathStations, pathRoutes, true);
 };
 
 const createStationElement = stationName => {
@@ -306,7 +336,7 @@ const createStationElement = stationName => {
 	stationElement.innerText = stationName;
 	stationElement.className = "text";
 	return stationElement;
-}
+};
 
 const compareArrays = (array1, array2) => {
 	if (array1.length !== array2.length) {
@@ -314,11 +344,11 @@ const compareArrays = (array1, array2) => {
 	} else {
 		return array1.every(element => array2.includes(element));
 	}
-}
+};
 
 document.getElementById("directions_icon").onclick = () => {
-	SETTINGS.clearPanes();
-	SETTINGS.drawDirectionsRoute(pathStations, pathRoutes);
+	DOCUMENT.clearPanes(true);
+	DIRECTIONS.drawDirectionsRoute(pathStations, pathRoutes);
 	document.getElementById("directions").style.display = "block";
 };
 

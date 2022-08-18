@@ -34,7 +34,7 @@ const init = () => {
 				return `https://api.pugetsound.onebusaway.org/api/where/trips-for-location.json?key=TEST&lat=${lat / ZOOM_OFFSET + LAT_OFFSET}&lon=${lon / ZOOM_OFFSET + LON_OFFSET}&latSpan=${Math.max(latSpan / ZOOM_OFFSET, 0.1)}&lonSpan=${Math.max(lonSpan / ZOOM_OFFSET, 0.1)}&includeSchedule=true&includeReferences=true`;
 			}, DATA_REFRESH_INTERVAL, false, () => true, result => DATA.parseOBA(result, LAT_OFFSET, LON_OFFSET, ZOOM_OFFSET)).fetchData();
 		} else {
-			new FetchData(() => SETTINGS.url + "data", DATA_REFRESH_INTERVAL, false, () => true, result => DATA.parseMTR(result), true).fetchData();
+			new FetchData(() => SETTINGS.url + "data", DATA_REFRESH_INTERVAL, false, () => true, result => DATA.parseMTR(result)).fetchData();
 			new FetchData(() => SETTINGS.url + "info", INFO_REFRESH_INTERVAL, false, () => true, result => {
 				const playerListElement = document.getElementById("player_list");
 				playerListElement.innerText = "";
