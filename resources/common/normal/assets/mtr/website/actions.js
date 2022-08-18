@@ -57,7 +57,7 @@ const ACTIONS = {
 			if (!addedRouteIds.includes(routeId)) {
 				for (const stationIndex in route["stations"]) {
 					if (route["stations"][stationIndex].split("_")[0] === id) {
-						stationRoutesElement.append(getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, true));
+						stationRoutesElement.append(ACTIONS.getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, true, "", true));
 						addedRouteIds.push(routeId);
 
 						const arrivalElement = document.createElement("div");
@@ -126,6 +126,32 @@ const ACTIONS = {
 		}
 
 		document.getElementById("settings_dimensions").style.display = dimensionButtonCount <= 1 ? "none" : "";
+	},
+	getStationElement: (color, name, stationId, elementId) => {
+		const element = document.createElement("div");
+		element.setAttribute("id", elementId);
+		element.setAttribute("class", "clickable");
+		element.onclick = () => ACTIONS.onClickStation(stationId);
+		element.innerHTML =
+			(color == null ? "" : `<span class="station" style="background: ${UTILITIES.convertColor(color)}"></span>`) +
+			`<span class="text">${name.replace(/\|/g, " ")}</span>`;
+		return element;
+	},
+	getRouteElement: (routeId, color, name, number, type, visible, showColor, elementId, forceClick) => {
+		name = name.split("||")[0].replace(/\|/g, " ");
+		number = number.split("||")[0].replace(/\|/g, " ");
+		const element = document.createElement("div");
+		element.setAttribute("id", elementId);
+		element.setAttribute("class", "clickable");
+		if (!visible) {
+			element.setAttribute("style", "display: none");
+		}
+		element.onclick = () => onClickLine(routeId, color, forceClick);
+		element.innerHTML =
+			`<span class="line" style="background: ${UTILITIES.convertColor(showColor ? color : UTILITIES.getColorStyle("--textColorDisabled"))}"></span>` +
+			`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${UTILITIES.routeTypes[type]}</span>` +
+			`<span class="${showColor ? "text" : "text_disabled"}">${number}${number ? " " : ""}${name}</span>`;
+		return element;
 	},
 };
 
@@ -243,21 +269,6 @@ const FETCH_DELAYS_DATA = new FetchData(() => SETTINGS.url + "delays", REFRESH_I
 	document.getElementById("route_info").style.maxHeight = window.innerHeight - 80 + "px";
 });
 
-const getRouteElement = (routeId, color, name, number, type, visible, showColor) => {
-	name = name.split("||")[0].replace(/\|/g, " ");
-	number = number.split("||")[0].replace(/\|/g, " ");
-	const element = document.createElement("div");
-	element.setAttribute("class", "clickable");
-	if (!visible) {
-		element.setAttribute("style", "display: none");
-	}
-	element.onclick = () => onClickLine(routeId, color, true);
-	element.innerHTML =
-		`<span class="line" style="background: ${UTILITIES.convertColor(showColor ? color : UTILITIES.getColorStyle("--textColorDisabled"))}"></span>` +
-		`<span class="${showColor ? "text" : "text_disabled"} material-icons tight">${UTILITIES.routeTypes[type]}</span>` +
-		`<span class="${showColor ? "text" : "text_disabled"}">${number}${number ? " " : ""}${name}</span>`;
-	return element;
-};
 const onClickLine = (routeId, color, forceClick) => {
 	const shouldSelect = forceClick || !SETTINGS.selectedRoutes.includes(routeId);
 	DOCUMENT.onClearSearch(false);
@@ -298,7 +309,7 @@ const onClickLine = (routeId, color, forceClick) => {
 
 			for (let i = 0; i < stations.length; i++) {
 				const stationId = stations[i].split("_")[0];
-				routeStationsElement.appendChild(UTILITIES.getDrawStationElement(getStationElement(null, data["stations"][stationId]["name"], stationId), i === 0 ? null : color, i === stations.length - 1 ? null : color));
+				routeStationsElement.appendChild(UTILITIES.getDrawStationElement(ACTIONS.getStationElement(null, data["stations"][stationId]["name"], stationId, ""), i === 0 ? null : color, i === stations.length - 1 ? null : color));
 
 				if (i < durations.length && durations[i] > 0) {
 					const element = document.createElement("span");
@@ -344,16 +355,6 @@ const addRouteHeader = (element, number, destination, circular, routeName) => {
 		smallHeaderElement.innerText = routeNameSplit[1].replace(/\|/g, " ");
 		element.appendChild(smallHeaderElement);
 	}
-};
-const getStationElement = (color, name, id) => {
-	const element = document.createElement("div");
-	element.setAttribute("id", id);
-	element.setAttribute("class", "clickable");
-	element.onclick = () => ACTIONS.onClickStation(id);
-	element.innerHTML =
-		(color == null ? "" : `<span class="station" style="background: ${UTILITIES.convertColor(color)}"></span>`) +
-		`<span class="text">${name.replace(/\|/g, " ")}</span>`;
-	return element;
 };
 const onSelectDelaysTab = selectDelaysTab => {
 	selectedDelaysTab = selectDelaysTab;

@@ -2,6 +2,7 @@ import UTILITIES from "./utilities.js";
 import DOCUMENT from "./document.js";
 import SETTINGS from "./settings.js";
 import ACTIONS from "./actions.js";
+import DATA from "./data.js";
 
 const OBJECT_CACHE = {};
 const DRAWING = {
@@ -12,6 +13,12 @@ const DRAWING = {
 				delete OBJECT_CACHE[key];
 			}
 		}
+		const cacheObjects = Object.values(OBJECT_CACHE);
+		CANVAS.getObjects().forEach(object => {
+			if (!cacheObjects.includes(object)) {
+				CANVAS.remove(object);
+			}
+		});
 
 		const addLineFromQueue = key => {
 			addLine(key, lineQueue[key]);
@@ -64,9 +71,11 @@ const DRAWING = {
 							"routeCount": routes,
 						},
 					],
+					"selected": true,
 				});
 			}
 		}
+		document.getElementById("loading").style.display = "none";
 	},
 	zoomToPoint: (x, y) => {
 		targetX = x * zoom - window.innerWidth / 2;
@@ -105,6 +114,8 @@ let startX = 0;
 let startY = 0;
 let targetX = undefined;
 let targetY = undefined;
+let legendVisibleLines = [];
+let previousLegendString = "";
 
 const CANVAS = new fabric.Canvas("canvas", {
 	renderOnAddRemove: false,
@@ -117,6 +128,11 @@ const getCanvasOffsetY = () => CANVAS.viewportTransform[5];
 const resize = () => {
 	CANVAS.setWidth(window.innerWidth);
 	CANVAS.setHeight(window.innerHeight);
+	document.getElementById("search").style.maxWidth = window.innerWidth - 32 + "px";
+	document.getElementById("station_info").style.maxHeight = window.innerHeight - 80 + "px";
+	const legendElement = document.getElementById("legend");
+	legendElement.style.maxWidth = window.innerWidth - 432 + "px";
+	legendElement.style.maxHeight = window.innerHeight - 32 + "px";
 };
 window.onresize = resize;
 resize();
@@ -158,7 +174,13 @@ CANVAS.on("mouse:wheel", options => {
 });
 
 const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
-const inWindow = (x1, y1, x2, y2) => UTILITIES.isBetween(-getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(window.innerWidth - getCanvasOffsetX(), x1, x2) || UTILITIES.isBetween(-getCanvasOffsetY(), y1, y2) || UTILITIES.isBetween(window.innerHeight - getCanvasOffsetY(), y1, y2);
+const inWindow = (x1, y1, x2, y2) => {
+	const minX = Math.min(x1, x2);
+	const minY = Math.min(y1, y2);
+	const maxX = Math.max(x1, x2);
+	const maxY = Math.max(y1, y2);
+	return minX < window.innerWidth - getCanvasOffsetX() && maxX > -getCanvasOffsetX() && minY < window.innerHeight - getCanvasOffsetY() && maxY > -getCanvasOffsetY();
+};
 const addStation = (key, station) => {
 	const {id, width, height, left, top, angle, selected, types} = station;
 	const blobHeightOffset = (angle === 0 ? height : (width + height - 1) / Math.SQRT2) / 2;
@@ -262,7 +284,7 @@ const addStation = (key, station) => {
 	group.checkVisibility();
 }
 const addLine = (key, line) => {
-	const {color, segments, selected} = line;
+	const {color, segments, selected, id} = line;
 	const polyline = new fabric.Polyline([], {
 		"fill": null,
 		"stroke": selected ? color : UTILITIES.convertColor(UTILITIES.getColorStyle("--textColorDisabled")),
@@ -294,6 +316,9 @@ const addLine = (key, line) => {
 					CANVAS.sendToBack(polyline);
 				}
 			}
+			if (shouldShow && !legendVisibleLines.includes(id)) {
+				legendVisibleLines.push(id);
+			}
 		},
 		"z": selected ? 3 : 1,
 	});
@@ -310,6 +335,22 @@ const checkAllVisibility = () => {
 		}
 		tempObjectCache[key] = undefined;
 	}, () => setTimeout(checkAllVisibility));
+
+	legendVisibleLines.sort();
+	const legendString = legendVisibleLines.join(",") + SETTINGS.selectedRoutes.join(",");
+	const legendElement = document.getElementById("legend");
+	if (legendString !== previousLegendString) {
+		legendElement.innerText = "";
+		legendVisibleLines.forEach(routeId => {
+			const route = DATA.json[SETTINGS.dimension]["routes"].find(route => route["id"] === routeId);
+			if (route) {
+				legendElement.appendChild(ACTIONS.getRouteElement(routeId, route["color"], route["name"], route["number"], route["type"], true, SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId), "", false));
+			}
+		});
+	}
+	previousLegendString = legendString;
+	legendElement.style.display = !SETTINGS.showLegend || legendVisibleLines.length === 0 || window.innerWidth < 480 ? "none" : "";
+	legendVisibleLines = [];
 };
 checkAllVisibility();
 

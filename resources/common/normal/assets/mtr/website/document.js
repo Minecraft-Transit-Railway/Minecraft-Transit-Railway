@@ -25,16 +25,41 @@ const DOCUMENT = {
 			searchBox.focus();
 		}
 		document.getElementById("clear_search_icon").style.display = "none";
-		// const {stations, routes} = DATA.json[SETTINGS.dimension];
-		// for (const stationId in stations) {
-		// 	document.getElementById(stationId).style.display = "none";
-		// }
-		// for (const index in routes) {
-		// 	document.getElementById(routes[index]["color"]).style.display = "none";
-		// }
+		const {stations, routes} = DATA.json[SETTINGS.dimension];
+		for (const stationId in stations) {
+			document.getElementById("search_station_" + stationId).style.display = "none";
+		}
+		for (const index in routes) {
+			document.getElementById("search_route_" + routes[index]["id"]).style.display = "none";
+		}
 	},
 };
 
+const onSearch = () => {
+	const searchBox = document.getElementById("search_box");
+	const search = searchBox.value.toLowerCase().replace(/\|/g, " ");
+	document.getElementById("clear_search_icon").style.display = search === "" ? "none" : "";
+
+	const {stations, routes} = DATA.json[SETTINGS.dimension];
+
+	const resultsStations = search === "" ? [] : Object.keys(stations).filter(station => stations[station]["name"].replace(/\|/g, " ").toLowerCase().includes(search));
+	for (const stationId in stations) {
+		document.getElementById("search_station_" + stationId).style.display = resultsStations.includes(stationId) ? "block" : "none";
+	}
+
+	const resultsRoutes = search === "" ? [] : Object.keys(routes).filter(route => routes[route]["name"].toLowerCase().includes(search));
+	for (const routeIndex in routes) {
+		document.getElementById("search_route_" + routes[routeIndex]["id"]).style.display = resultsRoutes.includes(routeIndex) ? "block" : "none";
+	}
+
+	const maxHeight = (window.innerHeight - 80) / 2;
+	document.getElementById("search_results_stations").style.maxHeight = maxHeight + "px";
+	document.getElementById("search_results_routes").style.maxHeight = maxHeight + "px";
+
+	if (search !== "") {
+		DOCUMENT.clearPanes(false);
+	}
+}
 const getCookie = name => {
 	const nameFind = name + "=";
 	const cookiesSplit = document.cookie.split(';');
@@ -59,6 +84,10 @@ if (getCookie("theme").includes("dark")) {
 	document.getElementById("toggle_theme_icon").innerText = "dark_mode";
 }
 
+const SEARCH_BOX_ELEMENT = document.getElementById("search_box");
+SEARCH_BOX_ELEMENT.onchange = () => onSearch();
+SEARCH_BOX_ELEMENT.onpaste = () => onSearch();
+SEARCH_BOX_ELEMENT.oninput = () => onSearch();
 document.getElementById("clear_search_icon").onclick = () => DOCUMENT.onClearSearch(true);
 document.getElementById("zoom_in_icon").onclick = () => DRAWING.zoom(-500, window.innerWidth / 2, window.innerHeight / 2);
 document.getElementById("zoom_out_icon").onclick = () => DRAWING.zoom(500, window.innerWidth / 2, window.innerHeight / 2);
@@ -70,6 +99,17 @@ document.getElementById("toggle_text_icon").onclick = event => {
 	} else {
 		buttonElement.innerText = "font_download_off";
 		SETTINGS.showText = true;
+	}
+	DATA.redraw();
+};
+document.getElementById("toggle_legend_icon").onclick = event => {
+	const buttonElement = event.target;
+	if (buttonElement.innerText.includes("remove")) {
+		buttonElement.innerText = "reorder";
+		SETTINGS.showLegend = false;
+	} else {
+		buttonElement.innerText = "playlist_remove";
+		SETTINGS.showLegend = true;
 	}
 	DATA.redraw();
 };

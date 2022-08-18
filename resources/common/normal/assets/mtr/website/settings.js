@@ -8,6 +8,7 @@ const SETTINGS = {
 	selectedDirectionsSegments: {},
 	selectedRouteTypes: [Object.keys(UTILITIES.routeTypes)[0]],
 	showText: true,
+	showLegend: true,
 	size: 1,
 	url: document.location.origin + document.location.pathname.replace("index.html", ""),
 };

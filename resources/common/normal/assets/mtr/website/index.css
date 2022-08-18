@@ -80,7 +80,7 @@ img {
     left: 0;
     display: flex;
     flex-direction: column;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: auto;
 }
 

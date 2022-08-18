@@ -89,6 +89,11 @@ const DATA = {
 		DATA.json = result;
 		ACTIONS.setupRouteTypeAndDimensionButtons();
 		const {routes, positions, stations} = result[SETTINGS.dimension];
+		const elementRoutes = document.getElementById("search_results_routes");
+		elementRoutes.innerHTML = "";
+		const elementStations = document.getElementById("search_results_stations");
+		elementStations.innerHTML = "";
+
 		const routesToShow = [];
 		routes.forEach(route => {
 			if (!("id" in route)) {
@@ -97,6 +102,7 @@ const DATA = {
 			if (SETTINGS.selectedRouteTypes.includes(route["type"])) {
 				routesToShow.push(route["id"]);
 			}
+			elementRoutes.append(ACTIONS.getRouteElement(route["id"], route["color"], route["name"], route["number"], route["type"], false, true, "search_route_" + route["id"], true));
 		});
 
 		const tempStations = {};
@@ -133,6 +139,7 @@ const DATA = {
 			for (let i = 0; i < routeStations.length; i++) {
 				const routeId = route["id"];
 				const stopId2 = routeStations[i].split("_")[0];
+
 				if (i > 0) {
 					const stopId1 = routeStations[i - 1].split("_")[0];
 					if (stopId1 !== stopId2 && routesToShow.includes(routeId)) {
@@ -142,10 +149,12 @@ const DATA = {
 								"color": UTILITIES.convertColor(route["color"]),
 								"segments": [getSegmentDetails(stopId1, routeId, tempStations), getSegmentDetails(stopId2, routeId, tempStations)],
 								"selected": SETTINGS.selectedRoutes.length === 0 || SETTINGS.selectedRoutes.includes(routeId),
+								"id": routeId,
 							};
 						}
 					}
 				}
+
 				if (stopId2 in tempStations) {
 					tempStations[stopId2]["routeIds"].push(routeId);
 					tempStations[stopId2]["types"].push(route["type"]);
@@ -168,6 +177,12 @@ const DATA = {
 			};
 			UTILITIES.angles.forEach(angle => stationQueue[stations[stationId]["name"]][`routes${angle}`] = tempStations[stationId][`routes${angle}`]);
 		}
+
+		Object.keys(stations).forEach(stationId => {
+			const element = ACTIONS.getStationElement(stations[stationId]["color"], stations[stationId]["name"], stationId, "search_station_" + stationId);
+			element.setAttribute("style", "display: none");
+			elementStations.append(element);
+		});
 
 		DRAWING.drawMap(lineQueue, stationQueue);
 	},
