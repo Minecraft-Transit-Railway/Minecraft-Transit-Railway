@@ -2,6 +2,7 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mtr.KeyMappings;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
 import mtr.block.BlockPlatform;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -114,26 +117,32 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		TrainRendererBase.setupStaticInfo(matrices, vertexConsumers, entity, tickDelta);
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (speed, stopIndex, routeIds) -> {
-			if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-				final Component text;
-				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
-					default:
-						text = getStationText(thisStation, "this");
-						break;
-					case 1:
-						if (nextStation == null) {
+			if (player.isShiftKeyDown()) {
+				int holdingTick10 = (int)(Math.min(ClientData.shiftHoldingTicks * 10 / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS, 10));
+				String progressBar = "§6" + StringUtils.repeat('■', holdingTick10) + "§r" + StringUtils.repeat('□', 10 - holdingTick10);
+				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), progressBar), true);
+			} else {
+				if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+					final Component text;
+					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
+						default:
 							text = getStationText(thisStation, "this");
-						} else {
-							text = getStationText(nextStation, "next");
-						}
-						break;
-					case 2:
-						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
-						break;
+							break;
+						case 1:
+							if (nextStation == null) {
+								text = getStationText(thisStation, "this");
+							} else {
+								text = getStationText(nextStation, "next");
+							}
+							break;
+						case 2:
+							text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
+							break;
+					}
+					player.displayClientMessage(text, true);
+				}))) {
+					player.displayClientMessage(Text.translatable("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 				}
-				player.displayClientMessage(text, true);
-			}))) {
-				player.displayClientMessage(Text.translatable("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {

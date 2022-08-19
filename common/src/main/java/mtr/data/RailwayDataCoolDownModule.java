@@ -19,6 +19,10 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 	private final Map<Player, Long> playerRidingRoute = new HashMap<>();
 	private final Map<Player, EntitySeat> playerSeats = new HashMap<>();
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
+	private final Map<Player, Integer> playerShiftCoolDowns = new HashMap<>();
+
+	public static final int SHIFT_ACTIVATE_TICKS = 40;
+	public static final int SHIFT_PERSIST_TICKS = 80;
 
 	public RailwayDataCoolDownModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		super(railwayData, world, rails);
@@ -40,6 +44,26 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 				playerSeatCoolDowns.put(player, playerSeatCoolDowns.get(player) - 1);
 			}
 			seat.updateSeatByRailwayData(player);
+
+			int oldShiftCoolDown = playerShiftCoolDowns.get(player);
+			int shiftCoolDown = oldShiftCoolDown;
+			if (player.isShiftKeyDown()) {
+				if (shiftCoolDown < 0) {
+					shiftCoolDown = 0;
+				}
+				shiftCoolDown++;
+			} else {
+				if (shiftCoolDown > SHIFT_ACTIVATE_TICKS) {
+					shiftCoolDown = 0;
+				} else if (shiftCoolDown > 0) {
+					shiftCoolDown = -1000; // Not activated, so don't persist
+				}
+				shiftCoolDown--;
+			}
+			shiftCoolDown = Math.min(Math.max(shiftCoolDown, -1000), 1000);
+			if (shiftCoolDown != oldShiftCoolDown) {
+				playerShiftCoolDowns.put(player, shiftCoolDown);
+			}
 		});
 
 		final Set<Player> playersToRemove = new HashSet<>();
@@ -59,11 +83,13 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
 		playerRidingCoolDown.put(serverPlayer, 2);
+		playerShiftCoolDowns.put(serverPlayer, -1000);
 	}
 
 	public void onPlayerDisconnect(Player player) {
 		playerSeats.remove(player);
 		playerSeatCoolDowns.remove(player);
+		playerShiftCoolDowns.remove(player);
 	}
 
 	public void updatePlayerRiding(Player player, long routeId) {
@@ -103,5 +129,10 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 			player.startRiding(entitySeat);
 			entitySeat.setPos(x, y, z);
 		}
+	}
+
+	public boolean shouldDismount(Player player) {
+		int shiftCoolDown = playerShiftCoolDowns.get(player);
+		return shiftCoolDown > SHIFT_ACTIVATE_TICKS || (shiftCoolDown < 0 && shiftCoolDown > -SHIFT_PERSIST_TICKS);
 	}
 }

@@ -1,6 +1,7 @@
 package mtr.client;
 
 import mtr.KeyMappings;
+import mtr.MTRClient;
 import mtr.data.*;
 import mtr.entity.EntityLift;
 import mtr.mappings.Text;
@@ -31,6 +32,8 @@ public final class ClientData {
 	private static boolean pressingAccelerate = false;
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
+
+	public static float shiftHoldingTicks = 0;
 
 	public static final Set<Station> STATIONS = new HashSet<>();
 	public static final Set<Platform> PLATFORMS = new HashSet<>();
@@ -79,6 +82,12 @@ public final class ClientData {
 					UtilitiesClient.setScreen(minecraftClient, new LiftSelectionScreen((EntityLift) vehicle));
 				}
 				player.displayClientMessage(Text.translatable("gui.mtr.press_to_select_floor", KeyMappings.LIFT_MENU.getTranslatedKeyMessage()), true);
+			}
+
+			if (player.isShiftKeyDown()) {
+				shiftHoldingTicks += MTRClient.getLastFrameDuration();
+			} else {
+				shiftHoldingTicks = 0;
 			}
 		}
 	}
