@@ -277,6 +277,8 @@
 	"gui.mtr.platform_number": "Platform Number",
 	"gui.mtr.platform_or_siding_exists": "Each rail node can only be connected to one platform or siding",
 	"gui.mtr.press_to_select_floor": "Press %s to select floor",
+	"gui.mtr.psd_apg_door_locked": "Door Locked",
+	"gui.mtr.psd_apg_door_unlocked": "Door Unlocked",
 	"gui.mtr.radius_too_small": "Could not connect rail; radius must be at least 2",
 	"gui.mtr.rail_action_bridge": "Bridge by %s (%s blocks long, %s)",
 	"gui.mtr.rail_action_tunnel": "Tunnel by %s (%s blocks long)",

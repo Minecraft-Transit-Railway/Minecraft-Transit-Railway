@@ -236,11 +236,12 @@ public class TrainServer extends Train {
 				final BlockState state = world.getBlockState(doorPos);
 				final Block doorBlock = state.getBlock();
 
-				if (doorBlock instanceof BlockPSDAPGDoorBase) {
+				if (doorBlock instanceof BlockPSDAPGDoorBase && IBlock.getStatePropertySafe(state, BlockPSDAPGDoorBase.UNLOCKED)) {
 					final int doorStateValue = (int) Mth.clamp(doorValue * DOOR_MOVE_TIME, 0, BlockPSDAPGDoorBase.MAX_OPEN_VALUE);
 					world.setBlockAndUpdate(doorPos, state.setValue(BlockPSDAPGDoorBase.OPEN, doorStateValue));
 
 					if (doorStateValue > 0 && !world.getBlockTicks().hasScheduledTick(doorPos, doorBlock)) {
+						/* This schedules the block tick to the door (Ensures the door will be closed when the train passes by) */
 						Utilities.scheduleBlockTick(world, doorPos, doorBlock, dwellTicks);
 					}
 				}
