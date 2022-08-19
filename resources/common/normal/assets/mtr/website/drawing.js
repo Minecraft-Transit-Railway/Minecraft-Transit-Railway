@@ -105,10 +105,12 @@ const DRAWING = {
 	getCenterLatLon: () => [(getCanvasOffsetY() - window.innerHeight / 2) / zoom, -(getCanvasOffsetX() - window.innerWidth / 2) / zoom, window.innerHeight / zoom, window.innerWidth / zoom],
 };
 
-let mouseDown = false;
+let mouseDown = 0;
 let shouldClearPanes = false;
 let touchX = 0;
 let touchY = 0;
+let fingerCount = 0;
+let twoFingerDistance = 0;
 let zoom = 1;
 let startX = 0;
 let startY = 0;
@@ -116,6 +118,7 @@ let targetX = undefined;
 let targetY = undefined;
 let legendVisibleLines = [];
 let previousLegendString = "";
+let hoveredLines = [];
 
 const CANVAS = new fabric.Canvas("canvas", {
 	renderOnAddRemove: false,
@@ -138,16 +141,27 @@ window.onresize = resize;
 resize();
 
 CANVAS.on("mouse:down", options => {
-	mouseDown = true;
+	mouseDown = Date.now();
 	shouldClearPanes = true;
+	twoFingerDistance = 0;
 	const event = options.e;
-	if ("touches" in event && event.touches.length > 0) {
-		touchX = event.touches[0].pageX;
-		touchY = event.touches[0].pageY;
+	if ("touches" in event) {
+		const newFingerCount = event.touches.length;
+		let newTouchX = 0;
+		let newTouchY = 0;
+		for (let i = 0; i < newFingerCount; i++) {
+			newTouchX += event.touches[i].pageX;
+			newTouchY += event.touches[i].pageY;
+		}
+		touchX = newTouchX / newFingerCount;
+		touchY = newTouchY / newFingerCount;
 	}
 });
-CANVAS.on("mouse:up", () => {
-	mouseDown = false;
+CANVAS.on("mouse:up", options => {
+	const event = options.e;
+	if (!("touches" in event) || event.touches.length === 0) {
+		mouseDown = 0;
+	}
 	if (shouldClearPanes) {
 		DOCUMENT.clearPanes(true);
 		DATA.redraw();
@@ -155,16 +169,43 @@ CANVAS.on("mouse:up", () => {
 });
 CANVAS.on("mouse:move", options => {
 	const event = options.e;
-	if (mouseDown) {
+	if (mouseDown > 0) {
 		if ("movementX" in event && "movementY" in event) {
 			CANVAS.relativePan(new fabric.Point(event.movementX, event.movementY));
-		} else if ("touches" in event && event.touches.length > 0) {
-			CANVAS.relativePan(new fabric.Point(event.touches[0].pageX - touchX, event.touches[0].pageY - touchY));
-			touchX = event.touches[0].pageX;
-			touchY = event.touches[0].pageY;
+			shouldClearPanes = false;
+		} else if ("touches" in event) {
+			const newFingerCount = event.touches.length;
+
+			if (newFingerCount > 0) {
+				let newTouchX = 0;
+				let newTouchY = 0;
+				for (let i = 0; i < newFingerCount; i++) {
+					newTouchX += event.touches[i].pageX;
+					newTouchY += event.touches[i].pageY;
+				}
+				newTouchX /= newFingerCount;
+				newTouchY /= newFingerCount;
+				const newTwoFingerDistance = newFingerCount > 1 ? distanceSquared(event.touches[0].pageX, event.touches[0].pageY, event.touches[1].pageX, event.touches[1].pageY) : 0;
+
+				if (newFingerCount === fingerCount) {
+					if (twoFingerDistance > 0) {
+						DRAWING.zoom((twoFingerDistance - newTwoFingerDistance) / 50, newTouchX, newTouchY);
+					}
+					CANVAS.relativePan(new fabric.Point(newTouchX - touchX, newTouchY - touchY));
+				}
+
+				touchX = newTouchX;
+				touchY = newTouchY;
+				twoFingerDistance = newTwoFingerDistance;
+			}
+
+			fingerCount = newFingerCount;
+			if (Date.now() - mouseDown > 100) {
+				shouldClearPanes = false;
+			}
 		}
-		shouldClearPanes = false;
 	}
+	// getSegment(event.offsetX, event.offsetY); // TODO mouse detection
 	event.stopPropagation();
 });
 CANVAS.on("mouse:wheel", options => {
@@ -174,6 +215,7 @@ CANVAS.on("mouse:wheel", options => {
 	event.stopPropagation();
 });
 
+const distanceSquared = (x1, y1, x2, y2) => (Math.abs(x2 - x1) ** 2) + (Math.abs(y2 - y1) ** 2);
 const inBounds = (x, y) => UTILITIES.isBetween(x, -getCanvasOffsetX(), window.innerWidth - getCanvasOffsetX()) && UTILITIES.isBetween(y, -getCanvasOffsetY(), window.innerHeight - getCanvasOffsetY());
 const inWindow = (x1, y1, x2, y2) => {
 	const minX = Math.min(x1, x2);
@@ -275,9 +317,11 @@ const addStation = (key, station) => {
 	elements.forEach(element => {
 		element.on("mouseover", () => group.set("shadow", `${UTILITIES.convertColor(UTILITIES.getColorStyle("--textColor"))} 0 0 8px`));
 		element.on("mouseout", () => group.set("shadow", ""));
-		element.on("mousedown", () => {
-			ACTIONS.onClickStation(id);
-			shouldClearPanes = false;
+		element.on("mouseup", () => {
+			if (!mouseDown && shouldClearPanes) {
+				ACTIONS.onClickStation(id);
+				shouldClearPanes = false;
+			}
 		});
 	});
 	CANVAS.remove(OBJECT_CACHE[key]);
@@ -309,10 +353,12 @@ const addLine = (key, line) => {
 		"fill": null,
 		"stroke": `${UTILITIES.convertColor(selected ? newColor : grayColor)}${UTILITIES.testMode ? "50" : ""}`,
 		"strokeWidth": SETTINGS.size * 6,
-		"cornerStyle": "circle",
+		"strokeLineCap": "round",
+		"strokeLineJoin": "round",
 		"objectCaching": false,
 		"hoverCursor": "pointer",
 		"selectable": false,
+		"routeId": id,
 		"updateShape": () => {
 			const point1 = segments[0];
 			const point2 = segments[1];
@@ -339,12 +385,61 @@ const addLine = (key, line) => {
 			if (shouldShow && !legendVisibleLines.includes(id)) {
 				legendVisibleLines.push(id);
 			}
+			// polyline["stroke"] = UTILITIES.convertColor(hoveredLines.includes(id) ? UTILITIES.getColorStyle("--textColorDisabled") : selected ? newColor : grayColor);
 		},
 		"z": selected ? 3 : 1,
 	});
 	CANVAS.remove(OBJECT_CACHE[key]);
 	OBJECT_CACHE[key] = polyline;
 	polyline.checkVisibility();
+};
+const getSegment = (x, y) => {
+	hoveredLines = [];
+	CANVAS.getObjects().forEach(object => {
+		if ("points" in object) {
+			const segments = object["points"];
+			for (let i = 1; i < segments.length; i++) {
+				const point1 = segments[i - 1];
+				const point2 = segments[i];
+				let x1 = point1["x"] + getCanvasOffsetX();
+				let y1 = point1["y"] + getCanvasOffsetY();
+				let x2 = point2["x"] + getCanvasOffsetX();
+				let y2 = point2["y"] + getCanvasOffsetY();
+				let mouseX = x;
+				let mouseY = y;
+				let minX = Math.min(x1, x2);
+				let minY = Math.min(y1, y2);
+				let maxX = Math.max(x1, x2);
+				let maxY = Math.max(y1, y2);
+
+				const checkBounds = () => UTILITIES.isBetween(mouseX, minX - SETTINGS.size * 3, maxX + SETTINGS.size * 3) && UTILITIES.isBetween(mouseY, minY - SETTINGS.size * 3, maxY + SETTINGS.size * 3);
+				if (checkBounds()) {
+					if (x1 !== x2 && y1 !== y2) {
+						const rotatedPoint1 = UTILITIES.rotatePoint(x1, y1, 45);
+						x1 = rotatedPoint1["x"];
+						y1 = rotatedPoint1["y"];
+						const rotatedPoint2 = UTILITIES.rotatePoint(x2, y2, 45);
+						x2 = rotatedPoint2["x"];
+						y2 = rotatedPoint2["y"];
+						const rotatedPoint3 = UTILITIES.rotatePoint(mouseX, mouseY, 45);
+						mouseX = rotatedPoint3["x"];
+						mouseY = rotatedPoint3["y"];
+
+						minX = Math.min(x1, x2);
+						minY = Math.min(y1, y2);
+						maxX = Math.max(x1, x2);
+						maxY = Math.max(y1, y2);
+
+						if (checkBounds()) {
+							hoveredLines.push(object["routeId"]);
+						}
+					} else {
+						hoveredLines.push(object["routeId"]);
+					}
+				}
+			}
+		}
+	});
 };
 
 const checkAllVisibility = () => {
