@@ -21,8 +21,8 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 	private final Map<Player, Integer> playerSeatCoolDowns = new HashMap<>();
 	private final Map<Player, Integer> playerShiftCoolDowns = new HashMap<>();
 
-	public static final int SHIFT_ACTIVATE_TICKS = 40;
-	public static final int SHIFT_PERSIST_TICKS = 80;
+	public static final int SHIFT_ACTIVATE_TICKS = 30;
+	public static final int SHIFT_PERSIST_TICKS = 60;
 
 	public RailwayDataCoolDownModule(RailwayData railwayData, Level world, Map<BlockPos, Map<BlockPos, Rail>> rails) {
 		super(railwayData, world, rails);

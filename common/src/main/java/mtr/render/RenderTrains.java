@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -118,8 +117,8 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (speed, stopIndex, routeIds) -> {
 			if (player.isShiftKeyDown()) {
-				int holdingTick10 = (int)(Math.min(ClientData.shiftHoldingTicks * 10 / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS, 10));
-				String progressBar = "§6" + StringUtils.repeat('■', holdingTick10) + "§r" + StringUtils.repeat('□', 10 - holdingTick10);
+				int progressFilled = (int)(Math.min(ClientData.shiftHoldingTicks * 30 / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS, 30));
+				String progressBar = "§6" + StringUtils.repeat('|', progressFilled) + "§7" + StringUtils.repeat('|', 30 - progressFilled);
 				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), progressBar), true);
 			} else {
 				if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
