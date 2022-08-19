@@ -14,12 +14,16 @@
 }
 
 .dark_theme {
-    --backgroundColor: #000000;
-    --backgroundHover: #333333;
+    --backgroundColor: #222222;
+    --backgroundHover: #444444;
     --boxBorder: #555555;
     --textColorDisabled: #666666;
     --textColorGray: #BBBBBB;
     --textColor: #FFFFFF;
+}
+
+body {
+    background-color: var(--backgroundColor);
 }
 
 canvas {
@@ -76,8 +80,9 @@ img {
     left: 0;
     display: flex;
     flex-direction: column;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: auto;
+    width: 24em;
 }
 
 #search {

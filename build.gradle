@@ -77,6 +77,7 @@ task setupFiles() {
 		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/1.${minecraft_main_version}.zip"
 		dest "common/src/main/java/mtr/mappings/mappings.zip"
 		overwrite true
+		retries - 1
 	}
 	copy {
 		outputs.upToDateWhen { false }
@@ -113,14 +114,16 @@ task setupFiles() {
 	}
 	if (variation == "normal" || variation == "server") {
 		download {
-			src "https://github.com/dekimasoon/pixi-simple-gesture/archive/refs/heads/master.zip"
-			dest "common/src/main/resources/assets/mtr/website/gestures/gestures.zip"
+			src "http://unpkg.com/fabric/dist/fabric.min.js"
+			dest "common/src/main/resources/assets/mtr/website/fabric.min.js"
 			overwrite true
+			retries - 1
 		}
-		copy {
-			outputs.upToDateWhen { false }
-			from(zipTree("common/src/main/resources/assets/mtr/website/gestures/gestures.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
-			into "common/src/main/resources/assets/mtr/website/gestures"
+		download {
+			src "https://raw.githubusercontent.com/bramstein/fontfaceobserver/master/fontfaceobserver.standalone.js"
+			dest "common/src/main/resources/assets/mtr/website/fontfaceobserver.standalone.js"
+			overwrite true
+			retries - 1
 		}
 		copy {
 			outputs.upToDateWhen { false }
@@ -148,6 +151,7 @@ task setupFiles() {
 		src "https://crowdin.com/backend/download/project/minecraft-transit-railway.zip"
 		dest "common/src/main/java/mtr/mappings/lang.zip"
 		overwrite true
+		retries - 1
 	}
 	copy {
 		outputs.upToDateWhen { false }
