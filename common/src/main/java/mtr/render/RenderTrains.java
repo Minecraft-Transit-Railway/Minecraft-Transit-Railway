@@ -117,8 +117,15 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (speed, stopIndex, routeIds) -> {
 			if (player.isShiftKeyDown()) {
-				int progressFilled = (int)(Math.min(ClientData.shiftHoldingTicks * 30 / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS, 30));
-				String progressBar = "§6" + StringUtils.repeat('|', progressFilled) + "§7" + StringUtils.repeat('|', 30 - progressFilled);
+				final int PROGRESS_BAR_LENGTH = 30;
+				String progressBar;
+				int progressFilled = (int)(ClientData.shiftHoldingTicks * PROGRESS_BAR_LENGTH / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS);
+				if (progressFilled > PROGRESS_BAR_LENGTH) {
+					int progressFilled2 = Math.min(PROGRESS_BAR_LENGTH, progressFilled - PROGRESS_BAR_LENGTH);
+					progressBar = "§c" + StringUtils.repeat('|', progressFilled2) + "§6" + StringUtils.repeat('|', PROGRESS_BAR_LENGTH - progressFilled2);
+				} else {
+					progressBar = "§6" + StringUtils.repeat('|', progressFilled) + "§7" + StringUtils.repeat('|', PROGRESS_BAR_LENGTH - progressFilled);
+				}
 				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), progressBar), true);
 			} else {
 				if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
