@@ -151,10 +151,6 @@ public class TrainClient extends Train {
 			riderPositions.clear();
 
 			if (ridingEntities.contains(clientPlayer.getUUID())) {
-				if (clientPlayer.isShiftKeyDown()) {
-					ridingEntities.remove(clientPlayer.getUUID());
-				}
-
 				final int trainSpacing = spacing;
 				final int headIndex = getIndex(0, trainSpacing, false);
 				final int stopIndex = path.get(headIndex).stopIndex - 1;
