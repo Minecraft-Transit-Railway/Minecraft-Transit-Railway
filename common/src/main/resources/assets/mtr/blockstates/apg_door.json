@@ -6407,6 +6407,53 @@
 				"model": "mtr:block/apg_door_light_on_right",
 				"y": 270
 			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"unlocked": "false",
+				"half": "upper",
+				"open": "0"
+			},
+			"apply": {
+				"model": "mtr:block/apg_door_locked"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"unlocked": "false",
+				"half": "upper",
+				"open": "0"
+			},
+			"apply": {
+				"model": "mtr:block/apg_door_locked",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"unlocked": "false",
+				"half": "upper",
+				"open": "0"
+			},
+			"apply": {
+				"model": "mtr:block/apg_door_locked",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"unlocked": "false",
+				"half": "upper",
+				"open": "0"
+			},
+			"apply": {
+				"model": "mtr:block/apg_door_locked",
+				"y": 270
+			}
 		}
 	]
 }
