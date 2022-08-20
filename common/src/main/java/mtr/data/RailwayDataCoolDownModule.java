@@ -45,22 +45,23 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 			}
 			seat.updateSeatByRailwayData(player);
 
-			int oldShiftCoolDown = playerShiftCoolDowns.get(player);
-			int shiftCoolDown = oldShiftCoolDown;
+			final int oldShiftCoolDown = playerShiftCoolDowns.getOrDefault(player, 0);
+			final int shiftCoolDown;
 			if (player.isShiftKeyDown()) {
-				if (shiftCoolDown < 0) {
+				if (oldShiftCoolDown < 0) {
 					shiftCoolDown = 0;
+				} else {
+					shiftCoolDown = Math.min(1000, oldShiftCoolDown + 1);
 				}
-				shiftCoolDown++;
 			} else {
-				if (shiftCoolDown > SHIFT_ACTIVATE_TICKS) {
+				if (oldShiftCoolDown > SHIFT_ACTIVATE_TICKS) {
 					shiftCoolDown = 0;
-				} else if (shiftCoolDown > 0) {
+				} else if (oldShiftCoolDown > 0) {
 					shiftCoolDown = -1000; // Not activated, so don't persist
+				} else {
+					shiftCoolDown = Math.max(-1000, oldShiftCoolDown - 1);
 				}
-				shiftCoolDown--;
 			}
-			shiftCoolDown = Math.min(Math.max(shiftCoolDown, -1000), 1000);
 			if (shiftCoolDown != oldShiftCoolDown) {
 				playerShiftCoolDowns.put(player, shiftCoolDown);
 			}
@@ -132,7 +133,7 @@ public class RailwayDataCoolDownModule extends RailwayDataModuleBase {
 	}
 
 	public boolean shouldDismount(Player player) {
-		int shiftCoolDown = playerShiftCoolDowns.get(player);
+		final int shiftCoolDown = playerShiftCoolDowns.getOrDefault(player, 0);
 		return shiftCoolDown > SHIFT_ACTIVATE_TICKS || (shiftCoolDown < 0 && shiftCoolDown > -SHIFT_PERSIST_TICKS);
 	}
 }

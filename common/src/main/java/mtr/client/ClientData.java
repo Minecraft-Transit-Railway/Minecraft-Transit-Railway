@@ -32,8 +32,7 @@ public final class ClientData {
 	private static boolean pressingAccelerate = false;
 	private static boolean pressingBrake = false;
 	private static boolean pressingDoors = false;
-
-	public static float shiftHoldingTicks = 0;
+	private static float shiftHoldingTicks = 0;
 
 	public static final Set<Station> STATIONS = new HashSet<>();
 	public static final Set<Platform> PLATFORMS = new HashSet<>();
@@ -254,6 +253,10 @@ public final class ClientData {
 			return false;
 		}
 		return RailwayData.hasPermission(playerInfo.getGameMode());
+	}
+
+	public static float getShiftHoldingTicks() {
+		return shiftHoldingTicks;
 	}
 
 	private static <T extends SerializedDataBase> Set<T> deserializeData(FriendlyByteBuf packet, Function<FriendlyByteBuf, T> supplier) {

@@ -2,7 +2,6 @@ package mtr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mtr.KeyMappings;
 import mtr.MTRClient;
 import mtr.block.BlockNode;
 import mtr.block.BlockPlatform;
@@ -25,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -56,6 +56,7 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 	public static final int DETAIL_RADIUS_SQUARED = DETAIL_RADIUS * DETAIL_RADIUS;
 	private static final int MAX_RADIUS_REPLAY_MOD = 64 * 16;
 	private static final int TICKS_PER_SECOND = 20;
+	private static final int DISMOUNT_PROGRESS_BAR_LENGTH = 30;
 
 	public RenderTrains(Object parameter) {
 		super(parameter);
@@ -116,39 +117,31 @@ public class RenderTrains extends EntityRendererMapper<EntitySeat> implements IG
 		TrainRendererBase.setupStaticInfo(matrices, vertexConsumers, entity, tickDelta);
 
 		ClientData.TRAINS.forEach(train -> train.simulateTrain(world, client.isPaused() || lastRenderedTick == MTRClient.getGameTick() ? 0 : lastFrameDuration, (speed, stopIndex, routeIds) -> {
-			if (player.isShiftKeyDown()) {
-				final int PROGRESS_BAR_LENGTH = 30;
-				String progressBar;
-				int progressFilled = (int)(ClientData.shiftHoldingTicks * PROGRESS_BAR_LENGTH / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS);
-				if (progressFilled > PROGRESS_BAR_LENGTH) {
-					int progressFilled2 = Math.min(PROGRESS_BAR_LENGTH, progressFilled - PROGRESS_BAR_LENGTH);
-					progressBar = "§c" + StringUtils.repeat('|', progressFilled2) + "§6" + StringUtils.repeat('|', PROGRESS_BAR_LENGTH - progressFilled2);
-				} else {
-					progressBar = "§6" + StringUtils.repeat('|', progressFilled) + "§7" + StringUtils.repeat('|', PROGRESS_BAR_LENGTH - progressFilled);
-				}
-				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage(), progressBar), true);
-			} else {
-				if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
-					final Component text;
-					switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
-						default:
+			final float shiftHoldingTicks = ClientData.getShiftHoldingTicks();
+			if (shiftHoldingTicks > 0) {
+				final int progressFilled = Mth.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / RailwayDataCoolDownModule.SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
+				final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
+				player.displayClientMessage(Text.translatable("gui.mtr.dismount_hold", client.options.keyShift.getTranslatedKeyMessage(), progressBar), true);
+			} else if ((!train.isCurrentlyManual() || !Train.isHoldingKey(player)) && !(speed <= 5 && RailwayData.useRoutesAndStationsFromIndex(stopIndex, routeIds, ClientData.DATA_CACHE, (currentStationIndex, thisRoute, nextRoute, thisStation, nextStation, lastStation) -> {
+				final Component text;
+				switch ((int) ((System.currentTimeMillis() / 1000) % 3)) {
+					default:
+						text = getStationText(thisStation, "this");
+						break;
+					case 1:
+						if (nextStation == null) {
 							text = getStationText(thisStation, "this");
-							break;
-						case 1:
-							if (nextStation == null) {
-								text = getStationText(thisStation, "this");
-							} else {
-								text = getStationText(nextStation, "next");
-							}
-							break;
-						case 2:
-							text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
-							break;
-					}
-					player.displayClientMessage(text, true);
-				}))) {
-					player.displayClientMessage(Text.translatable("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
+						} else {
+							text = getStationText(nextStation, "next");
+						}
+						break;
+					case 2:
+						text = getStationText(lastStation, "last_" + thisRoute.transportMode.toString().toLowerCase());
+						break;
 				}
+				player.displayClientMessage(text, true);
+			}))) {
+				player.displayClientMessage(Text.translatable("gui.mtr.vehicle_speed", RailwayData.round(speed, 1), RailwayData.round(speed * 3.6F, 1)), true);
 			}
 		}, (stopIndex, routeIds) -> {
 			if (useAnnouncements) {
