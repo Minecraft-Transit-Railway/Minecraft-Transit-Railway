@@ -226,6 +226,8 @@
 	"gui.mtr.moving_only": "Moving Vehicles Only",
 	"gui.mtr.mtr_options": "Minecraft Transit Railway Options",
 	"gui.mtr.name": "Name",
+	"gui.mtr.next_departure": "Estimated next departure: %s",
+	"gui.mtr.next_departure_none": "No scheduled departures",
 	"gui.mtr.next_route_boat_announcement": "This vessel will be changed to the %s to %s.",
 	"gui.mtr.next_route_boat_announcement_cjk": "本渡輪會改為%s前往%s。",
 	"gui.mtr.next_route_boat_light_rail_announcement": "This route will be changed to route %s. Passengers to %s, please take this vessel.",

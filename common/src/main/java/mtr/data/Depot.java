@@ -232,6 +232,7 @@ public class Depot extends AreaBase implements IReducedSaveData {
 			packet.writeInt(frequency);
 		}
 		departures.replaceAll(departure -> departure % MILLISECONDS_PER_DAY);
+		departures.removeIf(departure -> departure % 1000 != 0);
 		departures.sort(Integer::compareTo);
 		packet.writeInt(departures.size());
 		departures.forEach(packet::writeInt);
@@ -321,9 +322,9 @@ public class Depot extends AreaBase implements IReducedSaveData {
 		return millisUntilDeploy >= 0 ? millisUntilDeploy / MILLIS_PER_TICK : -1;
 	}
 
-	private int getMillisUntilDeploy(int hour, int offset) {
+	public int getMillisUntilDeploy(int hour, int offset) {
 		if (useRealTime && !transportMode.continuousMovement) {
-			if (offset < departures.size()) {
+			if (offset <= departures.size()) {
 				final long millis = System.currentTimeMillis() % MILLISECONDS_PER_DAY;
 				for (int i = 0; i < departures.size(); i++) {
 					final long thisDeparture = departures.get(i);

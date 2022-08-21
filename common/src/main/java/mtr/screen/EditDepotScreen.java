@@ -37,7 +37,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private static final int SLIDER_WIDTH = 64;
 	private static final int MAX_TRAINS_PER_HOUR = 5;
 	private static final int SECONDS_PER_MC_HOUR = Depot.TICKS_PER_HOUR / 20;
-	private static final int TIME_ZONE_OFFSET = new GregorianCalendar().getTimeZone().getRawOffset();
 
 	public EditDepotScreen(Depot depot, TransportMode transportMode, DashboardScreen dashboardScreen) {
 		super(depot, dashboardScreen, "gui.mtr.depot_name", "gui.mtr.depot_color");
@@ -53,6 +52,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		buttonUseRealTime = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
 			depot.useRealTime = !depot.useRealTime;
 			toggleRealTime();
+			saveData();
 		});
 
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
@@ -69,7 +69,10 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		});
 
 		textFieldDeparture = new WidgetBetterTextField("[^\\d:+* ]", "07:10:00 + 10 * 00:03:00", 25);
-		buttonAddDeparture = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> checkDeparture(textFieldDeparture.getValue(), true, false));
+		buttonAddDeparture = new Button(0, 0, 0, SQUARE_SIZE, Text.literal("+"), button -> {
+			checkDeparture(textFieldDeparture.getValue(), true, false);
+			saveData();
+		});
 
 		buttonEditInstructions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.edit_instructions"), button -> {
 			if (minecraft != null) {
@@ -94,7 +97,6 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	protected void init() {
 		setPositionsAndInit(rightPanelsX, width / 4 * 3, width);
 
-		IDrawing.setPositionAndWidth(buttonUseRealTime, 0, 0, rightPanelsX);
 		final int buttonWidth = (width - rightPanelsX) / 2;
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
@@ -110,6 +112,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 
 		final int leftWidth = rightPanelsX - 1;
+		IDrawing.setPositionAndWidth(buttonUseRealTime, 0, 0, leftWidth);
+
 		departuresList.y = SQUARE_SIZE;
 		departuresList.height = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING;
 		departuresList.width = leftWidth;
@@ -163,9 +167,21 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
 
+			final Component text;
+			final int nextDepartureMillis = data.getMillisUntilDeploy(minecraft == null || minecraft.level == null ? 0 : Depot.getHour(minecraft.level), 1);
+			if (nextDepartureMillis >= 0) {
+				final long hour = TimeUnit.MILLISECONDS.toHours(nextDepartureMillis);
+				final long minute = TimeUnit.MILLISECONDS.toMinutes(nextDepartureMillis) % 60;
+				final long second = TimeUnit.MILLISECONDS.toSeconds(nextDepartureMillis) % 60;
+				text = Text.translatable("gui.mtr.next_departure", String.format("%2s:%2s:%2s", hour, minute, second).replace(' ', '0'));
+			} else {
+				text = Text.translatable("gui.mtr.next_departure_none");
+			}
+			font.draw(matrices, text, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+
 			final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
-				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 4 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
 			}
 
 			if (showScheduleControls && !data.useRealTime) {
@@ -202,7 +218,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			slider.visible = !data.useRealTime;
 		}
 		departuresList.x = data.useRealTime ? 0 : width;
-		textFieldDeparture.visible = data.useRealTime;
+		textFieldDeparture.x = data.useRealTime ? TEXT_FIELD_PADDING / 2 : width;
 		buttonAddDeparture.visible = data.useRealTime;
 		buttonUseRealTime.setMessage(Text.translatable(data.useRealTime ? "gui.mtr.schedule_mode_real_time_on" : "gui.mtr.schedule_mode_real_time_off"));
 		updateList();
@@ -210,14 +226,25 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 	private void onDeleteDeparture(NameColorDataBase data, int index) {
 		checkDeparture(data.name, false, true);
+		saveData();
 	}
 
 	private void updateList() {
 		final List<NameColorDataBase> departureData = new ArrayList<>();
-		data.departures.stream().map(departure -> (departure + TIME_ZONE_OFFSET + Depot.MILLISECONDS_PER_DAY) % Depot.MILLISECONDS_PER_DAY).sorted().forEach(departure -> {
-			final long hour = TimeUnit.MILLISECONDS.toHours(departure) % 24;
-			final long minute = TimeUnit.MILLISECONDS.toMinutes(departure) % 60;
-			final long second = TimeUnit.MILLISECONDS.toSeconds(departure) % 60;
+		final long offset = System.currentTimeMillis() / Depot.MILLISECONDS_PER_DAY * Depot.MILLISECONDS_PER_DAY;
+		data.departures.stream().map(departure -> {
+			final Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(departure + offset);
+			return calendar;
+		}).sorted(Comparator.comparingInt(calendar -> {
+			final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			final int minute = calendar.get(Calendar.MINUTE);
+			final int second = calendar.get(Calendar.SECOND);
+			return hour * 3600 + minute * 60 + second;
+		})).forEach(calendar -> {
+			final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			final int minute = calendar.get(Calendar.MINUTE);
+			final int second = calendar.get(Calendar.SECOND);
 			departureData.add(new DataConverter(String.format("%2s:%2s:%2s", hour, minute, second).replace(' ', '0'), 0));
 		});
 		departuresList.setData(departureData, false, false, false, false, false, true);
@@ -227,10 +254,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		try {
 			final String[] departureSplit = text.replace(" ", "").split("\\+");
 			final String[] timeSplit1 = departureSplit[0].split(":");
-			final int departure = (Integer.parseInt(timeSplit1[0]) * 3600 + Integer.parseInt(timeSplit1[1]) * 60 + Integer.parseInt(timeSplit1[2])) * 1000 - TIME_ZONE_OFFSET + Depot.MILLISECONDS_PER_DAY;
-
+			final Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeSplit1[0]) % 24);
+			calendar.set(Calendar.MINUTE, Integer.parseInt(timeSplit1[1]) % 60);
+			calendar.set(Calendar.SECOND, Integer.parseInt(timeSplit1[2]) % 60);
+			calendar.set(Calendar.MILLISECOND, 0);
+			final int departure = (int) (calendar.getTimeInMillis() % Depot.MILLISECONDS_PER_DAY);
 			final int multiple;
 			final int interval;
+
 			if (departureSplit.length > 1) {
 				final String[] intervalSplit = departureSplit[1].split("\\*");
 				multiple = Integer.parseInt(intervalSplit[0]) + 1;
