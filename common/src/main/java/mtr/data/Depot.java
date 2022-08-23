@@ -324,15 +324,18 @@ public class Depot extends AreaBase implements IReducedSaveData {
 
 	public int getMillisUntilDeploy(int hour, int offset) {
 		if (useRealTime && !transportMode.continuousMovement) {
-			if (offset <= departures.size()) {
-				final long millis = System.currentTimeMillis() % MILLISECONDS_PER_DAY;
-				for (int i = 0; i < departures.size(); i++) {
-					final long thisDeparture = departures.get(i);
-					final long nextDeparture = wrapTime(departures.get((i + 1) % departures.size()), thisDeparture);
-					final long newMillis = wrapTime(millis, thisDeparture);
-					if (newMillis > thisDeparture && newMillis <= nextDeparture) {
-						final long wrappedLastDeploy = wrapTime(lastDeployedMillis, newMillis);
-						return wrappedLastDeploy - MILLISECONDS_PER_DAY >= thisDeparture ? (int) (nextDeparture - newMillis) : 0;
+			final long millis = System.currentTimeMillis() % MILLISECONDS_PER_DAY;
+			for (int i = 0; i < departures.size(); i++) {
+				final long thisDeparture = departures.get(i);
+				final long nextDeparture = wrapTime(departures.get((i + 1) % departures.size()), thisDeparture);
+				final long newMillis = wrapTime(millis, thisDeparture);
+				if (newMillis > thisDeparture && newMillis <= nextDeparture) {
+					if (offset > 1) {
+						if (offset <= departures.size()) {
+							return (int) (wrapTime(departures.get((i + offset) % departures.size()), millis) - millis);
+						}
+					} else {
+						return wrapTime(lastDeployedMillis, newMillis) - MILLISECONDS_PER_DAY >= thisDeparture ? (int) (nextDeparture - newMillis) : 0;
 					}
 				}
 			}

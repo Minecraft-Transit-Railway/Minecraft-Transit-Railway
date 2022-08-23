@@ -267,7 +267,8 @@ public class TrainServer extends Train {
 
 		simulateTrain(world, ticksElapsed, depot);
 
-		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (isOnRoute ? 0 : (long) Math.max(0, depot.getNextDepartureTicks(Depot.getHour(world))) * Depot.MILLIS_PER_TICK);
+		final int nextDepartureTicks = isOnRoute ? 0 : depot.getNextDepartureTicks(Depot.getHour(world)) * Depot.MILLIS_PER_TICK;
+		final long currentMillis = System.currentTimeMillis() - (long) (stopCounter * Depot.MILLIS_PER_TICK) + (long) Math.max(0, nextDepartureTicks);
 
 		double currentTime = -1;
 		int startingIndex = 0;
@@ -282,8 +283,8 @@ public class TrainServer extends Train {
 		if (currentTime >= 0) {
 			float offsetTime = 0;
 			routeId = 0;
-			for (int i = startingIndex; i < timeSegments.size() + (isUnlimited ? 0 : startingIndex); i++) {
-				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
+			for (int i = startingIndex; i < timeSegments.size(); i++) {
+				final Siding.TimeSegment timeSegment = timeSegments.get(i);
 
 				if (timeSegment.savedRailBaseId != 0) {
 					if (timeSegment.routeId == 0) {
@@ -298,8 +299,10 @@ public class TrainServer extends Train {
 						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
-					final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-					schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+					if (isOnRoute || nextDepartureTicks >= 0) {
+						final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
+						schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+					}
 				}
 
 				if (routeId == 0) {
