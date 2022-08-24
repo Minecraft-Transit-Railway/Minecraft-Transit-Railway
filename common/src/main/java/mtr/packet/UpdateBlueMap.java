@@ -39,29 +39,28 @@ public class UpdateBlueMap implements IGui, IUpdateWebMap {
 
 		final int areaY = world.getSeaLevel();
 
-		final MarkerSet markerSetAreas = MarkerSet.builder().build();
-		markerSetAreas.setLabel(areasTitle);
+		final MarkerSet markerSetAreas = MarkerSet.builder().label(areasTitle).build();
 		markerSetAreas.getMarkers().clear();
 		map.getMarkerSets().put(areasId, markerSetAreas);
 
-		final MarkerSet markerSetAreaAreas = MarkerSet.builder().build();
-		markerSetAreaAreas.setLabel(areaAreasTitle);
-		markerSetAreaAreas.setDefaultHidden(true);
+		final MarkerSet markerSetAreaAreas = MarkerSet.builder().label(areaAreasTitle).defaultHidden(true).build();
 		markerSetAreaAreas.getMarkers().clear();
 		map.getMarkerSets().put(areaAreasId, markerSetAreaAreas);
 
 		IUpdateWebMap.iterateAreas(areas, (id, name, color, areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z, areaX, areaZ) -> {
-			final POIMarker markerArea = POIMarker.toBuilder().build();
-			markerArea.setPosition(areaX, areaY, areaZ);
-			markerArea.setLabel(name);
-			markerArea.setIcon(iconKey, ICON_SIZE / 2, ICON_SIZE / 2);
+			final POIMarker markerArea = POIMarker.toBuilder()
+					.position(areaX, areaY, areaZ)
+					.label(name)
+					.icon(iconKey, ICON_SIZE / 2, ICON_SIZE / 2)
+					.build();
 			markerSetAreas.getMarkers().put("1_" + worldId + id, markerArea);
-			final ShapeMarker markerAreaArea = ShapeMarker.builder().build();
-			markerAreaArea.setPosition(areaX, areaY, areaZ);
-			markerAreaArea.setShape(Shape.createRect(areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z), areaY);
-			markerAreaArea.setLabel(name);
-			markerAreaArea.setFillColor(new Color(color.getRGB() & RGB_WHITE, 0.5F));
-			markerAreaArea.setLineColor(new Color(color.darker().getRGB()));
+			final ShapeMarker markerAreaArea = ShapeMarker.builder()
+					.position(areaX, areaY, areaZ)
+					.shape(Shape.createRect(areaCorner1X, areaCorner1Z, areaCorner2X, areaCorner2Z), areaY)
+					.label(name)
+					.fillColor(new Color(color.getRGB() & RGB_WHITE, 0.5F))
+					.lineColor(new Color(color.darker().getRGB()))
+					.build();
 			markerSetAreas.getMarkers().put("2_" + worldId + id, markerAreaArea);
 		});
 	}
