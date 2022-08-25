@@ -19,8 +19,8 @@ import java.util.List;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
-	private final boolean isOneWay;
-	private final RailType railType;
+	public boolean isOneWay;
+	public RailType railType;
 
 	public ItemRailModifier() {
 		super(true, true, false);
@@ -37,7 +37,7 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	@Override
 	public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag tooltipFlag) {
 		if (isConnector && railType != null && railType.canAccelerate) {
-			tooltip.add(Text.translatable("tooltip.mtr.rail_speed_limit", railType.speedLimit).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+			tooltip.add(Text.translatable("tooltip.mtr.rail_speed_limit", getSpeedLimit(itemStack)).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 		}
 		super.appendHoverText(itemStack, level, tooltip, tooltipFlag);
 	}
@@ -78,8 +78,8 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				newRailType = railType;
 			}
 
-			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, isOneWay ? RailType.NONE : newRailType, transportMode);
-			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, newRailType, transportMode);
+			final Rail rail1 = new Rail(posStart, facingStart, posEnd, facingEnd, getSpeedLimit(stack), getIsOneWay(stack) ? RailType.NONE : newRailType, transportMode);
+			final Rail rail2 = new Rail(posEnd, facingEnd, posStart, facingStart, getSpeedLimit(stack), newRailType, transportMode);
 
 			final boolean goodRadius = rail1.goodRadius() && rail2.goodRadius();
 			final boolean isValid = rail1.isValid() && rail2.isValid();
@@ -101,4 +101,21 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 		railwayData.removeRailConnection(posStart, posEnd);
 		PacketTrainDataGuiServer.removeRailConnectionS2C(world, posStart, posEnd);
 	}
+
+	public boolean getIsOneWay(ItemStack itemStack) {
+		return railType != RailType.CUSTOM ? isOneWay : itemStack.getTag() != null ? itemStack.getTag().getBoolean("isOneWay") : isOneWay;
+	}
+
+	public int getSpeedLimit(ItemStack itemStack) {
+		return itemStack.getTag() != null && itemStack.getTag().getInt("railSpeed") > 0 ? itemStack.getTag().getInt("railSpeed") : railType.speedLimit;
+	}
+
+	public float getMaxBlocksPerTick(int speedLimit) {
+		return speedLimit / 3.6f / 20;
+	}
+
+	public float getMaxBlocksPerTick(ItemStack itemStack) {
+		return itemStack.getTag() != null ? getMaxBlocksPerTick(itemStack.getTag().getInt("railSpeed")) : getMaxBlocksPerTick(railType.speedLimit);
+	}
+
 }

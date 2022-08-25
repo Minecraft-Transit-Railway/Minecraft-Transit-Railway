@@ -6,8 +6,10 @@ import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
 import mtr.entity.EntityLift;
+import mtr.item.ItemRailModifier;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +21,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -368,6 +371,20 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 			if (entity2 instanceof BlockPIDSBase.TileEntityBlockPIDSBase) {
 				((BlockPIDSBase.TileEntityBlockPIDSBase) entity2).setData(messages, hideArrivals);
 			}
+		});
+	}
+
+	public static void receiveRailCustomMessageC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
+		final int speed = packet.readInt();
+		final boolean isOneWay = packet.readBoolean();
+
+		minecraftServer.execute(() -> {
+			final ItemStack railItem = player.getMainHandItem();
+			final ItemRailModifier rail = (ItemRailModifier) railItem.getItem();
+			final CompoundTag compoundTag = railItem.getOrCreateTag();
+
+			compoundTag.putInt("railSpeed", speed);
+			compoundTag.putBoolean("isOneWay", isOneWay);
 		});
 	}
 

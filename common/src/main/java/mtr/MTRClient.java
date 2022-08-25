@@ -91,6 +91,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_REDSTONE_SENSOR.get());
 		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_SCHEDULE_SENSOR.get());
 
+		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CUSTOM.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_20_ONE_WAY.get(), ItemBlockClickingBase.TAG_POS);
 		RegistryClient.registerItemModelPredicate(MTR.MOD_ID + ":selected", Items.RAIL_CONNECTOR_40.get(), ItemBlockClickingBase.TAG_POS);
@@ -325,6 +326,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_TOGGLE_DOORS);
+		RegistryClient.registerKeyBinding(KeyMappings.CUSTOM_RAIL_MENU);
 
 		BlockTactileMap.TileEntityTactileMap.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TileEntityTactileMap.onUse = pos -> {

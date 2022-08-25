@@ -55,6 +55,7 @@ public interface Items {
 	RegistryObject<Item> RAIL_CONNECTOR_200_ONE_WAY = new RegistryObject<>(() -> new ItemRailModifier(true, false, true, RailType.QUARTZ));
 	RegistryObject<Item> RAIL_CONNECTOR_300 = new RegistryObject<>(() -> new ItemRailModifier(true, false, false, RailType.DIAMOND));
 	RegistryObject<Item> RAIL_CONNECTOR_300_ONE_WAY = new RegistryObject<>(() -> new ItemRailModifier(true, false, true, RailType.DIAMOND));
+	RegistryObject<Item> RAIL_CUSTOM = new RegistryObject<>(() -> new ItemRailModifier(true, false, false, RailType.CUSTOM));
 	RegistryObject<Item> RAIL_CONNECTOR_PLATFORM = new RegistryObject<>(() -> new ItemRailModifier(true, true, false, RailType.PLATFORM));
 	RegistryObject<Item> RAIL_CONNECTOR_SIDING = new RegistryObject<>(() -> new ItemRailModifier(true, true, false, RailType.SIDING));
 	RegistryObject<Item> RAIL_CONNECTOR_TURN_BACK = new RegistryObject<>(() -> new ItemRailModifier(true, false, false, RailType.TURN_BACK));

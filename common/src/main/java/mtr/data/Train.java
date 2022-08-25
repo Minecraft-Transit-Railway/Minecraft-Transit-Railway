@@ -530,13 +530,14 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	public final float getRailSpeed(int railIndex) {
-		final RailType thisRail = path.get(railIndex).rail.railType;
+		final Rail thisRail = path.get(railIndex).rail;
+		final RailType thisRailType = thisRail.railType;
 		final float railSpeed;
-		if (thisRail.canAccelerate) {
-			railSpeed = thisRail.maxBlocksPerTick;
+		if (thisRailType.canAccelerate) {
+			railSpeed = thisRail.getMaxBlocksPerTick();
 		} else {
-			final RailType lastRail = railIndex > 0 ? path.get(railIndex - 1).rail.railType : thisRail;
-			railSpeed = Math.max(lastRail.canAccelerate ? lastRail.maxBlocksPerTick : RailType.getDefaultMaxBlocksPerTick(transportMode), speed);
+			final Rail lastRail = railIndex > 0 ? path.get(railIndex - 1).rail : thisRail;
+			railSpeed = Math.max(lastRail.railType.canAccelerate ? lastRail.getMaxBlocksPerTick() : RailType.getDefaultMaxBlocksPerTick(transportMode), speed);
 		}
 		return railSpeed;
 	}

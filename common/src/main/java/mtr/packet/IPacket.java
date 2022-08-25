@@ -32,6 +32,7 @@ public interface IPacket {
 	ResourceLocation PACKET_PRESS_LIFT_BUTTON = new ResourceLocation(MTR.MOD_ID, "packet_press_lift_button");
 	ResourceLocation PACKET_ADD_BALANCE = new ResourceLocation(MTR.MOD_ID, "packet_add_balance");
 	ResourceLocation PACKET_PIDS_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_pids_update");
+	ResourceLocation PACKET_RAIL_CUSTOM_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_rail_custom_update");
 	ResourceLocation PACKET_ARRIVAL_PROJECTOR_UPDATE = new ResourceLocation(MTR.MOD_ID, "packet_arrival_projector_update");
 	ResourceLocation PACKET_CHUNK_S2C = new ResourceLocation(MTR.MOD_ID, "packet_chunk_s2c");
 
@@ -40,7 +41,6 @@ public interface IPacket {
 	ResourceLocation PACKET_UPDATE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_update_siding");
 	ResourceLocation PACKET_UPDATE_ROUTE = new ResourceLocation(MTR.MOD_ID, "packet_update_route");
 	ResourceLocation PACKET_UPDATE_DEPOT = new ResourceLocation(MTR.MOD_ID, "packet_update_depot");
-
 	ResourceLocation PACKET_DELETE_STATION = new ResourceLocation(MTR.MOD_ID, "packet_delete_station");
 	ResourceLocation PACKET_DELETE_PLATFORM = new ResourceLocation(MTR.MOD_ID, "packet_delete_platform");
 	ResourceLocation PACKET_DELETE_SIDING = new ResourceLocation(MTR.MOD_ID, "packet_delete_siding");

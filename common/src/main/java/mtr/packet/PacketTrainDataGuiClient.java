@@ -367,6 +367,13 @@ public class PacketTrainDataGuiClient extends PacketTrainDataBase {
 		RegistryClient.sendToServer(PACKET_PIDS_UPDATE, packet);
 	}
 
+	public static void sendRailCustomC2S(int speed, boolean isOneWay) {
+		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeInt(speed);
+		packet.writeBoolean(isOneWay);
+		RegistryClient.sendToServer(PACKET_RAIL_CUSTOM_UPDATE, packet);
+	}
+
 	public static void sendArrivalProjectorConfigC2S(BlockPos pos, Set<Long> filterPlatformIds) {
 		final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
 		packet.writeBlockPos(pos);
