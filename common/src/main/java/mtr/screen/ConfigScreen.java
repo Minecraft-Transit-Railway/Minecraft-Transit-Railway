@@ -16,14 +16,14 @@ import net.minecraft.network.chat.Component;
 public class ConfigScreen extends ScreenMapper implements IGui {
 
 	private boolean useMTRFont;
-	private boolean showAnnouncementMessages;
+	private boolean genAnnouncementMessages;
 	private boolean useTTSAnnouncements;
 	private boolean hideSpecialRailColors;
 	private boolean hideTranslucentParts;
 	private boolean useDynamicFPS;
 
 	private final Button buttonUseMTRFont;
-	private final Button buttonShowAnnouncementMessages;
+	private final Button buttonGenAnnouncementMessages;
 	private final Button buttonUseTTSAnnouncements;
 	private final Button buttonHideSpecialRailColors;
 	private final Button buttonHideTranslucentParts;
@@ -43,9 +43,9 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
 			setButtonText(button, useMTRFont);
 		});
-		buttonShowAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
-			showAnnouncementMessages = Config.setShowAnnouncementMessages(!showAnnouncementMessages);
-			setButtonText(button, showAnnouncementMessages);
+		buttonGenAnnouncementMessages = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
+			genAnnouncementMessages = Config.setGenAnnouncementMessages(!genAnnouncementMessages);
+			setButtonText(button, genAnnouncementMessages);
 		});
 		buttonUseTTSAnnouncements = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useTTSAnnouncements = Config.setUseTTSAnnouncements(!useTTSAnnouncements);
@@ -74,7 +74,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		super.init();
 		Config.refreshProperties();
 		useMTRFont = Config.useMTRFont();
-		showAnnouncementMessages = Config.showAnnouncementMessages();
+		genAnnouncementMessages = Config.genAnnouncementMessages();
 		useTTSAnnouncements = Config.useTTSAnnouncements();
 		hideSpecialRailColors = Config.hideSpecialRailColors();
 		hideTranslucentParts = Config.hideTranslucentParts();
@@ -83,7 +83,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		int i = 1;
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
 		if (!Keys.LIFTS_ONLY) {
-			IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonGenAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
@@ -94,7 +94,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		}
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
-		setButtonText(buttonShowAnnouncementMessages, showAnnouncementMessages);
+		setButtonText(buttonGenAnnouncementMessages, genAnnouncementMessages);
 		setButtonText(buttonUseTTSAnnouncements, useTTSAnnouncements);
 		setButtonText(buttonHideSpecialRailColors, hideSpecialRailColors);
 		setButtonText(buttonHideTranslucentParts, hideTranslucentParts);
@@ -109,7 +109,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 
 		addDrawableChild(buttonUseMTRFont);
 		if (!Keys.LIFTS_ONLY) {
-			addDrawableChild(buttonShowAnnouncementMessages);
+			addDrawableChild(buttonGenAnnouncementMessages);
 			addDrawableChild(buttonUseTTSAnnouncements);
 			addDrawableChild(buttonHideSpecialRailColors);
 			addDrawableChild(buttonHideTranslucentParts);
