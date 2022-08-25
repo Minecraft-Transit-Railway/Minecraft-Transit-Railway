@@ -19,8 +19,8 @@ import java.util.List;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
-	public boolean isOneWay;
-	public RailType railType;
+	private final boolean isOneWay;
+	private final RailType railType;
 
 	public ItemRailModifier() {
 		super(true, true, false);

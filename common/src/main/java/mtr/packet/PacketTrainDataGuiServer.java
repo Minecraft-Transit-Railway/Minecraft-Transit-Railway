@@ -6,7 +6,6 @@ import mtr.Registry;
 import mtr.block.*;
 import mtr.data.*;
 import mtr.entity.EntityLift;
-import mtr.item.ItemRailModifier;
 import mtr.mappings.Utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -380,7 +379,6 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 
 		minecraftServer.execute(() -> {
 			final ItemStack railItem = player.getMainHandItem();
-			final ItemRailModifier rail = (ItemRailModifier) railItem.getItem();
 			final CompoundTag compoundTag = railItem.getOrCreateTag();
 
 			compoundTag.putInt("railSpeed", speed);
