@@ -23,6 +23,10 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 
 	private final int type;
 	private static final ModelSingleCube MODEL_PSD = new ModelSingleCube(36, 18, 0, 0, 0, 16, 16, 2);
+	private static final ModelSingleCube MODEL_PSD_END_LEFT_1 = new ModelSingleCube(20, 18, 0, 0, 0, 8, 16, 2);
+	private static final ModelSingleCube MODEL_PSD_END_RIGHT_1 = new ModelSingleCube(20, 18, 8, 0, 0, 8, 16, 2);
+	private static final ModelSingleCube MODEL_PSD_END_LEFT_2 = new ModelSingleCube(20, 18, 8, 0, 2, 8, 16, 2);
+	private static final ModelSingleCube MODEL_PSD_END_RIGHT_2 = new ModelSingleCube(20, 18, 0, 0, 2, 8, 16, 2);
 	private static final ModelSingleCube MODEL_PSD_LIGHT_LEFT = new ModelSingleCube(16, 16, 0, -1, 5, 1, 1, 1);
 	private static final ModelSingleCube MODEL_PSD_LIGHT_RIGHT = new ModelSingleCube(16, 16, 15, -1, 5, 1, 1, 1);
 	private static final ModelSingleCube MODEL_APG_TOP = new ModelSingleCube(34, 9, 0, 8, 1, 16, 8, 1);
@@ -60,6 +64,13 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 					final VertexConsumer vertexConsumerLight = vertexConsumers.getBuffer(open > 0 ? MoreRenderLayers.getLight(lightLocation, false) : MoreRenderLayers.getExterior(lightLocation));
 					(side ? MODEL_PSD_LIGHT_RIGHT : MODEL_PSD_LIGHT_LEFT).renderToBuffer(matrices, vertexConsumerLight, light, overlay, 1, 1, 1, 1);
 				}
+				if (end) {
+					matrices.pushPose();
+					matrices.translate(open / 64F * (side ? -1 : 1), 0, 0);
+					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_2_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
+					(side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+					matrices.popPose();
+				}
 				break;
 			case 2:
 				break;
@@ -70,8 +81,13 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 		switch (type) {
 			case 0:
 			case 1:
-				final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
-				MODEL_PSD.renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+				if (end) {
+					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_1_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
+					(side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+				} else {
+					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
+					MODEL_PSD.renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
+				}
 				break;
 			case 2:
 				final VertexConsumer vertexConsumerAPGDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/apg_door_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left"))));
@@ -120,11 +136,11 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
 
 			bone = new ModelMapper(modelDataWrapper);
-			bone.setPos(0, -6, -8);
-			bone.texOffs(0, 0).addBox(-8, -10, 1, 16, 16, 1, 0, false);
-			bone.texOffs(0, 17).addBox(-8, 0, 0, 16, 6, 1, 0, false);
+			bone.texOffs(0, 0).addBox(-8, -16, -7, 16, 16, 1, 0, false);
+			bone.texOffs(0, 17).addBox(-8, -6, -8, 16, 6, 1, 0, false);
 
 			final ModelMapper cube_r1 = new ModelMapper(modelDataWrapper);
+			cube_r1.setPos(0, -6, -8);
 			bone.addChild(cube_r1);
 			cube_r1.setRotationAngle(-0.7854F, 0, 0);
 			cube_r1.texOffs(0, 24).addBox(-8, -2, 0, 16, 2, 1, 0, false);
