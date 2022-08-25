@@ -91,7 +91,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 
 		private final ModelMapper cube;
 
-		private ModelSingleCube(int textureWidth, int textureHeight, float x, float y, float z, float length, float height, float depth) {
+		private ModelSingleCube(int textureWidth, int textureHeight, int x, int y, int z, int length, int height, int depth) {
 			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, textureWidth, textureHeight);
 			cube = new ModelMapper(modelDataWrapper);
 			cube.texOffs(0, 0).addBox(x - 8, y - 16, z - 8, length, height, depth, 0, false);
@@ -101,7 +101,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 
 		@Override
 		public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-			cube.render(matrices, vertices, packedLight, packedOverlay);
+			cube.render(matrices, vertices, 0, 0, 0, packedLight, packedOverlay);
 		}
 
 		@Override
@@ -135,7 +135,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 
 		@Override
 		public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-			bone.render(matrices, vertices, packedLight, packedOverlay);
+			bone.render(matrices, vertices, 0, 0, 0, packedLight, packedOverlay);
 		}
 
 		@Override
