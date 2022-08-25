@@ -36,7 +36,6 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 	private static final float PERSISTENT_OFFSET = 7.5F;
 	public static final float PERSISTENT_OFFSET_SMALL = PERSISTENT_OFFSET / 16;
 
-	public static final EnumProperty<EnumDoorLight> DOOR_LIGHT = EnumProperty.create("door_light", EnumDoorLight.class);
 	public static final BooleanProperty AIR_LEFT = BooleanProperty.create("air_left");
 	public static final BooleanProperty AIR_RIGHT = BooleanProperty.create("air_right");
 	public static final IntegerProperty ARROW_DIRECTION = IntegerProperty.create("propagate_property", 0, 3);
@@ -126,7 +125,7 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(DOOR_LIGHT, FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, ARROW_DIRECTION, PERSISTENT);
+		builder.add(FACING, SIDE_EXTENDED, AIR_LEFT, AIR_RIGHT, ARROW_DIRECTION, PERSISTENT);
 	}
 
 	@Override
@@ -135,7 +134,6 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 	}
 
 	public static BlockState getActualState(BlockGetter world, BlockPos pos) {
-		EnumDoorLight doorLight = EnumDoorLight.NONE;
 		Direction facing = null;
 		EnumSide side = null;
 		boolean airLeft = false, airRight = false;
@@ -144,7 +142,6 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 		final Block blockBelow = stateBelow.getBlock();
 		if (blockBelow instanceof BlockPSDGlass || blockBelow instanceof BlockPSDDoor || blockBelow instanceof BlockPSDGlassEnd) {
 			if (blockBelow instanceof BlockPSDDoor) {
-				doorLight = IBlock.getStatePropertySafe(stateBelow, BlockPSDDoor.OPEN) > 0 ? EnumDoorLight.ON : EnumDoorLight.OFF;
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE);
 			} else {
 				side = IBlock.getStatePropertySafe(stateBelow, SIDE_EXTENDED);
@@ -163,7 +160,7 @@ public class BlockPSDTop extends BlockDirectionalMapper implements EntityBlockMa
 		}
 
 		final BlockState oldState = world.getBlockState(pos);
-		BlockState newState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.get().defaultBlockState()).setValue(DOOR_LIGHT, doorLight).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
+		BlockState newState = (oldState.getBlock() instanceof BlockPSDTop ? oldState : mtr.Blocks.PSD_TOP.get().defaultBlockState()).setValue(AIR_LEFT, airLeft).setValue(AIR_RIGHT, airRight);
 		if (facing != null) {
 			newState = newState.setValue(FACING, facing);
 		}
