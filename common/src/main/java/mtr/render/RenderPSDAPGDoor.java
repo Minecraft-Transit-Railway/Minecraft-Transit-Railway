@@ -3,6 +3,7 @@ package mtr.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import mtr.MTRClient;
 import mtr.block.BlockAPGGlass;
 import mtr.block.BlockAPGGlassEnd;
 import mtr.block.BlockPSDAPGDoorBase;
@@ -37,6 +38,8 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 	private static final ModelAPGDoorLight MODEL_APG_LIGHT = new ModelAPGDoorLight();
 	private static final ModelSingleCube MODEL_APG_DOOR_LOCKED = new ModelSingleCube(6, 6, 5, 10, 1, 6, 6, 0);
 	private static final ModelSingleCube MODEL_PSD_DOOR_LOCKED = new ModelSingleCube(6, 6, 5, 6, 1, 6, 6, 0);
+	private static final ModelSingleCube MODEL_LIFT_LEFT = new ModelSingleCube(28, 18, 0, 0, 0, 12, 16, 2);
+	private static final ModelSingleCube MODEL_LIFT_RIGHT = new ModelSingleCube(28, 18, 4, 0, 0, 12, 16, 2);
 
 	public RenderPSDAPGDoor(BlockEntityRenderDispatcher dispatcher, int type) {
 		super(dispatcher);
@@ -56,7 +59,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 		final boolean half = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
 		final boolean end = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.END);
 		final boolean unlocked = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.UNLOCKED);
-		final int open = entity.getOpen();
+		final float open = Math.min(entity.getOpen(MTRClient.getLastFrameDuration()), type >= 3 ? 0.75F : 1);
 
 		matrices.pushPose();
 		matrices.translate(0.5, 0, 0.5);
@@ -73,7 +76,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				}
 				if (end) {
 					matrices.pushPose();
-					matrices.translate(open / 64F * (side ? -1 : 1), 0, 0);
+					matrices.translate(open / 2 * (side ? -1 : 1), 0, 0);
 					final VertexConsumer vertexConsumerPSDDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/psd_door_end_%s_%s_2_%s.png", half ? "top" : "bottom", side ? "right" : "left", type == 1 ? "2" : "1"))));
 					(side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matrices, vertexConsumerPSDDoor, light, overlay, 1, 1, 1, 1);
 					matrices.popPose();
@@ -95,7 +98,7 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				break;
 		}
 
-		matrices.translate(open / 32F * (side ? -1 : 1), 0, 0);
+		matrices.translate(open * (side ? -1 : 1), 0, 0);
 
 		switch (type) {
 			case 0:
@@ -121,6 +124,20 @@ public class RenderPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoor
 				if (half && !unlocked) {
 					final VertexConsumer vertexConsumerDoorLocked = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/sign/door_not_in_use.png")));
 					MODEL_APG_DOOR_LOCKED.renderToBuffer(matrices, vertexConsumerDoorLocked, light, overlay, 1, 1, 1, 1);
+				}
+				break;
+			case 4:
+				if (IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.ODD)) {
+					break;
+				}
+				matrices.translate(side ? 0.5 : -0.5, 0, 0);
+			case 3:
+				final VertexConsumer vertexConsumerLiftDoor = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation(String.format("mtr:textures/block/lift_door_%s_%s_1.png", half ? "top" : "bottom", side ? "right" : "left"))));
+				(side ? MODEL_LIFT_RIGHT : MODEL_LIFT_LEFT).renderToBuffer(matrices, vertexConsumerLiftDoor, light, overlay, 1, 1, 1, 1);
+				if (half && !unlocked) {
+					matrices.translate(side ? 0.125 : -0.125, 0, 0);
+					final VertexConsumer vertexConsumerDoorLocked = vertexConsumers.getBuffer(MoreRenderLayers.getExterior(new ResourceLocation("mtr:textures/sign/door_not_in_use.png")));
+					MODEL_PSD_DOOR_LOCKED.renderToBuffer(matrices, vertexConsumerDoorLocked, light, overlay, 1, 1, 1, 1);
 				}
 				break;
 		}

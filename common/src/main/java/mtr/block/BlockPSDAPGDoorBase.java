@@ -89,7 +89,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext collisionContext) {
 		final BlockEntity entity = world.getBlockEntity(pos);
-		return entity instanceof TileEntityPSDAPGDoorBase && ((TileEntityPSDAPGDoorBase) entity).getOpen() > 0 ? Shapes.empty() : super.getCollisionShape(state, world, pos, collisionContext);
+		return entity instanceof TileEntityPSDAPGDoorBase && ((TileEntityPSDAPGDoorBase) entity).isOpen() ? Shapes.empty() : super.getCollisionShape(state, world, pos, collisionContext);
 	}
 
 	@Override
@@ -125,6 +125,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 	public static abstract class TileEntityPSDAPGDoorBase extends BlockEntityClientSerializableMapper {
 
 		private int open;
+		private float openClient;
 
 		private static final String KEY_OPEN = "open";
 
@@ -152,8 +153,20 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 			syncData();
 		}
 
-		public int getOpen() {
-			return open;
+		public float getOpen(float lastFrameDuration) {
+			final float change = lastFrameDuration * 0.4F;
+			if (Math.abs(open - openClient) < change) {
+				openClient = open;
+			} else if (openClient < open) {
+				openClient += change;
+			} else {
+				openClient -= change;
+			}
+			return openClient / 32;
+		}
+
+		public boolean isOpen() {
+			return open > 0;
 		}
 	}
 }
