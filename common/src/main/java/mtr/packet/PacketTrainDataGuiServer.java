@@ -388,7 +388,7 @@ public class PacketTrainDataGuiServer extends PacketTrainDataBase {
 	}
 
 	public static void receiveUseTimeAndWindSyncC2S(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
-		if (RailwayData.hasNoPermission(player)) {
+		if (RailwayData.hasNoPermission(player) || !player.hasPermissions(1)) {
 			return;
 		}
 

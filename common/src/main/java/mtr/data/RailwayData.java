@@ -5,6 +5,7 @@ import mtr.MTR;
 import mtr.Registry;
 import mtr.block.BlockNode;
 import mtr.mappings.PersistentStateMapper;
+import mtr.mappings.Utilities;
 import mtr.packet.*;
 import mtr.path.PathData;
 import net.minecraft.commands.CommandSourceStack;
@@ -204,6 +205,7 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 		signalBlocks.writeCache();
 
 		useTimeAndWindSync = compoundTag.getBoolean(KEY_USE_TIME_AND_WIND_SYNC);
+		runRealTimeSync();
 
 		try {
 			UpdateDynmap.updateDynmap(world, this);
@@ -416,7 +418,6 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 	public void onPlayerJoin(ServerPlayer serverPlayer) {
 		PacketTrainDataGuiServer.sendAllInChunks(serverPlayer, stations, platforms, sidings, routes, depots, signalBlocks);
 		railwayDataCoolDownModule.onPlayerJoin(serverPlayer);
-		runRealTimeSync();
 	}
 
 	// writing data
@@ -522,12 +523,12 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			final MinecraftServer server = world.getServer();
 			if (server != null) {
 				final CommandSourceStack commandSourceStack = server.createCommandSourceStack();
-				server.getCommands().performCommand(commandSourceStack, "/gamerule doDaylightCycle true");
-				server.getCommands().performCommand(commandSourceStack, "/taw set-cycle-length overworld 864000 864000");
-				server.getCommands().performCommand(commandSourceStack, "/taw reload");
+				runCommand(server, commandSourceStack, "/gamerule doDaylightCycle true");
+				runCommand(server, commandSourceStack, "/taw set-cycle-length " + world.dimension().location() + " 864000 864000");
+				runCommand(server, commandSourceStack, "/taw reload");
 				final Calendar calendar = Calendar.getInstance();
 				final long ticks = Math.round((calendar.get(Calendar.HOUR_OF_DAY) + Depot.HOURS_IN_DAY - 6) * 1000 + calendar.get(Calendar.MINUTE) / 0.06 + calendar.get(Calendar.SECOND) / 3.6) % 24000;
-				server.getCommands().performCommand(commandSourceStack, "/time set " + ticks);
+				runCommand(server, commandSourceStack, "/time set " + ticks);
 			}
 		}
 	}
@@ -753,6 +754,11 @@ public class RailwayData extends PersistentStateMapper implements IPacket {
 			}
 			return delete;
 		});
+	}
+
+	private static void runCommand(MinecraftServer server, CommandSourceStack commandSourceStack, String command) {
+		System.out.println("Running command " + command);
+		Utilities.sendCommand(server, commandSourceStack, command);
 	}
 
 	// TODO temporary code start
