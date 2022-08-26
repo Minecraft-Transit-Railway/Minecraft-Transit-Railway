@@ -9,6 +9,7 @@ import mtr.client.IDrawing;
 import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
+import mtr.packet.PacketTrainDataGuiClient;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,10 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private boolean hideTranslucentParts;
 	private boolean useDynamicFPS;
 
+	private final boolean hasTimeAndWindControls;
+	private final boolean useTimeAndWindSync;
+
+	private final WidgetBetterCheckbox checkboxUseTimeAndWindSync;
 	private final Button buttonUseMTRFont;
 	private final Button buttonShowAnnouncementMessages;
 	private final Button buttonUseTTSAnnouncements;
@@ -37,7 +42,20 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 	private static final int BUTTON_HEIGHT = TEXT_HEIGHT + TEXT_PADDING;
 
 	public ConfigScreen() {
+		this(false, false);
+	}
+
+	public ConfigScreen(boolean useTimeAndWindSync) {
+		this(true, useTimeAndWindSync);
+	}
+
+	private ConfigScreen(boolean hasTimeAndWindControls, boolean useTimeAndWindSync) {
 		super(Text.literal(""));
+
+		this.hasTimeAndWindControls = hasTimeAndWindControls && ClientData.hasPermission();
+		this.useTimeAndWindSync = useTimeAndWindSync;
+
+		checkboxUseTimeAndWindSync = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.use_time_and_wind_sync"), PacketTrainDataGuiClient::sendUseTimeAndWindSyncC2S);
 
 		buttonUseMTRFont = new Button(0, 0, 0, BUTTON_HEIGHT, Text.literal(""), button -> {
 			useMTRFont = Config.setUseMTRFont(!useMTRFont);
@@ -80,19 +98,28 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		hideTranslucentParts = Config.hideTranslucentParts();
 		useDynamicFPS = Config.useDynamicFPS();
 
-		int i = 1;
-		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE, BUTTON_WIDTH);
-		if (!Keys.LIFTS_ONLY) {
-			IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
-			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
-			IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+		final int offsetY;
+		if (hasTimeAndWindControls) {
+			IDrawing.setPositionAndWidth(checkboxUseTimeAndWindSync, SQUARE_SIZE, SQUARE_SIZE, width);
+			checkboxUseTimeAndWindSync.setChecked(useTimeAndWindSync);
+			offsetY = SQUARE_SIZE;
+		} else {
+			offsetY = 0;
 		}
-		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
+
+		int i = 1;
+		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+		if (!Keys.LIFTS_ONLY) {
+			IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonHideSpecialRailColors, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(buttonUseDynamicFPS, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
+			IDrawing.setPositionAndWidth(sliderTrackTextureOffset, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+			IDrawing.setPositionAndWidth(sliderTrainRenderDistanceRatio, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * (i++) + SQUARE_SIZE + offsetY, BUTTON_WIDTH - TEXT_PADDING - font.width("100%"));
+		}
+		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, BUTTON_HEIGHT * i + SQUARE_SIZE + offsetY, BUTTON_WIDTH);
 		setButtonText(buttonUseMTRFont, useMTRFont);
 		setButtonText(buttonShowAnnouncementMessages, showAnnouncementMessages);
 		setButtonText(buttonUseTTSAnnouncements, useTTSAnnouncements);
@@ -107,6 +134,9 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 		sliderTrainRenderDistanceRatio.setValue(Config.trainRenderDistanceRatio());
 		buttonSupportPatreon.setMessage(Text.translatable("gui.mtr.support"));
 
+		if (hasTimeAndWindControls) {
+			addDrawableChild(checkboxUseTimeAndWindSync);
+		}
 		addDrawableChild(buttonUseMTRFont);
 		if (!Keys.LIFTS_ONLY) {
 			addDrawableChild(buttonShowAnnouncementMessages);
@@ -127,7 +157,7 @@ public class ConfigScreen extends ScreenMapper implements IGui {
 			renderBackground(matrices);
 			drawCenteredString(matrices, font, Text.translatable("gui.mtr.mtr_options"), width / 2, TEXT_PADDING, ARGB_WHITE);
 
-			final int yStart1 = SQUARE_SIZE + TEXT_PADDING / 2;
+			final int yStart1 = SQUARE_SIZE + TEXT_PADDING / 2 + (hasTimeAndWindControls ? SQUARE_SIZE : 0);
 			int i = 1;
 			drawString(matrices, font, Text.translatable("options.mtr.use_mtr_font"), SQUARE_SIZE, yStart1, ARGB_WHITE);
 			if (!Keys.LIFTS_ONLY) {
