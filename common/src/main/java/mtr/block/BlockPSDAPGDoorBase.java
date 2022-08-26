@@ -154,7 +154,7 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 		}
 
 		public float getOpen(float lastFrameDuration) {
-			final float change = lastFrameDuration * 0.4F;
+			final float change = lastFrameDuration * 0.95F;
 			if (Math.abs(open - openClient) < change) {
 				openClient = open;
 			} else if (openClient < open) {

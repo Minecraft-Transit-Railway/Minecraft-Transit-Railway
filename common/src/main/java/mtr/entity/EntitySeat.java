@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 public class EntitySeat extends EntityBase {
@@ -66,19 +65,6 @@ public class EntitySeat extends EntityBase {
 				seatRefresh--;
 			}
 		}
-
-		// TODO temp code
-		if (level.isClientSide || new Random().nextInt(100) == 0) {
-			final int offset = 16;
-			for (int x = -offset; x <= offset; x++) {
-				for (int y = -offset; y <= offset; y++) {
-					for (int z = -offset; z <= offset; z++) {
-						level.getBlockEntity(blockPosition().offset(x, y, z));
-					}
-				}
-			}
-		}
-		// TODO temp code end
 	}
 
 	@Override
