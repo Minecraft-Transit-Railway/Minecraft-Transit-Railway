@@ -42,13 +42,20 @@ public class CustomRailScreen extends ScreenMapper implements IGui {
 
     @Override
     public void tick() {
+        if (textFieldSpeed.getValue().length() >= 1) {
+            if (Integer.parseInt(textFieldSpeed.getValue()) > 300) {
+                textFieldSpeed.setValue("300");
+            } else if (Integer.parseInt(textFieldSpeed.getValue()) == 0) {
+                textFieldSpeed.setValue("1");
+            }
+        }
         textFieldSpeed.tick();
     }
 
     @Override
     public void onClose() {
         final String textFieldValue = textFieldSpeed.getValue();
-        PacketTrainDataGuiClient.sendRailCustomC2S(textFieldValue.length() >= 1  ? Integer.parseInt(textFieldValue) > 0 ? Integer.parseInt(textFieldValue) : speed : speed, buttonIsOneWay.selected());
+        PacketTrainDataGuiClient.sendRailCustomC2S(textFieldValue.length() >= 1  ? Integer.parseInt(textFieldValue) > 0 && Integer.parseInt(textFieldValue) <= 300 ? Integer.parseInt(textFieldValue) : speed : speed, buttonIsOneWay.selected());
         super.onClose();
     }
 
