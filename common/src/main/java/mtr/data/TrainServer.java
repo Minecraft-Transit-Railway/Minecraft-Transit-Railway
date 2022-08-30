@@ -44,19 +44,19 @@ public class TrainServer extends Train {
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
 		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
-		super(sidingId, railLength, path, distances, map);
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, map);
 		this.timeSegments = timeSegments;
 	}
 
 	@Deprecated
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
-		super(sidingId, railLength, path, distances, compoundTag);
+	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 

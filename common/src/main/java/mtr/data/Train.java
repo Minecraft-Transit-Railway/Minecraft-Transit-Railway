@@ -50,6 +50,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	protected final int manualToAutomaticTime;
 	protected final List<PathData> path;
 	protected final List<Double> distances;
+	protected final int repeatIndex1;
+	protected final int repeatIndex2;
 	protected final Set<UUID> ridingEntities = new HashSet<>();
 	protected final SimpleContainer inventory;
 	private final float railLength;
@@ -77,7 +79,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	private static final String KEY_RIDING_ENTITIES = "riding_entities";
 	private static final String KEY_CARGO = "cargo";
 
-	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+	public Train(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
 		super(id);
 		this.sidingId = sidingId;
 		this.railLength = railLength;
@@ -96,12 +98,14 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.manualToAutomaticTime = manualToAutomaticTime;
 		this.path = path;
 		this.distances = distances;
+		this.repeatIndex1 = repeatIndex1;
+		this.repeatIndex2 = repeatIndex2;
 		final float tempAccelerationConstant = RailwayData.round(accelerationConstant, 3);
 		this.accelerationConstant = tempAccelerationConstant <= 0 ? ACCELERATION_DEFAULT : tempAccelerationConstant;
 		inventory = new SimpleContainer(trainCars);
 	}
 
-	public Train(long sidingId, float railLength, List<PathData> path, List<Double> distances, Map<String, Value> map) {
+	public Train(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, Map<String, Value> map) {
 		super(map);
 		final MessagePackHelper messagePackHelper = new MessagePackHelper(map);
 
@@ -109,6 +113,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
+		this.repeatIndex1 = repeatIndex1;
+		this.repeatIndex2 = repeatIndex2;
 
 		speed = messagePackHelper.getFloat(KEY_SPEED);
 		final float tempAccelerationConstant = RailwayData.round(messagePackHelper.getFloat(KEY_ACCELERATION_CONSTANT, ACCELERATION_DEFAULT), 3);
@@ -153,13 +159,15 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 	}
 
 	@Deprecated
-	public Train(long sidingId, float railLength, List<PathData> path, List<Double> distances, CompoundTag compoundTag) {
+	public Train(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, CompoundTag compoundTag) {
 		super(compoundTag);
 
 		this.sidingId = sidingId;
 		this.railLength = railLength;
 		this.path = path;
 		this.distances = distances;
+		this.repeatIndex1 = repeatIndex1;
+		this.repeatIndex2 = repeatIndex2;
 
 		speed = compoundTag.getFloat(KEY_SPEED);
 		accelerationConstant = ACCELERATION_DEFAULT;
@@ -198,6 +206,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			path.add(new PathData(packet));
 			distances.add(packet.readDouble());
 		}
+		repeatIndex1 = packet.readInt();
+		repeatIndex2 = packet.readInt();
 
 		sidingId = packet.readLong();
 		railLength = packet.readFloat();
@@ -290,6 +300,8 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 			path.get(i).writePacket(packet);
 			packet.writeDouble(distances.get(i));
 		}
+		packet.writeInt(repeatIndex1);
+		packet.writeInt(repeatIndex2);
 
 		packet.writeLong(sidingId);
 		packet.writeFloat(railLength);
@@ -395,10 +407,15 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						if (dwellTicks == 0) {
 							tempDoorValue2 = 0;
 						} else {
+							if (stopCounter == 0 && repeatIndex1 > 0 && repeatIndex2 > 0 && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
+								railProgress = distances.get(repeatIndex1);
+							}
+
 							stopCounter += ticksElapsed;
 							if (isCurrentlyManual) {
 								doorValue = Mth.clamp(doorValue + ticksElapsed * (doorOpen ? 1 : -1) / DOOR_MOVE_TIME, 0, 1);
 							}
+
 							tempDoorValue2 = getDoorValue();
 						}
 
