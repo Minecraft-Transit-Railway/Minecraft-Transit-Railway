@@ -293,9 +293,11 @@ public class TrainServer extends Train {
 
 		if (currentTime >= 0) {
 			float offsetTime = 0;
+			float offsetTimeTemp = 0;
+			boolean secondRound = false;
 			routeId = 0;
-			for (int i = startingIndex; i < timeSegments.size(); i++) {
-				final Siding.TimeSegment timeSegment = timeSegments.get(i);
+			for (int i = startingIndex; i < timeSegments.size() + (isRepeat() ? startingIndex : 0); i++) {
+				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
 				if (timeSegment.savedRailBaseId != 0) {
 					if (timeSegment.routeId == 0) {
@@ -310,10 +312,15 @@ public class TrainServer extends Train {
 						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
-					if (isOnRoute || nextDepartureTicks >= 0) {
+					if (secondRound) {
+						offsetTime = offsetTimeTemp - timeSegment.endTime;
+						secondRound = false;
+					} else if (isOnRoute || nextDepartureTicks >= 0) {
 						final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
 						schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
 					}
+
+					offsetTimeTemp = timeSegment.endTime;
 				}
 
 				if (routeId == 0) {
@@ -321,7 +328,7 @@ public class TrainServer extends Train {
 				}
 
 				if (i == timeSegments.size() - 1) {
-					offsetTime = timeSegment.endTime;
+					secondRound = true;
 				}
 			}
 		}

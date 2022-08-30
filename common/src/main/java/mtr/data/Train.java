@@ -408,7 +408,7 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 						if (dwellTicks == 0) {
 							tempDoorValue2 = 0;
 						} else {
-							if (stopCounter == 0 && repeatIndex1 > 0 && repeatIndex2 > 0 && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
+							if (stopCounter == 0 && isRepeat() && getIndex(railProgress, false) >= repeatIndex2 && distances.size() > repeatIndex1) {
 								railProgress = distances.get(repeatIndex1);
 							}
 
@@ -566,6 +566,10 @@ public abstract class Train extends NameColorDataBase implements IPacket, IGui {
 
 	protected float getModelZOffset() {
 		return 0;
+	}
+
+	protected boolean isRepeat() {
+		return repeatIndex1 > 0 && repeatIndex2 > 0;
 	}
 
 	protected abstract void simulateCar(
