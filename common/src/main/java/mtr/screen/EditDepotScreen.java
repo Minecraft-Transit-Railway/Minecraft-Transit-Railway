@@ -101,7 +101,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
-		checkboxRepeatIndefinitely = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.repeat_indefinitely"), button -> saveData());
+		checkboxRepeatIndefinitely = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.repeat_indefinitely"), button -> {
+			saveData();
+			depot.clientPathGenerationSuccessfulSegments = -1;
+			PacketTrainDataGuiClient.generatePathC2S(depot.id);
+		});
 	}
 
 	@Override

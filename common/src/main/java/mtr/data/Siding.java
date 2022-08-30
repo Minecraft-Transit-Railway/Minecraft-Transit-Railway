@@ -270,11 +270,13 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 	public int generateRoute(MinecraftServer minecraftServer, List<PathData> mainPath, int successfulSegmentsMain, Map<BlockPos, Map<BlockPos, Rail>> rails, SavedRailBase firstPlatform, SavedRailBase lastPlatform, boolean repeatInfinitely) {
 		final List<PathData> tempPath = new ArrayList<>();
 		final int successfulSegments;
-		repeatIndex1 = 0;
-		repeatIndex2 = 0;
+		final int tempRepeatIndex1;
+		final int tempRepeatIndex2;
 
 		if (firstPlatform == null || lastPlatform == null) {
 			successfulSegments = 0;
+			tempRepeatIndex1 = 0;
+			tempRepeatIndex2 = 0;
 		} else {
 			final List<SavedRailBase> depotAndFirstPlatform = new ArrayList<>();
 			depotAndFirstPlatform.add(this);
@@ -283,11 +285,15 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 			if (tempPath.isEmpty()) {
 				successfulSegments = 1;
+				tempRepeatIndex1 = 0;
+				tempRepeatIndex2 = 0;
 			} else if (mainPath.isEmpty()) {
 				tempPath.clear();
 				successfulSegments = successfulSegmentsMain + 1;
+				tempRepeatIndex1 = 0;
+				tempRepeatIndex2 = 0;
 			} else {
-				repeatIndex1 = repeatInfinitely ? tempPath.size() - 1 : 0;
+				tempRepeatIndex1 = repeatInfinitely ? tempPath.size() - 1 : 0;
 				PathFinder.appendPath(tempPath, mainPath);
 
 				final List<SavedRailBase> lastPlatformAndDepot = new ArrayList<>();
@@ -299,8 +305,9 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				if (pathLastPlatformToDepot.isEmpty()) {
 					successfulSegments = successfulSegmentsMain + 1;
 					tempPath.clear();
+					tempRepeatIndex2 = 0;
 				} else {
-					repeatIndex2 = repeatInfinitely ? tempPath.size() - 1 : 0;
+					tempRepeatIndex2 = repeatInfinitely ? tempPath.size() - 1 : 0;
 					PathFinder.appendPath(tempPath, pathLastPlatformToDepot);
 					successfulSegments = successfulSegmentsMain + 2;
 				}
@@ -319,11 +326,19 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				} else {
 					path.addAll(tempPath);
 				}
+
 				timeSegments.clear();
 				timeSegments.addAll(tempTimeSegments);
 				platformTimes.clear();
 				platformTimes.putAll(tempPlatformTimes);
 				generateDistances();
+
+				if (tempRepeatIndex1 != repeatIndex1 || tempRepeatIndex2 != repeatIndex2) {
+					trains.clear();
+				}
+
+				repeatIndex1 = tempRepeatIndex1;
+				repeatIndex2 = tempRepeatIndex2;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -347,7 +362,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 				trainsToSync.add(train);
 			}
 
-			if (train.simulateTrain(world, 1, depot, dataCache, trainPositions, trainsInPlayerRange, schedulesForPlatform, trainDelays, unlimitedTrains)) {
+			if (train.simulateTrain(world, 1, depot, dataCache, trainPositions, trainsInPlayerRange, schedulesForPlatform, trainDelays)) {
 				trainsToSync.add(train);
 			}
 
