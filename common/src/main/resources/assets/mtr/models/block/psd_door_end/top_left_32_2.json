@@ -1,9 +1,0 @@
-{
-	"parent": "mtr:block/psd_door_end/left_32_base",
-	"textures": {
-		"bottom": "mtr:block/black",
-		"top": "mtr:block/transparent",
-		"particle": "mtr:block/psd_door_end_top_2",
-		"back": "mtr:block/psd_door_end_top_back_2"
-	}
-}

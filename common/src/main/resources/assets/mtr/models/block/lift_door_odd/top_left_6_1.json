@@ -1,9 +1,0 @@
-{
-	"parent": "mtr:block/lift_door_odd/left_6_base",
-	"textures": {
-		"bottom": "mtr:block/transparent",
-		"top": "mtr:block/black",
-		"particle": "mtr:block/lift_door_top_1",
-		"back": "mtr:block/lift_door_top_back_1"
-	}
-}

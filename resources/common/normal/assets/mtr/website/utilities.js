@@ -1,201 +1,101 @@
-import SETTINGS from "./index.js";
-import drawMap from "./drawing.js";
-
-const SCALE_UPPER_LIMIT = 64;
-const SCALE_LOWER_LIMIT = 1 / 128;
-const SCROLL_CALLBACK_DELAY = 100;
-const STEPS = 50;
-const MIN_SPEED = 0.0001;
-const SPEED_MULTIPLIER = 3;
-
-let scale = 1;
-let scaleStart = 1;
-let previousPinch = 0;
-let zoomNotStarted = true;
-let scrollTimeoutId = 0;
-let step = 0;
-let startX = 0;
-let startY = 0;
-let targetX = undefined;
-let targetY = undefined
-
-let textCache = {};
-let textCacheKeep = [];
-
-const CANVAS = {
-	convertX: x => Math.floor((x + window.innerWidth / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
-	convertY: y => Math.floor((y + window.innerHeight / 2) * scale / SETTINGS.lineSize) * SETTINGS.lineSize,
-	onCanvasMouseMove: function (event, container) {
-		container.x += event.deltaX;
-		container.y += event.deltaY;
-	},
-	onPinch: function (fingers, offsetX, offsetY, container, data, delay) {
-		const fingerDistance = (Math.abs(fingers.x - offsetX) + Math.abs(fingers.y - offsetY)) * 2;
-		this.onZoom(zoomNotStarted ? 0 : (previousPinch - fingerDistance) / SETTINGS.smoothScrollScale, offsetX, offsetY, container, data, delay);
-		previousPinch = fingerDistance;
-	},
-	onZoom: (amount, offsetX, offsetY, container, data, delay) => {
-		if (zoomNotStarted) {
-			scaleStart = scale;
-			zoomNotStarted = false;
-		}
-
-		let prevScale = scale;
-		scale = Math.pow(2, Math.log2(scale) - amount);
-		scale = Math.min(SCALE_UPPER_LIMIT, Math.max(SCALE_LOWER_LIMIT, scale));
-		if (delay) {
-			container.scale.set(scale / scaleStart, scale / scaleStart);
-		}
-		container.x -= Math.round((offsetX - container.x) * (scale / prevScale - 1));
-		container.y -= Math.round((offsetY - container.y) * (scale / prevScale - 1));
-
-		clearTimeout(scrollTimeoutId);
-		if (delay) {
-			scrollTimeoutId = setTimeout(() => {
-				container.scale.set(1, 1);
-				zoomNotStarted = true;
-				drawMap(container, data)
-			}, SCROLL_CALLBACK_DELAY);
-		} else {
-			drawMap(container, data);
-		}
-	},
-	slideTo: (container, x, y) => {
-		startX = container.x;
-		startY = container.y;
-		targetX = Math.round(x);
-		targetY = Math.round(y);
-		step = 0;
-	},
-	update: (delta, container) => {
-		if (typeof targetX !== "undefined" && typeof targetY !== "undefined") {
-			const distanceSquared = (targetX - startX) ** 2 + (targetY - startY) ** 2;
-			const percentage = distanceSquared === 0 ? 1 : Math.sqrt(((container.x - startX) ** 2 + (container.y - startY) ** 2) / distanceSquared);
-			const speed = delta * SPEED_MULTIPLIER * Math.sqrt(percentage < 0.5 ? Math.max(percentage, MIN_SPEED) : 1 - percentage);
-			container.x += speed * (targetX - startX) / STEPS;
-			container.y += speed * (targetY - startY) / STEPS;
-			if (percentage >= 1 || (container.x - startX) / (targetX - startX) >= 1 || (container.y - startY) / (targetY - startY) >= 1) {
-				container.x = targetX;
-				container.y = targetY;
-				targetX = undefined;
-				targetY = undefined;
+const TAN_22_5 = Math.tan(Math.PI / 8);
+const UTILITIES = {
+	isBetween: (x, a, b) => x >= Math.min(a, b) && x < Math.max(a, b),
+	runForTime: (object, callback, onComplete) => {
+		const time = Date.now();
+		for (const key in object) {
+			callback(key);
+			if (Date.now() - time > 20) {
+				setTimeout(() => UTILITIES.runForTime(object, callback, onComplete));
+				return;
 			}
 		}
-	},
-	drawText: (textArray, stationId, text, icons, x, y) => {
-		const textSplit = text.split("|");
-		let yStart = y;
-		for (const textPart of textSplit) {
-			const isTextCJK = SETTINGS.isCJK(textPart);
-			const key = textPart + " " + stationId;
-
-			if (typeof textCache[key] === "undefined") {
-				textCache[key] = new PIXI.Text(textPart, {
-					fontFamily: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR"],
-					fontSize: (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize,
-					fill: SETTINGS.getColorStyle("--textColor"),
-					stroke: SETTINGS.getColorStyle("--backgroundColor"),
-					strokeThickness: 2,
-				});
-			}
-
-			const richText = textCache[key];
-			richText.anchor.set(0.5, 0);
-			richText.position.set(Math.round(x / 2) * 2, yStart);
-			textArray.push(richText);
-			yStart += (isTextCJK ? 3 : 1.5) * SETTINGS.lineSize;
-
-			if (!textCacheKeep.includes(key)) {
-				textCache[key] = undefined;
-				textCacheKeep.push(key);
-			}
-		}
-
-		if (icons !== "") {
-			const richText = new PIXI.Text(icons, {
-				fontFamily: "Material Icons",
-				fontSize: 3 * SETTINGS.lineSize,
-				fill: SETTINGS.getColorStyle("--textColor"),
-				stroke: SETTINGS.getColorStyle("--backgroundColor"),
-				strokeThickness: 2,
-			});
-			richText.anchor.set(0.5, 0);
-			richText.position.set(Math.round(x / 2) * 2, yStart + SETTINGS.lineSize);
-			textArray.push(richText);
+		if (onComplete != null) {
+			setTimeout(onComplete);
 		}
 	},
-	clearTextCache: () => textCache = {},
-	drawLine: (graphics, x1, y1, vertical1, x2, y2, vertical2) => {
-		const differenceX = Math.abs(x2 - x1);
-		const differenceY = Math.abs(y2 - y1);
+	connectLine: (x1, y1, direction1, offsetIndex1, routeCount1, x2, y2, direction2, offsetIndex2, routeCount2, lineWidth, segments) => {
+		const offset1 = (offsetIndex1 - (routeCount1 - 1) / 2) * lineWidth;
+		const offset2 = (offsetIndex2 - (routeCount2 - 1) / 2) * lineWidth;
+		const offset1Rotated = UTILITIES.rotatePoint(offset1, 0, direction1);
+		const offset2Rotated = UTILITIES.rotatePoint(offset2, 0, direction2);
+		x1 += offset1Rotated["x"];
+		y1 += offset1Rotated["y"];
+		x2 += offset2Rotated["x"];
+		y2 += offset2Rotated["y"];
+
+		const {x, y} = UTILITIES.rotatePoint(x2 - x1, y2 - y1, -direction1);
+		const signX = Math.sign(x);
+		const signY = Math.sign(y);
+		const absX = Math.abs(x);
+		const absY = Math.abs(y);
+		const rotatedDirection = (direction2 - direction1 + 180) % 180;
+		const isTopRight = (x > 0) === (y > 0);
 		const points = [];
-		points.push({x: x1, y: y1});
-		if (differenceX > differenceY) {
-			if (vertical1 && vertical2) {
-				const midpoint = (y1 + y2) / 2;
-				points.push({x: x1 + Math.sign(x2 - x1) * Math.abs(midpoint - y1), y: midpoint});
-				points.push({x: x2 - Math.sign(x2 - x1) * Math.abs(midpoint - y1), y: midpoint});
-			} else if (!vertical1 && !vertical2) {
-				points.push({x: x1 + Math.sign(x2 - x1) * (differenceX - differenceY) / 2, y: y1});
-				points.push({x: x2 - Math.sign(x2 - x1) * (differenceX - differenceY) / 2, y: y2});
-			} else if (vertical1) {
-				points.push({x: x1 + Math.sign(x2 - x1) * differenceY, y: y2});
+
+		points.push(UTILITIES.rotatePoint(0, 0, direction1));
+		const getEndOffset = (maxHeight, isTop) => clamp(signX * offset1 * TAN_22_5 + routeCount1 * lineWidth / (isTop ? 2 : -2), maxHeight);
+
+		if (rotatedDirection === 0) {
+			if (absX > absY) {
+				const difference = absY / 2;
+				const lineOffset = clamp(offset1, absY / routeCount1);
+				const endOffset1 = getEndOffset((difference - Math.abs(lineOffset)) / 2, false);
+				const endOffset2 = getEndOffset((difference - Math.abs(lineOffset)) / 2, true);
+				points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
+				points.push(UTILITIES.rotatePoint(signX * difference + signX * endOffset1 - lineOffset, signY * difference + (isTopRight ? -1 : 1) * lineOffset, direction1));
+				points.push(UTILITIES.rotatePoint(x - signX * difference + signX * endOffset2 - lineOffset, signY * difference + (isTopRight ? -1 : 1) * lineOffset, direction1));
+				points.push(UTILITIES.rotatePoint(x, y - signY * endOffset2, direction1));
 			} else {
-				points.push({x: x2 - Math.sign(x2 - x1) * differenceY, y: y1});
+				const difference = (absY - absX) / 2;
+				const lineOffset = clamp((isTopRight ? -1 : 1) * offset1 * TAN_22_5, difference);
+				points.push(UTILITIES.rotatePoint(0, signY * difference + lineOffset, direction1));
+				points.push(UTILITIES.rotatePoint(x, y - signY * difference + lineOffset, direction1));
 			}
 		} else {
-			if (vertical1 && vertical2) {
-				points.push({x: x1, y: y1 + Math.sign(y2 - y1) * (differenceY - differenceX) / 2});
-				points.push({x: x2, y: y2 - Math.sign(y2 - y1) * (differenceY - differenceX) / 2});
-			} else if (!vertical1 && !vertical2) {
-				const midpoint = (x1 + x2) / 2;
-				points.push({x: midpoint, y: y1 + Math.sign(y2 - y1) * Math.abs(midpoint - x1)});
-				points.push({x: midpoint, y: y2 - Math.sign(y2 - y1) * Math.abs(midpoint - x1)});
-			} else if (vertical1) {
-				points.push({x: x1, y: y2 - Math.sign(y2 - y1) * differenceX});
+			const var2 = direction1 === 45 && direction2 === 0 || direction1 === 90 && direction2 === 45 || direction1 === 135 && direction2 === 0 || direction1 === 135 && direction2 === 90;
+			const getFinalPoint = () => UTILITIES.rotatePoint(0, ((rotatedDirection === 45) !== var2 ? -1 : 1) * getEndOffset(Math.sqrt(absX * absX / 4 + absY * absY / 4), (rotatedDirection === 45) !== var2), rotatedDirection);
+			if (absX > absY) {
+				const endOffset1 = getEndOffset(absY / 2, false);
+				points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
+				if (rotatedDirection === 90) {
+					points.push(UTILITIES.rotatePoint(signX * absY + signX * endOffset1, y, direction1));
+				} else {
+					const finalPoint = getFinalPoint();
+					points.push(UTILITIES.rotatePoint(signX * absY + signX * endOffset1 + (rotatedDirection === 45 === isTopRight ? 1 : -1) * signX * finalPoint["x"], y - signX * finalPoint["y"], direction1));
+					points.push(UTILITIES.rotatePoint(x - signX * finalPoint["x"], y - signX * finalPoint["y"], direction1));
+				}
 			} else {
-				points.push({x: x2, y: y1 + Math.sign(y2 - y1) * differenceX});
+				if (rotatedDirection === 90) {
+					const var1 = direction1 - direction2 !== 90;
+					const endOffset2 = getEndOffset(absX / 2, isTopRight === var1);
+					points.push(UTILITIES.rotatePoint(0, y - signY * absX + (var1 ? 1 : -1) * signX * endOffset2, direction1));
+					points.push(UTILITIES.rotatePoint(x - (var1 ? 1 : -1) * signY * endOffset2, y, direction1));
+				} else {
+					if (rotatedDirection === 45 && isTopRight || rotatedDirection === 135 && !isTopRight) {
+						const endOffset1 = getEndOffset(absY / 2, false);
+						points.push(UTILITIES.rotatePoint(0, -signY * endOffset1, direction1));
+						const finalPoint = getFinalPoint();
+						points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], signY * absX - signY * endOffset1 - signX * finalPoint["y"], direction1));
+						points.push(UTILITIES.rotatePoint(x + signX * finalPoint["x"], y + signX * finalPoint["y"], direction1));
+					} else {
+						points.push(UTILITIES.rotatePoint(0, y - signY * absX + signX, direction1));
+					}
+				}
 			}
 		}
-		points.push({x: x2, y: y2});
 
-		graphics.moveTo(x1, y1);
-
-		const offset1 = SETTINGS.lineSize / 2;
-		const offset2 = offset1 / Math.sqrt(2);
-
-		let reverse = false;
-		do {
-			let i = 0;
-			while (i < points.length - 1) {
-				const thisPoint = points[reverse ? points.length - 1 - i : i];
-				const nextPoint = points[reverse ? points.length - 2 - i : i + 1];
-				const thisX = thisPoint["x"];
-				const thisY = thisPoint["y"];
-				const nextX = nextPoint["x"];
-				const nextY = nextPoint["y"];
-
-				const signX = Math.sign(nextY - thisY);
-				const signY = Math.sign(thisX - nextX);
-				const offsetX = Math.round(signX * (signX !== 0 && signY !== 0 ? offset2 : offset1));
-				const offsetY = Math.round(signY * (signX !== 0 && signY !== 0 ? offset2 : offset1));
-
-				graphics.lineTo(thisX + offsetX, thisY + offsetY);
-				graphics.lineTo(nextX + offsetX, nextY + offsetY);
-
-				i++;
-			}
-			reverse = !reverse;
-		} while (reverse);
+		points.push(UTILITIES.rotatePoint(x, y, direction1));
+		points.forEach(point => segments.push({"x": point["x"] + x1, "y": point["y"] + y1}));
 	},
 	getDrawStationElement: (stationElement, color1, color2) => {
 		const element = document.createElement("div");
 		element.className = "route_station_name";
 		if (color1 != null) {
-			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${CANVAS.convertColor(color1)}">&nbsp</span>`;
+			element.innerHTML = `<span class="route_segment bottom" style="background-color: ${UTILITIES.convertColor(color1)}">&nbsp</span>`;
 		}
 		if (color2 != null) {
-			element.innerHTML += `<span class="route_segment top" style="background-color: ${CANVAS.convertColor(color2)}">&nbsp</span>`;
+			element.innerHTML += `<span class="route_segment top" style="background-color: ${UTILITIES.convertColor(color2)}">&nbsp</span>`;
 		}
 		element.innerHTML += `<span class="station_circle"></span>`;
 		element.appendChild(stationElement);
@@ -205,32 +105,105 @@ const CANVAS = {
 		const element = document.createElement("div");
 		element.className = "route_duration";
 		element.innerHTML =
-			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : CANVAS.convertColor(color)}">&nbsp</span>` +
+			`<span class="route_segment ${color == null ? "walk" : ""}" style="background-color: ${color == null ? 0 : UTILITIES.convertColor(color)}">&nbsp</span>` +
 			`<span class="material-icons small">${icon}</span>`;
 		element.appendChild(innerElement);
 		return element;
 	},
-	getClosestInterchangeOnRoute: (data, route, thisStation) => {
-		const {routes, stations} = data;
-		const routeStations = route["stations"];
-		let passed = false;
-		for (let i = 0; i < routeStations.length; i++) {
-			const checkStation = routeStations[i].split("_")[0];
-			if (passed && (routes.some(checkRoute => checkRoute["color"] !== route["color"] && checkRoute["stations"].some(checkRouteStation => checkRouteStation.split("_")[0] === checkStation)) || i === routeStations.length - 1)) {
-				return stations[checkStation]["name"];
-			}
-			if (checkStation === thisStation) {
-				passed = true;
-			}
+	convertGtfsRouteType: routeType => {
+		switch (routeType) {
+			case 0:
+			case 5:
+			case 12:
+				return "train_light_rail";
+			case 2:
+				return "train_high_speed";
+			case 3:
+			case 11:
+				return "bus_normal";
+			case 4:
+				return "boat_light_rail";
+			case 6:
+				return "cable_car_normal";
+			default:
+				return "train_normal";
 		}
 	},
-	convertColor: color => "#" + Number(color).toString(16).padStart(6, "0"),
+	directionToAngle: direction => {
+		const directionIndex = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].indexOf(direction);
+		return UTILITIES.angles[(directionIndex >= 0 ? directionIndex : 0) % UTILITIES.angles.length];
+	},
 	formatTime: time => {
 		const hour = Math.floor(time / 3600);
 		const minute = Math.floor(time / 60) % 60;
 		const second = Math.floor(time) % 60;
 		return (hour > 0 ? hour.toString() + ":" : "") + (hour > 0 ? minute.toString().padStart(2, "0") : minute.toString()) + ":" + second.toString().padStart(2, "0");
 	},
+	getColorStyle: style => parseInt(getComputedStyle(document.body).getPropertyValue(style).replace(/#/g, ""), 16),
+	convertColor: colorInt => "#" + Number(colorInt).toString(16).padStart(6, "0"),
+	isCJK: text => text.match(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/),
+	removeFromArray: (array, element) => {
+		const index = array.indexOf(element);
+		if (index > -1) {
+			array.splice(index, 1);
+		}
+	},
+	rotatePoint: (x, y, direction) => {
+		const getSin = direction => {
+			switch ((direction + 360) % 360) {
+				case 90:
+					return 1;
+				case 270:
+					return -1;
+				case 45:
+				case 135:
+					return Math.SQRT1_2;
+				case 225:
+				case 315:
+					return -Math.SQRT1_2;
+				default:
+					return 0;
+			}
+		};
+		const getCos = direction => {
+			switch ((direction + 360) % 360) {
+				case 0:
+					return 1;
+				case 180:
+					return -1;
+				case 45:
+				case 315:
+					return Math.SQRT1_2;
+				case 135:
+				case 225:
+					return -Math.SQRT1_2;
+				default:
+					return 0;
+			}
+		};
+		return {
+			"x": x * getCos(direction) - y * getSin(direction),
+			"y": x * getSin(direction) + y * getCos(direction),
+		};
+	},
+	routeTypes: {
+		"train_normal": "directions_train",
+		"train_light_rail": "tram",
+		"train_high_speed": "train",
+		"boat_normal": "sailing",
+		"boat_light_rail": "directions_boat",
+		"boat_high_speed": "snowmobile",
+		"cable_car_normal": "airline_seat_recline_extra",
+		"bus_normal": "directions_bus",
+		"bus_light_rail": "local_taxi",
+		"bus_high_speed": "airport_shuttle",
+	},
+	angles: [0, 45, 90, 135],
+	fonts: ["Noto Sans", "Noto Serif TC", "Noto Serif SC", "Noto Serif JP", "Noto Serif KR", "Material Icons"],
+	obaMode: false,
+	testMode: false,
 };
 
-export default CANVAS;
+const clamp = (x, bound) => Math.max(Math.min(x, bound), -bound);
+
+export default UTILITIES;

@@ -52,7 +52,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 	public static final int MAX_COLOR_ZONE_LENGTH = 6;
 	private static final int COLOR_WIDTH = 48;
 
-	public DashboardScreen(TransportMode transportMode) {
+	public DashboardScreen(TransportMode transportMode, boolean useTimeAndWindSync) {
 		super(Text.literal(""));
 		this.transportMode = transportMode;
 
@@ -79,7 +79,7 @@ public class DashboardScreen extends ScreenMapper implements IGui, IPacket {
 		});
 		buttonOptions = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("menu.options"), button -> {
 			if (minecraft != null) {
-				UtilitiesClient.setScreen(minecraft, new ConfigScreen());
+				UtilitiesClient.setScreen(minecraft, new ConfigScreen(useTimeAndWindSync));
 			}
 		});
 

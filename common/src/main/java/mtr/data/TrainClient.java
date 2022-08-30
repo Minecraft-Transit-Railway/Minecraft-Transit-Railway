@@ -151,10 +151,6 @@ public class TrainClient extends Train {
 			riderPositions.clear();
 
 			if (ridingEntities.contains(clientPlayer.getUUID())) {
-				if (clientPlayer.isShiftKeyDown()) {
-					ridingEntities.remove(clientPlayer.getUUID());
-				}
-
 				final int trainSpacing = spacing;
 				final int headIndex = getIndex(0, trainSpacing, false);
 				final int stopIndex = path.get(headIndex).stopIndex - 1;
@@ -367,6 +363,9 @@ public class TrainClient extends Train {
 			final Siding siding = ClientData.DATA_CACHE.sidingIdMap.get(sidingId);
 			depot = siding == null ? null : ClientData.DATA_CACHE.sidingIdToDepot.get(siding.id);
 			routeIds = depot == null ? new ArrayList<>() : depot.routeIds;
+			if (depot != null) {
+				depot.lastDeployedMillis = System.currentTimeMillis();
+			}
 		}
 
 		final LocalPlayer player = Minecraft.getInstance().player;
