@@ -87,7 +87,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 
 		generateTimeSegments(path, timeSegments, platformTimes);
 
-		messagePackHelper.iterateArrayValue(KEY_TRAINS, value -> trains.add(new TrainServer(id, railLength, path, distances, repeatIndex1, repeatIndex2, timeSegments, RailwayData.castMessagePackValueToSKMap(value))));
+		messagePackHelper.iterateArrayValue(KEY_TRAINS, value -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, dwellTime, RailwayData.castMessagePackValueToSKMap(value))));
 		generateDistances();
 	}
 
@@ -114,7 +114,7 @@ public class Siding extends SavedRailBase implements IPacket, IReducedSaveData {
 		generateTimeSegments(path, timeSegments, platformTimes);
 
 		final CompoundTag tagTrains = compoundTag.getCompound(KEY_TRAINS);
-		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, path, distances, repeatIndex1, repeatIndex2, timeSegments, tagTrains.getCompound(key))));
+		tagTrains.getAllKeys().forEach(key -> trains.add(new TrainServer(id, railLength, timeSegments, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, dwellTime, tagTrains.getCompound(key))));
 		generateDistances();
 	}
 

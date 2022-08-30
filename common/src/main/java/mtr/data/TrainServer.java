@@ -49,14 +49,24 @@ public class TrainServer extends Train {
 		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
-		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, map);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			Map<String, Value> map
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, map);
 		this.timeSegments = timeSegments;
 	}
 
 	@Deprecated
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
-		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, compoundTag);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			CompoundTag compoundTag
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 
