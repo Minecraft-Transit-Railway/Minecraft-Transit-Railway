@@ -295,8 +295,9 @@ public class TrainServer extends Train {
 			float offsetTime = 0;
 			float offsetTimeTemp = 0;
 			boolean secondRound = false;
+			Runnable addSchedule = null;
 			routeId = 0;
-			for (int i = startingIndex; i < timeSegments.size() + (isRepeat() ? startingIndex : 0); i++) {
+			for (int i = startingIndex; i < timeSegments.size() + (isRepeat() ? timeSegments.size() : 0); i++) {
 				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
 				if (timeSegment.savedRailBaseId != 0) {
@@ -315,9 +316,17 @@ public class TrainServer extends Train {
 					if (secondRound) {
 						offsetTime = offsetTimeTemp - timeSegment.endTime;
 						secondRound = false;
-					} else if (isOnRoute || nextDepartureTicks >= 0) {
+					} else if (addSchedule != null) {
+						addSchedule.run();
+					}
+
+					if (isOnRoute || nextDepartureTicks >= 0) {
 						final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-						schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+						addSchedule = () -> schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+						if (!isRepeat()) {
+							addSchedule.run();
+							addSchedule = null;
+						}
 					}
 
 					offsetTimeTemp = timeSegment.endTime;
