@@ -4,6 +4,7 @@ import mtr.data.Depot;
 import mtr.data.RailwayData;
 import mtr.data.Route;
 import mtr.data.Station;
+import mtr.filter.Filter;
 import mtr.mappings.BlockEntityMapper;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiServer;

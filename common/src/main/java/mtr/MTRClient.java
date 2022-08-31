@@ -8,6 +8,7 @@ import mtr.client.ClientData;
 import mtr.client.Config;
 import mtr.client.IDrawing;
 import mtr.data.*;
+import mtr.filter.Filter;
 import mtr.item.ItemBlockClickingBase;
 import mtr.packet.IPacket;
 import mtr.packet.PacketTrainDataGuiClient;
@@ -324,6 +325,7 @@ public class MTRClient implements IPacket {
 		RegistryClient.registerNetworkReceiver(PACKET_UPDATE_SCHEDULE, packet -> ClientData.updateSchedule(Minecraft.getInstance(), packet));
 
 		MTRClientLifts.init();
+		Filter.init();
 
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_ACCELERATE);
 		RegistryClient.registerKeyBinding(KeyMappings.TRAIN_BRAKE);
