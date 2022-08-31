@@ -24,6 +24,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final Map<Long, Siding> sidingsInDepot;
 
 	private final Button buttonUseRealTime;
+	private final Button buttonReset;
 	private final WidgetShorterSlider[] sliders = new WidgetShorterSlider[Depot.HOURS_IN_DAY];
 	private final WidgetBetterTextField textFieldDeparture;
 	private final Button buttonAddDeparture;
@@ -31,6 +32,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 	private final Button buttonEditInstructions;
 	private final Button buttonGenerateRoute;
 	private final Button buttonClearTrains;
+	private final WidgetBetterCheckbox checkboxRepeatIndefinitely;
 	private final DashboardList departuresList;
 
 	private static final int PANELS_START = SQUARE_SIZE * 2 + TEXT_FIELD_PADDING;
@@ -52,6 +54,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		buttonUseRealTime = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.schedule_mode_real_time_off"), button -> {
 			depot.useRealTime = !depot.useRealTime;
 			toggleRealTime();
+			saveData();
+		});
+		buttonReset = new Button(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.reset_sign"), button -> {
+			for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
+				sliders[i].setValue(0);
+			}
+			data.departures.clear();
+			updateList();
 			saveData();
 		});
 
@@ -91,6 +101,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			sidingsInDepot.values().forEach(Siding::clearTrains);
 			PacketTrainDataGuiClient.clearTrainsC2S(depot.id, sidingsInDepot.values());
 		});
+		checkboxRepeatIndefinitely = new WidgetBetterCheckbox(0, 0, 0, SQUARE_SIZE, Text.translatable("gui.mtr.repeat_indefinitely"), button -> {
+			saveData();
+			depot.clientPathGenerationSuccessfulSegments = -1;
+			PacketTrainDataGuiClient.generatePathC2S(depot.id);
+		});
 	}
 
 	@Override
@@ -101,6 +116,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		IDrawing.setPositionAndWidth(buttonEditInstructions, rightPanelsX, PANELS_START, buttonWidth * 2);
 		IDrawing.setPositionAndWidth(buttonGenerateRoute, rightPanelsX, PANELS_START + SQUARE_SIZE, buttonWidth * (showScheduleControls ? 1 : 2));
 		IDrawing.setPositionAndWidth(buttonClearTrains, rightPanelsX + buttonWidth, PANELS_START + SQUARE_SIZE, buttonWidth);
+		IDrawing.setPositionAndWidth(checkboxRepeatIndefinitely, rightPanelsX, PANELS_START + SQUARE_SIZE * 2, buttonWidth * 2);
+		checkboxRepeatIndefinitely.setChecked(data.repeatInfinitely);
 
 		if (showScheduleControls) {
 			for (WidgetShorterSlider slider : sliders) {
@@ -112,7 +129,8 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		}
 
 		final int leftWidth = rightPanelsX - 1;
-		IDrawing.setPositionAndWidth(buttonUseRealTime, 0, 0, leftWidth);
+		IDrawing.setPositionAndWidth(buttonUseRealTime, 0, 0, leftWidth - SQUARE_SIZE * 3);
+		IDrawing.setPositionAndWidth(buttonReset, leftWidth - SQUARE_SIZE * 3, 0, SQUARE_SIZE * 3);
 
 		departuresList.y = SQUARE_SIZE;
 		departuresList.height = height - SQUARE_SIZE * 2 - TEXT_FIELD_PADDING;
@@ -130,7 +148,9 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		addDrawableChild(buttonGenerateRoute);
 		if (showScheduleControls) {
 			addDrawableChild(buttonUseRealTime);
+			addDrawableChild(buttonReset);
 			addDrawableChild(buttonClearTrains);
+			addDrawableChild(checkboxRepeatIndefinitely);
 		}
 
 		toggleRealTime();
@@ -142,6 +162,14 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		buttonGenerateRoute.active = data.clientPathGenerationSuccessfulSegments >= 0;
 		departuresList.tick();
 		textFieldDeparture.tick();
+
+		if (data.routeIds.isEmpty()) {
+			checkboxRepeatIndefinitely.visible = false;
+		} else {
+			final Route firstRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(0));
+			final Route lastRoute = ClientData.DATA_CACHE.routeIdMap.get(data.routeIds.get(data.routeIds.size() - 1));
+			checkboxRepeatIndefinitely.visible = firstRoute != null && lastRoute != null && !firstRoute.platformIds.isEmpty() && !lastRoute.platformIds.isEmpty() && Objects.equals(firstRoute.platformIds.get(0), lastRoute.platformIds.get(lastRoute.platformIds.size() - 1));
+		}
 	}
 
 	@Override
@@ -163,9 +191,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 				sliders[i].y = SQUARE_SIZE * 2 + lineHeight * i;
 				sliders[i].setHeight(lineHeight);
 			}
+
 			super.render(matrices, mouseX, mouseY, delta);
 
-			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+			final int yStartRightPane = PANELS_START + SQUARE_SIZE * (checkboxRepeatIndefinitely.visible ? 3 : 2) + TEXT_PADDING;
+			font.draw(matrices, Text.translatable("gui.mtr.sidings_in_depot", sidingsInDepot.size()), rightPanelsX + TEXT_PADDING, yStartRightPane, ARGB_WHITE);
 
 			final Component text;
 			final int nextDepartureMillis = data.getMillisUntilDeploy(minecraft == null || minecraft.level == null ? 0 : Depot.getHour(minecraft.level), 1);
@@ -177,11 +207,11 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			} else {
 				text = Text.translatable("gui.mtr.next_departure_none");
 			}
-			font.draw(matrices, text, rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 3 + TEXT_PADDING, ARGB_WHITE);
+			font.draw(matrices, text, rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE, ARGB_WHITE);
 
 			final String[] stringSplit = getSuccessfulSegmentsText().getString().split("\\|");
 			for (int i = 0; i < stringSplit.length; i++) {
-				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, PANELS_START + SQUARE_SIZE * 4 + TEXT_PADDING + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
+				font.draw(matrices, stringSplit[i], rightPanelsX + TEXT_PADDING, yStartRightPane + SQUARE_SIZE * 2 + (TEXT_HEIGHT + TEXT_PADDING) * i, ARGB_WHITE);
 			}
 
 			if (showScheduleControls && !data.useRealTime) {
@@ -210,6 +240,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 		for (int i = 0; i < Depot.HOURS_IN_DAY; i++) {
 			data.setFrequency(sliders[i].getIntValue(), i);
 		}
+		data.repeatInfinitely = checkboxRepeatIndefinitely.visible && checkboxRepeatIndefinitely.selected();
 		data.setData(packet -> PacketTrainDataGuiClient.sendUpdate(PACKET_UPDATE_DEPOT, packet));
 	}
 

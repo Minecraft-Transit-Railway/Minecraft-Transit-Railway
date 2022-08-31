@@ -291,6 +291,7 @@
 	"gui.mtr.rail_not_found": "Could not create signal; rail not found",
 	"gui.mtr.rail_not_found_action": "Could not perform action; rail not found",
 	"gui.mtr.refresh_path": "Refresh Path",
+	"gui.mtr.repeat_indefinitely": "Repeat Instructions Forever",
 	"gui.mtr.reset_sign": "Reset",
 	"gui.mtr.route_color": "Route Colour",
 	"gui.mtr.route_name": "Route Name",

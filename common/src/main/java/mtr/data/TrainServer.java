@@ -44,19 +44,29 @@ public class TrainServer extends Train {
 	private static final int BOX_PADDING = 3;
 	private static final int TICKS_TO_SEND_RAIL_PROGRESS = 40;
 
-	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
-		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
+	public TrainServer(long id, long sidingId, float railLength, String trainId, String baseTrainType, int trainCars, List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2, float accelerationConstant, List<Siding.TimeSegment> timeSegments, boolean isManual, int maxManualSpeed, int manualToAutomaticTime) {
+		super(id, sidingId, railLength, trainId, baseTrainType, trainCars, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime);
 		this.timeSegments = timeSegments;
 	}
 
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, Map<String, Value> map) {
-		super(sidingId, railLength, path, distances, map);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			Map<String, Value> map
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, map);
 		this.timeSegments = timeSegments;
 	}
 
 	@Deprecated
-	public TrainServer(long sidingId, float railLength, List<PathData> path, List<Double> distances, List<Siding.TimeSegment> timeSegments, CompoundTag compoundTag) {
-		super(sidingId, railLength, path, distances, compoundTag);
+	public TrainServer(
+			long sidingId, float railLength, List<Siding.TimeSegment> timeSegments,
+			List<PathData> path, List<Double> distances, int repeatIndex1, int repeatIndex2,
+			float accelerationConstant, boolean isManual, int maxManualSpeed, int manualToAutomaticTime,
+			CompoundTag compoundTag
+	) {
+		super(sidingId, railLength, path, distances, repeatIndex1, repeatIndex2, accelerationConstant, isManual, maxManualSpeed, manualToAutomaticTime, compoundTag);
 		this.timeSegments = timeSegments;
 	}
 
@@ -257,7 +267,7 @@ public class TrainServer extends Train {
 		return TrigCache.asin(value);
 	}
 
-	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<ScheduleEntry>> schedulesForPlatform, Map<Long, Map<BlockPos, TrainDelay>> trainDelays, boolean isUnlimited) {
+	public boolean simulateTrain(Level world, float ticksElapsed, Depot depot, DataCache dataCache, List<Map<UUID, Long>> trainPositions, Map<Player, Set<TrainServer>> trainsInPlayerRange, Map<Long, List<ScheduleEntry>> schedulesForPlatform, Map<Long, Map<BlockPos, TrainDelay>> trainDelays) {
 		this.trainPositions = trainPositions;
 		this.trainsInPlayerRange = trainsInPlayerRange;
 		this.trainDelays = trainDelays;
@@ -283,9 +293,12 @@ public class TrainServer extends Train {
 
 		if (currentTime >= 0) {
 			float offsetTime = 0;
+			float offsetTimeTemp = 0;
+			boolean secondRound = false;
+			Runnable addSchedule = null;
 			routeId = 0;
-			for (int i = startingIndex; i < timeSegments.size(); i++) {
-				final Siding.TimeSegment timeSegment = timeSegments.get(i);
+			for (int i = startingIndex; i < timeSegments.size() + (isRepeat() ? timeSegments.size() : 0); i++) {
+				final Siding.TimeSegment timeSegment = timeSegments.get(i % timeSegments.size());
 
 				if (timeSegment.savedRailBaseId != 0) {
 					if (timeSegment.routeId == 0) {
@@ -300,10 +313,23 @@ public class TrainServer extends Train {
 						schedulesForPlatform.put(platformId, new ArrayList<>());
 					}
 
+					if (secondRound) {
+						offsetTime = offsetTimeTemp - timeSegment.endTime;
+						secondRound = false;
+					} else if (addSchedule != null) {
+						addSchedule.run();
+					}
+
 					if (isOnRoute || nextDepartureTicks >= 0) {
 						final long arrivalMillis = currentMillis + (long) ((timeSegment.endTime + offsetTime - currentTime) * Depot.MILLIS_PER_TICK);
-						schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+						addSchedule = () -> schedulesForPlatform.get(platformId).add(new ScheduleEntry(arrivalMillis, trainCars, timeSegment.routeId, timeSegment.currentStationIndex));
+						if (!isRepeat()) {
+							addSchedule.run();
+							addSchedule = null;
+						}
 					}
+
+					offsetTimeTemp = timeSegment.endTime;
 				}
 
 				if (routeId == 0) {
@@ -311,7 +337,7 @@ public class TrainServer extends Train {
 				}
 
 				if (i == timeSegments.size() - 1) {
-					offsetTime = timeSegment.endTime;
+					secondRound = true;
 				}
 			}
 		}
